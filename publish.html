@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendre un article — ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+
+        .input-focus:focus-within {
+            border-color: #000000;
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1 group">
+                <span class="text-lg font-semibold tracking-tight">ENova</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <!-- Currency Switch -->
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
+                        style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+                <a href="index.html"
+                    class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Retour
+                    à l'accueil</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-24"></div>
+
+    <main class="max-w-3xl mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-4">Vendre un article</h1>
+            <p class="text-gray-500 text-lg">Mettez en ligne votre produit en quelques secondes</p>
+        </div>
+
+        <form id="publishForm" class="space-y-8" novalidate>
+            <!-- Basic Info Card -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-6">
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700 ml-1">Titre de l'annonce</label>
+                    <div
+                        class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
+                        <input type="text" required placeholder="ex: iPhone 15 Pro Max - Titanium"
+                            class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 placeholder:text-gray-400">
+                    </div>
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 ml-1">Catégorie</label>
+                        <div
+                            class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
+                            <select
+                                class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent">
+                                <option>High-Tech</option>
+                                <option>Mode</option>
+                                <option>Maison & Déco</option>
+                                <option>Beauté</option>
+                                <option>Sports</option>
+                            </select>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" width="20"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></iconify-icon>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 ml-1">Prix de vente</label>
+                        <div class="flex gap-2">
+                            <div
+                                class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white flex-1">
+                                <input type="number" id="priceInput" required placeholder="0.00"
+                                    class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900">
+                            </div>
+                            <div
+                                class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white w-24">
+                                <select id="currencyInput"
+                                    class="w-full px-4 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent font-bold">
+                                    <option value="CDF">FC</option>
+                                    <option value="USD">$</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="exchangeRateGroup"
+                    class="bg-gray-50 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-900 shadow-sm">
+                            <iconify-icon icon="solar:refresh-circle-linear" width="24"></iconify-icon>
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Taux de
+                                conversion</div>
+                            <div class="text-sm font-semibold text-gray-700">Estimé en <span
+                                    id="otherCurrencyName">USD</span></div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div id="estimatedPrice" class="text-xl font-black text-gray-900">0.00 $</div>
+                        <input type="hidden" id="exchangeRate" value="2500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Card -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-4">
+                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit</label>
+                <div
+                    class="border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center hover:border-black hover:bg-gray-50/30 transition-all cursor-pointer group">
+                    <div
+                        class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <iconify-icon icon="solar:upload-minimalistic-linear" width="32"
+                            class="text-gray-400 group-hover:text-black"></iconify-icon>
+                    </div>
+                    <p class="text-gray-500 font-medium">Glissez vos photos ici ou <span
+                            class="text-black border-b border-gray-200">parcourez vos fichiers</span></p>
+                    <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'à 10MB</p>
+                </div>
+            </div>
+
+            <!-- Details Card -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-6">
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700 ml-1">Description</label>
+                    <div
+                        class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
+                        <textarea rows="5" placeholder="Décrivez votre produit (état, caractéristiques, etc.)"
+                            class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 resize-none"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                    Publier l'annonce
+                    <iconify-icon icon="solar:rocket-linear" width="24"></iconify-icon>
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="publishOverlay"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+        <div
+            class="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl transform scale-90 transition-all duration-300">
+
+
+            <div id="successState" class="hidden">
+                <div
+                    class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Chef-d'œuvre publié !</h2>
+                <p class="text-gray-500 mb-8">Votre article d'exception a rejoint notre collection exclusive.</p>
+                <button onclick="window.location.href='catalog.html'"
+                    class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-xl transition-all hover:bg-black">
+                    Voir mon annonce
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti Container -->
+    <div id="confettiContainer" class="fixed inset-0 pointer-events-none z-[101]"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        const priceInput = document.getElementById('priceInput');
+        const currencyInput = document.getElementById('currencyInput');
+        const exchangeRate = 2500;
+        const estimatedPriceEl = document.getElementById('estimatedPrice');
+        const otherCurrencyNameEl = document.getElementById('otherCurrencyName');
+
+        function updateEstimate() {
+            const price = parseFloat(priceInput.value) || 0;
+            const currency = currencyInput.value;
+
+            if (currency === 'CDF') {
+                const estimatedAmount = price / exchangeRate;
+                otherCurrencyNameEl.textContent = 'USD';
+                estimatedPriceEl.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(estimatedAmount);
+            } else {
+                const estimatedAmount = price * exchangeRate;
+                otherCurrencyNameEl.textContent = 'CDF';
+                estimatedPriceEl.textContent = new Intl.NumberFormat('fr-CD', { style: 'currency', currency: 'CDF', maximumFractionDigits: 0 }).format(estimatedAmount).replace('CDF', 'FC');
+            }
+        }
+
+        priceInput.addEventListener('input', updateEstimate);
+        currencyInput.addEventListener('change', updateEstimate);
+
+        document.getElementById('publishForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Custom Validation
+            const titleInput = this.querySelector('input[type="text"]');
+            const priceVal = priceInput.value.trim();
+            const descInput = this.querySelector('textarea');
+
+            if (!titleInput.value.trim()) {
+                showToast("Un titre est nécessaire pour identifier votre pièce d'exception.", "error");
+                titleInput.focus();
+                return;
+            }
+            if (!priceVal || parseFloat(priceVal) <= 0) {
+                showToast("Veuillez définir une valeur à la hauteur de votre article.", "error");
+                priceInput.focus();
+                return;
+            }
+            if (!descInput.value.trim()) {
+                showToast("Une description est requise pour sublimer votre annonce.", "error");
+                descInput.focus();
+                return;
+            }
+
+            if (window.LoaderManager) {
+                LoaderManager.show('Préparation de votre annonce...');
+            }
+
+            setTimeout(() => {
+                if (window.LoaderManager) LoaderManager.hide();
+
+                const overlay = document.getElementById('publishOverlay');
+                const succ = document.getElementById('successState');
+
+                overlay.classList.remove('invisible', 'opacity-0');
+                succ.classList.remove('hidden');
+                createConfetti();
+            }, 2000);
+        });
+
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            for (let i = 0; i < 50; i++) {
+                const c = document.createElement('div');
+                c.className = 'absolute w-2 h-2 rounded-full';
+                c.style.backgroundColor = ['#000000', '#333333', '#666666', '#999999'][Math.floor(Math.random() * 4)];
+                c.style.left = Math.random() * 100 + '%';
+                c.style.top = '-10px';
+                c.style.transition = `all ${1 + Math.random() * 2}s linear`;
+                container.appendChild(c);
+                setTimeout(() => {
+                    c.style.top = '100%';
+                    c.style.opacity = '0';
+                    c.style.transform = `translateX(${(Math.random() - 0.5) * 200}px) rotate(${Math.random() * 360}deg)`;
+                }, 10);
+            }
+        }
+    </script>
+</body>
+
+</html>

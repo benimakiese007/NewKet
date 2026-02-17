@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcul des Profits | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+
+        .profit-card {
+            transition: transform 0.2s;
+        }
+
+        .profit-card:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+    <script>
+        // Check for Admin or Supplier Role
+        const role = localStorage.getItem('enovaRole');
+        if (role !== 'admin' && role !== 'supplier') {
+            window.location.href = '../index.html';
+        }
+    </script>
+</head>
+
+<body class="text-gray-900">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="flex items-center gap-2 group">
+                    <span class="text-xl font-black tracking-tighter">ENova</span>
+                    <span
+                        class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link">
+                        <iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>
+                        Vue d'ensemble
+                    </a>
+                    <a href="products.html" class="sidebar-link">
+                        <iconify-icon icon="solar:box-bold" width="20"></iconify-icon>
+                        Mes Produits
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>
+                        Commandes
+                    </a>
+                    <a href="diagnostics.html" class="sidebar-link">
+                        <iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>
+                        Analyses & Diagnostics
+                    </a>
+                    <a href="profits.html" class="sidebar-link active">
+                        <iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>
+                        Calcul des Profits
+                    </a>
+                    <a href="clients.html" class="sidebar-link">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>
+                        Mes Clients
+                    </a>
+                    <a href="users.html" class="sidebar-link">
+                        <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                        Utilisateurs
+                    </a>
+                    <a href="promos.html" class="sidebar-link">
+                        <iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>
+                        Codes Promo
+                    </a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link">
+                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                            Paramètres
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Anatomie de vos Profits
+                    </h1>
+                    <p class="text-gray-500" id="pageSubtitle">Suivez vos gains réels et la répartition des commissions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Profit Summary Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <!-- Gross Sales -->
+                <div class="glass-panel p-8 profit-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                            <iconify-icon icon="solar:wad-of-money-bold" width="28"></iconify-icon>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400"
+                            id="labelGross">Total Brut</span>
+                    </div>
+                    <div class="text-3xl font-black text-gray-900" id="grossTotal" data-price-cdf="0">0</div>
+                    <p class="text-xs text-gray-400 mt-2" id="descGross">Chiffre d'affaires total généré</p>
+                </div>
+
+                <!-- Commissions (Perçus par la plateforme) -->
+                <div class="glass-panel p-8 profit-card">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center">
+                            <iconify-icon icon="solar:kickboard-bold" width="28"></iconify-icon>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-red-400"
+                            id="labelComm">Commissions</span>
+                    </div>
+                    <div class="text-3xl font-black text-red-600" id="commissionTotal" data-price-cdf="0">0</div>
+                    <p class="text-xs text-gray-400 mt-2" id="descComm">Part prélevée par ENova (<span
+                            id="commissionRate">10</span>%)
+                    </p>
+                </div>
+
+                <!-- Net Profit -->
+                <div class="glass-panel p-8 profit-card bg-black text-white">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center">
+                            <iconify-icon icon="solar:wallet-money-bold" width="28"></iconify-icon>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400"
+                            id="labelNet">Profit Net</span>
+                    </div>
+                    <div class="text-3xl font-black text-white" id="netProfit" data-price-cdf="0">0</div>
+                    <p class="text-xs text-gray-400 mt-2" id="descNet">Ce qui vous revient réellement</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Profit Distribution Chart -->
+                <div class="glass-panel p-6">
+                    <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <iconify-icon icon="solar:pie-chart-bold" class="text-blue-500"></iconify-icon>
+                        Répartition des revenus
+                    </h3>
+                    <div class="h-[300px]">
+                        <canvas id="profitDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Payout Status -->
+                <div class="glass-panel p-6">
+                    <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <iconify-icon icon="solar:card-send-bold" class="text-green-500"></iconify-icon>
+                        Transfert des revenus
+                    </h3>
+                    <div class="space-y-6">
+                        <div class="p-6 bg-green-50 rounded-2xl border border-green-100">
+                            <div class="text-[10px] font-black text-green-600 uppercase tracking-widest mb-1">Disponible
+                                pour retrait</div>
+                            <div class="text-3xl font-black text-green-700" id="availablePayout" data-price-cdf="0">0
+                            </div>
+                            <button
+                                class="mt-4 w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/20">Initier
+                                le transfert</button>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-900 mb-4">Historique des paiements</h4>
+                            <div class="space-y-3" id="payoutHistory">
+                                <!-- Payouts injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tax / Fees Insights -->
+            <div class="glass-panel p-6">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
+                        <iconify-icon icon="solar:bill-list-bold" width="24"></iconify-icon>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-900">Notes de frais et Taxes</h3>
+                        <p class="text-xs text-gray-500">Estimations basées sur la réglementation locale.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="p-4 rounded-2xl bg-gray-50">
+                        <div class="text-[10px] font-black text-gray-400 uppercase">TVA (16%)</div>
+                        <div class="text-lg font-black text-gray-900" id="estimatedTVA" data-price-cdf="0">0</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50">
+                        <div class="text-[10px] font-black text-gray-400 uppercase">Frais Réseau (1%)</div>
+                        <div class="text-lg font-black text-gray-900" id="estimatedNetworkFees" data-price-cdf="0">0
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50">
+                        <div class="text-[10px] font-black text-gray-400 uppercase">Charges Opérat.</div>
+                        <div class="text-lg font-black text-gray-900">Estimé à 5%</div>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-gray-50">
+                        <div class="text-[10px] font-black text-gray-400 uppercase">Profit Estimé Net-Net</div>
+                        <div class="text-lg font-black text-green-600" id="estimatedFinalProfit" data-price-cdf="0">0
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProfits();
+            window.addEventListener('currencyChanged', renderProfits);
+            window.addEventListener('ordersUpdated', renderProfits);
+
+            // Dynamic Labels based on role
+            const role = localStorage.getItem('enovaRole');
+            if (role === 'admin') {
+                document.getElementById('pageTitle').textContent = 'Profits Plateforme';
+                document.getElementById('pageSubtitle').textContent = 'Analyse de la rentabilité globale de la plateforme.';
+                document.getElementById('labelGross').textContent = 'Volume d\'Affaires';
+                document.getElementById('descGross').textContent = 'Total des transactions sur la plateforme';
+                document.getElementById('labelComm').textContent = 'Frais de Service';
+                document.getElementById('descComm').innerHTML = 'Commisions brutes perçues (<span id="commissionRate">0</span>%)';
+                document.getElementById('labelNet').textContent = 'Revenu Plateforme';
+                document.getElementById('descNet').textContent = 'Profit net après charges';
+
+                // Hide Payout for admin as they are the ones paying
+                const payoutCard = document.querySelector('#availablePayout')?.closest('.glass-panel');
+                if (payoutCard) payoutCard.style.display = 'none';
+            }
+        });
+
+        function renderProfits() {
+            const stats = OrderManager.getProfitStats();
+
+            // Cards Update
+            document.getElementById('grossTotal').dataset.priceCdf = stats.totalGross;
+            document.getElementById('commissionTotal').dataset.priceCdf = stats.totalCommission;
+            document.getElementById('netProfit').dataset.priceCdf = stats.totalNet;
+            document.getElementById('availablePayout').dataset.priceCdf = stats.pendingPayout;
+            document.getElementById('commissionRate').textContent = stats.commissionPercent;
+
+            // Estimated Taxes (Simulated)
+            const tva = stats.totalGross * 0.16;
+            const networkFees = stats.totalGross * 0.01;
+            const finalProfit = stats.totalNet - tva - networkFees;
+
+            document.getElementById('estimatedTVA').dataset.priceCdf = tva;
+            document.getElementById('estimatedNetworkFees').dataset.priceCdf = networkFees;
+            document.getElementById('estimatedFinalProfit').dataset.priceCdf = Math.max(0, finalProfit);
+
+            // Update all Prices
+            CurrencyManager.updateAllPrices();
+
+            // Payout History
+            const history = document.getElementById('payoutHistory');
+            history.innerHTML = stats.payouts.map(p => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+                    <div>
+                        <div class="text-xs font-bold text-gray-900">${p.id}</div>
+                        <div class="text-[9px] font-bold text-gray-400 uppercase">${new Date(p.date).toLocaleDateString()}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-black text-gray-900">${CurrencyManager.formatPrice(p.amount)}</div>
+                        <div class="text-[9px] font-black text-green-600 uppercase">${p.status}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Chart
+            initProfitChart(stats);
+        }
+
+        let profitChart = null;
+        function initProfitChart(stats) {
+            const ctx = document.getElementById('profitDistributionChart').getContext('2d');
+
+            if (profitChart) profitChart.destroy();
+
+            profitChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Votre Profit Net', 'Commission ENova'],
+                    datasets: [{
+                        data: [stats.totalNet, stats.totalCommission],
+                        backgroundColor: ['#000000', '#EF4444'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 25,
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        }
+                    },
+                    cutout: '75%'
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

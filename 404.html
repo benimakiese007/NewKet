@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page non trouvée — ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1 group">
+                <span class="text-lg font-semibold tracking-tight">ENova</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <!-- Currency Switch -->
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <a href="index.html"
+                    class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Retour
+                    à l'accueil</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center p-6 relative overflow-hidden">
+        <!-- Background Decorations -->
+        <div
+            class="absolute top-0 right-0 w-96 h-96 bg-gray-100 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2">
+        </div>
+        <div
+            class="absolute bottom-0 left-0 w-96 h-96 bg-gray-100 rounded-full blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2">
+        </div>
+
+        <div class="max-w-xl w-full text-center relative">
+            <div class="mb-12 float-animation">
+                <div class="relative inline-block">
+                    <span
+                        class="text-[12rem] font-black leading-none bg-gradient-to-br from-gray-900 to-black bg-clip-text text-transparent opacity-10 select-none">404</span>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div
+                            class="w-32 h-32 bg-white rounded-3xl shadow-2xl flex items-center justify-center text-gray-900 transform rotate-12">
+                            <iconify-icon icon="solar:ghost-bold" width="64"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h1 class="text-4xl font-black text-gray-900 mb-4">Égarement dans l'univers</h1>
+            <p class="text-gray-500 text-lg mb-10 leading-relaxed">
+                L'exceptionnel que vous convoitez s'est évanoui ou a migré vers d'autres sphères d'élégance.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="index.html"
+                    class="w-full sm:w-auto hero-gradient text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-gray-200 hover:scale-105 transition-transform flex items-center justify-center gap-2">
+                    <iconify-icon icon="solar:home-2-linear" width="20"></iconify-icon>
+                    Retour à l'accueil
+                </a>
+                <a href="catalog.html"
+                    class="w-full sm:w-auto bg-white border border-gray-200 text-gray-700 px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                    <iconify-icon icon="solar:magnifer-linear" width="20"></iconify-icon>
+                    Voir le catalogue
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-12 text-center text-sm text-gray-400">
+        &copy; 2026 ENova. Tous droits réservés.
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>

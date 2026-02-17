@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENova — Marketplace Moderne</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/supabase-adapter.js"></script>
+
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 999px;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+
+        .hero-bg-image {
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('Images/marketplace-hero.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .img-zoom:hover img {
+            transform: scale(1.05);
+        }
+
+        .img-zoom img {
+            transition: transform 0.5s ease;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #000000;
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .badge-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .animate-scroll {
+            animation: scroll 30s linear infinite;
+        }
+
+        .animate-scroll:hover {
+            animation-play-state: paused;
+        }
+
+        .features-gradient-edge {
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+    </style>
+</head>
+
+<body class="bg-white text-gray-900 antialiased">
+
+    <!-- ========== HEADER ========== -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <!-- Main header -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+            <!-- Logo -->
+            <a href="index.html" class="flex-shrink-0 flex items-center gap-1">
+                <span class="text-lg font-semibold tracking-tight hidden sm:block">ENova</span>
+            </a>
+            <!-- Search -->
+            <div class="flex-1 max-w-2xl mx-auto relative group">
+                <div
+                    class="flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300">
+                    <iconify-icon icon="solar:magnifer-linear" width="20" class="ml-4 text-slate-400"></iconify-icon>
+                    <input type="text" placeholder="Rechercher une pièce, un style..."
+                        class="w-full py-3 px-3 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
+                    <button
+                        class="bg-slate-900 text-white px-6 py-2.5 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all hidden sm:block uppercase tracking-wider">RECHERCHE</button>
+                </div>
+            </div>
+            <!-- Icons -->
+            <div class="flex items-center gap-1 sm:gap-2">
+                <!-- Currency Switch -->
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
+                        style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+                <a href="login.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Compte"
+                    id="accountLink">
+                    <iconify-icon icon="solar:user-linear" width="22" style="stroke-width:1.5"
+                        class="text-gray-600"></iconify-icon>
+                </a>
+                <a href="favorites.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Favoris">
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="font-size:10px; width:18px; height:18px;" id="favoritesBadge">0</span>
+                </a>
+                <a href="cart.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Panier">
+                    <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="font-size:10px; width:18px; height:18px;" id="cart-count">0</span>
+                </a>
+                <a href="publish.html"
+                    class="ml-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors hidden md:flex items-center gap-2 publish-btn">
+                    <iconify-icon icon="solar:add-circle-linear" width="18"></iconify-icon>
+                    Vendre
+                </a>
+            </div>
+        </div>
+        <!-- Category nav -->
+        <div class="border-t border-gray-50 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <nav class="flex items-center gap-1 overflow-x-auto py-2 -mx-2" style="scrollbar-width:none;">
+                    <a href="catalog.html"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Toutes
+                        les pièces</a>
+                    <a href="catalog.html?category=Collections Femme"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Collections
+                        Femme</a>
+                    <a href="catalog.html?category=Style Homme"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Style
+                        Homme</a>
+                    <a href="catalog.html?category=Tech & Gadgets"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Tech
+                        & Gadgets</a>
+                    <a href="catalog.html?category=Art de vivre"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Art
+                        de vivre</a>
+                    <a href="catalog.html"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1">
+                        <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Spacer for fixed header -->
+    <div class="h-24 sm:h-28"></div>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section class="relative overflow-hidden hero-bg-image mx-4 sm:mx-6 lg:mx-8 rounded-2xl mt-4">
+        <div
+            class="relative max-w-7xl mx-auto px-6 sm:px-10 py-16 sm:py-24 lg:py-32 flex flex-col lg:flex-row items-center gap-10">
+            <div class="flex-1 text-center lg:text-left">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white tracking-tight leading-tight mb-4">
+                    Sublimez Votre<br>Quotidien
+                </h1>
+                <p class="text-white/80 text-base sm:text-lg mb-8 max-w-lg mx-auto lg:mx-0 font-light">
+                    Découvrez les dernières tendances mode, high-tech et maison. Qualité premium, prix malins.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                    <a href="catalog.html"
+                        class="bg-white text-gray-900 px-7 py-3 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors shadow-lg shadow-gray-900/20 text-center">
+                        Découvrir
+                    </a>
+                    <a href="publish.html"
+                        class="border border-white/30 text-white px-7 py-3 rounded-xl text-sm font-medium hover:bg-white/10 transition-colors text-center publish-btn">
+                        Vendre un article
+                    </a>
+                </div>
+            </div>
+            <div class="flex-1 hidden lg:flex justify-center">
+                <div class="relative">
+                    <div
+                        class="w-80 h-80 bg-white/10 rounded-3xl backdrop-blur-sm flex items-center justify-center border border-white/20">
+                        <div class="text-center">
+                            <div class="text-6xl font-bold text-white mb-2">-50%</div>
+                            <div class="text-white/80 text-sm">Sur une sélection Premium pour les achats de plus de 150$
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute -top-4 -right-4 w-20 h-20 bg-gray-900 rounded-2xl flex items-center justify-center rotate-12 shadow-xl">
+                        <iconify-icon icon="solar:tag-bold" width="32" class="text-white"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FEATURES SECTION ========== -->
+    <section class="mx-4 sm:mx-6 lg:mx-8 mt-14 overflow-hidden features-gradient-edge">
+        <div class="flex gap-4 animate-scroll w-max">
+            <!-- First set of items -->
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:delivery-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Livraison rapide</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:shield-check-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Paiement sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:undo-left-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Retours gratuits</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Sous 30 jours</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:smartphone-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-0.5">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:headphones-round-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Service Client 24/7</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Assistance personnalisée</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:verified-check-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Produits Certifiés</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Qualité 100% garantie</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:map-point-wave-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Retrait Gratuit</div>
+                    <div class="text-xs text-gray-500 mt-0.5">En point relais sous 24h</div>
+                </div>
+            </div>
+            <!-- Duplicated set for seamless loop -->
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:delivery-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Livraison rapide</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:shield-check-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Paiement sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:undo-left-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Retours gratuits</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Sous 30 jours</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:smartphone-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-0.5">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:headphones-round-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Service Client 24/7</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Assistance personnalisée</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:verified-check-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Produits Certifiés</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Qualité 100% garantie</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
+                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <iconify-icon icon="solar:map-point-wave-linear" width="20" class="text-gray-900"></iconify-icon>
+                </div>
+                <div>
+                    <div class="text-sm font-medium text-gray-900">Retrait Gratuit</div>
+                    <div class="text-xs text-gray-500 mt-0.5">En point relais sous 24h</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== POPULAR PRODUCTS ========== -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 mt-14 mb-16">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900">Produits populaires</h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                    <p class="text-sm text-gray-500">12 commandes en cours en direct</p>
+                </div>
+            </div>
+            <a href="catalog.html"
+                class="text-sm font-medium text-gray-900 hover:text-black flex items-center gap-1 transition-colors">
+                Voir tout <iconify-icon icon="solar:arrow-right-linear" width="16"></iconify-icon>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4" id="mainProductGrid">
+            <!-- Products will be loaded dynamically via JS -->
+            <!-- Placeholder for visual during dev -->
+            <div class="animate-pulse bg-gray-50 rounded-2xl shadow-sm h-80"></div>
+            <div class="animate-pulse bg-gray-50 rounded-2xl shadow-sm h-80"></div>
+            <div class="animate-pulse bg-gray-50 rounded-2xl shadow-sm h-80"></div>
+            <div class="animate-pulse bg-gray-50 rounded-2xl shadow-sm h-80"></div>
+            <div class="animate-pulse bg-gray-50 rounded-2xl shadow-sm h-80"></div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="bg-gray-900 text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 mb-12">
+                <!-- Brand -->
+                <div class="col-span-2 sm:col-span-3 lg:col-span-1">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-lg font-semibold tracking-tight">ENova</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-4 max-w-xs">Votre destination premium pour des produits de
+                        qualité et une expérience shopping exceptionnelle.</p>
+                    <div class="flex items-center gap-3">
+                        <a href="https://facebook.com" target="_blank"
+                            class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors">
+                            <iconify-icon icon="mdi:facebook" width="18" class="text-gray-400"></iconify-icon>
+                        </a>
+                        <a href="https://instagram.com" target="_blank"
+                            class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors">
+                            <iconify-icon icon="mdi:instagram" width="18" class="text-gray-400"></iconify-icon>
+                        </a>
+                        <a href="https://twitter.com" target="_blank"
+                            class="w-9 h-9 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-gray-700 transition-colors">
+                            <iconify-icon icon="mdi:twitter" width="18" class="text-gray-400"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+                <!-- Links -->
+                <div>
+                    <h4 class="text-sm font-semibold mb-4">Boutique</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="catalog.html"
+                                class="text-sm text-gray-400 hover:text-white transition-colors">Nouveautés</a></li>
+                        <li><a href="catalog.html"
+                                class="text-sm text-gray-400 hover:text-white transition-colors">Meilleures ventes</a>
+                        </li>
+                        <li><a href="catalog.html"
+                                class="text-sm text-gray-400 hover:text-white transition-colors">Promotions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="about.html" class="text-sm text-gray-400 hover:text-white transition-colors">Centre
+                                d'aide</a></li>
+                        <li><a href="terms.html"
+                                class="text-sm text-gray-400 hover:text-white transition-colors">Livraison &
+                                Retours</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-[0.2em] mb-8">Navigation</h4>
+                    <ul class="space-y-4 text-sm text-slate-400">
+                        <li><a href="about.html" class="hover:text-white transition-colors">À Propos</a></li>
+                        <li><a href="catalog.html" class="hover:text-white transition-colors">Nouveautés</a></li>
+                        <li><a href="catalog.html" class="hover:text-white transition-colors">Ventes Flash</a></li>
+                        <li><a href="about.html" class="hover:text-white transition-colors">Ambassadeurs</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-[0.2em] mb-8">Support Client</h4>
+                    <ul class="space-y-4 text-sm text-slate-400">
+                        <li><a href="about.html" class="hover:text-white transition-colors">Centre d'Aide</a></li>
+                        <li><a href="customer-dashboard.html" class="hover:text-white transition-colors">Suivi
+                                Commande</a></li>
+                        <li><a href="terms.html" class="hover:text-white transition-colors">Conditions Générales</a>
+                        </li>
+                        <li><a href="about.html" class="hover:text-white transition-colors">Nous Contacter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Copyright -->
+            <div
+                class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                <p>© 2026 ENova — EXPÉRIENCE LUXE</p>
+                <div class="flex gap-8">
+                    <a href="privacy.html" class="hover:text-white transition-colors">Confidentialité</a>
+                    <a href="terms.html" class="hover:text-white transition-colors">Conditions</a>
+                </div>
+                <p>Designed by <span class="text-white">SITYZEN</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>

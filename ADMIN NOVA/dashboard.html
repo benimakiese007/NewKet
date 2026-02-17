@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Vendeur | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/supabase-adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+    </style>
+    <script>
+        // Check for Admin or Supplier Role
+        const role = localStorage.getItem('enovaRole');
+        if (role !== 'admin' && role !== 'supplier') {
+            window.location.href = '../index.html';
+        }
+
+        // Welcome Bonus Check (Display on Load)
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('enovaSupplierBonus') === 'true') {
+                // The showToast function is in main.js
+                setTimeout(() => {
+                    if (window.showToast) {
+                        showToast("Bienvenue ! Votre privilège de 0% de commission sur votre première vente est activé.", "success");
+                    }
+                }, 1000);
+                localStorage.removeItem('enovaSupplierBonus');
+            }
+        });
+    </script>
+</head>
+
+<body class="text-gray-900">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="flex items-center gap-2 group">
+                    <span class="text-xl font-black tracking-tighter">ENova</span>
+                    <span
+                        class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Currency Switch -->
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+
+                <a href="../index.html" target="_blank"
+                    class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+                    <iconify-icon icon="solar:globus-linear" width="18"></iconify-icon>
+                    <span class="hidden sm:inline">Voir la boutique</span>
+                </a>
+
+                <div class="h-6 w-px bg-gray-200 mx-2"></div>
+
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+
+
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link active">
+                        <iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>
+                        Vue d'ensemble
+                    </a>
+                    <a href="products.html" class="sidebar-link">
+                        <iconify-icon icon="solar:box-bold" width="20"></iconify-icon>
+                        Mes Produits
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>
+                        Commandes
+                    </a>
+                    <a href="diagnostics.html" class="sidebar-link">
+                        <iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>
+                        Analyses & Diagnostics
+                    </a>
+                    <a href="profits.html" class="sidebar-link">
+                        <iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>
+                        Calcul des Profits
+                    </a>
+                    <a href="clients.html" class="sidebar-link">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>
+                        Mes Clients
+                    </a>
+                    <a href="users.html" class="sidebar-link">
+                        <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                        Utilisateurs
+                    </a>
+                    <a href="promos.html" class="sidebar-link">
+                        <iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>
+                        Codes Promo
+                    </a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link">
+                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                            Paramètres
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Tableau de bord</h1>
+                    <p class="text-gray-500">Bienvenue, voici un aperçu de votre activité.</p>
+                </div>
+                <a href="products.html"
+                    class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-xl shadow-black/10">
+                    <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
+                    Nouveau Produit
+                </a>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="glass-panel p-6 flex flex-col gap-1">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:cart-large-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Commandes</p>
+                    <div class="text-2xl font-black text-gray-900" id="statsOrders">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:wad-of-money-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 stat-label-sales">Ventes
+                        Brutes</p>
+                    <div class="text-2xl font-black text-gray-900" id="statsSales" data-price-cdf="0">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:tag-price-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 stat-label-comm">Commission
+                    </p>
+                    <div class="text-2xl font-black text-red-500" id="statsCommission" data-price-cdf="0">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1 bg-black text-white">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:wallet-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 stat-label-net">Revenus
+                        Nets</p>
+                    <div class="text-2xl font-black" id="statsNetSales" data-price-cdf="0">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Clients</p>
+                    <div class="text-2xl font-black text-gray-900" id="statsClients">0</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Chart -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="glass-panel p-6">
+                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:chart-line-bold-duotone" width="20"
+                                class="text-gray-400"></iconify-icon>
+                            Performances de vente
+                        </h3>
+                        <div class="h-[300px]">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Products (New) -->
+                    <div class="glass-panel p-6">
+                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:star-bold-duotone" width="20"
+                                class="text-orange-500"></iconify-icon>
+                            Produits les plus vendus
+                        </h3>
+                        <div id="topProductsList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Top selling products injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders -->
+                    <div class="glass-panel overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                                <iconify-icon icon="solar:history-bold-duotone" width="20"
+                                    class="text-gray-400"></iconify-icon>
+                                Commandes récentes
+                            </h3>
+                            <a href="orders.html"
+                                class="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors">Tout
+                                voir</a>
+                        </div>
+                        <div class="divide-y divide-gray-50" id="recentOrdersList">
+                            <div class="p-12 text-center text-gray-400">
+                                Chargement...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="space-y-8">
+                    <!-- Sales by Category (New) -->
+                    <div class="glass-panel p-6">
+                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:pie-chart-bold-duotone" width="20"
+                                class="text-purple-500"></iconify-icon>
+                            Par Catégorie
+                        </h3>
+                        <div class="h-[200px]">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Low Stock Alerts -->
+                    <div class="glass-panel p-6">
+                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:danger-bold-duotone" width="20"
+                                class="text-red-500"></iconify-icon>
+                            Alertes Stock
+                        </h3>
+                        <div id="lowStockList" class="space-y-4">
+                            <!-- Low stock items injected here -->
+                        </div>
+                    </div>
+
+                    <!-- System Activity -->
+                    <div class="glass-panel p-6">
+                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:bell-bing-bold-duotone" width="20"
+                                class="text-blue-500"></iconify-icon>
+                            Activité
+                        </h3>
+                        <div id="activityFeed" class="space-y-6">
+                            <!-- Activity items injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function initializeDashboard() {
+            refreshDashboardData();
+
+            // Handle role-based UI
+            const role = localStorage.getItem('enovaRole');
+            if (role === 'supplier' || role === 'admin') {
+                const isAdmin = role === 'admin';
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    if (isAdmin) el.classList.remove('hidden');
+                    else el.classList.add('hidden');
+                });
+
+                // Update Labels
+                if (isAdmin) {
+                    document.querySelectorAll('.stat-label-sales').forEach(el => el.textContent = 'Volume Brut (Platform)');
+                    document.querySelectorAll('.stat-label-comm').forEach(el => el.textContent = 'Commissions Perçues');
+                    document.querySelectorAll('.stat-label-net').forEach(el => el.textContent = 'Profit Plateforme');
+                } else {
+                    document.querySelectorAll('.stat-label-sales').forEach(el => el.textContent = 'Mes Gains (Brut)');
+                    document.querySelectorAll('.stat-label-comm').forEach(el => el.textContent = 'Comm. Déduite');
+                    document.querySelectorAll('.stat-label-net').forEach(el => el.textContent = 'Mes Revenus Nets');
+                }
+            }
+
+            // Listen for changes
+            window.addEventListener('currencyChanged', refreshDashboardData);
+            window.addEventListener('ordersUpdated', refreshDashboardData);
+            window.addEventListener('productsUpdated', refreshDashboardData);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) {
+                initializeDashboard();
+            } else {
+                window.addEventListener('enovaInitialized', initializeDashboard);
+            }
+        });
+
+        function refreshDashboardData() {
+            // Stats Update
+            const stats = OrderManager.getAdvancedStats();
+            document.getElementById('statsOrders').textContent = stats.totalOrders;
+
+            const salesEl = document.getElementById('statsSales');
+            salesEl.dataset.priceCdf = stats.totalSales;
+
+            const commEl = document.getElementById('statsCommission');
+            commEl.dataset.priceCdf = stats.commissionTotal;
+
+            const netEl = document.getElementById('statsNetSales');
+            netEl.dataset.priceCdf = stats.netSales;
+
+            // Clients count (advanced stats already has this if we want, or use getStats)
+            const basicStats = OrderManager.getStats();
+            document.getElementById('statsClients').textContent = basicStats.totalCustomers;
+
+            // Products count
+            const products = ProductManager.getProducts();
+            const productStatsEl = document.getElementById('statsProducts');
+            if (productStatsEl) productStatsEl.textContent = products.length;
+
+            // Update all Prices on page
+            CurrencyManager.updateAllPrices();
+
+            // Charts
+            initCharts();
+
+            // Stock
+            populateLowStock(products);
+
+            // Activity
+            populateActivity();
+
+            // Recent Orders
+            renderRecentOrders();
+
+            // Top Products
+            renderTopProducts();
+
+            // Category Chart
+            initCategoryChart();
+        }
+
+        function renderRecentOrders() {
+            const list = document.getElementById('recentOrdersList');
+            const orders = OrderManager.getOrders().slice(0, 5);
+
+            if (orders.length === 0) {
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucune commande pour le moment.</div>`;
+                return;
+            }
+
+            list.innerHTML = orders.map(o => `
+                <div class="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-400">
+                            ${o.customer?.name ? o.customer.name.substring(0, 2).toUpperCase() : 'C'}
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-gray-900">#${o.id}</div>
+                            <div class="text-xs text-gray-500">${o.customer?.name || 'Client'}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-black text-gray-900">${CurrencyManager.formatPrice(o.total)}</div>
+                        <div class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block ${getStatusStyle(o.status)}">
+                            ${o.status}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusStyle(status) {
+            switch (status) {
+                case 'En attente': return 'bg-yellow-50 text-yellow-600';
+                case 'En livraison': return 'bg-blue-50 text-blue-600';
+                case 'Livré': return 'bg-green-50 text-green-600';
+                default: return 'bg-gray-50 text-gray-500';
+            }
+        }
+
+        function initCharts() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const orders = OrderManager.getOrders();
+
+            const labels = [];
+            const data = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                labels.push(d.toLocaleDateString('fr-FR', { weekday: 'short' }));
+
+                const dayTotal = orders.filter(o => {
+                    const orderDate = new Date(o.date);
+                    return orderDate.toDateString() === d.toDateString();
+                }).reduce((sum, o) => sum + o.total, 0);
+
+                data.push(dayTotal);
+            }
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Ventes (FC)',
+                        data: data,
+                        borderColor: '#000000',
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#000000',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function populateLowStock(products) {
+            const list = document.getElementById('lowStockList');
+            const lowStockItems = products.filter(p => (p.stock || 0) < 10).slice(0, 3);
+
+            if (lowStockItems.length === 0) {
+                list.innerHTML = `<div class="text-sm text-gray-400 italic">Tout est en stock.</div>`;
+                return;
+            }
+
+            list.innerHTML = lowStockItems.map(p => `
+                <div class="flex items-center gap-3">
+                    <img src="../${p.image}" class="w-10 h-10 rounded-lg object-contain bg-gray-50 border border-gray-100 p-1">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-bold truncate">${p.name}</div>
+                        <div class="h-1.5 w-full bg-gray-100 rounded-full mt-1.5 overflow-hidden">
+                            <div class="h-full bg-red-500" style="width: ${(p.stock / 10) * 100}%"></div>
+                        </div>
+                    </div>
+                    <div class="text-xs font-black text-red-500">${p.stock} pces</div>
+                </div>
+            `).join('');
+        }
+
+        function populateActivity() {
+            const list = document.getElementById('activityFeed');
+            const activities = ActivityManager.getActivities().slice(0, 5);
+
+            if (activities.length === 0) {
+                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activité récente.</div>`;
+                return;
+            }
+
+            list.innerHTML = activities.map(a => `
+                <div class="flex gap-4 relative">
+                    <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0 z-10">
+                        <div class="w-2 h-2 rounded-full ${a.type === 'order' ? 'bg-green-500' : (a.type === 'stock' ? 'bg-orange-500' : 'bg-blue-500')}"></div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                        <div class="text-sm text-gray-900 font-medium">${a.text}</div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">${ActivityManager.formatTime(a.time)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTopProducts() {
+            const list = document.getElementById('topProductsList');
+            const orders = OrderManager.getOrders();
+            const productSales = {};
+
+            orders.forEach(o => {
+                (o.items || []).forEach(item => {
+                    productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
+                });
+            });
+
+            const topProducts = ProductManager.getProducts()
+                .map(p => ({ ...p, sales: productSales[p.id] || 0 }))
+                .sort((a, b) => b.sales - a.sales)
+                .slice(0, 4);
+
+            if (topProducts.filter(p => p.sales > 0).length === 0) {
+                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">En attente des premières ventes...</div>`;
+                return;
+            }
+
+            list.innerHTML = topProducts.map(p => `
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <img src="../${p.image}" class="w-10 h-10 rounded-lg object-contain bg-white">
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-bold truncate">${p.name}</div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase">${p.sales} ventes</div>
+                    </div>
+                    <iconify-icon icon="solar:fire-bold" class="text-orange-500" width="16"></iconify-icon>
+                </div>
+            `).join('');
+        }
+
+        function initCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const orders = OrderManager.getOrders();
+            const categoryStats = {};
+
+            orders.forEach(o => {
+                (o.items || []).forEach(item => {
+                    // Try to get category from current products, or use a default
+                    const p = ProductManager.getProduct(item.id);
+                    const cat = p ? p.category : 'Autre';
+                    categoryStats[cat] = (categoryStats[cat] || 0) + (item.price * item.quantity);
+                });
+            });
+
+            const labels = Object.keys(categoryStats);
+            const data = Object.values(categoryStats);
+
+            if (labels.length === 0) return;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#000000', '#4F46E5', '#10B981', '#F59E0B', '#EF4444'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { size: 10, weight: 'bold' }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

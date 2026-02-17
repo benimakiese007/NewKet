@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion — ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --primary: #000000;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(at 0% 0%, rgba(0, 0, 0, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 0, 0, 0.02) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 0, 0, 0.03) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(0, 0, 0, 0.02) 0px, transparent 50%);
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+        }
+
+        .input-group:focus-within {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #2b2b2b 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-gradient::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .hero-gradient:hover::after {
+            opacity: 1;
+        }
+
+        .social-btn {
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-color: #eee;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .loader-ring {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="text-gray-900 antialiased min-h-screen flex flex-col">
+    <div class="bg-mesh"></div>
+
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1 group">
+                <span class="text-xl font-black tracking-tighter">ENova</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <!-- Currency Switch -->
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
+                        style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+                <a href="index.html"
+                    class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors">Retour</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center p-6 pt-32 pb-16">
+        <div class="w-full max-w-[450px] relative">
+            <div class="glass-card rounded-[2.5rem] p-10 sm:p-12 fade-in" id="loginCard">
+                <div class="flex bg-gray-100 p-1 rounded-2xl mb-8 fade-in">
+                    <button id="tabLogin"
+                        class="flex-1 py-3 px-6 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white shadow-sm text-black">
+                        Connexion
+                    </button>
+                    <button id="tabSignup"
+                        class="flex-1 py-3 px-6 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-gray-500 hover:text-black">
+                        Inscription
+                    </button>
+                </div>
+
+                <div class="text-center mb-8 fade-in">
+                    <h1 class="text-3xl font-black tracking-tighter text-gray-900 mb-2" id="formTitle">Bon retour</h1>
+                    <p class="text-gray-500 font-medium text-sm" id="formSubtitle">Connectez-vous à votre compte</p>
+                </div>
+
+                <form class="space-y-5" id="authForm" novalidate>
+                    <!-- Role Selection (Hidden by default) -->
+                    <div id="roleSelector" class="hidden space-y-3 fade-in">
+                        <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Je
+                            souhaite</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="cursor-pointer relative group">
+                                <input type="radio" name="role" value="customer" class="peer sr-only" checked>
+                                <div
+                                    class="p-4 rounded-2xl border border-gray-200 bg-white/50 peer-checked:border-black peer-checked:bg-black peer-checked:text-white transition-all flex flex-col items-center gap-2">
+                                    <iconify-icon icon="solar:bag-heart-bold" width="24"></iconify-icon>
+                                    <span class="text-xs font-bold uppercase tracking-wide">Acheter</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer relative group">
+                                <input type="radio" name="role" value="supplier" class="peer sr-only">
+                                <div
+                                    class="p-4 rounded-2xl border border-gray-200 bg-white/50 peer-checked:border-black peer-checked:bg-black peer-checked:text-white transition-all flex flex-col items-center gap-2">
+                                    <iconify-icon icon="solar:shop-bold" width="24"></iconify-icon>
+                                    <span class="text-xs font-bold uppercase tracking-wide">Vendre</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 fade-in">
+                        <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Adresse
+                            email</label>
+                        <div
+                            class="relative group input-group border border-gray-200 rounded-2xl transition-all duration-500 bg-white/50">
+                            <span
+                                class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors">
+                                <iconify-icon icon="solar:letter-linear" width="22"></iconify-icon>
+                            </span>
+                            <input type="email" id="email" required placeholder="votre@email.com"
+                                class="w-full pl-14 pr-5 py-4.5 bg-transparent rounded-2xl outline-none text-gray-900 placeholder:text-gray-300 text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 fade-in">
+                        <div class="flex items-center justify-between px-1">
+                            <label class="text-xs font-bold uppercase tracking-widest text-gray-400">Mot de
+                                passe</label>
+                            <a href="#" id="forgotPassLink"
+                                class="text-[10px] font-black uppercase tracking-tighter text-gray-400 hover:text-black transition-colors">Oublié
+                                ?</a>
+                        </div>
+                        <div
+                            class="relative group input-group border border-gray-200 rounded-2xl transition-all duration-500 bg-white/50">
+                            <span
+                                class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors">
+                                <iconify-icon icon="solar:lock-password-linear" width="22"></iconify-icon>
+                            </span>
+                            <input type="password" id="password" required placeholder="••••••••"
+                                class="w-full pl-14 pr-14 py-4.5 bg-transparent rounded-2xl outline-none text-gray-900 placeholder:text-gray-300 text-sm font-medium">
+                            <button type="button" id="togglePassword"
+                                class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-black transition-colors">
+                                <iconify-icon icon="solar:eye-linear" width="20"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Additional Signup Fields (Hidden by default) -->
+                    <div id="signupFields" class="hidden space-y-5 fade-in">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-widest text-gray-400 ml-1">Confirmer mot
+                                de passe</label>
+                            <div
+                                class="relative group input-group border border-gray-200 rounded-2xl transition-all duration-500 bg-white/50">
+                                <span
+                                    class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-black transition-colors">
+                                    <iconify-icon icon="solar:lock-password-linear" width="22"></iconify-icon>
+                                </span>
+                                <input type="password" id="confirmPassword" placeholder="••••••••"
+                                    class="w-full pl-14 pr-5 py-4.5 bg-transparent rounded-2xl outline-none text-gray-900 placeholder:text-gray-300 text-sm font-medium">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center px-1 fade-in" id="rememberMe">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox"
+                                class="w-5 h-5 rounded-lg border-gray-200 text-black focus:ring-black transition-all cursor-pointer">
+                            <span
+                                class="text-xs font-bold text-gray-400 group-hover:text-black transition-colors">Rester
+                                connecté</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" id="submitBtn"
+                        class="w-full hero-gradient text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-black/20 hover:shadow-black/40 hover:-translate-y-1 active:translate-y-0 transition-all duration-500 flex items-center justify-center gap-3 fade-in group">
+                        <span>Se connecter</span>
+                        <div class="loader-ring"></div>
+                        <iconify-icon icon="solar:arrow-right-bold"
+                            class="group-hover:translate-x-1 transition-transform" width="18"></iconify-icon>
+                    </button>
+                </form>
+
+                <div class="relative my-10 fade-in">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-100"></div>
+                    </div>
+                    <div class="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
+                        <span class="bg-transparent px-6 text-gray-300">Ou continuer avec</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 fade-in">
+                    <button
+                        class="social-btn flex items-center justify-center gap-3 py-4 border border-gray-100 rounded-2xl bg-white/30 text-xs font-bold text-gray-600">
+                        <iconify-icon icon="logos:google-icon" width="18"></iconify-icon>
+                        Google
+                    </button>
+                    <button
+                        class="social-btn flex items-center justify-center gap-3 py-4 border border-gray-100 rounded-2xl bg-white/30 text-xs font-bold text-gray-600">
+                        <iconify-icon icon="logos:facebook" width="18"></iconify-icon>
+                        Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-10 text-center text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">
+        &copy; 2026 ENova&trade; Premium Experience
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // GSAP Animations
+        window.addEventListener('DOMContentLoaded', () => {
+            const tl = gsap.timeline();
+
+            tl.to("#loginCard", { opacity: 1, y: 0, duration: 1.2, ease: "expo.out" })
+                .to(".fade-in:not(#loginCard)", {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.1,
+                    ease: "power2.out"
+                }, "-=0.8");
+        });
+
+
+        // Password Toggle
+        const toggleBtn = document.getElementById('togglePassword');
+        const passInput = document.getElementById('password');
+
+        toggleBtn.addEventListener('click', () => {
+            const type = passInput.type === 'password' ? 'text' : 'password';
+            passInput.type = type;
+            toggleBtn.innerHTML = `<iconify-icon icon="solar:${type === 'password' ? 'eye' : 'eye-closed'}-linear" width="20"></iconify-icon>`;
+        });
+
+        // Tabs Logic
+        const tabLogin = document.getElementById('tabLogin');
+        const tabSignup = document.getElementById('tabSignup');
+        const authForm = document.getElementById('authForm');
+        const roleSelector = document.getElementById('roleSelector');
+        const signupFields = document.getElementById('signupFields');
+        const rememberMe = document.getElementById('rememberMe');
+        const forgotPass = document.getElementById('forgotPassLink');
+        const formTitle = document.getElementById('formTitle');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const submitBtnSpan = document.getElementById('submitBtn').querySelector('span');
+
+        let isLogin = true;
+
+        function switchTab(login) {
+            isLogin = login;
+            if (login) {
+                // UI: Login State
+                tabLogin.classList.remove('text-gray-500', 'bg-transparent');
+                tabLogin.classList.add('bg-white', 'shadow-sm', 'text-black');
+                tabSignup.classList.add('text-gray-500', 'bg-transparent');
+                tabSignup.classList.remove('bg-white', 'shadow-sm', 'text-black');
+
+                // Content
+                roleSelector.classList.add('hidden');
+                signupFields.classList.add('hidden');
+                rememberMe.classList.remove('hidden');
+                forgotPass.classList.remove('hidden');
+
+                formTitle.textContent = "Bon retour";
+                formSubtitle.textContent = "Connectez-vous à votre compte";
+                submitBtnSpan.textContent = "Se connecter";
+
+                // GSAP Refresh for smooth height
+                gsap.fromTo("#authForm", { opacity: 0.5 }, { opacity: 1, duration: 0.3 });
+            } else {
+                // UI: Signup State
+                tabSignup.classList.remove('text-gray-500', 'bg-transparent');
+                tabSignup.classList.add('bg-white', 'shadow-sm', 'text-black');
+                tabLogin.classList.add('text-gray-500', 'bg-transparent');
+                tabLogin.classList.remove('bg-white', 'shadow-sm', 'text-black');
+
+                // Content
+                roleSelector.classList.remove('hidden');
+                signupFields.classList.remove('hidden');
+                rememberMe.classList.add('hidden');
+                forgotPass.classList.add('hidden');
+
+                formTitle.textContent = "Créer un compte";
+                formSubtitle.textContent = "Rejoignez la communauté ENova";
+                submitBtnSpan.textContent = "S'inscrire";
+
+                // GSAP Refresh
+                gsap.fromTo("#authForm", { opacity: 0.5 }, { opacity: 1, duration: 0.3 });
+            }
+        }
+
+        tabLogin.addEventListener('click', () => switchTab(true));
+        tabSignup.addEventListener('click', () => switchTab(false));
+
+        // Form Submit
+        const form = document.getElementById('authForm');
+        form.addEventListener('submit', (e) => {
+            if (!isLogin) {
+                const signupFieldsList = [
+                    { id: 'email', label: 'L\'adresse email' },
+                    { id: 'password', label: 'Le mot de passe' },
+                    { id: 'confirmPassword', label: 'La confirmation du mot de passe' }
+                ];
+                for (const field of signupFieldsList) {
+                    const el = document.getElementById(field.id);
+                    if (!el.value.trim()) {
+                        showToast(`${field.label} est essentiel à votre inscription.`, "error");
+                        el.focus();
+                        return;
+                    }
+                }
+            } else {
+                const loginFieldsList = [
+                    { id: 'email', label: 'L\'adresse email' },
+                    { id: 'password', label: 'Le mot de passe' }
+                ];
+                for (const field of loginFieldsList) {
+                    const el = document.getElementById(field.id);
+                    if (!el.value.trim()) {
+                        showToast(`${field.label} est requis pour accéder à votre univers.`, "error");
+                        el.focus();
+                        return;
+                    }
+                }
+            }
+
+            const btn = form.querySelector('button[type="submit"]');
+            const span = btn.querySelector('span');
+            const icon = btn.querySelector('iconify-icon');
+            const loader = btn.querySelector('.loader-ring');
+
+            if (!isLogin) {
+                // Signup Validation
+                const pass = document.getElementById('password').value;
+                const confirm = document.getElementById('confirmPassword').value;
+                if (pass !== confirm) {
+                    showToast("Les mots de passe ne correspondent pas", "error");
+                    return;
+                }
+            }
+
+            span.textContent = 'Traitement...';
+            icon.style.display = 'none';
+            loader.style.display = 'block';
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.8';
+
+            setTimeout(() => {
+                // Handle Auth Logic
+                if (isLogin) {
+                    const email = document.getElementById('email').value;
+                    localStorage.setItem('enovaUserEmail', email);
+                    let role = localStorage.getItem('enovaRole') || 'customer';
+
+                    // Check if user is an owner/admin
+                    const adminEmails = ['benimakiese1234@gmail.com', 'owner2@enova.com', 'owner3@enova.com', 'owner4@enova.com', 'owner5@enova.com'];
+                    if (adminEmails.includes(email)) {
+                        role = 'admin';
+                    }
+
+                    // Restriction for Supplier Role
+                    if (role === 'supplier' && email === 'benimakiese1234@gmail.com') {
+                        // This case shouldn't happen anymore if they use the correct email, 
+                        // but let's be safe and upgrade them to admin if they were forced into supplier role.
+                        role = 'admin';
+                    }
+
+                    AuthManager.setRole(role);
+                    if (role === 'admin' || role === 'supplier') window.location.href = 'ADMIN NOVA/dashboard.html';
+                    else window.location.href = 'customer-dashboard.html';
+
+                } else {
+                    // Signup
+                    let role = document.querySelector('input[name="role"]:checked').value;
+                    const email = document.getElementById('email').value;
+                    localStorage.setItem('enovaUserEmail', email);
+
+                    // Restriction for Supplier Role Signup
+                    const adminEmails = ['benimakiese1234@gmail.com', 'owner2@enova.com', 'owner3@enova.com', 'owner4@enova.com', 'owner5@enova.com'];
+                    if (adminEmails.includes(email)) {
+                        role = 'admin';
+                    } else if (role === 'admin') {
+                        // Only predefined emails can be admin
+                        role = 'supplier';
+                    }
+
+                    const name = email.split('@')[0];
+                    UserManager.signup({ name, email, role });
+                    AuthManager.setRole(role);
+
+                    if (role === 'customer') {
+                        localStorage.setItem('enovaWelcomeBonus', 'true');
+                        PromoManager.addPromo('BIENVENUE', 'percent', 0.05, 1);
+                        showToast("Bienvenue dans l'univers ENova ! Votre privilège de -5% (code: BIENVENUE) vous attend.", "success");
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    } else {
+                        localStorage.setItem('enovaSupplierBonus', 'true');
+                        const welcomeMsg = role === 'admin' ? "Espace Administration activé." : "Votre boutique ENova est prête. Félicitations pour ce nouveau départ !";
+                        showToast(welcomeMsg, "success");
+                        setTimeout(() => {
+                            window.location.href = 'ADMIN NOVA/dashboard.html';
+                        }, 2000);
+                    }
+                }
+            }, 1500);
+        });
+    </script>
+</body>
+
+</html>

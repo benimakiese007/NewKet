@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panier — ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/supabase-adapter.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --primary: #000000;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(at 0% 0%, rgba(0, 0, 0, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 0, 0, 0.02) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 0, 0, 0.03) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(0, 0, 0, 0.02) 0px, transparent 50%);
+        }
+
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+    </style>
+</head>
+
+<body class="text-gray-900 antialiased min-h-screen flex flex-col">
+    <div class="bg-mesh"></div>
+
+    <!-- ========== HEADER ========== -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1 group">
+                <span class="text-xl font-black tracking-tighter">ENova</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <!-- Currency Switch -->
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
+                        style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+                <span class="hidden md:block text-xs font-bold uppercase tracking-widest text-gray-400">Aide? +243 990
+                    924 254</span>
+                <a href="index.html"
+                    class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors">Continuer
+                    mes achats</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-24 sm:h-28"></div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <h1 class="text-4xl font-black tracking-tighter text-gray-900 mb-10">Votre Panier</h1>
+
+        <div class="flex flex-col lg:flex-row gap-10 items-start">
+            <!-- Left: Cart Items -->
+            <div class="flex-1 w-full space-y-6">
+                <div id="cartItemsContainer" class="glass-card rounded-[2.5rem] overflow-hidden">
+                    <!-- Items injected by JS -->
+                    <div class="p-12 text-center" id="emptyCartMessage">
+                        <div
+                            class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                            <iconify-icon icon="solar:bag-3-outline" width="40"></iconify-icon>
+                        </div>
+                        <h2 class="text-xl font-bold mb-2">Votre sélection est vide</h2>
+                        <p class="text-gray-500 mb-6">L'élégance n'attend que vous. Explorez nos collections exclusives
+                            pour commencer votre expérience ENova.</p>
+                        <a href="catalog.html"
+                            class="inline-flex items-center gap-2 bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl font-medium transition-colors">
+                            Voir le catalogue
+                            <iconify-icon icon="solar:alt-arrow-right-linear" width="18"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Summary -->
+            <div class="w-full lg:w-[420px] space-y-6">
+                <div class="glass-card rounded-[2.5rem] p-8 sticky top-36">
+                    <h3 class="text-xl font-black tracking-tighter mb-8">Résumé</h3>
+
+                    <div class="space-y-4 text-sm mb-6">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Sous-total</span>
+                            <span class="font-semibold text-gray-900" id="summarySubtotal">0 FC</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Livraison</span>
+                            <span class="text-green-600 font-medium">Gratuite</span>
+                        </div>
+                        <div class="space-y-3" id="promoSection">
+                            <div class="flex justify-between text-gray-600">
+                                <span>Code promo</span>
+                                <button id="addPromoBtn"
+                                    class="text-gray-900 hover:text-black font-medium flex items-center gap-1">
+                                    <iconify-icon icon="solar:add-circle-linear" width="16"></iconify-icon>
+                                    Ajouter
+                                </button>
+                            </div>
+
+                            <!-- Promo Input (Hidden by default) -->
+                            <div id="promoInputContainer" class="hidden">
+                                <div class="flex gap-2">
+                                    <input type="text" id="promoInput" placeholder="Saisir un code"
+                                        class="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 uppercase">
+                                    <button id="applyPromoBtn"
+                                        class="bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors">
+                                        Appliquer
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Active Promo (Hidden by default) -->
+                            <div id="activePromoBadge"
+                                class="hidden bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center justify-between">
+                                <div class="flex items-center gap-2 text-gray-700">
+                                    <iconify-icon icon="solar:ticket-bold" width="18"></iconify-icon>
+                                    <span class="text-xs font-bold uppercase tracking-wider"
+                                        id="appliedCodeText">ENOVA10</span>
+                                </div>
+                                <button id="removePromoBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                    <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remise (Hidden by default) -->
+                        <div id="summaryDiscountRow" class="hidden flex justify-between text-green-600">
+                            <span>Remise</span>
+                            <span class="font-semibold" id="summaryDiscount">-0 FC</span>
+                        </div>
+
+                        <div class="h-px bg-gray-100 pt-2"></div>
+                        <div class="flex justify-between text-lg font-bold text-gray-900 uppercase tracking-tight">
+                            <span>Total</span>
+                            <span id="summaryTotal">0 FC</span>
+                        </div>
+                    </div>
+
+                    <button onclick="checkout()"
+                        class="w-full hero-gradient text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-2xl shadow-black/20 hover:shadow-black/40 hover:-translate-y-1 active:translate-y-0 transition-all duration-500 flex items-center justify-center gap-3">
+                        Payer maintenant
+                        <iconify-icon icon="solar:lock-password-bold" width="20"></iconify-icon>
+                    </button>
+
+                    <div class="mt-6 space-y-3">
+                        <div class="flex items-center gap-2 text-[11px] text-gray-500 bg-gray-50 p-3 rounded-lg">
+                            <iconify-icon icon="solar:verified-check-bold" width="16"
+                                class="text-blue-500"></iconify-icon>
+                            Paiement sécurisé avec cryptage SSL 256-bits.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="checkoutOverlay"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300">
+        <div class="bg-white rounded-3xl w-full max-w-md p-8 text-center shadow-2xl transform scale-90 transition-all duration-300"
+            id="checkoutModal">
+            <!-- Processing -->
+
+
+            <!-- Success -->
+            <div id="successState" class="block">
+                <div
+                    class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre commande est confirmée</h2>
+                <p class="text-gray-500 mb-8">Votre acquisition exclusive #<span id="orderNumber"
+                        class="font-bold text-gray-900">XXXX</span> est en route pour vous sublimer.</p>
+                <div class="bg-gray-50 rounded-2xl p-4 mb-8 space-y-2 text-sm">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Mode de paiement</span>
+                        <span class="font-medium text-gray-900">Mobile Money</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Total payé</span>
+                        <span class="font-bold text-gray-900" id="modalTotal">0 FC</span>
+                    </div>
+                </div>
+                <button onclick="closeCheckoutModal()"
+                    class="w-full bg-gray-900 hover:bg-black text-white py-4 rounded-xl font-bold transition-all shadow-xl">
+                    Retour aux achats
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confetti Container -->
+    <div id="confettiContainer" class="fixed inset-0 pointer-events-none z-[101]"></div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="bg-slate-950 text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-6 py-20">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+                <div class="col-span-2 lg:col-span-1">
+                    <a href="index.html" class="flex items-center gap-2 mb-8">
+                        <span class="text-lg font-bold tracking-tight">ENova</span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-8 max-w-xs">
+                        La destination ultime pour le luxe accessible et les tendances du futur.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://instagram.com" target="_blank"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gray-900 transition-all">
+                            <iconify-icon icon="ri:instagram-line" width="18"></iconify-icon>
+                        </a>
+                        <a href="https://facebook.com" target="_blank"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gray-900 transition-all">
+                            <iconify-icon icon="ri:facebook-fill" width="18"></iconify-icon>
+                        </a>
+                        <a href="https://twitter.com" target="_blank"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gray-900 transition-all">
+                            <iconify-icon icon="ri:twitter-x-fill" width="18"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-[0.2em] mb-8">Navigation</h4>
+                    <ul class="space-y-4 text-sm text-slate-400">
+                        <li><a href="about.html" class="hover:text-white transition-colors">À Propos</a></li>
+                        <li><a href="catalog.html" class="hover:text-white transition-colors">Nouveautés</a></li>
+                        <li><a href="catalog.html" class="hover:text-white transition-colors">Ventes Flash</a></li>
+                        <li><a href="about.html" class="hover:text-white transition-colors">Ambassadeurs</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-[0.2em] mb-8">Support Client</h4>
+                    <ul class="space-y-4 text-sm text-slate-400">
+                        <li><a href="about.html" class="hover:text-white transition-colors">Centre d'Aide</a></li>
+                        <li><a href="customer-dashboard.html" class="hover:text-white transition-colors">Suivi Comman
+                                de</a></li>
+                        <li><a href="terms.html" class="hover:text-white transition-colors">Retours & Échanges</a></li>
+                        <li><a href="about.html" class="hover:text-white transition-colors">Nous Contacter</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-[0.2em] mb-8">Newsletter</h4>
+                    <p class="text-sm text-slate-400 mb-6">Inscrivez-vous pour des offres privées.</p>
+                    <div class="flex flex-col gap-3">
+                        <input type="email" placeholder="Votre email"
+                            class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-gray-900 outline-none w-full">
+                        <button
+                            class="bg-white text-slate-950 font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all">S'abonner</button>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                <p>© 2026 ENova — EXPÉRIENCE LUXE</p>
+                <div class="flex gap-8">
+                    <a href="privacy.html" class="hover:text-white">Confidentialité</a>
+                    <a href="terms.html" class="hover:text-white">Conditions</a>
+                </div>
+                <p>Designed by <span class="text-white">SITYZEN</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        function renderCart() {
+            const container = document.getElementById('cartItemsContainer');
+            const emptyMsg = document.getElementById('emptyCartMessage');
+            const cart = window.CartManager ? CartManager.getCart() : [];
+
+            if (cart.length === 0) {
+                container.innerHTML = '';
+                container.appendChild(emptyMsg);
+                emptyMsg.classList.remove('hidden');
+                updateSummary(0);
+                return;
+            }
+
+            emptyMsg.classList.add('hidden');
+
+            let html = '<div class="divide-y divide-gray-100">';
+            cart.forEach(item => {
+                html += `
+                    <div class="p-8 flex flex-col sm:flex-row items-center gap-6 group">
+                        <div class="w-24 h-24 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 p-2">
+                            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <div class="flex-1 text-center sm:text-left">
+                            <h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">${item.category || 'Collection'}</h4>
+                            <h3 class="text-lg font-bold text-gray-900 mb-1">${item.name}</h3>
+                            <div class="text-gray-900 font-bold">${CurrencyManager.formatPrice(item.price)}</div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center bg-gray-50 border border-gray-100 rounded-xl overflow-hidden">
+                                <button onclick="updateQty('${item.id}', -1)" class="w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                    <iconify-icon icon="solar:minus-linear" width="14"></iconify-icon>
+                                </button>
+                                <input type="number" value="${item.quantity}" readonly class="w-10 text-center bg-transparent border-none text-sm font-bold">
+                                <button onclick="updateQty('${item.id}', 1)" class="w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                                    <iconify-icon icon="solar:plus-linear" width="14"></iconify-icon>
+                                </button>
+                            </div>
+                            <button onclick="removeItem('${item.id}')" class="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                                <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+
+            const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            updateSummary(total);
+        }
+
+        function updateQty(id, delta) {
+            CartManager.updateQuantity(id, delta);
+            renderCart();
+        }
+
+        function removeItem(id) {
+            CartManager.removeItem(id);
+            renderCart();
+            if (window.showToast) showToast('Article retiré du panier', 'info');
+        }
+
+        let currentPromo = null;
+
+        function updateSummary(subtotal) {
+            document.getElementById('summarySubtotal').textContent = CurrencyManager.formatPrice(subtotal);
+
+            let discount = 0;
+            if (currentPromo) {
+                if (currentPromo.type === 'percent') {
+                    discount = subtotal * currentPromo.value;
+                } else {
+                    discount = currentPromo.value;
+                }
+            }
+
+            const total = Math.max(0, subtotal - discount);
+
+            const discountRow = document.getElementById('summaryDiscountRow');
+            if (discount > 0) {
+                discountRow.classList.remove('hidden');
+                document.getElementById('summaryDiscount').textContent = '-' + CurrencyManager.formatPrice(discount);
+            } else {
+                discountRow.classList.add('hidden');
+            }
+
+            document.getElementById('summaryTotal').textContent = CurrencyManager.formatPrice(total);
+        }
+
+        function checkout() {
+            const cart = CartManager.getCart();
+            if (cart.length === 0) {
+                if (window.showToast) showToast('Votre panier est vide', 'error');
+                return;
+            }
+
+            // Using Global LoaderManager instead of local overlay
+            if (window.LoaderManager) {
+                LoaderManager.show('Vérification de la transaction...');
+            }
+
+            setTimeout(() => {
+                if (window.LoaderManager) LoaderManager.hide();
+
+                // Show Success Modal (Keep local modal for now as it's custom for checkout)
+                const overlay = document.getElementById('checkoutOverlay');
+                const succ = document.getElementById('successState');
+                overlay.classList.remove('invisible', 'opacity-0');
+                succ.classList.remove('hidden');
+
+                // Finalize order
+                const orderNum = 'EN-' + Math.random().toString(36).substring(3, 9).toUpperCase();
+                document.getElementById('orderNumber').textContent = orderNum;
+                document.getElementById('modalTotal').textContent = document.getElementById('summaryTotal').textContent;
+
+                // Clear cart only after success
+                CartManager.clear();
+                createConfetti();
+            }, 2500);
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutOverlay').classList.add('invisible', 'opacity-0');
+            location.href = 'index.html';
+        }
+
+        function createConfetti() {
+            const container = document.getElementById('confettiContainer');
+            for (let i = 0; i < 50; i++) {
+                const c = document.createElement('div');
+                c.className = 'absolute w-2 h-2 rounded-full';
+                c.style.backgroundColor = ['#000000', '#333333', '#666666', '#999999'][Math.floor(Math.random() * 4)];
+                c.style.left = Math.random() * 100 + '%';
+                c.style.top = '-10px';
+                c.style.transition = `all ${1 + Math.random() * 2}s linear`;
+                container.appendChild(c);
+                setTimeout(() => {
+                    c.style.top = '100%';
+                    c.style.opacity = '0';
+                    c.style.transform = `translateX(${(Math.random() - 0.5) * 200}px) rotate(${Math.random() * 360}deg)`;
+                }, 10);
+            }
+        }
+
+        // Promo Logic
+        document.getElementById('addPromoBtn').addEventListener('click', () => {
+            document.getElementById('promoInputContainer').classList.remove('hidden');
+            document.getElementById('addPromoBtn').classList.add('hidden');
+        });
+
+        document.getElementById('applyPromoBtn').addEventListener('click', () => {
+            const code = document.getElementById('promoInput').value.trim().toUpperCase();
+            if (!code) return;
+
+            const res = PromoManager.canApply(code);
+            if (res.valid) {
+                const promos = PromoManager.getPromos();
+                currentPromo = promos[code];
+                document.getElementById('appliedCodeText').textContent = code;
+                document.getElementById('activePromoBadge').classList.remove('hidden');
+                document.getElementById('promoInputContainer').classList.add('hidden');
+                renderCart();
+                if (window.showToast) showToast('Code promo appliqué !', 'success');
+            } else {
+                if (window.showToast) showToast(res.message, 'error');
+            }
+        });
+
+        document.getElementById('removePromoBtn').addEventListener('click', () => {
+            currentPromo = null;
+            document.getElementById('activePromoBadge').classList.add('hidden');
+            document.getElementById('addPromoBtn').classList.remove('hidden');
+            document.getElementById('promoInput').value = '';
+            renderCart();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) {
+                renderCart();
+            } else {
+                window.addEventListener('enovaInitialized', renderCart);
+            }
+            window.addEventListener('currencyChanged', renderCart);
+        });
+    </script>
+</body>
+
+</html>

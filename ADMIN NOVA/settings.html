@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres Admin | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+    </style>
+    <script>
+        // Check for Admin or Supplier Role
+        const role = localStorage.getItem('enovaRole');
+        if (role !== 'admin' && role !== 'supplier') {
+            window.location.href = '../index.html';
+        }
+    </script>
+</head>
+
+<body class="text-gray-900">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <a href="dashboard.html" class="flex items-center gap-2">
+                <span class="text-xl font-black tracking-tighter">ENova</span>
+                <span
+                    class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link">
+                        <iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>
+                        Vue d'ensemble
+                    </a>
+                    <a href="products.html" class="sidebar-link">
+                        <iconify-icon icon="solar:box-bold" width="20"></iconify-icon>
+                        Mes Produits
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>
+                        Commandes
+                    </a>
+                    <a href="diagnostics.html" class="sidebar-link">
+                        <iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>
+                        Analyses & Diagnostics
+                    </a>
+                    <a href="profits.html" class="sidebar-link">
+                        <iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>
+                        Calcul des Profits
+                    </a>
+                    <a href="clients.html" class="sidebar-link">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>
+                        Mes Clients
+                    </a>
+                    <a href="users.html" class="sidebar-link">
+                        <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                        Utilisateurs
+                    </a>
+                    <a href="promos.html" class="sidebar-link">
+                        <iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>
+                        Codes Promo
+                    </a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link active">
+                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                            Paramètres
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex justify-between items-end">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Paramètres</h1>
+                    <p class="text-gray-500" id="pageSubtitle">Configurez votre boutique et vos préférences globales.
+                    </p>
+                </div>
+                <div id="saveStatus"
+                    class="hidden flex items-center gap-2 text-green-600 text-xs font-bold uppercase tracking-widest">
+                    <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
+                    Enregistré
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Informations de la Boutique -->
+                <div class="glass-panel p-8 space-y-8">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                            <iconify-icon icon="solar:shop-2-bold" width="24"></iconify-icon>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900">Identité & Contact</h3>
+                    </div>
+
+                    <form id="identityForm" class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nom de
+                                l'enseigne</label>
+                            <input type="text" id="shopName"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                placeholder="ENova EMarket">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Email
+                                    public</label>
+                                <input type="email" id="shopEmail"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    placeholder="contact@enova.com">
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Téléphone
+                                    support</label>
+                                <input type="text" id="supportPhone"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    placeholder="+243 ...">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">URL du
+                                Logo (Simulé)</label>
+                            <input type="text" id="logoUrl"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                placeholder="https://...">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Livraison & Devises -->
+                <div class="glass-panel p-8 space-y-8">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center">
+                            <iconify-icon icon="solar:delivery-bold" width="24"></iconify-icon>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900">Livraison & Devises</h3>
+                    </div>
+
+                    <div class="flex items-center gap-2 p-1 bg-gray-100 rounded-xl w-fit">
+                        <button type="button" onclick="setShippingCurrency('USD')" id="shipUSD"
+                            class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">USD</button>
+                        <button type="button" onclick="setShippingCurrency('CDF')" id="shipCDF"
+                            class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">CDF</button>
+                    </div>
+
+                    <form id="deliveryForm" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Frais
+                                    de livraison (USD)</label>
+                                <input type="number" id="shippingFee"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Seuil
+                                    gratuité (USD)</label>
+                                <input type="number" id="freeShippingThreshold"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Commission
+                                    Vendeur (%)</label>
+                                <input type="number" id="sellerCommission"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    placeholder="10">
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Devise
+                                    par défaut</label>
+                                <select id="shopCurrency"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                                    <option value="CDF">Franc Congolais (FC)</option>
+                                    <option value="USD">Dollar Américain ($)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Taux
+                                    de Change (1 USD = X FC)</label>
+                                <input type="number" id="exchangeRate"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    placeholder="2500">
+                            </div>
+                            <div class="space-y-2">
+                                <label
+                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Objectif
+                                    Panier Moyen ($)</label>
+                                <input type="number" id="targetAOV"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    placeholder="20">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Réseaux Sociaux -->
+                <div class="glass-panel p-8 space-y-8 text-gray-900">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                            <iconify-icon icon="solar:share-circle-bold" width="24"></iconify-icon>
+                        </div>
+                        <h3 class="font-bold text-lg">Liens Sociaux</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <iconify-icon icon="solar:camera-bold" width="18"
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></iconify-icon>
+                            <input type="text" id="socialInstagram"
+                                class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                placeholder="Instagram URL">
+                        </div>
+                        <div class="relative">
+                            <iconify-icon icon="solar:pen-new-square-bold" width="18"
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></iconify-icon>
+                            <input type="text" id="socialFacebook"
+                                class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                placeholder="Facebook URL">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Site Management -->
+                <div class="glass-panel p-8 space-y-8">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
+                            <iconify-icon icon="solar:shield-warning-bold" width="24"></iconify-icon>
+                        </div>
+                        <h3 class="font-bold text-lg">Maintenance & Sécurité</h3>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <div>
+                            <div class="text-sm font-bold">Mode Maintenance</div>
+                            <div class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Rendre le site
+                                inaccessible</div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="maintenanceMode" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
+                            </div>
+                        </label>
+                    </div>
+
+                    <button id="saveAllBtn"
+                        class="w-full bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 transition-all">
+                        Enregistrer tous les paramètres
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let currentShippingCurrency = 'USD';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfig();
+
+            // Dynamic Labels based on role
+            const role = localStorage.getItem('enovaRole');
+            if (role === 'admin') {
+                document.getElementById('pageTitle').textContent = 'Paramètres Plateforme';
+                document.getElementById('pageSubtitle').textContent = 'Configuration globale de la marketplace et options système.';
+            }
+        });
+
+        function setShippingCurrency(curr, convert = true) {
+            currentShippingCurrency = curr;
+            const btnUSD = document.getElementById('shipUSD');
+            const btnCDF = document.getElementById('shipCDF');
+            const feeLabel = document.querySelector('label[for="shippingFee"]') || document.querySelectorAll('label')[4]; // Fallback if no for
+            const thresholdLabel = document.querySelector('label[for="freeShippingThreshold"]') || document.querySelectorAll('label')[5];
+
+            // Update Buttons
+            if (curr === 'USD') {
+                btnUSD.className = "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg shadow-black/20";
+                btnCDF.className = "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-black";
+            } else {
+                btnCDF.className = "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg shadow-black/20";
+                btnUSD.className = "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-black";
+            }
+
+            // Update Labels
+            const labels = document.querySelectorAll('#deliveryForm label');
+            if (labels.length >= 2) {
+                labels[0].textContent = `Frais de livraison (${curr})`;
+                labels[1].textContent = `Seuil gratuité (${curr})`;
+            }
+
+            // Optional: Conversion logic
+            if (convert) {
+                const feeInput = document.getElementById('shippingFee');
+                const thresholdInput = document.getElementById('freeShippingThreshold');
+                const rate = 2500;
+
+                if (curr === 'CDF') {
+                    feeInput.value = Math.round(parseFloat(feeInput.value || 0) * rate);
+                    thresholdInput.value = Math.round(parseFloat(thresholdInput.value || 0) * rate);
+                } else {
+                    feeInput.value = (parseFloat(feeInput.value || 0) / rate).toFixed(2);
+                    thresholdInput.value = (parseFloat(thresholdInput.value || 0) / rate).toFixed(2);
+                }
+            }
+        }
+
+        function loadConfig() {
+            if (window.ConfigManager) {
+                const config = ConfigManager.getConfig();
+
+                // Identity
+                document.getElementById('shopName').value = config.shopName || '';
+                document.getElementById('shopEmail').value = config.email || '';
+                document.getElementById('supportPhone').value = config.supportPhone || '';
+                document.getElementById('logoUrl').value = config.logoUrl || '';
+
+                // Delivery & Economy
+                document.getElementById('shippingFee').value = config.shippingFee || 0;
+                document.getElementById('freeShippingThreshold').value = config.freeShippingThreshold || 0;
+                document.getElementById('sellerCommission').value = config.commissionRate || config.sellerCommission || 0;
+                document.getElementById('shopCurrency').value = config.currencySymbol || 'CDF';
+                document.getElementById('exchangeRate').value = config.exchangeRate || 2500;
+                document.getElementById('targetAOV').value = config.targetAOV || 0;
+
+                // Set shipping currency UI
+                setShippingCurrency(config.shippingCurrency || 'USD', false);
+
+                // Social
+                if (config.socialLinks) {
+                    document.getElementById('socialInstagram').value = config.socialLinks.instagram || '';
+                    document.getElementById('socialFacebook').value = config.socialLinks.facebook || '';
+                }
+
+                // Security
+                document.getElementById('maintenanceMode').checked = config.maintenanceMode || false;
+            }
+        }
+
+        document.getElementById('saveAllBtn').addEventListener('click', () => {
+            const newConfig = {
+                shopName: document.getElementById('shopName').value,
+                email: document.getElementById('shopEmail').value,
+                supportPhone: document.getElementById('supportPhone').value,
+                logoUrl: document.getElementById('logoUrl').value,
+                shippingFee: parseFloat(document.getElementById('shippingFee').value),
+                freeShippingThreshold: parseFloat(document.getElementById('freeShippingThreshold').value),
+                shippingCurrency: currentShippingCurrency,
+                sellerCommission: parseFloat(document.getElementById('sellerCommission').value),
+                currencySymbol: document.getElementById('shopCurrency').value,
+                socialLinks: {
+                    instagram: document.getElementById('socialInstagram').value,
+                    facebook: document.getElementById('socialFacebook').value
+                },
+                maintenanceMode: document.getElementById('maintenanceMode').checked,
+                exchangeRate: parseFloat(document.getElementById('exchangeRate').value) || 2500,
+                targetAOV: parseFloat(document.getElementById('targetAOV').value) || 0,
+                // Preserve other values if any
+                primaryColor: window.enovaConfig ? window.enovaConfig.primaryColor : '#000000'
+            };
+
+            if (window.ConfigManager) {
+                ConfigManager.saveConfig(newConfig);
+
+                // Show success feedback
+                const btn = document.getElementById('saveAllBtn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Enregistré !';
+                btn.classList.replace('bg-black', 'bg-green-600');
+
+                const status = document.getElementById('saveStatus');
+                status.classList.remove('hidden');
+
+                if (typeof showToast === 'function') {
+                    showToast('Configuration mise à jour avec succès', 'success');
+                }
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.replace('bg-green-600', 'bg-black');
+                    status.classList.add('hidden');
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+
+</html>

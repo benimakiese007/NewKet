@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyses & Diagnostics | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+    </style>
+    <script>
+        // Check for Admin or Supplier Role
+        const role = localStorage.getItem('enovaRole');
+        if (role !== 'admin' && role !== 'supplier') {
+            window.location.href = '../index.html';
+        }
+    </script>
+</head>
+
+<body class="text-gray-900">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="flex items-center gap-2 group">
+                    <span class="text-xl font-black tracking-tighter">ENova</span>
+                    <span
+                        class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link">
+                        <iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>
+                        Vue d'ensemble
+                    </a>
+                    <a href="products.html" class="sidebar-link">
+                        <iconify-icon icon="solar:box-bold" width="20"></iconify-icon>
+                        Mes Produits
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>
+                        Commandes
+                    </a>
+                    <a href="diagnostics.html" class="sidebar-link active">
+                        <iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>
+                        Analyses & Diagnostics
+                    </a>
+                    <a href="profits.html" class="sidebar-link">
+                        <iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>
+                        Calcul des Profits
+                    </a>
+                    <a href="clients.html" class="sidebar-link">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>
+                        Mes Clients
+                    </a>
+                    <a href="users.html" class="sidebar-link">
+                        <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                        Utilisateurs
+                    </a>
+                    <a href="promos.html" class="sidebar-link">
+                        <iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>
+                        Codes Promo
+                    </a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link">
+                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                            Paramètres
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Analyses Médicales du
+                        Shop</h1>
+                    <p class="text-gray-500" id="pageSubtitle">Diagnostic complet de vos performances et de votre
+                        catalogue.</p>
+                </div>
+                <!-- Timeframe Selector -->
+                <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
+                    <button onclick="updateTimeframe('day', this)"
+                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Jour</button>
+                    <button onclick="updateTimeframe('week', this)"
+                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
+                    <button onclick="updateTimeframe('month', this)"
+                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Mois</button>
+                    <button onclick="updateTimeframe('year', this)"
+                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Année</button>
+                    <button onclick="updateTimeframe('all', this)"
+                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all bg-black text-white">Tout</button>
+                </div>
+            </div>
+
+            <!-- Enhanced Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-panel p-6 flex flex-col gap-1">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:bag-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Panier Moyen (AOV)</p>
+                    <div class="text-2xl font-black text-gray-900" id="statsAOV" data-price-cdf="0">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:ranking-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Top Catégorie</p>
+                    <div class="text-xl font-black text-gray-900" id="topCategoryDisplay">Chargement...</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1 bg-red-50 border-red-100">
+                    <div class="w-10 h-10 rounded-xl bg-white text-red-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:archive-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-red-400">Stock Mort (0 Ventes)</p>
+                    <div class="text-2xl font-black text-red-600" id="deadStockCount">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:user-heart-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Taux Fidélité</p>
+                    <div class="text-2xl font-black text-gray-900" id="loyaltyRate">85%</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Detailed Revenue Chart -->
+                <div class="glass-panel p-6">
+                    <h3 class="font-bold text-gray-900 mb-6">Répartition des revenus par catégorie</h3>
+                    <div class="h-[300px]">
+                        <canvas id="categoryRevenueChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Stock Health -->
+                <div class="glass-panel p-6">
+                    <h3 class="font-bold text-gray-900 mb-6">Santé du catalogue</h3>
+                    <div id="stockHealthList" class="space-y-4">
+                        <!-- Stock health items injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Performing Products -->
+            <div class="glass-panel p-6">
+                <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <iconify-icon icon="solar:star-bold" width="20" class="text-yellow-500"></iconify-icon>
+                    Anatomie des meilleures ventes
+                </h3>
+                <div id="diagnosticsTopProducts" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Top products injected here -->
+                </div>
+            </div>
+
+            <!-- Activity Logs / Diagnostics -->
+            <div class="glass-panel overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="font-bold text-gray-900">Journal d'audit système</h3>
+                </div>
+                <div class="divide-y divide-gray-50 max-h-[400px] overflow-y-auto" id="auditLog">
+                    <!-- Logs injected here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stats = OrderManager.getAdvancedStats();
+
+            // Stats Update
+            const aovEl = document.getElementById('statsAOV');
+            aovEl.dataset.priceCdf = stats.aov;
+            aovEl.innerHTML = CurrencyManager.formatPrice(stats.aov, 'CDF');
+
+            document.getElementById('deadStockCount').textContent = stats.deadStockCount;
+
+            // Top Category
+            const cats = Object.entries(stats.categorySales).sort((a, b) => b[1] - a[1]);
+            document.getElementById('topCategoryDisplay').textContent = cats.length > 0 ? cats[0][0] : 'N/A';
+
+            // Charts
+            initDiagnosticsCharts(stats);
+
+            // Stock Health
+            renderStockHealth(stats);
+
+            // Top Products
+            renderAdvancedTopProducts(stats);
+
+            // Audit Log
+            renderAuditLog();
+
+            // Dynamic Labels based on role
+            const role = localStorage.getItem('enovaRole');
+            if (role === 'admin') {
+                document.getElementById('pageTitle').textContent = 'Analyses Médicales Plateforme';
+                document.getElementById('pageSubtitle').textContent = 'Diagnostic complet des performances globales et du catalogue mondial.';
+            }
+        });
+
+        function initDiagnosticsCharts(stats) {
+            const canvas = document.getElementById('categoryRevenueChart');
+            const ctx = canvas.getContext('2d');
+
+            // Destroy previous chart if exists
+            if (currentCharts.category) currentCharts.category.destroy();
+
+            const labels = Object.keys(stats.categorySales);
+            const data = Object.values(stats.categorySales);
+
+            if (labels.length === 0) {
+                // Clear canvas or show message
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+
+            currentCharts.category = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenus (FC)',
+                        data: data,
+                        backgroundColor: '#000000',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function renderStockHealth(stats) {
+            const list = document.getElementById('stockHealthList');
+            const products = ProductManager.getProducts();
+
+            const criticalStock = products.filter(p => (p.stock || 0) < 5);
+            const deadStock = stats.deadStockList;
+
+            let html = '';
+
+            if (criticalStock.length > 0) {
+                html += `<div class="p-4 bg-red-50 rounded-2xl">
+                    <div class="text-[10px] font-black text-red-600 uppercase mb-2">CRITIQUE : Rupture imminente</div>
+                    <div class="space-y-2">
+                        ${criticalStock.slice(0, 3).map(p => `
+                            <div class="flex justify-between text-sm font-bold text-gray-900">
+                                <span>${p.name}</span>
+                                <span class="text-red-600">${p.stock} pces</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+
+            if (deadStock.length > 0) {
+                html += `<div class="p-4 bg-gray-50 rounded-2xl">
+                    <div class="text-[10px] font-black text-gray-400 uppercase mb-2">ALERTE : Produit dormant</div>
+                    <div class="space-y-2">
+                        ${deadStock.slice(0, 3).map(p => `
+                            <div class="flex justify-between text-sm font-medium text-gray-500">
+                                <span>${p.name}</span>
+                                <span class="text-[10px] font-black uppercase">0 Vente</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+
+            list.innerHTML = html || '<div class="text-center py-8 text-gray-400 italic">Tout est en ordre.</div>';
+        }
+
+        function renderAdvancedTopProducts(stats) {
+            const list = document.getElementById('diagnosticsTopProducts');
+
+            if (stats.topProducts.length === 0) {
+                list.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">Pas de ventes à analyser.</div>';
+                return;
+            }
+
+            list.innerHTML = stats.topProducts.map(p => `
+                <div class="glass-panel p-4 flex gap-4 items-center">
+                    <img src="../${p.image}" class="w-16 h-16 rounded-xl object-contain bg-gray-50 p-2">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-gray-900 truncate">${p.name}</h4>
+                        <div class="text-[10px] font-black text-gray-400 uppercase">${p.salesCount} ventes régulières</div>
+                        <div class="mt-2 text-sm font-black text-black">${CurrencyManager.formatPrice(p.price * p.salesCount)} de revenus générés</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAuditLog() {
+            const list = document.getElementById('auditLog');
+            const activities = ActivityManager.getActivities();
+
+            list.innerHTML = activities.map(a => `
+                <div class="p-4 flex gap-4 items-start">
+                    <div class="w-2 h-2 rounded-full mt-1.5 ${a.type === 'order' ? 'bg-green-500' : (a.type === 'stock' ? 'bg-orange-500' : 'bg-blue-500')}"></div>
+                    <div>
+                        <div class="text-sm font-medium text-gray-900">${a.text}</div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase mt-0.5">${ActivityManager.formatTime(a.time)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+
+</html>

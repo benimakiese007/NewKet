@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À Propos — ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #fcfcfd;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+
+        .hero-pattern {
+            background-color: #000000;
+            background-image: radial-gradient(#1a1a1a 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-900 antialiased">
+
+    <!-- ========== HEADER ========== -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="text-xl font-bold tracking-tight">ENova</a>
+            <div class="flex items-center gap-8">
+                <a href="index.html" class="text-sm font-semibold hover:text-black transition-colors">Accueil</a>
+                <a href="catalog.html" class="text-sm font-semibold hover:text-black transition-colors">Catalogue</a>
+                <a href="cart.html"
+                    class="bg-black text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-black/20">Mon
+                    Panier</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-24"></div>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-pattern py-32 text-center text-white">
+            <div class="max-w-3xl mx-auto px-6">
+                <span class="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-400 mb-6 block">Notre
+                    Héritage</span>
+                <h1 class="text-5xl md:text-7xl font-bold mb-8 tracking-tight">Redéfinir le Luxe Digital.</h1>
+                <p class="text-gray-400 text-lg leading-relaxed">ENova est née d'une vision simple : rendre
+                    l'exceptionnel accessible. Nous sélectionnons méticuleusement chaque pièce pour sa rareté, son
+                    design et son innovation.</p>
+            </div>
+        </section>
+
+        <!-- Story Section -->
+        <section class="py-24 max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-20 items-center">
+                <div class="space-y-8">
+                    <h2 class="text-3xl font-bold tracking-tight">Une Quête Perpétuelle de l'Excellence</h2>
+                    <p class="text-slate-600 leading-relaxed">Fondé en 2024, ENova s'est rapidement imposé comme le
+                        marketplace de référence pour les esthètes modernes. Notre plateforme connecte les créateurs les
+                        plus avant-gardistes avec une communauté exigeante en quête de sens et de style.</p>
+                    <div class="grid grid-cols-2 gap-8 pt-8">
+                        <div>
+                            <div class="text-4xl font-bold mb-2">15k+</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Clients Heureux
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-bold mb-2">500+</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pièces Uniques</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-100 rounded-[3rem] aspect-[4/5] overflow-hidden">
+                    <img src="Images/marketplace-hero.jpg"
+                        class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                        alt="Notre Story">
+                </div>
+            </div>
+        </section>
+
+        <!-- Values Section -->
+        <section class="bg-white py-24 border-y border-slate-100">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold mb-4">Nos Piliers</h2>
+                    <p class="text-slate-500">Ce qui nous anime au quotidien.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-12">
+                    <div class="text-center space-y-4">
+                        <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto">
+                            <iconify-icon icon="solar:crown-minimalistic-linear" width="32"
+                                class="text-black"></iconify-icon>
+                        </div>
+                        <h4 class="font-bold text-lg">Qualité Absolue</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Chaque produit est certifié et vérifié par nos
+                            experts avant d'être mis en vente.</p>
+                    </div>
+                    <div class="text-center space-y-4">
+                        <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto">
+                            <iconify-icon icon="solar:stars-linear" width="32" class="text-black"></iconify-icon>
+                        </div>
+                        <h4 class="font-bold text-lg">Innovation</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Nous explorons les frontières de la tech et du
+                            design pour vous offrir le futur, aujourd'hui.</p>
+                    </div>
+                    <div class="text-center space-y-4">
+                        <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto">
+                            <iconify-icon icon="solar:leaf-linear" width="32" class="text-black"></iconify-icon>
+                        </div>
+                        <h4 class="font-bold text-lg">Éco-Conscience</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Un engagement ferme pour une consommation plus
+                            responsable et durable.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Shortcut -->
+        <section class="py-24 text-center">
+            <div class="max-w-2xl mx-auto px-6">
+                <h2 class="text-3xl font-bold mb-8">Rejoignez l'Aventure</h2>
+                <p class="text-slate-600 mb-12 italic">"Le luxe n'est pas un prix, c'est une émotion. Chez ENova, nous
+                    construisons le pont entre ces deux mondes."</p>
+                <a href="catalog.html"
+                    class="inline-flex items-center gap-2 bg-black text-white px-10 py-4 rounded-2xl font-bold text-sm uppercase tracking-widest hover:scale-105 transition-all">Découvrir
+                    la Collection</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="bg-slate-950 text-white">
+        <div class="max-w-7xl mx-auto px-6 py-20">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-12 mb-20 text-left">
+                <div class="col-span-2 lg:col-span-1">
+                    <a href="index.html" class="flex items-center gap-2 mb-8">
+                        <span class="text-lg font-bold tracking-tight">ENova</span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-8 max-w-xs">
+                        La destination ultime pour le luxe accessible et les tendances du futur.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://instagram.com" target="_blank"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gray-900 transition-all">
+                            <iconify-icon icon="ri:instagram-line" width="18"></iconify-icon>
+                        </a>
+                        <a href="https://facebook.com" target="_blank"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gray-900 transition-all">
+                            <iconify-icon icon="ri:facebook-fill" width="18"></iconify-icon>
+                        </a>
+                        <a href="https://twitter.com" target="_blank"
+                            class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-gray-900 transition-all">
+                            <iconify-icon icon="ri:twitter-x-fill" width="18"></iconify-icon>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-[0.2em] mb-8">Navigation</h4>
+                    <ul class="space-y-4 text-sm text-slate-400">
+                        <li><a href="about.html" class="hover:text-white transition-colors">À Propos</a></li>
+                        <li><a href="catalog.html" class="hover:text-white transition-colors">Nouveautés</a></li>
+                        <li><a href="catalog.html" class="hover:text-white transition-colors">Ventes Flash</a></li>
+                        <li><a href="about.html" class="hover:text-white transition-colors">Ambassadeurs</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-[0.2em] mb-8">Support Client</h4>
+                    <ul class="space-y-4 text-sm text-slate-400">
+                        <li><a href="about.html" class="hover:text-white transition-colors">Centre d'Aide</a></li>
+                        <li><a href="customer-dashboard.html" class="hover:text-white transition-colors">Suivi Comman
+                                de</a></li>
+                        <li><a href="terms.html" class="hover:text-white transition-colors">Retours & Échanges</a></li>
+                        <li><a href="about.html" class="hover:text-white transition-colors">Nous Contacter</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-[0.2em] mb-8">Newsletter</h4>
+                    <p class="text-sm text-slate-400 mb-6">Inscrivez-vous pour des offres privées.</p>
+                    <div class="flex flex-col gap-3">
+                        <input type="email" placeholder="Votre email"
+                            class="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-gray-900 outline-none w-full">
+                        <button
+                            class="bg-white text-slate-950 font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all">S'abonner</button>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                <p>© 2026 ENova — EXPÉRIENCE LUXE</p>
+                <div class="flex gap-8">
+                    <a href="privacy.html" class="hover:text-white">Confidentialité</a>
+                    <a href="terms.html" class="hover:text-white">Conditions</a>
+                </div>
+                <p>Designed by <span class="text-white">SITYZEN</span></p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

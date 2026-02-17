@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Espace Client | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+    </style>
+    <script>
+        // Check for Valid Role
+        const role = localStorage.getItem('enovaRole');
+        if (!role || (role !== 'customer' && role !== 'supplier')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+
+<body class="text-gray-900">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 group">
+                <span class="text-xl font-black tracking-tighter">ENova</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-sm font-medium text-gray-500 hover:text-black transition-colors">Retour
+                    à la boutique</a>
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-1 -right-1 bg-black text-white text-[10px] min-w-[20px] h-[20px] flex items-center justify-center rounded-full border-2 border-white font-bold hidden">0</span>
+                </a>
+                <button onclick="AuthManager.logout()"
+                    class="text-sm font-bold text-red-500 hover:text-red-600 transition-colors">Déconnexion</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl">
+                        👤
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-gray-900" id="userDisplayName">Mon Compte</h2>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Client Premium</p>
+                    </div>
+                </div>
+                <nav class="space-y-1">
+                    <a href="#" onclick="switchTab('orders')" class="sidebar-link active" id="link-orders">
+                        <iconify-icon icon="solar:bag-3-bold" width="20"></iconify-icon>
+                        Mes Commandes
+                    </a>
+                    <a href="#" onclick="switchTab('favorites')" class="sidebar-link" id="link-favorites">
+                        <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
+                        Mes Favoris
+                    </a>
+                    <a href="#" onclick="switchTab('notifications')" class="sidebar-link" id="link-notifications">
+                        <iconify-icon icon="solar:bell-bold" width="20"></iconify-icon>
+                        Notifications
+                        <span
+                            class="notification-badge ml-auto bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                    </a>
+                    <a href="#" onclick="switchTab('settings')" class="sidebar-link" id="link-settings">
+                        <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                        Paramètres
+                    </a>
+                    <!-- Admin Link for Suppliers -->
+                    <div id="supplier-link-container" class="hidden">
+                        <div class="h-px bg-gray-100 my-4 mx-2"></div>
+                        <a href="ADMIN NOVA/dashboard.html"
+                            class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
+                            <iconify-icon icon="solar:shield-user-bold" width="20"></iconify-icon>
+                            Espace Vendeur
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <main class="flex-1 min-w-0">
+            <!-- Orders Tab -->
+            <div id="tab-orders" class="space-y-6">
+                <h1 class="text-2xl font-bold tracking-tight">Historique des commandes</h1>
+                <div id="orders-list" class="space-y-4">
+                    <!-- Orders injected here -->
+                </div>
+            </div>
+
+            <!-- Favorites Tab -->
+            <div id="tab-favorites" class="space-y-6 hidden">
+                <h1 class="text-2xl font-bold tracking-tight">Mes produits favoris</h1>
+                <div id="favorites-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Favorites injected here -->
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="view-dashboard" class="space-y-8 animate-in active">
+                <!-- Stats Grid for Customers -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-1">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-2">
+                            <iconify-icon icon="solar:wallet-money-bold" width="24"></iconify-icon>
+                        </div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total dépensé</p>
+                        <div class="text-2xl font-black text-gray-900" id="customer-total-spent">0 FC</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-1">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center mb-2">
+                            <iconify-icon icon="solar:bag-heart-bold" width="24"></iconify-icon>
+                        </div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Commandes</p>
+                        <div class="text-2xl font-black text-gray-900" id="customer-order-count">0</div>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col gap-1">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center mb-2">
+                            <iconify-icon icon="solar:star-bold" width="24"></iconify-icon>
+                        </div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Moyenne / Panier</p>
+                        <div class="text-2xl font-black text-gray-900" id="customer-avg-order">0 FC</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div id="tab-notifications" class="space-y-6 hidden">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold tracking-tight">Mes Notifications</h1>
+                    <div class="flex gap-2">
+                        <button onclick="NotificationManager.markAllAsRead(); renderDashboardNotifications();"
+                            class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors">Tout
+                            lire</button>
+                        <button onclick="NotificationManager.clearAll(); renderDashboardNotifications();"
+                            class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">Effacer</button>
+                    </div>
+                </div>
+                <div id="dashboard-notifications-list" class="space-y-3">
+                    <!-- Notifications injected here -->
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="space-y-6 hidden">
+                <h1 class="text-2xl font-bold tracking-tight">Mon Profil</h1>
+                <div class="glass-panel p-8 max-w-xl">
+                    <form class="space-y-6" id="profileForm">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                            <input type="text" id="profName"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="profEmail"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                            <input type="tel" id="profPhone"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">Enregistrer</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div id="orderModal"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div
+            class="glass-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden animate-in fade-in zoom-in duration-300">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                <div>
+                    <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la commande</h2>
+                    <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
+                </div>
+                <button onclick="closeOrderModal()"
+                    class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-8">
+                <!-- Status & Info -->
+                <div class="flex flex-wrap gap-4 justify-between items-start">
+                    <div class="space-y-1">
+                        <div class="text-xs font-bold text-gray-400 uppercase">Statut</div>
+                        <div id="modalOrderStatus" class="px-3 py-1 rounded-full text-xs font-bold inline-block"></div>
+                    </div>
+                    <div class="space-y-1 text-right">
+                        <div class="text-xs font-bold text-gray-400 uppercase">Mode de paiement</div>
+                        <div class="text-sm font-medium">Paiement à la livraison</div>
+                    </div>
+                </div>
+
+                <!-- Items -->
+                <div class="space-y-4">
+                    <div class="text-xs font-bold text-gray-400 uppercase pb-2 border-b border-gray-100">Articles</div>
+                    <div id="modalOrderItems" class="space-y-4">
+                        <!-- Items injected here -->
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="bg-gray-50 rounded-xl p-6 space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Sous-total</span>
+                        <span id="modalOrderSubtotal" class="font-medium"></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Livraison</span>
+                        <span class="font-medium text-green-600">Gratuit</span>
+                    </div>
+                    <div class="flex justify-between pt-3 border-t border-gray-200">
+                        <span class="font-bold">Total</span>
+                        <span id="modalOrderTotal" class="font-black text-xl"></span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button onclick="downloadInvoice()"
+                        class="flex-1 py-3 bg-gray-100 text-black rounded-xl font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                        <iconify-icon icon="solar:download-bold" width="20"></iconify-icon>
+                        Facture PDF
+                    </button>
+                    <button onclick="closeOrderModal()"
+                        class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors">
+                        Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Invoice Template (for printing) -->
+    <div id="invoiceTemplate" class="hidden">
+        <div style="padding: 40px; font-family: sans-serif; color: #333;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+                <div>
+                    <h1 style="margin: 0; font-size: 24px; font-weight: 900;">ENOVA EMARKET</h1>
+                    <p style="color: #666; font-size: 14px;">Marketplace Premium</p>
+                </div>
+                <div style="text-align: right;">
+                    <h2 style="margin: 0; color: #999;">FACTURE</h2>
+                    <p id="invId" style="font-weight: bold; margin: 5px 0;"></p>
+                    <p id="invDate" style="color: #666; font-size: 12px;"></p>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 40px;">
+                <h3 style="font-size: 12px; text-transform: uppercase; color: #999; margin-bottom: 10px;">Client</h3>
+                <p id="invClient" style="font-weight: bold; margin: 0;"></p>
+                <p id="invEmail" style="color: #666; margin: 5px 0;"></p>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #eee; text-align: left;">
+                        <th style="padding: 10px 0;">Description</th>
+                        <th style="padding: 10px 0; text-align: center;">Qté</th>
+                        <th style="padding: 10px 0; text-align: right;">Prix</th>
+                        <th style="padding: 10px 0; text-align: right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="invItems"></tbody>
+            </table>
+
+            <div style="margin-left: auto; width: 250px;">
+                <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                    <span>Sous-total:</span>
+                    <span id="invSubtotal"></span>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #000; font-weight: 900; font-size: 18px; margin-top: 10px;">
+                    <span>Total:</span>
+                    <span id="invTotal"></span>
+                </div>
+            </div>
+
+            <div style="margin-top: 80px; text-align: center; color: #999; font-size: 12px;">
+                Merci de votre confiance chez ENova !<br>
+                Ceci est une facture générée automatiquement.
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let currentSelectedOrder = null;
+
+        function switchTab(tabId) {
+            // Hide all tabs
+            ['orders', 'favorites', 'notifications', 'settings'].forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                const link = document.getElementById('link-' + t);
+                if (el) el.classList.add('hidden');
+                if (link) link.classList.remove('active');
+            });
+
+            // Show selected
+            const targetEl = document.getElementById('tab-' + tabId);
+            const targetLink = document.getElementById('link-' + tabId);
+            if (targetEl) targetEl.classList.remove('hidden');
+            if (targetLink) targetLink.classList.add('active');
+
+            if (tabId === 'notifications') renderDashboardNotifications();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderOrders();
+            renderFavorites();
+            renderDashboardNotifications(); // Keep this line as it was in the original
+
+            // Show Admin Link for Suppliers
+            const role = localStorage.getItem('enovaRole');
+            if (role === 'supplier') {
+                const supplierLink = document.getElementById('supplier-link-container');
+                if (supplierLink) supplierLink.classList.remove('hidden');
+            }
+
+            // Load Dashboard Stats
+            renderCustomerDashboardStats();
+
+            // Load Profile Settings
+            const profile = ProfileManager.getProfile();
+            document.getElementById('profName').value = profile.name || '';
+            document.getElementById('profEmail').value = profile.email || '';
+            document.getElementById('profPhone').value = profile.phone || '';
+
+            // Sidebar name
+            if (profile.name) {
+                document.getElementById('userDisplayName').textContent = profile.name;
+            }
+        });
+
+        // Profile Form Submit
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const profile = {
+                name: document.getElementById('profName').value,
+                email: document.getElementById('profEmail').value,
+                phone: document.getElementById('profPhone').value
+            };
+            ProfileManager.saveProfile(profile);
+            showToast('Profil mis à jour avec succès !', 'success');
+        });
+
+        function renderDashboardNotifications() {
+            const list = document.getElementById('dashboard-notifications-list');
+            if (!list) return;
+
+            const notifications = NotificationManager.getNotifications();
+
+            if (notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="glass-panel p-12 text-center text-gray-400">
+                        <iconify-icon icon="solar:bell-off-linear" width="48" class="mb-4 text-gray-200"></iconify-icon>
+                        <p>Aucune notification</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = notifications.map(n => {
+                    let icon = 'solar:bell-linear';
+                    let iconColor = 'bg-gray-50 text-gray-400';
+                    if (n.type === 'success') { icon = 'solar:check-circle-bold'; iconColor = 'bg-green-50 text-green-500'; }
+                    else if (n.type === 'error') { icon = 'solar:danger-circle-bold'; iconColor = 'bg-red-50 text-red-500'; }
+                    else if (n.type === 'warning') { icon = 'solar:bell-bing-bold'; iconColor = 'bg-orange-50 text-orange-500'; }
+                    else if (n.type === 'info') { icon = 'solar:info-circle-bold'; iconColor = 'bg-blue-50 text-blue-500'; }
+
+                    return `
+                        <div class="glass-panel p-4 flex gap-4 items-center ${!n.read ? 'bg-black/[0.02] border-black/10' : ''} cursor-pointer hover:border-black/20 transition-all" onclick="NotificationManager.markAsRead('${n.id}'); renderDashboardNotifications();">
+                            <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${iconColor}">
+                                <iconify-icon icon="${icon}" width="20"></iconify-icon>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-0.5">
+                                    <h3 class="font-bold text-sm ${!n.read ? 'text-black' : 'text-gray-600'}">${n.title}</h3>
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${new Date(n.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
+                                </div>
+                                <p class="text-xs text-gray-500 truncate">${n.message}</p>
+                            </div>
+                            ${!n.read ? '<div class="w-1.5 h-1.5 rounded-full bg-black"></div>' : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderCustomerDashboardStats() {
+            const email = localStorage.getItem('enovaUserEmail');
+            if (!email) return;
+
+            const stats = OrderManager.getCustomerStats(email);
+
+            const spentEl = document.getElementById('customer-total-spent');
+            const countEl = document.getElementById('customer-order-count');
+            const avgEl = document.getElementById('customer-avg-order');
+
+            if (spentEl) spentEl.textContent = CurrencyManager.formatPrice(stats.totalSpent);
+            if (countEl) countEl.textContent = stats.totalOrders;
+            if (avgEl) avgEl.textContent = CurrencyManager.formatPrice(stats.avgOrderValue);
+        }
+
+        function renderOrders() {
+            const orders = OrderManager.getOrders();
+            const ordersList = document.getElementById('orders-list');
+
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="glass-panel p-12 text-center text-gray-500">
+                        <iconify-icon icon="solar:box-minimalistic-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                        <p>Votre carnet de commandes est encore vierge. L'exceptionnel vous attend.</p>
+                        <a href="catalog.html" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Commencer l'expérience</a>
+                    </div>
+                `;
+            } else {
+                ordersList.innerHTML = orders.map(order => `
+                    <div class="glass-panel p-6 cursor-pointer hover:border-black transition-all group" onclick="openOrderModal('${order.id}')">
+                        <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-gray-100">
+                            <div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Commande #${order.id}</div>
+                                <div class="text-sm text-gray-500">${new Date(order.date).toLocaleDateString()}</div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}">
+                                    ${order.status}
+                                </div>
+                                <iconify-icon icon="solar:alt-arrow-right-linear" width="20" class="text-gray-300 group-hover:text-black transition-colors"></iconify-icon>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                            ${order.items.slice(0, 3).map(item => `
+                                <div class="w-10 h-10 bg-gray-50 rounded border border-gray-100 flex-shrink-0 p-1">
+                                    <img src="${item.image}" alt="" class="w-full h-full object-contain">
+                                </div>
+                            `).join('')}
+                            ${order.items.length > 3 ? `<div class="text-xs font-bold text-gray-400">+${order.items.length - 3}</div>` : ''}
+                            <div class="ml-auto text-lg font-black text-gray-900">${CurrencyManager.formatPrice(order.total)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderFavorites() {
+            const favorites = FavoritesManager.getFavorites();
+            const favoritesGrid = document.getElementById('favorites-grid');
+
+            if (favorites.length === 0) {
+                favoritesGrid.innerHTML = `
+                    <div class="col-span-full glass-panel p-12 text-center text-gray-500">
+                        <iconify-icon icon="solar:heart-broken-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                        <p>Votre liste de désirs est vide. Laissez-vous séduire par nos pièces d'exception.</p>
+                        <a href="catalog.html" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Explorer le catalogue</a>
+                    </div>
+                `;
+            } else {
+                favoritesGrid.innerHTML = favorites.map(item => `
+                    <div class="glass-panel p-6 flex flex-col relative group">
+                        <button onclick="removeFavorite('${item.id}')" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10">
+                            <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon>
+                        </button>
+                        <div class="aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden">
+                             <img src="${item.image}" alt="${item.name}" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-1 truncate">${item.name}</h3>
+                        <div class="text-sm text-gray-500 mb-4">${CurrencyManager.formatPrice(item.price)}</div>
+                        <button onclick="addToCart('${item.id}')" class="w-full py-2 bg-black text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors">
+                            Ajouter au panier
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'En attente': return 'bg-yellow-100 text-yellow-700';
+                case 'En livraison': return 'bg-blue-100 text-blue-700';
+                case 'Livré': return 'bg-green-100 text-green-700';
+                default: return 'bg-gray-100 text-gray-700';
+            }
+        }
+
+        function openOrderModal(id) {
+            const order = OrderManager.getOrders().find(o => o.id === id);
+            if (!order) return;
+            currentSelectedOrder = order;
+
+            document.getElementById('modalOrderIdText').textContent = 'Commande #' + order.id;
+            document.getElementById('modalOrderDateText').textContent = new Date(order.date).toLocaleDateString('fr-FR', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            const statusEl = document.getElementById('modalOrderStatus');
+            statusEl.textContent = order.status;
+            statusEl.className = `px-3 py-1 rounded-full text-xs font-bold inline-block ${getStatusColor(order.status)}`;
+
+            const itemsList = document.getElementById('modalOrderItems');
+            itemsList.innerHTML = order.items.map(item => `
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gray-50 rounded-xl border border-gray-100 p-2 flex-shrink-0">
+                        <img src="${item.image}" class="w-full h-full object-contain" alt="">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-sm sm:text-base truncate">${item.name}</div>
+                        <div class="text-xs text-gray-500">Quantité: ${item.quantity} × ${CurrencyManager.formatPrice(item.price)}</div>
+                    </div>
+                    <div class="text-sm font-bold text-right">${CurrencyManager.formatPrice(item.price * item.quantity)}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('modalOrderSubtotal').textContent = CurrencyManager.formatPrice(order.total);
+            document.getElementById('modalOrderTotal').textContent = CurrencyManager.formatPrice(order.total);
+
+            document.getElementById('orderModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function downloadInvoice() {
+            if (!currentSelectedOrder) return;
+
+            const o = currentSelectedOrder;
+            document.getElementById('invId').textContent = '#' + o.id;
+            document.getElementById('invDate').textContent = new Date(o.date).toLocaleDateString();
+            document.getElementById('invClient').textContent = o.customer?.name || 'Client ENova';
+            document.getElementById('invEmail').textContent = o.customer?.email || '';
+
+            const invItems = document.getElementById('invItems');
+            invItems.innerHTML = o.items.map(item => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 0;">${item.name}</td>
+                    <td style="padding: 10px 0; text-align: center;">${item.quantity}</td>
+                    <td style="padding: 10px 0; text-align: right;">${CurrencyManager.formatPrice(item.price)}</td>
+                    <td style="padding: 10px 0; text-align: right;">${CurrencyManager.formatPrice(item.price * item.quantity)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('invSubtotal').textContent = CurrencyManager.formatPrice(o.total);
+            document.getElementById('invTotal').textContent = CurrencyManager.formatPrice(o.total);
+
+            // Trigger Print
+            const printContent = document.getElementById('invoiceTemplate').innerHTML;
+            const originalContent = document.body.innerHTML;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>Facture Nova</title></head><body>');
+            printWindow.document.write(printContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        function removeFavorite(id) {
+            FavoritesManager.removeItem(id);
+            renderFavorites(); // Dynamic refresh
+            showToast('Retiré des favoris', 'info');
+        }
+
+        function addToCart(id) {
+            const product = ProductManager.getProduct(id);
+            if (product) {
+                CartManager.addItem(product);
+                showToast('Ajouté au panier !', 'success');
+            }
+        }
+    </script>
+</body>
+
+</html>

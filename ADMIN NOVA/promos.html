@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codes Promo | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/supabase-adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+    </style>
+    <script>
+        // Check for Admin or Supplier Role
+        const role = localStorage.getItem('enovaRole');
+        if (role !== 'admin' && role !== 'supplier') {
+            window.location.href = '../index.html';
+        }
+    </script>
+</head>
+
+<body class="text-gray-900">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <a href="dashboard.html" class="flex items-center gap-2">
+                <span class="text-xl font-black tracking-tighter">ENova</span>
+                <span
+                    class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link">
+                        <iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>
+                        Vue d'ensemble
+                    </a>
+                    <a href="products.html" class="sidebar-link">
+                        <iconify-icon icon="solar:box-bold" width="20"></iconify-icon>
+                        Mes Produits
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>
+                        Commandes
+                    </a>
+                    <a href="diagnostics.html" class="sidebar-link">
+                        <iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>
+                        Analyses & Diagnostics
+                    </a>
+                    <a href="profits.html" class="sidebar-link">
+                        <iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>
+                        Calcul des Profits
+                    </a>
+                    <a href="clients.html" class="sidebar-link">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>
+                        Mes Clients
+                    </a>
+                    <a href="users.html" class="sidebar-link">
+                        <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                        Utilisateurs
+                    </a>
+                    <a href="promos.html" class="sidebar-link active">
+                        <iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>
+                        Codes Promo
+                    </a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link">
+                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                            Paramètres
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Codes Promo</h1>
+                    <p class="text-gray-500" id="pageSubtitle">Gérez vos offres et réductions.</p>
+                </div>
+                <button onclick="openModal()"
+                    class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2">
+                    <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>Nouveau Code
+                </button>
+            </div>
+
+            <div class="glass-panel overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-100">
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Code</th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Type</th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Valeur
+                                </th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Usages
+                                </th>
+                                <th
+                                    class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promosBody" class="divide-y divide-gray-50">
+                            <!-- Promos loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Promo Modal -->
+    <div id="promoModal"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-md p-8 animate-in fade-in zoom-in duration-300">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black tracking-tight">Nouveau Code Promo</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-black"><iconify-icon
+                        icon="solar:close-circle-bold" width="24"></iconify-icon></button>
+            </div>
+            <form id="promoForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Code
+                        (Majuscules)</label>
+                    <input type="text" id="pCode" required placeholder="EX: ETE2026"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors uppercase">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Type</label>
+                        <select id="pType"
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                            <option value="percent">Pourcentage (%)</option>
+                            <option value="fixed">Fixe (FC)</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Valeur</label>
+                        <input type="number" id="pVal" required placeholder="10"
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Limite
+                        d'usages</label>
+                    <input type="number" id="pLimit" required value="100"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                </div>
+                <button type="submit"
+                    class="w-full bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:bg-gray-800 transition-all">Créer
+                    le code</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function renderAdminPromos() {
+            const tbody = document.getElementById('promosBody');
+            const codes = PromoManager.getPromos();
+            const items = Object.entries(codes);
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-400">Aucun code promo actif.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = items.map(([code, data]) => {
+                const val = parseFloat(data.value) || 0;
+                const formattedVal = data.type === 'percent' ? (val * 100) + '%' : CurrencyManager.formatPrice(val);
+
+                return `
+                    <tr class="group hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4 font-black text-gray-900">${code}</td>
+                        <td class="p-4"><span class="px-3 py-1 bg-gray-100 text-[10px] font-bold uppercase rounded-full text-gray-500">${data.type === 'percent' ? 'Réduction %' : 'Montant Fixe'}</span></td>
+                        <td class="p-4 font-bold text-gray-900">${formattedVal}</td>
+                        <td class="p-4 text-xs text-gray-500">${data.maxUses ? (data.maxUses - (data.currentUses || 0)) + ' restants' : 'Illimité'}</td>
+                        <td class="p-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="openModal('${code}')" class="w-8 h-8 rounded-lg bg-gray-50 text-gray-400 hover:bg-black hover:text-white transition-all flex items-center justify-center">
+                                    <iconify-icon icon="solar:pen-bold" width="16"></iconify-icon>
+                                </button>
+                                <button onclick="deletePromo('${code}')" class="w-8 h-8 rounded-lg bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
+                                    <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="16"></iconify-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            if (window.CurrencyManager) CurrencyManager.updateAllPrices();
+        }
+
+        const modal = document.getElementById('promoModal');
+        const form = document.getElementById('promoForm');
+        let editingCode = null;
+
+        function openModal(code = null) {
+            editingCode = code;
+            const title = modal.querySelector('h2');
+            const submitBtn = modal.querySelector('button[type="submit"]');
+
+            if (code) {
+                const codes = PromoManager.getPromos();
+                const data = codes[code];
+                title.textContent = 'Modifier le Code';
+                submitBtn.textContent = 'Enregistrer';
+                document.getElementById('pCode').value = code;
+                document.getElementById('pCode').readOnly = true;
+                document.getElementById('pCode').classList.add('opacity-50');
+                document.getElementById('pType').value = data.type;
+                document.getElementById('pVal').value = data.type === 'percent' ? data.value * 100 : data.value;
+                document.getElementById('pLimit').value = data.maxUses || '';
+            } else {
+                title.textContent = 'Nouveau Code Promo';
+                submitBtn.textContent = 'Créer le code';
+                form.reset();
+                document.getElementById('pCode').readOnly = false;
+                document.getElementById('pCode').classList.remove('opacity-50');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() { modal.classList.add('hidden'); editingCode = null; }
+
+        async function deletePromo(code) {
+            showConfirm('Supprimer ?', 'Voulez-vous désactiver ce code promo ?', async () => {
+                await PromoManager.removePromo(code);
+                renderAdminPromos();
+                showToast('Code promo supprimé.', 'info');
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const code = document.getElementById('pCode').value.toUpperCase();
+            const type = document.getElementById('pType').value;
+            let val = parseFloat(document.getElementById('pVal').value) || 0;
+            const limit = parseInt(document.getElementById('pLimit').value) || 0;
+
+            if (type === 'percent') val = val / 100;
+
+            await PromoManager.addPromo(code, type, val, limit);
+
+            closeModal();
+            renderAdminPromos();
+            showToast(editingCode ? 'Code promo modifié !' : 'Code promo créé !', 'success');
+        });
+
+        function initializePromos() {
+            renderAdminPromos();
+
+            // Dynamic Labels based on role
+            const role = localStorage.getItem('enovaRole');
+            if (role === 'admin') {
+                const pageTitle = document.getElementById('pageTitle');
+                const pageSubtitle = document.getElementById('pageSubtitle');
+                if (pageTitle) pageTitle.textContent = 'Gestion des Promotions';
+                if (pageSubtitle) pageSubtitle.textContent = 'Gérez les codes promotionnels globaux de la plateforme.';
+            }
+
+            // Listen for changes
+            window.addEventListener('promosUpdated', renderAdminPromos);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) {
+                initializePromos();
+            } else {
+                window.addEventListener('enovaInitialized', initializePromos);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centre de Notifications | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-card {
+            background: white;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        .notification-item {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: -1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: #000000;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .unread {
+            background-color: #fbfbfb;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-[#fafafa] text-gray-900 antialiased">
+
+    <!-- ========== HEADER ========== -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1">
+                <span class="text-lg font-semibold tracking-tight">ENova</span>
+            </a>
+
+            <div class="flex items-center gap-2">
+                <a href="index.html"
+                    class="text-sm font-medium text-gray-500 hover:text-black transition-colors mr-4">Retour
+                    boutique</a>
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <a href="favorites.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
+                </a>
+                <a href="cart.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                    <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-20"></div>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter">Notifications</h1>
+                <p class="text-gray-500 text-sm mt-1" id="unread-text">Vous avez 0 notification non lue</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="markAllRead()"
+                    class="text-xs font-bold uppercase tracking-widest px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors">Tout
+                    lire</button>
+                <button onclick="clearAll()"
+                    class="text-xs font-bold uppercase tracking-widest px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">Effacer</button>
+            </div>
+        </div>
+
+        <div id="notifications-list" class="space-y-4">
+            <!-- Notifications will be injected here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden py-24 flex flex-col items-center text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-300">
+                <iconify-icon icon="solar:bell-off-linear" width="32"></iconify-icon>
+            </div>
+            <h2 class="text-xl font-bold">Aucune notification</h2>
+            <p class="text-gray-500 text-sm mt-1 max-w-xs">Nous vous informerons dès qu'il y aura du nouveau pour vous.
+            </p>
+            <a href="catalog.html"
+                class="mt-8 bg-black text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-gray-800 transition-all">Aller
+                à la boutique</a>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script>
+        function renderNotifications() {
+            const list = document.getElementById('notifications-list');
+            const empty = document.getElementById('empty-state');
+            const unreadText = document.getElementById('unread-text');
+            const notifications = NotificationManager.getNotifications();
+            const unreadCount = NotificationManager.getUnreadCount();
+
+            unreadText.textContent = `Vous avez ${unreadCount} notification${unreadCount > 1 ? 's' : ''} non lue${unreadCount > 1 ? 's' : ''}`;
+
+            if (notifications.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+            } else {
+                empty.classList.add('hidden');
+                list.innerHTML = notifications.map((n, index) => {
+                    let icon = 'solar:bell-linear';
+                    let iconColor = 'text-gray-900 bg-gray-100';
+
+                    if (n.type === 'success') {
+                        icon = 'solar:check-circle-bold';
+                        iconColor = 'text-green-600 bg-green-50';
+                    } else if (n.type === 'error') {
+                        icon = 'solar:danger-circle-bold';
+                        iconColor = 'text-red-600 bg-red-50';
+                    } else if (n.type === 'warning') {
+                        icon = 'solar:bell-bing-bold';
+                        iconColor = 'text-orange-600 bg-orange-50';
+                    } else if (n.type === 'info') {
+                        icon = 'solar:info-circle-bold';
+                        iconColor = 'text-blue-600 bg-blue-50';
+                    }
+
+                    const dateObj = new Date(n.date);
+                    const timeStr = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    const dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+
+                    return `
+                        <div class="glass-card p-6 notification-item ${!n.read ? 'unread' : ''} animate-fade-in" style="animation-delay: ${index * 0.05}s" onclick="markRead('${n.id}')">
+                            <div class="flex gap-4">
+                                <div class="w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center ${iconColor}">
+                                    <iconify-icon icon="${icon}" width="24"></iconify-icon>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <h3 class="font-bold text-sm sm:text-base">${n.title}</h3>
+                                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${dateStr} • ${timeStr}</span>
+                                    </div>
+                                    <p class="text-gray-500 text-sm leading-relaxed">${n.message}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function markRead(id) {
+            NotificationManager.markAsRead(id);
+            renderNotifications();
+        }
+
+        function markAllRead() {
+            NotificationManager.markAllAsRead();
+            renderNotifications();
+        }
+
+        function clearAll() {
+            showConfirm('Tout effacer', 'Voulez-vous vraiment supprimer tout l\'historique des notifications ?', () => {
+                NotificationManager.clearAll();
+                renderNotifications();
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNotifications();
+
+            // Listen for updates from other tabs
+            window.addEventListener('notificationsUpdated', renderNotifications);
+        });
+    </script>
+</body>
+
+</html>

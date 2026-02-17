@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favoris — ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+
+        .card-shadow:hover {
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-1">
+                <span class="text-lg font-semibold tracking-tight">ENova</span>
+            </a>
+            <div class="flex items-center gap-6">
+                <!-- Currency Switch -->
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
+                        style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+                <a href="catalog.html" class="text-sm font-medium hover:text-gray-900 transition-colors">Catalogue</a>
+                <a href="favorites.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Favoris">
+                    <iconify-icon icon="solar:heart-bold" width="22" class="text-gray-900"></iconify-icon>
+                    <span
+                        class="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="font-size:10px; width:18px; height:18px;" id="favoritesBadge">0</span>
+                </a>
+                <a href="cart.html" class="relative group">
+                    <iconify-icon icon="solar:bag-3-linear" width="24"
+                        class="text-gray-700 group-hover:text-gray-900 transition-colors"></iconify-icon>
+                    <span
+                        class="absolute -top-1.5 -right-1.5 bg-gray-900 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
+                        id="cartCount">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-24"></div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Mes Favoris</h1>
+                <p class="text-gray-500 text-sm mt-1">Gérez vos articles coups de cœur</p>
+            </div>
+            <button id="clearAllBtn"
+                class="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-4 py-2 rounded-xl">
+                <iconify-icon icon="solar:trash-bin-trash-linear" width="18"></iconify-icon>
+                Tout effacer
+            </button>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+            <div class="w-24 h-24 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                <iconify-icon icon="solar:heart-break-linear" width="48"></iconify-icon>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</h2>
+            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et
+                enregistrez vos coups de cœur ici.</p>
+            <a href="catalog.html"
+                class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                Voir le catalogue
+            </a>
+        </div>
+
+        <!-- Favorites Grid -->
+        <div id="favoritesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Dynamically filled -->
+        </div>
+    </main>
+
+    <footer class="mt-20 border-t border-gray-100 py-12 text-center">
+        <p class="text-sm text-gray-400">&copy; 2026 ENova. Tous droits réservés.</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Use FavoritesManager from main.js but with this custom UI
+        function renderFavorites() {
+            const grid = document.getElementById('favoritesGrid');
+            const empty = document.getElementById('emptyState');
+            const favs = window.FavoritesManager ? window.FavoritesManager.getFavorites() : [];
+
+            if (favs.length === 0) {
+                empty.classList.remove('hidden');
+                grid.classList.add('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.classList.remove('hidden');
+
+            grid.innerHTML = favs.map(item => `
+                <div class="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-shadow transition-all duration-300 relative">
+                    <button onclick="removeFromFav('${item.id}')" class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-red-500 shadow-sm hover:bg-red-500 hover:text-white transition-all">
+                        <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
+                    </button>
+                    <div class="aspect-square bg-gray-50 flex items-center justify-center p-8 overflow-hidden">
+                        <img src="${item.image}" alt="${item.name}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" onerror="this.src='Images/default.png'">
+                    </div>
+                    <div class="p-6">
+                        <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 font-mono">${item.category}</div>
+                        <h3 class="font-bold text-gray-900 mb-4 line-clamp-1">${item.name}</h3>
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="text-xl font-black text-gray-900" data-price-cdf="${item.price}">${window.CurrencyManager ? CurrencyManager.formatPrice(item.price) : item.price + ' FC'}</span>
+                            <button onclick="addToCart('${item.id}')" class="flex-1 bg-gray-900 hover:bg-black text-white py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:cart-large-minimalistic-linear" width="16"></iconify-icon>
+                                Ajouter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            if (window.CurrencyManager) CurrencyManager.updateAllPrices();
+        }
+
+        function removeFromFav(id) {
+            if (window.FavoritesManager) {
+                window.FavoritesManager.removeItem(id);
+                renderFavorites();
+            }
+        }
+
+        function addToCart(id) {
+            const product = window.FavoritesManager.getFavorites().find(f => f.id === id);
+            if (product && window.CartManager) {
+                window.CartManager.addItem(product);
+                // Notification/Toast
+                if (window.showToast) {
+                    showToast(product.name + ' ajouté au panier !', 'success');
+                }
+            }
+        }
+
+        document.getElementById('clearAllBtn').onclick = () => {
+            showConfirm(
+                'Tout effacer ?',
+                'Êtes-vous sûr de vouloir supprimer tous vos articles favoris ? Cette action est irréversible.',
+                () => {
+                    window.FavoritesManager.clearAll();
+                    renderFavorites();
+                    showToast('Tous les favoris ont été effacés', 'info');
+                }
+            );
+        };
+
+        document.addEventListener('DOMContentLoaded', renderFavorites);
+    </script>
+</body>
+
+</html>

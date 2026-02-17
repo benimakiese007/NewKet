@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produit — ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/supabase-adapter.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 999px;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #000000;
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .thumbnail-active {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px #f3f4f6;
+        }
+    </style>
+</head>
+
+<body class="bg-white text-gray-900 antialiased">
+
+    <!-- ========== HEADER ========== -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
+            <a href="index.html" class="flex-shrink-0 flex items-center gap-1">
+                <span class="text-lg font-semibold tracking-tight hidden sm:block">ENova</span>
+            </a>
+            <div class="flex-1 max-w-2xl mx-auto relative group">
+                <div
+                    class="flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300">
+                    <iconify-icon icon="solar:magnifer-linear" width="20" class="ml-4 text-slate-400"></iconify-icon>
+                    <input type="text" placeholder="Rechercher une pièce, un style..."
+                        class="w-full py-3 px-3 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
+                    <button
+                        class="bg-slate-900 text-white px-6 py-2.5 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all hidden sm:block uppercase tracking-wider">RECHERCHE</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-1 sm:gap-2">
+                <!-- Currency Switch -->
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <!-- Notification Bell -->
+                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
+                        style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+                <a href="login.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Compte">
+                    <iconify-icon icon="solar:user-linear" width="22" style="stroke-width:1.5"
+                        class="text-gray-600"></iconify-icon>
+                </a>
+                <a href="favorites.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Favoris">
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="font-size:10px; width:18px; height:18px;" id="favoritesBadge">0</span>
+                </a>
+                <a href="cart.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Panier">
+                    <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="font-size:10px; width:18px; height:18px;" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+        <div class="border-t border-gray-50 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6">
+                <nav class="flex items-center gap-1 overflow-x-auto py-2 -mx-2" style="scrollbar-width:none;">
+                    <a href="index.html"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Accueil</a>
+                    <a href="catalog.html"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Toutes
+                        les catégories</a>
+                    <a href="catalog.html?category=Collections Femme"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors border-b-2 border-gray-900">Femme</a>
+                    <a href="catalog.html?category=Style Homme"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Homme</a>
+                    <a href="catalog.html?category=Tech & Gadgets"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Électronique</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="h-24 sm:h-28"></div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 ring-gray-100">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-2 text-sm text-gray-500 mb-8" id="product-breadcrumb">
+            <a href="index.html" class="hover:text-gray-900 transition-colors">Accueil</a>
+            <iconify-icon icon="solar:alt-arrow-right-linear" width="14"></iconify-icon>
+            <a href="catalog.html" class="hover:text-gray-900 transition-colors">Catalogue</a>
+            <iconify-icon icon="solar:alt-arrow-right-linear" width="14"></iconify-icon>
+            <span class="text-gray-900 font-medium" id="breadcrumb-curr">Chargement...</span>
+        </nav>
+
+        <div class="grid lg:grid-cols-2 gap-12 items-start">
+            <!-- Left: Gallery -->
+            <div class="space-y-4 sticky top-40">
+                <div
+                    class="bg-gray-50 rounded-3xl overflow-hidden aspect-square flex items-center justify-center p-8 relative group">
+                    <img src="" id="main-product-img" class="w-full h-full object-contain mix-blend-multiply" alt="">
+                    <button
+                        class="wishlist-btn absolute top-6 right-6 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-red-500 transition-all"
+                        onclick="addToWishlist(getProductId(), event)">
+                        <iconify-icon icon="solar:heart-linear" width="24"></iconify-icon>
+                    </button>
+                    <span id="product-badge"
+                        class="absolute top-6 left-6 bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hidden"></span>
+                </div>
+                <div class="grid grid-cols-4 gap-4" id="thumbnail-gallery">
+                    <!-- Thumbnails will be injected here -->
+                </div>
+            </div>
+
+            <!-- Right: Info -->
+            <div class="space-y-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="product-category-tag"
+                            class="text-xs font-bold text-gray-900 uppercase tracking-widest bg-gray-100 px-2 py-0.5 rounded">CATEGORIE</span>
+                        <div class="flex items-center gap-1 ml-auto">
+                            <iconify-icon icon="solar:star-bold" width="16" class="text-amber-400"></iconify-icon>
+                            <span class="text-sm font-semibold text-gray-900" id="product-rating-val">4.5</span>
+                            <span class="text-sm text-gray-400" id="product-reviews-count">(128 avis)</span>
+                        </div>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 tracking-tight leading-tight"
+                        id="product-name">Nom du produit</h1>
+                    <div class="flex items-baseline gap-4 mb-6">
+                        <span class="text-3xl font-bold text-gray-900" id="product-price">0 FC</span>
+                        <span class="text-lg text-gray-400 line-through hidden" id="product-old-price">0 FC</span>
+                    </div>
+                    <p class="text-gray-600 leading-relaxed" id="product-description">
+                        Description du produit...
+                    </p>
+                </div>
+
+                <div class="h-px bg-gray-100"></div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wider">Caractéristiques
+                        </h4>
+                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="product-features-list">
+                            <!-- Features will be injected here -->
+                        </ul>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                                <button onclick="updateQty(-1)"
+                                    class="w-12 h-12 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                                    <iconify-icon icon="solar:minus-linear" width="16"></iconify-icon>
+                                </button>
+                                <input type="number" id="qty-input" value="1" readonly
+                                    class="w-12 text-center font-semibold bg-transparent border-none focus:ring-0">
+                                <button onclick="updateQty(1)"
+                                    class="w-12 h-12 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                                    <iconify-icon icon="solar:plus-linear" width="16"></iconify-icon>
+                                </button>
+                            </div>
+                            <button
+                                class="flex-1 bg-gray-900 hover:bg-black text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-3 shadow-xl"
+                                onclick="addToCart(getProductId())">
+                                <iconify-icon icon="solar:bag-3-outline" width="20"></iconify-icon>
+                                Ajouter au panier
+                            </button>
+                            <button
+                                class="wishlist-btn w-14 h-14 bg-white border border-gray-200 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-all shadow-sm"
+                                onclick="addToWishlist(getProductId(), event)" title="Ajouter aux favoris">
+                                <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-900"></iconify-icon>
+                            </button>
+                        </div>
+                        <p class="text-xs text-center text-gray-500">Expédié sous 24-48h · Livraison gratuite disponible
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Trusted Info -->
+                <div class="bg-gray-50 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-900">
+                            <iconify-icon icon="solar:shield-check-linear" width="20"></iconify-icon>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div class="font-bold text-gray-900">Garantie 2 ans</div>
+                            <div>Achat 100% sécurisé</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-900">
+                            <iconify-icon icon="solar:undo-left-linear" width="20"></iconify-icon>
+                        </div>
+                        <div class="text-xs text-gray-600">
+                            <div class="font-bold text-gray-900">Retours Faciles</div>
+                            <div>Satisfait ou remboursé</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="mt-20 border-t border-gray-100 pt-16">
+            <div class="flex items-center justify-between mb-10">
+                <h2 class="text-2xl font-bold">Avis clients</h2>
+                <button class="text-sm font-semibold text-gray-900 hover:text-black">Donner mon avis</button>
+            </div>
+            <div id="reviews-container" class="space-y-6">
+                <!-- Reviews injected by JS -->
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="bg-gray-900 text-white mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+            <div
+                class="flex flex-col md:flex-row justify-between items-center gap-8 border-b border-gray-800 pb-12 mb-12">
+                <a href="index.html" class="flex items-center gap-2">
+                    <span class="text-2xl font-bold tracking-tight text-white">ENova</span>
+                </a>
+                <div class="flex gap-8 text-sm text-gray-400">
+                    <a href="about.html" class="hover:text-white transition-colors">À propos</a>
+                    <a href="privacy.html" class="hover:text-white transition-colors">Politique de confidentialité</a>
+                    <a href="terms.html" class="hover:text-white transition-colors">Conditions générales</a>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+                <p>© 2026 ENova. Tous droits réservés.</p>
+                <p>Conçu par SITYZEN</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const productsDB = {
+            'parfum': {
+                name: 'Parfum Élégance',
+                category: 'Beauté',
+                priceCDF: 50000,
+                priceUSD: 20,
+                image: 'Images/flacon.png',
+                badge: 'Nouveau',
+                rating: 4.8,
+                reviews: 156,
+                description: 'Un parfum unique qui allie raffinement et mystère. Ses notes de tête florales laissent place à un cœur boisé intense. Parfait pour vos soirées prestigieuses.',
+                features: ['Format 100ml', 'Eau de parfum', 'Notes : Iris, Santal', 'Flacon luxe'],
+                review: 'Une tenue exceptionnelle toute la journée. Je ne reçois que des compliments !'
+            },
+            'voiture': {
+                name: 'Mini EV Nammi S31',
+                category: 'Automobile',
+                priceCDF: 25000000,
+                priceUSD: 10000,
+                image: 'Images/Factory-Direct-Sales-Dongfeng-2024-New-Product-Trending-Small-Electric-Car-Nammi-S31-Mini-EV-Cheapest-Ev-Car-From-China.jpg_300x300.avif',
+                badge: 'Promo',
+                rating: 4.2,
+                reviews: 28,
+                description: 'La révolution électrique à portée de main. Compacte, silencieuse et incroyablement maniable en ville. Idéale pour les trajets quotidiens.',
+                features: ['Zéro émission', 'Autonomie 200km', 'Recharge rapide', 'Connectivité BlueTooth'],
+                review: 'Le meilleur choix pour Kinshasa ! Finis les bruits de moteur et les frais d\'essence.'
+            },
+            'laptop': {
+                name: 'Ordinateur Portable HP I7',
+                category: 'High-Tech',
+                priceCDF: 525000,
+                priceUSD: 210,
+                image: 'Images/3a7cdf50-be32-4d07-b2a0-2cee2df8308a_390x286.jpg',
+                rating: 5,
+                reviews: 89,
+                description: 'Performance et élégance réunies. Ce laptop HP i7 vous offre une rapidité exceptionnelle pour vos créations graphiques ou votre bureautique exigeante.',
+                features: ['Core i7 12th Gen', '16Go RAM DDR4', 'SSD 512Go NVMe', 'Windows 11 Pro'],
+                review: 'Une rapidité incroyable. L\'écran est magnifique !'
+            },
+            'cosmetiques': {
+                name: 'Kit Cosmétiques Premium',
+                category: 'Beauté',
+                priceCDF: 95000,
+                priceUSD: 38,
+                image: 'Images/tconvfimg-les-dupes-ces-copies-legales-de-produit-best-seller-que-vous-avez-deja-du-a.jpg',
+                badge: 'Tendance',
+                rating: 4.6,
+                reviews: 215,
+                description: 'Les indispensables de votre routine beauté réunis en un seul kit. Des formules testées dermatologiquement pour un soin complet de votre peau.',
+                features: ['Set de 5 produits', 'Ingrédients bio', 'Texture soyeuse', 'Tous types de peau'],
+                review: 'Ma peau revit depuis que j\'utilise ce kit. Un pur bonheur.'
+            }
+        };
+
+        function getProductId() {
+            return new URLSearchParams(window.location.search).get('id') || 'parfum';
+        }
+
+        function loadProduct() {
+            const id = getProductId();
+            let p = null;
+
+            // Try ProductManager first (Global Storage)
+            if (window.ProductManager) {
+                const globalProduct = ProductManager.getProduct(id);
+                if (globalProduct) {
+                    p = {
+                        name: globalProduct.name,
+                        category: globalProduct.category,
+                        priceCDF: globalProduct.price,
+                        priceUSD: Math.round(globalProduct.price / 2500),
+                        image: globalProduct.image,
+                        badge: globalProduct.isNew ? 'Nouveau' : (globalProduct.isPromo ? 'Promo' : null),
+                        rating: globalProduct.rating || 4.5,
+                        reviews: globalProduct.reviews || 0,
+                        description: globalProduct.description || 'Découvrez ce produit exceptionnel de notre collection.',
+                        features: globalProduct.features || ['Qualité Premium', 'Garantie ENova', 'Satisfaction client'],
+                        review: globalProduct.review || 'Excellent produit, conforme à mes attentes !'
+                    };
+                }
+            }
+
+            // Fallback to local productsDB
+            if (!p) p = productsDB[id];
+
+            if (!p) {
+                console.error("L'article d'exception recherché (id: " + id + ") s'est dérobé à nos archives.");
+                return;
+            }
+
+            document.title = `${p.name} — ENova`;
+
+            // Image & Gallery
+            const mainImg = document.getElementById('main-product-img');
+            mainImg.src = p.image;
+            mainImg.alt = p.name;
+            mainImg.onerror = () => mainImg.src = 'https://via.placeholder.com/600';
+
+            const thumbGallery = document.getElementById('thumbnail-gallery');
+            thumbGallery.innerHTML = '';
+            // For now just 4 identical thumbnails to maintain UI layout
+            for (let i = 0; i < 4; i++) {
+                thumbGallery.innerHTML += `
+                    <div class="cursor-pointer border-2 ${i === 0 ? 'border-gray-500' : 'border-gray-100'} rounded-xl p-2 bg-gray-50 hover:border-gray-500 transition-colors">
+                        <img src="${p.image}" class="w-full h-full object-contain mix-blend-multiply" alt="" onerror="this.src='https://via.placeholder.com/100'">
+                    </div>
+                `;
+            }
+
+            // Text Info
+            document.getElementById('product-name').textContent = p.name;
+            document.getElementById('breadcrumb-curr').textContent = p.name;
+            document.getElementById('product-category-tag').textContent = p.category;
+            document.getElementById('product-description').textContent = p.description;
+            document.getElementById('product-rating-val').textContent = p.rating;
+            document.getElementById('product-reviews-count').textContent = `(${p.reviews} avis)`;
+
+            const priceEl = document.getElementById('product-price');
+            priceEl.dataset.priceCdf = p.priceCDF;
+            priceEl.dataset.priceUsd = p.priceUSD;
+
+            // Use CurrencyManager if available
+            if (window.CurrencyManager) {
+                priceEl.textContent = CurrencyManager.formatPrice(p.priceCDF);
+            } else {
+                priceEl.textContent = `${p.priceCDF.toLocaleString()} FC`;
+            }
+
+            // Badge
+            const badge = document.getElementById('product-badge');
+            if (p.badge) {
+                badge.textContent = p.badge;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            // Features
+            const featuresList = document.getElementById('product-features-list');
+            featuresList.innerHTML = p.features.map(f => `
+                <li class="flex items-center gap-2 text-sm text-gray-700">
+                    <iconify-icon icon="solar:check-circle-bold" width="18" class="text-green-500"></iconify-icon>
+                    ${f}
+                </li>
+            `).join('');
+
+            // Reviews
+            const reviewsCont = document.getElementById('reviews-container');
+            const demoReviews = [
+                { user: 'Beni M.', date: 'Il y a 2 jours', text: p.review, rating: Math.floor(p.rating) },
+                { user: 'Sarah K.', date: 'Il y a 1 semaine', text: 'Conforme aux photos, je recommande vivement.', rating: 5 },
+                { user: 'Marc T.', date: 'Il y a 1 mois', text: 'Un peu cher mais la qualité est au rendez-vous.', rating: 4 }
+            ];
+
+            reviewsCont.innerHTML = `
+                <div class="grid gap-6">
+                    ${demoReviews.map(r => `
+                        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">${r.user.charAt(0)}</div>
+                                    <div>
+                                        <div class="text-sm font-bold text-gray-900">${r.user}</div>
+                                        <div class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">${r.date}</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center text-amber-500">
+                                    ${Array(r.rating).fill('<iconify-icon icon="solar:star-bold" width="12"></iconify-icon>').join('')}
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed italic">"${r.text}"</p>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <!-- Add Review Form -->
+                <div class="mt-12 bg-gray-50 rounded-3xl p-8 border border-gray-100">
+                    <h3 class="text-xl font-bold mb-6">Laisser un avis</h3>
+                    <div class="space-y-4">
+                        <div class="flex gap-2 mb-4">
+                            <span class="text-sm font-bold text-gray-400 mr-2">Votre note :</span>
+                            <div class="flex gap-1 text-gray-300">
+                                ${[1, 2, 3, 4, 5].map(i => `<iconify-icon icon="solar:star-bold" width="24" class="cursor-pointer hover:text-amber-400 transition-colors" onclick="setRating(${i}, this)"></iconify-icon>`).join('')}
+                            </div>
+                        </div>
+                        <textarea id="reviewText" placeholder="Partagez votre expérience..." class="w-full bg-white border border-gray-200 rounded-2xl p-4 text-sm outline-none focus:ring-2 focus:ring-gray-100 h-32"></textarea>
+                        <button onclick="submitReview()" class="bg-gray-900 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-black transition-all">Publier l'avis</button>
+                    </div>
+                </div>
+            `;
+            // Finalize UI
+            if (window.FavoritesManager) {
+                FavoritesManager.updateUI();
+            }
+        }
+
+        let currentRating = 5;
+        function setRating(val, el) {
+            currentRating = val;
+            const stars = el.parentElement.querySelectorAll('iconify-icon');
+            stars.forEach((s, idx) => {
+                s.classList.toggle('text-amber-400', idx < val);
+                s.classList.toggle('text-gray-300', idx >= val);
+            });
+        }
+
+        function submitReview() {
+            const text = document.getElementById('reviewText').value;
+            if (!text) return showToast('Veuillez confier votre avis à notre plume.', 'error');
+
+            // Simulation
+            showToast('Votre témoignage précieux est en cours de modération. Merci de partager l\'élégance.', 'success');
+            document.getElementById('reviewText').value = '';
+        }
+
+        function addToWishlist(id, event) {
+            if (window.addToWishlist) {
+                window.addToWishlist(id, event);
+                // Force UI update
+                setTimeout(() => { if (window.FavoritesManager) FavoritesManager.updateUI(); }, 100);
+            }
+        }
+
+        function updateQty(val) {
+            const input = document.getElementById('qty-input');
+            let curr = parseInt(input.value);
+            curr = Math.max(1, curr + val);
+            input.value = curr;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) {
+                loadProduct();
+            } else {
+                window.addEventListener('enovaInitialized', loadProduct);
+            }
+        });
+    </script>
+</body>
+
+</html>

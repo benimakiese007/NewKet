@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Utilisateurs | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/supabase-adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+
+        .role-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .role-customer {
+            background-color: #ecfdf5;
+            color: #059669;
+        }
+
+        .role-supplier {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        .role-admin {
+            background-color: #fff7ed;
+            color: #ea580c;
+        }
+    </style>
+    <script>
+        // Check for Admin Role
+        const role = localStorage.getItem('enovaRole');
+        if (role !== 'admin') {
+            window.location.href = 'dashboard.html';
+        }
+    </script>
+</head>
+
+<body class="text-gray-900">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <a href="dashboard.html" class="flex items-center gap-2">
+                <span class="text-xl font-black tracking-tighter">ENova</span>
+                <span
+                    class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link">
+                        <iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>
+                        Vue d'ensemble
+                    </a>
+                    <a href="products.html" class="sidebar-link">
+                        <iconify-icon icon="solar:box-bold" width="20"></iconify-icon>
+                        Mes Produits
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>
+                        Commandes
+                    </a>
+                    <a href="diagnostics.html" class="sidebar-link">
+                        <iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>
+                        Analyses & Diagnostics
+                    </a>
+                    <a href="profits.html" class="sidebar-link">
+                        <iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>
+                        Calcul des Profits
+                    </a>
+                    <a href="clients.html" class="sidebar-link">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>
+                        Mes Clients
+                    </a>
+                    <a href="users.html" class="sidebar-link active">
+                        <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                        Utilisateurs
+                    </a>
+                    <a href="promos.html" class="sidebar-link">
+                        <iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>
+                        Codes Promo
+                    </a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link">
+                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                            Paramètres
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Utilisateurs</h1>
+                    <p class="text-gray-500">Gérez tous les comptes enregistrés sur la plateforme.</p>
+                </div>
+            </div>
+
+            <!-- Filters & Search -->
+            <div class="glass-panel p-4 flex flex-col md:flex-row gap-4">
+                <div class="flex-1 relative">
+                    <iconify-icon icon="solar:magnifer-linear"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
+                    <input type="text" id="userSearch" placeholder="Rechercher par nom ou email..."
+                        class="w-full pl-11 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm">
+                </div>
+                <div class="flex gap-2 overflow-x-auto pb-2 md:pb-0">
+                    <button onclick="filterUsers('all')"
+                        class="filter-btn active px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest bg-black text-white whitespace-nowrap">Tous</button>
+                    <button onclick="filterUsers('customer')"
+                        class="filter-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest bg-gray-50 text-gray-500 hover:text-black transition-all whitespace-nowrap">Clients</button>
+                    <button onclick="filterUsers('supplier')"
+                        class="filter-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest bg-gray-50 text-gray-500 hover:text-black transition-all whitespace-nowrap">Vendeurs</button>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="glass-panel overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-100">
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    Utilisateur</th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Rôle</th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Date
+                                    d'inscription</th>
+                                <th
+                                    class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersBody" class="divide-y divide-gray-50">
+                            <!-- Users loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="hidden p-12 text-center">
+                    <iconify-icon icon="solar:users-group-rounded-linear" class="text-gray-200 mb-4"
+                        width="48"></iconify-icon>
+                    <p class="text-gray-400">Aucun utilisateur trouvé.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersBody');
+            const emptyState = document.getElementById('emptyState');
+            const allUsers = UserManager.getUsers();
+
+            const filteredUsers = allUsers.filter(u => {
+                const matchesRole = currentFilter === 'all' || u.role === currentFilter;
+                const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    u.email.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesRole && matchesSearch;
+            });
+
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            tbody.innerHTML = filteredUsers.map(u => `
+                <tr class="group hover:bg-gray-50/50 transition-colors">
+                    <td class="p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center text-xs font-black">
+                                ${u.avatar || u.name.substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900">${u.name}</div>
+                                <div class="text-[10px] text-gray-400 font-medium">${u.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-4">
+                        <span class="role-badge ${getRoleClass(u.role)}">${getRoleLabel(u.role)}</span>
+                    </td>
+                    <td class="p-4 text-sm text-gray-500">
+                        ${new Date(u.dateJoined).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="confirmDelete('${u.id}', '${u.name}')" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                            <iconify-icon icon="solar:trash-bin-trash-linear" width="18"></iconify-icon>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getRoleClass(role) {
+            switch (role) {
+                case 'customer': return 'role-customer';
+                case 'supplier': return 'role-supplier';
+                case 'admin': return 'role-admin';
+                default: return 'bg-gray-100 text-gray-500';
+            }
+        }
+
+        function getRoleLabel(role) {
+            switch (role) {
+                case 'customer': return 'Client';
+                case 'supplier': return 'Vendeur';
+                case 'admin': return 'Admin';
+                default: return role;
+            }
+        }
+
+        function filterUsers(role) {
+            currentFilter = role;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(getRoleLabel(role).toLowerCase()) || (role === 'all' && btn.textContent === 'Tous')) {
+                    btn.classList.add('bg-black', 'text-white');
+                    btn.classList.remove('bg-gray-50', 'text-gray-500');
+                } else {
+                    btn.classList.remove('bg-black', 'text-white');
+                    btn.classList.add('bg-gray-50', 'text-gray-500');
+                }
+            });
+            renderUsers();
+        }
+
+        async function confirmDelete(id, name) {
+            if (window.showConfirm) {
+                showConfirm(
+                    "Supprimer l'utilisateur",
+                    `Êtes-vous sûr de vouloir supprimer ${name} ? Cette action est irréversible.`,
+                    async () => {
+                        await UserManager.deleteUser(id);
+                        renderUsers();
+                        showToast("Utilisateur supprimé avec succès", "success");
+                    }
+                );
+            } else if (confirm(`Supprimer ${name} ?`)) {
+                await UserManager.deleteUser(id);
+                renderUsers();
+            }
+        }
+
+        document.getElementById('userSearch').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderUsers();
+        });
+
+        function initializeUsers() {
+            renderUsers();
+            // Listen for changes
+            window.addEventListener('usersUpdated', renderUsers);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) {
+                initializeUsers();
+            } else {
+                window.addEventListener('enovaInitialized', initializeUsers);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Produits | ENova</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/supabase-adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+
+        .bulk-select option {
+            background-color: white;
+            color: black;
+        }
+    </style>
+    <script>
+        // Check for Admin or Supplier Role
+        const role = localStorage.getItem('enovaRole');
+        if (role !== 'admin' && role !== 'supplier') {
+            window.location.href = '../index.html';
+        }
+    </script>
+</head>
+
+<body class="text-gray-900">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <a href="dashboard.html" class="flex items-center gap-2">
+                <span class="text-xl font-black tracking-tighter">ENova</span>
+                <span
+                    class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link">
+                        <iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>
+                        Vue d'ensemble
+                    </a>
+                    <a href="products.html" class="sidebar-link active">
+                        <iconify-icon icon="solar:box-bold" width="20"></iconify-icon>
+                        Mes Produits
+                    </a>
+                    <a href="orders.html" class="sidebar-link">
+                        <iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>
+                        Commandes
+                    </a>
+                    <a href="diagnostics.html" class="sidebar-link">
+                        <iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>
+                        Analyses & Diagnostics
+                    </a>
+                    <a href="profits.html" class="sidebar-link">
+                        <iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>
+                        Calcul des Profits
+                    </a>
+                    <a href="clients.html" class="sidebar-link">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>
+                        Mes Clients
+                    </a>
+                    <a href="users.html" class="sidebar-link">
+                        <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                        Utilisateurs
+                    </a>
+                    <a href="promos.html" class="sidebar-link">
+                        <iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>
+                        Codes Promo
+                    </a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link">
+                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                            Paramètres
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Mes Produits</h1>
+                    <p class="text-gray-500" id="pageSubtitle">Gérez votre catalogue d'articles.</p>
+                </div>
+                <button onclick="openModal()"
+                    class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2">
+                    <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>Nouveau Produit
+                </button>
+            </div>
+
+            <!-- Bulk Actions Bar -->
+            <div id="bulkActionsBar"
+                class="hidden glass-panel p-4 mb-4 bg-black text-white flex justify-between items-center animate-in slide-in-from-top duration-300">
+                <div class="flex items-center gap-4">
+                    <span id="selectedCount" class="text-sm font-bold">0 produits sélectionnés</span>
+                    <button onclick="deleteSelected()"
+                        class="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors">
+                        <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="16"></iconify-icon>
+                        Supprimer
+                    </button>
+                    <div class="h-4 w-px bg-gray-700"></div>
+                    <select onchange="updateSelectedCategory(this.value); this.value='';"
+                        class="bulk-select bg-transparent text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
+                        <option value="" disabled selected>Changer catégorie</option>
+                        <option value="Collections Femme">Collections Femme</option>
+                        <option value="Style Homme">Style Homme</option>
+                        <option value="Tech & Gadgets">Tech & Gadgets</option>
+                        <option value="Art de vivre">Art de vivre</option>
+                        <option value="Beauté">Beauté</option>
+                    </select>
+                </div>
+                <button onclick="deselectAll()"
+                    class="text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100">Annuler</button>
+            </div>
+
+            <div class="glass-panel overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-100">
+                                <th class="p-4 w-10">
+                                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll()"
+                                        class="rounded border-gray-300 text-black focus:ring-black">
+                                </th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Image
+                                </th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Nom</th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Catégorie
+                                </th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Prix</th>
+                                <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Stock
+                                </th>
+                                <th
+                                    class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsBody" class="divide-y divide-gray-50">
+                            <!-- Products loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal"
+        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-lg p-8 animate-in fade-in zoom-in duration-300">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black tracking-tight" id="modalTitle">Ajouter un produit</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-black"><iconify-icon
+                        icon="solar:close-circle-bold" width="24"></iconify-icon></button>
+            </div>
+            <form id="productForm" class="space-y-6" novalidate>
+                <input type="hidden" id="pId">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nom du
+                        produit</label>
+                    <input type="text" id="pName" required
+                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Catégorie</label>
+                        <select id="pCategory"
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                            <option>Collections Femme</option>
+                            <option>Style Homme</option>
+                            <option>Tech & Gadgets</option>
+                            <option>Art de vivre</option>
+                            <option>Beauté</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Prix (Base
+                            FC)</label>
+                        <input type="number" id="pPrice" required
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Image (URL ou
+                            chemin)</label>
+                        <input type="text" id="pImage" placeholder="Images/produit.jpg"
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Stock</label>
+                        <input type="number" id="pStock" required value="0"
+                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                    </div>
+                </div>
+                <button type="submit"
+                    class="w-full bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:bg-gray-800 transition-all">Enregistrer
+                    l'article</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function renderAdminProducts() {
+            const tbody = document.getElementById('productsBody');
+            const products = ProductManager.getProducts();
+
+            if (products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-400">Aucun produit dans votre catalogue.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = products.map(p => {
+                const isLowStock = (p.stock || 0) < 10;
+                return `
+                <tr class="group hover:bg-gray-50/50 transition-colors">
+                    <td class="p-4">
+                        <input type="checkbox" value="${p.id}" onclick="updateSelectedUI()" class="product-checkbox rounded border-gray-300 text-black focus:ring-black">
+                    </td>
+                    <td class="p-4">
+                        <div class="w-12 h-12 bg-gray-50 rounded-xl border border-gray-100 p-1">
+                            <img src="../${p.image}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/100'">
+                        </div>
+                    </td>
+                    <td class="p-4 font-bold text-gray-900">${p.name}</td>
+                    <td class="p-4"><span class="px-3 py-1 bg-gray-100 text-[10px] font-bold uppercase rounded-full text-gray-500">${p.category}</span></td>
+                    <td class="p-4 font-black text-gray-900" data-price-cdf="${p.price}">${CurrencyManager.formatPrice(p.price)}</td>
+                    <td class="p-4">
+                        <span class="font-black ${isLowStock ? 'text-red-500' : 'text-gray-900'}">${p.stock || 0}</span>
+                        ${isLowStock ? '<span class="text-[8px] font-bold text-red-400 block uppercase">Stock faible</span>' : ''}
+                    </td>
+                    <td class="p-4 text-right">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="editProduct('${p.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-black hover:text-white transition-all flex items-center justify-center">
+                                <iconify-icon icon="solar:pen-bold" width="16"></iconify-icon>
+                            </button>
+                            <button onclick="deleteProduct('${p.id}')" class="w-8 h-8 rounded-lg bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
+                                <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="16"></iconify-icon>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `}).join('');
+
+            if (window.CurrencyManager) CurrencyManager.updateAllPrices();
+        }
+
+        const modal = document.getElementById('productModal');
+        const form = document.getElementById('productForm');
+
+        function openModal(isEdit = false) {
+            modal.classList.remove('hidden');
+            document.getElementById('modalTitle').textContent = isEdit ? 'Modifier le produit' : 'Ajouter un produit';
+            if (!isEdit) form.reset();
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        function editProduct(id) {
+            const p = ProductManager.getProduct(id);
+            if (p) {
+                document.getElementById('pId').value = p.id;
+                document.getElementById('pName').value = p.name;
+                document.getElementById('pCategory').value = p.category;
+                document.getElementById('pPrice').value = p.price;
+                document.getElementById('pImage').value = p.image;
+                document.getElementById('pStock').value = p.stock || 0;
+                openModal(true);
+            }
+        }
+
+        // Bulk Actions Logic
+        function toggleSelectAll() {
+            const master = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.product-checkbox');
+            checkboxes.forEach(c => c.checked = master.checked);
+            updateSelectedUI();
+        }
+
+        function updateSelectedUI() {
+            const selected = document.querySelectorAll('.product-checkbox:checked');
+            const bar = document.getElementById('bulkActionsBar');
+            const count = document.getElementById('selectedCount');
+
+            if (selected.length > 0) {
+                bar.classList.remove('hidden');
+                count.textContent = `${selected.length} produit(s) sélectionné(s)`;
+            } else {
+                bar.classList.add('hidden');
+            }
+        }
+
+        function deselectAll() {
+            document.getElementById('selectAll').checked = false;
+            document.querySelectorAll('.product-checkbox').forEach(c => c.checked = false);
+            updateSelectedUI();
+        }
+
+        function deleteSelected() {
+            const selected = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(c => c.value);
+            showPasswordConfirm('Supprimer groupée ?', `Voulez-vous vraiment retirer ces ${selected.length} articles ?`, () => {
+                ProductManager.deleteBulk(selected);
+                renderAdminProducts();
+                updateSelectedUI();
+                showToast(`${selected.length} articles retirés.`, 'info');
+            });
+        }
+
+        function updateSelectedCategory(category) {
+            const selected = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(c => c.value);
+            ProductManager.updateCategoryBulk(selected, category);
+            renderAdminProducts();
+            updateSelectedUI();
+            showToast('Catégories mises à jour.', 'success');
+        }
+
+        function deleteProduct(id) {
+            showPasswordConfirm('Supprimer ?', 'Voulez-vous vraiment retirer cet article ?', () => {
+                ProductManager.deleteProduct(id);
+                renderAdminProducts();
+                showToast('Article retiré.', 'info');
+            });
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Custom Validation
+            const nameInput = document.getElementById('pName');
+            const priceInput = document.getElementById('pPrice');
+            const name = nameInput.value.trim();
+            const priceVal = priceInput.value.trim();
+
+            if (!name) {
+                showToast("Un nom est indispensable pour présenter cet article.", "error");
+                nameInput.focus();
+                return;
+            }
+            if (!priceVal || parseFloat(priceVal) <= 0) {
+                showToast("Veuillez attribuer une valeur juste à ce produit.", "error");
+                priceInput.focus();
+                return;
+            }
+
+            const id = document.getElementById('pId').value;
+            const product = {
+                name: document.getElementById('pName').value,
+                category: document.getElementById('pCategory').value,
+                price: parseFloat(document.getElementById('pPrice').value),
+                image: document.getElementById('pImage').value || 'Images/default.png',
+                stock: parseInt(document.getElementById('pStock').value) || 0
+            };
+
+            if (id) ProductManager.updateProduct(id, product);
+            else {
+                product.id = 'p-' + Date.now();
+                ProductManager.addProduct(product);
+            }
+            closeModal();
+            renderAdminProducts();
+            showToast('Produit enregistré.', 'success');
+        });
+
+        function initializeProducts() {
+            renderAdminProducts();
+
+            // Dynamic Labels based on role
+            const role = localStorage.getItem('enovaRole');
+            if (role === 'admin') {
+                const pageTitle = document.getElementById('pageTitle');
+                const pageSubtitle = document.getElementById('pageSubtitle');
+                if (pageTitle) pageTitle.textContent = 'Gestion Produits';
+                if (pageSubtitle) pageSubtitle.textContent = 'Gérez le catalogue global de la plateforme.';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) {
+                initializeProducts();
+            } else {
+                window.addEventListener('enovaInitialized', initializeProducts);
+            }
+        });
+    </script>
+</body>
+
+</html>
