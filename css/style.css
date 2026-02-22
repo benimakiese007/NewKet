@@ -281,8 +281,8 @@ h6 {
 
 /* Header & Nav */
 .main-header {
-    padding: 1.5rem 0;
-    /* Vertical padding for spacing */
+    padding: 0;
+    /* Default spacing managed by Tailwind classes inside */
     background-color: var(--bg-white);
     box-shadow: var(--shadow-sm);
     top: 0;
@@ -293,7 +293,7 @@ h6 {
 }
 
 .main-header.scrolled {
-    padding: 0.8rem 0;
+    padding: 0;
     /* Reduced padding on scroll */
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     background-color: rgba(255, 255, 255, 0.95);

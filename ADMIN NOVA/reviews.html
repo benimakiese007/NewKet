@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avis & Évaluations | ENova Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/supabase-adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="text-gray-900">
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
+            <a href="dashboard.html" class="flex items-center gap-2">
+                <img src="../Images/LOGO ENOVA.png" alt="ENova" class="h-10 w-auto invert">
+                <span
+                    class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <a href="../index.html" target="_blank"
+                    class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+                    <iconify-icon icon="solar:globus-linear" width="18"></iconify-icon><span
+                        class="hidden sm:inline">Voir la boutique</span>
+                </a>
+                <div class="h-6 w-px bg-gray-200 mx-2"></div>
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-6">
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link"><iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>Vue d'ensemble</a>
+                    <a href="products.html" class="sidebar-link"><iconify-icon icon="solar:box-bold" width="20"></iconify-icon>Produits</a>
+                    <a href="orders.html" class="sidebar-link"><iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>Commandes</a>
+                    <a href="livraisons.html" class="sidebar-link"><iconify-icon icon="solar:delivery-bold" width="20"></iconify-icon>Livraisons</a>
+                    <a href="diagnostics.html" class="sidebar-link"><iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>Analyses & Diagnostics</a>
+                    <a href="profits.html" class="sidebar-link"><iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>Calcul des Profits</a>
+                    <a href="clients.html" class="sidebar-link"><iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>Mes Clients</a>
+                    <a href="user.html" class="sidebar-link admin-only"><iconify-icon icon="solar:user-bold" width="20"></iconify-icon>Utilisateurs</a>
+                    <a href="user-stats.html" class="sidebar-link admin-only"><iconify-icon icon="solar:users-group-two-rounded-bold" width="20"></iconify-icon>Analyse Utilisateurs</a>
+                    <a href="promos.html" class="sidebar-link"><iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>Codes Promo</a>
+                    <a href="reviews.html" class="sidebar-link"><iconify-icon icon="solar:star-bold" width="20"></iconify-icon>Avis & Évaluations</a>
+                    <a href="rapports.html" class="sidebar-link"><iconify-icon icon="solar:chart-2-bold" width="20"></iconify-icon>Rapports</a>
+                    <a href="notifications-admin.html" class="sidebar-link"><iconify-icon icon="solar:bell-bing-bold" width="20"></iconify-icon>Notifications</a>
+                    <a href="support.html" class="sidebar-link"><iconify-icon icon="solar:chat-round-dots-bold" width="20"></iconify-icon>Support / Tickets</a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link"><iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>Paramètres</a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">⭐ Avis & Évaluations</h1>
+                    <p class="text-gray-500">Moférez et analysez les retours clients sur vos produits.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select id="filterRating" onchange="renderReviews()"
+                        class="text-xs font-black uppercase tracking-widest bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black cursor-pointer">
+                        <option value="all">Toutes les notes</option>
+                        <option value="5">5 Étoiles</option>
+                        <option value="4">4 Étoiles</option>
+                        <option value="3">3 Étoiles</option>
+                        <option value="low">1-2 Étoiles</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats for Reviews -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Avis</div>
+                    <div class="text-2xl font-black text-gray-900" id="statTotalReviews">0</div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Note Moyenne</div>
+                    <div class="text-2xl font-black text-orange-500 flex items-center gap-2" id="statAvgRating">0.0
+                        <iconify-icon icon="solar:star-bold" width="20"></iconify-icon></div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Avis 5 Étoiles</div>
+                    <div class="text-2xl font-black text-green-500" id="stat5Star">0</div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">À modérer</div>
+                    <div class="text-2xl font-black text-red-500" id="statLowStar">0</div>
+                </div>
+            </div>
+
+            <div class="glass-panel overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="font-bold text-gray-900 flex items-center gap-2">
+                        <iconify-icon icon="solar:list-bold-duotone" width="20"
+                            class="text-gray-400"></iconify-icon>Derniers Avis
+                    </h2>
+                </div>
+                <div id="reviewsContainer">
+                    <div class="divide-y divide-gray-50" id="reviewsBody">
+                        <div class="p-12 text-center text-gray-400">Chargement...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Simulons des avis puisqu'ils ne sont pas stockés de manière globale dans appState actuellement
+        function getMockReviews() {
+            return [
+                { id: '1', productId: 'p1', productName: 'iPhone 15 Pro Max', customer: 'Alice M.', rating: 5, comment: 'Excellent produit, livraison rapide !', date: new Date().toISOString() },
+                { id: '2', productId: 'p2', productName: 'Sneakers Nike', customer: 'Bob K.', rating: 4, comment: 'Très confortable, mais un peu cher.', date: new Date(Date.now() - 86400000).toISOString() },
+                { id: '3', productId: 'p3', productName: 'MacBook Pro', customer: 'Charlie T.', rating: 2, comment: 'La batterie se décharge vite.', date: new Date(Date.now() - 172800000).toISOString() },
+                { id: '4', productId: 'p1', productName: 'iPhone 15 Pro Max', customer: 'David L.', rating: 5, comment: 'Magnifique design.', date: new Date(Date.now() - 259200000).toISOString() },
+            ];
+        }
+
+        let allReviews = getMockReviews(); // Replace with real DB fetch if needed
+
+        function renderReviews() {
+            const tbody = document.getElementById('reviewsBody');
+            const filterRating = document.getElementById('filterRating').value;
+
+            let filtered = allReviews;
+            if (filterRating === 'low') filtered = filtered.filter(r => r.rating <= 2);
+            else if (filterRating !== 'all') filtered = filtered.filter(r => r.rating == filterRating);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouvé.</div>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(r => `
+                <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="font-bold text-gray-900">${r.customer}</div>
+                            <div class="flex text-orange-400 text-xs">
+                                ${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-${i < r.rating ? 'bold' : 'linear'}"></iconify-icon>`).join('')}
+                            </div>
+                            <div class="text-[10px] text-gray-400">${new Date(r.date).toLocaleDateString()}</div>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-1">"${r.comment}"</div>
+                        <div class="text-[10px] font-black uppercase text-gray-400">Sur le produit: <span class="text-black">${r.productName}</span></div>
+                    </div>
+                    <div class="flex items-center gap-2 mt-4 md:mt-0">
+                        <button onclick="deleteReview('${r.id}')" class="text-[10px] font-black uppercase tracking-widest text-red-500 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors">Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+
+        function deleteReview(id) {
+            if (!confirm('Supprimer cet avis ?')) return;
+            allReviews = allReviews.filter(r => r.id !== id);
+            renderReviews();
+            showToast('Avis supprimé', 'success');
+        }
+
+        function updateStats() {
+            document.getElementById('statTotalReviews').textContent = allReviews.length;
+            const avg = allReviews.length ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1) : '0.0';
+            document.getElementById('statAvgRating').innerHTML = `${avg} <iconify-icon icon="solar:star-bold" width="16"></iconify-icon>`;
+            document.getElementById('stat5Star').textContent = allReviews.filter(r => r.rating === 5).length;
+            document.getElementById('statLowStar').textContent = allReviews.filter(r => r.rating <= 2).length;
+        }
+
+        function initPage() {
+            renderReviews();
+            const role = localStorage.getItem('enovaRole');
+            document.querySelectorAll('.admin-only').forEach(el => { if (role === 'admin') el.classList.remove('hidden'); else el.classList.add('hidden'); });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) { initPage(); } else { window.addEventListener('enovaInitialized', initPage); }
+        });
+    </script>
+</body>
+
+</html>

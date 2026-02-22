@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapports & Exports | ENova Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/supabase-adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="text-gray-900">
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
+            <a href="dashboard.html" class="flex items-center gap-2">
+                <img src="../Images/LOGO ENOVA.png" alt="ENova" class="h-10 w-auto invert">
+                <span
+                    class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <a href="../index.html" target="_blank"
+                    class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+                    <iconify-icon icon="solar:globus-linear" width="18"></iconify-icon><span
+                        class="hidden sm:inline">Voir la boutique</span>
+                </a>
+                <div class="h-6 w-px bg-gray-200 mx-2"></div>
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-6">
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link"><iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>Vue d'ensemble</a>
+                    <a href="products.html" class="sidebar-link"><iconify-icon icon="solar:box-bold" width="20"></iconify-icon>Produits</a>
+                    <a href="orders.html" class="sidebar-link"><iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>Commandes</a>
+                    <a href="livraisons.html" class="sidebar-link"><iconify-icon icon="solar:delivery-bold" width="20"></iconify-icon>Livraisons</a>
+                    <a href="diagnostics.html" class="sidebar-link"><iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>Analyses & Diagnostics</a>
+                    <a href="profits.html" class="sidebar-link"><iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>Calcul des Profits</a>
+                    <a href="clients.html" class="sidebar-link"><iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>Mes Clients</a>
+                    <a href="user.html" class="sidebar-link admin-only"><iconify-icon icon="solar:user-bold" width="20"></iconify-icon>Utilisateurs</a>
+                    <a href="user-stats.html" class="sidebar-link admin-only"><iconify-icon icon="solar:users-group-two-rounded-bold" width="20"></iconify-icon>Analyse Utilisateurs</a>
+                    <a href="promos.html" class="sidebar-link"><iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>Codes Promo</a>
+                    <a href="reviews.html" class="sidebar-link"><iconify-icon icon="solar:star-bold" width="20"></iconify-icon>Avis & Évaluations</a>
+                    <a href="rapports.html" class="sidebar-link"><iconify-icon icon="solar:chart-2-bold" width="20"></iconify-icon>Rapports</a>
+                    <a href="notifications-admin.html" class="sidebar-link"><iconify-icon icon="solar:bell-bing-bold" width="20"></iconify-icon>Notifications</a>
+                    <a href="support.html" class="sidebar-link"><iconify-icon icon="solar:chat-round-dots-bold" width="20"></iconify-icon>Support / Tickets</a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link"><iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>Paramètres</a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex flex-col justify-between items-start gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">📊 Rapports & Exports</h1>
+                    <p class="text-gray-500">Générez et téléchargez des rapports complets de votre activité au format
+                        CSV.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Rapport Commandes -->
+                <div
+                    class="glass-panel p-6 flex flex-col justify-between hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+                            <iconify-icon icon="solar:bag-bold" width="24"></iconify-icon>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-2">Historique des Commandes</h3>
+                        <p class="text-sm text-gray-500 mb-6">Toutes les commandes, détaillant les clients, statuts,
+                            montants et dates. Idéal pour votre comptabilité.</p>
+                    </div>
+                    <button onclick="exportData('orders')"
+                        class="w-full bg-black text-white px-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+                        <iconify-icon icon="solar:download-bold" width="18"></iconify-icon>Télécharger CSV
+                    </button>
+                </div>
+
+                <!-- Rapport Produits -->
+                <div
+                    class="glass-panel p-6 flex flex-col justify-between hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center mb-4">
+                            <iconify-icon icon="solar:box-bold" width="24"></iconify-icon>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-2">Catalogue & Inventaire</h3>
+                        <p class="text-sm text-gray-500 mb-6">Liste complète de vos produits, incluant les prix,
+                            catégories, et l'état actuel des stocks. Pratique pour faire l'inventaire.</p>
+                    </div>
+                    <button onclick="exportData('products')"
+                        class="w-full bg-black text-white px-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+                        <iconify-icon icon="solar:download-bold" width="18"></iconify-icon>Télécharger CSV
+                    </button>
+                </div>
+
+                <!-- Rapport Clients -->
+                <div
+                    class="glass-panel p-6 flex flex-col justify-between hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <div>
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-50 text-green-500 flex items-center justify-center mb-4">
+                            <iconify-icon icon="solar:users-group-rounded-bold" width="24"></iconify-icon>
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-2">Base de Clients</h3>
+                        <p class="text-sm text-gray-500 mb-6">Liste de tous vos clients ayant passé commande, incluant
+                            leurs contacts et nombre de commandes. Utile pour le marketing.</p>
+                    </div>
+                    <button onclick="exportData('clients')"
+                        class="w-full bg-black text-white px-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors">
+                        <iconify-icon icon="solar:download-bold" width="18"></iconify-icon>Télécharger CSV
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.setAttribute('href', URL.createObjectURL(blob));
+            link.setAttribute('download', `${filename}-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Export réussi !', 'success');
+        }
+
+        function exportData(type) {
+            let data = [];
+            let headers = [];
+            let rows = [];
+
+            if (type === 'orders') {
+                data = OrderManager.getOrders();
+                headers = ['ID', 'Client', 'Email', 'Paiement', 'Mobile', 'Date', 'Total', 'Statut'];
+                rows = data.map(o => [o.id, o.customer?.name || 'Client', o.customer?.email || '', o.payment_method || '', o.phone_number || '', new Date(o.date).toLocaleDateString(), o.total, o.status]);
+            } else if (type === 'products') {
+                data = ProductManager.getProducts();
+                headers = ['ID', 'Nom', 'Catégorie', 'Prix', 'Prix Promo', 'Stock', 'Modifié le'];
+                rows = data.map(p => [p.id, p.name, p.category, p.price, p.promotionalPrice || '', p.stock || 0, new Date(p.updatedAt || Date.now()).toLocaleDateString()]);
+            } else if (type === 'clients') {
+                const orders = OrderManager.getOrders();
+                const clientsMap = {};
+                orders.forEach(o => {
+                    const email = o.customer?.email || o.customer_email || 'inconnu';
+                    if (!clientsMap[email]) {
+                        clientsMap[email] = { name: o.customer?.name || o.customer_name || 'Client', email, phone: o.phone_number || '', orderCount: 0, totalSpent: 0 };
+                    }
+                    clientsMap[email].orderCount++;
+                    clientsMap[email].totalSpent += (o.total || 0);
+                });
+                data = Object.values(clientsMap);
+                headers = ['Nom', 'Email', 'Téléphone', 'Commandes', 'Total Dépensé'];
+                rows = data.map(c => [c.name, c.email, c.phone, c.orderCount, c.totalSpent]);
+            }
+
+            if (rows.length === 0) {
+                showToast(`Aucune donnée à exporter pour: ${type}`, 'warning');
+                return;
+            }
+
+            const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            downloadCSV(csvContent, `enova-${type}`);
+        }
+
+        function initPage() {
+            const role = localStorage.getItem('enovaRole');
+            document.querySelectorAll('.admin-only').forEach(el => { if (role === 'admin') el.classList.remove('hidden'); else el.classList.add('hidden'); });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) { initPage(); } else { window.addEventListener('enovaInitialized', initPage); }
+        });
+    </script>
+</body>
+
+</html>

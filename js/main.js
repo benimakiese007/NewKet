@@ -237,6 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         role: localStorage.getItem('enovaRole') || null, // 'customer' | 'supplier' | null
 
         async init() {
+            this._authChecking = true; // Set flag: auth check in progress
             // Subscribe to auth state changes
             if (window.supabaseClient) {
                 window.supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -265,7 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         this.role = null;
                         localStorage.removeItem('enovaRole');
                         localStorage.removeItem('enovaUserEmail');
-                        sessionStorage.removeItem('adminAuth');
                         this.enforcePermissions();
                         this.updateAccountLink();
                         // Redirect to home if on protected page
@@ -288,15 +288,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     this.setRole(finalRole);
                 } else {
-                    // No Supabase session, check for legacy admin password auth
-                    if (sessionStorage.getItem('adminAuth') === 'true') {
-                        this.setRole('admin');
-                    } else if (this.role) {
+                    // No Supabase session — but respect the localStorage role if admin auth was done via PHOENIX password
+                    const localRole = localStorage.getItem('enovaRole');
+                    const adminAuth = sessionStorage.getItem('adminAuth') === 'true';
+                    if (!localRole || (!adminAuth && localRole === 'admin')) {
                         this.setRole(null);
                     }
+                    // else: keep the localStorage role from the local login
                 }
             }
 
+            this._authChecking = false; // Auth check done
             this.enforcePermissions();
             this.updateAccountLink();
             this.checkWelcomeBonus();
@@ -339,11 +341,13 @@ document.addEventListener('DOMContentLoaded', () => {
             this.role = null;
             localStorage.removeItem('enovaRole');
             localStorage.removeItem('enovaUserEmail');
-            sessionStorage.removeItem('adminAuth');
             window.location.href = 'index.html';
         },
 
         enforcePermissions() {
+            // Don't redirect while auth check is still in progress
+            if (this._authChecking) return;
+
             const body = document.body;
 
             body.classList.add(`role-${this.role}`);
@@ -357,10 +361,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const text = link.textContent.trim();
                     if (isAdmin) {
                         if (text.includes('Mes Produits')) link.innerHTML = '<iconify-icon icon="solar:box-bold" width="20"></iconify-icon> Gestion Produits';
-                        if (text.includes('Commandes')) link.innerHTML = '<iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon> Gestion Commandes';
+                        if (text.includes('Commandes') && text === 'Commandes') link.innerHTML = '<iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon> Gestion Commandes';
                         if (text.includes('Mes Clients')) link.innerHTML = '<iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon> Clients Plateforme';
                         if (text.includes('Calcul des Profits')) link.innerHTML = '<iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon> Profits Plateforme';
-                        if (text.includes('Utilisateurs')) link.innerHTML = '<iconify-icon icon="solar:user-bold" width="20"></iconify-icon> Fournisseurs Plateforme';
+                        if (text === 'Utilisateurs') link.innerHTML = '<iconify-icon icon="solar:user-bold" width="20"></iconify-icon> Fournisseurs Plateforme';
                     } else {
                         // Reset for supplier if needed (usually already correct in HTML, but for toggle safety)
                     }
@@ -426,23 +430,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isLoginPage = path.endsWith('ADMIN%20NOVA/') || path.endsWith('ADMIN NOVA/') || path.endsWith('index.html');
 
                 if (isAdminFolder && !isLoginPage) {
-                    window.location.href = '../login.html';
+                    window.location.href = 'index.html'; // In Admin Nova, index.html is the login
                 }
             }
         },
 
         updateAccountLink() {
             const accountLink = document.getElementById('accountLink');
-            if (accountLink) {
-                if (this.role === 'admin') {
-                    accountLink.href = 'ADMIN NOVA/dashboard.html';
-                } else if (this.role === 'supplier') {
-                    accountLink.href = 'vendor-dashboard.html';
-                } else if (this.role === 'customer') {
-                    accountLink.href = 'customer-dashboard.html';
-                } else {
-                    accountLink.href = 'login.html';
+            if (!accountLink) return;
+
+            const icon = accountLink.querySelector('iconify-icon');
+
+            if (this.role === 'admin') {
+                accountLink.href = 'ADMIN NOVA/dashboard.html';
+                accountLink.title = 'Admin Panel';
+                if (icon) {
+                    icon.setAttribute('icon', 'solar:user-bold');
+                    icon.className = 'text-white';
                 }
+                accountLink.classList.add('bg-gray-900', 'text-white');
+                accountLink.classList.remove('hover:bg-gray-50');
+                // Badge rôle
+                let badge = accountLink.querySelector('.role-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white';
+                    badge.title = 'Admin';
+                    accountLink.appendChild(badge);
+                }
+                badge.style.display = 'block';
+
+            } else if (this.role === 'supplier') {
+                accountLink.href = 'vendor-dashboard.html';
+                accountLink.title = 'Mon espace vendeur';
+                if (icon) {
+                    icon.setAttribute('icon', 'solar:user-bold');
+                    icon.className = 'text-gray-900';
+                }
+                accountLink.classList.add('bg-gray-100');
+                accountLink.classList.remove('hover:bg-gray-50');
+                let badge = accountLink.querySelector('.role-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-white';
+                    badge.title = 'Vendeur';
+                    accountLink.appendChild(badge);
+                }
+                badge.style.display = 'block';
+
+            } else if (this.role === 'customer') {
+                accountLink.href = 'customer-dashboard.html';
+                accountLink.title = 'Mon compte';
+                if (icon) {
+                    icon.setAttribute('icon', 'solar:user-bold');
+                    icon.className = 'text-gray-900';
+                }
+                accountLink.classList.add('bg-gray-100');
+                accountLink.classList.remove('hover:bg-gray-50');
+                let badge = accountLink.querySelector('.role-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white';
+                    badge.title = 'Connecté';
+                    accountLink.appendChild(badge);
+                }
+                badge.style.display = 'block';
+
+            } else {
+                // Non connecté — état par défaut
+                accountLink.href = 'login.html';
+                accountLink.title = 'Se connecter';
+                if (icon) {
+                    icon.setAttribute('icon', 'solar:user-linear');
+                    icon.className = 'text-gray-600';
+                }
+                accountLink.classList.remove('bg-gray-900', 'bg-gray-100', 'text-white');
+                accountLink.classList.add('hover:bg-gray-50');
+                const badge = accountLink.querySelector('.role-badge');
+                if (badge) badge.style.display = 'none';
             }
         },
     };
@@ -748,21 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 this.promos = promoMap;
             } else {
-                // Seed default promos
-                const defaults = {
-                    'ENOVA10': { type: 'percent', value: 0.10 },
-                    'WELCOME': { type: 'fixed', value: 25000 },
-                    'SITYZEN': { type: 'percent', value: 0.15 }
-                };
-                for (const code in defaults) {
-                    const p = defaults[code];
-                    await window.SupabaseAdapter.upsert('promos', {
-                        code,
-                        type: p.type,
-                        value: p.value
-                    }, 'code');
-                }
-                this.promos = defaults;
+                this.promos = {};
             }
             window.dispatchEvent(new CustomEvent('promosUpdated'));
         },
@@ -912,24 +963,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     oldPrice: p.old_price,
                 }));
             } else {
-                // Seed default products if database is empty
-                const defaults = [
-                    { id: 'parfum', name: 'Parfum Élégance', category: 'Collections Femme', price: 50000, image: 'Images/flacon.png', rating: 4.5, reviews: 156, is_new: true, stock: 12, pinned: true },
-                    { id: 'voiture', name: 'Mini EV Nammi S31', category: 'Tech & Gadgets', price: 25000000, image: 'Images/Factory-Direct-Sales-Dongfeng-2024-New-Product-Trending-Small-Electric-Car-Nammi-S31-Mini-EV-Cheapest-Ev-Car-From-China.jpg_300x300.avif', rating: 4.8, reviews: 28, is_promo: true, stock: 5, pinned: true },
-                    { id: 'laptop', name: 'Ordinateur Portable HP I7', category: 'Tech & Gadgets', price: 525000, image: 'Images/3a7cdf50-be32-4d07-b2a0-2cee2df8308a_390x286.jpg', rating: 5.0, reviews: 89, stock: 8 },
-                    { id: 'cosmetiques', name: 'Kit Cosmétiques Premium', category: 'Collections Femme', price: 95000, old_price: 125000, image: 'Images/tconvfimg-les-dupes-ces-copies-legales-de-produit-best-seller-que-vous-avez-deja-du-a.jpg', rating: 4.5, reviews: 215, is_new: true, stock: 3 },
-                    { id: 'montre-homme', name: 'Montre Chrono Luxe', category: 'Style Homme', price: 150000, image: 'Images/word-image-4.png', rating: 4.9, reviews: 42, is_new: true, stock: 10, pinned: true },
-                    { id: 'canape-design', name: 'Canapé Scandinave', category: 'Art de vivre', price: 850000, image: 'Images/EMarketPc.jpeg', rating: 4.7, reviews: 18, stock: 2 }
-                ];
-                for (const prod of defaults) {
-                    await window.SupabaseAdapter.upsert('products', prod);
-                }
-                this.products = defaults.map(p => ({
-                    ...p,
-                    isNew: p.is_new,
-                    isPromo: p.is_promo,
-                    oldPrice: p.old_price
-                }));
+                this.products = [];
             }
             window.dispatchEvent(new CustomEvent('productsUpdated'));
         },
@@ -1010,25 +1044,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 })).sort((a, b) => new Date(b.date) - new Date(a.date));
             } else {
-                // Seed default orders
-                const defaults = [
-                    {
-                        id: 'EN-DEMO-001',
-                        date: new Date().toISOString(),
-                        status: 'En attente',
-                        total: 50000,
-                        customer_name: 'Beni MAKIESE',
-                        customer_email: 'beni.makiese@example.com',
-                        items: [{ id: 'parfum-elegance', name: 'Parfum Élégance', price: 50000, quantity: 1, image: 'Images/flacon.png' }]
-                    }
-                ];
-                for (const order of defaults) {
-                    await window.SupabaseAdapter.upsert('orders', order);
-                }
-                this.orders = defaults.map(o => ({
-                    ...o,
-                    customer: { name: o.customer_name, email: o.customer_email }
-                }));
+                // If data is empty (or blocked by RLS), just init with empty array
+                this.orders = [];
             }
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
         },
@@ -1038,11 +1055,24 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         async addOrder(order) {
+            // SECURITY: Recalculate total from items server-side to guard against manipulation.
+            // The items passed here should already have server-verified prices from cart.html.
+            const recalculatedSubtotal = (order.items || []).reduce(
+                (acc, item) => acc + (parseFloat(item.price) * parseInt(item.quantity || 1)),
+                0
+            );
+            const pointsUsedAmount = parseFloat(order.pointsUsed || 0);
+            // Accept the passed total only if it's plausible (>= 0 and not > recalculated)
+            // Use the minimum of passed total vs recalculated - discounts to prevent overpaying
+            const safeFinalTotal = order.total !== undefined
+                ? Math.max(0, Math.min(order.total, recalculatedSubtotal))
+                : Math.max(0, recalculatedSubtotal - pointsUsedAmount);
+
             const newOrderData = {
                 id: order.id || 'EN-' + Date.now(),
                 date: new Date().toISOString(),
                 status: 'En attente',
-                total: order.total,
+                total: safeFinalTotal,
                 customer_name: order.customer?.name || order.customer_name,
                 customer_email: order.customer?.email || order.customer_email,
                 items: order.items,
@@ -1058,6 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return null;
         },
+
 
         async updateStatus(orderId, status) {
             const updated = await window.SupabaseAdapter.update('orders', orderId, { status });
@@ -2503,14 +2534,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     dateJoined: u.date_joined
                 }));
             } else {
-                // Seed default users if empty
-                const defaults = [
-                    { id: 'owner-1', name: 'Beni MAKIESE', email: 'benimakiese1234@gmail.com', role: 'admin', date_joined: new Date().toISOString(), avatar: 'BM' }
-                ];
-                for (const u of defaults) {
-                    await window.SupabaseAdapter.upsert('users', u);
-                }
-                this.users = defaults.map(u => ({ ...u, dateJoined: u.date_joined }));
+                this.users = [];
             }
             window.dispatchEvent(new CustomEvent('usersUpdated'));
         },
@@ -2632,8 +2656,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show loader during initial fetch
             if (window.LoaderManager) LoaderManager.show('Chargement des données...');
 
-            // Initialize all managers in parallel
-            await Promise.all([
+            // Initialize all managers in parallel, using allSettled so one failure doesn't block others
+            const results = await Promise.allSettled([
                 ProductManager.init(),
                 OrderManager.init(),
                 PromoManager.init(),
@@ -2641,6 +2665,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 NotificationManager.init(),
                 UserManager.init()
             ]);
+
+            // Log any individual failures without crashing
+            results.forEach((result, i) => {
+                if (result.status === 'rejected') {
+                    const names = ['ProductManager', 'OrderManager', 'PromoManager', 'ActivityManager', 'NotificationManager', 'UserManager'];
+                    console.warn(`[NOVA] ${names[i]}.init() failed (likely RLS):`, result.reason);
+                }
+            });
 
             // Initialize UI Components
             SidebarResizer.init();

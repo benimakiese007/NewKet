@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support & Tickets | ENova Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/supabase-adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="text-gray-900">
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
+            <a href="dashboard.html" class="flex items-center gap-2">
+                <img src="../Images/LOGO ENOVA.png" alt="ENova" class="h-10 w-auto invert">
+                <span
+                    class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+                <a href="../index.html" target="_blank"
+                    class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+                    <iconify-icon icon="solar:globus-linear" width="18"></iconify-icon><span
+                        class="hidden sm:inline">Voir la boutique</span>
+                </a>
+                <div class="h-6 w-px bg-gray-200 mx-2"></div>
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-6">
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link"><iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>Vue d'ensemble</a>
+                    <a href="products.html" class="sidebar-link"><iconify-icon icon="solar:box-bold" width="20"></iconify-icon>Produits</a>
+                    <a href="orders.html" class="sidebar-link"><iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>Commandes</a>
+                    <a href="livraisons.html" class="sidebar-link"><iconify-icon icon="solar:delivery-bold" width="20"></iconify-icon>Livraisons</a>
+                    <a href="diagnostics.html" class="sidebar-link"><iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>Analyses & Diagnostics</a>
+                    <a href="profits.html" class="sidebar-link"><iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>Calcul des Profits</a>
+                    <a href="clients.html" class="sidebar-link"><iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>Mes Clients</a>
+                    <a href="user.html" class="sidebar-link admin-only"><iconify-icon icon="solar:user-bold" width="20"></iconify-icon>Utilisateurs</a>
+                    <a href="user-stats.html" class="sidebar-link admin-only"><iconify-icon icon="solar:users-group-two-rounded-bold" width="20"></iconify-icon>Analyse Utilisateurs</a>
+                    <a href="promos.html" class="sidebar-link"><iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>Codes Promo</a>
+                    <a href="reviews.html" class="sidebar-link"><iconify-icon icon="solar:star-bold" width="20"></iconify-icon>Avis & Évaluations</a>
+                    <a href="rapports.html" class="sidebar-link"><iconify-icon icon="solar:chart-2-bold" width="20"></iconify-icon>Rapports</a>
+                    <a href="notifications-admin.html" class="sidebar-link"><iconify-icon icon="solar:bell-bing-bold" width="20"></iconify-icon>Notifications</a>
+                    <a href="support.html" class="sidebar-link"><iconify-icon icon="solar:chat-round-dots-bold" width="20"></iconify-icon>Support / Tickets</a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link"><iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>Paramètres</a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="flex-1 min-w-0 space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">🔔 Support / Tickets</h1>
+                    <p class="text-gray-500">Gérez les demandes d'assistance et répondez aux utilisateurs.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select id="filterStatus" onchange="renderTickets()"
+                        class="text-xs font-black uppercase tracking-widest bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black cursor-pointer">
+                        <option value="all">Tous les statuts</option>
+                        <option value="ouvert">Ouvert</option>
+                        <option value="resolu">Résolu</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Tickets</div>
+                    <div class="text-2xl font-black text-gray-900" id="statTotalTickets">0</div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Tickets Ouverts</div>
+                    <div class="text-2xl font-black text-red-500" id="statOpenTickets">0</div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Tickets Résolus</div>
+                    <div class="text-2xl font-black text-green-500" id="statResolvedTickets">0</div>
+                </div>
+            </div>
+
+            <div class="glass-panel overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h2 class="font-bold text-gray-900 flex items-center gap-2">
+                        <iconify-icon icon="solar:inbox-bold-duotone" width="20"
+                            class="text-blue-500"></iconify-icon>Boîte de Réception
+                    </h2>
+                </div>
+                <div id="ticketsContainer" class="divide-y divide-gray-50">
+                    <div class="p-12 text-center text-gray-400">Chargement...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Simulons des tickets
+        function getMockTickets() {
+            return [
+                { id: 'TKT-001', subject: 'Problème avec ma commande #1024', customer: 'Alice M.', message: 'Je n\'ai toujours pas reçu ma commande, pouvez-vous me donner une mise à jour ?', status: 'ouvert', date: new Date().toISOString() },
+                { id: 'TKT-002', subject: 'Comment utiliser mes points NOVA ?', customer: 'Bob K.', message: 'Je ne trouve pas l\'option pour payer avec mes points lors du checkout.', status: 'ouvert', date: new Date(Date.now() - 3600000).toISOString() },
+                { id: 'TKT-003', subject: 'Remboursement', customer: 'Charlie T.', message: 'Merci pour le remboursement rapide.', status: 'resolu', date: new Date(Date.now() - 86400000).toISOString() },
+            ];
+        }
+
+        let tickets = getMockTickets();
+
+        function renderTickets() {
+            const container = document.getElementById('ticketsContainer');
+            const filterStatus = document.getElementById('filterStatus').value;
+
+            let filtered = tickets;
+            if (filterStatus !== 'all') filtered = filtered.filter(t => t.status === filterStatus);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun ticket trouvé.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(t => {
+                const isResolved = t.status === 'resolu';
+                return `
+                <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xs font-black uppercase text-gray-400">${t.id}</span>
+                            <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded-full ${isResolved ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}">${isResolved ? 'Résolu' : 'Ouvert'}</span>
+                            <div class="text-[10px] text-gray-400 ml-auto">${new Date(t.date).toLocaleDateString()}</div>
+                        </div>
+                        <h3 class="font-bold text-gray-900 mb-1">${t.subject}</h3>
+                        <div class="text-sm text-gray-600 mb-2">${t.message}</div>
+                        <div class="text-[10px] font-black uppercase text-gray-400">Client: <span class="text-black">${t.customer}</span></div>
+                    </div>
+                    <div class="flex items-center gap-2 mt-4 md:mt-0">
+                        ${!isResolved ? `<button onclick="resolveTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Marquer Résolu</button>` : `<button onclick="reopenTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">Rouvrir</button>`}
+                        <button onclick="deleteTicket('${t.id}')" class="text-gray-300 hover:text-red-400 p-2 transition-colors"><iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon></button>
+                    </div>
+                </div>
+            `}).join('');
+
+            updateStats();
+        }
+
+        function resolveTicket(id) {
+            const t = tickets.find(t => t.id === id);
+            if (t) t.status = 'resolu';
+            renderTickets();
+            showToast('Ticket résolu', 'success');
+        }
+
+        function reopenTicket(id) {
+            const t = tickets.find(t => t.id === id);
+            if (t) t.status = 'ouvert';
+            renderTickets();
+            showToast('Ticket rouvert', 'info');
+        }
+
+        function deleteTicket(id) {
+            if (!confirm('Supprimer ce ticket ?')) return;
+            tickets = tickets.filter(t => t.id !== id);
+            renderTickets();
+            showToast('Ticket supprimé', 'success');
+        }
+
+        function updateStats() {
+            document.getElementById('statTotalTickets').textContent = tickets.length;
+            document.getElementById('statOpenTickets').textContent = tickets.filter(t => t.status === 'ouvert').length;
+            document.getElementById('statResolvedTickets').textContent = tickets.filter(t => t.status === 'resolu').length;
+        }
+
+        function initPage() {
+            renderTickets();
+            const role = localStorage.getItem('enovaRole');
+            document.querySelectorAll('.admin-only').forEach(el => { if (role === 'admin') el.classList.remove('hidden'); else el.classList.add('hidden'); });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.enovaInitialized) { initPage(); } else { window.addEventListener('enovaInitialized', initPage); }
+        });
+    </script>
+</body>
+
+</html>

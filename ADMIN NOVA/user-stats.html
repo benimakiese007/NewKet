@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyses Utilisateurs | ENova Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/supabase-adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+    </style>
+    <script>
+        // Check for Admin
+        const role = localStorage.getItem('enovaRole');
+        if (role !== 'admin') {
+            window.location.href = '../index.html';
+        }
+    </script>
+</head>
+
+<body class="text-gray-900">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="flex items-center gap-2 group">
+                    <img src="../Images/LOGO ENOVA.png" alt="ENova" class="h-10 w-auto invert">
+                    <span
+                        class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="../index.html" target="_blank"
+                    class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+                    <iconify-icon icon="solar:globus-linear" width="18"></iconify-icon>
+                    <span class="hidden sm:inline">Voir la boutique</span>
+                </a>
+
+                <div class="h-6 w-px bg-gray-200 mx-2"></div>
+
+                <button onclick="AuthManager.logout()"
+                    class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Quitter</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-6">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="glass-panel p-6 sticky top-24">
+                <nav class="space-y-1">
+                    <a href="dashboard.html" class="sidebar-link"><iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>Vue d'ensemble</a>
+                    <a href="products.html" class="sidebar-link"><iconify-icon icon="solar:box-bold" width="20"></iconify-icon>Produits</a>
+                    <a href="orders.html" class="sidebar-link"><iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>Commandes</a>
+                    <a href="livraisons.html" class="sidebar-link"><iconify-icon icon="solar:delivery-bold" width="20"></iconify-icon>Livraisons</a>
+                    <a href="diagnostics.html" class="sidebar-link"><iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>Analyses & Diagnostics</a>
+                    <a href="profits.html" class="sidebar-link"><iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>Calcul des Profits</a>
+                    <a href="clients.html" class="sidebar-link"><iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>Mes Clients</a>
+                    <a href="user.html" class="sidebar-link admin-only"><iconify-icon icon="solar:user-bold" width="20"></iconify-icon>Utilisateurs</a>
+                    <a href="user-stats.html" class="sidebar-link admin-only"><iconify-icon icon="solar:users-group-two-rounded-bold" width="20"></iconify-icon>Analyse Utilisateurs</a>
+                    <a href="promos.html" class="sidebar-link"><iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>Codes Promo</a>
+                    <a href="reviews.html" class="sidebar-link"><iconify-icon icon="solar:star-bold" width="20"></iconify-icon>Avis & Évaluations</a>
+                    <a href="rapports.html" class="sidebar-link"><iconify-icon icon="solar:chart-2-bold" width="20"></iconify-icon>Rapports</a>
+                    <a href="notifications-admin.html" class="sidebar-link"><iconify-icon icon="solar:bell-bing-bold" width="20"></iconify-icon>Notifications</a>
+                    <a href="support.html" class="sidebar-link"><iconify-icon icon="solar:chat-round-dots-bold" width="20"></iconify-icon>Support / Tickets</a>
+                    <div class="py-4">
+                        <div class="h-px bg-gray-100 mb-4"></div>
+                        <a href="settings.html" class="sidebar-link"><iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>Paramètres</a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8">
+            <!-- Header Section -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Analyse Utilisateurs</h1>
+                    <p class="text-gray-500">Statistiques globales de tous les utilisateurs de la plateforme.</p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Timeframe Selector -->
+                    <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
+                        <button onclick="updateTimeframe('day', this)"
+                            class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Jour</button>
+                        <button onclick="updateTimeframe('week', this)"
+                            class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
+                        <button onclick="updateTimeframe('month', this)"
+                            class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Mois</button>
+                        <button onclick="updateTimeframe('year', this)"
+                            class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Année</button>
+                        <button onclick="updateTimeframe('all', this)"
+                            class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all bg-black text-white">Tout</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass-panel p-6 flex flex-col gap-1 bg-black text-white">
+                    <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:users-group-rounded-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Nouveaux Inscrits
+                        (Période)</p>
+                    <div class="text-3xl font-black" id="statsNewUsers">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:global-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Utilisateurs
+                        (Global)</p>
+                    <div class="text-2xl font-black text-gray-900" id="statsTotalUsers">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
+                    <div class="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:bag-heart-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Clients</p>
+                    <div class="text-2xl font-black text-gray-900" id="statsClients">0</div>
+                </div>
+                <div class="glass-panel p-6 flex flex-col gap-1">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center mb-4">
+                        <iconify-icon icon="solar:shop-bold" width="24"></iconify-icon>
+                    </div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Vendeurs</p>
+                    <div class="text-2xl font-black text-gray-900" id="statsSellers">0</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Chart -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="glass-panel p-6">
+                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:chart-line-bold-duotone" width="20"
+                                class="text-gray-400"></iconify-icon>
+                            Croissance des inscriptions
+                        </h3>
+                        <div class="h-[300px]">
+                            <canvas id="usersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="space-y-8">
+                    <!-- Distribution Chart -->
+                    <div class="glass-panel p-6">
+                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:pie-chart-bold-duotone" width="20"
+                                class="text-purple-500"></iconify-icon>
+                            Répartition par rôle
+                        </h3>
+                        <div class="h-[200px]">
+                            <canvas id="roleChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Need to load main.js as late as possible or make sure functions rely on it gracefully -->
+    <script src="../js/main.js"></script>
+    <script>
+        let currentTimeframe = 'all';
+        const currentCharts = {};
+        let allUsersData = [];
+
+        function updateTimeframe(timeframe, btn) {
+            currentTimeframe = timeframe;
+            // Update active button styles
+            document.querySelectorAll('.time-btn').forEach(b => {
+                b.classList.remove('bg-black', 'text-white');
+                b.classList.add('text-gray-400');
+            });
+            if (btn) {
+                btn.classList.remove('text-gray-400');
+                btn.classList.add('bg-black', 'text-white');
+            } else {
+                document.querySelectorAll('.time-btn').forEach(b => {
+                    if (b.textContent.toLowerCase().includes(timeframe.replace('all', 'tout'))) {
+                        b.classList.remove('text-gray-400');
+                        b.classList.add('bg-black', 'text-white');
+                    }
+                });
+            }
+
+            refreshDashboardData();
+        }
+
+        function fetchAllUsers() {
+            // Fetch real data from the platform's UserManager
+            allUsersData = window.UserManager ? UserManager.getUsers() : [];
+            refreshDashboardData();
+        }
+
+        function refreshDashboardData() {
+            if (!allUsersData.length) return;
+
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            // 1. Filter users by timeframe for "Nouveaux Inscrits"
+            let filteredUsers = allUsersData;
+            if (currentTimeframe !== 'all') {
+                filteredUsers = allUsersData.filter(u => {
+                    const uDate = u.dateJoined ? new Date(u.dateJoined) : new Date();
+                    if (currentTimeframe === 'day') return uDate >= startOfDay;
+                    const diffDays = (now - uDate) / (1000 * 86400);
+                    if (currentTimeframe === 'week') return diffDays <= 7;
+                    if (currentTimeframe === 'month') return diffDays <= 30;
+                    if (currentTimeframe === 'year') return diffDays <= 365;
+                    return true;
+                });
+            }
+
+            // Stats Update
+            document.getElementById('statsNewUsers').textContent = filteredUsers.length;
+            document.getElementById('statsTotalUsers').textContent = allUsersData.length;
+
+            const clients = allUsersData.filter(u => u.role === 'customer').length;
+            const sellers = allUsersData.filter(u => u.role === 'supplier').length;
+
+            document.getElementById('statsClients').textContent = clients;
+            document.getElementById('statsSellers').textContent = sellers;
+
+            // Charts
+            initUsersChart(filteredUsers, allUsersData);
+            initRoleChart(clients, sellers);
+        }
+
+        function initUsersChart(filteredUsers, allUsersData) {
+            const canvas = document.getElementById('usersChart');
+            const ctx = canvas.getContext('2d');
+
+            if (currentCharts.users) currentCharts.users.destroy();
+
+            const labels = [];
+            const dataCounts = [];
+            const now = new Date();
+
+            const calculatePoints = (i, d) => {
+                labels.push(currentTimeframe === 'day' ? d.getHours() + 'h' :
+                    (currentTimeframe === 'year' ? d.toLocaleDateString('fr-FR', { month: 'short' }) :
+                        d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' })));
+
+                const count = filteredUsers.filter(u => {
+                    const uDate = u.dateJoined ? new Date(u.dateJoined) : new Date();
+                    if (currentTimeframe === 'day') return uDate.toDateString() === d.toDateString() && uDate.getHours() === d.getHours();
+                    if (currentTimeframe === 'year') return uDate.getMonth() === d.getMonth() && uDate.getFullYear() === d.getFullYear();
+                    return uDate.toDateString() === d.toDateString();
+                }).length;
+
+                dataCounts.push(count);
+            };
+
+            if (currentTimeframe === 'day') {
+                for (let i = 23; i >= 0; i--) { calculatePoints(i, new Date(now.getTime() - i * 3600000)); }
+            } else if (currentTimeframe === 'week' || currentTimeframe === 'month') {
+                const days = currentTimeframe === 'week' ? 7 : 30;
+                for (let i = days - 1; i >= 0; i--) { calculatePoints(i, new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)); }
+            } else if (currentTimeframe === 'year') {
+                for (let i = 11; i >= 0; i--) { calculatePoints(i, new Date(now.getFullYear(), now.getMonth() - i, 1)); }
+            } else { // ALL - show last 12 months for overview
+                for (let i = 11; i >= 0; i--) { calculatePoints(i, new Date(now.getFullYear(), now.getMonth() - i, 1)); }
+            }
+
+            currentCharts.users = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Inscriptions',
+                        data: dataCounts,
+                        borderColor: '#000000',
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#000',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointerHoverRadius: 6,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12,
+                            displayColors: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9', drawBorder: false },
+                            ticks: { precision: 0, font: { size: 10 } }
+                        },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function initRoleChart(clients, sellers) {
+            const canvas = document.getElementById('roleChart');
+            const ctx = canvas.getContext('2d');
+
+            if (currentCharts.role) currentCharts.role.destroy();
+
+            currentCharts.role = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Clients', 'Vendeurs'],
+                    datasets: [{
+                        data: [clients, sellers],
+                        backgroundColor: ['#10B981', '#F59E0B'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: { size: 11, weight: 'bold' }
+                            }
+                        }
+                    },
+                    cutout: '75%'
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for enovaInitialized to ensure UserManager has fetched data
+            if (window.enovaInitialized) {
+                fetchAllUsers();
+            } else {
+                window.addEventListener('enovaInitialized', fetchAllUsers);
+            }
+            updateTimeframe('all', null);
+        });
+    </script>
+</body>
+
+</html>

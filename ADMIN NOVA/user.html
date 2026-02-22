@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Utilisateurs | ENova</title>
+    <title>Utilisateurs | ENova Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -94,44 +94,23 @@
         <aside class="w-full md:w-64 flex-shrink-0">
             <div class="glass-panel p-6 sticky top-24">
                 <nav class="space-y-1">
-                    <a href="dashboard.html" class="sidebar-link">
-                        <iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>
-                        Vue d'ensemble
-                    </a>
-                    <a href="products.html" class="sidebar-link">
-                        <iconify-icon icon="solar:box-bold" width="20"></iconify-icon>
-                        Mes Produits
-                    </a>
-                    <a href="orders.html" class="sidebar-link">
-                        <iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>
-                        Commandes
-                    </a>
-                    <a href="diagnostics.html" class="sidebar-link">
-                        <iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>
-                        Analyses & Diagnostics
-                    </a>
-                    <a href="profits.html" class="sidebar-link">
-                        <iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>
-                        Calcul des Profits
-                    </a>
-                    <a href="clients.html" class="sidebar-link">
-                        <iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>
-                        Mes Clients
-                    </a>
-                    <a href="users.html" class="sidebar-link active admin-only">
-                        <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
-                        Utilisateurs
-                    </a>
-                    <a href="promos.html" class="sidebar-link">
-                        <iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>
-                        Codes Promo
-                    </a>
+                    <a href="dashboard.html" class="sidebar-link"><iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>Vue d'ensemble</a>
+                    <a href="products.html" class="sidebar-link"><iconify-icon icon="solar:box-bold" width="20"></iconify-icon>Produits</a>
+                    <a href="orders.html" class="sidebar-link"><iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>Commandes</a>
+                    <a href="livraisons.html" class="sidebar-link"><iconify-icon icon="solar:delivery-bold" width="20"></iconify-icon>Livraisons</a>
+                    <a href="diagnostics.html" class="sidebar-link"><iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>Analyses & Diagnostics</a>
+                    <a href="profits.html" class="sidebar-link"><iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>Calcul des Profits</a>
+                    <a href="clients.html" class="sidebar-link"><iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>Mes Clients</a>
+                    <a href="user.html" class="sidebar-link admin-only"><iconify-icon icon="solar:user-bold" width="20"></iconify-icon>Utilisateurs</a>
+                    <a href="user-stats.html" class="sidebar-link admin-only"><iconify-icon icon="solar:users-group-two-rounded-bold" width="20"></iconify-icon>Analyse Utilisateurs</a>
+                    <a href="promos.html" class="sidebar-link"><iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>Codes Promo</a>
+                    <a href="reviews.html" class="sidebar-link"><iconify-icon icon="solar:star-bold" width="20"></iconify-icon>Avis & Évaluations</a>
+                    <a href="rapports.html" class="sidebar-link"><iconify-icon icon="solar:chart-2-bold" width="20"></iconify-icon>Rapports</a>
+                    <a href="notifications-admin.html" class="sidebar-link"><iconify-icon icon="solar:bell-bing-bold" width="20"></iconify-icon>Notifications</a>
+                    <a href="support.html" class="sidebar-link"><iconify-icon icon="solar:chat-round-dots-bold" width="20"></iconify-icon>Support / Tickets</a>
                     <div class="py-4">
                         <div class="h-px bg-gray-100 mb-4"></div>
-                        <a href="settings.html" class="sidebar-link">
-                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
-                            Paramètres
-                        </a>
+                        <a href="settings.html" class="sidebar-link"><iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>Paramètres</a>
                     </div>
                 </nav>
             </div>
@@ -141,10 +120,9 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Fournisseurs Plateforme
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs
                     </h1>
-                    <p class="text-gray-500" id="pageSubtitle">Gérez les comptes vendeurs enregistrés sur la plateforme.
-                    </p>
+                    <p class="text-gray-500" id="pageSubtitle">Gérez l'ensemble des comptes de la plateforme.</p>
                 </div>
             </div>
 
@@ -153,7 +131,7 @@
                 <div class="flex-1 relative">
                     <iconify-icon icon="solar:magnifer-linear"
                         class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
-                    <input type="text" id="userSearch" placeholder="Rechercher un vendeur par nom ou email..."
+                    <input type="text" id="userSearch" placeholder="Rechercher un utilisateur par nom ou email..."
                         class="w-full pl-11 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm">
                 </div>
             </div>
@@ -305,6 +283,8 @@
             const allOrders = OrderManager.getOrders();
 
             const filteredUsers = allUsers.filter(u => {
+                // Exclude admins from this page always
+                if (u.role === 'admin') return false;
                 const matchesRole = currentFilter === 'all' || u.role === currentFilter;
                 const userName = u.name || 'Utilisateur sans nom';
                 const userEmail = u.email || '';
@@ -447,7 +427,6 @@
                 document.getElementById('modalUserRevenue').textContent = CurrencyManager ? CurrencyManager.formatPrice(revenue) : `${revenue} FC`;
             } else {
                 document.getElementById('modalUserRevenueLabel').textContent = "Montant Dépensé";
-                const spent = userOrders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + (o.total || 0), 0);
                 document.getElementById('modalUserRevenue').textContent = CurrencyManager ? CurrencyManager.formatPrice(spent) : `${spent} FC`;
             }
 

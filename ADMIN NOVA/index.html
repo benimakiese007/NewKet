@@ -117,10 +117,19 @@
     </div>
 
     <script>
-        // Auto-redirection if already logged in
-        if (sessionStorage.getItem('adminAuth') === 'true' || localStorage.getItem('enovaRole') === 'admin' || localStorage.getItem('enovaRole') === 'supplier') {
-            window.location.href = 'dashboard.html';
-        }
+        // Auto-redirection logic
+        const checkRedirect = () => {
+            const role = localStorage.getItem('enovaRole');
+            const adminAuth = sessionStorage.getItem('adminAuth') === 'true';
+
+            if (role === 'admin' || role === 'supplier' || adminAuth) {
+                window.location.href = 'dashboard.html';
+            }
+        };
+
+        // Run immediately and also check when auth might have updated
+        checkRedirect();
+        window.addEventListener('roleChanged', checkRedirect);
 
         document.getElementById('loginForm').addEventListener('submit', function (e) {
             e.preventDefault();

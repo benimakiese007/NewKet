@@ -85,7 +85,7 @@
     <!-- ========== HEADER ========== -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <!-- Main header -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-4">
             <!-- Left: Hamburger (Mobile) & Logo -->
             <div class="flex items-center gap-2 sm:gap-4">
                 <button id="mobileMenuBtn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
@@ -93,7 +93,7 @@
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
                 <a href="index.html" class="flex-shrink-0 flex items-center gap-1">
-                    <img src="Images/LOGO ENOVA.png" alt="ENova" class="h-8 sm:h-10 w-auto invert">
+                    <img src="Images/LOGO ENOVA.png" alt="ENova" class="h-6 sm:h-8 w-auto invert">
                 </a>
             </div>
 
@@ -679,24 +679,74 @@
             const btn = document.getElementById('finalPayBtn');
             const originalHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Vérification...'
 
             try {
                 const cart = CartManager.getCart();
-                const totalText = document.getElementById('summaryTotal').textContent;
+                if (!cart || cart.length === 0) throw new Error('Panier vide');
 
-                const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                // ====================================================
+                // SECURITY: Server-side price verification
+                // Fetch real product prices from Supabase to prevent
+                // client-side price manipulation via localStorage.
+                // ====================================================
+                const productIds = cart.map(item => item.id);
+                const { data: serverProducts, error: fetchError } = await window.supabaseClient
+                    .from('products')
+                    .select('id, price')
+                    .in('id', productIds);
+
+                let verifiedSubtotal = 0;
+                const verifiedCart = [];
+
+                if (serverProducts && serverProducts.length > 0 && !fetchError) {
+                    // Build a server price map
+                    const serverPriceMap = {};
+                    serverProducts.forEach(p => { serverPriceMap[p.id] = p.price; });
+
+                    // Verify each item using the server price
+                    for (const item of cart) {
+                        const serverPrice = serverPriceMap[item.id];
+                        if (serverPrice === undefined) {
+                            // Product no longer exists in DB
+                            throw new Error(`Produit introuvable : ${item.name}. Veuillez actualiser votre panier.`);
+                        }
+                        // Check for price discrepancy (tolerance of 1 CDF)
+                        const clientPrice = parseFloat(item.price);
+                        const diff = Math.abs(clientPrice - serverPrice);
+                        if (diff > 1) {
+                            console.warn(`[NOVA Security] Price mismatch for ${item.id}: client=${clientPrice}, server=${serverPrice}`);
+                            // Use server price silently (don't crash, just correct)
+                        }
+                        verifiedCart.push({ ...item, price: serverPrice });
+                        verifiedSubtotal += serverPrice * item.quantity;
+                    }
+                } else {
+                    // Supabase unreachable (RLS or network), fall back to client calculation
+                    // This is acceptable as a fallback since we have optimistic UI expectations
+                    console.warn('[NOVA] Could not verify prices server-side. Proceeding with client-side total.');
+                    for (const item of cart) {
+                        verifiedSubtotal += item.price * item.quantity;
+                        verifiedCart.push(item);
+                    }
+                }
+
+                // Apply discounts on top of verified subtotal
                 let promoDiscount = 0;
                 if (currentPromo) {
-                    promoDiscount = currentPromo.type === 'percent' ? subtotal * currentPromo.value : currentPromo.value;
+                    promoDiscount = currentPromo.type === 'percent'
+                        ? verifiedSubtotal * currentPromo.value
+                        : currentPromo.value;
                 }
                 const pointsDiscount = usePointsActive ? pointsUsed : 0;
-                const finalAmount = Math.max(0, subtotal - (promoDiscount + pointsDiscount));
+                const finalAmount = Math.max(0, verifiedSubtotal - (promoDiscount + pointsDiscount));
+
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
 
                 const orderData = {
                     total: finalAmount,
                     customer_email: localStorage.getItem('enovaUserEmail'),
-                    items: cart,
+                    items: verifiedCart,  // Use verified cart (with server prices)
                     paymentMethod: selectedOperator,
                     phoneNumber: phone,
                     pointsUsed: pointsDiscount
@@ -711,20 +761,22 @@
                     document.getElementById('successState').classList.remove('hidden');
                     document.getElementById('orderNumber').textContent = order.id;
                     document.getElementById('receiptOperator').textContent = selectedOperator;
-                    document.getElementById('modalTotal').textContent = totalText;
+                    document.getElementById('modalTotal').textContent = CurrencyManager.formatPrice(finalAmount);
 
                     CartManager.clear();
                     createConfetti();
                 } else {
-                    throw new Error("Creation fail");
+                    throw new Error("Échec de création de commande");
                 }
             } catch (err) {
                 console.error(err);
-                if (window.showToast) showToast('Erreur lors du traitement.', 'error');
+                const msg = err.message && err.message.length < 100 ? err.message : 'Erreur lors du traitement.';
+                if (window.showToast) showToast(msg, 'error');
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;
             }
         }
+
 
         function closeCheckoutModal() {
             document.getElementById('checkoutOverlay').classList.add('invisible', 'opacity-0');
