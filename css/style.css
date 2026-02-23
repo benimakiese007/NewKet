@@ -1808,10 +1808,6 @@ h6 {
 
 /* Responsive grid for forms */
 @media (max-width: 768px) {
-    .grid-cols-2 {
-        grid-template-columns: 1fr !important;
-    }
-
     .gap-4 {
         gap: 1rem;
     }
@@ -1841,7 +1837,6 @@ h6 {
 
 @media (max-width: 768px) {
     .product-layout {
-        grid-template-columns: 1fr !important;
         gap: 2rem !important;
     }
 
@@ -1921,7 +1916,8 @@ h6 {
 
 @media (max-width: 900px) {
     .cart-layout {
-        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
 
     .cart-summary {
@@ -2029,7 +2025,6 @@ h6 {
 
 @media (max-width: 768px) {
     .favorites-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
         gap: 1rem !important;
     }
 }
@@ -2415,7 +2410,6 @@ body.sidebar-resizing {
     #allProductGrid,
     #catalog-grid,
     #favoritesGrid {
-        grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px !important;
     }
 
