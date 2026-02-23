@@ -1920,9 +1920,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <iconify-icon icon="${FavoritesManager.isInFavorites(product.id) ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18"></iconify-icon>
                     </button>
                 </div>
-                <div class="product-info p-6 flex flex-col flex-1">
-                    <div class="text-[10px] font-bold text-gray-900 uppercase tracking-widest mb-1">${product.category}</div>
-                    <h3 class="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[40px]">
+                <div class="product-info p-3 sm:p-6 flex flex-col flex-1">
+                    <div class="text-[9px] sm:text-[10px] font-bold text-gray-900 uppercase tracking-widest mb-1">${product.category}</div>
+                    <h3 class="text-[12px] sm:text-sm font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[32px] sm:min-h-[40px]">
                         <a href="product.html?id=${product.id}" class="hover:text-gray-600 transition-colors">${product.name}</a>
                     </h3>
                     <div class="flex items-center gap-1 mb-3">
