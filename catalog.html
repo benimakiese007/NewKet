@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="Images/LOGO NEWKET.png">
+    <link rel="icon" type="image/png" href="Images/LOGO NEWKET.png">
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Catalogue Luxe — NewKet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -150,8 +157,6 @@
             pointer-events: auto;
         }
     </style>
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.51Z'/></svg>">
 </head>
 
 <body class="text-slate-900 antialiased">
@@ -167,8 +172,8 @@
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
                 <a href="index.html" class="flex-shrink-0 flex items-center gap-3">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 rounded-xl flex items-center justify-center">
-                        <iconify-icon icon="solar:star-bold" width="22" class="text-white"></iconify-icon>
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 rounded-xl flex items-center justify-center p-1.5">
+                        <img src="Images/LOGO NEWKET.png" alt="NewKet" class="w-full h-full object-contain">
                     </div>
                     <span class="text-xl font-bold tracking-tighter text-gray-900">NEWKET</span>
                 </a>
@@ -235,6 +240,7 @@
                 <a href="index.html" class="nav-link text-sm font-semibold text-slate-500 whitespace-nowrap">Accueil</a>
                 <a href="catalog.html" class="nav-link text-sm font-bold text-gray-900 whitespace-nowrap">Toutes les
                     pièces</a>
+                    <a href="shops.html" class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Boutiques</a>
                 <a href="catalog.html?category=Collections Femme"
                     class="nav-link text-sm font-semibold text-slate-500 whitespace-nowrap">Collections
                     Femme</a>
@@ -269,6 +275,11 @@
                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                         <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon>
                         Toutes les pièces
+                    </a>
+                    <a href="shops.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
+                        Boutiques
                     </a>
                     <a href="catalog.html?category=Collections Femme"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
@@ -458,8 +469,8 @@
                 <!-- Brand Section -->
                 <div class="lg:col-span-4 space-y-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:star-bold" width="24" class="text-gray-900"></iconify-icon>
+                        <div class="w-10 h-10 flex items-center justify-center">
+                            <img src="Images/LOGO NEWKET.png" alt="NewKet" class="w-full h-full object-contain">
                         </div>
                         <span class="text-xl font-bold tracking-tight">NEWKET</span>
                     </div>
@@ -555,7 +566,6 @@
                                 stroke-linecap="round" stroke-linejoin="round" fill="none" />
                         </svg>
                         <iconify-icon icon="simple-icons:airtel" width="35" class="text-red-500"></iconify-icon>
-                        <iconify-icon icon="logos:stripe" width="35" class="grayscale brightness-200"></iconify-icon>
                     </div>
                 </div>
             </div>

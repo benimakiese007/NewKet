@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="../Images/LOGO NEWKET.png">
+    <link rel="icon" type="image/png" href="../Images/LOGO NEWKET.png">
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Utilisateurs | NewKet Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -71,7 +78,6 @@
             color: #ea580c;
         }
     </style>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.51Z'/></svg>">
 </head>
 
 <body class="text-gray-900">
@@ -79,9 +85,9 @@
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
             <a href="dashboard.html" class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
-                    <iconify-icon icon="solar:star-bold" width="24" class="text-white"></iconify-icon>
-                </div>
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-xl flex items-center justify-center p-1.5">
+                        <img src="../Images/LOGO NEWKET.png" alt="NewKet" class="w-full h-full object-contain">
+                    </div>
                 <span class="text-xl font-bold tracking-tighter text-gray-900">NEWKET</span>
                 <span class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
             </a>

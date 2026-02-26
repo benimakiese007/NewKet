@@ -82,7 +82,7 @@
         <aside class="w-full md:w-64 flex-shrink-0">
             <div class="glass-panel p-6 sticky top-24">
                 <div class="flex items-center gap-4 mb-8">
-                    <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl">🏬</div>
+                    <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl"></div>
                     <div>
                         <h2 class="font-bold text-gray-900" id="vendorName">Ma Boutique</h2>
                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Vendeur Premium</p>
@@ -398,7 +398,7 @@
                             feed.innerHTML = activities.map(a => `
                                 <div class="flex items-start gap-4 p-4 border border-gray-50 rounded-2xl hover:bg-gray-50 transition-all">
                                     <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-sm flex-shrink-0">
-                                        ${a.type === 'stock' ? '📦' : '✨'}
+                                        ${a.type === 'stock' ? '' : ''}
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-bold text-gray-900 truncate">${a.text}</p>

@@ -308,13 +308,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('newketWelcomeBonus') === 'true') {
                 // Check if showToast is available, otherwise alert or log
                 if (typeof showToast === 'function') {
-                    showToast('🎉 Bienvenue ! Profitez de -5% avec le code BIENVENUE', 'success');
+                    showToast('Bienvenue ! Profitez de -5% avec le code BIENVENUE', 'success');
                 }
                 localStorage.removeItem('newketWelcomeBonus');
             }
             if (localStorage.getItem('newketSupplierBonus') === 'true') {
                 if (typeof showToast === 'function') {
-                    showToast('🎉 Bienvenue ! 0% de commission sur votre première vente', 'success');
+                    showToast('Bienvenue ! 0% de commission sur votre première vente', 'success');
                 }
                 localStorage.removeItem('newketSupplierBonus');
             }
@@ -730,7 +730,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isFavorite = this.isInFavorites(productId);
 
                 // Target both font-awesome and iconify-icon
-                const wishlistBtn = card.querySelector('.wishlist-btn');
                 if (wishlistBtn) {
                     const iconify = wishlistBtn.querySelector('iconify-icon');
                     const faIcon = wishlistBtn.querySelector('i');
@@ -2471,7 +2470,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const modal = document.createElement('div');
             modal.className = 'cookie-consent-modal';
             modal.innerHTML = `
-                <div class="cookie-icon">🍪</div>
+                <div class="cookie-icon"></div>
                 <div>
                     <div class="cookie-title">Nous respectons votre vie privée</div>
                     <div class="cookie-text">
@@ -2648,6 +2647,39 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.SidebarResizer = SidebarResizer;
 
+    // ========== SIDEBAR ACTIVE MANAGER ==========
+    const SidebarActiveManager = {
+        init() {
+            // Get current path and decode it (to handle %20 and others)
+            const path = decodeURIComponent(window.location.pathname);
+            const currentFile = path.substring(path.lastIndexOf('/') + 1) || 'index.html';
+
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+            sidebarLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (!href || href === '#') return;
+
+                // Get filename from href and decode it
+                const decodedHref = decodeURIComponent(href);
+                const hrefFile = decodedHref.substring(decodedHref.lastIndexOf('/') + 1);
+
+                // Special case for dashboard/index/empty root
+                const isDashboard = hrefFile === 'dashboard.html';
+                const isCurrentDashboard = currentFile === 'index.html' || currentFile === 'dashboard.html' || currentFile === '';
+
+                const isMatch = (hrefFile === currentFile) || (isDashboard && isCurrentDashboard);
+
+                if (isMatch) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+    };
+    window.SidebarActiveManager = SidebarActiveManager;
+
     // ========== GLOBAL INITIALIZATION ==========
     async function initializeApp() {
         console.log('Initializing NewKet with Supabase...');
@@ -2676,6 +2708,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Initialize UI Components
             SidebarResizer.init();
+            SidebarActiveManager.init();
 
             console.log('NewKet Initialized successfully');
 

@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="Images/LOGO NEWKET.png">
+    <link rel="icon" type="image/png" href="Images/LOGO NEWKET.png">
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Vendre un article — NewKet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -32,8 +39,6 @@
             backdrop-filter: blur(12px);
         }
     </style>
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.51Z'/></svg>">
 </head>
 
 <body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
@@ -149,7 +154,8 @@
             <!-- Media Card -->
             <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-4">
                 <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit</label>
-                <div
+                <input type="file" id="pImageUpload" accept="image/png, image/jpeg" class="hidden">
+                <div id="uploadZone" onclick="document.getElementById('pImageUpload').click()"
                     class="border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center hover:border-black hover:bg-gray-50/30 transition-all cursor-pointer group">
                     <div
                         class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
@@ -159,6 +165,16 @@
                     <p class="text-gray-500 font-medium">Glissez vos photos ici ou <span
                             class="text-black border-b border-gray-200">parcourez vos fichiers</span></p>
                     <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'à 10MB</p>
+                </div>
+
+                <div id="imagePreviewContainer" class="hidden flex gap-4 overflow-x-auto pb-2"></div>
+
+                <div class="flex items-center gap-2 mt-4 px-2" id="bgRemovalContainer" style="display: none;">
+                    <input type="checkbox" id="removeBackgroundCheck" class="w-5 h-5 rounded border-gray-300 text-black focus:ring-black cursor-pointer">
+                    <label for="removeBackgroundCheck" class="text-sm font-semibold text-gray-700 flex items-center gap-2 cursor-pointer">
+                        <iconify-icon icon="solar:magic-stick-3-linear" class="text-purple-500 text-lg"></iconify-icon>
+                        Transformer en PNG (Détourage transparent par intelligence artificielle)
+                    </label>
                 </div>
             </div>
 
@@ -233,6 +249,36 @@
         priceInput.addEventListener('input', updateEstimate);
         currencyInput.addEventListener('change', updateEstimate);
 
+        const pImageUpload = document.getElementById('pImageUpload');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const removeBackgroundCheck = document.getElementById('removeBackgroundCheck');
+        const bgRemovalContainer = document.getElementById('bgRemovalContainer');
+        const uploadZone = document.getElementById('uploadZone');
+        let selectedProductImage = null;
+
+        pImageUpload.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    selectedProductImage = evt.target.result;
+                    uploadZone.classList.add('hidden');
+                    imagePreviewContainer.innerHTML = `
+                        <div class="relative w-32 h-32 rounded-2xl border border-gray-200 overflow-hidden group">
+                            <img src="${selectedProductImage}" class="w-full h-full object-cover">
+                            <button type="button" onclick="selectedProductImage=null; uploadZone.classList.remove('hidden'); imagePreviewContainer.classList.add('hidden'); bgRemovalContainer.style.display='none'; document.getElementById('pImageUpload').value='';" 
+                                class="absolute top-2 right-2 bg-white text-red-500 rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:scale-110 transition-all">
+                                <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                            </button>
+                        </div>
+                    `;
+                    imagePreviewContainer.classList.remove('hidden');
+                    bgRemovalContainer.style.display = 'flex';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
         document.getElementById('publishForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -265,13 +311,23 @@
                 // Let's assume the price field in DB is the primary price.
                 const finalPrice = currency === 'USD' ? priceVal * exchangeRate : priceVal;
 
+                let finalImagePath = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop';
+                if (selectedProductImage) {
+                    finalImagePath = selectedProductImage;
+                    if (removeBackgroundCheck.checked) {
+                        // CANVA REMOVE BACKGROUND API PLACEHOLDER
+                        console.log('Appel de l\'API Canva Remove Background pour détourer l\'image...');
+                        // finalImagePath = await callCanvaAPI(selectedProductImage);
+                    }
+                }
+
                 const newProduct = {
                     id: 'prod-' + Date.now(),
                     name: titleInput.value.trim(),
                     category: categorySelect.value,
                     price: finalPrice,
                     description: descInput.value.trim(),
-                    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop', // Placeholder
+                    image: finalImagePath,
                     supplier_email: localStorage.getItem('newketUserEmail') || 'anonymous',
                     stock: 10,
                     is_new: true,
@@ -326,8 +382,8 @@
                 <!-- Brand Section -->
                 <div class="lg:col-span-4 space-y-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:star-bold" width="24" class="text-gray-900"></iconify-icon>
+                        <div class="w-10 h-10 flex items-center justify-center">
+                            <img src="Images/LOGO NEWKET.png" alt="NewKet" class="w-full h-full object-contain">
                         </div>
                         <span class="text-xl font-bold tracking-tight">NEWKET</span>
                     </div>
@@ -423,7 +479,6 @@
                                 stroke-linecap="round" stroke-linejoin="round" fill="none" />
                         </svg>
                         <iconify-icon icon="simple-icons:airtel" width="35" class="text-red-500"></iconify-icon>
-                        <iconify-icon icon="logos:stripe" width="35" class="grayscale brightness-200"></iconify-icon>
                     </div>
                 </div>
             </div>

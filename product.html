@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="Images/LOGO NEWKET.png">
+    <link rel="icon" type="image/png" href="Images/LOGO NEWKET.png">
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Produit — NewKet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -55,8 +62,6 @@
             box-shadow: 0 0 0 2px #f3f4f6;
         }
     </style>
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.51Z'/></svg>">
 </head>
 
 <body class="bg-white text-gray-900 antialiased">
@@ -65,9 +70,9 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
             <a href="index.html" class="flex-shrink-0 flex items-center gap-3">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 rounded-xl flex items-center justify-center">
-                    <iconify-icon icon="solar:star-bold" width="22" class="text-white"></iconify-icon>
-                </div>
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 rounded-xl flex items-center justify-center p-1.5">
+                        <img src="Images/LOGO NEWKET.png" alt="NewKet" class="w-full h-full object-contain">
+                    </div>
                 <span class="text-xl font-bold tracking-tighter text-gray-900">NEWKET</span>
             </a>
             <div class="flex-1 max-w-2xl mx-auto relative group">
@@ -124,6 +129,8 @@
                     <a href="catalog.html"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Toutes
                         les catégories</a>
+                    <a href="shops.html"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Boutiques</a>
                     <a href="catalog.html?category=Collections Femme"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors border-b-2 border-gray-900">Femme</a>
                     <a href="catalog.html?category=Style Homme"
@@ -230,31 +237,59 @@
                         </p>
                     </div>
                 </div>
+            </div>
 
-                <!-- Trusted Info -->
-                <div class="bg-gray-50 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-900">
-                            <iconify-icon icon="solar:shield-check-linear" width="20"></iconify-icon>
-                        </div>
-                        <div class="text-xs text-gray-600">
-                            <div class="font-bold text-gray-900">Garantie 2 ans</div>
-                            <div>Achat 100% sécurisé</div>
-                        </div>
+            <!-- Partager -->
+            <div class="pt-6 border-t border-gray-100 flex items-center justify-between">
+                <span class="text-sm font-semibold text-gray-900 uppercase tracking-wider">Partager</span>
+                <div class="flex items-center gap-3">
+                    <button onclick="shareProduct('whatsapp')"
+                        class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#25D366] hover:border-[#25D366] transition-colors"
+                        title="Partager sur WhatsApp">
+                        <iconify-icon icon="line-md:whatsapp" width="20"></iconify-icon>
+                    </button>
+                    <button onclick="shareProduct('facebook')"
+                        class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#1877F2] hover:border-[#1877F2] transition-colors"
+                        title="Partager sur Facebook">
+                        <iconify-icon icon="line-md:facebook" width="20"></iconify-icon>
+                    </button>
+                    <button onclick="shareProduct('twitter')"
+                        class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:text-black hover:border-black transition-colors"
+                        title="Partager sur X">
+                        <iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon>
+                    </button>
+                    <button onclick="shareProduct('copy')"
+                        class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                        title="Copier le lien">
+                        <iconify-icon icon="solar:link-bold" width="20"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trusted Info -->
+            <div class="bg-gray-50 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-900">
+                        <iconify-icon icon="solar:shield-check-linear" width="20"></iconify-icon>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-900">
-                            <iconify-icon icon="solar:undo-left-linear" width="20"></iconify-icon>
-                        </div>
-                        <div class="text-xs text-gray-600">
-                            <div class="font-bold text-gray-900">Retours Faciles</div>
-                            <div>Satisfait ou remboursé</div>
-                        </div>
+                    <div class="text-xs text-gray-600">
+                        <div class="font-bold text-gray-900">Garantie 2 ans</div>
+                        <div>Achat 100% sécurisé</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-gray-900">
+                        <iconify-icon icon="solar:undo-left-linear" width="20"></iconify-icon>
+                    </div>
+                    <div class="text-xs text-gray-600">
+                        <div class="font-bold text-gray-900">Retours Faciles</div>
+                        <div>Satisfait ou remboursé</div>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
 
         <!-- Reviews -->
@@ -522,6 +557,36 @@
             input.value = curr;
         }
 
+        function shareProduct(platform) {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            let shareUrl = '';
+
+            switch (platform) {
+                case 'whatsapp':
+                    shareUrl = `https://api.whatsapp.com/send?text=${title}%20${url}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'copy':
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        if (window.showToast) {
+                            showToast('Lien copié dans le presse-papier !', 'success');
+                        } else {
+                            alert('Lien copié !');
+                        }
+                    });
+                    break;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             if (window.newketInitialized) {
                 loadProduct();
@@ -537,8 +602,8 @@
                 <!-- Brand Section -->
                 <div class="lg:col-span-4 space-y-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:star-bold" width="24" class="text-gray-900"></iconify-icon>
+                        <div class="w-10 h-10 flex items-center justify-center">
+                            <img src="Images/LOGO NEWKET.png" alt="NewKet" class="w-full h-full object-contain">
                         </div>
                         <span class="text-xl font-bold tracking-tight">NEWKET</span>
                     </div>
@@ -634,7 +699,6 @@
                                 stroke-linecap="round" stroke-linejoin="round" fill="none" />
                         </svg>
                         <iconify-icon icon="simple-icons:airtel" width="35" class="text-red-500"></iconify-icon>
-                        <iconify-icon icon="logos:stripe" width="35" class="grayscale brightness-200"></iconify-icon>
                     </div>
                 </div>
             </div>

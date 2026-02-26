@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="Images/LOGO NEWKET.png">
+    <link rel="icon" type="image/png" href="Images/LOGO NEWKET.png">
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Mon Espace Client | NewKet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -60,8 +67,6 @@
             window.location.href = 'index.html';
         }
     </script>
-    <link rel="icon" type="image/svg+xml"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.51Z'/></svg>">
 </head>
 
 <body class="text-gray-900">
@@ -94,7 +99,7 @@
             <div class="glass-panel p-6 sticky top-24">
                 <div class="flex items-center gap-4 mb-8">
                     <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl">
-                        👤
+
                     </div>
                     <div>
                         <h2 class="font-bold text-gray-900" id="userDisplayName">Mon Compte</h2>
@@ -495,7 +500,7 @@
                     feed.innerHTML = activities.map(a => `
                         <div class="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-all">
                             <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-xs flex-shrink-0">
-                                ${a.type === 'stock' ? '📦' : '✨'}
+                                ${a.type === 'stock' ? '' : ''}
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-900 truncate">${a.text}</p>
@@ -687,8 +692,8 @@
                 <!-- Brand Section -->
                 <div class="lg:col-span-4 space-y-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:star-bold" width="24" class="text-gray-900"></iconify-icon>
+                        <div class="w-10 h-10 flex items-center justify-center">
+                            <img src="Images/LOGO NEWKET.png" alt="NewKet" class="w-full h-full object-contain">
                         </div>
                         <span class="text-xl font-bold tracking-tight">NEWKET</span>
                     </div>
@@ -784,7 +789,6 @@
                                 stroke-linecap="round" stroke-linejoin="round" fill="none" />
                         </svg>
                         <iconify-icon icon="simple-icons:airtel" width="35" class="text-red-500"></iconify-icon>
-                        <iconify-icon icon="logos:stripe" width="35" class="grayscale brightness-200"></iconify-icon>
                     </div>
                 </div>
             </div>

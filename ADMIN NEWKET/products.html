@@ -4,6 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="../Images/LOGO NEWKET.png">
+    <link rel="icon" type="image/png" href="../Images/LOGO NEWKET.png">
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Mes Produits | NewKet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -61,7 +68,6 @@
         const role = localStorage.getItem('newketRole');
         // Check removed to allow AuthManager to handle it properly
     </script>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%23000' d='m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.51Z'/></svg>">
 </head>
 
 <body class="text-gray-900">
@@ -69,11 +75,12 @@
     <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
             <a href="dashboard.html" class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center">
-                    <iconify-icon icon="solar:star-bold" width="24" class="text-white"></iconify-icon>
+                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-xl flex items-center justify-center p-1.5">
+                    <img src="../Images/LOGO NEWKET.png" alt="NewKet" class="w-full h-full object-contain">
                 </div>
                 <span class="text-xl font-bold tracking-tighter text-gray-900">NEWKET</span>
-                <span class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+                <span
+                    class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
             </a>
             <div class="flex items-center gap-4">
                 <div class="currency-switch-segmented" id="currencyToggle" data-active="CDF">
@@ -94,23 +101,38 @@
         <aside class="w-full md:w-64 flex-shrink-0">
             <div class="glass-panel p-6 sticky top-24">
                 <nav class="space-y-1">
-                    <a href="dashboard.html" class="sidebar-link"><iconify-icon icon="solar:home-smile-bold" width="20"></iconify-icon>Vue d'ensemble</a>
-                    <a href="products.html" class="sidebar-link"><iconify-icon icon="solar:box-bold" width="20"></iconify-icon>Produits</a>
-                    <a href="orders.html" class="sidebar-link"><iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon>Commandes</a>
-                    <a href="livraisons.html" class="sidebar-link"><iconify-icon icon="solar:delivery-bold" width="20"></iconify-icon>Livraisons</a>
-                    <a href="diagnostics.html" class="sidebar-link"><iconify-icon icon="solar:chart-square-bold" width="20"></iconify-icon>Analyses & Diagnostics</a>
-                    <a href="profits.html" class="sidebar-link"><iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon>Calcul des Profits</a>
-                    <a href="clients.html" class="sidebar-link"><iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon>Mes Clients</a>
-                    <a href="user.html" class="sidebar-link admin-only"><iconify-icon icon="solar:user-bold" width="20"></iconify-icon>Utilisateurs</a>
-                    <a href="user-stats.html" class="sidebar-link admin-only"><iconify-icon icon="solar:users-group-two-rounded-bold" width="20"></iconify-icon>Analyse Utilisateurs</a>
-                    <a href="promos.html" class="sidebar-link"><iconify-icon icon="solar:ticket-bold" width="20"></iconify-icon>Codes Promo</a>
-                    <a href="reviews.html" class="sidebar-link"><iconify-icon icon="solar:star-bold" width="20"></iconify-icon>Avis & Évaluations</a>
-                    <a href="rapports.html" class="sidebar-link"><iconify-icon icon="solar:chart-2-bold" width="20"></iconify-icon>Rapports</a>
-                    <a href="notifications-admin.html" class="sidebar-link"><iconify-icon icon="solar:bell-bing-bold" width="20"></iconify-icon>Notifications</a>
-                    <a href="support.html" class="sidebar-link"><iconify-icon icon="solar:chat-round-dots-bold" width="20"></iconify-icon>Support / Tickets</a>
+                    <a href="dashboard.html" class="sidebar-link"><iconify-icon icon="solar:home-smile-bold"
+                            width="20"></iconify-icon>Vue d'ensemble</a>
+                    <a href="products.html" class="sidebar-link"><iconify-icon icon="solar:box-bold"
+                            width="20"></iconify-icon>Produits</a>
+                    <a href="orders.html" class="sidebar-link"><iconify-icon icon="solar:cart-large-bold"
+                            width="20"></iconify-icon>Commandes</a>
+                    <a href="livraisons.html" class="sidebar-link"><iconify-icon icon="solar:delivery-bold"
+                            width="20"></iconify-icon>Livraisons</a>
+                    <a href="diagnostics.html" class="sidebar-link"><iconify-icon icon="solar:chart-square-bold"
+                            width="20"></iconify-icon>Analyses & Diagnostics</a>
+                    <a href="profits.html" class="sidebar-link"><iconify-icon icon="solar:wad-of-money-bold"
+                            width="20"></iconify-icon>Calcul des Profits</a>
+                    <a href="clients.html" class="sidebar-link"><iconify-icon icon="solar:users-group-rounded-bold"
+                            width="20"></iconify-icon>Mes Clients</a>
+                    <a href="user.html" class="sidebar-link admin-only"><iconify-icon icon="solar:user-bold"
+                            width="20"></iconify-icon>Utilisateurs</a>
+                    <a href="user-stats.html" class="sidebar-link admin-only"><iconify-icon
+                            icon="solar:users-group-two-rounded-bold" width="20"></iconify-icon>Analyse Utilisateurs</a>
+                    <a href="promos.html" class="sidebar-link"><iconify-icon icon="solar:ticket-bold"
+                            width="20"></iconify-icon>Codes Promo</a>
+                    <a href="reviews.html" class="sidebar-link"><iconify-icon icon="solar:star-bold"
+                            width="20"></iconify-icon>Avis & Évaluations</a>
+                    <a href="rapports.html" class="sidebar-link"><iconify-icon icon="solar:chart-2-bold"
+                            width="20"></iconify-icon>Rapports</a>
+                    <a href="notifications-admin.html" class="sidebar-link"><iconify-icon icon="solar:bell-bing-bold"
+                            width="20"></iconify-icon>Notifications</a>
+                    <a href="support.html" class="sidebar-link"><iconify-icon icon="solar:chat-round-dots-bold"
+                            width="20"></iconify-icon>Support / Tickets</a>
                     <div class="py-4">
                         <div class="h-px bg-gray-100 mb-4"></div>
-                        <a href="settings.html" class="sidebar-link"><iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>Paramètres</a>
+                        <a href="settings.html" class="sidebar-link"><iconify-icon icon="solar:settings-bold"
+                                width="20"></iconify-icon>Paramètres</a>
                     </div>
                 </nav>
             </div>
@@ -272,7 +294,7 @@
                     <td class="p-4">
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-gray-900">${p.name}</span>
-                            ${isPinned ? '<span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-black uppercase rounded-full tracking-wider">📌 Épinglé</span>' : ''}
+                            ${isPinned ? '<span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-black uppercase rounded-full tracking-wider">Épinglé</span>' : ''}
                         </div>
                     </td>
                     <td class="p-4"><span class="px-3 py-1 bg-gray-100 text-[10px] font-bold uppercase rounded-full text-gray-500">${p.category}</span></td>
@@ -388,7 +410,7 @@
             const newPinned = !p.pinned;
             await ProductManager.updateProduct(id, { pinned: newPinned });
             renderAdminProducts();
-            showToast(newPinned ? '📌 Produit épinglé sur la homepage !' : 'Produit désépinglé.', newPinned ? 'success' : 'info');
+            showToast(newPinned ? 'Produit épinglé sur la homepage !' : 'Produit désépinglé.', newPinned ? 'success' : 'info');
         }
 
         form.addEventListener('submit', (e) => {
