@@ -1589,27 +1589,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const loader = document.createElement('div');
             loader.id = 'newket-global-loader';
-            loader.className = 'fixed inset-0 z-[2000] flex items-center justify-center bg-white/80 backdrop-blur-md transition-all duration-300 opacity-0 invisible';
+            loader.className = 'fixed inset-0 z-[2000] flex items-center justify-center bg-gray-900/40 backdrop-blur-md transition-all duration-500 opacity-0 invisible';
+            
+            // Generate dots animation HTML
+            const dotsHtml = `
+                <div class="flex gap-1.5 mt-2 justify-center">
+                    <div class="w-1.5 h-1.5 rounded-full bg-white/40 animate-bounce" style="animation-delay: 0ms"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce" style="animation-delay: 150ms"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-white animate-bounce" style="animation-delay: 300ms"></div>
+                </div>
+            `;
+
             loader.innerHTML = `
-                <div class="flex flex-col items-center gap-6">
-                    <div class="w-12 h-12 border-[3px] border-gray-100 border-t-black rounded-full animate-spin"></div>
-                    <div class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900">${message}</div>
+                <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-10 rounded-[2.5rem] shadow-2xl shadow-black/50 flex flex-col items-center gap-6 transform scale-90 transition-all duration-500 ease-out" id="newket-loader-card">
+                    <div class="relative w-16 h-16 flex items-center justify-center">
+                        <!-- Outer rotating gradient ring -->
+                        <div class="absolute inset-0 rounded-full border-t-[3px] border-r-[3px] border-white/90 animate-spin" style="animation-duration: 1s;"></div>
+                        <!-- Inner pulsing dot -->
+                        <div class="w-4 h-4 rounded-full bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-pulse"></div>
+                    </div>
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="text-xs font-black uppercase tracking-[0.25em] text-white/90 drop-shadow-md text-center max-w-[200px] leading-relaxed">
+                            ${message}
+                        </div>
+                        ${dotsHtml}
+                    </div>
                 </div>
             `;
             document.body.appendChild(loader);
 
+            // Trigger reflow & enter animation
             requestAnimationFrame(() => {
                 loader.classList.remove('invisible', 'opacity-0');
+                const card = loader.querySelector('#newket-loader-card');
+                if (card) {
+                    card.classList.remove('scale-90');
+                }
             });
         },
         hide() {
             const loader = document.getElementById('newket-global-loader');
             if (loader) {
                 loader.classList.add('opacity-0');
+                const card = loader.querySelector('#newket-loader-card');
+                if (card) {
+                    card.classList.add('scale-90'); // Shrink out
+                }
                 setTimeout(() => {
                     loader.classList.add('invisible');
                     loader.remove();
-                }, 300);
+                }, 500); // Matches CSS duration
             }
         }
     };
