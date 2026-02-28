@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Important: most data-price-cdf attributes actually contain the RAW price from DB which is USD
                 // We need to know if this element's source is USD or CDF.
                 // Legend: if it's from the main product grid, it's USD.
-                const isUSDSource = el.hasAttribute('data-price-usd') || el.closest('.product-card') || el.closest('#cartItemsContainer');
+                const isUSDSource = el.hasAttribute('data-price-usd');
                 el.textContent = this.formatPrice(price, this.currentCurrency, !isUSDSource);
             });
         },

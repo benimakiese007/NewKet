@@ -538,7 +538,7 @@
         function updateQty(id, delta) {
             console.log(`[NewKet] updateQty: ${id}, delta: ${delta}`);
             CartManager.updateQuantity(id, delta);
-            // No need to call renderCart() here, the cartUpdated event will trigger it
+            renderCart();
         }
 
         function removeItem(id) {
@@ -837,7 +837,6 @@
                 });
             }
             window.addEventListener('currencyChanged', renderCart);
-            window.addEventListener('cartUpdated', renderCart);
         });
     </script>
     <!-- ========== FOOTER ========== -->
