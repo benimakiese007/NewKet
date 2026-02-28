@@ -8,11 +8,11 @@
     <link rel="apple-touch-icon" sizes="512x512" href="Images/Logo NewKet V2.jpeg">
     <link rel="icon" type="image/png" href="Images/Logo NewKet V2.jpeg">
     <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Centre de Notifications | NewKet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/tailwind.css">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
@@ -77,7 +77,7 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <a href="index.html" class="flex items-center gap-1">
-                <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="h-8 w-auto invert">
+                
             </a>
 
             <div class="flex items-center gap-2">
@@ -269,140 +269,7 @@
             window.addEventListener('notificationsUpdated', renderNotifications);
         });
     </script>
-    <!-- ========== FOOTER ========== -->
-    <footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5 text-left">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-                <!-- Brand Section -->
-                <div class="lg:col-span-4 space-y-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 flex items-center justify-center">
-                            <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                        </div>
-                        <span class="text-xl font-bold tracking-tight">NEWKET</span>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
-                        L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et
-                        profitez d'une expérience shopping sans compromis.
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:instagram" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:facebook" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:linkedin" width="20"></iconify-icon>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Fast Links -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Boutique</h4>
-                    <ul class="space-y-4">
-                        <li><a href="catalog.html?category=Collections Femme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Collections Femme</a>
-                        </li>
-                        <li><a href="catalog.html?category=Style Homme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Style Homme</a></li>
-                        <li><a href="catalog.html?category=Tech & Gadgets"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Tech
-                                & Gadgets</a></li>
-                        <li><a href="catalog.html?category=Art de vivre"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Art
-                                de vivre</a></li>
-                    </ul>
-                </div>
-
-                <!-- Account & Support -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
-                    <ul class="space-y-4">
-                        <li><a href="customer-dashboard.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
-                        <li><a href="customer-dashboard.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Suivi de Commande</a>
-                        </li>
-                        <li><a href="about.html" class="text-gray-400 hover:text-white text-sm transition-colors">Aide &
-                                FAQ</a></li>
-                        <li><a href="publish.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Vendre un article</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Newsletter -->
-                <div class="lg:col-span-4 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
-                    <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et
-                        avant-premières.</p>
-                    <form class="relative group"
-                        onsubmit="event.preventDefault(); alert('Merci pour votre inscription !');">
-                        <input type="email" placeholder="Votre email"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
-                        <button type="submit"
-                            class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
-                            S'inscrire
-                        </button>
-                    </form>
-                    <div class="flex items-center gap-4 pt-2">
-                        <iconify-icon icon="logos:visa" width="35"></iconify-icon>
-                        <iconify-icon icon="logos:mastercard" width="35"></iconify-icon>
-                        <!-- M-Pesa -->
-                        <svg width="35" height="30" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg"
-                            class="inline-block">
-                            <rect x="45" y="5" width="30" height="55" rx="4" stroke="#e11d48" stroke-width="5"
-                                fill="none" />
-                            <path d="M20 30 Q60 5 100 30 L95 40 Q60 15 25 40 Z" fill="#2eb44b" />
-                            <text x="60" y="85" font-family="Arial" font-weight="900" font-size="22"
-                                text-anchor="middle" fill="#e11d48">m-pesa</text>
-                        </svg>
-                        <!-- Orange Money -->
-                        <svg width="35" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
-                            class="inline-block">
-                            <path d="M20 70 L55 35 M55 35 V55 M55 35 H35" stroke="#ffffff" stroke-width="12"
-                                stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                            <path d="M80 30 L45 65 M45 65 V45 M45 65 H65" stroke="#ff7900" stroke-width="12"
-                                stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                        </svg>
-                        <iconify-icon icon="simple-icons:airtel" width="35" class="text-red-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Bottom -->
-            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex flex-col items-center md:items-start gap-1">
-                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience
-                        Luxe</p>
-                    <p class="text-gray-600 text-[9px] uppercase tracking-wider">Tous droits réservés</p>
-                </div>
-
-                <div class="flex gap-8">
-                    <a href="privacy.html"
-                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
-                    <a href="terms.html"
-                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <span class="text-gray-500 text-[10px] uppercase tracking-widest font-semibold italic">Designed
-                        by</span>
-                    <span
-                        class="text-white text-[11px] font-black tracking-tighter hover:text-red-500 transition-colors cursor-pointer">SITYZEN</span>
-                </div>
-            </div>
-        </div>
-    </footer>
+    
 </body>
 
 </html>

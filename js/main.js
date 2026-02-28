@@ -606,13 +606,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add item to cart
         addItem(product, quantity = 1) {
             const cart = this.getCart();
-            const existingItem = cart.find(item => item.id === product.id);
+            // Using loose equality (==) to handle potential string/number mismatches
+            const existingItem = cart.find(item => item.id == product.id);
             const qtyToAdd = parseInt(quantity) || 1;
+
+            // Handle multiple images: take only the first one for the cart
+            const productImage = (product.image || '').split(',')[0];
+            const cleanProduct = { ...product, image: productImage };
 
             if (existingItem) {
                 existingItem.quantity += qtyToAdd;
             } else {
-                cart.push({ ...product, quantity: qtyToAdd });
+                cart.push({ ...cleanProduct, quantity: qtyToAdd });
             }
 
             this.saveCart(cart);
@@ -622,7 +627,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Remove item from cart
         removeItem(productId) {
             let cart = this.getCart();
-            cart = cart.filter(item => item.id !== productId);
+            // Using loose equality (!=) for robustness
+            cart = cart.filter(item => item.id != productId);
             this.saveCart(cart);
             return cart;
         },
@@ -630,7 +636,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update quantity
         updateQuantity(productId, delta) {
             const cart = this.getCart();
-            const item = cart.find(item => item.id === productId);
+            // Using loose equality (==) for robustness
+            const item = cart.find(item => item.id == productId);
 
             if (item) {
                 // Ensure quantity is treated as a number to avoid string concatenation
@@ -649,12 +656,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Set specific quantity (Maintains position but updates count)
         setQuantity(productId, quantity) {
             let cart = this.getCart();
-            const itemIndex = cart.findIndex(item => item.id === productId);
+            // Using loose equality (==) for robustness
+            const itemIndex = cart.findIndex(item => item.id == productId);
 
             if (itemIndex > -1) {
                 const newQty = parseInt(quantity);
-                if (isNaN(newQty) || newQty < 1) {
-                    cart[itemIndex].quantity = 1; // Default to 1 if invalid input (avoid accidental deletion)
+                if (newQty <= 0) {
+                    cart.splice(itemIndex, 1);
                 } else {
                     cart[itemIndex].quantity = newQty;
                 }
@@ -673,6 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateBadge() {
             const badges = document.querySelectorAll('.cart-count, #cart-count');
             const count = this.getItemCount();
+            console.log(`[NewKet] Updating cart badges. Total distinct items: ${count}`);
 
             badges.forEach(badge => {
                 badge.textContent = count;
@@ -734,8 +743,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const exists = favorites.find(item => item.id === product.id);
 
             if (!exists) {
+                const firstImage = (product.image || '').split(',')[0];
                 favorites.push({
                     ...product,
+                    image: firstImage,
                     addedAt: new Date().toISOString()
                 });
                 this.saveFavorites(favorites);
@@ -774,7 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const favorites = this.getFavorites();
 
             // Update badges
-            const badges = document.querySelectorAll('#favoritesBadge');
+            const badges = document.querySelectorAll('#favoritesBadge, #mobileFavoritesBadge, #desktopFavoritesBadge, .favorites-badge');
             const totalText = document.getElementById('favoritesTotal');
 
             badges.forEach(badge => {
@@ -812,6 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!productId) return;
 
                 const isFavorite = this.isInFavorites(productId);
+                const wishlistBtn = card.querySelector('.wishlist-btn');
 
                 // Target both font-awesome and iconify-icon
                 if (wishlistBtn) {
@@ -872,6 +884,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
+
+            // Trigger shake on favorites icon in header
+            const favoriteIcons = document.querySelectorAll('.main-header a[href="favorites.html"], .main-header a[title="Favoris"]');
+            favoriteIcons.forEach(icon => {
+                icon.classList.remove('favorites-shake');
+                void icon.offsetWidth;
+                icon.classList.add('favorites-shake');
+                setTimeout(() => icon.classList.remove('favorites-shake'), 600);
+            });
         }
     };
 
@@ -889,7 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!productId) {
-            console.error("AddToCart: No product ID provided.");
+            console.error("addToWishlist: No product ID provided.");
             return;
         }
 
@@ -899,30 +920,62 @@ document.addEventListener('DOMContentLoaded', () => {
             product = window.ProductManager.getProduct(productId);
         }
 
-        // Fallback for demo products in product.html if ProductManager hasn't loaded them yet
-        if (!product && typeof productsDB !== 'undefined' && productsDB[productId]) {
-            const p = productsDB[productId];
-            product = {
-                id: productId,
-                name: p.name,
-                price: p.priceCDF,
-                image: p.image,
-                category: p.category
-            };
-        }
-
+        // Fallback: extract from DOM if ProductManager hasn't loaded it
         if (!product) {
-            // Last resort: minimal product object if we still don't have it
-            product = { id: productId, name: 'Produit', price: 0, image: '' };
+            const btn = event ? event.currentTarget : null;
+            const card = btn ? btn.closest('.product-card') : document.querySelector(`[data-product-id="${productId}"]`);
+
+            if (card) {
+                const nameEl = card.querySelector('.product-title a, .product-title, h3 a, h3');
+                const priceEl = card.querySelector('.current-price, [data-price-cdf]');
+                const imgEl = card.querySelector('.product-image img, img');
+                const catEl = card.querySelector('.product-cat, .text-xs.font-bold, .category-label');
+
+                let price = 0;
+                if (priceEl) {
+                    if (priceEl.dataset && priceEl.dataset.priceCdf) price = parseFloat(priceEl.dataset.priceCdf);
+                    else price = parseFloat(priceEl.textContent.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                }
+
+                product = {
+                    id: productId,
+                    name: nameEl ? nameEl.textContent.trim() : 'Produit',
+                    price: price,
+                    image: imgEl ? imgEl.src.split(',')[0] : 'Images/default.png',
+                    category: catEl ? catEl.textContent.trim() : 'Général'
+                };
+            } else {
+                // Product Detail Page Fallback
+                const h1 = document.querySelector('h1, #product-name');
+                const img = document.querySelector('.main-image, #mainImage');
+                const priceEl = document.querySelector('.product-price-large, #product-price, .current-price');
+                let price = 0;
+                if (priceEl) {
+                    if (priceEl.dataset && priceEl.dataset.priceCdf) price = parseFloat(priceEl.dataset.priceCdf);
+                    else {
+                        // Extract text node ONLY (handle old-price span)
+                        const priceText = Array.from(priceEl.childNodes)
+                            .filter(node => node.nodeType === 3)
+                            .map(node => node.textContent.trim())
+                            .join('');
+                        price = parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                    }
+                }
+                product = {
+                    id: productId,
+                    name: h1 ? h1.textContent.trim() : (productId.replace(/-/g, ' ') || 'Produit'),
+                    price: price,
+                    image: img ? img.src : 'Images/default.png',
+                    category: 'Article'
+                };
+            }
         }
 
         const isFavorite = FavoritesManager.isInFavorites(productId);
         if (isFavorite) {
             FavoritesManager.removeItem(productId);
-            if (window.showToast) showToast('Produit retiré de vos favoris', 'info');
         } else {
             FavoritesManager.addItem(product);
-            if (window.showToast) showToast('Produit ajouté à vos favoris !', 'success');
         }
 
         // Update UI everywhere
@@ -934,7 +987,10 @@ document.addEventListener('DOMContentLoaded', () => {
         promos: {},
 
         async init() {
-            const data = await window.SupabaseAdapter.fetch('promos');
+            const data = await window.SupabaseAdapter.fetchWithFilters('promos', {
+                order: ['created_at', { ascending: false }],
+                limit: 100
+            });
             if (data && data.length > 0) {
                 const promoMap = {};
                 data.forEach(p => {
@@ -1041,7 +1097,10 @@ document.addEventListener('DOMContentLoaded', () => {
         activities: [],
 
         async init() {
-            const data = await window.SupabaseAdapter.fetch('activities');
+            const data = await window.SupabaseAdapter.fetchWithFilters('activities', {
+                order: ['time', { ascending: false }],
+                limit: 50
+            });
             if (data && data.length > 0) {
                 this.activities = data.sort((a, b) => new Date(b.time) - new Date(a.time));
             }
@@ -1089,7 +1148,10 @@ document.addEventListener('DOMContentLoaded', () => {
         products: [],
 
         async init() {
-            const data = await window.SupabaseAdapter.fetch('products');
+            const data = await window.SupabaseAdapter.fetchWithFilters('products', {
+                order: ['created_at', { ascending: false }],
+                limit: 200
+            });
             if (data && data.length > 0) {
                 // Map snake_case from SQL to camelCase for JS UI
                 this.products = data.map(p => ({
@@ -1170,7 +1232,10 @@ document.addEventListener('DOMContentLoaded', () => {
         orders: [],
 
         async init() {
-            const data = await window.SupabaseAdapter.fetch('orders');
+            const data = await window.SupabaseAdapter.fetchWithFilters('orders', {
+                order: ['date', { ascending: false }],
+                limit: 100
+            });
             if (data && data.length > 0) {
                 this.orders = data.map(o => ({
                     ...o,
@@ -1241,20 +1306,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const allOrders = this.orders.filter(o => o.customer_email === email && o.status !== 'Annulé');
             const totalSpent = allOrders.reduce((sum, o) => sum + o.total, 0);
 
-            // Points earned: 2% cashback only for products > 50$
-            const thresholdUSD = 50;
+            // Points earned: 1 point per 10$ spent
+            const thresholdUSD = 10;
             const thresholdCDF = CurrencyManager.convert(thresholdUSD, false);
-            let earnedTotal = 0;
+            let earnedUSD = 0;
 
             allOrders.forEach(order => {
                 (order.items || []).forEach(item => {
-                    if (item.price >= thresholdCDF) {
-                        earnedTotal += (item.price * item.quantity);
-                    }
+                    // Normalize price to USD for consistent point calculation
+                    const itemPriceUSD = CurrencyManager.convert(item.price, true);
+                    earnedUSD += (itemPriceUSD * item.quantity);
                 });
             });
 
-            const pointsEarned = Math.floor(earnedTotal * 0.02);
+            const pointsEarned = Math.floor(earnedUSD / 10);
             const pointsUsed = allOrders.reduce((sum, o) => sum + (o.points_used || 0), 0);
             const currentBalance = Math.max(0, pointsEarned - pointsUsed);
 
@@ -1466,7 +1531,10 @@ document.addEventListener('DOMContentLoaded', () => {
         notifications: [],
 
         async init() {
-            const data = await window.SupabaseAdapter.fetch('notifications');
+            const data = await window.SupabaseAdapter.fetchWithFilters('notifications', {
+                order: ['date', { ascending: false }],
+                limit: 50
+            });
             if (data && data.length > 0) {
                 this.notifications = data.sort((a, b) => new Date(b.date) - new Date(a.date));
             }
@@ -1926,110 +1994,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 price: productPrice,
                 image: productImage
             });
-
-            showToast(`${productName} ajouté au panier !`, 'success');
         });
     });
 
 
-    // ========== WISHLIST BUTTONS ==========
-    document.querySelectorAll('.wishlist-btn').forEach((btn, index) => {
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            const card = this.closest('.product-card');
-            const icon = this.querySelector('i');
 
-            if (card) {
-                // Extract product info
-                let productName = 'Produit';
-                let productPrice = 0;
-                let productImg = '';
-                let productCat = '';
-                let productId = 'product-' + index;
-
-                const titleEl = card.querySelector('.product-title a, .product-title');
-                if (titleEl) {
-                    productName = titleEl.textContent.trim();
-                    productId = productName.toLowerCase().replace(/\s+/g, '-');
-                }
-
-                const priceEl = card.querySelector('.current-price');
-                if (priceEl) {
-                    if (priceEl.dataset.priceCdf) {
-                        productPrice = parseFloat(priceEl.dataset.priceCdf);
-                    } else {
-                        productPrice = parseFloat(priceEl.textContent.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-                    }
-                }
-
-                const imgEl = card.querySelector('.product-image img');
-                if (imgEl) productImg = imgEl.src;
-
-                const catEl = card.querySelector('.product-cat');
-                if (catEl) productCat = catEl.textContent.trim();
-
-                // Toggle favorite
-                if (FavoritesManager.isInFavorites(productId)) {
-                    FavoritesManager.removeItem(productId);
-                    showToast('Retiré des favoris', 'info');
-                } else {
-                    FavoritesManager.addItem({
-                        id: productId,
-                        name: productName,
-                        price: productPrice,
-                        image: productImg,
-                        category: productCat
-                    });
-                    showToast('Ajouté aux favoris', 'success');
-                }
-            } else {
-                // Logic for Product Detail Page
-                const productPage = document.querySelector('.product-info-col');
-                if (productPage) {
-                    let productName = document.querySelector('.product-info-col h1').textContent.trim();
-                    let productId = productName.toLowerCase().replace(/\s+/g, '-');
-
-                    let productPrice = 0;
-                    const priceEl = document.querySelector('.product-price-large');
-                    if (priceEl) {
-                        // Get text node only (price) excluding child elements (old price)
-                        const priceText = Array.from(priceEl.childNodes)
-                            .filter(node => node.nodeType === 3)
-                            .map(node => node.textContent.trim())
-                            .join('');
-                        productPrice = parseFloat(priceText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-                    }
-
-                    let productImg = document.querySelector('.main-image').src;
-
-                    // Toggle favorite
-                    if (FavoritesManager.isInFavorites(productId)) {
-                        FavoritesManager.removeItem(productId);
-                        showToast('Retiré des favoris', 'info');
-
-                        // Update icon state
-                        icon.classList.remove('fas');
-                        icon.classList.add('far');
-                        icon.style.color = '';
-                    } else {
-                        FavoritesManager.addItem({
-                            id: productId,
-                            name: productName,
-                            price: productPrice,
-                            image: productImg,
-                            category: 'High-Tech' // Hardcoded for demo or extract from breadcrumb
-                        });
-                        showToast('Ajouté aux favoris', 'success');
-
-                        // Update icon state
-                        icon.classList.remove('far');
-                        icon.classList.add('fas');
-                        icon.style.color = '#EF4444';
-                    }
-                }
-            }
-        });
-    });
 
     // ========== LOGIN FORM SIMULATION ==========
     const loginForm = document.querySelector('.login-form');
@@ -2070,88 +2039,182 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', revealOnScroll);
     revealOnScroll(); // Run once on load
 
-    // ========== SEARCH SYSTEM ==========
-    const searchBars = document.querySelectorAll('.search-bar');
-    searchBars.forEach(bar => {
-        const input = bar.querySelector('.search-input');
-        const icon = bar.querySelector('.search-icon');
+    // ========== SEARCH SYSTEM & INSTANT SEARCH (New) ==========
+    const SearchManager = {
+        init() {
+            const searchInputs = document.querySelectorAll('.search-input, #searchInput, #mobileSearchInput');
+            const suggestionsContainers = {
+                desktop: document.getElementById('searchSuggestions'),
+                mobile: document.getElementById('mobileSearchSuggestions')
+            };
 
-        const performSearch = () => {
-            const query = input.value.trim();
-            if (query) {
-                // Simulate search by redirecting to catalog with query param
-                window.location.href = `catalog.html?q=${encodeURIComponent(query)}`;
-            }
-        };
+            searchInputs.forEach(input => {
+                const isMobile = input.id === 'mobileSearchInput' || input.closest('#mobileSearchContainer');
+                const container = isMobile ? suggestionsContainers.mobile : suggestionsContainers.desktop;
 
-        if (input) {
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') performSearch();
+                input.addEventListener('input', (e) => {
+                    const query = e.target.value.trim().toLowerCase();
+                    this.updateSuggestions(query, container);
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const query = e.target.value.trim();
+                        if (query) {
+                            window.location.href = `catalog.html?q=${encodeURIComponent(query)}`;
+                        }
+                    }
+                });
+
+                input.addEventListener('focus', (e) => {
+                    const query = e.target.value.trim().toLowerCase();
+                    if (query.length >= 2) {
+                        container?.classList.add('active');
+                    }
+                });
             });
-        }
 
-        if (icon) {
-            icon.addEventListener('click', performSearch);
-        }
-    });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-bar') && !e.target.closest('#mobileSearchContainer') && !e.target.closest('.search-suggestions')) {
+                    document.querySelectorAll('.search-suggestions').forEach(el => el.classList.remove('active'));
+                }
+            });
 
-    // Check for search query in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('q');
-    if (searchQuery) {
-        const globalSearchInput = document.querySelector('.search-input');
-        if (globalSearchInput) globalSearchInput.value = searchQuery;
+            const searchBtns = document.querySelectorAll('#searchBtn, #mobileSearchBtn');
+            searchBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const input = btn.closest('.search-bar')?.querySelector('.search-input') || document.getElementById('searchInput') || document.getElementById('mobileSearchInput');
+                    const query = input?.value.trim();
+                    if (query) {
+                        window.location.href = `catalog.html?q=${encodeURIComponent(query)}`;
+                    }
+                });
+            });
+        },
+
+        updateSuggestions(query, container) {
+            if (!container) return;
+
+            if (query.length < 2) {
+                container.classList.remove('active');
+                container.innerHTML = '';
+                return;
+            }
+
+            const products = ProductManager.getProducts() || [];
+            const matches = products.filter(p =>
+                p.name.toLowerCase().includes(query) ||
+                (p.category && p.category.toLowerCase().includes(query))
+            ).slice(0, 6);
+
+            container.classList.add('active');
+
+            if (matches.length === 0) {
+                container.innerHTML = `<div class="suggestion-empty">Aucun résultat pour "${query}"</div>`;
+                return;
+            }
+
+            container.innerHTML = matches.map(p => `
+                <div class="suggestion-item" style="display:flex;flex-direction:row;align-items:center;gap:0.75rem;padding:0.6rem 1rem;cursor:pointer;border-bottom:1px solid #f3f4f6;" onclick="window.location.href='product.html?id=${p.id}'">
+                    <img src="${(p.image || '').split(',')[0]}" class="suggestion-img" style="width:44px;height:44px;min-width:44px;max-width:44px;min-height:44px;max-height:44px;object-fit:contain;border-radius:10px;background:#f9fafb;padding:4px;border:1px solid #f0f0f0;flex-shrink:0;" alt="${p.name}">
+                    <div class="suggestion-info" style="flex:1;min-width:0;overflow:hidden;">
+                        <div class="suggestion-name" style="font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111827;">${p.name}</div>
+                        <div class="suggestion-price" style="font-size:0.72rem;color:#6b7280;font-weight:500;">${CurrencyManager.formatPrice(p.price)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    };
+    window.SearchManager = SearchManager;
+
+    // Mobile Search Toggle (Kept and updated for SearchManager compatibility)
+    const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+    const mobileSearchContainer = document.getElementById('mobileSearchContainer');
+    if (mobileSearchBtn && mobileSearchContainer) {
+        mobileSearchBtn.addEventListener('click', () => {
+            mobileSearchContainer.classList.toggle('hidden');
+            if (!mobileSearchContainer.classList.contains('hidden')) {
+                document.getElementById('mobileSearchInput')?.focus();
+            }
+        });
     }
-
 
     // ========== RENDER PRODUCTS (Homepage - 3 grilles) ==========
 
+    // Helper: génère des squelettes de chargement
+    window.buildSkeletonCardHTML = function (count = 4) {
+        let html = '';
+        for (let i = 0; i < count; i++) {
+            html += `
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-img"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text medium"></div>
+                    <div class="skeleton skeleton-text short"></div>
+                    <div class="skeleton skeleton-btn"></div>
+                </div>
+            `;
+        }
+        return html;
+    };
+
+
     // Helper: génère le HTML d'une carte produit
-    function buildProductCardHTML(product) {
+    window.buildProductCardHTML = function (product, options = {}) {
+        const animationClass = options.animationClass || '';
+        const delay = options.delay || '';
+        const styleAttrib = delay ? `style="animation-delay: ${delay}"` : '';
+
         let badgeHTML = '';
         if (product.isNew || product.is_new) badgeHTML = '<span class="badge badge-new"><iconify-icon icon="solar:stars-bold" width="12"></iconify-icon>Nouveau</span>';
         if (product.isPromo || product.is_promo) badgeHTML = '<span class="badge badge-sale"><iconify-icon icon="solar:tag-price-bold" width="12"></iconify-icon>Promo</span>';
 
         const oldPrice = product.oldPrice || product.old_price;
+        const firstImage = (product.image || '').split(',')[0];
 
         return `
-            <div class="product-card flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all hover:shadow-xl group" data-product-id="${product.id}">
+            <div class="product-card flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all hover:shadow-xl group ${animationClass}" data-product-id="${product.id}" ${styleAttrib}>
                 <div class="product-image relative aspect-[4/3] overflow-hidden bg-gray-50">
                     ${badgeHTML}
-                    <img src="${product.image}" alt="${product.name}" class="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300'">
-                    <button class="wishlist-btn absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-gray-900 hover:text-white ${FavoritesManager.isInFavorites(product.id) ? 'text-red-500' : ''}" onclick="addToWishlist('${product.id}', event)">
-                        <iconify-icon icon="${FavoritesManager.isInFavorites(product.id) ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18"></iconify-icon>
+                    <img src="${firstImage}" alt="${product.name}" class="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-110" onerror="this.src='https://via.placeholder.com/300'">
+                    <button class="wishlist-btn absolute top-3 right-3 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-gray-900 hover:text-white ${FavoritesManager.isInFavorites(product.id) ? 'text-red-500' : ''}" onclick="addToWishlist('${product.id}', event)">
+                        <iconify-icon icon="${FavoritesManager.isInFavorites(product.id) ? 'solar:heart-bold' : 'solar:heart-linear'}" width="16"></iconify-icon>
                     </button>
                 </div>
-                <div class="product-info p-3 sm:p-6 flex flex-col flex-1">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-gray-900 uppercase tracking-widest mb-1">${product.category}</div>
-                    <h3 class="text-[12px] sm:text-sm font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[32px] sm:min-h-[40px]">
+                <div class="product-info p-3 sm:p-4 flex flex-col flex-1">
+                    <div class="text-[8px] sm:text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">${product.category}</div>
+                    <h3 class="text-[11px] sm:text-sm font-semibold text-gray-900 mb-1.5 line-clamp-2 min-h-[30px] sm:min-h-[36px]">
                         <a href="product.html?id=${product.id}" class="hover:text-gray-600 transition-colors">${product.name}</a>
                     </h3>
-                    <div class="flex items-center gap-1 mb-3">
+                    <div class="flex items-center gap-1 mb-2">
                         <div class="flex text-yellow-400">
-                            <iconify-icon icon="solar:star-bold" width="12"></iconify-icon>
-                            <iconify-icon icon="solar:star-bold" width="12"></iconify-icon>
-                            <iconify-icon icon="solar:star-bold" width="12"></iconify-icon>
-                            <iconify-icon icon="solar:star-bold" width="12"></iconify-icon>
-                            <iconify-icon icon="solar:star-bold" width="12" class="text-gray-200"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" width="10"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" width="10"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" width="10"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" width="10"></iconify-icon>
+                            <iconify-icon icon="solar:star-bold" width="10" class="text-gray-200"></iconify-icon>
                         </div>
-                        <span class="text-[10px] text-gray-400 font-medium">(${product.reviews || 0})</span>
+                        <span class="text-[9px] text-gray-400 font-medium">(${product.reviews || 0})</span>
                     </div>
                     <div class="mt-auto">
-                        <div class="flex items-baseline gap-2 mb-3">
-                            <span class="text-base font-bold text-gray-900" data-price-cdf="${product.price}">${CurrencyManager.formatPrice(product.price)}</span>
-                            ${oldPrice ? `<span class="text-xs text-gray-400 line-through" data-price-cdf="${oldPrice}">${CurrencyManager.formatPrice(oldPrice)}</span>` : ''}
+                        <div class="flex items-baseline gap-2 mb-2">
+                            <span class="text-sm sm:text-base font-bold text-gray-900" data-price-cdf="${product.price}">${CurrencyManager.formatPrice(product.price)}</span>
+                            ${oldPrice ? `<span class="text-[10px] text-gray-400 line-through" data-price-cdf="${oldPrice}">${CurrencyManager.formatPrice(oldPrice)}</span>` : ''}
                         </div>
-                        <button class="w-full bg-gray-900 hover:bg-black text-white py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 group/btn add-to-cart-btn" onclick="addToCart('${product.id}', 1, event)">
-                            <iconify-icon icon="solar:cart-large-2-linear" width="16" class="transition-transform group-hover/btn:scale-110"></iconify-icon>
-                            Ajouter
-                        </button>
+                        <div class="flex gap-2">
+                            <button class="flex-1 bg-gray-900 hover:bg-black text-white py-2 rounded-xl text-[10px] sm:text-xs font-semibold transition-all flex items-center justify-center gap-2 group/btn add-to-cart-btn" onclick="addToCart('${product.id}', 1, event)">
+                                <iconify-icon icon="solar:cart-large-2-linear" width="14" class="transition-transform group-hover/btn:scale-110"></iconify-icon>
+                                Ajouter
+                            </button>
+                            <button class="w-9 sm:w-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors" onclick="event.stopPropagation(); window.shareProductCard && shareProductCard('${product.id}', '${product.name.replace(/'/g, "\\'")}')" title="Partager">
+                                <iconify-icon icon="solar:share-linear" width="16"></iconify-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
-    }
+    };
 
     // 1. Produits épinglés
     function renderPinnedProducts() {
@@ -2159,23 +2222,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const section = document.getElementById('pinnedSection');
         if (!grid || !section) return;
 
+        // Display skeletons if loading
+        if (!window.newketInitialized && ProductManager.products.length === 0) {
+            grid.innerHTML = buildSkeletonCardHTML(4);
+            return;
+        }
+
         const products = ProductManager.getProducts();
-        const pinned = products.filter(p => p.pinned === true);
+        const pinned = products.filter(p => (p.pinned === true || p.is_pinned === true));
 
         if (pinned.length === 0) {
-            // Si aucun produit épinglé, cacher la section entièrement
             section.style.display = 'none';
             return;
         }
 
-        // S'il y a des épinglés, on s'assure d'afficher la section
         section.style.display = 'block';
-
         grid.innerHTML = pinned.map(p => buildProductCardHTML(p)).join('');
         CurrencyManager.updateAllPrices();
-        grid.querySelectorAll('.product-card').forEach(el => {
-            el.style.opacity = '1'; el.style.transform = 'translateY(0)';
-        });
     }
 
     // 2. 10 produits récemment publiés
@@ -2183,8 +2246,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const grid = document.getElementById('recentProductGrid');
         if (!grid) return;
 
+        if (!window.newketInitialized && ProductManager.products.length === 0) {
+            grid.innerHTML = buildSkeletonCardHTML(4);
+            return;
+        }
+
         const products = ProductManager.getProducts();
-        // Trier par date de création (created_at) dekodée, sinon par id
         const sorted = [...products].sort((a, b) => {
             const da = a.created_at ? new Date(a.created_at) : 0;
             const db = b.created_at ? new Date(b.created_at) : 0;
@@ -2194,17 +2261,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         grid.innerHTML = recent10.length > 0
             ? recent10.map(p => buildProductCardHTML(p)).join('')
-            : '<p class="col-span-5 text-center text-sm text-gray-400 py-8">Aucun produit disponible.</p>';
+            : '<p class="col-span-full text-center text-sm text-gray-400 py-8">Aucun produit disponible.</p>';
 
         CurrencyManager.updateAllPrices();
-        grid.querySelectorAll('.product-card').forEach(el => {
-            el.style.opacity = '1'; el.style.transform = 'translateY(0)';
-        });
     }
 
     // 3. Tous les produits (avec filtre & tri)
     let _currentFilter = 'all';
-    let _allProductsDisplayLimit = 8; // Default limit
+    let _allProductsDisplayLimit = 20;
 
     function renderAllProducts(filterCat, sortMode) {
         const grid = document.getElementById('allProductGrid');
@@ -2212,13 +2276,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const voirPlusBtn = document.getElementById('voirPlusContainer');
         if (!grid) return;
 
+        if (!window.newketInitialized && ProductManager.products.length === 0) {
+            grid.innerHTML = buildSkeletonCardHTML(8);
+            return;
+        }
+
         filterCat = filterCat || _currentFilter || 'all';
         sortMode = sortMode || document.getElementById('sortAllProducts')?.value || 'recent';
 
         const products = ProductManager.getProducts();
         let filtered = filterCat === 'all' ? [...products] : products.filter(p => p.category === filterCat);
 
-        // Tri
         if (sortMode === 'price_asc') filtered.sort((a, b) => a.price - b.price);
         else if (sortMode === 'price_desc') filtered.sort((a, b) => b.price - a.price);
         else filtered.sort((a, b) => {
@@ -2231,8 +2299,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const sliced = filtered.slice(0, _allProductsDisplayLimit);
 
         if (noMsg) noMsg.classList.toggle('hidden', totalFiltered > 0);
-
-        // Show/hide "Voir plus" button
         if (voirPlusBtn) {
             voirPlusBtn.classList.toggle('hidden', totalFiltered <= _allProductsDisplayLimit);
         }
@@ -2242,41 +2308,14 @@ document.addEventListener('DOMContentLoaded', () => {
             : '';
 
         CurrencyManager.updateAllPrices();
-        grid.querySelectorAll('.product-card').forEach(el => {
-            el.style.opacity = '1'; el.style.transform = 'translateY(0)';
-        });
     }
 
-    window.showMoreProducts = function () {
-        _allProductsDisplayLimit += 8;
-        renderAllProducts();
-    };
-
-    // Expose filter & sort handlers globally
-    window.filterAllProducts = function (cat) {
-        _currentFilter = cat;
-        _allProductsDisplayLimit = 8; // Reset limit on filter change
-        // Update active button style
-        document.querySelectorAll('#filterBar .filter-btn').forEach(btn => {
-            const isActive = btn.dataset.filter === cat;
-            btn.classList.toggle('bg-gray-900', isActive);
-            btn.classList.toggle('text-white', isActive);
-            btn.classList.toggle('bg-gray-100', !isActive);
-            btn.classList.toggle('text-gray-700', !isActive);
-        });
-        renderAllProducts(cat);
-    };
-
-    window.sortAndRenderAll = function () {
-        renderAllProducts(_currentFilter);
-    };
-
-    // Backward compat - ancienne fonction (si appelée ailleurs)
     function renderProducts() {
         renderPinnedProducts();
         renderRecentProducts();
         renderAllProducts();
     }
+
 
     // ========== FLY TO CART ANIMATION ==========
     window.playFlyToCartAnimation = function (productId, startElement) {
@@ -2331,24 +2370,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             CartManager.addItem(product, quantity);
-            showToast(`${product.name} ajouté au panier!`, 'success');
         }
     };
 
-    window.addToWishlist = function (productId, event) {
-        if (event) event.stopPropagation();
-        const product = ProductManager.getProduct(productId);
-        if (product) {
-            if (FavoritesManager.isInFavorites(productId)) {
-                FavoritesManager.removeItem(productId);
-                showToast('Retiré des favoris', 'info');
-            } else {
-                FavoritesManager.addItem(product);
-                showToast('Ajouté aux favoris', 'success');
-            }
-            FavoritesManager.updateUI();
+    window.shareProductCard = function (id, name) {
+        const productUrl = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'product.html?id=' + id;
+        const shareData = {
+            title: name + ' — NewKet',
+            text: 'Découvrez ' + name + ' sur NewKet !',
+            url: productUrl
+        };
+
+        if (navigator.share) {
+            navigator.share(shareData).catch(() => { });
+        } else {
+            navigator.clipboard.writeText(productUrl).then(() => {
+                if (window.showToast) {
+                    showToast('Lien copié dans le presse-papier !', 'success');
+                }
+            });
         }
     };
+
+
 
     // Call render
     renderProducts();
@@ -2610,7 +2654,17 @@ document.addEventListener('DOMContentLoaded', () => {
         users: [],
 
         async init() {
-            const data = await window.SupabaseAdapter.fetch('users');
+            // Only load full user list for admins
+            const role = localStorage.getItem('newketRole');
+            if (role !== 'admin') {
+                this.users = [];
+                window.dispatchEvent(new CustomEvent('usersUpdated'));
+                return;
+            }
+            const data = await window.SupabaseAdapter.fetchWithFilters('users', {
+                order: ['date_joined', { ascending: false }],
+                limit: 200
+            });
             if (data && data.length > 0) {
                 this.users = data.map(u => ({
                     ...u,
@@ -2769,11 +2823,21 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Initializing NewKet with Supabase...');
 
         try {
-            // Show loader during initial fetch
-            if (window.LoaderManager) LoaderManager.show('Chargement des données...');
+            // Show skeletons early
+            if (typeof renderProducts === 'function') renderProducts();
+
+            // Show loader overlay ONLY if strictly necessary (e.g., first paint or deep data load)
+            // For premium feel, we prefer skeletons over a full screen loader
+            // if (window.LoaderManager) LoaderManager.show('Chargement des données...');
+
+            // Global timeout: abort if init takes longer than 15s
+            const INIT_TIMEOUT = 15000;
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Timeout: chargement trop long')), INIT_TIMEOUT)
+            );
 
             // Initialize all managers in parallel, using allSettled so one failure doesn't block others
-            const results = await Promise.allSettled([
+            const initPromise = Promise.allSettled([
                 ProductManager.init(),
                 OrderManager.init(),
                 PromoManager.init(),
@@ -2782,17 +2846,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 UserManager.init()
             ]);
 
+            const results = await Promise.race([initPromise, timeoutPromise]);
+
             // Log any individual failures without crashing
-            results.forEach((result, i) => {
-                if (result.status === 'rejected') {
-                    const names = ['ProductManager', 'OrderManager', 'PromoManager', 'ActivityManager', 'NotificationManager', 'UserManager'];
-                    console.warn(`[NewKet] ${names[i]}.init() failed (likely RLS):`, result.reason);
-                }
-            });
+            if (Array.isArray(results)) {
+                results.forEach((result, i) => {
+                    if (result.status === 'rejected') {
+                        const names = ['ProductManager', 'OrderManager', 'PromoManager', 'ActivityManager', 'NotificationManager', 'UserManager'];
+                        console.warn(`[NewKet] ${names[i]}.init() failed (likely RLS):`, result.reason);
+                    }
+                });
+            }
 
             // Initialize UI Components
             SidebarResizer.init();
             SidebarActiveManager.init();
+            if (window.SearchManager) SearchManager.init();
 
             console.log('NewKet Initialized successfully');
 
@@ -2803,6 +2872,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // Initial render for homepage / components
             if (typeof renderProducts === 'function') renderProducts();
 
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('[PWA] Service Worker registered with scope:', registration.scope);
+                } catch (error) {
+                    console.error('[PWA] Service Worker registration failed:', error);
+                }
+            }
+
             // Re-bind currency event
             window.removeEventListener('currencyChanged', renderProducts);
             window.addEventListener('currencyChanged', renderProducts);
@@ -2812,7 +2891,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Failed to initialize app:', error);
-            if (window.showToast) showToast('Erreur de connexion à la base de données', 'error');
+            if (window.showToast) showToast('Connexion lente ou interrompue. Certaines données peuvent être incomplètes.', 'error');
+
+            // Still dispatch init event so pages don't hang forever
+            window.newketInitialized = true;
+            window.dispatchEvent(new CustomEvent('newketInitialized'));
         } finally {
             if (window.LoaderManager) LoaderManager.hide();
         }

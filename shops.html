@@ -8,11 +8,11 @@
     <link rel="apple-touch-icon" sizes="512x512" href="Images/Logo NewKet V2.jpeg">
     <link rel="icon" type="image/png" href="Images/Logo NewKet V2.jpeg">
     <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Boutiques — NewKet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/tailwind.css">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -148,18 +148,17 @@
     <!-- ========== HEADER ========== -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <!-- Main header -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 py-2 flex items-center justify-between gap-1 sm:gap-4">
             <!-- Left: Hamburger (Mobile) & Logo -->
             <div class="flex items-center gap-2 sm:gap-4">
-                <button id="mobileMenuBtn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
+                <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
                     title="Menu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
-                <a href="index.html" class="flex-shrink-0 flex items-center gap-3">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 rounded-xl flex items-center justify-center p-1.5">
-                        <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                    </div>
-                    <span class="text-xl font-bold tracking-tighter text-gray-900">NEWKET</span>
+                <a href="index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+                    
+                    <span
+                        class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
                 </a>
             </div>
 
@@ -176,9 +175,9 @@
             </div>
 
             <!-- Right: Icons -->
-            <div class="flex items-center gap-1 sm:gap-2">
+            <div class="flex items-center gap-0.5 sm:gap-2 shrink-0">
                 <!-- Search Icon (Mobile Only) -->
-                <button class="p-2 rounded-lg hover:bg-gray-50 transition-colors sm:hidden" title="Rechercher"
+                <button class="p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors sm:hidden" title="Rechercher"
                     id="mobileSearchBtn">
                     <iconify-icon icon="solar:magnifer-linear" width="22" class="text-gray-600"></iconify-icon>
                 </button>
@@ -192,15 +191,34 @@
                     </div>
                 </div>
 
+                <!-- Notifications -->
+                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+
+                <!-- Favorites -->
+                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Favoris">
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:18px; height:18px;">0</span>
+                </a>
+
                 <!-- Account -->
-                <a href="login.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Compte"
-                    id="accountLink">
+                <a href="login.html" class="relative p-1 sm:p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Compte" id="accountLink">
                     <iconify-icon icon="solar:user-linear" width="22" style="stroke-width:1.5"
                         class="text-gray-600"></iconify-icon>
                 </a>
 
                 <!-- Cart -->
-                <a href="cart.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Panier">
+                <a href="cart.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Panier">
                     <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
                         class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
@@ -231,6 +249,8 @@
                     <a href="catalog.html"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Toutes
                         les pièces</a>
+                    <a href="forum.html"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Forum</a>
                     <a href="catalog.html?category=Collections Femme"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Collections
                         Femme</a>
@@ -259,7 +279,7 @@
     <div id="mobileMenu"
         class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
         <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-            <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="h-8 w-auto invert">
+            
             <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100">
                 <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
             </button>
@@ -273,6 +293,11 @@
                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                         <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon>
                         Toutes les pièces
+                    </a>
+                    <a href="forum.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon>
+                        Forum Communauté
                     </a>
                     <a href="catalog.html?category=Collections Femme"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
@@ -346,221 +371,127 @@
     <!-- Spacer for fixed header -->
     <div class="h-24 sm:h-28"></div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 ring-gray-100">
-        <div class="mb-10 text-center sm:text-left">
-            <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 mb-4">Parcourir les Boutiques</h1>
-            <p class="text-gray-500 text-lg max-w-2xl mx-auto sm:mx-0">Découvrez nos vendeurs partenaires et leurs
-                collections exclusives.</p>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div class="mb-16 text-center">
+            <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-gray-900 mb-6 uppercase">Nos Maisons de Luxe
+            </h1>
+            <p class="text-gray-500 text-lg max-w-2xl mx-auto font-medium">L'élégance à travers nos partenaires
+                d'exception. Chaque boutique est un univers de raffinement sélectionné pour vous.</p>
+
+            <!-- Shop Search -->
+            <div class="mt-10 max-w-xl mx-auto relative group">
+                <div
+                    class="flex items-center bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 transition-all duration-500 p-1">
+                    <iconify-icon icon="solar:magnifer-linear" width="22" class="ml-4 text-gray-400"></iconify-icon>
+                    <input type="text" id="shopSearchInput" placeholder="Trouver une boutique..."
+                        class="w-full py-3 px-4 bg-transparent text-sm outline-none placeholder-gray-400 font-bold">
+                </div>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="shopsGrid">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="shopsGrid">
             <!-- Loading Skeletons -->
-            <div class="animate-pulse bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-48"></div>
-            <div class="animate-pulse bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-48"></div>
-            <div class="animate-pulse bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-48"></div>
+            <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
+            <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
+            <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
+            <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
         </div>
+
         <div id="noShopsMsg"
-            class="hidden text-center py-20 text-gray-400 bg-white rounded-[2rem] border border-gray-100 shadow-sm col-span-full">
-            Aucune boutique trouvée.</div>
+            class="hidden text-center py-32 bg-gray-50 rounded-[3rem] border border-dashed border-gray-200">
+            <iconify-icon icon="solar:shop-2-linear" width="64" class="text-gray-200 mb-4"></iconify-icon>
+            <p class="text-gray-400 font-bold uppercase tracking-widest">Aucune boutique n'a été trouvée</p>
+            <button onclick="document.getElementById('shopSearchInput').value=''; loadShops();"
+                class="mt-4 text-xs font-black border-b-2 border-black pb-1 uppercase tracking-tighter">Réinitialiser la
+                vue</button>
+        </div>
     </main>
 
-    <!-- ========== FOOTER ========== -->
-    <footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-                <!-- Brand Section -->
-                <div class="lg:col-span-4 space-y-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 flex items-center justify-center">
-                            <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                        </div>
-                        <span class="text-xl font-bold tracking-tight">NEWKET</span>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
-                        L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et
-                        profitez d'une expérience shopping sans compromis.
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:instagram" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:facebook" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:linkedin" width="20"></iconify-icon>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Fast Links -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Boutique</h4>
-                    <ul class="space-y-4">
-                        <li><a href="catalog.html?category=Collections Femme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Collections Femme</a>
-                        </li>
-                        <li><a href="catalog.html?category=Style Homme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Style Homme</a></li>
-                        <li><a href="catalog.html?category=Tech & Gadgets"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Tech
-                                & Gadgets</a></li>
-                        <li><a href="catalog.html?category=Art de vivre"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Art
-                                de vivre</a></li>
-                    </ul>
-                </div>
-
-                <!-- Account & Support -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
-                    <ul class="space-y-4">
-                        <li><a href="customer-dashboard.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
-                        <li><a href="customer-dashboard.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Suivi de Commande</a>
-                        </li>
-                        <li><a href="about.html" class="text-gray-400 hover:text-white text-sm transition-colors">Aide &
-                                FAQ</a></li>
-                        <li><a href="publish.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un
-                                article</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Newsletter -->
-                <div class="lg:col-span-4 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
-                    <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et
-                        avant-premières.</p>
-                    <form class="relative group"
-                        onsubmit="event.preventDefault(); alert('Merci pour votre inscription !');">
-                        <input type="email" placeholder="Votre email"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
-                        <button type="submit"
-                            class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
-                            S'inscrire
-                        </button>
-                    </form>
-                    <div class="flex items-center gap-4 pt-2">
-                        <iconify-icon icon="logos:visa" width="35"></iconify-icon>
-                        <iconify-icon icon="logos:mastercard" width="35"></iconify-icon>
-                        <!-- M-Pesa -->
-                        <svg width="35" height="30" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg"
-                            class="inline-block">
-                            <rect x="45" y="5" width="30" height="55" rx="4" stroke="#e11d48" stroke-width="5"
-                                fill="none" />
-                            <path d="M20 30 Q60 5 100 30 L95 40 Q60 15 25 40 Z" fill="#2eb44b" />
-                            <text x="60" y="85" font-family="Arial" font-weight="900" font-size="22"
-                                text-anchor="middle" fill="#e11d48">m-pesa</text>
-                        </svg>
-                        <!-- Orange Money -->
-                        <svg width="35" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
-                            class="inline-block">
-                            <path d="M20 70 L55 35 M55 35 V55 M55 35 H35" stroke="#ffffff" stroke-width="12"
-                                stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                            <path d="M80 30 L45 65 M45 65 V45 M45 65 H65" stroke="#ff7900" stroke-width="12"
-                                stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                        </svg>
-                        <iconify-icon icon="simple-icons:airtel" width="35" class="text-red-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Bottom -->
-            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex flex-col items-center md:items-start gap-1">
-                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience
-                        Luxe</p>
-                    <p class="text-gray-600 text-[9px] uppercase tracking-wider">Tous droits réservés</p>
-                </div>
-
-                <div class="flex gap-8">
-                    <a href="privacy.html"
-                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
-                    <a href="terms.html"
-                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <span class="text-gray-500 text-[10px] uppercase tracking-widest font-semibold italic">Designed
-                        by</span>
-                    <span
-                        class="text-white text-[11px] font-black tracking-tighter hover:text-red-500 transition-colors cursor-pointer">SITYZEN</span>
-                </div>
-            </div>
-        </div>
-    </footer>
+    
 
     <script src="js/main.js"></script>
 
     <style>
         .shop-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
+            border-color: #000;
         }
 
         .shop-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        #shopSearchInput::placeholder {
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.7rem;
         }
     </style>
     <script>
+        let allSellers = [];
+
         async function loadShops() {
             const grid = document.getElementById('shopsGrid');
             const noShops = document.getElementById('noShopsMsg');
+            const searchInput = document.getElementById('shopSearchInput');
+            const query = searchInput.value.toLowerCase();
 
             try {
-                if (!window.supabase) {
-                    console.error('Supabase client not loaded');
+                if (!window.SupabaseAdapter) {
+                    console.error('SupabaseAdapter not loaded');
                     grid.innerHTML = '';
                     noShops.classList.remove('hidden');
                     return;
                 }
 
-                const { data: sellers, error } = await window.supabase
-                    .from('users')
-                    .select('*')
-                    .in('role', ['vendor', 'supplier'])
-                    .order('date_joined', { ascending: false });
+                if (allSellers.length === 0) {
+                    const sellers = await window.SupabaseAdapter.fetchWithFilters('users', {
+                        in: [['role', ['vendor', 'supplier', 'fournisseur']]],
+                        order: ['date_joined', { ascending: false }],
+                        limit: 100
+                    });
+                    allSellers = sellers || [];
+                }
 
-                if (error) throw error;
+                let filteredSellers = allSellers;
+                if (query) {
+                    filteredSellers = allSellers.filter(s =>
+                        (s.name || '').toLowerCase().includes(query) ||
+                        (s.email || '').toLowerCase().includes(query)
+                    );
+                }
 
-                if (!sellers || sellers.length === 0) {
+                if (filteredSellers.length === 0) {
                     grid.innerHTML = '';
                     noShops.classList.remove('hidden');
                     return;
                 }
 
-                grid.innerHTML = sellers.map(seller => {
-                    const avatar = seller.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(seller.name || 'Vendor') + '&background=000000&color=fff');
+                noShops.classList.add('hidden');
+                grid.innerHTML = filteredSellers.map(seller => {
+                    const avatar = seller.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(seller.name || 'Vendor') + '&background=f3f4f6&color=000&bold=true');
                     const dateJoined = seller.date_joined ? new Date(seller.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
 
                     return `
-                        <a href="catalog.html?supplier=${encodeURIComponent(seller.email)}" class="shop-card bg-white rounded-[2rem] p-6 border border-gray-100 flex flex-col gap-4 group">
-                            <div class="flex flex-row items-center justify-between">
-                                <div class="w-16 h-16 rounded-2xl bg-gray-50 overflow-hidden border border-gray-100 p-0.5">
-                                    <img src="${avatar}" alt="${seller.name}" class="w-full h-full object-cover rounded-xl" onerror="this.src='https://via.placeholder.com/64'">
-                                </div>
-                                <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-colors">
-                                    <iconify-icon icon="solar:arrow-right-up-linear" width="20"></iconify-icon>
-                                </div>
+                        <a href="shop.html?email=${encodeURIComponent(seller.email)}" class="shop-card group bg-white rounded-[2.5rem] p-8 border border-gray-100 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+                            <div class="absolute top-6 left-6">
+                                 <span class="px-2 py-1 bg-black text-white text-[8px] font-black uppercase tracking-widest rounded-full opacity-0 group-hover:opacity-100 transition-opacity">Premium</span>
                             </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-900 group-hover:text-black transition-colors mb-1 truncate" title="${seller.name || 'Boutique sans nom'}">${seller.name || 'Boutique sans nom'}</h3>
-                                <div class="flex items-center justify-between mt-3">
-                                    <span class="px-2 py-1 bg-black text-white rounded-lg text-[9px] font-bold uppercase tracking-widest">Partenaire</span>
-                                    <span class="text-xs text-gray-400 flex items-center gap-1 font-medium">
-                                        <iconify-icon icon="solar:calendar-outline"></iconify-icon>
-                                        Depuis ${dateJoined}
-                                    </span>
+                            
+                            <div class="w-24 h-24 rounded-full bg-gray-50 overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-500">
+                                <img src="${avatar}" alt="${seller.name}" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(seller.name || 'V')}'">
+                            </div>
+
+                            <div class="space-y-2">
+                                <h3 class="text-xl font-black text-gray-900 group-hover:text-black transition-colors leading-tight">${seller.name || 'Boutique sans nom'}</h3>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Partenaire Certifié</p>
+                            </div>
+
+                            <div class="pt-6 border-t border-gray-50 w-full flex items-center justify-between">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Depuis ${dateJoined}</span>
+                                <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-500">
+                                    <iconify-icon icon="solar:arrow-right-linear" width="16"></iconify-icon>
                                 </div>
                             </div>
                         </a>
@@ -571,11 +502,13 @@
                 console.error('Erreur chargement boutiques:', err);
                 grid.innerHTML = '';
                 noShops.classList.remove('hidden');
-                noShops.textContent = 'Erreur lors du chargement des boutiques.';
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('shopSearchInput');
+            searchInput.addEventListener('input', loadShops);
+
             if (window.newketInitialized) {
                 loadShops();
             } else {
@@ -583,7 +516,6 @@
             }
         });
     </script>
-
 </body>
 
 </html>

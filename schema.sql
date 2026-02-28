@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS public.products (
     is_new BOOLEAN DEFAULT FALSE,
     is_promo BOOLEAN DEFAULT FALSE,
     stock INTEGER DEFAULT 0,
+    supplier_email TEXT,
+    description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

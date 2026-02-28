@@ -4,14 +4,19 @@
   "description": "L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe.",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#111827",
-  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "categories": [
+    "shopping",
+    "lifestyle",
+    "luxury"
+  ],
   "icons": [
     {
       "src": "Images/Logo NewKet V2.jpeg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]

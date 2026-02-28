@@ -8,11 +8,11 @@
     <link rel="apple-touch-icon" sizes="512x512" href="Images/Logo NewKet V2.jpeg">
     <link rel="icon" type="image/png" href="Images/Logo NewKet V2.jpeg">
     <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Vendre un article — NewKet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/tailwind.css">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -47,7 +47,7 @@
     <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
             <a href="index.html" class="flex items-center gap-1 group">
-                <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="h-8 w-auto invert">
+                
             </a>
             <div class="flex items-center gap-4">
                 <!-- Currency Switch -->
@@ -59,12 +59,20 @@
                     </div>
                 </div>
                 <!-- Notification Bell -->
-                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     title="Notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
                         class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
                         style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+                <!-- Favorites -->
+                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Favoris">
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
+                        style="font-size:10px; width:18px; height:18px;">0</span>
                 </a>
                 <a href="index.html"
                     class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Retour
@@ -153,8 +161,8 @@
 
             <!-- Media Card -->
             <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-4">
-                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit</label>
-                <input type="file" id="pImageUpload" accept="image/png, image/jpeg" class="hidden">
+                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit (jusqu'à 5)</label>
+                <input type="file" id="pImageUpload" accept="image/png, image/jpeg" multiple class="hidden">
                 <div id="uploadZone" onclick="document.getElementById('pImageUpload').click()"
                     class="border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center hover:border-black hover:bg-gray-50/30 transition-all cursor-pointer group">
                     <div
@@ -167,7 +175,7 @@
                     <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'à 10MB</p>
                 </div>
 
-                <div id="imagePreviewContainer" class="hidden flex gap-4 overflow-x-auto pb-2"></div>
+                <div id="imagePreviewContainer" class="hidden flex gap-4 overflow-x-auto pb-4 custom-scrollbar"></div>
 
                 <div class="flex items-center gap-2 mt-4 px-2" id="bgRemovalContainer" style="display: none;">
                     <input type="checkbox" id="removeBackgroundCheck"
@@ -256,28 +264,82 @@
         const removeBackgroundCheck = document.getElementById('removeBackgroundCheck');
         const bgRemovalContainer = document.getElementById('bgRemovalContainer');
         const uploadZone = document.getElementById('uploadZone');
-        let selectedProductImage = null;
+
+        let selectedFileBlobs = []; // Array of File objects
+        let selectedProductImages = []; // Array of DataURLs
+
+        function renderPreviews() {
+            if (selectedProductImages.length === 0) {
+                uploadZone.classList.remove('hidden');
+                imagePreviewContainer.classList.add('hidden');
+                bgRemovalContainer.style.display = 'none';
+                return;
+            }
+
+            uploadZone.classList.add('hidden');
+            imagePreviewContainer.classList.remove('hidden');
+            bgRemovalContainer.style.display = 'flex';
+
+            imagePreviewContainer.innerHTML = selectedProductImages.map((src, index) => `
+                <div class="relative flex-shrink-0 w-32 h-32 rounded-2xl border border-gray-200 overflow-hidden group">
+                    <img src="${src}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeImage(${index})" 
+                        class="absolute top-2 right-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:scale-110 hover:bg-white transition-all">
+                        <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
+                    </button>
+                    <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] font-bold py-1 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        Image ${index + 1}
+                    </div>
+                </div>
+            `).join('');
+
+            // If we have less than 5 images, show a small "add more" button
+            if (selectedProductImages.length < 5) {
+                const addButton = document.createElement('div');
+                addButton.className = "flex-shrink-0 w-32 h-32 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-black hover:bg-gray-50 transition-all";
+                addButton.onclick = () => pImageUpload.click();
+                addButton.innerHTML = `
+                    <iconify-icon icon="solar:add-circle-linear" width="24" class="text-gray-400"></iconify-icon>
+                    <span class="text-[10px] font-bold text-gray-400 mt-1">Ajouter</span>
+                `;
+                imagePreviewContainer.appendChild(addButton);
+            }
+        }
+
+        window.removeImage = function (index) {
+            selectedFileBlobs.splice(index, 1);
+            selectedProductImages.splice(index, 1);
+            renderPreviews();
+            if (selectedProductImages.length === 0) {
+                pImageUpload.value = '';
+            }
+        };
 
         pImageUpload.addEventListener('change', function (e) {
-            if (e.target.files && e.target.files[0]) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                reader.onload = function (evt) {
-                    selectedProductImage = evt.target.result;
-                    uploadZone.classList.add('hidden');
-                    imagePreviewContainer.innerHTML = `
-                        <div class="relative w-32 h-32 rounded-2xl border border-gray-200 overflow-hidden group">
-                            <img src="${selectedProductImage}" class="w-full h-full object-cover">
-                            <button type="button" onclick="selectedProductImage=null; uploadZone.classList.remove('hidden'); imagePreviewContainer.classList.add('hidden'); bgRemovalContainer.style.display='none'; document.getElementById('pImageUpload').value='';" 
-                                class="absolute top-2 right-2 bg-white text-red-500 rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:scale-110 transition-all">
-                                <iconify-icon icon="solar:trash-bin-trash-bold"></iconify-icon>
-                            </button>
-                        </div>
-                    `;
-                    imagePreviewContainer.classList.remove('hidden');
-                    bgRemovalContainer.style.display = 'flex';
+            if (e.target.files && e.target.files.length > 0) {
+                const files = Array.from(e.target.files);
+
+                // Limit to 5 images total
+                const remainingSlots = 5 - selectedProductImages.length;
+                const filesToProcess = files.slice(0, remainingSlots);
+
+                if (files.length > remainingSlots) {
+                    showToast("Vous pouvez ajouter jusqu'à 5 images maximum.", "warning");
                 }
-                reader.readAsDataURL(file);
+
+                let processedCount = 0;
+                filesToProcess.forEach(file => {
+                    selectedFileBlobs.push(file);
+                    const reader = new FileReader();
+                    reader.onload = function (evt) {
+                        selectedProductImages.push(evt.target.result);
+                        processedCount++;
+                        if (processedCount === filesToProcess.length) {
+                            renderPreviews();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
             }
         });
 
@@ -302,26 +364,52 @@
                 return;
             }
 
+            if (selectedFileBlobs.length === 0 && selectedProductImages.length === 0) {
+                showToast("Au moins une image est obligatoire pour publier un produit.", "warning");
+                return;
+            }
+
             if (window.LoaderManager) {
                 LoaderManager.show('Publication de votre annonce...');
             }
 
             try {
                 const exchangeRate = ConfigManager ? ConfigManager.getExchangeRate() : 2500;
-                // Normalize price to CDF for internal storage if needed, or keep as is
-                // For NewKet, we usually store in CDF or have a price_usd field. 
-                // Let's assume the price field in DB is the primary price.
+                // Normalize price to CDF for internal storage
                 const finalPrice = currency === 'USD' ? priceVal * exchangeRate : priceVal;
 
-                let finalImagePath = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop';
-                if (selectedProductImage) {
-                    finalImagePath = selectedProductImage;
-                    if (removeBackgroundCheck.checked) {
-                        // CANVA REMOVE BACKGROUND API PLACEHOLDER
-                        console.log('Appel de l\'API Canva Remove Background pour détourer l\'image...');
-                        // finalImagePath = await callCanvaAPI(selectedProductImage);
+                let finalImagePaths = [];
+
+                // Upload all images to Supabase Storage if available
+                if (selectedFileBlobs.length > 0) {
+                    for (let i = 0; i < selectedFileBlobs.length; i++) {
+                        const file = selectedFileBlobs[i];
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${Date.now()}_${i}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                        const filePath = `public/${fileName}`;
+
+                        if (window.SupabaseAdapter && window.SupabaseAdapter.uploadFile) {
+                            try {
+                                const uploadedUrl = await window.SupabaseAdapter.uploadFile('product-images', filePath, file);
+                                if (uploadedUrl) {
+                                    finalImagePaths.push(uploadedUrl);
+                                } else {
+                                    console.warn(`L'upload de l'image ${i + 1} a échoué, utilisation de la DataURL locale.`);
+                                    finalImagePaths.push(selectedProductImages[i]);
+                                }
+                            } catch (err) {
+                                console.error(`Error uploading image ${i}:`, err);
+                                finalImagePaths.push(selectedProductImages[i]);
+                            }
+                        } else {
+                            finalImagePaths.push(selectedProductImages[i]);
+                        }
                     }
+                } else {
+                    finalImagePaths = selectedProductImages;
                 }
+
+                const finalImagePathString = finalImagePaths.join(',');
 
                 const newProduct = {
                     id: 'prod-' + Date.now(),
@@ -329,7 +417,7 @@
                     category: categorySelect.value,
                     price: finalPrice,
                     description: descInput.value.trim(),
-                    image: finalImagePath,
+                    image: finalImagePathString,
                     supplier_email: localStorage.getItem('newketUserEmail') || 'anonymous',
                     stock: 10,
                     is_new: true,
@@ -377,138 +465,7 @@
             }
         }
     </script>
-    <!-- ========== FOOTER ========== -->
-    <footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5 text-left">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-                <!-- Brand Section -->
-                <div class="lg:col-span-4 space-y-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 flex items-center justify-center">
-                            <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                        </div>
-                        <span class="text-xl font-bold tracking-tight">NEWKET</span>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
-                        L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et
-                        profitez d'une expérience shopping sans compromis.
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:instagram" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:facebook" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:linkedin" width="20"></iconify-icon>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Fast Links -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Boutique</h4>
-                    <ul class="space-y-4">
-                        <li><a href="catalog.html?category=Collections Femme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Collections Femme</a>
-                        </li>
-                        <li><a href="catalog.html?category=Style Homme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Style Homme</a></li>
-                        <li><a href="catalog.html?category=Tech & Gadgets" class="text-gray-400 hover:text-white text-sm transition-colors">Tech
-                                & Gadgets</a></li>
-                        <li><a href="catalog.html?category=Art de vivre" class="text-gray-400 hover:text-white text-sm transition-colors">Art
-                                de vivre</a></li>
-                    </ul>
-                </div>
-
-                <!-- Account & Support -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
-                    <ul class="space-y-4">
-                        <li><a href="customer-dashboard.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
-                        <li><a href="customer-dashboard.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Suivi de Commande</a>
-                        </li>
-                        <li><a href="about.html" class="text-gray-400 hover:text-white text-sm transition-colors">Aide &
-                                FAQ</a></li>
-                        <li><a href="publish.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Vendre un article</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Newsletter -->
-                <div class="lg:col-span-4 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
-                    <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et
-                        avant-premières.</p>
-                    <form class="relative group"
-                        onsubmit="event.preventDefault(); alert('Merci pour votre inscription !');">
-                        <input type="email" placeholder="Votre email"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
-                        <button type="submit"
-                            class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
-                            S'inscrire
-                        </button>
-                    </form>
-                    <div class="flex items-center gap-4 pt-2">
-                        <iconify-icon icon="logos:visa" width="35"></iconify-icon>
-                        <iconify-icon icon="logos:mastercard" width="35"></iconify-icon>
-                        <!-- M-Pesa -->
-                        <svg width="35" height="30" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg"
-                            class="inline-block">
-                            <rect x="45" y="5" width="30" height="55" rx="4" stroke="#e11d48" stroke-width="5"
-                                fill="none" />
-                            <path d="M20 30 Q60 5 100 30 L95 40 Q60 15 25 40 Z" fill="#2eb44b" />
-                            <text x="60" y="85" font-family="Arial" font-weight="900" font-size="22"
-                                text-anchor="middle" fill="#e11d48">m-pesa</text>
-                        </svg>
-                        <!-- Orange Money -->
-                        <svg width="35" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
-                            class="inline-block">
-                            <path d="M20 70 L55 35 M55 35 V55 M55 35 H35" stroke="#ffffff" stroke-width="12"
-                                stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                            <path d="M80 30 L45 65 M45 65 V45 M45 65 H65" stroke="#ff7900" stroke-width="12"
-                                stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                        </svg>
-                        <iconify-icon icon="simple-icons:airtel" width="35" class="text-red-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Bottom -->
-            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex flex-col items-center md:items-start gap-1">
-                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience
-                        Luxe</p>
-                    <p class="text-gray-600 text-[9px] uppercase tracking-wider">Tous droits réservés</p>
-                </div>
-
-                <div class="flex gap-8">
-                    <a href="privacy.html"
-                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
-                    <a href="terms.html"
-                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <span class="text-gray-500 text-[10px] uppercase tracking-widest font-semibold italic">Designed
-                        by</span>
-                    <span
-                        class="text-white text-[11px] font-black tracking-tighter hover:text-red-500 transition-colors cursor-pointer">SITYZEN</span>
-                </div>
-            </div>
-        </div>
-    </footer>
+    
 </body>
 
 </html>

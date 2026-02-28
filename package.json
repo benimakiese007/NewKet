@@ -1,0 +1,25 @@
+{
+  "name": "newket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/input.css -o ./css/tailwind.css --minify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benimakiese007/NOVA-V2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/benimakiese007/NOVA-V2/issues"
+  },
+  "homepage": "https://github.com/benimakiese007/NOVA-V2#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

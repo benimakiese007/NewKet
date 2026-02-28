@@ -1,0 +1,316 @@
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="512x512" href="Images/Logo NewKet V2.jpeg">
+<link rel="icon" type="image/png" href="Images/Logo NewKet V2.jpeg">
+<meta name="theme-color" content="#111827">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NewKet">
+<title>Forum NewKet — Communauté & Discussion</title>
+<link rel="stylesheet" href="css/tailwind.css">
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/supabase-adapter.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+    :root {
+        --primary: #000000;
+    }
+
+    body {
+        font-family: 'Outfit', sans-serif;
+        background-color: #fcfcfd;
+    }
+
+    #mobileMenu {
+        transition: transform 0.3s ease-in-out;
+        transform: translateX(-100%);
+    }
+
+    #mobileMenu.active {
+        transform: translateX(0);
+    }
+
+    #mobileOverlay {
+        transition: opacity 0.3s ease-in-out;
+        pointer-events: none;
+    }
+
+    #mobileOverlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .forum-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .forum-card {
+        transition: all 0.3s ease;
+    }
+</style>
+<style>
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .forum-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .forum-card {
+        transition: all 0.3s ease;
+    }
+</style>
+</head>
+
+<body class="bg-slate-50 text-gray-900 antialiased">
+
+    <!-- ========== HEADER ========== -->
+    <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <!-- Main header -->
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 py-2 flex items-center justify-between gap-1 sm:gap-4">
+            <!-- Left: Hamburger (Mobile) & Logo -->
+            <div class="flex items-center gap-2 sm:gap-4">
+                <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
+                    title="Menu">
+                    <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
+                </button>
+                <a href="index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+                    
+                    <span
+                        class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
+                </a>
+            </div>
+
+            <!-- Center: Navigation (Desktop) -->
+            <nav class="hidden sm:flex items-center gap-6">
+                <a href="index.html" class="text-sm font-medium text-gray-600 hover:text-gray-900">Accueil</a>
+                <a href="catalog.html" class="text-sm font-medium text-gray-600 hover:text-gray-900">Catalogue</a>
+                <a href="shops.html" class="text-sm font-medium text-gray-600 hover:text-gray-900">Boutiques</a>
+                <a href="forum.html" class="text-sm font-bold text-gray-900 border-b-2 border-black">Forum</a>
+            </nav>
+
+            <!-- Right: Icons -->
+            <div class="flex items-center gap-0.5 sm:gap-2 shrink-0">
+                <!-- Notifications -->
+                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+
+                <!-- Favorites -->
+                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Favoris">
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:18px; height:18px;">0</span>
+                </a>
+
+                <!-- Account -->
+                <a href="login.html" class="relative p-1 sm:p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Compte" id="accountLink">
+                    <iconify-icon icon="solar:user-linear" width="22" style="stroke-width:1.5"
+                        class="text-gray-600"></iconify-icon>
+                </a>
+
+                <!-- Cart -->
+                <a href="cart.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Panier">
+                    <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="font-size:10px; width:18px; height:18px;" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Sidebar -->
+    <div id="mobileOverlay"
+        class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden">
+    </div>
+    <div id="mobileMenu"
+        class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
+        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+            
+            <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100">
+                <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto py-4">
+            <div class="px-4 mb-6">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Catégories</h3>
+                <nav class="flex flex-col gap-1">
+                    <a href="catalog.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon>
+                        Toutes les pièces
+                    </a>
+                    <a href="shops.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
+                        Boutiques
+                    </a>
+                    <a href="forum.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon>
+                        Forum Communauté
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+
+        <!-- Forum Header -->
+        <div class="mb-12">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 mb-2">Communauté NewKet</h1>
+            <p class="text-gray-500">Posez vos questions, partagez vos avis et découvrez les dernières tendances.</p>
+        </div>
+
+        <!-- Forum Stats & Search -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
+            <div class="lg:col-span-3">
+                <div class="relative group">
+                    <iconify-icon icon="solar:magnifer-linear" width="20"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-900 transition-colors"></iconify-icon>
+                    <input type="text" placeholder="Rechercher une discussion..."
+                        class="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-gray-100 focus:border-gray-200 transition-all">
+                </div>
+            </div>
+            <div class="flex items-center justify-end">
+                <button id="newTopicBtn"
+                    class="w-full sm:w-auto bg-gray-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-gray-800 transition-all flex items-center justify-center gap-2 shadow-lg shadow-gray-900/10">
+                    <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
+                    Nouveau Sujet
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar / Categories -->
+            <aside class="space-y-6">
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-6">Catégories</h3>
+                    <nav class="space-y-1" id="categoriesList">
+                        <!-- Loaded from JS -->
+                        <div class="animate-pulse space-y-3">
+                            <div class="h-10 bg-gray-50 rounded-xl"></div>
+                            <div class="h-10 bg-gray-50 rounded-xl"></div>
+                            <div class="h-10 bg-gray-50 rounded-xl"></div>
+                        </div>
+                    </nav>
+                </div>
+
+                <div class="bg-gradient-to-br from-gray-900 to-gray-800 p-6 rounded-3xl text-white">
+                    <h3 class="font-bold mb-2">Règles du Forum</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed mb-4">Restez respectueux, aidez les autres et
+                        amusez-vous ! Pas de spam ni de publicité.</p>
+                    <a href="terms.html" class="text-xs font-bold text-white underline underline-offset-4">Voir les
+                        CGU</a>
+                </div>
+            </aside>
+
+            <!-- Topics List (Main View) -->
+            <div class="lg:col-span-3 space-y-4" id="topicsContainer">
+                <div id="categoryHeader" class="mb-4">
+                    <h2 class="text-xl font-bold text-gray-900" id="currentCategoryName">Toutes les discussions</h2>
+                </div>
+
+                <div id="topicsGrid" class="space-y-4">
+                    <!-- Topics loaded here -->
+                </div>
+            </div>
+
+            <!-- Topic Detail View (Hidden by default) -->
+            <div class="lg:col-span-3 hidden space-y-8" id="topicDetailContainer">
+                <button onclick="window.forumManager.backToTopics()"
+                    class="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors mb-6">
+                    <iconify-icon icon="solar:alt-arrow-left-linear" width="20"></iconify-icon>
+                    Retour aux discussions
+                </button>
+
+                <div id="topicHeaderSection" class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                    <!-- Loaded from JS -->
+                </div>
+
+                <div id="postsList" class="space-y-6">
+                    <!-- Replies loaded here -->
+                </div>
+
+                <!-- Reply Form -->
+                <div id="replySection" class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+                    <h3 class="text-lg font-bold mb-4">Votre réponse</h3>
+                    <form id="replyForm" class="space-y-4">
+                        <textarea id="replyContent" required rows="4" placeholder="Écrivez votre réponse ici..."
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/5 transition-all resize-none"></textarea>
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                class="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/10">Répondre</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Nouveau Sujet (Hidden by default) -->
+    <div id="newTopicModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" id="closeModalOverlay"></div>
+        <div
+            class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div class="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-xl font-bold">Créer une discussion</h3>
+                <button id="closeModalBtn" class="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                    <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
+                </button>
+            </div>
+            <form id="newTopicForm" class="p-8 space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Catégorie</label>
+                    <select id="topicCategory"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/5 transition-all">
+                        <!-- Loaded from JS -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Titre du sujet</label>
+                    <input type="text" id="topicTitle" required
+                        placeholder="Ex: Quel est le meilleur smartphone en 2026 ?"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/5 transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Message</label>
+                    <textarea id="topicContent" required rows="6"
+                        placeholder="Décrivez votre sujet en quelques lignes..."
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-900/5 transition-all resize-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 pt-4">
+                    <button type="button" id="cancelBtn"
+                        class="px-6 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-all">Annuler</button>
+                    <button type="submit"
+                        class="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all shadow-lg shadow-gray-900/10">Publier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer link integration -->
+    
+
+    <script src="js/main.js"></script>
+    <script src="js/forum.js"></script>
+</body>
+
+</html>

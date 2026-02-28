@@ -8,11 +8,11 @@
     <link rel="apple-touch-icon" sizes="512x512" href="Images/Logo NewKet V2.jpeg">
     <link rel="icon" type="image/png" href="Images/Logo NewKet V2.jpeg">
     <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Produit — NewKet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/tailwind.css">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
@@ -69,11 +69,10 @@
     <!-- ========== HEADER ========== -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
-            <a href="index.html" class="flex-shrink-0 flex items-center gap-3">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 rounded-xl flex items-center justify-center p-1.5">
-                    <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                </div>
-                <span class="text-xl font-bold tracking-tighter text-gray-900">NEWKET</span>
+            <a href="index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+
+                <span
+                    class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
             </a>
             <div class="flex-1 max-w-2xl mx-auto relative group">
                 <div
@@ -85,7 +84,7 @@
                         class="bg-slate-900 text-white px-6 py-2.5 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all hidden sm:block uppercase tracking-wider">RECHERCHE</button>
                 </div>
             </div>
-            <div class="flex items-center gap-1 sm:gap-2">
+            <div class="flex items-center gap-0.5 sm:gap-2 shrink-0">
                 <!-- Currency Switch -->
                 <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
                     <div class="segmented-track">
@@ -95,25 +94,27 @@
                     </div>
                 </div>
                 <!-- Notification Bell -->
-                <a href="notifications.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     title="Notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
                         class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
                         style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
                 </a>
-                <a href="login.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Compte">
+                <a href="login.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Compte">
                     <iconify-icon icon="solar:user-linear" width="22" style="stroke-width:1.5"
                         class="text-gray-600"></iconify-icon>
                 </a>
-                <a href="favorites.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     title="Favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
                         class="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="font-size:10px; width:18px; height:18px;" id="favoritesBadge">0</span>
                 </a>
-                <a href="cart.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Panier">
+                <a href="cart.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Panier">
                     <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
                         class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
@@ -159,14 +160,20 @@
             <div class="space-y-4 sticky top-40">
                 <div
                     class="bg-gray-50 rounded-3xl overflow-hidden aspect-square flex items-center justify-center p-8 relative group">
-                    <img src="" id="main-product-img" class="w-full h-full object-contain mix-blend-multiply" alt="">
+                    <img src="" id="main-product-img" class="w-full h-full object-contain mix-blend-multiply" alt=""
+                        onclick="openZoom()">
                     <button
-                        class="wishlist-btn absolute top-6 right-6 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-red-500 transition-all"
+                        class="wishlist-btn absolute top-6 left-6 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-red-500 transition-all"
                         onclick="addToWishlist(getProductId(), event)">
                         <iconify-icon icon="solar:heart-linear" width="24"></iconify-icon>
                     </button>
+                    <button
+                        class="absolute bottom-6 right-6 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all"
+                        onclick="shareProduct('native')" title="Partager">
+                        <iconify-icon icon="solar:share-linear" width="24"></iconify-icon>
+                    </button>
                     <span id="product-badge"
-                        class="absolute top-6 left-6 bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hidden"></span>
+                        class="absolute top-20 left-6 bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hidden"></span>
                 </div>
                 <div class="grid grid-cols-4 gap-4" id="thumbnail-gallery">
                     <!-- Thumbnails will be injected here -->
@@ -366,7 +373,7 @@
             return new URLSearchParams(window.location.search).get('id') || 'parfum';
         }
 
-        function loadProduct() {
+        async function loadProduct() {
             const id = getProductId();
             let p = null;
 
@@ -375,6 +382,7 @@
                 const globalProduct = ProductManager.getProduct(id);
                 if (globalProduct) {
                     p = {
+                        id: globalProduct.id,
                         name: globalProduct.name,
                         category: globalProduct.category,
                         priceCDF: globalProduct.price,
@@ -400,28 +408,38 @@
 
             document.title = `${p.name} — NewKet`;
 
-            // Image & Gallery
+            // Image & Gallery Handling
+            const images = p.image.split(',').filter(src => src.trim() !== '');
             const mainImg = document.getElementById('main-product-img');
-            mainImg.src = p.image;
+            mainImg.src = images[0] || 'https://via.placeholder.com/600';
             mainImg.alt = p.name;
             mainImg.onerror = () => mainImg.src = 'https://via.placeholder.com/600';
 
             const thumbGallery = document.getElementById('thumbnail-gallery');
             thumbGallery.innerHTML = '';
-            // For now just 4 identical thumbnails to maintain UI layout
-            for (let i = 0; i < 4; i++) {
-                thumbGallery.innerHTML += `
-                    <div class="cursor-pointer border-2 ${i === 0 ? 'border-gray-500' : 'border-gray-100'} rounded-xl p-2 bg-gray-50 hover:border-gray-500 transition-colors">
-                        <img src="${p.image}" class="w-full h-full object-contain mix-blend-multiply" alt="" onerror="this.src='https://via.placeholder.com/100'">
-                    </div>
-                `;
-            }
+
+            images.forEach((src, i) => {
+                const thumb = document.createElement('div');
+                thumb.className = `cursor-pointer border-2 ${i === 0 ? 'border-gray-900' : 'border-gray-100'} rounded-xl p-2 bg-gray-50 hover:border-gray-900 transition-all aspect-square flex items-center justify-center overflow-hidden h-16 sm:h-20`;
+                thumb.innerHTML = `<img src="${src}" class="w-full h-full object-contain mix-blend-multiply" alt="" onerror="this.src='https://via.placeholder.com/100'">`;
+
+                thumb.onclick = () => {
+                    mainImg.src = src;
+                    // Update active border
+                    document.querySelectorAll('#thumbnail-gallery > div').forEach(d => d.classList.replace('border-gray-900', 'border-gray-100'));
+                    thumb.classList.replace('border-gray-100', 'border-gray-900');
+                };
+
+                thumbGallery.appendChild(thumb);
+            });
 
             // Text Info
             document.getElementById('product-name').textContent = p.name;
             document.getElementById('breadcrumb-curr').textContent = p.name;
             document.getElementById('product-category-tag').textContent = p.category;
             document.getElementById('product-description').textContent = p.description;
+
+            // Initial rating/reviews display (will be updated by loadReviews)
             document.getElementById('product-rating-val').textContent = p.rating;
             document.getElementById('product-reviews-count').textContent = `(${p.reviews} avis)`;
 
@@ -454,73 +472,169 @@
                 </li>
             `).join('');
 
-            // Reviews
-            const reviewsCont = document.getElementById('reviews-container');
-            const demoReviews = [
-                { user: 'Beni M.', date: 'Il y a 2 jours', text: p.review, rating: Math.floor(p.rating) },
-                { user: 'Sarah K.', date: 'Il y a 1 semaine', text: 'Conforme aux photos, je recommande vivement.', rating: 5 },
-                { user: 'Marc T.', date: 'Il y a 1 mois', text: 'Un peu cher mais la qualité est au rendez-vous.', rating: 4 }
-            ];
+            // Load Real Reviews
+            loadReviews(id);
 
-            reviewsCont.innerHTML = `
-                <div class="grid gap-6">
-                    ${demoReviews.map(r => `
-                        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-xs">${r.user.charAt(0)}</div>
-                                    <div>
-                                        <div class="text-sm font-bold text-gray-900">${r.user}</div>
-                                        <div class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">${r.date}</div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center text-amber-500">
-                                    ${Array(r.rating).fill('<iconify-icon icon="solar:star-bold" width="12"></iconify-icon>').join('')}
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-600 leading-relaxed italic">"${r.text}"</p>
-                        </div>
-                    `).join('')}
-                </div>
-                
-                <!-- Add Review Form -->
-                <div class="mt-12 bg-gray-50 rounded-3xl p-8 border border-gray-100">
-                    <h3 class="text-xl font-bold mb-6">Laisser un avis</h3>
-                    <div class="space-y-4">
-                        <div class="flex gap-2 mb-4">
-                            <span class="text-sm font-bold text-gray-400 mr-2">Votre note :</span>
-                            <div class="flex gap-1 text-gray-300">
-                                ${[1, 2, 3, 4, 5].map(i => `<iconify-icon icon="solar:star-bold" width="24" class="cursor-pointer hover:text-amber-400 transition-colors" onclick="setRating(${i}, this)"></iconify-icon>`).join('')}
-                            </div>
-                        </div>
-                        <textarea id="reviewText" placeholder="Partagez votre expérience..." class="w-full bg-white border border-gray-200 rounded-2xl p-4 text-sm outline-none focus:ring-2 focus:ring-gray-100 h-32"></textarea>
-                        <button onclick="submitReview()" class="bg-gray-900 text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-black transition-all">Publier l'avis</button>
-                    </div>
-                </div>
-            `;
             // Finalize UI
             if (window.FavoritesManager) {
                 FavoritesManager.updateUI();
             }
         }
 
+        async function loadReviews(productId) {
+            const reviewsCont = document.getElementById('reviews-container');
+            reviewsCont.innerHTML = '<div class="py-10 text-center text-gray-400"><iconify-icon icon="solar:refresh-linear" width="30" class="animate-spin mb-2"></iconify-icon><br>Chargement des avis...</div>';
+
+            try {
+                const reviews = await SupabaseAdapter.fetchWithFilters('product_reviews', {
+                    eq: [['product_id', productId]],
+                    order: ['created_at', { ascending: false }]
+                });
+
+                if (!reviews || reviews.length === 0) {
+                    reviewsCont.innerHTML = `
+                        <div class="bg-gray-50 rounded-2xl p-10 text-center border border-dashed border-gray-200">
+                            <iconify-icon icon="solar:chat-line-broken" width="48" class="text-gray-300 mb-4"></iconify-icon>
+                            <p class="text-gray-500">Aucun avis pour le moment. Soyez le premier à partager votre expérience !</p>
+                        </div>
+                    `;
+                    renderReviewForm();
+                    return;
+                }
+
+                // Update product rating and count if we have reviews
+                const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
+                document.getElementById('product-rating-val').textContent = avgRating;
+                document.getElementById('product-reviews-count').textContent = `(${reviews.length} avis)`;
+
+                reviewsCont.innerHTML = `
+                    <div class="grid gap-6">
+                        ${reviews.map(r => {
+                    const date = new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                    return `
+                                <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs">
+                                                ${r.user_name ? r.user_name.charAt(0).toUpperCase() : '?'}
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-bold text-gray-900">${r.user_name || 'Client NewKet'}</div>
+                                                <div class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">${date}</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center text-amber-500">
+                                            ${Array(r.rating).fill('<iconify-icon icon="solar:star-bold" width="14"></iconify-icon>').join('')}
+                                            ${Array(5 - r.rating).fill('<iconify-icon icon="solar:star-linear" width="14" class="text-gray-200"></iconify-icon>').join('')}
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 leading-relaxed">${r.comment}</p>
+                                </div>
+                            `;
+                }).join('')}
+                    </div>
+                `;
+                renderReviewForm();
+
+            } catch (err) {
+                console.error("Error loading reviews:", err);
+                reviewsCont.innerHTML = '<p class="text-red-500 text-sm">Erreur lors du chargement des avis.</p>';
+            }
+        }
+
+        function renderReviewForm() {
+            const reviewsCont = document.getElementById('reviews-container');
+            const formHtml = `
+                <div class="mt-12 bg-gray-50 rounded-3xl p-8 border border-gray-100">
+                    <h3 class="text-xl font-bold mb-6">Laisser un avis</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 mb-4">
+                            <span class="text-sm font-bold text-gray-500">Votre note :</span>
+                            <div class="flex gap-1" id="star-rating-selector">
+                                ${[1, 2, 3, 4, 5].map(i => `
+                                    <iconify-icon icon="solar:star-bold" width="28" 
+                                        class="cursor-pointer transition-all ${i <= currentRating ? 'text-amber-400' : 'text-gray-300'} hover:scale-110" 
+                                        onclick="setRating(${i})"></iconify-icon>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <textarea id="reviewText" placeholder="Partagez votre expérience avec ce produit..." 
+                            class="w-full bg-white border border-gray-200 rounded-2xl p-4 text-sm outline-none focus:ring-4 focus:ring-gray-100 focus:border-gray-300 h-32 transition-all"></textarea>
+                        <button onclick="submitReview()" id="submit-review-btn"
+                            class="bg-gray-900 text-white px-10 py-4 rounded-xl text-sm font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2">
+                            <iconify-icon icon="solar:send-square-bold" width="20"></iconify-icon>
+                            Publier l'avis
+                        </button>
+                    </div>
+                </div>
+            `;
+            reviewsCont.insertAdjacentHTML('beforeend', formHtml);
+        }
+
         let currentRating = 5;
-        function setRating(val, el) {
+        function setRating(val) {
             currentRating = val;
-            const stars = el.parentElement.querySelectorAll('iconify-icon');
+            const container = document.getElementById('star-rating-selector');
+            if (!container) return;
+
+            const stars = container.querySelectorAll('iconify-icon');
             stars.forEach((s, idx) => {
-                s.classList.toggle('text-amber-400', idx < val);
-                s.classList.toggle('text-gray-300', idx >= val);
+                const isActive = (idx + 1) <= val;
+                s.classList.toggle('text-amber-400', isActive);
+                s.classList.toggle('text-gray-300', !isActive);
             });
         }
 
-        function submitReview() {
-            const text = document.getElementById('reviewText').value;
-            if (!text) return showToast('Veuillez confier votre avis à notre plume.', 'error');
+        async function submitReview() {
+            if (!window.AuthManager || !AuthManager.getRole()) {
+                if (window.showToast) showToast('Veuillez vous connecter pour laisser un avis.', 'error');
+                else alert('Veuillez vous connecter pour laisser un avis.');
+                window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
 
-            // Simulation
-            showToast('Votre témoignage précieux est en cours de modération. Merci de partager l\'élégance.', 'success');
-            document.getElementById('reviewText').value = '';
+            const text = document.getElementById('reviewText').value.trim();
+            if (!text) {
+                if (window.showToast) showToast('Veuillez écrire un commentaire.', 'warning');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-review-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<iconify-icon icon="solar:refresh-linear" width="20" class="animate-spin"></iconify-icon> Publication...';
+
+            try {
+                const userEmail = localStorage.getItem('newketUserEmail');
+                const { data: userData } = await window.supabaseClient.auth.getUser();
+                const user = userData?.user;
+
+                if (!user) throw new Error("Utilisateur non trouvé");
+
+                const reviewData = {
+                    product_id: getProductId(),
+                    user_id: user.id,
+                    user_name: user.user_metadata?.full_name || user.email.split('@')[0],
+                    rating: currentRating,
+                    comment: text
+                };
+
+                const result = await SupabaseAdapter.insert('product_reviews', reviewData);
+
+                if (result) {
+                    if (window.showToast) showToast('Merci ! Votre avis a été publié.', 'success');
+                    document.getElementById('reviewText').value = '';
+                    currentRating = 5;
+                    loadReviews(getProductId()); // Refresh reviews
+                } else {
+                    throw new Error("Échec de l'insertion");
+                }
+            } catch (err) {
+                console.error("Error submitting review:", err);
+                if (window.showToast) showToast('Une erreur est survenue lors de la publication.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<iconify-icon icon="solar:send-square-bold" width="20"></iconify-icon> Publier l\'avis';
+            }
         }
 
         function addToWishlist(id, event) {
@@ -539,11 +653,30 @@
         }
 
         function shareProduct(platform) {
-            const url = encodeURIComponent(window.location.href);
+            const rawUrl = window.location.href;
+            const url = encodeURIComponent(rawUrl);
             const title = encodeURIComponent(document.title);
-            let shareUrl = '';
+            const productName = document.getElementById('product-name')?.textContent || 'Produit NewKet';
 
+            // Try native share first for 'native' platform
+            if (platform === 'native' && navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    text: 'Découvrez ' + productName + ' sur NewKet !',
+                    url: rawUrl
+                }).catch(() => { });
+                return;
+            }
+
+            let shareUrl = '';
             switch (platform) {
+                case 'native':
+                    // Fallback if native share not supported
+                    navigator.clipboard.writeText(rawUrl).then(() => {
+                        if (window.showToast) showToast('Lien copié dans le presse-papier !', 'success');
+                        else alert('Lien copié !');
+                    });
+                    break;
                 case 'whatsapp':
                     shareUrl = `https://api.whatsapp.com/send?text=${title}%20${url}`;
                     window.open(shareUrl, '_blank');
@@ -557,16 +690,39 @@
                     window.open(shareUrl, '_blank');
                     break;
                 case 'copy':
-                    navigator.clipboard.writeText(window.location.href).then(() => {
-                        if (window.showToast) {
-                            showToast('Lien copié dans le presse-papier !', 'success');
-                        } else {
-                            alert('Lien copié !');
-                        }
+                    navigator.clipboard.writeText(rawUrl).then(() => {
+                        if (window.showToast) showToast('Lien copié dans le presse-papier !', 'success');
+                        else alert('Lien copié !');
                     });
                     break;
             }
         }
+
+        // ========== ZOOM FUNCTIONALITY ==========
+        function openZoom() {
+            const mainImg = document.getElementById('main-product-img');
+            const zoomModal = document.getElementById('zoomModal');
+            const zoomImg = document.getElementById('zoomModalImg');
+
+            if (mainImg && zoomModal && zoomImg) {
+                zoomImg.src = mainImg.src;
+                zoomModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeZoom() {
+            const zoomModal = document.getElementById('zoomModal');
+            if (zoomModal) {
+                zoomModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeZoom();
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             if (window.newketInitialized) {
@@ -576,141 +732,18 @@
             }
         });
     </script>
-    <!-- ========== FOOTER ========== -->
-    <footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5 text-left">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-                <!-- Brand Section -->
-                <div class="lg:col-span-4 space-y-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 flex items-center justify-center">
-                            <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                        </div>
-                        <span class="text-xl font-bold tracking-tight">NEWKET</span>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
-                        L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et
-                        profitez d'une expérience shopping sans compromis.
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:instagram" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:facebook" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon>
-                        </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300">
-                            <iconify-icon icon="line-md:linkedin" width="20"></iconify-icon>
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Fast Links -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Boutique</h4>
-                    <ul class="space-y-4">
-                        <li><a href="catalog.html?category=Collections Femme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Collections Femme</a>
-                        </li>
-                        <li><a href="catalog.html?category=Style Homme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Style Homme</a></li>
-                        <li><a href="catalog.html?category=Tech & Gadgets"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Tech
-                                & Gadgets</a></li>
-                        <li><a href="catalog.html?category=Art de vivre"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Art
-                                de vivre</a></li>
-                    </ul>
-                </div>
-
-                <!-- Account & Support -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
-                    <ul class="space-y-4">
-                        <li><a href="customer-dashboard.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
-                        <li><a href="customer-dashboard.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Suivi de Commande</a>
-                        </li>
-                        <li><a href="about.html" class="text-gray-400 hover:text-white text-sm transition-colors">Aide &
-                                FAQ</a></li>
-                        <li><a href="publish.html"
-                                class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un
-                                article</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Newsletter -->
-                <div class="lg:col-span-4 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
-                    <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et
-                        avant-premières.</p>
-                    <form class="relative group"
-                        onsubmit="event.preventDefault(); alert('Merci pour votre inscription !');">
-                        <input type="email" placeholder="Votre email"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
-                        <button type="submit"
-                            class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
-                            S'inscrire
-                        </button>
-                    </form>
-                    <div class="flex items-center gap-4 pt-2">
-                        <iconify-icon icon="logos:visa" width="35"></iconify-icon>
-                        <iconify-icon icon="logos:mastercard" width="35"></iconify-icon>
-                        <!-- M-Pesa -->
-                        <svg width="35" height="30" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg"
-                            class="inline-block">
-                            <rect x="45" y="5" width="30" height="55" rx="4" stroke="#e11d48" stroke-width="5"
-                                fill="none" />
-                            <path d="M20 30 Q60 5 100 30 L95 40 Q60 15 25 40 Z" fill="#2eb44b" />
-                            <text x="60" y="85" font-family="Arial" font-weight="900" font-size="22"
-                                text-anchor="middle" fill="#e11d48">m-pesa</text>
-                        </svg>
-                        <!-- Orange Money -->
-                        <svg width="35" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
-                            class="inline-block">
-                            <path d="M20 70 L55 35 M55 35 V55 M55 35 H35" stroke="#ffffff" stroke-width="12"
-                                stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                            <path d="M80 30 L45 65 M45 65 V45 M45 65 H65" stroke="#ff7900" stroke-width="12"
-                                stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                        </svg>
-                        <iconify-icon icon="simple-icons:airtel" width="35" class="text-red-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer Bottom -->
-            <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex flex-col items-center md:items-start gap-1">
-                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience
-                        Luxe</p>
-                    <p class="text-gray-600 text-[9px] uppercase tracking-wider">Tous droits réservés</p>
-                </div>
-
-                <div class="flex gap-8">
-                    <a href="privacy.html"
-                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
-                    <a href="terms.html"
-                        class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <span class="text-gray-500 text-[10px] uppercase tracking-widest font-semibold italic">Designed
-                        by</span>
-                    <span
-                        class="text-white text-[11px] font-black tracking-tighter hover:text-red-500 transition-colors cursor-pointer">SITYZEN</span>
-                </div>
-            </div>
+    <!-- Zoom Modal -->
+    <div id="zoomModal" class="zoom-modal" onclick="closeZoom()">
+        <button class="zoom-close-btn" onclick="closeZoom(event)">
+            <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
+        </button>
+        <div class="zoom-modal-content">
+            <img id="zoomModalImg" src="" class="zoom-modal-img" alt="Product Zoom">
         </div>
-    </footer>
+    </div>
+
+
 </body>
 
 </html>

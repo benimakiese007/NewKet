@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="Images/Logo NewKet V2.jpeg">
     <link rel="icon" type="image/png" href="Images/Logo NewKet V2.jpeg">
     <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>NewKet — Marketplace Moderne</title>
@@ -20,7 +20,7 @@
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-client.js"></script>
-    <script src="js/supabase-adapter.js"></script>
+    <script src="js/supabase-adapter.js?v=2.1"></script>
 
     <link rel="stylesheet" href="css/style.css">
     <style>
@@ -148,18 +148,17 @@
     <!-- ========== HEADER ========== -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <!-- Main header -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 py-2 flex items-center justify-between gap-1 sm:gap-4">
             <!-- Left: Hamburger (Mobile) & Logo -->
             <div class="flex items-center gap-2 sm:gap-4">
-                <button id="mobileMenuBtn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
+                <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
                     title="Menu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
-                <a href="index.html" class="flex-shrink-0 flex items-center gap-3">
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 rounded-xl flex items-center justify-center p-1.5">
-                        <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                    </div>
-                    <span class="text-xl font-bold tracking-tighter text-gray-900">NEWKET</span>
+                <a href="index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+
+                    <span
+                        class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
                 </a>
             </div>
 
@@ -173,12 +172,14 @@
                     <button
                         class="bg-slate-900 text-white px-5 py-2 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all uppercase tracking-wider">RECHERCHE</button>
                 </div>
+                <!-- Suggestions Dropdown -->
+                <div id="searchSuggestions" class="search-suggestions"></div>
             </div>
 
             <!-- Right: Icons -->
-            <div class="flex items-center gap-1 sm:gap-2">
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 <!-- Search Icon (Mobile Only) -->
-                <button class="p-2 rounded-lg hover:bg-gray-50 transition-colors sm:hidden" title="Rechercher"
+                <button class="p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors sm:hidden" title="Rechercher"
                     id="mobileSearchBtn">
                     <iconify-icon icon="solar:magnifer-linear" width="22" class="text-gray-600"></iconify-icon>
                 </button>
@@ -192,15 +193,34 @@
                     </div>
                 </div>
 
+                <!-- Notifications -->
+                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Notifications">
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="notification-badge absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
+                </a>
+
+                <!-- Favorites -->
+                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Favoris">
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <span
+                        class="favorites-badge absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:18px; height:18px;">0</span>
+                </a>
+
                 <!-- Account -->
-                <a href="login.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Compte"
-                    id="accountLink">
+                <a href="login.html" class="relative p-1 sm:p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Compte" id="accountLink">
                     <iconify-icon icon="solar:user-linear" width="22" style="stroke-width:1.5"
                         class="text-gray-600"></iconify-icon>
                 </a>
 
                 <!-- Cart -->
-                <a href="cart.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors" title="Panier">
+                <a href="cart.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Panier">
                     <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
                         class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
@@ -221,8 +241,10 @@
             <div class="flex items-center bg-slate-100 border border-slate-200 rounded-xl overflow-hidden">
                 <iconify-icon icon="solar:magnifer-linear" width="18" class="ml-3 text-slate-400"></iconify-icon>
                 <input type="text" placeholder="Rechercher..."
-                    class="w-full py-2 px-3 bg-transparent text-sm outline-none placeholder-slate-400">
+                    class="w-full py-2 px-3 bg-transparent text-sm outline-none placeholder-slate-400 search-input">
             </div>
+            <!-- Mobile Suggestions Dropdown -->
+            <div id="mobileSearchSuggestions" class="search-suggestions"></div>
         </div>
         <!-- Category nav -->
         <div class="border-t border-gray-50 bg-white hidden sm:block">
@@ -233,6 +255,8 @@
                         les pièces</a>
                     <a href="shops.html"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Boutiques</a>
+                    <a href="forum.html"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Forum</a>
                     <a href="catalog.html?category=Collections Femme"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Collections
                         Femme</a>
@@ -261,7 +285,7 @@
     <div id="mobileMenu"
         class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
         <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-            <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="h-8 w-auto invert">
+
             <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100">
                 <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
             </button>
@@ -280,6 +304,11 @@
                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                         <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
                         Boutiques
+                    </a>
+                    <a href="forum.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon>
+                        Forum Communauté
                     </a>
                     <a href="catalog.html?category=Collections Femme"
                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
@@ -579,13 +608,11 @@
     <!-- ========== FOOTER ========== -->
     <footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
+            <div class="grid grid-cols-1 lg:grid-cols-10 gap-12 mb-16">
                 <!-- Brand Section -->
                 <div class="lg:col-span-4 space-y-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 flex items-center justify-center">
-                            <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                        </div>
+
                         <span class="text-xl font-bold tracking-tight">NEWKET</span>
                     </div>
                     <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
@@ -610,24 +637,6 @@
                             <iconify-icon icon="line-md:linkedin" width="20"></iconify-icon>
                         </a>
                     </div>
-                </div>
-
-                <!-- Fast Links -->
-                <div class="lg:col-span-2 space-y-6">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Boutique</h4>
-                    <ul class="space-y-4">
-                        <li><a href="catalog.html?category=Collections Femme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Collections Femme</a>
-                        </li>
-                        <li><a href="catalog.html?category=Style Homme"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Style Homme</a></li>
-                        <li><a href="catalog.html?category=Tech & Gadgets"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Tech
-                                & Gadgets</a></li>
-                        <li><a href="catalog.html?category=Art de vivre"
-                                class="text-gray-400 hover:text-white text-sm transition-colors">Art
-                                de vivre</a></li>
-                    </ul>
                 </div>
 
                 <!-- Account & Support -->
