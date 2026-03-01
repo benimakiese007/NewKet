@@ -62,20 +62,8 @@
 </head>
 
 <body class="text-gray-900 antialiased">
-    <!-- Navbar -->
-    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
-            <a href="index.html" class="flex items-center gap-2">
-                
-            </a>
-            <div class="flex items-center gap-4">
-                <a href="index.html"
-                    class="text-sm font-medium text-gray-500 hover:text-black transition-colors">Boutique</a>
-                <button onclick="AuthManager.logout()"
-                    class="text-sm font-bold text-red-500 hover:text-red-600 transition-colors">Déconnexion</button>
-            </div>
-        </div>
-    </nav>
+    <div id="header-placeholder"></div>
+
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
         <!-- Sidebar -->
@@ -222,23 +210,23 @@
             <div id="tab-gains" class="hidden">
                 <div class="glass-panel p-8">
                     <h2 class="text-xl font-bold mb-8">Mes Gains & Paiements</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                         <div class="bg-black text-white p-8 rounded-3xl">
                             <p class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Solde disponible
                             </p>
                             <div class="text-4xl font-black mb-6" id="gains-available">0 FC</div>
-                            <button
+                            <button onclick="openWithdrawalModal()"
                                 class="w-full bg-white text-black py-3 rounded-2xl font-bold hover:bg-gray-100 transition-all">Demander
                                 un retrait</button>
                         </div>
                         <div class="space-y-4">
                             <div class="p-6 border border-gray-100 rounded-2xl flex justify-between items-center">
                                 <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase">Prochain paiement</p>
-                                    <p class="font-bold">15 Mars 2026</p>
+                                    <p class="text-xs font-bold text-gray-400 uppercase">Retraits en attente</p>
+                                    <p class="font-bold" id="gains-pending">0 FC</p>
                                 </div>
-                                <iconify-icon icon="solar:calendar-bold" width="24"
-                                    class="text-gray-300"></iconify-icon>
+                                <iconify-icon icon="solar:clock-circle-bold" width="24"
+                                    class="text-amber-500"></iconify-icon>
                             </div>
                             <div class="p-6 border border-gray-100 rounded-2xl flex justify-between items-center">
                                 <div>
@@ -249,37 +237,114 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Payout History -->
+                    <div class="mt-12">
+                        <h3 class="font-bold text-gray-900 mb-6">Historique des retraits</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr
+                                        class="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-50">
+                                        <th class="pb-4">Date</th>
+                                        <th class="pb-4">Montant</th>
+                                        <th class="pb-4">Méthode</th>
+                                        <th class="pb-4">Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payout-history-body" class="divide-y divide-gray-50">
+                                    <!-- Injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Settings Tab (Hidden by default) -->
-            <div id="tab-settings" class="hidden">
-                <div class="glass-panel p-8 max-w-2xl mx-auto">
-                    <h2 class="text-xl font-bold mb-8">Paramètres de la Boutique</h2>
-                    <form class="space-y-6" id="vendorSettingsForm">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Withdrawal Modal -->
+            <div id="withdrawalModal" class="fixed inset-0 z-[60] hidden">
+                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeWithdrawalModal()"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+                    <div class="bg-white rounded-[2.5rem] p-8 shadow-2xl relative">
+                        <button onclick="closeWithdrawalModal()"
+                            class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+                            <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
+                        </button>
+
+                        <h2 class="text-2xl font-black mb-2">Demander un retrait</h2>
+                        <p class="text-gray-500 text-sm mb-8">Le montant sera versé sur votre compte Mobile Money.</p>
+
+                        <div class="space-y-6">
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Nom de la
-                                    boutique</label>
-                                <input type="text" id="vSetStoreName"
-                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black">
+                                <label
+                                    class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Montant
+                                    à retirer (FC)</label>
+                                <input type="number" id="withdrawAmount" placeholder="Ex: 50000"
+                                    class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:border-black font-bold text-lg transition-all">
+                                <p class="text-[10px] text-gray-400 mt-2">Maximum disponible: <span
+                                        id="maxAvailableWithdraw" class="font-bold text-black">0 FC</span></p>
                             </div>
+
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Email
-                                    Contact</label>
-                                <input type="email" id="vSetEmail"
-                                    class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black">
+                                <label
+                                    class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Méthode
+                                    de paiement</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button onclick="selectWithdrawMethod('M-Pesa')" id="btn-mpesa"
+                                        class="withdraw-method-btn flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-gray-100 hover:border-black transition-all">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-[#E61C1F]/10 flex items-center justify-center">
+                                            <span class="font-black text-[#E61C1F] text-xs">M</span>
+                                        </div>
+                                        <span class="text-xs font-bold">M-Pesa</span>
+                                    </button>
+                                    <button onclick="selectWithdrawMethod('Orange Money')" id="btn-orange"
+                                        class="withdraw-method-btn flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-gray-100 hover:border-black transition-all">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-[#FF6600]/10 flex items-center justify-center">
+                                            <span class="font-black text-[#FF6600] text-xs">O</span>
+                                        </div>
+                                        <span class="text-xs font-bold">Orange</span>
+                                    </button>
+                                </div>
                             </div>
+
+                            <div>
+                                <label
+                                    class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Numéro
+                                    de téléphone</label>
+                                <input type="tel" id="withdrawPhone" placeholder="0820000000"
+                                    class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:border-black font-bold transition-all">
+                            </div>
+
+                            <button onclick="submitWithdrawal()" id="btnSubmitWithdrawal"
+                                class="w-full bg-black text-white py-5 rounded-[1.5rem] font-bold text-base hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+                                Confirmer la demande
+                                <iconify-icon icon="solar:arrow-right-bold" width="20"></iconify-icon>
+                            </button>
                         </div>
-                        <button type="submit"
-                            class="w-full bg-black text-white py-4 rounded-2xl font-bold hover:bg-gray-800 transition-all">Enregistrer
-                            les modifications</button>
-                    </form>
+                    </div>
                 </div>
             </div>
+
+            <div id="footer-placeholder"></div>
+
+            <script src="js/auth.js"></script>
+            <script src="js/cart.js"></script>
+            <script src="js/favorites.js"></script>
+            <script src="js/currency.js"></script>
+            <script src="js/products.js"></script>
+            <script src="js/orders.js"></script>
+            <script src="js/managers.js"></script>
+            <script src="js/ui-helpers.js"></script>
+            <script src="js/ui.js"></script>
+            <script src="js/search.js"></script>
             <script src="js/main.js"></script>
+            <script src="js/components-loader.js"></script>
+
             <script>
                 let salesChart = null;
+                let selectedWithdrawMethod = '';
 
                 function switchVendorTab(tabId) {
                     // Tabs
@@ -311,10 +376,10 @@
 
                 document.addEventListener('DOMContentLoaded', () => {
                     if (window.newketInitialized) {
-                        renderVendorDashboard();
+                        initVendorDashboard();
                     } else {
                         window.addEventListener('newketInitialized', () => {
-                            renderVendorDashboard();
+                            initVendorDashboard();
                         });
                     }
 
@@ -347,7 +412,18 @@
                             document.getElementById('vendorDisplay').textContent = newProfile.name;
                         });
                     }
+
+                    // Listen for updates
+                    window.addEventListener('withdrawalsUpdated', () => {
+                        if (!document.getElementById('tab-gains').classList.contains('hidden')) {
+                            renderVendorGains();
+                        }
+                    });
                 });
+
+                function initVendorDashboard() {
+                    renderVendorDashboard();
+                }
 
                 function renderVendorDashboard() {
                     const email = localStorage.getItem('newketUserEmail');
@@ -388,25 +464,21 @@
                     // Render Chart
                     renderSalesChart(stats.chartData);
 
-                    // Render Activity Feed
+                    // Activity feed handled by main.js logic generally or locally:
                     const feed = document.getElementById('vendor-activity-feed');
                     if (feed) {
                         const activities = ActivityManager.getRecentActivity(6);
-                        if (activities.length === 0) {
-                            feed.innerHTML = '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activité enregistrée.</p>';
-                        } else {
-                            feed.innerHTML = activities.map(a => `
-                                <div class="flex items-start gap-4 p-4 border border-gray-50 rounded-2xl hover:bg-gray-50 transition-all">
-                                    <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-sm flex-shrink-0">
-                                        ${a.type === 'stock' ? '' : ''}
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-bold text-gray-900 truncate">${a.text}</p>
-                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${ActivityManager.formatTime(a.time)}</p>
-                                    </div>
+                        feed.innerHTML = activities.length ? activities.map(a => `
+                            <div class="flex items-start gap-4 p-4 border border-gray-50 rounded-2xl">
+                                <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-sm">
+                                    <iconify-icon icon="${a.type === 'stock' ? 'solar:box-bold' : 'solar:notification-bold'}" width="20"></iconify-icon>
                                 </div>
-                            `).join('');
-                        }
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900">${a.text}</p>
+                                    <p class="text-[10px] font-black text-gray-400 uppercase">${ActivityManager.formatTime(a.time)}</p>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activité.</p>';
                     }
                 }
 
@@ -417,29 +489,24 @@
                 }
 
                 function renderSalesChart(chartData) {
-                    const ctx = document.getElementById('salesChart').getContext('2d');
-
+                    const ctx = document.getElementById('salesChart');
+                    if (!ctx) return;
                     if (salesChart) salesChart.destroy();
-
                     salesChart = new Chart(ctx, {
                         type: 'line',
                         data: {
                             labels: chartData.labels,
                             datasets: [{
-                                label: 'Ventes (FC)',
+                                label: 'Ventes',
                                 data: chartData.data,
                                 borderColor: '#000000',
                                 backgroundColor: 'rgba(0,0,0,0.02)',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                fill: true,
-                                pointBackgroundColor: '#000000',
-                                pointRadius: 4
+                                borderWidth: 3, tension: 0.4, fill: true,
+                                pointBackgroundColor: '#000000', pointRadius: 4
                             }]
                         },
                         options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
+                            responsive: true, maintainAspectRatio: false,
                             plugins: { legend: { display: false } },
                             scales: {
                                 y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 10 } } },
@@ -453,37 +520,124 @@
                     const email = localStorage.getItem('newketUserEmail');
                     const myProducts = ProductManager.getProducts().filter(p => p.supplier_email === email);
                     const grid = document.getElementById('vendor-products-grid');
-
-                    if (myProducts.length === 0) {
-                        grid.innerHTML = `<div class="col-span-full py-12 text-center text-gray-400">Vous n'avez pas encore de produits.</div>`;
-                    } else {
-                        grid.innerHTML = myProducts.map(p => `
-                    <div class="glass-panel p-3 sm:p-4 flex flex-col group">
-                        <div class="aspect-square bg-gray-50 rounded-xl mb-3 overflow-hidden relative">
-                             <img src="${p.image}" class="w-full h-full object-contain p-2 sm:p-4 group-hover:scale-110 transition-transform">
-                             <div class="absolute top-2 right-2 flex gap-1">
-                                 <button class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center hover:bg-black hover:text-white transition-all"><iconify-icon icon="solar:pen-linear"></iconify-icon></button>
-                             </div>
+                    grid.innerHTML = myProducts.length ? myProducts.map(p => `
+                        <div class="glass-panel p-4 flex flex-col group">
+                            <div class="aspect-square bg-gray-50 rounded-xl mb-3 overflow-hidden relative">
+                                 <img src="${p.image}" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform">
+                            </div>
+                            <h3 class="font-bold text-sm mb-1 truncate">${p.name}</h3>
+                            <div class="flex items-center justify-between text-xs mt-auto">
+                                <span class="font-black">${CurrencyManager.formatPrice(p.price)}</span>
+                                <span class="text-gray-400">Stock: ${p.stock || 0}</span>
+                            </div>
                         </div>
-                        <h3 class="font-bold text-[10px] sm:text-sm mb-1 truncate">${p.name}</h3>
-                        <div class="flex items-center justify-between text-[9px] sm:text-xs mt-auto">
-                            <span class="font-black">${CurrencyManager.formatPrice(p.price)}</span>
-                            <span class="text-gray-400">Stock: ${p.stock || 0}</span>
-                        </div>
-                    </div>
-                `).join('');
-                    }
+                    `).join('') : '<div class="col-span-full py-12 text-center text-gray-400">Aucun produit.</div>';
                 }
 
                 function renderVendorGains() {
                     const email = localStorage.getItem('newketUserEmail');
                     const stats = OrderManager.getVendorStats(email);
 
-                    document.getElementById('gains-available').textContent = CurrencyManager.formatPrice(stats.netGains);
+                    document.getElementById('gains-available').textContent = CurrencyManager.formatPrice(stats.availableBalance);
+                    document.getElementById('gains-pending').textContent = CurrencyManager.formatPrice(stats.pendingWithdrawals);
                     document.getElementById('gains-commission').textContent = CurrencyManager.formatPrice(stats.commission);
+
+                    // Update payout history
+                    const historyBody = document.getElementById('payout-history-body');
+                    if (stats.payouts && stats.payouts.length > 0) {
+                        historyBody.innerHTML = stats.payouts.map(w => `
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="py-4 text-xs font-medium">${new Date(w.date).toLocaleDateString('fr-FR')}</td>
+                                <td class="py-4 font-black">${CurrencyManager.formatPrice(w.amount)}</td>
+                                <td class="py-4 text-xs">${w.method}</td>
+                                <td class="py-4">
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${w.status === 'Approuvé' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}">${w.status}</span>
+                                </td>
+                            </tr>
+                        `).join('');
+                    } else {
+                        historyBody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-xs text-gray-400">Aucun retrait effectué</td></tr>`;
+                    }
+
+                    // Update modal max
+                    document.getElementById('maxAvailableWithdraw').textContent = CurrencyManager.formatPrice(stats.availableBalance);
+                }
+
+                // Withdrawal Modal Functions
+                function openWithdrawalModal() {
+                    const email = localStorage.getItem('newketUserEmail');
+                    const stats = OrderManager.getVendorStats(email);
+                    if (stats.availableBalance <= 0) {
+                        showToast("Votre solde est insuffisant pour un retrait.", "info");
+                        return;
+                    }
+                    document.getElementById('withdrawalModal').classList.remove('hidden');
+                    document.getElementById('maxAvailableWithdraw').textContent = CurrencyManager.formatPrice(stats.availableBalance);
+                }
+
+                function closeWithdrawalModal() {
+                    document.getElementById('withdrawalModal').classList.add('hidden');
+                }
+
+                function selectWithdrawMethod(method) {
+                    selectedWithdrawMethod = method;
+                    document.querySelectorAll('.withdraw-method-btn').forEach(btn => btn.classList.remove('border-black', 'bg-black/5'));
+                    if (method === 'M-Pesa') document.getElementById('btn-mpesa').classList.add('border-black', 'bg-black/5');
+                    if (method === 'Orange Money') document.getElementById('btn-orange').classList.add('border-black', 'bg-black/5');
+                }
+
+                async function submitWithdrawal() {
+                    const amountStr = document.getElementById('withdrawAmount').value;
+                    const phone = document.getElementById('withdrawPhone').value;
+                    const amount = parseFloat(amountStr);
+                    const email = localStorage.getItem('newketUserEmail');
+                    const stats = OrderManager.getVendorStats(email);
+
+                    if (!amount || amount <= 0) {
+                        showToast("Veuillez entrer un montant valide.", "error");
+                        return;
+                    }
+                    if (amount > stats.availableBalance) {
+                        showToast("Montant supérieur au solde disponible.", "error");
+                        return;
+                    }
+                    if (!selectedWithdrawMethod) {
+                        showToast("Veuillez choisir une méthode de retrait.", "error");
+                        return;
+                    }
+                    if (!phone || phone.length < 9) {
+                        showToast("Veuillez entrer un numéro de téléphone valide.", "error");
+                        return;
+                    }
+
+                    document.getElementById('btnSubmitWithdrawal').disabled = true;
+                    document.getElementById('btnSubmitWithdrawal').innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+
+                    try {
+                        const success = await OrderManager.requestWithdrawal({
+                            supplier_email: email,
+                            amount: amount,
+                            method: selectedWithdrawMethod,
+                            phone_number: phone
+                        });
+
+                        if (success) {
+                            showToast("Demande de retrait envoyée avec succès !", "success");
+                            closeWithdrawalModal();
+                            renderVendorGains();
+                            ActivityManager.log(`Demande de retrait de ${CurrencyManager.formatPrice(amount)} envoyée`, 'finance');
+                        } else {
+                            showToast("Erreur lors de l'envoi de la demande.", "error");
+                        }
+                    } catch (error) {
+                        console.error("Withdrawal error:", error);
+                        showToast("Une erreur est survenue.", "error");
+                    } finally {
+                        document.getElementById('btnSubmitWithdrawal').disabled = false;
+                        document.getElementById('btnSubmitWithdrawal').innerHTML = 'Confirmer la demande <iconify-icon icon="solar:arrow-right-bold" width="20"></iconify-icon>';
+                    }
                 }
             </script>
-            
 </body>
 
 </html>

@@ -101,117 +101,15 @@
 <body class="text-gray-900 antialiased min-h-screen flex flex-col">
     <div class="bg-mesh"></div>
 
-    <!-- ========== HEADER ========== -->
-    <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <!-- Main header -->
-        <div class="max-w-7xl mx-auto px-2 sm:px-6 py-2 flex items-center justify-between gap-1 sm:gap-4">
-            <!-- Left: Hamburger (Mobile) & Logo -->
-            <div class="flex items-center gap-2 sm:gap-4">
-                <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
-                    title="Menu">
-                    <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
-                </button>
-                <a href="index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+    <div id="header-placeholder"></div>
 
-                    <span
-                        class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
-                </a>
-            </div>
 
-            <div class="flex items-center gap-1.5 sm:gap-3">
-                <!-- Currency Switch (Desktop Only) -->
-                <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
-                    <div class="segmented-track">
-                        <div class="segmented-handle"></div>
-                        <span class="segmented-label" data-currency="USD">USD</span>
-                        <span class="segmented-label" data-currency="CDF">CDF</span>
-                    </div>
-                </div>
+    <!-- Mobile sidebar and overlays now in header component -->
 
-                <span class="hidden lg:block text-[10px] font-bold uppercase tracking-widest text-gray-400">Aide? +243
-                    990 924 254</span>
 
-                <a href="catalog.html"
-                    class="hidden sm:block text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors">Continuer
-                    mes achats</a>
+    <div class="h-14 sm:h-16"></div>
 
-                <!-- Notifications -->
-                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Notifications">
-                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="notification-badge absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                        style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
-                </a>
-
-                <!-- Favorites -->
-                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Favoris">
-                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="favorites-badge absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                        style="display:none; font-size:10px; width:18px; height:18px;">0</span>
-                </a>
-
-                <!-- Account -->
-                <a href="login.html" class="relative p-1 sm:p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Compte" id="accountLink">
-                    <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"
-                        style="stroke-width:1.5"></iconify-icon>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- Mobile Menu Sidebar -->
-    <div id="mobileOverlay"
-        class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden">
-    </div>
-    <div id="mobileMenu"
-        class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
-        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-
-            <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100">
-                <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
-            </button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto py-4">
-            <div class="px-4 mb-6">
-                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Navigation</h3>
-                <nav class="flex flex-col gap-1">
-                    <a href="index.html"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:home-2-linear" width="20"></iconify-icon>
-                        Accueil
-                    </a>
-                    <a href="catalog.html"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon>
-                        Continuer mes achats
-                    </a>
-                </nav>
-            </div>
-
-            <div class="px-4 mt-auto border-t border-gray-50 pt-6">
-                <div class="p-4 bg-gray-50 rounded-2xl">
-                    <p class="text-xs text-gray-500 mb-3">Devise d'affichage</p>
-                    <div class="currency-switch-segmented scale-90 origin-left" id="mobileCurrencyToggle"
-                        data-active="CDF">
-                        <div class="segmented-track">
-                            <div class="segmented-handle"></div>
-                            <span class="segmented-label" data-currency="USD">USD</span>
-                            <span class="segmented-label" data-currency="CDF">CDF</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="h-16 sm:h-20 lg:h-24"></div>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-12">
         <h1 class="text-4xl font-black tracking-tighter text-gray-900 mb-10">Votre Panier</h1>
 
         <div class="flex flex-col lg:flex-row gap-10 items-start">
@@ -249,9 +147,12 @@
                             <span>Sous-total</span>
                             <span class="font-semibold text-gray-900" id="summarySubtotal">0 FC</span>
                         </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>Livraison</span>
-                            <span class="text-green-600 font-medium">Gratuite</span>
+                        <div id="shippingDetailsContainer" class="space-y-1 mb-2 mt-2">
+                            <!-- Dynamically injected shipping per shop -->
+                            <div class="flex justify-between text-gray-600 text-xs">
+                                <span>Livraison</span>
+                                <span class="text-green-600 font-medium">Gratuite</span>
+                            </div>
                         </div>
                         <!-- Points NewKet Section -->
                         <div class="space-y-3 pb-4 border-b border-gray-100" id="pointsSection">
@@ -488,7 +389,21 @@
 
 
 
+    <div id="footer-placeholder"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/currency.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/managers.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/components-loader.js"></script>
+
     <script>
         function renderCart() {
             console.log('[NewKet] Rendering cart...');
@@ -506,55 +421,106 @@
                 listContainer.innerHTML = '';
                 listContainer.classList.add('hidden');
                 emptyMsg.classList.remove('hidden');
-                updateSummary(0);
+                updateSummary(0, 0, []);
                 return;
             }
 
             emptyMsg.classList.add('hidden');
             listContainer.classList.remove('hidden');
 
-            let html = '';
+            // 1. Group items by shop (using vendorInfo.shopName if available, else "Boutique Officielle" or category)
+            const groupedCart = {};
             cart.forEach(item => {
-                try {
-                    html += `
-                        <div class="px-2 py-3 sm:p-5 flex items-center gap-2 sm:gap-4 group">
-                            <div class="w-14 h-14 sm:w-20 sm:h-20 bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0 p-1 sm:p-2">
-                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h4 class="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5 sm:mb-1">${item.category || 'Collection'}</h4>
-                                <h3 class="text-[11px] sm:text-base font-bold text-gray-900 mb-0.5 truncate">${item.name}</h3>
-                                <div class="text-gray-900 font-bold text-[10px] sm:text-sm">${CurrencyManager.formatPrice(item.price, CurrencyManager.currentCurrency, true)}</div>
-                            </div>
-                            <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
-                                <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl overflow-hidden h-7 sm:h-9 w-20 sm:w-28 shadow-sm">
-                                    <button onclick="updateQty('${item.id}', -1)" class="w-7 sm:w-9 h-full flex items-center justify-center shrink-0 hover:bg-gray-200 transition-colors border-r border-gray-200 text-gray-900 text-xs sm:text-lg font-bold">
-                                        -
-                                    </button>
-                                    <input type="number" value="${item.quantity}" 
-                                        oninput="handleManualQtyInput('${item.id}', this)"
-                                        onblur="handleManualQty('${item.id}', this.value)"
-                                        onfocus="this.select()"
-                                        class="flex-1 min-w-0 h-full text-center bg-transparent border-none text-[10px] sm:text-xs font-bold focus:ring-0 p-0 text-gray-900">
-                                    <button onclick="updateQty('${item.id}', 1)" class="w-7 sm:w-9 h-full flex items-center justify-center shrink-0 hover:bg-gray-200 transition-colors border-l border-gray-200 text-gray-900 text-xs sm:text-lg font-bold">
-                                        +
+                let shopName = 'Boutique Officielle';
+                if (item.vendorInfo && item.vendorInfo.shopName) {
+                    shopName = item.vendorInfo.shopName;
+                } else if (item.shop) {
+                    shopName = item.shop;
+                }
+
+                if (!groupedCart[shopName]) {
+                    groupedCart[shopName] = [];
+                }
+                groupedCart[shopName].push(item);
+            });
+
+            let html = '';
+            let totalSubtotalCDF = 0;
+            let totalShippingCDF = 0;
+            const shippingPerShop = [];
+            const BASE_SHIPPING_FEE_CDF = 10000; // Example: 10,000 FC per shop
+
+            for (const [shopName, items] of Object.entries(groupedCart)) {
+
+                // Add Shop Header
+                html += `
+                    <div class="bg-gray-50/50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+                        <iconify-icon icon="solar:shop-bold" width="18" class="text-gray-400"></iconify-icon>
+                        <h3 class="text-sm font-bold text-gray-900 uppercase tracking-widest">${shopName}</h3>
+                    </div>
+                    <div class="divide-y divide-gray-50">
+                `;
+
+                // Calculate shipping for this shop
+                // We could make it free over a certain amount per shop, for now it's a flat fee.
+                let shopSubtotal = 0;
+
+                items.forEach(item => {
+                    try {
+                        const itemTotal = parseFloat(item.price) * parseInt(item.quantity);
+                        shopSubtotal += itemTotal;
+                        totalSubtotalCDF += itemTotal;
+
+                        html += `
+                            <div class="px-2 py-3 sm:p-5 flex items-center gap-2 sm:gap-4 group">
+                                <div class="w-14 h-14 sm:w-20 sm:h-20 bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0 p-1 sm:p-2">
+                                    <img src="${item.image}" alt="${item.name}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5 sm:mb-1">${item.category || 'Collection'}</h4>
+                                    <h3 class="text-[11px] sm:text-base font-bold text-gray-900 mb-0.5 truncate">${item.name}</h3>
+                                    <div class="text-gray-900 font-bold text-[10px] sm:text-sm">${CurrencyManager.formatPrice(item.price, CurrencyManager.currentCurrency, true)}</div>
+                                </div>
+                                <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                                    <div class="flex items-center bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl overflow-hidden h-7 sm:h-9 w-20 sm:w-28 shadow-sm">
+                                        <button onclick="updateQty('${item.id}', -1)" class="w-7 sm:w-9 h-full flex items-center justify-center shrink-0 hover:bg-gray-200 transition-colors border-r border-gray-200 text-gray-900 text-xs sm:text-lg font-bold">
+                                            -
+                                        </button>
+                                        <input type="number" value="${item.quantity}" 
+                                            oninput="handleManualQtyInput('${item.id}', this)"
+                                            onblur="handleManualQty('${item.id}', this.value)"
+                                            onfocus="this.select()"
+                                            class="flex-1 min-w-0 h-full text-center bg-transparent border-none text-[10px] sm:text-xs font-bold focus:ring-0 p-0 text-gray-900">
+                                        <button onclick="updateQty('${item.id}', 1)" class="w-7 sm:w-9 h-full flex items-center justify-center shrink-0 hover:bg-gray-200 transition-colors border-l border-gray-200 text-gray-900 text-xs sm:text-lg font-bold">
+                                            +
+                                        </button>
+                                    </div>
+                                    <button onclick="removeItem('${item.id}')" class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                                        <iconify-icon icon="solar:trash-bin-trash-bold" width="12" class="sm:hidden"></iconify-icon>
+                                        <iconify-icon icon="solar:trash-bin-trash-bold" width="16" class="hidden sm:block"></iconify-icon>
                                     </button>
                                 </div>
-                                <button onclick="removeItem('${item.id}')" class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
-                                    <iconify-icon icon="solar:trash-bin-trash-bold" width="12" class="sm:hidden"></iconify-icon>
-                                    <iconify-icon icon="solar:trash-bin-trash-bold" width="16" class="hidden sm:block"></iconify-icon>
-                                </button>
                             </div>
-                        </div>
-                    `;
-                } catch (err) {
-                    console.error("[NewKet] Error rendering cart item:", err, item);
-                }
-            });
-            listContainer.innerHTML = html;
+                        `;
+                    } catch (err) {
+                        console.error("[NewKet] Error rendering cart item:", err, item);
+                    }
+                });
 
-            const total = cart.reduce((acc, item) => acc + (parseFloat(item.price) * parseInt(item.quantity)), 0);
-            updateSummary(total);
+                // Apply free shipping rule per shop (e.g. over 125,000 FC)
+                let shopShippingFee = BASE_SHIPPING_FEE_CDF;
+                if (shopSubtotal >= 125000) {
+                    shopShippingFee = 0;
+                }
+
+                totalShippingCDF += shopShippingFee;
+                shippingPerShop.push({ name: shopName, fee: shopShippingFee });
+
+                html += `</div>`; // End divide-y
+            }
+
+            listContainer.innerHTML = html;
+            updateSummary(totalSubtotalCDF, totalShippingCDF, shippingPerShop);
         }
 
         function handleManualQty(id, value) {
@@ -564,9 +530,10 @@
 
         function handleManualQtyInput(id, input) {
             CartManager.setQuantity(id, input.value);
-            const cart = CartManager.getCart();
-            const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-            updateSummary(total);
+            // Will re-render completely instead of partial update to handle complex shipping logic correctly
+            if (typeof debounce === 'function') {
+                debounce(renderCart, 500)();
+            }
         }
 
         function updateQty(id, delta) {
@@ -616,16 +583,52 @@
             }
 
             const cart = CartManager.getCart();
-            const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-            updateSummary(total);
+            renderCart();
         });
 
-        function updateSummary(subtotal) {
+        function updateSummary(subtotal, totalShipping = 0, shippingDetails = []) {
             // subtotal is in CDF
             document.getElementById('summarySubtotal').textContent = CurrencyManager.formatPrice(subtotal, CurrencyManager.currentCurrency, true);
 
+            // Render shipping details
+            const shippingContainer = document.getElementById('shippingDetailsContainer');
+            if (shippingContainer) {
+                if (shippingDetails.length === 0) {
+                    shippingContainer.innerHTML = `
+                        <div class="flex justify-between text-gray-600 text-xs">
+                            <span>Livraison</span>
+                            <span class="text-green-600 font-medium">Gratuite</span>
+                        </div>
+                    `;
+                } else {
+                    let shippingHtml = '';
+                    shippingDetails.forEach(shop => {
+                        const feeDisplay = shop.fee === 0
+                            ? '<span class="text-green-600 font-medium">Gratuite</span>'
+                            : `<span class="font-medium text-gray-900">${CurrencyManager.formatPrice(shop.fee, CurrencyManager.currentCurrency, true)}</span>`;
+                        shippingHtml += `
+                        <div class="flex justify-between text-gray-500 text-[10px] sm:text-xs">
+                            <span class="truncate pr-2">Livraison (${shop.name})</span>
+                            ${feeDisplay}
+                        </div>
+                        `;
+                    });
+
+                    if (totalShipping > 0) {
+                        shippingHtml += `
+                        <div class="flex justify-between text-gray-600 text-xs font-bold pt-1 border-t border-gray-100 mt-1">
+                            <span>Total Livraison</span>
+                            <span class="text-gray-900 font-bold">${CurrencyManager.formatPrice(totalShipping, CurrencyManager.currentCurrency, true)}</span>
+                        </div>
+                        `;
+                    }
+                    shippingContainer.innerHTML = shippingHtml;
+                }
+            }
+
             let promoDiscountUSD = 0;
             const subtotalUSD = CurrencyManager.convert(subtotal, true);
+            const shippingUSD = CurrencyManager.convert(totalShipping, true);
 
             if (currentPromo) {
                 if (currentPromo.type === 'percent') {
@@ -639,7 +642,7 @@
             const pointsDiscountUSD = CurrencyManager.convert(pointsDiscountCDF, true);
 
             const totalDiscountUSD = promoDiscountUSD + pointsDiscountUSD;
-            const finalTotalUSD = Math.max(0, subtotalUSD - totalDiscountUSD);
+            const finalTotalUSD = Math.max(0, (subtotalUSD + shippingUSD) - totalDiscountUSD);
             const finalTotalCDF = CurrencyManager.convert(finalTotalUSD, false);
 
             const discountRow = document.getElementById('summaryDiscountRow');
@@ -705,19 +708,14 @@
             const btn = document.getElementById('finalPayBtn');
             const originalHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Vérification...'
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Initialisation...'
 
             try {
                 const cart = CartManager.getCart();
                 if (!cart || cart.length === 0) throw new Error('Panier vide');
 
-                // ====================================================
-                // SECURITY: Server-side price verification
-                // Fetch real product prices from Supabase to prevent
-                // client-side price manipulation via localStorage.
-                // ====================================================
+                // 1. Recalculate Verified Total (Security)
                 const productIds = cart.map(item => item.id);
-                // Use adapter for retry logic, but skip cache to always get fresh prices
                 const serverProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
                     select: 'id, price',
                     in: [['id', productIds]],
@@ -726,42 +724,20 @@
 
                 let verifiedSubtotal = 0;
                 const verifiedCart = [];
-
                 if (serverProducts && serverProducts.length > 0) {
-                    // Build a server price map
                     const serverPriceMap = {};
                     serverProducts.forEach(p => { serverPriceMap[p.id] = p.price; });
-
-                    // Verify each item using the server price
                     for (const item of cart) {
-                        const serverPrice = serverPriceMap[item.id];
-                        if (serverPrice === undefined) {
-                            // Product no longer exists in DB
-                            throw new Error(`Produit introuvable : ${item.name}. Veuillez actualiser votre panier.`);
-                        }
-                        // Check for price discrepancy (tolerance of 1 CDF)
-                        const clientPrice = parseFloat(item.price);
-                        const diff = Math.abs(clientPrice - serverPrice);
-                        if (diff > 1) {
-                            console.warn(`[NewKet Security] Price mismatch for ${item.id}: client=${clientPrice}, server=${serverPrice}`);
-                            // Use server price silently (don't crash, just correct)
-                        }
+                        const serverPrice = serverPriceMap[item.id] || parseFloat(item.price);
                         verifiedCart.push({ ...item, price: serverPrice });
                         verifiedSubtotal += serverPrice * item.quantity;
                     }
                 } else {
-                    // Supabase unreachable (RLS or network), fall back to client calculation
-                    // This is acceptable as a fallback since we have optimistic UI expectations
-                    console.warn('[NewKet] Could not verify prices server-side. Proceeding with client-side total.');
-                    for (const item of cart) {
-                        verifiedSubtotal += item.price * item.quantity;
-                        verifiedCart.push(item);
-                    }
+                    verifiedCart.push(...cart);
+                    verifiedSubtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
                 }
 
-                // Apply discounts on top of verified subtotal (which is in CDF)
                 const verifiedSubtotalUSD = CurrencyManager.convert(verifiedSubtotal, true);
-
                 let promoDiscountUSD = 0;
                 if (currentPromo) {
                     promoDiscountUSD = currentPromo.type === 'percent'
@@ -772,43 +748,60 @@
                 const pointsDiscountUSD = CurrencyManager.convert(pointsDiscountCDF, true);
 
                 const finalAmountUSD = Math.max(0, verifiedSubtotalUSD - (promoDiscountUSD + pointsDiscountUSD));
-                const finalAmountCDF = CurrencyManager.convert(finalAmountUSD, false);
+                const finalAmountCDF = Math.round(CurrencyManager.convert(finalAmountUSD, false));
+                const orderId = 'EN-' + Date.now();
 
-                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+                // 2. REAL PAYMENT CALL (Supabase Edge Function)
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement Mobile Money...';
 
+                if (!window.supabaseClient) {
+                    throw new Error("Client Supabase non initialisé.");
+                }
+
+                const { data, error } = await window.supabaseClient.functions.invoke('pay', {
+                    body: {
+                        amount: finalAmountCDF,
+                        phone: phone,
+                        orderId: orderId,
+                        operator: selectedOperator
+                    }
+                });
+
+                if (error) throw new Error("Erreur API Paiement: " + error.message);
+                if (data && data.status === 'failed') throw new Error("Paiement refusé : " + (data.message || 'Hélas, réessayez.'));
+
+                // 3. Create Order in DB (Post-Payment Initiation)
                 const orderData = {
+                    id: orderId,
                     total: finalAmountCDF,
                     customer_email: localStorage.getItem('newketUserEmail'),
-                    items: verifiedCart,  // Use verified cart (with server prices)
+                    items: verifiedCart,
                     paymentMethod: selectedOperator,
                     phoneNumber: phone,
-                    pointsUsed: pointsUsed // raw points
+                    pointsUsed: pointsUsed
                 };
 
                 const order = await OrderManager.addOrder(orderData);
 
                 if (order) {
-                    ActivityManager.log(`Commande ${order.id} payée avec ${pointsUsed} PTS et ${selectedOperator}`, 'order');
-
-                    if (currentPromo) {
-                        await PromoManager.incrementUsage(currentPromo.code, orderData.customer_email);
-                    }
+                    ActivityManager.log(`Commande ${order.id} initiée via ${selectedOperator} (${phone})`, 'order');
+                    if (currentPromo) await PromoManager.incrementUsage(currentPromo.code, orderData.customer_email);
 
                     document.getElementById('step-phone').classList.add('hidden');
                     document.getElementById('successState').classList.remove('hidden');
                     document.getElementById('orderNumber').textContent = order.id;
                     document.getElementById('receiptOperator').textContent = selectedOperator;
-                    // finalAmountCDF is in CDF, so isBaseAmount should be true
-                    document.getElementById('modalTotal').textContent = CurrencyManager.formatPrice(finalAmountCDF, CurrencyManager.currentCurrency, true);
+                    document.getElementById('modalTotal').textContent = CurrencyManager.formatPrice(finalAmountCDF, 'CDF', true);
 
                     CartManager.clear();
                     createConfetti();
+                    if (window.showToast) showToast('Veuillez confirmer le paiement sur votre téléphone !', 'success');
                 } else {
-                    throw new Error("Échec de création de commande");
+                    throw new Error("Paiement initié mais échec de création de commande.");
                 }
             } catch (err) {
                 console.error(err);
-                const msg = err.message && err.message.length < 100 ? err.message : 'Erreur lors du traitement.';
+                const msg = err.message || 'Erreur lors du paiement.';
                 if (window.showToast) showToast(msg, 'error');
                 btn.disabled = false;
                 btn.innerHTML = originalHtml;

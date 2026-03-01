@@ -59,6 +59,16 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Prevent mobile auto-zoom on focus by ensuring font-size is at least 16px */
+@media (max-width: 768px) {
+
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
 img {
     max-width: 100%;
     height: auto;
@@ -348,7 +358,7 @@ h6 {
     border: 1px solid var(--border-color);
     border-radius: 50px;
     background-color: var(--bg-light);
-    font-size: 0.95rem;
+    font-size: 16px;
     transition: all 0.2s;
 }
 
@@ -634,7 +644,7 @@ h6 {
         0 12px 24px rgba(0, 0, 0, 0.08),
         0 0 0 1px rgba(0, 0, 0, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 1);
-    transform: translateY(-12px) rotateX(2deg);
+    transform: none !important;
     border-color: rgba(0, 0, 0, 0.15);
 }
 
@@ -695,7 +705,7 @@ h6 {
 }
 
 .product-card:hover .product-image img {
-    transform: translate(-50%, -50%) scale(1) rotate(2deg);
+    transform: translate(-50%, -50%) scale(1);
     filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.15));
 }
 
@@ -2647,7 +2657,8 @@ body.sidebar-resizing {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06) !important;
     border: 1px solid rgba(0, 0, 0, 0.06) !important;
     z-index: 9999 !important;
-    max-height: 380px !important;
+    max-height: 60vh !important;
+    /* Changed from 380px for better mobile handling */
     overflow-y: auto !important;
     overflow-x: hidden !important;
     display: none !important;
@@ -2660,7 +2671,8 @@ body.sidebar-resizing {
     overflow: visible !important;
 }
 
-.search-suggestions.active {
+.search-suggestions.active,
+#mobileSearchContainer:not(.hidden) {
     display: block !important;
     animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -2819,4 +2831,44 @@ body.sidebar-resizing {
 
 #main-product-img:hover {
     transform: scale(1.05);
+}
+
+/* ========== FAVORITES SHAKE ANIMATION ========== */
+@keyframes fav-shake-kf {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    15% {
+        transform: rotate(-18deg) scale(1.2);
+    }
+
+    30% {
+        transform: rotate(18deg) scale(1.2);
+    }
+
+    45% {
+        transform: rotate(-14deg) scale(1.1);
+    }
+
+    60% {
+        transform: rotate(14deg) scale(1.1);
+    }
+
+    75% {
+        transform: rotate(-8deg) scale(1.05);
+    }
+
+    90% {
+        transform: rotate(8deg) scale(1.05);
+    }
+
+    100% {
+        transform: rotate(0deg) scale(1);
+    }
+}
+
+.fav-shake {
+    animation: fav-shake-kf 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    transform-origin: center bottom;
 }

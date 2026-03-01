@@ -6,6 +6,8 @@ const ASSETS_TO_CACHE = [
     '/product.html',
     '/cart.html',
     '/favorites.html',
+    '/shops.html',
+    '/shop.html',
     '/css/style.css',
     '/css/tailwind.css',
     '/js/main.js',

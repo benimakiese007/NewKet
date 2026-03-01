@@ -43,43 +43,8 @@
 
 <body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
 
-    <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-1 group">
-                
-            </a>
-            <div class="flex items-center gap-4">
-                <!-- Currency Switch -->
-                <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
-                    <div class="segmented-track">
-                        <div class="segmented-handle"></div>
-                        <span class="segmented-label" data-currency="USD">USD</span>
-                        <span class="segmented-label" data-currency="CDF">CDF</span>
-                    </div>
-                </div>
-                <!-- Notification Bell -->
-                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Notifications">
-                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
-                        style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
-                </a>
-                <!-- Favorites -->
-                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Favoris">
-                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
-                        style="font-size:10px; width:18px; height:18px;">0</span>
-                </a>
-                <a href="index.html"
-                    class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">Retour
-                    à l'accueil</a>
-            </div>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
+
 
     <div class="h-16"></div>
 
@@ -152,9 +117,16 @@
                                     id="otherCurrencyName">USD</span></div>
                         </div>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex flex-col items-end gap-2">
                         <div id="estimatedPrice" class="text-xl font-black text-gray-900">0.00 $</div>
-                        <input type="hidden" id="exchangeRate" value="2500">
+                        <div
+                            class="flex items-center gap-2 bg-white rounded-lg px-2 py-1 shadow-sm border border-gray-200">
+                            <span class="text-xs text-gray-500 font-bold">1$ = </span>
+                            <input type="number" id="exchangeRate"
+                                class="w-16 outline-none text-sm text-gray-900 font-bold bg-transparent text-right"
+                                value="2800">
+                            <span class="text-xs text-gray-500 font-bold">FC</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -233,17 +205,40 @@
     <!-- Confetti Container -->
     <div id="confettiContainer" class="fixed inset-0 pointer-events-none z-[101]"></div>
 
+    <div id="footer-placeholder"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/currency.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/managers.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/components-loader.js"></script>
+
     <script>
         const priceInput = document.getElementById('priceInput');
         const currencyInput = document.getElementById('currencyInput');
         const estimatedPriceEl = document.getElementById('estimatedPrice');
         const otherCurrencyNameEl = document.getElementById('otherCurrencyName');
+        const exchangeRateInput = document.getElementById('exchangeRate');
+
+        // Set initial configured exchange rate
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.ConfigManager) {
+                exchangeRateInput.value = ConfigManager.getExchangeRate();
+            }
+            updateEstimate();
+        });
 
         function updateEstimate() {
             const price = parseFloat(priceInput.value) || 0;
             const currency = currencyInput.value;
-            const exchangeRate = ConfigManager ? ConfigManager.getExchangeRate() : 2500;
+            const exchangeRate = parseFloat(exchangeRateInput.value) || 2800;
 
             if (currency === 'CDF') {
                 const estimatedAmount = price / exchangeRate;
@@ -258,6 +253,7 @@
 
         priceInput.addEventListener('input', updateEstimate);
         currencyInput.addEventListener('change', updateEstimate);
+        exchangeRateInput.addEventListener('input', updateEstimate);
 
         const pImageUpload = document.getElementById('pImageUpload');
         const imagePreviewContainer = document.getElementById('imagePreviewContainer');
@@ -374,7 +370,7 @@
             }
 
             try {
-                const exchangeRate = ConfigManager ? ConfigManager.getExchangeRate() : 2500;
+                const exchangeRate = parseFloat(exchangeRateInput.value) || (ConfigManager ? ConfigManager.getExchangeRate() : 2800);
                 // Normalize price to CDF for internal storage
                 const finalPrice = currency === 'USD' ? priceVal * exchangeRate : priceVal;
 
@@ -421,7 +417,8 @@
                     supplier_email: localStorage.getItem('newketUserEmail') || 'anonymous',
                     stock: 10,
                     is_new: true,
-                    created_at: new Date().toISOString()
+                    created_at: new Date().toISOString(),
+                    custom_exchange_rate: exchangeRate // Store the custom exchange rate
                 };
 
                 await ProductManager.addProduct(newProduct);
@@ -465,7 +462,7 @@
             }
         }
     </script>
-    
+
 </body>
 
 </html>

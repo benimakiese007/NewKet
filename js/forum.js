@@ -172,9 +172,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             newTopicModal.classList.remove('hidden');
+            newTopicModal.classList.add('flex');
         });
 
-        const closeModal = () => newTopicModal.classList.add('hidden');
+        const closeModal = () => {
+            newTopicModal.classList.add('hidden');
+            newTopicModal.classList.remove('flex');
+        };
         closeModalBtn.addEventListener('click', closeModal);
         closeModalOverlay.addEventListener('click', closeModal);
         cancelBtn.addEventListener('click', closeModal);
@@ -212,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             alert('Discussion publiée avec succès !');
             newTopicModal.classList.add('hidden');
+            newTopicModal.classList.remove('flex');
             newTopicForm.reset();
             loadTopics(currentCategoryId);
         } catch (err) {

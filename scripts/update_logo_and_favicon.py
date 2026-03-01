@@ -77,8 +77,8 @@ for filename in os.listdir(directory):
         if process_file(os.path.join(directory, filename)):
             print(f"Updated {filename}")
 
-# Scan ADMIN NewKet directory
-admin_dir = os.path.join(directory, "ADMIN NewKet")
+    # Scan admin directory
+    admin_dir = os.path.join(directory, "admin")
 if os.path.exists(admin_dir):
     for filename in os.listdir(admin_dir):
         if filename.endswith(".html"):

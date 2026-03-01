@@ -44,7 +44,7 @@
         }
 
         .card-hover:hover {
-            transform: translateY(-8px);
+            transform: none !important;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
         }
 
@@ -67,39 +67,8 @@
 
 <body class="text-slate-900 antialiased">
 
-    <!-- ========== HEADER ========== -->
-    <header
-        class="main-header fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-2 sm:px-6 py-2 flex items-center justify-between gap-1 sm:gap-4">
-            <div class="flex items-center gap-4">
-                <a href="shops.html" class="p-2 rounded-xl hover:bg-gray-100 transition-colors" title="Retour">
-                    <iconify-icon icon="solar:alt-arrow-left-linear" width="24" class="text-gray-600"></iconify-icon>
-                </a>
-                <a href="index.html" class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center p-1">
-                        <img src="Images/Logo NewKet V2.jpeg" alt="NewKet" class="w-full h-full object-contain">
-                    </div>
-                </a>
-            </div>
+    <div id="header-placeholder"></div>
 
-            <div class="flex items-center gap-2">
-                <!-- Currency Switch -->
-                <div class="hidden md:block currency-switch-segmented mr-4" id="currencyToggle" data-active="CDF">
-                    <div class="segmented-track">
-                        <div class="segmented-handle"></div>
-                        <span class="segmented-label" data-currency="USD">USD</span>
-                        <span class="segmented-label" data-currency="CDF">CDF</span>
-                    </div>
-                </div>
-                <a href="cart.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                    <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-[10px] rounded-full flex items-center justify-center w-[18px] h-[18px]"
-                        id="cart-count">0</span>
-                </a>
-            </div>
-        </div>
-    </header>
 
     <div class="h-14 sm:h-16"></div>
 
@@ -126,6 +95,24 @@
                         <iconify-icon icon="solar:calendar-outline"></iconify-icon>
                         Membre depuis ...
                     </p>
+                    <div class="flex items-center gap-6 mt-6">
+                        <div class="text-white">
+                            <div class="text-xl font-black" id="vendor-items-count">0</div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Articles</div>
+                        </div>
+                        <div class="w-px h-8 bg-white/10"></div>
+                        <div class="text-white">
+                            <div class="text-xl font-black flex items-center gap-1">
+                                4.9 <iconify-icon icon="solar:star-bold" class="text-yellow-400 text-sm"></iconify-icon>
+                            </div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Note</div>
+                        </div>
+                        <div class="w-px h-8 bg-white/10"></div>
+                        <div class="text-white">
+                            <div class="text-xl font-black">24h</div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Expédition</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -153,9 +140,23 @@
         </div>
     </main>
 
-    
 
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/currency.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/managers.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/components-loader.js"></script>
+
     <script>
         async function loadShopData() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -173,7 +174,20 @@
                     single: true
                 });
 
-                if (!vendor) throw new Error('Vendor not found');
+                if (!vendor) {
+                    if (window.showToast) showToast('Boutique introuvable', 'error');
+
+                    document.querySelector('main').innerHTML = `
+                        <div class="py-20 text-center">
+                            <iconify-icon icon="solar:shop-broken" width="64" class="text-gray-300 mb-6"></iconify-icon>
+                            <h1 class="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Boutique Introuvable</h1>
+                            <p class="text-gray-500 mb-8 max-w-md mx-auto">La boutique que vous recherchez n'existe pas ou n'est plus disponible sur NewKet.</p>
+                            <a href="shops.html" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-colors inline-block uppercase tracking-wider text-sm">Voir toutes les boutiques</a>
+                        </div>
+                    `;
+                    document.querySelector('.vendor-hero').style.display = 'none';
+                    return;
+                }
 
                 document.getElementById('vendorName').textContent = vendor.name || 'Boutique sans nom';
                 document.getElementById('vendorAvatar').src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(vendor.name || 'V')}&background=f3f4f6&color=000&bold=true`;
@@ -189,6 +203,7 @@
                 const countEl = document.getElementById('productCount');
 
                 countEl.textContent = products.length;
+                document.getElementById('vendor-items-count').textContent = products.length;
 
                 if (products.length === 0) {
                     grid.innerHTML = '';

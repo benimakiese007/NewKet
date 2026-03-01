@@ -73,33 +73,8 @@
 
 <body class="bg-[#fafafa] text-gray-900 antialiased">
 
-    <!-- ========== HEADER ========== -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-1">
-                
-            </a>
+    <div id="header-placeholder"></div>
 
-            <div class="flex items-center gap-2">
-                <a href="index.html"
-                    class="text-sm font-medium text-gray-500 hover:text-black transition-colors mr-4">Retour
-                    boutique</a>
-                <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
-                    <div class="segmented-track">
-                        <div class="segmented-handle"></div>
-                        <span class="segmented-label" data-currency="USD">USD</span>
-                        <span class="segmented-label" data-currency="CDF">CDF</span>
-                    </div>
-                </div>
-                <a href="favorites.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
-                </a>
-                <a href="cart.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                    <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
-                </a>
-            </div>
-        </div>
-    </header>
 
     <div class="h-16"></div>
 
@@ -148,7 +123,21 @@
         </div>
     </main>
 
+    <div id="footer-placeholder"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/currency.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/managers.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/components-loader.js"></script>
+
     <script>
         let currentFilter = 'all';
 
@@ -269,7 +258,7 @@
             window.addEventListener('notificationsUpdated', renderNotifications);
         });
     </script>
-    
+
 </body>
 
 </html>

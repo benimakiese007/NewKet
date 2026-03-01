@@ -64,6 +64,34 @@ window.SupabaseAdapter = {
                 return result;
             } catch (err) {
                 lastError = err;
+
+                // --- CUSTOM JWT EXPIRED INTERCEPTOR ---
+                const errMsg = (err.message || '').toLowerCase();
+                const errDetails = (err.details || '').toLowerCase();
+                if (errMsg.includes('jwt expired') || errDetails.includes('jwt expired') || err.status === 401) {
+                    console.error('[NewKet] Fatal Auth Error: JWT expired or 401 Unauthorized detected. Forcing logout to recover.');
+                    if (window.AuthManager && typeof window.AuthManager.logout === 'function') {
+                        // Suppress further retries, trigger logout immediately
+                        window.AuthManager.logout();
+                        throw new Error('Session expirée. Veuillez rafraîchir la page.');
+                    } else {
+                        // Fallback if AuthManager isn't fully loaded yet
+                        localStorage.removeItem('newketRole');
+                        localStorage.removeItem('newketUserEmail');
+                        localStorage.removeItem('newketUserAvatar');
+
+                        if (window.supabaseClient) {
+                            window.supabaseClient.auth.signOut().then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            window.location.reload();
+                        }
+                        throw new Error('Session expirée. Rechargement...');
+                    }
+                }
+                // --------------------------------------
+
                 if (attempt < maxAttempts) {
                     const delay = Math.pow(2, attempt - 1) * 1000; // 1s, 2s, 4s
                     console.warn(`[NewKet] Retry ${attempt}/${maxAttempts} in ${delay}ms...`, err.message || err);
@@ -149,9 +177,40 @@ window.SupabaseAdapter = {
                     }
                 }
 
+                // Apply .ilike() filters (text search)
+                if (options.ilike) {
+                    for (const [col, pattern] of options.ilike) {
+                        query = query.ilike(col, pattern);
+                    }
+                }
+
+                // Apply .or() filter (e.g. search across multiple columns)
+                if (options.or) {
+                    query = query.or(options.or);
+                }
+
+                // Apply .gte() filters (greater than or equal)
+                if (options.gte) {
+                    for (const [col, val] of options.gte) {
+                        query = query.gte(col, val);
+                    }
+                }
+
+                // Apply .lte() filters (less than or equal)
+                if (options.lte) {
+                    for (const [col, val] of options.lte) {
+                        query = query.lte(col, val);
+                    }
+                }
+
                 // Apply .order()
                 if (options.order) {
                     query = query.order(options.order[0], options.order[1] || {});
+                }
+
+                // Apply .range() for pagination (from, to inclusive)
+                if (options.range) {
+                    query = query.range(options.range[0], options.range[1]);
                 }
 
                 // Apply .limit()

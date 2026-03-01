@@ -43,7 +43,7 @@
         }
 
         .card-hover:hover {
-            transform: translateY(-8px);
+            transform: none !important;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
         }
 
@@ -59,7 +59,7 @@
         }
 
         .card-hover:hover .img-zoom img {
-            transform: scale(1.08);
+            transform: scale(1);
         }
 
         .filter-checkbox {
@@ -161,222 +161,15 @@
 
 <body class="text-slate-900 antialiased">
 
-    <!-- ========== HEADER ========== -->
-    <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <!-- Main header -->
-        <div class="max-w-7xl mx-auto px-2 sm:px-6 py-2 flex items-center justify-between gap-1 sm:gap-4">
-            <!-- Left: Hamburger (Mobile) & Logo -->
-            <div class="flex items-center gap-2 sm:gap-4">
-                <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
-                    title="Menu">
-                    <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
-                </button>
-                <a href="index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+    <div id="header-placeholder"></div>
 
-                    <span
-                        class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
-                </a>
-            </div>
 
-            <!-- Center: Search (Desktop) -->
-            <div class="hidden sm:flex flex-1 max-w-2xl mx-auto relative group">
-                <div
-                    class="search-bar w-full flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300">
-                    <iconify-icon icon="solar:magnifer-linear" width="20" class="ml-4 text-slate-400"></iconify-icon>
-                    <input type="text" id="searchInput" placeholder="Rechercher une pièce, un style..."
-                        class="w-full py-2 px-3 bg-transparent text-sm outline-none placeholder-slate-400 font-medium">
-                    <button id="searchBtn"
-                        class="bg-slate-900 text-white px-5 py-2 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all uppercase tracking-wider">RECHERCHE</button>
-                </div>
-                <!-- Suggestions Dropdown -->
-                <div id="searchSuggestions" class="search-suggestions"></div>
-            </div>
+    <!-- Mobile sidebar and overlays now in header component -->
 
-            <!-- Right: Icons -->
-            <div class="flex items-center gap-0.5 sm:gap-2 shrink-0">
-                <!-- Search Icon (Mobile Only) -->
-                <button class="p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors sm:hidden" title="Rechercher"
-                    id="mobileSearchBtn">
-                    <iconify-icon icon="solar:magnifer-linear" width="22" class="text-gray-600"></iconify-icon>
-                </button>
-
-                <!-- Currency Switch (Desktop Only) -->
-                <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
-                    <div class="segmented-track">
-                        <div class="segmented-handle"></div>
-                        <span class="segmented-label" data-currency="USD">USD</span>
-                        <span class="segmented-label" data-currency="CDF">CDF</span>
-                    </div>
-                </div>
-
-                <!-- Notifications -->
-                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Notifications">
-                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                        style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
-                </a>
-
-                <!-- Favorites -->
-                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Favoris">
-                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                        style="display:none; font-size:10px; width:18px; height:18px;">0</span>
-                </a>
-
-                <!-- Account -->
-                <a href="login.html" class="relative p-1 sm:p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Compte" id="accountLink">
-                    <iconify-icon icon="solar:user-linear" width="22" style="stroke-width:1.5"
-                        class="text-gray-600"></iconify-icon>
-                </a>
-
-                <!-- Cart -->
-                <a href="cart.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Panier">
-                    <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                        style="font-size:10px; width:18px; height:18px;" id="cart-count">0</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- Mobile Search Bar (Expandable) -->
-        <div id="mobileSearchContainer" class="hidden px-4 pb-2 sm:hidden">
-            <div class="flex items-center bg-slate-100 border border-slate-200 rounded-xl overflow-hidden">
-                <iconify-icon icon="solar:magnifer-linear" width="18" class="ml-3 text-slate-400"></iconify-icon>
-                <input type="text" id="mobileSearchInput" placeholder="Rechercher..."
-                    class="w-full py-2 px-3 bg-transparent text-sm outline-none placeholder-slate-400">
-            </div>
-            <!-- Mobile Suggestions Dropdown -->
-            <div id="mobileSearchSuggestions" class="search-suggestions"></div>
-        </div>
-
-        <!-- Category nav (Desktop) -->
-        <nav class="max-w-7xl mx-auto px-6 border-t border-slate-100 hidden sm:block">
-            <div class="flex items-center gap-8 overflow-x-auto no-scrollbar py-2">
-                <a href="index.html" class="nav-link text-sm font-semibold text-slate-500 whitespace-nowrap">Accueil</a>
-                <a href="catalog.html" class="nav-link text-sm font-bold text-gray-900 whitespace-nowrap">Toutes les
-                    pièces</a>
-                <a href="shops.html"
-                    class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Boutiques</a>
-                <a href="forum.html"
-                    class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Forum</a>
-                <a href="catalog.html?category=Collections Femme"
-                    class="nav-link text-sm font-semibold text-slate-500 whitespace-nowrap">Collections
-                    Femme</a>
-                <a href="catalog.html?category=Style Homme"
-                    class="nav-link text-sm font-semibold text-slate-500 whitespace-nowrap">Style Homme</a>
-                <a href="catalog.html?category=Tech & Gadgets"
-                    class="nav-link text-sm font-semibold text-slate-500 whitespace-nowrap">Tech & Gadgets</a>
-                <a href="catalog.html?category=Art de vivre"
-                    class="nav-link text-sm font-semibold text-slate-500 whitespace-nowrap">Art de vivre</a>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Mobile Menu Sidebar -->
-    <div id="mobileOverlay"
-        class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden">
-    </div>
-    <div id="mobileMenu"
-        class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
-        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-
-            <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100">
-                <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
-            </button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto py-4">
-            <div class="px-4 mb-6">
-                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Catégories</h3>
-                <nav class="flex flex-col gap-1">
-                    <a href="catalog.html"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon>
-                        Toutes les pièces
-                    </a>
-                    <a href="shops.html"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
-                        Boutiques
-                    </a>
-                    <a href="forum.html"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon>
-                        Forum Communauté
-                    </a>
-                    <a href="catalog.html?category=Collections Femme"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:woman-linear" width="20"></iconify-icon>
-                        Collections Femme
-                    </a>
-                    <a href="catalog.html?category=Style Homme"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:man-linear" width="20"></iconify-icon>
-                        Style Homme
-                    </a>
-                    <a href="catalog.html?category=Tech & Gadgets"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:cpu-linear" width="20"></iconify-icon>
-                        Tech & Gadgets
-                    </a>
-                    <a href="catalog.html?category=Art de vivre"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:home-2-linear" width="20"></iconify-icon>
-                        Art de vivre
-                    </a>
-                </nav>
-            </div>
-
-            <div class="px-4 mb-6 border-t border-gray-50 pt-1">
-                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 my-4">Personnel</h3>
-                <nav class="flex flex-col gap-1">
-                    <a href="notifications.html"
-                        class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <span class="flex items-center gap-3">
-                            <iconify-icon icon="solar:bell-linear" width="20"></iconify-icon>
-                            Notifications
-                        </span>
-                        <span
-                            class="notification-badge bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
-                    </a>
-                    <a href="favorites.html"
-                        class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <span class="flex items-center gap-3">
-                            <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
-                            Favoris
-                        </span>
-                        <span id="mobileFavoritesBadge"
-                            class="bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
-                    </a>
-                </nav>
-            </div>
-
-            <div class="px-4 mt-auto border-t border-gray-50 pt-6">
-                <div class="p-4 bg-gray-50 rounded-2xl">
-                    <p class="text-xs text-gray-500 mb-3">Devise d'affichage</p>
-                    <div class="currency-switch-segmented scale-90 origin-left" id="mobileCurrencyToggle"
-                        data-active="CDF">
-                        <div class="segmented-track">
-                            <div class="segmented-handle"></div>
-                            <span class="segmented-label" data-currency="USD">USD</span>
-                            <span class="segmented-label" data-currency="CDF">CDF</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="h-14 sm:h-24 lg:h-28"></div>
 
-    <main class="max-w-7xl mx-auto px-6 pb-20">
+    <main class="max-w-7xl mx-auto px-6 pt-8 sm:pt-12 pb-20">
         <div class="mb-10 animate-fade-in" style="animation-delay: 0.1s;">
             <nav class="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-slate-400 mb-3">
                 <a href="index.html" class="hover:text-slate-900">Maison</a>
@@ -431,26 +224,88 @@
 
                     <hr class="border-slate-100">
 
+                    <!-- Condition -->
+                    <section>
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">État de l'objet
+                        </h3>
+                        <div class="space-y-4">
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input type="checkbox" value="true" class="filter-checkbox condition-filter">
+                                <span
+                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Neuf</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input type="checkbox" value="false" class="filter-checkbox condition-filter">
+                                <span
+                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Occasion</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <hr class="border-slate-100">
+
                     <!-- Price -->
                     <section>
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Gamme de Prix</h3>
+
+                        <div class="range-slider mb-8 relative">
+                            <div class="range-selected" id="price-range-track"></div>
+                        </div>
+                        <div class="range-input relative mb-8">
+                            <input type="range" id="min-price-slider" min="0" max="5000000" value="0" step="1000">
+                            <input type="range" id="max-price-slider" min="0" max="5000000" value="5000000" step="1000">
+                        </div>
+
                         <div class="grid grid-cols-2 gap-4 price-inputs">
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Min
-                                    (<span class="currency-label">FC</span>)</label>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Min (<span
+                                        class="currency-label">FC</span>)</label>
                                 <input type="number" id="minPrice" placeholder="0"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all input-min">
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Max
-                                    (<span class="currency-label">FC</span>)</label>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Max (<span
+                                        class="currency-label">FC</span>)</label>
                                 <input type="number" id="maxPrice" placeholder="Max"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all input-max">
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
                             </div>
                         </div>
-                        <button onclick="renderCatalog()"
-                            class="w-full bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-black transition-all">Appliquer
-                            le prix</button>
+                    </section>
+
+                    <hr class="border-slate-100">
+
+                    <!-- Seller Rating -->
+                    <section>
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Notation Vendeur
+                        </h3>
+                        <div class="space-y-4" id="ratingFilters">
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input type="radio" name="rating-filter" value="4" class="filter-radio rating-filter">
+                                <div class="flex items-center text-yellow-400 gap-0.5">
+                                    <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
+                                    <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
+                                    <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
+                                    <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
+                                    <span class="text-[10px] font-bold text-slate-500 ml-1">4 étoiles et +</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input type="radio" name="rating-filter" value="3" class="filter-radio rating-filter">
+                                <div class="flex items-center text-yellow-400 gap-0.5">
+                                    <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
+                                    <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
+                                    <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
+                                    <span class="text-[10px] font-bold text-slate-500 ml-1">3 étoiles et +</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input type="radio" name="rating-filter" value="0" class="filter-radio rating-filter"
+                                    checked>
+                                <span
+                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Tous
+                                    les avis</span>
+                            </label>
+                        </div>
                     </section>
 
                     <button onclick="resetFilters()"
@@ -493,7 +348,21 @@
 
 
 
+    <div id="footer-placeholder"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/currency.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/managers.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/components-loader.js"></script>
+
     <script>
         function initializeCatalog() {
             // Handle category parameter from URL
@@ -520,6 +389,16 @@
                 cb.addEventListener('change', renderCatalog);
             });
 
+            document.querySelectorAll('.condition-filter').forEach(cb => {
+                cb.addEventListener('change', renderCatalog);
+            });
+
+            document.querySelectorAll('.rating-filter').forEach(rb => {
+                rb.addEventListener('change', renderCatalog);
+            });
+
+            initializePriceSlider();
+
             document.getElementById('sortSelect').addEventListener('change', renderCatalog);
 
             // Re-render when currency changes
@@ -537,18 +416,55 @@
             document.querySelectorAll('.search-input, #searchInput, #mobileSearchInput').forEach(input => {
                 input.addEventListener('input', handleSearchChange);
             });
+        }
 
-            // Sync data-price-cdf on input
-            [document.getElementById('minPrice'), document.getElementById('maxPrice')].forEach(input => {
-                input.addEventListener('input', () => {
-                    const value = parseFloat(input.value) || 0;
-                    if (CurrencyManager.currentCurrency === 'CDF') {
-                        input.dataset.priceCdf = value;
-                    } else {
-                        input.dataset.priceCdf = CurrencyManager.convert(value, false); // USD -> CDF
-                    }
-                });
-            });
+        function initializePriceSlider() {
+            const minSlider = document.getElementById('min-price-slider');
+            const maxSlider = document.getElementById('max-price-slider');
+            const minInput = document.getElementById('minPrice');
+            const maxInput = document.getElementById('maxPrice');
+            const track = document.getElementById('price-range-track');
+
+            if (!minSlider || !maxSlider || !track) return;
+
+            const updateSlider = (e) => {
+                let minVal = parseInt(minSlider.value);
+                let maxVal = parseInt(maxSlider.value);
+
+                if (maxVal - minVal < 100000) {
+                    if (e && e.target === minSlider) minSlider.value = maxVal - 100000;
+                    else if (e && e.target === maxSlider) maxSlider.value = minVal + 100000;
+                }
+
+                minInput.value = minSlider.value;
+                maxInput.value = maxSlider.value;
+
+                const minPercent = (minSlider.value / minSlider.max) * 100;
+                const maxPercent = 100 - (maxSlider.value / maxSlider.max) * 100;
+
+                track.style.left = minPercent + "%";
+                track.style.right = maxPercent + "%";
+
+                if (window.renderCatalogDebounced) window.renderCatalogDebounced();
+                else renderCatalog();
+            };
+
+            const updateInput = () => {
+                minSlider.value = minInput.value || 0;
+                maxSlider.value = maxInput.value || 5000000;
+                updateSlider();
+            };
+
+            minSlider.addEventListener('input', updateSlider);
+            maxSlider.addEventListener('input', updateSlider);
+            minInput.addEventListener('input', updateInput);
+            maxInput.addEventListener('input', updateInput);
+
+            // Create debounced version for slider
+            window.renderCatalogDebounced = debounce(renderCatalog, 500);
+
+            // Initial call
+            updateSlider();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -559,12 +475,19 @@
             }
         });
 
-        function renderCatalog() {
+        const CATALOG_PAGE_SIZE = 24;
+        let catalogPage = 0;
+        let catalogHasMore = true;
+
+        async function renderCatalog(append = false) {
             const searchInput = document.getElementById('searchInput');
             const mobileSearchInput = document.getElementById('mobileSearchInput');
-            const query = (searchInput?.value || mobileSearchInput?.value || "").toLowerCase();
+            const query = (searchInput?.value || mobileSearchInput?.value || "").trim().toLowerCase();
 
             const activeCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
+            const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
+
             const sortBy = document.getElementById('sortSelect').value;
             const minInput = document.getElementById('minPrice');
             const maxInput = document.getElementById('maxPrice');
@@ -572,51 +495,126 @@
             let minPrice = parseFloat(minInput.value) || 0;
             let maxPrice = parseFloat(maxInput.value) || Infinity;
 
-            // If we are in USD, we need to convert these inputs to CDF (base) for filtering 
-            // since product.price is in CDF
+            // If we are in USD, convert inputs to CDF (base) for filtering
             if (window.CurrencyManager && CurrencyManager.currentCurrency === 'USD') {
-                minPrice = CurrencyManager.convert(minPrice, false); // USD -> CDF
-                maxPrice = CurrencyManager.convert(maxPrice, false); // USD -> CDF
+                minPrice = CurrencyManager.convert(minPrice, false);
+                maxPrice = CurrencyManager.convert(maxPrice, false);
             }
 
-            let products = ProductManager.getProducts();
-
-            // Filter by search
-            if (query) {
-                products = products.filter(p =>
-                    p.name.toLowerCase().includes(query) ||
-                    p.category.toLowerCase().includes(query)
-                );
-            }
-
-            // Filter by categories
-            if (activeCategories.length > 0) {
-                products = products.filter(p => activeCategories.includes(p.category));
-            }
-
-            // Filter by price (assuming inputs are in the base currency, which is usually the one currently displayed or base logic)
-            // For now, let's assume filtering happens on the base price (FC)
-            products = products.filter(p => p.price >= minPrice && p.price <= maxPrice);
-
-            // Sort
-            if (sortBy === 'price-asc') {
-                products.sort((a, b) => a.price - b.price);
-            } else if (sortBy === 'price-desc') {
-                products.sort((a, b) => b.price - a.price);
-            } else if (sortBy === 'newest') {
-                products.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-            }
-
-            document.getElementById('productCount').textContent = products.length;
             const grid = document.getElementById('catalog-grid');
 
+            if (!append) {
+                catalogPage = 0;
+                catalogHasMore = true;
+            }
+
+            const from = catalogPage * CATALOG_PAGE_SIZE;
+            const to = from + CATALOG_PAGE_SIZE - 1;
+
+            let products = [];
+
+            // Try server-side query first
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                try {
+                    const options = {
+                        select: '*',
+                        range: [from, to],
+                        skipCache: true // Always fresh for catalog browsing
+                    };
+
+                    // Search filter (or across name and category)
+                    if (query) {
+                        options.or = `name.ilike.%${query}%,category.ilike.%${query}%`;
+                    }
+
+                    // Category filter
+                    if (activeCategories.length > 0) {
+                        options.in = [['category', activeCategories]];
+                    }
+
+                    // Price range
+                    if (minPrice > 0) {
+                        options.gte = [['price', minPrice]];
+                    }
+                    if (maxPrice < Infinity) {
+                        options.lte = [['price', maxPrice]];
+                    }
+
+                    // Condition filter
+                    if (activeConditions.length === 1) {
+                        options.eq = [['is_new', activeConditions[0] === 'true']];
+                    }
+
+                    // Rating filter
+                    if (activeRating > 0) {
+                        // We use reviews as a proxy for rating if rating is not explicitly in table
+                        options.gte = [['reviews', activeRating]];
+                    }
+
+                    // Sort
+                    if (sortBy === 'price-asc') {
+                        options.order = ['price', { ascending: true }];
+                    } else if (sortBy === 'price-desc') {
+                        options.order = ['price', { ascending: false }];
+                    } else if (sortBy === 'newest') {
+                        options.order = ['created_at', { ascending: false }];
+                    } else {
+                        options.order = ['created_at', { ascending: false }];
+                    }
+
+                    products = await SupabaseAdapter.fetchWithFilters('products', options);
+                    catalogHasMore = products.length === CATALOG_PAGE_SIZE;
+                } catch (err) {
+                    console.warn('[NewKet Catalog] Server-side query failed, falling back to client-side:', err.message);
+                    products = null; // Flag to use fallback
+                }
+            }
+
+            // Fallback: client-side filtering (when Supabase is unavailable)
+            if (products === null || (!window.SupabaseAdapter && window.ProductManager)) {
+                let allProducts = ProductManager.getProducts();
+
+                if (query) {
+                    allProducts = allProducts.filter(p =>
+                        (p.name || '').toLowerCase().includes(query) ||
+                        (p.category || '').toLowerCase().includes(query)
+                    );
+                }
+                if (activeCategories.length > 0) {
+                    allProducts = allProducts.filter(p => activeCategories.includes(p.category));
+                }
+                if (activeConditions.length === 1) {
+                    allProducts = allProducts.filter(p => (p.is_new || p.isNew) === (activeConditions[0] === 'true'));
+                }
+                if (activeRating > 0) {
+                    allProducts = allProducts.filter(p => (p.reviews || 0) >= activeRating);
+                }
+
+                allProducts = allProducts.filter(p => p.price >= minPrice && p.price <= maxPrice);
+
+                if (sortBy === 'price-asc') {
+                    allProducts.sort((a, b) => a.price - b.price);
+                } else if (sortBy === 'price-desc') {
+                    allProducts.sort((a, b) => b.price - a.price);
+                } else if (sortBy === 'newest') {
+                    allProducts.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+                }
+
+                products = allProducts.slice(from, to + 1);
+                catalogHasMore = allProducts.length > to + 1;
+            }
+
+            document.getElementById('productCount').textContent = append
+                ? parseInt(document.getElementById('productCount').textContent) + products.length
+                : products.length + (catalogHasMore ? '+' : '');
+
             // Show skeletons if not initialized and no products yet
-            if (!window.newketInitialized && products.length === 0) {
+            if (!window.newketInitialized && products.length === 0 && !append) {
                 grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
                 return;
             }
 
-            if (products.length === 0) {
+            if (products.length === 0 && !append) {
                 grid.innerHTML = `
                     <div class="col-span-full py-20 text-center">
                         <iconify-icon icon="solar:magnifer-zoom-out-linear" width="64" class="text-slate-200 mb-4"></iconify-icon>
@@ -625,27 +623,75 @@
                         <button onclick="resetFilters()" class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">Réinitialiser l'horizon</button>
                     </div>
                 `;
+                removeLoadMoreButton();
                 return;
             }
 
-            grid.innerHTML = products.map((p, idx) =>
+            const newHTML = products.map((p, idx) =>
                 window.buildProductCardHTML(p, {
                     animationClass: 'animate-fade-in',
                     delay: `${idx * 0.05}s`
                 })
             ).join('');
+
+            if (append) {
+                grid.insertAdjacentHTML('beforeend', newHTML);
+            } else {
+                grid.innerHTML = newHTML;
+            }
+
+            // Manage Load More button
+            if (catalogHasMore) {
+                showLoadMoreButton();
+            } else {
+                removeLoadMoreButton();
+            }
+        }
+
+        function showLoadMoreButton() {
+            let btn = document.getElementById('loadMoreBtn');
+            if (!btn) {
+                btn = document.createElement('button');
+                btn.id = 'loadMoreBtn';
+                btn.className = 'mx-auto mt-8 mb-4 block px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black hover:scale-105 active:scale-95 transition-all shadow-lg';
+                btn.innerHTML = '<iconify-icon icon="solar:arrow-down-linear" width="16" class="mr-2"></iconify-icon>Voir plus';
+                btn.onclick = () => {
+                    catalogPage++;
+                    renderCatalog(true);
+                };
+                const grid = document.getElementById('catalog-grid');
+                grid.parentNode.insertBefore(btn, grid.nextSibling);
+            }
+        }
+
+        function removeLoadMoreButton() {
+            const btn = document.getElementById('loadMoreBtn');
+            if (btn) btn.remove();
         }
 
         function resetFilters() {
             document.getElementById('searchInput').value = '';
+
+            const minSlider = document.getElementById('min-price-slider');
+            const maxSlider = document.getElementById('max-price-slider');
+            if (minSlider) minSlider.value = 0;
+            if (maxSlider) maxSlider.value = 5000000;
+
             const minInput = document.getElementById('minPrice');
             const maxInput = document.getElementById('maxPrice');
-            minInput.value = '';
-            minInput.dataset.priceCdf = '0';
-            maxInput.value = '';
-            maxInput.dataset.priceCdf = '50000000';
+            if (minInput) minInput.value = '';
+            if (maxInput) maxInput.value = '';
+
             document.querySelectorAll('.category-filter').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.condition-filter').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.rating-filter').forEach(rb => {
+                if (rb.value === '0') rb.checked = true;
+                else rb.checked = false;
+            });
+
             document.getElementById('sortSelect').value = 'default';
+
+            if (window.initializePriceSlider) initializePriceSlider();
             renderCatalog();
         }
 
@@ -695,6 +741,33 @@
             };
         }
     </script>
+    <!-- ========== MOBILE BOTTOM NAV ========== -->
+    <nav
+        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex items-center justify-between sm:hidden z-[60] shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <a href="index.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors">
+            <iconify-icon icon="solar:home-2-linear" width="24"></iconify-icon>
+            <span class="text-[10px] font-bold uppercase tracking-tight">Accueil</span>
+        </a>
+        <a href="catalog.html" class="flex flex-col items-center gap-1 text-gray-900 font-bold">
+            <iconify-icon icon="solar:shop-bold" width="24"></iconify-icon>
+            <span class="text-[10px] font-bold uppercase tracking-tight">Catalogue</span>
+        </a>
+        <a href="cart.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors relative">
+            <iconify-icon icon="solar:bag-3-linear" width="24"></iconify-icon>
+            <span class="text-[10px] font-bold uppercase tracking-tight">Panier</span>
+            <span
+                class="absolute -top-1 -right-1 bg-gray-900 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center cart-count"
+                style="display:none;">0</span>
+        </a>
+        <a href="login.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
+            id="mobileBottomAccount">
+            <iconify-icon icon="solar:user-linear" width="24"></iconify-icon>
+            <span class="text-[10px] font-bold uppercase tracking-tight">Compte</span>
+        </a>
+    </nav>
 </body>
 
 </html>

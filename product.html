@@ -66,82 +66,8 @@
 
 <body class="bg-white text-gray-900 antialiased">
 
-    <!-- ========== HEADER ========== -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
-            <a href="index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+    <div id="header-placeholder"></div>
 
-                <span
-                    class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
-            </a>
-            <div class="flex-1 max-w-2xl mx-auto relative group">
-                <div
-                    class="flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300">
-                    <iconify-icon icon="solar:magnifer-linear" width="20" class="ml-4 text-slate-400"></iconify-icon>
-                    <input type="text" placeholder="Rechercher une pièce, un style..."
-                        class="w-full py-2 px-3 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
-                    <button
-                        class="bg-slate-900 text-white px-6 py-2.5 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all hidden sm:block uppercase tracking-wider">RECHERCHE</button>
-                </div>
-            </div>
-            <div class="flex items-center gap-0.5 sm:gap-2 shrink-0">
-                <!-- Currency Switch -->
-                <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
-                    <div class="segmented-track">
-                        <div class="segmented-handle"></div>
-                        <span class="segmented-label" data-currency="USD">USD</span>
-                        <span class="segmented-label" data-currency="CDF">CDF</span>
-                    </div>
-                </div>
-                <!-- Notification Bell -->
-                <a href="notifications.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Notifications">
-                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium hidden"
-                        style="font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
-                </a>
-                <a href="login.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Compte">
-                    <iconify-icon icon="solar:user-linear" width="22" style="stroke-width:1.5"
-                        class="text-gray-600"></iconify-icon>
-                </a>
-                <a href="favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Favoris">
-                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                        style="font-size:10px; width:18px; height:18px;" id="favoritesBadge">0</span>
-                </a>
-                <a href="cart.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Panier">
-                    <iconify-icon icon="solar:bag-3-linear" width="22" class="text-gray-600"></iconify-icon>
-                    <span
-                        class="absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
-                        style="font-size:10px; width:18px; height:18px;" id="cart-count">0</span>
-                </a>
-            </div>
-        </div>
-        <div class="border-t border-gray-50 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6">
-                <nav class="flex items-center gap-1 overflow-x-auto py-1 -mx-2" style="scrollbar-width:none;">
-                    <a href="index.html"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Accueil</a>
-                    <a href="catalog.html"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Toutes
-                        les catégories</a>
-                    <a href="shops.html"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Boutiques</a>
-                    <a href="catalog.html?category=Collections Femme"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors border-b-2 border-gray-900">Femme</a>
-                    <a href="catalog.html?category=Style Homme"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Homme</a>
-                    <a href="catalog.html?category=Tech & Gadgets"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Électronique</a>
-                </nav>
-            </div>
-        </div>
-    </header>
 
     <div class="h-24 sm:h-28"></div>
 
@@ -229,8 +155,8 @@
                                 </button>
                             </div>
                             <button
-                                class="flex-1 bg-gray-900 hover:bg-black text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-3 shadow-xl"
-                                onclick="const qty = parseInt(document.getElementById('qty-input').value) || 1; addToCart(getProductId(), qty, event)">
+                                class="flex-1 bg-gray-900 hover:bg-black text-white py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-3 shadow-xl addToCart-btn"
+                                onclick="const qReq = parseInt(document.getElementById('qty-input').value) || 1; addToCart(getProductId(), qReq, event)">
                                 <iconify-icon icon="solar:bag-3-outline" width="20"></iconify-icon>
                                 Ajouter au panier
                             </button>
@@ -313,7 +239,21 @@
 
 
 
+    <div id="footer-placeholder"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/currency.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/managers.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/components-loader.js"></script>
+
     <script>
         const productsDB = {
             'parfum': {
@@ -403,6 +343,17 @@
 
             if (!p) {
                 console.error("L'article d'exception recherché (id: " + id + ") s'est dérobé à nos archives.");
+                if (window.showToast) showToast('Produit introuvable', 'error');
+
+                // Show a friendly 404 message in the main area
+                document.querySelector('main').innerHTML = `
+                    <div class="py-20 text-center">
+                        <iconify-icon icon="solar:ghost-broken" width="64" class="text-gray-300 mb-6"></iconify-icon>
+                        <h1 class="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Produit Introuvable</h1>
+                        <p class="text-gray-500 mb-8 max-w-md mx-auto">Le produit que vous recherchez semble avoir disparu ou l'URL est incorrecte.</p>
+                        <a href="catalog.html" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-colors inline-block uppercase tracking-wider text-sm">Retour au catalogue</a>
+                    </div>
+                `;
                 return;
             }
 
@@ -475,11 +426,47 @@
             // Load Real Reviews
             loadReviews(id);
 
+            // Populate Sticky Bar
+            const stickyImg = document.getElementById('sticky-product-img');
+            const stickyName = document.getElementById('sticky-product-name');
+            const stickyPrice = document.getElementById('sticky-product-price');
+
+            if (stickyImg) stickyImg.src = images[0] || 'https://via.placeholder.com/600';
+            if (stickyName) stickyName.textContent = p.name;
+            if (stickyPrice) {
+                stickyPrice.dataset.priceCdf = p.priceCDF;
+                stickyPrice.dataset.priceUsd = p.priceUSD;
+                if (window.CurrencyManager) stickyPrice.textContent = CurrencyManager.formatPrice(p.priceCDF);
+                else stickyPrice.textContent = `${p.priceCDF.toLocaleString()} FC`;
+            }
+
+            // Tracking
+            if (window.RecentlyViewedManager) {
+                RecentlyViewedManager.addItem(p);
+                RecentlyViewedManager.render('recently-viewed-container');
+            }
+
             // Finalize UI
             if (window.FavoritesManager) {
                 FavoritesManager.updateUI();
             }
         }
+
+        // ========== STICKY CART BAR VISIBILITY ==========
+        window.addEventListener('scroll', () => {
+            const stickyBar = document.getElementById('sticky-cart-bar');
+            const addToCartBtn = document.querySelector('button[onclick*="addToCart"]');
+
+            if (stickyBar && addToCartBtn) {
+                const btnPosition = addToCartBtn.getBoundingClientRect().bottom;
+                // Show sticky bar when the main add to cart button is scrolled out of view
+                if (btnPosition < 0 && window.innerWidth < 640) {
+                    stickyBar.classList.add('active');
+                } else {
+                    stickyBar.classList.remove('active');
+                }
+            }
+        });
 
         async function loadReviews(productId) {
             const reviewsCont = document.getElementById('reviews-container');
@@ -528,7 +515,12 @@
                                             ${Array(5 - r.rating).fill('<iconify-icon icon="solar:star-linear" width="14" class="text-gray-200"></iconify-icon>').join('')}
                                         </div>
                                     </div>
-                                    <p class="text-sm text-gray-600 leading-relaxed">${r.comment}</p>
+                                    <p class="text-sm text-gray-600 leading-relaxed mb-4">${r.comment}</p>
+                                    ${r.photo_url ? `
+                                        <div class="mt-4 flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                                            <img src="${r.photo_url}" class="w-24 h-24 object-cover rounded-xl border border-gray-100 hover:scale-105 transition-transform cursor-zoom-in" onclick="window.open('${r.photo_url}', '_blank')">
+                                        </div>
+                                    ` : ''}
                                 </div>
                             `;
                 }).join('')}
@@ -542,34 +534,78 @@
             }
         }
 
-        function renderReviewForm() {
+        function renderReviewForm(productId) {
             const reviewsCont = document.getElementById('reviews-container');
             const formHtml = `
-                <div class="mt-12 bg-gray-50 rounded-3xl p-8 border border-gray-100">
-                    <h3 class="text-xl font-bold mb-6">Laisser un avis</h3>
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-4 mb-4">
-                            <span class="text-sm font-bold text-gray-500">Votre note :</span>
-                            <div class="flex gap-1" id="star-rating-selector">
+                <div class="mt-12 bg-gray-50 rounded-[2.5rem] p-8 sm:p-12 border border-gray-100">
+                    <h3 class="text-2xl font-black text-gray-900 mb-8 uppercase tracking-tighter">Votre expérience</h3>
+                    
+                    <div class="space-y-8">
+                        <!-- Star Selection -->
+                        <div class="flex flex-col gap-3">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Note globale</span>
+                            <div class="flex gap-2" id="star-rating-selector">
                                 ${[1, 2, 3, 4, 5].map(i => `
-                                    <iconify-icon icon="solar:star-bold" width="28" 
-                                        class="cursor-pointer transition-all ${i <= currentRating ? 'text-amber-400' : 'text-gray-300'} hover:scale-110" 
+                                    <iconify-icon icon="solar:star-bold" width="32" 
+                                        class="cursor-pointer transition-all ${i <= currentRating ? 'text-amber-400' : 'text-gray-200'} hover:scale-110" 
                                         onclick="setRating(${i})"></iconify-icon>
                                 `).join('')}
                             </div>
                         </div>
-                        <textarea id="reviewText" placeholder="Partagez votre expérience avec ce produit..." 
-                            class="w-full bg-white border border-gray-200 rounded-2xl p-4 text-sm outline-none focus:ring-4 focus:ring-gray-100 focus:border-gray-300 h-32 transition-all"></textarea>
-                        <button onclick="submitReview()" id="submit-review-btn"
-                            class="bg-gray-900 text-white px-10 py-4 rounded-xl text-sm font-bold hover:bg-black transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2">
-                            <iconify-icon icon="solar:send-square-bold" width="20"></iconify-icon>
-                            Publier l'avis
+
+                        <!-- Photo Upload -->
+                        <div class="flex flex-col gap-3">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Photos du produit (optionnel)</span>
+                            <div class="flex items-center gap-4">
+                                <label class="w-24 h-24 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center cursor-pointer hover:border-gray-900 hover:bg-white transition-all group overflow-hidden">
+                                    <iconify-icon icon="solar:camera-add-linear" width="28" class="text-gray-300 group-hover:text-gray-900"></iconify-icon>
+                                    <span class="text-[9px] font-bold text-gray-400 mt-1 uppercase">Ajouter</span>
+                                    <input type="file" id="review-photo-input" accept="image/*" class="hidden" onchange="previewReviewPhoto(this)">
+                                </label>
+                                <div id="photo-preview-container" class="hidden relative w-24 h-24">
+                                    <img id="photo-preview" src="" class="w-full h-full object-cover rounded-3xl">
+                                    <button onclick="removeReviewPhoto()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600 transition-colors">
+                                        <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Comment -->
+                        <div class="flex flex-col gap-3">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Votre commentaire</span>
+                            <textarea id="reviewText" placeholder="Partagez votre avis sur cet article d'exception..." 
+                                class="w-full bg-white border border-gray-100 rounded-3xl p-6 text-sm outline-none focus:ring-4 focus:ring-gray-50 transition-all min-h-[150px]"></textarea>
+                        </div>
+                        
+                        <button onclick="submitReview('${productId}')" id="submit-review-btn" 
+                            class="w-full bg-gray-900 text-white font-black py-5 rounded-2xl hover:bg-black transition-all shadow-2xl shadow-gray-900/10 uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 group">
+                            <iconify-icon icon="solar:send-square-bold" width="20" class="group-hover:translate-x-1 transition-transform"></iconify-icon>
+                            Publier mon avis
                         </button>
                     </div>
                 </div>
             `;
             reviewsCont.insertAdjacentHTML('beforeend', formHtml);
         }
+
+        window.previewReviewPhoto = function (input) {
+            const container = document.getElementById('photo-preview-container');
+            const preview = document.getElementById('photo-preview');
+            if (input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    container.classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        window.removeReviewPhoto = function () {
+            document.getElementById('review-photo-input').value = '';
+            document.getElementById('photo-preview-container').classList.add('hidden');
+        };
 
         let currentRating = 5;
         function setRating(val) {
@@ -585,15 +621,15 @@
             });
         }
 
-        async function submitReview() {
+        async function submitReview(productId) {
             if (!window.AuthManager || !AuthManager.getRole()) {
                 if (window.showToast) showToast('Veuillez vous connecter pour laisser un avis.', 'error');
-                else alert('Veuillez vous connecter pour laisser un avis.');
                 window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
                 return;
             }
 
             const text = document.getElementById('reviewText').value.trim();
+            const photoInput = document.getElementById('review-photo-input');
             if (!text) {
                 if (window.showToast) showToast('Veuillez écrire un commentaire.', 'warning');
                 return;
@@ -604,18 +640,22 @@
             submitBtn.innerHTML = '<iconify-icon icon="solar:refresh-linear" width="20" class="animate-spin"></iconify-icon> Publication...';
 
             try {
-                const userEmail = localStorage.getItem('newketUserEmail');
-                const { data: userData } = await window.supabaseClient.auth.getUser();
-                const user = userData?.user;
-
+                const user = await AuthManager.getCurrentUser();
                 if (!user) throw new Error("Utilisateur non trouvé");
 
+                let photoUrl = null;
+                if (photoInput && photoInput.files[0]) {
+                    const fileName = `review_${Date.now()}_${user.id}`;
+                    photoUrl = await SupabaseAdapter.uploadFile('reviews', `products/${productId}/${fileName}`, photoInput.files[0]);
+                }
+
                 const reviewData = {
-                    product_id: getProductId(),
+                    product_id: productId,
                     user_id: user.id,
-                    user_name: user.user_metadata?.full_name || user.email.split('@')[0],
+                    user_name: user.name || user.email.split('@')[0],
                     rating: currentRating,
-                    comment: text
+                    comment: text,
+                    photo_url: photoUrl
                 };
 
                 const result = await SupabaseAdapter.insert('product_reviews', reviewData);
@@ -623,8 +663,10 @@
                 if (result) {
                     if (window.showToast) showToast('Merci ! Votre avis a été publié.', 'success');
                     document.getElementById('reviewText').value = '';
+                    if (photoInput) photoInput.value = '';
+                    document.getElementById('photo-preview-container').classList.add('hidden');
                     currentRating = 5;
-                    loadReviews(getProductId()); // Refresh reviews
+                    loadReviews(productId);
                 } else {
                     throw new Error("Échec de l'insertion");
                 }
@@ -633,7 +675,7 @@
                 if (window.showToast) showToast('Une erreur est survenue lors de la publication.', 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<iconify-icon icon="solar:send-square-bold" width="20"></iconify-icon> Publier l\'avis';
+                submitBtn.innerHTML = '<iconify-icon icon="solar:send-square-bold" width="20" class="group-hover:translate-x-1 transition-transform"></iconify-icon> Publier l\'avis';
             }
         }
 
@@ -740,6 +782,67 @@
         </button>
         <div class="zoom-modal-content">
             <img id="zoomModalImg" src="" class="zoom-modal-img" alt="Product Zoom">
+        </div>
+    </div>
+
+
+    <!-- ========== MOBILE BOTTOM NAV ========== -->
+    <nav
+        class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 flex items-center justify-between sm:hidden z-[60] shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <a href="index.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors">
+            <iconify-icon icon="solar:home-2-linear" width="24"></iconify-icon>
+            <span class="text-[10px] font-bold uppercase tracking-tight">Accueil</span>
+        </a>
+        <a href="catalog.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors">
+            <iconify-icon icon="solar:shop-linear" width="24"></iconify-icon>
+            <span class="text-[10px] font-bold uppercase tracking-tight">Catalogue</span>
+        </a>
+        <a href="cart.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors relative">
+            <iconify-icon icon="solar:bag-3-linear" width="24"></iconify-icon>
+            <span class="text-[10px] font-bold uppercase tracking-tight">Panier</span>
+            <span
+                class="absolute -top-1 -right-1 bg-gray-900 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center cart-count"
+                style="display:none;">0</span>
+        </a>
+        <a href="login.html"
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
+            id="mobileBottomAccount">
+            <iconify-icon icon="solar:user-linear" width="24"></iconify-icon>
+            <span class="text-[10px] font-bold uppercase tracking-tight">Compte</span>
+        </a>
+    </nav>
+    <!-- ========== STICKY ADD TO CART (MOBILE) ========== -->
+    <div id="sticky-cart-bar"
+        class="fixed bottom-[72px] left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-100 p-4 translate-y-full transition-transform duration-300 z-40 sm:hidden shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0">
+                <img id="sticky-product-img" src="" class="w-full h-full object-contain mix-blend-multiply" alt="">
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold text-gray-900 truncate" id="sticky-product-name">Nom du produit</div>
+                <div class="text-sm font-black text-gray-900" id="sticky-product-price">0 FC</div>
+            </div>
+            <button class="bg-gray-900 text-white px-6 py-3 rounded-xl text-xs font-bold"
+                onclick="const qSticky = parseInt(document.getElementById('qty-input').value) || 1; addToCart(getProductId(), qSticky, event)">
+                AJOUTER
+            </button>
+        </div>
+    </div>
+
+    <!-- Recently Viewed -->
+    <div id="recently-viewed-section" class="mt-20 border-t border-gray-100 pt-16 mb-20 max-w-7xl mx-auto px-4 sm:px-6"
+        style="display:none;">
+        <div class="flex items-center justify-between mb-10">
+            <h2 class="text-2xl font-bold uppercase tracking-tighter">Vu Récemment</h2>
+            <button class="text-sm font-semibold text-gray-400 hover:text-gray-900 transition-colors"
+                onclick="RecentlyViewedManager.clearAll(); location.reload();">Effacer tout</button>
+        </div>
+        <div id="recently-viewed-container" class="flex gap-6 overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0"
+            style="scrollbar-width:none;">
+            <!-- Recently viewed items injected by JS -->
         </div>
     </div>
 

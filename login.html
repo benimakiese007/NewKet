@@ -201,7 +201,7 @@
 
                 <!-- Logo for Desktop inside form -->
                 <div class="hidden lg:block mb-10 animate-item">
-                    
+
                 </div>
 
                 <!-- Header Texts -->
@@ -360,7 +360,21 @@
     </div>
 
     <!-- Ensure Toast logic is available (normally in main.js, but we need it here if main.js loads late) -->
+    <div id="footer-placeholder"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/currency.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/managers.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/components-loader.js"></script>
+
     <script>
         // --- 1. GSAP Intros ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -651,7 +665,7 @@
             localStorage.setItem('newketRole', role);
 
             setTimeout(() => {
-                if (role === 'admin') window.location.href = 'ADMIN NEWKET/dashboard.html';
+                if (role === 'admin') window.location.href = 'admin/dashboard.html';
                 else if (role === 'supplier') window.location.href = 'vendor-dashboard.html';
                 else window.location.href = 'index.html';
             }, 800);

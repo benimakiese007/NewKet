@@ -59,32 +59,8 @@
 
 <body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
 
-    <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
-            <a href="index.html" class="flex items-center gap-1">
-                
-            </a>
-            <div class="flex items-center gap-4">
-                <!-- Currency Switch -->
-                <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
-                    <div class="segmented-track">
-                        <div class="segmented-handle"></div>
-                        <span class="segmented-label" data-currency="USD">USD</span>
-                        <span class="segmented-label" data-currency="CDF">CDF</span>
-                    </div>
-                </div>
-                <a href="cart.html" class="text-gray-500 hover:text-gray-900 transition-colors relative">
-                    <iconify-icon icon="solar:bag-3-linear" width="24"></iconify-icon>
-                    <span
-                        class="absolute -top-1.5 -right-1.5 bg-gray-900 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
-                </a>
-                <div
-                    class="user-avatar-display w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-900 font-bold text-xs uppercase">
-                    BM</div>
-            </div>
-        </div>
-    </header>
+    <div id="header-placeholder"></div>
+
 
     <div class="h-16"></div>
 
@@ -339,9 +315,23 @@
         </div>
     </main>
 
-    
 
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/currency.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/managers.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/search.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/components-loader.js"></script>
+
     <script>
         // Simple script to handle visual toggle states if needed (though CSS peer-checked handles most)
         // You can add additional logic here for saving settings via AJAX if this were a real backend.
