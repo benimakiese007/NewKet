@@ -11,12 +11,13 @@ const App = {
     async init() {
         console.log('[NewKet] App initializing...');
 
-        // 1. Initialize Supabase first as others depend on it
-        if (window.AuthManager) await AuthManager.init();
+        // 1 & 2. Initialize Heavy Managers in Parallel
+        const initPromises = [];
+        if (window.AuthManager) initPromises.push(AuthManager.init());
+        if (window.ProductManager) initPromises.push(ProductManager.init());
+        if (window.OrderManager) initPromises.push(OrderManager.init());
 
-        // 2. Initialize Data Managers
-        if (window.ProductManager) await ProductManager.init();
-        if (window.OrderManager) await OrderManager.init();
+        await Promise.all(initPromises);
 
         // 3. Initialize UI State
         if (window.CurrencyManager) CurrencyManager.init();

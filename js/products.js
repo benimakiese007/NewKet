@@ -9,6 +9,22 @@ const ProductManager = {
             return;
         }
 
+        // --- FLASH CACHE (LOAD) ---
+        // Reads from localStorage to display UI instantly before network finishes
+        const localCache = localStorage.getItem('newket_products_cache');
+        if (localCache) {
+            try {
+                const parsed = JSON.parse(localCache);
+                if (parsed && parsed.length > 0) {
+                    this.products = parsed;
+                    window.dispatchEvent(new CustomEvent('productsUpdated'));
+                }
+            } catch (e) {
+                console.warn('[NewKet] Error parsing local products cache', e);
+            }
+        }
+
+        // Fetch fresh data in the background
         const data = await window.SupabaseAdapter.fetchWithFilters('products', {
             order: ['created_at', { ascending: false }],
             limit: 200
@@ -22,6 +38,14 @@ const ProductManager = {
                 isPromo: p.is_promo,
                 oldPrice: p.old_price,
             }));
+
+            // --- FLASH CACHE (SAVE) ---
+            // Save top 50 products for next fast load
+            try {
+                localStorage.setItem('newket_products_cache', JSON.stringify(this.products.slice(0, 50)));
+            } catch (e) {
+                console.warn('[NewKet] Error saving local products cache', e);
+            }
         } else {
             this.products = [];
         }
