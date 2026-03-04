@@ -347,8 +347,7 @@ h6 {
 
 .search-bar {
     flex: 1;
-    width: 100%;
-    max-width: none !important;
+    min-width: 0;
     position: relative;
 }
 

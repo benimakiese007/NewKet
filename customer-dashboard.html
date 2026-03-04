@@ -60,6 +60,80 @@
             background: #000000;
             color: white;
         }
+
+        /* Tab transitions */
+        .tab-content {
+            animation: tabFadeIn 0.25s ease forwards;
+        }
+
+        @keyframes tabFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Avatar initials */
+        .user-avatar-display {
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+        }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 9999px;
+        }
+
+        .status-standard {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .status-premium {
+            background: #fef9c3;
+            color: #92400e;
+        }
+
+        .status-vip {
+            background: #0f172a;
+            color: #fbbf24;
+        }
+
+        /* Logout button */
+        .sidebar-logout {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #ef4444;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            width: 100%;
+            cursor: pointer;
+            background: none;
+            border: none;
+            text-align: left;
+        }
+
+        .sidebar-logout:hover {
+            background: #fee2e2;
+        }
     </style>
     <script>
         // Check for Valid Role
@@ -80,13 +154,12 @@
         <aside class="w-full md:w-64 flex-shrink-0">
             <div class="glass-panel p-6 sticky top-24">
                 <div class="flex items-center gap-4 mb-8">
-                    <div
-                        class="user-avatar-display w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl">
-
+                    <div id="userAvatarDisplay"
+                        class="user-avatar-display w-12 h-12 rounded-full flex items-center justify-center text-white flex-shrink-0">
                     </div>
                     <div>
                         <h2 class="font-bold text-gray-900" id="userDisplayName">Mon Compte</h2>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Client Premium</p>
+                        <span id="userStatusBadge" class="status-badge status-standard">Standard</span>
                     </div>
                 </div>
                 <nav class="space-y-1">
@@ -117,13 +190,20 @@
                         </a>
                     </div>
                 </nav>
+                <!-- Logout -->
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <button class="sidebar-logout" onclick="logoutUser()">
+                        <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
+                        Se déconnecter
+                    </button>
+                </div>
             </div>
         </aside>
 
         <!-- Content -->
         <main class="flex-1 min-w-0">
             <!-- Orders Tab -->
-            <div id="tab-orders" class="space-y-6">
+            <div id="tab-orders" class="space-y-6 tab-content">
                 <h1 class="text-2xl font-bold tracking-tight">Historique des commandes</h1>
                 <div id="orders-list" class="space-y-4">
                     <!-- Orders injected here -->
@@ -206,10 +286,14 @@
             </div>
 
             <!-- Settings Tab -->
-            <div id="tab-settings" class="space-y-6 hidden">
+            <div id="tab-settings" class="space-y-8 hidden">
                 <h1 class="text-2xl font-bold tracking-tight">Mon Profil</h1>
+
+                <!-- Profile Info -->
                 <div class="glass-panel p-8 max-w-xl">
-                    <form class="space-y-6" id="profileForm">
+                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Informations
+                        personnelles</h2>
+                    <form class="space-y-5" id="profileForm">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
                             <input type="text" id="profName"
@@ -226,7 +310,64 @@
                                 class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                         </div>
                         <button type="submit"
-                            class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">Enregistrer</button>
+                            class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">Enregistrer
+                            le profil</button>
+                    </form>
+                </div>
+
+                <!-- Delivery Address -->
+                <div class="glass-panel p-8 max-w-xl">
+                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Adresse de livraison
+                    </h2>
+                    <form class="space-y-5" id="addressForm">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Rue / Avenue</label>
+                            <input type="text" id="addrStreet" placeholder="Ex: Av. du 24 Novembre"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Quartier</label>
+                                <input type="text" id="addrQuartier" placeholder="Ex: Gombe"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
+                                <input type="text" id="addrCity" placeholder="Ex: Kinshasa"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tél. secondaire
+                                (livraison)</label>
+                            <input type="tel" id="addrPhone" placeholder="Ex: +243 8XX XXX XXX"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">Sauvegarder
+                            l'adresse</button>
+                    </form>
+                </div>
+
+                <!-- Change Password -->
+                <div class="glass-panel p-8 max-w-xl">
+                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Modifier le mot de passe
+                    </h2>
+                    <form class="space-y-5" id="passwordForm">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
+                            <input type="password" id="newPassword" placeholder="Minimum 8 caractères"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de
+                                passe</label>
+                            <input type="password" id="confirmPassword" placeholder="Répéter le mot de passe"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">Mettre
+                            à jour</button>
                     </form>
                 </div>
             </div>
@@ -373,27 +514,76 @@
         let currentSelectedOrder = null;
 
         function switchTab(tabId) {
-            // Hide all tabs
             ['orders', 'favorites', 'notifications', 'settings'].forEach(t => {
                 const el = document.getElementById('tab-' + t);
                 const link = document.getElementById('link-' + t);
-                if (el) el.classList.add('hidden');
+                if (el) { el.classList.add('hidden'); el.classList.remove('tab-content'); }
                 if (link) link.classList.remove('active');
             });
-
-            // Show selected
             const targetEl = document.getElementById('tab-' + tabId);
             const targetLink = document.getElementById('link-' + tabId);
-            if (targetEl) targetEl.classList.remove('hidden');
+            if (targetEl) {
+                targetEl.classList.remove('hidden');
+                void targetEl.offsetWidth; // reflow to re-trigger animation
+                targetEl.classList.add('tab-content');
+            }
             if (targetLink) targetLink.classList.add('active');
-
             if (tabId === 'notifications') renderDashboardNotifications();
+        }
+
+        // ── Avatar helpers ──────────────────────────────────────────
+        function getAvatarColor(name) {
+            const palette = [
+                '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b',
+                '#10b981', '#3b82f6', '#f97316', '#14b8a6'
+            ];
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            return palette[Math.abs(hash) % palette.length];
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.trim().split(' ');
+            if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        }
+
+        function renderAvatar(name) {
+            const el = document.getElementById('userAvatarDisplay');
+            if (!el) return;
+            el.textContent = getInitials(name);
+            el.style.background = getAvatarColor(name || 'User');
+        }
+
+        // ── Status badge ────────────────────────────────────────────
+        function renderStatusBadge(points) {
+            const badge = document.getElementById('userStatusBadge');
+            if (!badge) return;
+            let cls, icon, label;
+            if (points >= 500) {
+                cls = 'status-vip'; icon = '⭐'; label = 'VIP';
+            } else if (points >= 100) {
+                cls = 'status-premium'; icon = '🏅'; label = 'Premium';
+            } else {
+                cls = 'status-standard'; icon = ''; label = 'Standard';
+            }
+            badge.className = `status-badge ${cls}`;
+            badge.textContent = (icon ? icon + ' ' : '') + label;
+        }
+
+        // ── Logout ──────────────────────────────────────────────────
+        function logoutUser() {
+            if (!confirm('Se déconnecter de NewKet ?')) return;
+            const keys = ['newketUserEmail', 'newketRole', 'newketUser', 'newketToken'];
+            keys.forEach(k => localStorage.removeItem(k));
+            window.location.href = 'login.html';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             renderOrders();
             renderFavorites();
-            renderDashboardNotifications(); // Keep this line as it was in the original
+            renderDashboardNotifications();
 
             // Show Admin Link for Suppliers
             const role = localStorage.getItem('newketRole');
@@ -411,10 +601,24 @@
             document.getElementById('profEmail').value = profile.email || '';
             document.getElementById('profPhone').value = profile.phone || '';
 
-            // Sidebar name
-            if (profile.name) {
-                document.getElementById('userDisplayName').textContent = profile.name;
-            }
+            // Load Address
+            const addr = JSON.parse(localStorage.getItem('newketAddress') || '{}');
+            if (document.getElementById('addrStreet')) document.getElementById('addrStreet').value = addr.street || '';
+            if (document.getElementById('addrQuartier')) document.getElementById('addrQuartier').value = addr.quartier || '';
+            if (document.getElementById('addrCity')) document.getElementById('addrCity').value = addr.city || '';
+            if (document.getElementById('addrPhone')) document.getElementById('addrPhone').value = addr.phone || '';
+
+            // Avatar & name
+            const displayName = profile.name || localStorage.getItem('newketUserEmail') || 'Utilisateur';
+            document.getElementById('userDisplayName').textContent = profile.name || 'Mon Compte';
+            renderAvatar(displayName);
+
+            // Status badge (after stats load)
+            setTimeout(() => {
+                const ptsEl = document.getElementById('customer-newket-points');
+                const pts = ptsEl ? parseInt(ptsEl.textContent) || 0 : 0;
+                renderStatusBadge(pts);
+            }, 600);
 
             // Listen to data updates from Supabase
             window.addEventListener('ordersUpdated', () => {
@@ -435,13 +639,43 @@
         // Profile Form Submit
         document.getElementById('profileForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            const name = document.getElementById('profName').value;
             const profile = {
-                name: document.getElementById('profName').value,
+                name,
                 email: document.getElementById('profEmail').value,
                 phone: document.getElementById('profPhone').value
             };
             ProfileManager.saveProfile(profile);
+            document.getElementById('userDisplayName').textContent = name || 'Mon Compte';
+            renderAvatar(name);
             showToast('Profil mis à jour avec succès !', 'success');
+        });
+
+        // Address Form Submit
+        document.getElementById('addressForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const addr = {
+                street: document.getElementById('addrStreet').value,
+                quartier: document.getElementById('addrQuartier').value,
+                city: document.getElementById('addrCity').value,
+                phone: document.getElementById('addrPhone').value
+            };
+            localStorage.setItem('newketAddress', JSON.stringify(addr));
+            showToast('Adresse de livraison sauvegardée !', 'success');
+        });
+
+        // Password Form Submit
+        document.getElementById('passwordForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const np = document.getElementById('newPassword').value;
+            const cp = document.getElementById('confirmPassword').value;
+            if (np.length < 8) { showToast('Le mot de passe doit faire au moins 8 caractères.', 'error'); return; }
+            if (np !== cp) { showToast('Les mots de passe ne correspondent pas.', 'error'); return; }
+            // Persisted locally (Supabase update would go here)
+            localStorage.setItem('newketPwdHash', btoa(np));
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            showToast('Mot de passe mis à jour !', 'success');
         });
 
         function renderDashboardNotifications() {

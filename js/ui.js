@@ -48,6 +48,12 @@ const UI = {
         const grid = document.getElementById('pinnedProductGrid');
         if (!grid) return;
 
+        // If no products yet, show skeletons
+        if (!products || products.length === 0) {
+            grid.innerHTML = window.buildSkeletonCardHTML(5);
+            return;
+        }
+
         // Filter products where pinned is true or high rating as proxy
         const pinned = products.filter(p => p.pinned === true || p.is_pinned === true).slice(0, 5);
 
@@ -63,6 +69,11 @@ const UI = {
         const grid = document.getElementById('recentProductGrid');
         if (!grid) return;
 
+        if (!products || products.length === 0) {
+            grid.innerHTML = window.buildSkeletonCardHTML(5);
+            return;
+        }
+
         // products are already sorted by created_at desc from manager
         const recent = products.slice(0, 10);
 
@@ -75,6 +86,11 @@ const UI = {
         const grid = document.getElementById('allProductGrid');
         if (!grid) return;
 
+        if (!products || products.length === 0) {
+            grid.innerHTML = window.buildSkeletonCardHTML(8);
+            return;
+        }
+
         // Initial render of products for the main grid (can be further filtered by the user)
         // We only render the first batch here
         const initialBatchSize = 8;
@@ -82,6 +98,11 @@ const UI = {
     },
 
     renderFilteredBatch(products, container, batchSize) {
+        if (!products || products.length === 0) {
+            container.innerHTML = window.buildSkeletonCardHTML(batchSize);
+            return;
+        }
+
         // This is the default render, used by the home page filter system
         const sortBy = document.getElementById('sortAllProducts')?.value || 'recent';
         let filtered = [...products];

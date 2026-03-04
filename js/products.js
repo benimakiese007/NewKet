@@ -9,14 +9,17 @@ const ProductManager = {
             return;
         }
 
+        this.loading = true;
+
         // --- FLASH CACHE (LOAD) ---
         // Reads from localStorage to display UI instantly before network finishes
         const localCache = localStorage.getItem('newket_products_cache');
         if (localCache) {
             try {
                 const parsed = JSON.parse(localCache);
-                if (parsed && parsed.length > 0) {
+                if (parsed && Array.isArray(parsed) && parsed.length > 0) {
                     this.products = parsed;
+                    console.log('[NewKet] Loaded products from cache:', this.products.length);
                     window.dispatchEvent(new CustomEvent('productsUpdated'));
                 }
             } catch (e) {
@@ -25,31 +28,43 @@ const ProductManager = {
         }
 
         // Fetch fresh data in the background
-        const data = await window.SupabaseAdapter.fetchWithFilters('products', {
-            order: ['created_at', { ascending: false }],
-            limit: 200
-        });
+        try {
+            const data = await window.SupabaseAdapter.fetchWithFilters('products', {
+                order: ['created_at', { ascending: false }],
+                limit: 200
+            });
 
-        if (data && data.length > 0) {
-            // Map snake_case from SQL to camelCase for JS UI compatibility
-            this.products = data.map(p => ({
-                ...p,
-                isNew: p.is_new,
-                isPromo: p.is_promo,
-                oldPrice: p.old_price,
-            }));
+            if (data && data.length > 0) {
+                // Map snake_case from SQL to camelCase for JS UI compatibility
+                const mappedProducts = data.map(p => ({
+                    ...p,
+                    isNew: p.is_new,
+                    isPromo: p.is_promo,
+                    oldPrice: p.old_price,
+                }));
 
-            // --- FLASH CACHE (SAVE) ---
-            // Save top 50 products for next fast load
-            try {
+                // Check if data actually changed to avoid unnecessary re-renders (simple length check for now)
+                const dataChanged = this.products.length !== mappedProducts.length ||
+                    (this.products.length > 0 && mappedProducts.length > 0 && this.products[0].id !== mappedProducts[0].id);
+
+                this.products = mappedProducts;
+
+                // --- FLASH CACHE (SAVE) ---
                 localStorage.setItem('newket_products_cache', JSON.stringify(this.products.slice(0, 50)));
-            } catch (e) {
-                console.warn('[NewKet] Error saving local products cache', e);
+
+                if (dataChanged || this.loading) {
+                    window.dispatchEvent(new CustomEvent('productsUpdated'));
+                }
+            } else if (!localCache) {
+                this.products = [];
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
             }
-        } else {
-            this.products = [];
+        } catch (err) {
+            console.error('[NewKet] Error fetching products:', err);
+        } finally {
+            this.loading = false;
         }
-        window.dispatchEvent(new CustomEvent('productsUpdated'));
+
         console.log('[NewKet] ProductManager initialized. Products:', this.products.length);
     },
 
