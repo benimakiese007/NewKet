@@ -217,7 +217,12 @@ const AuthManager = {
         if (error) return { error: error.message };
 
         const user = data.user;
-        const role = user.user_metadata.role || 'customer';
+        let role = user.user_metadata.role || 'customer';
+
+        const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+        if (user.email && admins.includes(user.email.toLowerCase())) {
+            role = 'admin';
+        }
 
         if (role !== 'admin') {
             await window.supabaseClient.auth.signOut();
@@ -414,8 +419,8 @@ const AuthManager = {
                 badge.style.display = 'block';
 
             } else if (this.role === 'customer') {
-                accountLink.href = '/pages/settings.html';
-                accountLink.title = 'Paramètres';
+                accountLink.href = '/pages/customer-dashboard.html';
+                accountLink.title = 'Mon Espace';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
                     icon.className = 'text-gray-900';

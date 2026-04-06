@@ -58,10 +58,7 @@ const ProfileManager = {
         if (!user || !user.id) return;
 
         try {
-            const profile = await SupabaseAdapter.fetchWithFilters('profiles', {
-                eq: [['id', user.id]],
-                single: true
-            });
+            const profile = await window.ApiClient.get('/profiles/me');
 
             if (profile) {
                 this.saveProfile({

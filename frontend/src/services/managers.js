@@ -55,11 +55,9 @@ const RecentlyViewedManager = {
 const PromoManager = {
     promos: {},
     async init() {
-        if (!window.SupabaseAdapter) return;
-        const data = await window.SupabaseAdapter.fetchWithFilters('promos', {
-            order: ['created_at', { ascending: false }],
-            limit: 100
-        });
+        if (!window.ApiClient) return;
+        try {
+            const data = await window.ApiClient.get('/promos');
         if (data && data.length > 0) {
             const promoMap = {};
             data.forEach(p => {
@@ -73,6 +71,9 @@ const PromoManager = {
                 };
             });
             this.promos = promoMap;
+        }
+        } catch (e) {
+            console.error('[PromoManager] Init error:', e);
         }
         window.dispatchEvent(new CustomEvent('promosUpdated'));
     },
@@ -95,20 +96,14 @@ const PromoManager = {
         return { valid: true };
     },
     async incrementUsage(code) {
-        if (!window.supabaseClient) return;
-        
-        const { data, error } = await window.supabaseClient.rpc('apply_promo_secure', {
-            p_code: code
-        });
-
-        if (error) {
+        if (!window.ApiClient) return;
+        try {
+            const data = await window.ApiClient.post('/promos/apply', { code });
+            if (data && data.success) {
+                await this.init(); 
+            }
+        } catch (error) {
             console.error('[NewKet] Error applying promo:', error);
-            return;
-        }
-
-        if (data && data.success) {
-            // Update local state and trigger refresh
-            await this.init(); 
         }
     }
 };
@@ -117,32 +112,29 @@ const PromoManager = {
 const ActivityManager = {
     activities: [],
     async init() {
-        if (!window.SupabaseAdapter) return;
-        const data = await window.SupabaseAdapter.fetchWithFilters('activities', {
-            order: ['time', { ascending: false }],
-            limit: 50
-        });
+        if (!window.ApiClient) return;
+        try {
+            const data = await window.ApiClient.get('/activities');
         if (data && data.length > 0) {
-            this.activities = data.sort((a, b) => new Date(b.time) - new Date(a.time));
+            this.activities = data;
+        }
+        } catch (e) {
+            console.error('[ActivityManager] Init error:', e);
         }
         window.dispatchEvent(new CustomEvent('activitiesUpdated'));
     },
     getActivities() { return this.activities; },
     async log(text, type = 'system') {
-        if (!window.SupabaseAdapter) return;
-        const userEmail = localStorage.getItem('newketUserEmail');
-        const newActivity = { 
-            id: 'act-' + Date.now(), 
-            text, 
-            type, 
-            time: new Date().toISOString(),
-            user_email: userEmail
-        };
-        const inserted = await window.SupabaseAdapter.insert('activities', newActivity);
-        if (inserted) {
-            this.activities.unshift(inserted);
-            if (this.activities.length > 50) this.activities.pop();
-            window.dispatchEvent(new CustomEvent('activitiesUpdated'));
+        if (!window.ApiClient) return;
+        try {
+            const inserted = await window.ApiClient.post('/activities', { text, type });
+            if (inserted) {
+                this.activities.unshift(inserted);
+                if (this.activities.length > 50) this.activities.pop();
+                window.dispatchEvent(new CustomEvent('activitiesUpdated'));
+            }
+        } catch (e) {
+            console.error('[ActivityManager] Log error:', e);
         }
     },
     formatTime(isoString) {
@@ -160,49 +152,49 @@ const ActivityManager = {
 const NotificationManager = {
     notifications: [],
     async init() {
-        if (!window.SupabaseAdapter) return;
-        const data = await window.SupabaseAdapter.fetchWithFilters('notifications', {
-            order: ['date', { ascending: false }],
-            limit: 50
-        });
+        if (!window.ApiClient) return;
+        try {
+            const data = await window.ApiClient.get('/notifications');
         if (data && data.length > 0) {
-            this.notifications = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+            this.notifications = data;
+        }
+        } catch (e) {
+            console.error('[NotificationManager] Init error:', e);
         }
         this.updateBadge();
         window.dispatchEvent(new CustomEvent('notificationsUpdated'));
     },
     getNotifications() { return this.notifications; },
     async addNotification(title, message, type = 'info') {
-        if (!window.SupabaseAdapter) return;
-        const userEmail = localStorage.getItem('newketUserEmail');
-        const newNotif = {
-            id: 'notif-' + Date.now(),
-            title,
-            message,
-            type,
-            date: new Date().toISOString(),
-            read: false,
-            user_email: userEmail
-        };
-        const inserted = await window.SupabaseAdapter.insert('notifications', newNotif);
-        if (inserted) {
-            this.notifications.unshift(inserted);
-            if (this.notifications.length > 50) this.notifications.pop();
-            this.updateBadge();
-            window.dispatchEvent(new CustomEvent('notificationsUpdated'));
-            return inserted;
+        if (!window.ApiClient) return null;
+        try {
+            const inserted = await window.ApiClient.post('/notifications', { title, message, type });
+            if (inserted) {
+                this.notifications.unshift(inserted);
+                if (this.notifications.length > 50) this.notifications.pop();
+                this.updateBadge();
+                window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+                return inserted;
+            }
+        } catch (e) {
+            console.error('[NotificationManager] Add error:', e);
         }
         return null;
     },
     async markAsRead(id) {
-        const updated = await window.SupabaseAdapter.update('notifications', id, { read: true });
-        if (updated) {
-            const notif = this.notifications.find(n => n.id === id);
-            if (notif) {
-                notif.read = true;
-                this.updateBadge();
-                window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+        if (!window.ApiClient) return;
+        try {
+            const updated = await window.ApiClient.put(`/notifications/${id}/read`);
+            if (updated) {
+                const notif = this.notifications.find(n => n.id === id);
+                if (notif) {
+                    notif.read = true;
+                    this.updateBadge();
+                    window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+                }
             }
+        } catch (e) {
+            console.error('[NotificationManager] Mark read error:', e);
         }
     },
     getUnreadCount() { return this.notifications.filter(n => !n.read).length; },

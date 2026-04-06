@@ -28,10 +28,10 @@ const ConfigManager = {
             }
         }
 
-        // Try to fetch from Supabase if possible
-        if (window.SupabaseAdapter) {
+        // Try to fetch from backend if possible
+        if (window.ApiClient) {
             try {
-                const remoteConfig = await window.SupabaseAdapter.fetch('settings');
+                const remoteConfig = await window.ApiClient.get('/settings');
                 if (remoteConfig && remoteConfig.length > 0) {
                     // Assuming settings is a table with key/value pairs or a single row
                     // If it's a single row:
@@ -40,6 +40,7 @@ const ConfigManager = {
                     this.saveLocal();
                 }
             } catch (err) {
+                console.warn('[NewKet] Failed to fetch settings from backend:', err);
             }
         }
 
@@ -59,15 +60,9 @@ const ConfigManager = {
         this.config = { ...this.config, ...newConfig };
         this.saveLocal();
 
-        if (window.SupabaseAdapter) {
+        if (window.ApiClient) {
             try {
-                // Determine if we update or insert (assuming 'id' is fixed for global settings)
-                const existing = await window.SupabaseAdapter.fetch('settings');
-                if (existing && existing.length > 0) {
-                    await window.SupabaseAdapter.update('settings', existing[0].id, newConfig);
-                } else {
-                    await window.SupabaseAdapter.insert('settings', { ...newConfig, id: 'global-settings' });
-                }
+                await window.ApiClient.put('/settings', newConfig);
             } catch (err) {
                 console.error('[NewKet] Error saving remote settings:', err);
             }

@@ -28,6 +28,7 @@ export default defineConfig({
         customer: './pages/customer-dashboard.html',
         settings: './pages/settings.html',
         shops: './pages/shops.html',
+        seller_onboarding: './pages/seller-onboarding.html',
         shop: './pages/shop.html',
         notifications: './pages/notifications.html',
         favorites: './pages/favorites.html',

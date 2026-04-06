@@ -71,13 +71,23 @@ const OrderManager = {
         const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
         const uniqueClients = [...new Set(orders.map(o => o.customer_email).filter(Boolean))].length;
 
+        const revenueGrowth = this._calculateGrowth(orders, o => o.total || 0);
+        const leadsGrowth = this._calculateGrowth(orders, () => 1);
+        const clientsGrowth = this._calculateGrowth(
+            orders.filter((o, i, arr) => arr.findIndex(x => x.customer_email === o.customer_email) === i), 
+            () => 1
+        );
+
         return {
             totalOrders: totalLeads,
             totalLeads,
             totalRevenue,
             uniqueClients,
             averageOrderValue: totalLeads > 0 ? totalRevenue / totalLeads : 0,
-            conversionRate: 0, // Placeholder - needs view tracking
+            conversionRate: 0, // Placeholder
+            revenueGrowth,
+            leadsGrowth,
+            clientsGrowth,
             topProducts: this._getTopProducts(orders)
         };
     },
@@ -89,19 +99,25 @@ const OrderManager = {
         const totalRevenue = vendorOrders.reduce((sum, o) => sum + (o.total || 0), 0);
         const commissionRate = 0.10; // 10% platform commission
         const commission = totalRevenue * commissionRate;
+        const netRevenue = totalRevenue - commission;
+
+        const revenueGrowth = this._calculateGrowth(vendorOrders, o => (o.total || 0) * (1 - commissionRate));
+        const leadsGrowth = this._calculateGrowth(vendorOrders, () => 1);
 
         return {
             totalOrders: vendorOrders.length,
             totalLeads: vendorOrders.length,
             totalRevenue,
             commission,
-            netRevenue: totalRevenue - commission,
+            netRevenue,
             pendingOrders: vendorOrders.filter(o => o.status === 'En attente' || o.status === 'Lead').length,
             deliveredOrders: vendorOrders.filter(o => o.status === 'Livré').length,
             topProducts: this._getTopProducts(vendorOrders),
             orders: vendorOrders,
+            revenueGrowth,
+            leadsGrowth,
             // For withdrawal balance
-            availableBalance: totalRevenue - commission,
+            availableBalance: netRevenue,
             pendingWithdrawals: 0
         };
     },
@@ -200,6 +216,36 @@ const OrderManager = {
     },
 
     // ========== HELPERS ==========
+
+    _calculateGrowth(orders, valueExtractor) {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        const lastMonthDate = new Date(now);
+        lastMonthDate.setMonth(currentMonth - 1);
+        const lastMonth = lastMonthDate.getMonth();
+        const lastMonthYear = lastMonthDate.getFullYear();
+
+        let currentVal = 0;
+        let lastVal = 0;
+
+        orders.forEach(o => {
+            const d = new Date(o.date);
+            const m = d.getMonth();
+            const y = d.getFullYear();
+            const val = valueExtractor(o);
+
+            if (m === currentMonth && y === currentYear) {
+                currentVal += val;
+            } else if (m === lastMonth && y === lastMonthYear) {
+                lastVal += val;
+            }
+        });
+
+        if (lastVal === 0) return currentVal > 0 ? 100 : 0;
+        return Math.round(((currentVal - lastVal) / lastVal) * 100);
+    },
 
     _getTopProducts(orders) {
         const productCounts = {};

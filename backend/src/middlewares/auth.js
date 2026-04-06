@@ -58,3 +58,29 @@ export const optionalAuth = async (req, res, next) => {
         next();
     }
 };
+
+/**
+ * Middleware pour exiger les droits administrateur.
+ * Doit être utilisé APRÈS requireAuth.
+ */
+export const requireAdmin = async (req, res, next) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ error: 'Non autorisé: Utilisateur introuvable.' });
+        }
+
+        const ADMIN_EMAILS = ['benimakiese1234@gmail.com'];
+        const userEmail = req.user.email?.toLowerCase();
+        
+        const isAdmin = ADMIN_EMAILS.includes(userEmail) || req.user.user_metadata?.role === 'admin';
+        
+        if (!isAdmin) {
+            return res.status(403).json({ error: 'Accès refusé: droits administrateur requis.' });
+        }
+
+        next();
+    } catch (err) {
+        console.error('❌ Erreur middleware requireAdmin:', err);
+        res.status(500).json({ error: 'Erreur interne lors de la vérification des droits' });
+    }
+};
