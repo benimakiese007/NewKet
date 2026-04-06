@@ -2,13 +2,13 @@ import { supabaseAdmin } from '../config/supabase.js';
 
 export const getNotifications = async (req, res) => {
     try {
-        const userId = req.user?.id;
-        if (!userId) return res.status(401).json({ error: 'Non autorisé' });
+        const userEmail = req.user?.email;
+        if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
         const { data, error } = await supabaseAdmin
             .from('notifications')
             .select('*')
-            .eq('user_id', userId)
+            .eq('user_email', userEmail)
             .order('date', { ascending: false })
             .limit(50);
 
@@ -23,15 +23,15 @@ export const getNotifications = async (req, res) => {
 export const addNotification = async (req, res) => {
     try {
         const { title, message, type } = req.body;
-        const userId = req.user?.id;
+        const userEmail = req.user?.email;
         
-        if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
+        if (!userEmail) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
         if (!title || !message) return res.status(400).json({ error: 'Titre et message requis.' });
 
         const { data, error } = await supabaseAdmin
             .from('notifications')
             .insert({
-                user_id: userId,
+                user_email: userEmail,
                 title,
                 message,
                 type: type || 'info',
@@ -52,15 +52,15 @@ export const addNotification = async (req, res) => {
 export const markAsRead = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user?.id;
+        const userEmail = req.user?.email;
         
-        if (!userId) return res.status(401).json({ error: 'Non autorisé' });
+        if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
         const { data, error } = await supabaseAdmin
             .from('notifications')
             .update({ read: true })
             .eq('id', id)
-            .eq('user_id', userId)
+            .eq('user_email', userEmail)
             .select()
             .single();
 

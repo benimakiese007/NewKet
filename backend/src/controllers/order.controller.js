@@ -5,8 +5,9 @@ export const getOrders = async (req, res) => {
     try {
         const client = supabaseAdmin || supabase;
         // Limit to 500 for now, as in frontend
+        // Order is a term used for the orders table in NewKet
         const { data, error } = await client
-            .from('whatsapp_clicks')
+            .from('orders')
             .select('*')
             .order('created_at', { ascending: false })
             .limit(500);
@@ -32,7 +33,7 @@ export const updateOrderStatus = async (req, res) => {
         const client = supabaseAdmin || supabase;
 
         const { data, error } = await client
-            .from('whatsapp_clicks')
+            .from('orders')
             .update({ status })
             .eq('id', id)
             .select();

@@ -98,34 +98,6 @@ window.SupabaseAdapter = {
         throw lastError;
     },
 
-    // ========== FETCH (simple, cached + retry) ==========
-    async fetch(table, select = '*') {
-        const cacheKey = this._getCacheKey(table, { select });
-        const cached = this._getFromCache(cacheKey);
-        if (cached) {
-            return cached;
-        }
-
-        const client = this.getClient();
-        if (!client) return [];
-
-        try {
-            const data = await this._retry(async () => {
-                const { data, error } = await client
-                    .from(table)
-                    .select(select);
-                if (error) throw error;
-                return data;
-            });
-
-            this._setCache(cacheKey, data, table);
-            return data;
-        } catch (err) {
-            console.error(`[NewKet] Error fetching from ${table}:`, err);
-            return [];
-        }
-    },
-
     // ========== FETCH WITH FILTERS (centralized, cached + retry) ==========
     /**
      * Fetch data with Supabase filters, caching, and retry.
@@ -230,157 +202,6 @@ window.SupabaseAdapter = {
         }
     },
 
-    // ========== FETCH PAGINATED ==========
-    /**
-     * Fetch paginated data.
-     * @param {string} table
-     * @param {number} page - 1-indexed page number
-     * @param {number} pageSize - Items per page (default 20)
-     * @param {object} options - Same filter options as fetchWithFilters
-     * @returns {Promise<{data: Array, count: number, page: number, pageSize: number}>}
-     */
-    async fetchPaginated(table, page = 1, pageSize = 20, options = {}) {
-        const client = this.getClient();
-        if (!client) return { data: [], count: 0, page, pageSize };
-
-        const from = (page - 1) * pageSize;
-        const to = from + pageSize - 1;
-
-        try {
-            const result = await this._retry(async () => {
-                let query = client
-                    .from(table)
-                    .select(options.select || '*', { count: 'exact' });
-
-                if (options.eq) {
-                    for (const [col, val] of options.eq) {
-                        query = query.eq(col, val);
-                    }
-                }
-
-                if (options.in) {
-                    for (const [col, vals] of options.in) {
-                        query = query.in(col, vals);
-                    }
-                }
-
-                if (options.order) {
-                    query = query.order(options.order[0], options.order[1] || {});
-                }
-
-                query = query.range(from, to);
-
-                const { data, error, count } = await query;
-                if (error) throw error;
-                return { data, count };
-            });
-
-            return {
-                data: result.data || [],
-                count: result.count || 0,
-                page,
-                pageSize
-            };
-        } catch (err) {
-            console.error(`[NewKet] Error paginated fetch from ${table}:`, err);
-            return { data: [], count: 0, page, pageSize };
-        }
-    },
-
-    // ========== MUTATIONS (with cache invalidation + retry) ==========
-    async insert(table, item) {
-        const client = this.getClient();
-        if (!client) return null;
-
-        try {
-            const data = await this._retry(async () => {
-                const { data, error } = await client
-                    .from(table)
-                    .insert(item)
-                    .select();
-                if (error) throw error;
-                return data;
-            });
-
-            try {
-                this._invalidateTable(table);
-            } catch (ce) {
-                console.warn(`[NewKet Cache] Failed to invalidate table "${table}":`, ce.message);
-            }
-            
-            return data && data.length > 0 ? data[0] : null;
-        } catch (err) {
-            console.error(`[NewKet Supabase] INSERT ERROR on ${table}:`, err.message || err.details || err);
-            return null;
-        }
-    },
-
-    async update(table, id, updates, idColumn = 'id') {
-        const client = this.getClient();
-        if (!client) return null;
-
-        try {
-            const data = await this._retry(async () => {
-                const { data, error } = await client
-                    .from(table)
-                    .update(updates)
-                    .eq(idColumn, id)
-                    .select();
-                if (error) throw error;
-                return data;
-            });
-
-            this._invalidateTable(table);
-            return data && data.length > 0 ? data[0] : null;
-        } catch (err) {
-            console.error(`[NewKet] Error updating ${table}:`, err);
-            return null;
-        }
-    },
-
-    async delete(table, id, idColumn = 'id') {
-        const client = this.getClient();
-        if (!client) return false;
-
-        try {
-            await this._retry(async () => {
-                const { error } = await client
-                    .from(table)
-                    .delete()
-                    .eq(idColumn, id);
-                if (error) throw error;
-            });
-
-            this._invalidateTable(table);
-            return true;
-        } catch (err) {
-            console.error(`[NewKet] Error deleting from ${table}:`, err);
-            return false;
-        }
-    },
-
-    async upsert(table, item, onConflict = 'id') {
-        const client = this.getClient();
-        if (!client) return null;
-
-        try {
-            const data = await this._retry(async () => {
-                const { data, error } = await client
-                    .from(table)
-                    .upsert(item, { onConflict })
-                    .select();
-                if (error) throw error;
-                return data;
-            });
-
-            this._invalidateTable(table);
-            return data && data.length > 0 ? data[0] : null;
-        } catch (err) {
-            console.error(`[NewKet] Error upserting into ${table}:`, err);
-            return null;
-        }
-    },
-
     /**
      * Subscribe to real-time changes on a table.
      * @param {string} table - Table name
@@ -421,6 +242,77 @@ window.SupabaseAdapter = {
             });
         } catch (err) {
             console.error(`[NewKet] Error uploading file to ${bucket}:`, err);
+            return null;
+        }
+    },
+
+    // ========== MUTATIONS (with cache invalidation) ==========
+    async insert(table, data) {
+        const client = this.getClient();
+        if (!client) return null;
+
+        try {
+            const result = await this._retry(async () => {
+                const { data: inserted, error } = await client.from(table).insert(data).select().single();
+                if (error) throw error;
+                return inserted;
+            });
+            this._invalidateTable(table);
+            return result;
+        } catch (err) {
+            console.error(`[NewKet] Error inserting into ${table}:`, err);
+            return null;
+        }
+    },
+
+    async update(table, id, data) {
+        const client = this.getClient();
+        if (!client) return false;
+
+        try {
+            await this._retry(async () => {
+                const { error } = await client.from(table).update(data).eq('id', id);
+                if (error) throw error;
+            });
+            this._invalidateTable(table);
+            return true;
+        } catch (err) {
+            console.error(`[NewKet] Error updating ${table} (id: ${id}):`, err);
+            return false;
+        }
+    },
+
+    async delete(table, id) {
+        const client = this.getClient();
+        if (!client) return false;
+
+        try {
+            await this._retry(async () => {
+                const { error } = await client.from(table).delete().eq('id', id);
+                if (error) throw error;
+            });
+            this._invalidateTable(table);
+            return true;
+        } catch (err) {
+            console.error(`[NewKet] Error deleting from ${table} (id: ${id}):`, err);
+            return false;
+        }
+    },
+
+    async upsert(table, data) {
+        const client = this.getClient();
+        if (!client) return null;
+
+        try {
+            const result = await this._retry(async () => {
+                const { data: upserted, error } = await client.from(table).upsert(data).select().single();
+                if (error) throw error;
+                return upserted;
+            });
+            this._invalidateTable(table);
+            return result;
+        } catch (err) {
+            console.error(`[NewKet] Error upserting into ${table}:`, err);
             return null;
         }
     }

@@ -68,7 +68,7 @@ const OrderManager = {
     getStats() {
         const orders = this.data;
         const totalLeads = orders.length;
-        const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+        const totalEstimatedValue = orders.reduce((sum, o) => sum + (o.total || 0), 0); // Estimated from WhatsApp clicks
         const uniqueClients = [...new Set(orders.map(o => o.customer_email).filter(Boolean))].length;
 
         const revenueGrowth = this._calculateGrowth(orders, o => o.total || 0);
@@ -81,10 +81,11 @@ const OrderManager = {
         return {
             totalOrders: totalLeads,
             totalLeads,
-            totalRevenue,
+            totalRevenue: totalEstimatedValue, // Kept for UI compatibility
+            estimatedValue: totalEstimatedValue,
             uniqueClients,
-            averageOrderValue: totalLeads > 0 ? totalRevenue / totalLeads : 0,
-            conversionRate: 0, // Placeholder
+            averageOrderValue: totalLeads > 0 ? totalEstimatedValue / totalLeads : 0,
+            conversionRate: null, // Placeholder
             revenueGrowth,
             leadsGrowth,
             clientsGrowth,
@@ -96,20 +97,18 @@ const OrderManager = {
         const vendorOrders = this.data.filter(o =>
             o.vendor_email === emailOrId || o.vendor_id === emailOrId
         );
-        const totalRevenue = vendorOrders.reduce((sum, o) => sum + (o.total || 0), 0);
-        const commissionRate = 0.10; // 10% platform commission
-        const commission = totalRevenue * commissionRate;
-        const netRevenue = totalRevenue - commission;
+        const totalEstimatedValue = vendorOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
-        const revenueGrowth = this._calculateGrowth(vendorOrders, o => (o.total || 0) * (1 - commissionRate));
+        const revenueGrowth = this._calculateGrowth(vendorOrders, o => o.total || 0);
         const leadsGrowth = this._calculateGrowth(vendorOrders, () => 1);
 
         return {
             totalOrders: vendorOrders.length,
             totalLeads: vendorOrders.length,
-            totalRevenue,
-            commission,
-            netRevenue,
+            totalRevenue: totalEstimatedValue,
+            estimatedValue: totalEstimatedValue,
+            commission: 0, // Commission zero per request
+            netRevenue: totalEstimatedValue,
             pendingOrders: vendorOrders.filter(o => o.status === 'En attente' || o.status === 'Lead').length,
             deliveredOrders: vendorOrders.filter(o => o.status === 'Livré').length,
             topProducts: this._getTopProducts(vendorOrders),
@@ -117,7 +116,7 @@ const OrderManager = {
             revenueGrowth,
             leadsGrowth,
             // For withdrawal balance
-            availableBalance: netRevenue,
+            availableBalance: totalEstimatedValue,
             pendingWithdrawals: 0
         };
     },
@@ -174,9 +173,9 @@ const OrderManager = {
             categorySales,
             dailyData,
             topProducts: this._getTopProducts(filtered),
-            conversionRate: filtered.length > 0 ? '8.3%' : '0%',
+            conversionRate: null,
             productsInDanger: products.filter(p => (p.stock || 0) < 10).length,
-            healthScore: '85%'
+            healthScore: null
         };
     },
 

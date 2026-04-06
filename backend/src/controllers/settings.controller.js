@@ -1,8 +1,8 @@
-import { supabaseAdmin } from '../config/supabase.js';
+import { supabase, supabaseAdmin } from '../config/supabase.js';
 
 export const getSettings = async (req, res) => {
     try {
-        const { data, error } = await supabaseAdmin
+        const { data, error } = await supabase
             .from('settings')
             .select('*');
 

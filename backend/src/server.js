@@ -31,12 +31,12 @@ import profileRoutes from './routes/profile.routes.js';
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/favorites', favoriteRoutes);
+app.use('/api/profile', profileRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/promos', promoRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
-app.use('/api/profiles', profileRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {

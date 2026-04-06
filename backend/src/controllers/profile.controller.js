@@ -6,7 +6,7 @@ export const getMyProfile = async (req, res) => {
         if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifié' });
 
         const { data, error } = await supabaseAdmin
-            .from('profiles')
+            .from('users')
             .select('*')
             .eq('id', userId)
             .single();
@@ -30,7 +30,7 @@ export const updateMyProfile = async (req, res) => {
         const updates = req.body;
         
         const { data, error } = await supabaseAdmin
-            .from('profiles')
+            .from('users')
             .upsert({ ...updates, id: userId, updated_at: new Date().toISOString() })
             .select()
             .single();

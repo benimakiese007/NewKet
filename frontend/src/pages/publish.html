@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -52,6 +52,9 @@
             <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-4">Vendre un article</h1>
             <p class="text-gray-500 text-lg">Mettez en ligne votre produit en quelques secondes</p>
         </div>
+
+        <!-- Status Banner -->
+        <div id="status-banner" class="mb-8 hidden"></div>
 
         <form id="publishForm" class="space-y-8" novalidate>
             <!-- Basic Info Card -->
@@ -209,6 +212,70 @@
             const estimatedPriceEl = document.getElementById('estimatedPrice');
             const otherCurrencyNameEl = document.getElementById('otherCurrencyName');
             const exchangeRateInput = document.getElementById('exchangeRate');
+
+            function updateStatusBanner() {
+                const status = localStorage.getItem('newketUserStatus') || 'pending';
+                const banner = document.getElementById('status-banner');
+                if (!banner) return;
+
+                if (status === 'approved') {
+                    banner.classList.add('hidden');
+                    return;
+                }
+
+                banner.classList.remove('hidden');
+                let content = '';
+                if (status === 'pending') {
+                    content = `
+                        <div class="bg-amber-50 border border-amber-100 p-6 rounded-[2rem] flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
+                                <iconify-icon icon="solar:info-circle-bold" width="24"></iconify-icon>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-amber-900">Profil incomplet</h3>
+                                <p class="text-sm text-amber-700">Vous devez soumettre vos informations avant de pouvoir publier.</p>
+                            </div>
+                            <a href="./seller-onboarding.html" class="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-xs">ComplÃ©ter</a>
+                        </div>
+                    `;
+                } else if (status === 'submitted') {
+                    content = `
+                        <div class="bg-blue-50 border border-blue-100 p-6 rounded-[2rem] flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
+                                <iconify-icon icon="solar:clock-circle-bold" width="24"></iconify-icon>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-blue-900">Validation en cours</h3>
+                                <p class="text-sm text-blue-700">Votre boutique est en cours d'examen. La publication sera active dÃ¨s validation.</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (status === 'rejected') {
+                    content = `
+                        <div class="bg-red-50 border border-red-100 p-6 rounded-[2rem] flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center text-red-600 shrink-0">
+                                <iconify-icon icon="solar:danger-bold" width="24"></iconify-icon>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-red-900">Profil rejetÃ©</h3>
+                                <p class="text-sm text-red-700">Veuillez corriger vos informations pour pouvoir publier.</p>
+                            </div>
+                            <a href="./seller-onboarding.html" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs">Corriger</a>
+                        </div>
+                    `;
+                }
+                banner.innerHTML = content;
+                
+                // Also disable the submit button if not approved
+                const submitBtn = document.querySelector('#publishForm button[type="submit"]');
+                if (submitBtn) {
+                   submitBtn.disabled = true;
+                   submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                   submitBtn.title = "Votre compte doit Ãªtre approuvÃ© pour publier.";
+                }
+            }
+            updateStatusBanner();
+            window.addEventListener('userStatusUpdated', updateStatusBanner);
 
             // Set initial configured exchange rate
             if (window.ConfigManager) {

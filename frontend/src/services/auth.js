@@ -1,12 +1,18 @@
 /* newket EMarket Auth Manager */
+/**
+ * Rôle interne: 'supplier'. Label UI: 'Vendeur'.
+ * Rôle interne: 'customer'. Label UI: 'Client'.
+ * Rôle interne: 'admin'. Label UI: 'Administrateur'.
+ */
 // Admin email list is now centralized in admin-config.js (synchronous script)
 const ADMIN_EMAILS = window.ADMIN_EMAILS || [];
 
 const AuthManager = {
     role: null,
-    status: null, // NewKet: Added status for KYC (pending, approved, rejected)
+    status: null, // Status KYC : pending (jamais soumis), submitted (en attente validation), approved, rejected
     user: null, // Supabase user object for pages like settings.html
     _authChecking: true, // Prevents redirect loops while checking auth
+    _realtimeChannel: null,
 
     async init() {
         this._authChecking = true;
@@ -39,11 +45,16 @@ const AuthManager = {
                     this.status = status;
                     localStorage.setItem('newketUserStatus', status);
 
+                    this.setupRealtimeSync(user.id);
                     this.enforcePermissions();
 
                     if (window.CartManager) CartManager.syncFromSupabase();
                     if (window.FavoritesManager) FavoritesManager.syncFromSupabase();
                 } else if (event === 'SIGNED_OUT') {
+                    if (this._realtimeChannel) {
+                        window.supabaseClient.removeChannel(this._realtimeChannel);
+                        this._realtimeChannel = null;
+                    }
                     this.role = null;
                     this.status = null;
                     this.user = null;
@@ -81,6 +92,8 @@ const AuthManager = {
 
                 this.status = await this.fetchUserStatus(user.email);
                 localStorage.setItem('newketUserStatus', this.status);
+
+                this.setupRealtimeSync(user.id);
             } else {
                 this.role = null;
                 this.status = null;
@@ -111,6 +124,63 @@ const AuthManager = {
                 this.updateAccountLink();
             });
         }
+    },
+
+    setupRealtimeSync(userId) {
+        if (!window.supabaseClient || !userId) return;
+
+        // Remove existing channel if any
+        if (this._realtimeChannel) {
+            window.supabaseClient.removeChannel(this._realtimeChannel);
+        }
+
+        this._realtimeChannel = window.supabaseClient
+            .channel(`sync-user-${userId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'users',
+                    filter: `id=eq.${userId}`
+                },
+                (payload) => {
+                    const newData = payload.new;
+                    if (!newData) return;
+
+                    const oldStatus = this.status;
+                    const oldRole = this.role;
+
+                    // Update local state
+                    if (newData.status) {
+                        this.status = newData.status;
+                        localStorage.setItem('newketUserStatus', this.status);
+                        window.dispatchEvent(new CustomEvent('userStatusUpdated', { detail: { status: this.status } }));
+                    }
+                    
+                    if (newData.role) {
+                        this.role = newData.role;
+                        localStorage.setItem('newketRole', this.role);
+                    }
+
+                    // Re-enforce UI
+                    this.enforcePermissions();
+                    this.updateAccountLink();
+
+                    // Notify user if status changed to approved
+                    if (oldStatus !== 'approved' && newData.status === 'approved') {
+                        if (typeof showToast === 'function') {
+                            showToast('FÃ©licitations ! Votre profil a Ã©tÃ© approuvÃ©. Vous pouvez maintenant publier.', 'success');
+                        }
+                    }
+
+                    // Notify if role changed
+                    if (oldRole !== newData.role) {
+                        window.dispatchEvent(new CustomEvent('roleChanged', { detail: { role: newData.role } }));
+                    }
+                }
+            )
+            .subscribe();
     },
 
     clearSession() {
@@ -287,29 +357,24 @@ const AuthManager = {
             if (isPending) {
                 // Determine if we are on a protected vendor-only page
                 const path = window.location.pathname;
-                const isProtectedVendorPage = 
-                    path.includes('vendor-dashboard.html') || 
-                    path.includes('publish.html') || 
-                    path.includes('inventory.html') ||
-                    path.includes('orders.html');
+                const isDashboard = path.includes('vendor-dashboard.html');
+                const isPublish = path.includes('publish.html');
 
-                if (isProtectedVendorPage && !path.includes('seller-onboarding.html')) {
-                    // [CORRECTIF C] Revalidation asynchrone KYC depuis Supabase
-                    // Evite le bug où l'admin a approuvé le vendeur mais le cache local est encore 'pending'
-                    const email = this.user?.email || localStorage.getItem('newketUserEmail');
-                    if (email) {
-                        this.fetchUserStatus(email).then(freshStatus => {
+                // On n'empêche plus l'accès, mais on laisse le "CORRECTIF C" tourner en arrière-plan
+                // Pour rafraîchir le statut dès que possible au cas où Supabase Realtime a eu un souci
+                const email = this.user?.email || localStorage.getItem('newketUserEmail');
+                if (email && (isDashboard || isPublish)) {
+                    this.fetchUserStatus(email).then(freshStatus => {
+                        if (freshStatus !== this.status) {
+                            const oldStatus = this.status;
                             this.status = freshStatus;
                             localStorage.setItem('newketUserStatus', freshStatus);
-                            if (freshStatus !== 'approved') {
-                                window.location.href = '/pages/seller-onboarding.html';
+                            this.enforcePermissions();
+                            if (oldStatus !== 'approved' && freshStatus === 'approved') {
+                                if (typeof showToast === 'function') showToast('Votre profil a Ã©tÃ© approuvÃ© !', 'success');
                             }
-                            // Si freshStatus === 'approved', on reste sur la page, pas de redirection
-                        });
-                    } else {
-                        window.location.href = '/pages/seller-onboarding.html';
-                    }
-                    return;
+                        }
+                    });
                 }
             } else if (isSubmitted) {
                 // Form submitted, waiting for admin to review — show notice
