@@ -171,9 +171,13 @@ window.showMoreProducts = async function () {
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
     // Wait for App to initialize data managers
-    window.addEventListener('newketInitialized', () => {
+    if (window.newketInitialized) {
         UI.init();
-    });
+    } else {
+        window.addEventListener('newketInitialized', () => {
+            UI.init();
+        });
+    }
 });
 
 window.UI = UI;
