@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Suivi des Prospects | NewKet</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <script type="module" src="../../services/app.js"></script>
@@ -80,7 +81,7 @@
             const orders = OrderManager.getOrders();
 
             if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-gray-400">Aucune commande enregistrée.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-gray-400">Aucune commande enregistrÃ©e.</td></tr>`;
                 return;
             }
 
@@ -111,7 +112,7 @@
                         <select onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-black cursor-pointer">
                             <option value="En attente" ${o.status === 'En attente' ? 'selected' : ''}>Attente</option>
                             <option value="En livraison" ${o.status === 'En livraison' ? 'selected' : ''}>Livraison</option>
-                            <option value="Livré" ${o.status === 'Livré' ? 'selected' : ''}>Livré</option>
+                            <option value="LivrÃ©" ${o.status === 'LivrÃ©' ? 'selected' : ''}>LivrÃ©</option>
                         </select>
                     </td>
                 </tr>
@@ -124,7 +125,7 @@
             switch (status) {
                 case 'En attente': return 'bg-yellow-50 text-yellow-600';
                 case 'En livraison': return 'bg-blue-50 text-blue-600';
-                case 'Livré': return 'bg-green-50 text-green-600';
+                case 'LivrÃ©': return 'bg-green-50 text-green-600';
                 default: return 'bg-gray-50 text-gray-500';
             }
         }
@@ -132,13 +133,13 @@
         function updateStatus(id, newStatus) {
             OrderManager.updateStatus(id, newStatus);
             renderAdminOrders();
-            showToast('Statut mis à jour !', 'success');
+            showToast('Statut mis Ã  jour !', 'success');
         }
 
         function exportOrdersToCSV() {
             const orders = OrderManager.getOrders();
             if (orders.length === 0) {
-                showToast('Aucune commande à exporter.', 'info');
+                showToast('Aucune commande Ã  exporter.', 'info');
                 return;
             }
 
@@ -169,7 +170,7 @@
             link.click();
             document.body.removeChild(link);
 
-            showToast('Exportation réussie !', 'success');
+            showToast('Exportation rÃ©ussie !', 'success');
             if (window.ActivityManager) ActivityManager.log('Exportation des commandes en CSV', 'system');
         }
 
@@ -197,3 +198,4 @@
 </body>
 
 </html>
+

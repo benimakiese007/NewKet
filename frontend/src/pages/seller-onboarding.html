@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
+    <script src="../services/admin-config.js" defer></script>
     <script type="module" src="../services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,9 +10,10 @@
     <link rel="apple-touch-icon" sizes="512x512" href="../assets/Images/Logo NewKet V2.jpeg">
     <link rel="icon" type="image/png" href="../assets/Images/Logo NewKet V2.jpeg">
     <meta name="theme-color" content="#111827">
-    <title>Finaliser votre profil vendeur — NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <title>Finaliser votre profil vendeur â€” NewKet</title>
+    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
     <link rel="stylesheet" href="../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -33,8 +35,8 @@
             <div class="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
                 <iconify-icon icon="solar:shop-bold" width="40" class="text-white"></iconify-icon>
             </div>
-            <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-4">Devenez Vendeur Certifié</h1>
-            <p class="text-gray-500 text-lg">Complétez votre dossier pour commencer à vendre sur NewKet.</p>
+            <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-4">Devenez Vendeur CertifiÃ©</h1>
+            <p class="text-gray-500 text-lg">ComplÃ©tez votre dossier pour commencer Ã  vendre sur NewKet.</p>
         </div>
 
         <form id="onboardingForm" class="space-y-8">
@@ -47,20 +49,20 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Numéro de téléphone professionnel</label>
+                    <label class="text-sm font-bold text-gray-700 ml-1">NumÃ©ro de tÃ©lÃ©phone professionnel</label>
                     <input type="tel" id="phone" required placeholder="+243..."
                         class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all">
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Numéro WhatsApp (Optionnel)</label>
+                    <label class="text-sm font-bold text-gray-700 ml-1">NumÃ©ro WhatsApp (Optionnel)</label>
                     <input type="tel" id="whatsapp" placeholder="+243..."
                         class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all">
                 </div>
 
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-gray-700 ml-1">Description de la boutique</label>
-                    <textarea id="storeDescription" required placeholder="Que vendez-vous ? (ex: Vêtements pour hommes, Électronique...)"
+                    <textarea id="storeDescription" required placeholder="Que vendez-vous ? (ex: VÃªtements pour hommes, Ã‰lectronique...)"
                         class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all min-h-[100px]"></textarea>
                 </div>
 
@@ -72,10 +74,10 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 ml-1">Moyen de retrait préféré</label>
+                        <label class="text-sm font-bold text-gray-700 ml-1">Moyen de retrait prÃ©fÃ©rÃ©</label>
                         <select id="payoutMethod" required
                             class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all appearance-none bg-white">
-                            <option value="" disabled selected>Choisir une méthode...</option>
+                            <option value="" disabled selected>Choisir une mÃ©thode...</option>
                             <option value="M-Pesa">M-Pesa</option>
                             <option value="Orange Money">Orange Money</option>
                             <option value="Airtel Money">Airtel Money</option>
@@ -88,8 +90,8 @@
             <!-- Documents -->
             <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm space-y-6">
                 <div>
-                    <h3 class="font-bold text-gray-900 mb-1">Documents requis</h3>
-                    <p class="text-xs text-gray-400 mb-4">Veuillez uploader une pièce d'identité (ID) ou un registre de commerce.</p>
+                    <h3 class="font-bold text-gray-900 mb-1">Documents requis (IdentitÃ©)</h3>
+                    <p class="text-xs text-gray-400 mb-4">Veuillez uploader une piÃ¨ce d'identitÃ© (ID) ou un registre de commerce.</p>
                 </div>
 
                 <div class="space-y-4">
@@ -100,6 +102,50 @@
                         <input type="file" id="docUpload" multiple accept="image/*,application/pdf" class="hidden">
                     </div>
                     <div id="fileList" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+
+            <!-- Photos Optionnelles -->
+            <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm space-y-6">
+                <div>
+                    <h3 class="font-bold text-gray-900 mb-1">Photos de la Boutique (Optionnel)</h3>
+                    <p class="text-xs text-gray-400 mb-4">Rendez votre boutique plus attrayante avec de belles photos.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-gray-700 ml-1">Photo / Logo</label>
+                        <div id="shopAvatarUploadZone" onclick="document.getElementById('shopAvatarUpload').click()"
+                            class="border-2 border-dashed border-gray-200 rounded-3xl p-6 text-center hover:border-black hover:bg-gray-50 transition-all cursor-pointer group">
+                            <iconify-icon icon="solar:camera-add-linear" width="24" class="text-gray-400 group-hover:text-black mb-2"></iconify-icon>
+                            <p class="text-xs font-semibold text-gray-500">Mettre un logo</p>
+                            <input type="file" id="shopAvatarUpload" accept="image/*" class="hidden">
+                        </div>
+                        <div id="shopAvatarPreview" class="hidden flex items-center justify-between bg-gray-50 p-2 rounded-xl border border-gray-100">
+                             <div class="flex items-center gap-3">
+                                 <img src="" class="w-10 h-10 rounded-full object-cover shadow-sm bg-white">
+                                 <span class="text-xs text-gray-600 font-bold truncate max-w-[120px] name-preview"></span>
+                             </div>
+                             <iconify-icon icon="solar:close-circle-bold" class="cursor-pointer text-gray-400 hover:text-red-500 mx-2" onclick="clearShopAvatar(event)"></iconify-icon>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-gray-700 ml-1">Boutique physique</label>
+                        <div id="physicalUploadZone" onclick="document.getElementById('physicalUpload').click()"
+                            class="border-2 border-dashed border-gray-200 rounded-3xl p-6 text-center hover:border-black hover:bg-gray-50 transition-all cursor-pointer group">
+                            <iconify-icon icon="solar:shop-2-linear" width="24" class="text-gray-400 group-hover:text-black mb-2"></iconify-icon>
+                            <p class="text-xs font-semibold text-gray-500">Photo de devanture</p>
+                            <input type="file" id="physicalUpload" accept="image/*" class="hidden">
+                        </div>
+                        <div id="physicalPreview" class="hidden flex items-center justify-between bg-gray-50 p-2 rounded-xl border border-gray-100">
+                             <div class="flex items-center gap-3">
+                                 <img src="" class="w-10 h-10 rounded-xl object-cover shadow-sm bg-white">
+                                 <span class="text-xs text-gray-600 font-bold truncate max-w-[120px] name-preview"></span>
+                             </div>
+                             <iconify-icon icon="solar:close-circle-bold" class="cursor-pointer text-gray-400 hover:text-red-500 mx-2" onclick="clearPhysical(event)"></iconify-icon>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -117,11 +163,11 @@
             <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <iconify-icon icon="solar:clock-circle-bold" width="48"></iconify-icon>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Dossier reçu !</h2>
-            <p class="text-gray-500 mb-8">Votre demande est en cours d'examen. Vous recevrez une notification dès que vous serez autorisé à publier.</p>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Dossier reÃ§u !</h2>
+            <p class="text-gray-500 mb-8">Votre demande est en cours d'examen. Vous recevrez une notification dÃ¨s que vous serez autorisÃ© Ã  publier.</p>
             <button onclick="window.location.href='/'"
                 class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-xl hover:bg-black transition-all">
-                Retour à l'accueil
+                Retour Ã  l'accueil
             </button>
         </div>
     </div>
@@ -132,6 +178,53 @@
         const fileList = document.getElementById('fileList');
         const onboardingForm = document.getElementById('onboardingForm');
         let uploadedFiles = [];
+        
+        let shopAvatarFile = null;
+        let physicalShopFile = null;
+
+        // --- PREVIEW LOGIC ---
+        function setupPreview(inputId, zoneId, previewId) {
+            const input = document.getElementById(inputId);
+            const zone = document.getElementById(zoneId);
+            const preview = document.getElementById(previewId);
+            
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        zone.classList.add('hidden');
+                        preview.classList.remove('hidden');
+                        preview.querySelector('img').src = e.target.result;
+                        preview.querySelector('.name-preview').textContent = file.name;
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    if (inputId === 'shopAvatarUpload') shopAvatarFile = file;
+                    if (inputId === 'physicalUpload') physicalShopFile = file;
+                }
+            });
+        }
+        
+        window.clearShopAvatar = (e) => {
+            e.stopPropagation();
+            shopAvatarFile = null;
+            document.getElementById('shopAvatarUpload').value = '';
+            document.getElementById('shopAvatarPreview').classList.add('hidden');
+            document.getElementById('shopAvatarUploadZone').classList.remove('hidden');
+        };
+        
+        window.clearPhysical = (e) => {
+            e.stopPropagation();
+            physicalShopFile = null;
+            document.getElementById('physicalUpload').value = '';
+            document.getElementById('physicalPreview').classList.add('hidden');
+            document.getElementById('physicalUploadZone').classList.remove('hidden');
+        };
+
+        setupPreview('shopAvatarUpload', 'shopAvatarUploadZone', 'shopAvatarPreview');
+        setupPreview('physicalUpload', 'physicalUploadZone', 'physicalPreview');
+
 
         docUpload.addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
@@ -169,18 +262,17 @@
                 
                 const sessionRes = await window.supabaseClient.auth.getSession();
                 const user = sessionRes?.data?.session?.user;
-                if (!user) throw new Error("Vous n'êtes pas connecté");
+                if (!user) throw new Error("Vous n'Ãªtes pas connectÃ©");
                 
                 const userId = user.id;
                 
                 let docUrls = [];
-                // Upload files to Supabase Storage
+                // Upload mandatory KYC files
                 for (let i = 0; i < uploadedFiles.length; i++) {
                     const file = uploadedFiles[i];
-                    // Nettoyer le nom du fichier (enlever espaces et caractères spéciaux)
                     const sanitizedName = file.name
-                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Enlever les accents
-                        .replace(/[^a-zA-Z0-9.\-_]/g, "_"); // Remplacer tout le reste par _
+                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-zA-Z0-9.\-_]/g, "_");
                         
                     const path = `kyc/${userId}/${Date.now()}_${sanitizedName}`;
                     const url = await window.SupabaseAdapter.uploadFile('vendor-docs', path, file);
@@ -188,11 +280,25 @@
                 }
 
                 if (docUrls.length === 0 && uploadedFiles.length > 0) {
-                    throw new Error("Aucun document n'a pu être envoyé. Vérifiez votre connexion.");
+                    throw new Error("Aucun document n'a pu Ãªtre envoyÃ©. VÃ©rifiez votre connexion.");
                 }
 
-                // Update user profile in public.users
-                const updateRes = await window.SupabaseAdapter.update('users', userId, {
+                // Upload Optional Shop Avatar
+                let avatarUrl = null;
+                if (shopAvatarFile) {
+                    const path = `avatars/${userId}/${Date.now()}_logo`;
+                    avatarUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', path, shopAvatarFile);
+                }
+                
+                // Upload Optional Physical Shop Photo
+                let physicalUrl = null;
+                if (physicalShopFile) {
+                    const path = `kyc/${userId}/${Date.now()}_physical_shop`;
+                    physicalUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', path, physicalShopFile);
+                }
+
+                // Update user profile
+                const updateData = {
                     company_name: companyName,
                     store_phone_whatsapp: whatsapp,
                     store_description: storeDescription,
@@ -200,10 +306,17 @@
                     preferred_payout_method: payoutMethod,
                     documents_url: docUrls,
                     status: 'submitted' 
-                });
+                };
+                
+                // We map avatarUrl to 'avatar' column on the public.users table if it exists
+                if (avatarUrl) updateData.avatar = avatarUrl;
+                // We add physical shop photo url if any
+                if (physicalUrl) updateData.physical_shop_url = physicalUrl;
+
+                const updateRes = await window.SupabaseAdapter.update('users', userId, updateData);
 
                 if (!updateRes) {
-                    throw new Error("Erreur de sauvegarde: aucun profil mis à jour.");
+                    throw new Error("Erreur de sauvegarde: aucun profil mis Ã  jour.");
                 }
 
                 localStorage.setItem('newketUserStatus', 'submitted');
@@ -216,9 +329,11 @@
             } catch (err) {
                 console.error(err);
                 if (window.LoaderManager) LoaderManager.hide();
-                alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
+                alert("Une erreur est survenue lors de l'envoi. Veuillez rÃ©essayer.");
             }
         });
     </script>
 </body>
 </html>
+
+

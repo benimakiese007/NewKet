@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -12,9 +12,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Boutique — NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <title>Boutique â€” NewKet</title>
+    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
     <link rel="stylesheet" href="../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,7 +87,7 @@
                     <div class="flex items-center gap-3 mb-2">
                         <span
                             class="px-3 py-1 bg-white/20  text-white text-[10px] font-black uppercase tracking-widest rounded-full">Partenaire
-                            Certifié</span>
+                            CertifiÃ©</span>
                     </div>
                     <h1 id="vendorName" class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase">
                         Chargement...</h1>
@@ -109,7 +110,7 @@
                         <div class="w-px h-8 bg-white/10"></div>
                         <div class="text-white">
                             <div class="text-xl font-black">24h</div>
-                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Expédition</div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">ExpÃ©dition</div>
                         </div>
                     </div>
                 </div>
@@ -180,9 +181,9 @@
                 document.getElementById('vendorName').textContent = vendor.name || 'Boutique sans nom';
                 document.getElementById('vendorAvatar').src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(vendor.name || 'V')}&background=f3f4f6&color=000&bold=true`;
 
-                const joinDate = vendor.date_joined ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
+                const joinDate = vendor.date_joined ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'rÃ©cemment';
                 document.getElementById('vendorMeta').innerHTML = `<iconify-icon icon="solar:calendar-outline"></iconify-icon> Membre depuis ${joinDate}`;
-                document.title = `${vendor.name || 'Boutique'} — NewKet`;
+                document.title = `${vendor.name || 'Boutique'} â€” NewKet`;
 
                 // 2. Load Products
                 const products = ProductManager.getProducts().filter(p => p.supplier_email === email);
@@ -244,3 +245,4 @@
 </body>
 
 </html>
+

@@ -4,14 +4,8 @@ window.newketConfig = {
     exchangeRate: 2500
 };
 
-// Admin email list — used only to assign 'admin' role on signup.
-// DO NOT store passwords here. Bypass logins are handled by Supabase auth only.
-const ADMIN_EMAILS = [
-    'benimakiese1234@gmail.com',
-    'admin@newket.com',
-    'tmautuimane00@gmail.com'
-];
-window.ADMIN_EMAILS = ADMIN_EMAILS;
+// Admin email list is now centralized in auth.js for early initialization.
+// window.ADMIN_EMAILS is available here via AuthManager/auth.js.
 // ADMIN_PASSWORD intentionally removed — use Supabase Auth only.
 
 const App = {

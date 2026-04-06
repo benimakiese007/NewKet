@@ -23,6 +23,7 @@ const ProductManager = {
     _totalCount: 0,
     _hasMore: true,
     _loading: false,
+    _realtimeChannel: null,
 
     async init() {
         if (!window.SupabaseAdapter) {
@@ -54,7 +55,49 @@ const ProductManager = {
             this.loading = false;
         });
 
+        // --- REALTIME SUBSCRIPTION ---
+        this._setupRealtime();
+
         return Promise.resolve();
+    },
+
+    /**
+     * Set up Supabase Realtime subscription for new products.
+     */
+    _setupRealtime() {
+        if (this._realtimeChannel) return; // Already subscribed
+
+        this._realtimeChannel = window.SupabaseAdapter.subscribeToTable('products', 'INSERT', (payload) => {
+            this._handleNewProductRealtime(payload.new);
+        });
+    },
+
+    /**
+     * Handles a new product arriving via Supabase Realtime.
+     */
+    _handleNewProductRealtime(rawProduct) {
+        // 1. Map to UI format
+        const product = this._mapProduct(rawProduct);
+
+        // 2. Check if already exists (avoid duplicates from current user's unshift)
+        if (this.products.some(p => p.id === product.id)) return;
+
+        // 3. Add to list
+        this.products.unshift(product);
+        this._totalCount++;
+
+        // 4. Update UI
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
+
+        // 5. Notify user
+        if (window.AppNotifications) {
+            AppNotifications.showToast(
+                'Nouveau produit ! 🆕',
+                `"${product.name}" vient d'être publié par un vendeur.`,
+                'info',
+                'solar:shop-2-bold'
+            );
+        }
     },
 
     /**
@@ -63,9 +106,7 @@ const ProductManager = {
      */
     async fetchFreshData() {
         try {
-            const result = await window.SupabaseAdapter.fetchPaginated('products', 1, PRODUCTS_PAGE_SIZE, {
-                order: ['created_at', { ascending: false }]
-            });
+            const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_PAGE_SIZE}`);
 
             if (result && result.data) {
                 const mappedProducts = result.data.map(p => this._mapProduct(p));
@@ -101,9 +142,7 @@ const ProductManager = {
 
         try {
             const nextPage = this._currentPage + 1;
-            const result = await window.SupabaseAdapter.fetchPaginated('products', nextPage, PRODUCTS_PAGE_SIZE, {
-                order: ['created_at', { ascending: false }]
-            });
+            const result = await window.ApiClient.get(`/products?page=${nextPage}&limit=${PRODUCTS_PAGE_SIZE}`);
 
             if (result && result.data && result.data.length > 0) {
                 const mappedNew = result.data.map(p => this._mapProduct(p));
@@ -164,10 +203,7 @@ const ProductManager = {
 
         // 2. Fetch from network
         try {
-            const product = await window.SupabaseAdapter.fetchWithFilters('products', {
-                eq: [['id', id]],
-                single: true
-            });
+            const product = await window.ApiClient.get(`/products/${id}`);
 
             if (product) {
                 const mapped = this._mapProduct(product);
@@ -189,7 +225,7 @@ const ProductManager = {
             user_id: userId
         };
 
-        const newProd = await window.SupabaseAdapter.insert('products', productWithSupplier);
+        const newProd = await window.ApiClient.post('/products', productWithSupplier);
         if (newProd) {
             const mappedProd = this._mapProduct(newProd);
             this.products.unshift(mappedProd); // Add to front (newest first)
@@ -201,7 +237,7 @@ const ProductManager = {
     },
 
     async updateProduct(id, updatedData) {
-        const updated = await window.SupabaseAdapter.update('products', id, updatedData);
+        const updated = await window.ApiClient.put(`/products/${id}`, updatedData);
         if (updated) {
             const index = this.products.findIndex(p => p.id === id);
             if (index !== -1) {
@@ -214,7 +250,8 @@ const ProductManager = {
     },
 
     async deleteProduct(id) {
-        const success = await window.SupabaseAdapter.delete('products', id);
+        const result = await window.ApiClient.delete(`/products/${id}`);
+        const success = result && result.success;
         if (success) {
             const product = this.products.find(p => p.id === id);
             this.products = this.products.filter(p => p.id !== id);
@@ -226,9 +263,7 @@ const ProductManager = {
     },
 
     async deleteBulk(ids) {
-        for (const id of ids) {
-            await window.SupabaseAdapter.delete('products', id);
-        }
+        await window.ApiClient.post('/products/bulk-delete', { ids });
         this.products = this.products.filter(p => !ids.includes(p.id));
         this._totalCount -= ids.length;
         window.dispatchEvent(new CustomEvent('productsUpdated'));
@@ -236,9 +271,7 @@ const ProductManager = {
     },
 
     async updateCategoryBulk(ids, newCategory) {
-        for (const id of ids) {
-            await window.SupabaseAdapter.update('products', id, { category: newCategory });
-        }
+        await window.ApiClient.post('/products/bulk-category', { ids, category: newCategory });
         this.products.forEach(p => {
             if (ids.includes(p.id)) p.category = newCategory;
         });

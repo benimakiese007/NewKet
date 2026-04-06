@@ -7568,3 +7568,219 @@ video {
     gap: 4rem;
   }
 }
+/* ============================================================
+   SPRINT 2 — Skeleton Loading, Modal System & Loading States
+   ============================================================ */
+
+/* Skeleton Loading Animation */
+@keyframes skeleton-pulse {
+  0%, 100% { background-position: 200% center; }
+  50% { background-position: -200% center; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 400% 100%;
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+html.dark .skeleton {
+  background: linear-gradient(90deg, #2d2d2d 25%, #3a3a3a 50%, #2d2d2d 75%);
+  background-size: 400% 100%;
+}
+
+/* Product skeleton placeholders */
+.skeleton-card {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.skeleton-img {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 0.75rem;
+}
+
+.skeleton-text {
+  height: 14px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skeleton-text.w-3-4 { width: 75%; }
+.skeleton-text.w-1-2 { width: 50%; }
+.skeleton-text.w-2-3 { width: 66%; }
+
+/* Product page skeleton */
+#productGrid.loading .skeleton-product-img {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 1.5rem;
+}
+
+#productGrid.loading .skeleton-product-title {
+  height: 36px;
+  border-radius: 8px;
+  width: 85%;
+  margin-bottom: 16px;
+}
+
+#productGrid.loading .skeleton-product-price {
+  height: 28px;
+  width: 40%;
+  border-radius: 6px;
+  margin-bottom: 24px;
+}
+
+#productGrid.loading .skeleton-product-desc {
+  height: 14px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+/* ---- Loading Button States ---- */
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.btn-loading .btn-text { opacity: 0; }
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='2' r='2' fill='%23fff'/%3E%3Ccircle cx='12' cy='22' r='2' fill='%23fff' opacity='.3'/%3E%3Ccircle cx='2' cy='12' r='2' fill='%23fff' opacity='.8'/%3E%3Ccircle cx='22' cy='12' r='2' fill='%23fff' opacity='.1'/%3E%3C/svg%3E") center/20px no-repeat;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Custom Confirmation Modal ---- */
+#confirmModal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+#confirmModal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#confirmModal .modal-box {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transform: scale(0.9);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#confirmModal.active .modal-box {
+  transform: scale(1);
+}
+
+#confirmModal .modal-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+#confirmModal .modal-message {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+#confirmModal .modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+#confirmModal .btn-confirm-cancel {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.813rem;
+  font-weight: 700;
+  border: 1.5px solid #E5E7EB;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#confirmModal .btn-confirm-cancel:hover {
+  background: #F9FAFB;
+}
+
+#confirmModal .btn-confirm-ok {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.813rem;
+  font-weight: 700;
+  background: #EF4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#confirmModal .btn-confirm-ok:hover {
+  background: #DC2626;
+}
+
+html.dark #confirmModal .modal-box {
+  background: #1F2937;
+}
+
+html.dark #confirmModal .modal-title {
+  color: #F9FAFB;
+}
+
+html.dark #confirmModal .btn-confirm-cancel {
+  background: #374151;
+  border-color: #4B5563;
+  color: #D1D5DB;
+}
+
+/* ---- Status Badges (min 12px) ---- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.status-badge.pending  { background: #FEF3C7; color: #92400E; }
+.status-badge.active   { background: #D1FAE5; color: #065F46; }
+.status-badge.delivered{ background: #DBEAFE; color: #1E40AF; }
+.status-badge.cancelled{ background: #FEE2E2; color: #991B1B; }

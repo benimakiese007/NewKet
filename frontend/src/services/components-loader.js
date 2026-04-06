@@ -396,25 +396,24 @@ const ComponentLoader = {
     },
 
     getAdjustedPath(path) {
-        // Calculate root prefix based on nesting level
+        // Utilisation robuste des chemins absolus via le serveur (Vite/Prod)
+        if (window.location.protocol !== 'file:') {
+            return '/' + path;
+        }
+
+        // Sécurité de contournement (Fallback pour ouverture des fichiers au protocole file://)
         const pathname = window.location.pathname;
         const parts = pathname.split('/').filter(p => p !== '');
-        
-        // Find project root index (assumes project is either at top level or in a folder named 'src' or 'NewKet')
-        // More robust: count how many levels we are from 'index.html'
-        // If we are in 'pages/catalog.html', parts might be ['NewKet', 'frontend', 'src', 'pages', 'catalog.html']
-        // We know that index.html is in 'src/'
         
         let depth = 0;
         const rIndex = parts.lastIndexOf('pages');
         if (rIndex !== -1) {
-            depth = parts.length - rIndex - 1; // 1 for 'pages', 2 for 'pages/admin'
-        }
-        
-        // Alternatively, if not using 'pages' structure, just count from src
-        const srcIndex = parts.lastIndexOf('src');
-        if (srcIndex !== -1 && !pathname.endsWith('index.html')) {
-            depth = parts.length - srcIndex - 1;
+            depth = parts.length - rIndex - 1;
+        } else {
+            const srcIndex = parts.lastIndexOf('src');
+            if (srcIndex !== -1 && !pathname.endsWith('index.html')) {
+                depth = parts.length - srcIndex - 1;
+            }
         }
 
         let prefix = '';

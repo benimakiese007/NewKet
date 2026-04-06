@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -12,9 +12,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Boutiques — NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <title>Boutiques â€” NewKet</title>
+    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
     <link rel="stylesheet" href="../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -160,8 +161,8 @@
         <div class="mb-16 text-center">
             <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-gray-900 mb-6 uppercase">Nos Maisons de Luxe
             </h1>
-            <p class="text-gray-500 text-lg max-w-2xl mx-auto font-medium">L'élégance à travers nos partenaires
-                d'exception. Chaque boutique est un univers de raffinement sélectionné pour vous.</p>
+            <p class="text-gray-500 text-lg max-w-2xl mx-auto font-medium">L'Ã©lÃ©gance Ã  travers nos partenaires
+                d'exception. Chaque boutique est un univers de raffinement sÃ©lectionnÃ© pour vous.</p>
 
             <!-- Shop Search -->
             <div class="mt-10 max-w-xl mx-auto relative group">
@@ -185,9 +186,9 @@
         <div id="noShopsMsg"
             class="hidden text-center py-32 bg-gray-50 rounded-[3rem] border border-dashed border-gray-200">
             <iconify-icon icon="solar:shop-2-linear" width="64" class="text-gray-200 mb-4"></iconify-icon>
-            <p class="text-gray-400 font-bold uppercase tracking-widest">Aucune boutique n'a été trouvée</p>
+            <p class="text-gray-400 font-bold uppercase tracking-widest">Aucune boutique n'a Ã©tÃ© trouvÃ©e</p>
             <button onclick="document.getElementById('shopSearchInput').value=''; loadShops();"
-                class="mt-4 text-xs font-black border-b-2 border-black pb-1 uppercase tracking-tighter">Réinitialiser la
+                class="mt-4 text-xs font-black border-b-2 border-black pb-1 uppercase tracking-tighter">RÃ©initialiser la
                 vue</button>
         </div>
     </main>
@@ -258,8 +259,9 @@
 
                 noShops.classList.add('hidden');
                 grid.innerHTML = filteredSellers.map(seller => {
-                    const avatar = seller.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(seller.name || 'Vendor') + '&background=f3f4f6&color=000&bold=true');
-                    const dateJoined = seller.date_joined ? new Date(seller.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
+                    const avatar = seller.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(seller.company_name || seller.name || 'Vendor') + '&background=f3f4f6&color=000&bold=true');
+                    const dateJoined = seller.date_joined ? new Date(seller.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'rÃ©cemment';
+                    const shopName = seller.company_name || seller.name || 'Boutique sans nom';
 
                     return `
                         <a href="shop.html?email=${encodeURIComponent(seller.email)}" class="shop-card group bg-white rounded-[2.5rem] p-8 border border-gray-100 flex flex-col items-center text-center gap-6 relative overflow-hidden">
@@ -268,12 +270,12 @@
                             </div>
                             
                             <div class="w-24 h-24 rounded-full bg-gray-50 overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-500">
-                                <img src="${avatar}" alt="${seller.name}" loading="lazy" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(seller.name || 'V')}'">
+                                <img src="${avatar}" alt="${shopName}" loading="lazy" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}'">
                             </div>
 
                             <div class="space-y-2">
-                                <h3 class="text-xl font-black text-gray-900 group-hover:text-black transition-colors leading-tight">${seller.name || 'Boutique sans nom'}</h3>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">Partenaire Certifié</p>
+                                <h3 class="text-xl font-black text-gray-900 group-hover:text-black transition-colors leading-tight">${shopName}</h3>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">${seller.store_description ? seller.store_description.substring(0,30)+'...' : 'Partenaire CertifiÃ©'}</p>
                             </div>
 
                             <div class="pt-6 border-t border-gray-50 w-full flex items-center justify-between">
@@ -307,3 +309,4 @@
 </body>
 
 </html>
+

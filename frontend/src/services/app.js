@@ -3,17 +3,18 @@
 
 import './supabase-client.js';
 import './supabase-adapter.js';
+import './api-client.js';
 import './sanitize.js';
 
 import './config-manager.js';
 
 import './auth.js';
-// import './cart.js';
+import './profile-manager.js';
+import './user-manager.js';
+import './products.js';
+import './orders.js';
 import './favorites.js';
 import './currency.js';
-import './products.js';
-// import './orders.js';
-import './user-manager.js';
 import './managers.js';
 
 import './ui-helpers.js';

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -11,14 +11,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Catalogue Luxe — NewKet</title>
+    <title>Catalogue Luxe &ndash; NewKet</title>
     <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
-    <link rel="stylesheet" href="../assets/css/input.css">
+    <!-- input.css removed (empty stub) -->
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <script type="module" src="../services/app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/responsive.css">
     <style>
@@ -29,7 +30,7 @@
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #fcfcfd;
         }
 
@@ -158,7 +159,7 @@
                     </button>
                 </div>
                 <div class="lg:sticky sticky-sidebar space-y-10">
-                    <!-- Categories -->
+                    <!-- Catégories -->
                     <section>
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Catégories</h3>
                         <div class="space-y-4" id="categoryFilters">
@@ -251,7 +252,7 @@
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
-                                    <span class="text-[10px] font-bold text-slate-500 ml-1">4 étoiles et +</span>
+                                    <span class="text-[10px] font-bold text-slate-500 ml-1">4 Ã©toiles et +</span>
                                 </div>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
@@ -260,7 +261,7 @@
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
-                                    <span class="text-[10px] font-bold text-slate-500 ml-1">3 étoiles et +</span>
+                                    <span class="text-[10px] font-bold text-slate-500 ml-1">3 Ã©toiles et +</span>
                                 </div>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
@@ -275,7 +276,7 @@
 
                     <button onclick="resetFilters()"
                         class="w-full border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all">
-                        Réinitialiser tout
+                        RÃ©initialiser tout
                     </button>
                 </div>
             </aside>
@@ -292,7 +293,7 @@
                         Filtres
                     </button>
                     <p class="text-sm font-medium text-slate-500">Affichage de <span class="text-slate-900 font-bold"
-                            id="productCount">0</span> trésors</p>
+                            id="productCount">0</span> trÃ©sors</p>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
                         <div class="relative flex-1 sm:w-48">
@@ -300,8 +301,8 @@
                                 class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none cursor-pointer focus:ring-2 focus:ring-slate-100">
                                 <option value="default">Plus Pertinents</option>
                                 <option value="price-asc">Prix Croissant</option>
-                                <option value="price-desc">Prix Décroissant</option>
-                                <option value="newest">Dernières pépites</option>
+                                <option value="price-desc">Prix DÃ©croissant</option>
+                                <option value="newest">DerniÃ¨res pÃ©pites</option>
                             </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="14"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"></iconify-icon>
@@ -440,7 +441,7 @@
             const mobileSearchInput = document.getElementById('mobileSearchInput');
             const query = (searchInput?.value || mobileSearchInput?.value || "").trim().toLowerCase();
 
-            const activeCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const activeCatégories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
             const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
 
@@ -484,8 +485,8 @@
                     }
 
                     // Category filter
-                    if (activeCategories.length > 0) {
-                        options.in = [['category', activeCategories]];
+                    if (activeCatégories.length > 0) {
+                        options.in = [['category', activeCatégories]];
                     }
 
                     // Price range
@@ -536,8 +537,8 @@
                         (p.category || '').toLowerCase().includes(query)
                     );
                 }
-                if (activeCategories.length > 0) {
-                    allProducts = allProducts.filter(p => activeCategories.includes(p.category));
+                if (activeCatégories.length > 0) {
+                    allProducts = allProducts.filter(p => activeCatégories.includes(p.category));
                 }
                 if (activeConditions.length === 1) {
                     allProducts = allProducts.filter(p => (p.is_new || p.isNew) === (activeConditions[0] === 'true'));
@@ -574,9 +575,9 @@
                 grid.innerHTML = `
                     <div class="col-span-full py-20 text-center">
                         <iconify-icon icon="solar:magnifer-zoom-out-linear" width="64" class="text-slate-200 mb-4"></iconify-icon>
-                        <h2 class="text-xl font-bold text-slate-900">Quête infructueuse</h2>
-                        <p class="text-slate-500">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</p>
-                        <button onclick="resetFilters()" class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">Réinitialiser l'horizon</button>
+                        <h2 class="text-xl font-bold text-slate-900">QuÃªte infructueuse</h2>
+                        <p class="text-slate-500">L'article d'exception que vous recherchez semble s'Ãªtre Ã©vanoui. Ajustez vos critÃ¨res pour une nouvelle dÃ©couverte.</p>
+                        <button onclick="resetFilters()" class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">RÃ©initialiser l'horizon</button>
                     </div>
                 `;
                 removeLoadMoreButton();
@@ -669,8 +670,8 @@
         function shareProductCard(id, name) {
             const productUrl = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'product.html?id=' + id;
             const shareData = {
-                title: name + ' — NewKet',
-                text: 'Découvrez ' + name + ' sur NewKet !',
+                title: name + ' â€” NewKet',
+                text: 'DÃ©couvrez ' + name + ' sur NewKet !',
                 url: productUrl
             };
 
@@ -679,7 +680,7 @@
             } else {
                 navigator.clipboard.writeText(productUrl).then(() => {
                     if (window.showToast) {
-                        showToast('Lien copié dans le presse-papier !', 'success');
+                        showToast('Lien copiÃ© dans le presse-papier !', 'success');
                     }
                 });
             }
@@ -743,3 +744,7 @@
 </body>
 
 </html>
+
+
+
+

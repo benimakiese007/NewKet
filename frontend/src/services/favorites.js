@@ -17,37 +17,31 @@ const FavoritesManager = {
         this._syncToSupabase(favorites);
     },
 
-    // Push favorites to Supabase (fire-and-forget)
+    // Push favorites to Supabase via backend API
     async _syncToSupabase(favorites) {
         try {
-            if (!window.supabaseClient) return;
+            if (!window.ApiClient || !window.supabaseClient) return;
             const { data: { user } } = await window.supabaseClient.auth.getUser();
             if (!user) return;
 
-            await window.supabaseClient
-                .from('user_favorites')
-                .upsert({ user_id: user.id, favorites_data: JSON.stringify(favorites), updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+            await ApiClient.post('/favorites', { favorites });
         } catch (err) {
-            console.warn('[NewKet] Favorites Supabase sync failed (non-blocking):', err.message);
+            console.warn('[NewKet] Favorites API sync failed (non-blocking):', err.message);
         }
     },
 
-    // Pull favorites from Supabase and merge with local
+    // Pull favorites from backend API and merge with local
     async syncFromSupabase() {
         try {
-            if (!window.supabaseClient) return;
+            if (!window.ApiClient || !window.supabaseClient) return;
             const { data: { user } } = await window.supabaseClient.auth.getUser();
             if (!user) return;
 
-            const { data, error } = await window.supabaseClient
-                .from('user_favorites')
-                .select('favorites_data')
-                .eq('user_id', user.id)
-                .single();
+            const data = await ApiClient.get('/favorites');
 
-            if (error || !data) return;
+            if (!data || !data.favorites) return;
 
-            const remoteFavs = JSON.parse(data.favorites_data || '[]');
+            const remoteFavs = data.favorites || [];
             const localFavs = this.getFavorites();
 
             // Merge: remote wins if same id, otherwise combine
@@ -61,7 +55,7 @@ const FavoritesManager = {
             localStorage.setItem('newketFavorites', JSON.stringify(merged));
             this.updateUI();
         } catch (err) {
-            console.warn('[NewKet] Favorites Supabase pull failed (non-blocking):', err.message);
+            console.warn('[NewKet] Favorites API pull failed (non-blocking):', err.message);
         }
     },
 

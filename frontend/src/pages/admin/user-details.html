@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -13,8 +13,9 @@
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Profil Utilisateur | NewKet</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-    
+
     <script type="module" src="../../services/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
@@ -67,7 +68,7 @@
             </div>
             <div class="flex items-center gap-4">
                 <span id="roleBadge"
-                    class="px-3 py-1 bg-gray-100 text-[10px] font-black uppercase rounded-full tracking-widest text-gray-400">Rôle</span>
+                    class="px-3 py-1 bg-gray-100 text-[10px] font-black uppercase rounded-full tracking-widest text-gray-400">RÃ´le</span>
             </div>
         </div>
     </nav>
@@ -101,7 +102,7 @@
                 <div id="vendorDetailsPanel" class="hidden glass-panel p-6 space-y-4">
                     <h3 class="font-black text-gray-900 flex items-center gap-2">
                         <iconify-icon icon="solar:shop-bold" width="20" class="text-blue-500"></iconify-icon>
-                        Détails Boutique
+                        DÃ©tails Boutique
                     </h3>
                     <div id="vendorDetailsContent" class="space-y-4 text-sm">
                         <!-- Injected by JS -->
@@ -112,7 +113,7 @@
                 <div class="glass-panel p-6 space-y-6">
                     <h3 class="font-black text-gray-900 flex items-center gap-2">
                         <iconify-icon icon="solar:bell-bing-bold" width="20" class="text-orange-500"></iconify-icon>
-                        Activité Récente
+                        ActivitÃ© RÃ©cente
                     </h3>
                     <div id="activityFeed" class="space-y-6">
                         <!-- Activity Items -->
@@ -131,7 +132,7 @@
                     </div>
                     <div class="glass-panel p-6 border-b-4 border-green-500">
                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1" id="stat2Label">
-                            Dépenses</p>
+                            DÃ©penses</p>
                         <div class="text-3xl font-black text-gray-900" id="stat2Value">0</div>
                     </div>
                     <div class="glass-panel p-6 border-b-4 border-purple-500">
@@ -152,13 +153,19 @@
                         <table class="min-w-[800px] w-full text-left" id="dataTable">
                             <thead>
                                 <tr class="bg-gray-50/50">
-                                    <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Date
+                                    <th
+                                        class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        Date
                                     </th>
-                                    <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Réf /
+                                    <th
+                                        class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        RÃ©f /
                                         Nom</th>
-                                    <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                                        Détails</th>
-                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right whitespace-nowrap">
+                                    <th
+                                        class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        DÃ©tails</th>
+                                    <th
+                                        class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right whitespace-nowrap">
                                         Montant</th>
                                 </tr>
                             </thead>
@@ -169,7 +176,7 @@
                     </div>
                     <div id="emptyState" class="hidden p-12 text-center text-gray-400">
                         <iconify-icon icon="solar:box-linear" width="48" class="mb-4 text-gray-200"></iconify-icon>
-                        <p>Aucune donnée disponible pour cet utilisateur.</p>
+                        <p>Aucune donnÃ©e disponible pour cet utilisateur.</p>
                     </div>
                 </div>
 
@@ -227,7 +234,12 @@
             const role = user.role || 'customer';
 
             // UI Setup
-            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userName').innerHTML = `${user.name} ${user.status === 'submitted' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-orange-100 text-orange-600 align-middle">Dossier soumis</span>'
+                : user.status === 'pending' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-yellow-100 text-yellow-700 align-middle">En attente</span>'
+                    : (user.status === 'approved' || user.status === 'verified') ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-green-100 text-green-700 align-middle">ApprouvÃ©</span>'
+                        : user.status === 'rejected' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-red-100 text-red-600 align-middle">RejetÃ©</span>'
+                            : ''
+                }`;
             document.getElementById('userEmail').textContent = user.email;
             document.getElementById('userAvatar').textContent = user.name.substring(0, 2).toUpperCase();
             document.getElementById('joinDate').textContent = new Date(user.dateJoined).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
@@ -246,12 +258,12 @@
         }
 
         function renderCustomerView(user, orders) {
-            const validOrders = orders.filter(o => o.status !== 'Annulé' && o.status !== 'cancelled').sort((a, b) => new Date(b.date) - new Date(a.date));
+            const validOrders = orders.filter(o => o.status !== 'AnnulÃ©' && o.status !== 'cancelled').sort((a, b) => new Date(b.date) - new Date(a.date));
             const totalSpent = validOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
             document.getElementById('stat1Label').textContent = "Total Commandes";
             document.getElementById('stat1Value').textContent = validOrders.length;
-            document.getElementById('stat2Label').textContent = "Dépenses Totales";
+            document.getElementById('stat2Label').textContent = "DÃ©penses Totales";
             document.getElementById('stat2Value').textContent = CurrencyManager.formatPrice(totalSpent);
             document.getElementById('stat3Label').textContent = "Panier Moyen";
             document.getElementById('stat3Value').textContent = validOrders.length > 0 ? CurrencyManager.formatPrice(totalSpent / validOrders.length) : '0';
@@ -300,25 +312,46 @@
             // Populate Vendor Details Panel
             const detailsPanel = document.getElementById('vendorDetailsPanel');
             const detailsContent = document.getElementById('vendorDetailsContent');
-            if (user.company_name || user.store_description || user.documents_url) {
+            if (user.company_name || user.store_description || user.documents_url || user.status === 'submitted' || user.status === 'pending') {
                 detailsPanel.classList.remove('hidden');
-                
+
                 let docsHtml = '';
                 if (user.documents_url && user.documents_url.length > 0) {
                     docsHtml = `
                         <div class="mt-4 pt-4 border-t border-gray-100">
-                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Documents</p>
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Documents <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-1">${user.documents_url.length} fichier(s)</span></p>
                             <div class="flex flex-col gap-2">
                                 ${user.documents_url.map((url, idx) => {
-                                    // S'assurer que l'URL est complète et pointe vers le bon domaine Supabase
-                                    const finalUrl = url.startsWith('http') ? url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-docs/${url}`;
-                                    return `
+                        // S'assurer que l'URL est complÃ¨te et pointe vers le bon domaine Supabase
+                        const finalUrl = url.startsWith('http') ? url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-docs/${url}`;
+                        return `
                                         <a href="${finalUrl}" target="_blank" class="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded-xl hover:bg-blue-100 transition-colors">
                                             <iconify-icon icon="solar:document-bold"></iconify-icon> Voir Document ${idx + 1}
                                         </a>
                                     `;
-                                }).join('')}
+                    }).join('')}
                             </div>
+                        </div>
+                    `;
+                } else if (user.status === 'submitted' || user.status === 'pending') {
+                    docsHtml = `
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                           <p class="text-xs text-red-500 font-bold bg-red-50 p-2 rounded-xl"><iconify-icon icon="solar:danger-triangle-bold"></iconify-icon> Aucun document fourni par ce vendeur.</p>
+                        </div>
+                    `;
+                }
+
+                let actionButtonsHtml = '';
+                if (user.status === 'submitted' || user.status === 'pending') {
+                    const safeName = (user.name || '').replace(/'/g, "\\'");
+                    actionButtonsHtml = `
+                        <div class="mt-6 pt-4 border-t border-gray-100 flex gap-2">
+                            <button onclick="approveVendor('${user.id}', '${safeName}')" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:check-read-bold" width="18"></iconify-icon> Approuver
+                            </button>
+                            <button onclick="rejectVendor('${user.id}', '${safeName}')" class="flex-1 py-3 bg-red-50 text-red-500 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon> Rejeter
+                            </button>
                         </div>
                     `;
                 }
@@ -330,10 +363,11 @@
                     ${user.store_phone_whatsapp ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">WhatsApp</p><a href="https://wa.me/${user.store_phone_whatsapp.replace(/[^0-9]/g, '')}" target="_blank" class="font-bold text-green-600 flex items-center gap-1"><iconify-icon icon="ic:baseline-whatsapp"></iconify-icon> ${user.store_phone_whatsapp}</a></div>` : ''}
                     ${user.preferred_payout_method ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Paiement</p><p class="font-medium text-gray-900">${user.preferred_payout_method}</p></div>` : ''}
                     ${docsHtml}
+                    ${actionButtonsHtml}
                 `;
             }
 
-            document.getElementById('listTitle').textContent = "Commandes reçues";
+            document.getElementById('listTitle').textContent = "Commandes reÃ§ues";
 
             const tbody = document.getElementById('dataBody');
             if (supplierRevenueOrders.length === 0) {
@@ -378,7 +412,7 @@
             items.push({
                 type: 'join',
                 title: 'Inscription sur la plateforme',
-                desc: 'Compte créé avec succès.',
+                desc: 'Compte crÃ©Ã© avec succÃ¨s.',
                 date: user.dateJoined,
                 icon: 'solar:user-plus-bold',
                 color: 'text-blue-500'
@@ -389,7 +423,7 @@
                 items.push({
                     type: 'order',
                     title: `Commande #${o.id}`,
-                    desc: user.role === 'supplier' ? 'Vendu un ou plusieurs articles.' : 'Achat effectué.',
+                    desc: user.role === 'supplier' ? 'Vendu un ou plusieurs articles.' : 'Achat effectuÃ©.',
                     date: o.date,
                     icon: 'solar:cart-large-bold',
                     color: 'text-green-500'
@@ -413,6 +447,68 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        async function approveVendor(id, name) {
+            if (!confirm(`Confirmer l'approbation du vendeur ${name} ?`)) return;
+            if (window.LoaderManager) LoaderManager.show("Approbation...");
+
+            try {
+                const res = await window.SupabaseAdapter.update('users', id, { status: 'verified', role: 'supplier' });
+                if (res) {
+                    try {
+                        const users = window.UserManager ? UserManager.getUsers() : [];
+                        const user = users.find(u => u.id === id);
+                        if (user && user.email) {
+                            await window.SupabaseAdapter.insert('notifications', {
+                                id: 'notif-' + Date.now(),
+                                title: "Boutique validÃ©e !",
+                                message: "FÃ©licitations, votre demande pour devenir vendeur a Ã©tÃ© approuvÃ©e.",
+                                type: "success",
+                                date: new Date().toISOString(),
+                                read: false,
+                                user_email: user.email
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Erreur notification:", e);
+                    }
+
+                    alert(`Le vendeur ${name} a Ã©tÃ© approuvÃ©.`);
+                    window.location.reload();
+                } else {
+                    throw new Error("Mise Ã  jour Ã©chouÃ©e (aucun retour).");
+                }
+            } catch (err) {
+                console.error("Erreur approbation:", err);
+                alert("Erreur lors de l'approbation : " + err.message);
+            } finally {
+                if (window.LoaderManager) LoaderManager.hide();
+            }
+        }
+
+        async function rejectVendor(id, name) {
+            if (!confirm(`Rejeter le vendeur ${name} ? Son compte repassera en client simple.`)) return;
+            if (window.LoaderManager) LoaderManager.show("Rejet...");
+
+            try {
+                const res = await window.SupabaseAdapter.update('users', id, {
+                    status: 'rejected',
+                    documents_url: [],
+                    company_name: null
+                });
+                if (res) {
+                    alert(`Le vendeur ${name} a Ã©tÃ© rejetÃ©.`);
+                    window.location.reload();
+                } else {
+                    throw new Error("Mise Ã  jour Ã©chouÃ©e.");
+                }
+            } catch (err) {
+                console.error("Erreur rejet:", err);
+                alert("Erreur lors du rejet: " + err.message);
+            } finally {
+                if (window.LoaderManager) LoaderManager.hide();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

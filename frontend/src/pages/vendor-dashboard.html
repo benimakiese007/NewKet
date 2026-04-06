@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -6,8 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Vendeur | NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
     <link rel="stylesheet" href="../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Supabase -->
@@ -62,7 +63,7 @@
                         </a>
                         <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link">
                             <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
-                            Paramètres
+                            ParamÃ¨tres
                         </a>
                     </nav>
                 </div>
@@ -73,7 +74,7 @@
                 <div class="flex justify-between items-end">
                     <div>
                         <h1 class="text-3xl font-bold tracking-tight">Bonjour, <span id="vendorDisplay">Vendeur</span></h1>
-                        <p class="text-gray-500 mt-1">Voici un aperçu de l'activité de votre boutique aujourd'hui.</p>
+                        <p class="text-gray-500 mt-1">Voici un aperÃ§u de l'activitÃ© de votre boutique aujourd'hui.</p>
                     </div>
                     <a href="./publish.html"
                         class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all">Ajouter
@@ -90,7 +91,7 @@
                 <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Prospects Uniques</p>
                     <div class="text-3xl font-black text-gray-900" id="vendorOrders">0</div>
-                    <p class="text-xs text-gray-400 mt-2 font-bold font-medium pt-1">Activité récente</p>
+                    <p class="text-xs text-gray-400 mt-2 font-bold font-medium pt-1">ActivitÃ© rÃ©cente</p>
                 </div>
                 <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Produits en ligne</p>
@@ -104,7 +105,7 @@
                 <!-- Sales Chart -->
                 <div class="glass-panel p-8">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-bold text-gray-900">Intérêt pour vos produits</h3>
+                        <h3 class="font-bold text-gray-900">IntÃ©rÃªt pour vos produits</h3>
                         <div
                             class="text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md">
                             WhatsApp</div>
@@ -147,7 +148,7 @@
                 <!-- Recent Activity (New for Vendor) -->
                 <div class="glass-panel p-8 lg:col-span-2">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-bold text-gray-900">Activités Récentes de la Boutique</h3>
+                        <h3 class="font-bold text-gray-900">ActivitÃ©s RÃ©centes de la Boutique</h3>
                         <iconify-icon icon="solar:history-bold" width="20" class="text-gray-300"></iconify-icon>
                     </div>
                     <div id="vendor-activity-feed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -173,114 +174,7 @@
                 </div>
             </div>
 
-            <!-- Gains Tab (Hidden by default) -->
-            <div id="tab-gains" class="hidden">
-                <div class="glass-panel p-8">
-                    <h2 class="text-xl font-bold mb-8">Mes Gains & Paiements</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <div class="bg-black text-white p-8 rounded-3xl">
-                            <p class="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2">Solde disponible
-                            </p>
-                            <div class="text-4xl font-black mb-6" id="gains-available">0 FC</div>
-                            <button onclick="openWithdrawalModal()"
-                                class="w-full bg-white text-black py-3 rounded-2xl font-bold hover:bg-gray-100 transition-all">Demander
-                                un retrait</button>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="p-6 border border-gray-100 rounded-2xl flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase">Retraits en attente</p>
-                                    <p class="font-bold" id="gains-pending">0 FC</p>
-                                </div>
-                                <iconify-icon icon="solar:clock-circle-bold" width="24"
-                                    class="text-amber-500"></iconify-icon>
-                            </div>
-                            <div class="p-6 border border-gray-100 rounded-2xl flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase">Commission totale</p>
-                                    <p class="font-bold" id="gains-commission">0 FC</p>
-                                </div>
-                                <iconify-icon icon="solar:tag-bold" width="24" class="text-gray-300"></iconify-icon>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Payout History -->
-                    <div class="mt-12">
-                        <h3 class="font-bold text-gray-900 mb-6">Historique des retraits</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr
-                                        class="text-[10px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-50">
-                                        <th class="pb-4">Date</th>
-                                        <th class="pb-4">Montant</th>
-                                        <th class="pb-4">Méthode</th>
-                                        <th class="pb-4">Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="payout-history-body" class="divide-y divide-gray-50">
-                                    <!-- Injected by JS -->
-                        <button onclick="closeWithdrawalModal()"
-                            class="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
-                            <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
-                        </button>
-
-                        <h2 class="text-2xl font-black mb-2">Demander un retrait</h2>
-                        <p class="text-gray-500 text-sm mb-8">Le montant sera versé sur votre compte Mobile Money.</p>
-
-                        <div class="space-y-6">
-                            <div>
-                                <label
-                                    class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Montant
-                                    à retirer (FC)</label>
-                                <input type="number" id="withdrawAmount" placeholder="Ex: 50000"
-                                    class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:border-black font-bold text-lg transition-all">
-                                <p class="text-[10px] text-gray-400 mt-2">Maximum disponible: <span
-                                        id="maxAvailableWithdraw" class="font-bold text-black">0 FC</span></p>
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Méthode
-                                    de paiement</label>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button onclick="selectWithdrawMethod('M-Pesa')" id="btn-mpesa"
-                                        class="withdraw-method-btn flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-gray-100 hover:border-black transition-all">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-[#E61C1F]/10 flex items-center justify-center">
-                                            <span class="font-black text-[#E61C1F] text-xs">M</span>
-                                        </div>
-                                        <span class="text-xs font-bold">M-Pesa</span>
-                                    </button>
-                                    <button onclick="selectWithdrawMethod('Orange Money')" id="btn-orange"
-                                        class="withdraw-method-btn flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-gray-100 hover:border-black transition-all">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-[#FF6600]/10 flex items-center justify-center">
-                                            <span class="font-black text-[#FF6600] text-xs">O</span>
-                                        </div>
-                                        <span class="text-xs font-bold">Orange</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Numéro
-                                    de téléphone</label>
-                                <input type="tel" id="withdrawPhone" placeholder="0820000000"
-                                    class="w-full px-6 py-4 bg-gray-50 border border-transparent rounded-2xl outline-none focus:border-black font-bold transition-all">
-                            </div>
-
-                            <button onclick="submitWithdrawal()" id="btnSubmitWithdrawal"
-                                class="w-full bg-black text-white py-5 rounded-[1.5rem] font-bold text-base hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
-                                Confirmer la demande
-                                <iconify-icon icon="solar:arrow-right-bold" width="20"></iconify-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Gains Tab removed -->
 
             <!-- Order Detail Modal (New for Vendor) -->
             <div id="orderDetailModal"
@@ -288,7 +182,7 @@
                 <div class="glass-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                         <div>
-                            <h2 class="text-xl font-bold" id="vModalOrderId">Détails de la commande</h2>
+                            <h2 class="text-xl font-bold" iDétails de la commande</h2>
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-widest" id="vModalOrderDate"></p>
                         </div>
                         <button onclick="closeOrderDetailModal()"
@@ -326,7 +220,7 @@
                                 <div class="text-2xl font-black text-gray-900" id="vModalOrderTotal">0 FC</div>
                             </div>
                             <div class="flex gap-2" id="vModalActions">
-                                <button id="btnMarkDelivered" class="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-gray-800 transition-all">Marquer comme livré</button>
+                                <button id="btnMarkDelivered" class="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-gray-800 transition-all">Marquer comme livré
                                 <button id="btnMarkCancelled" class="px-4 py-2 border border-red-100 text-red-500 rounded-xl text-xs font-bold hover:bg-red-50 transition-all">Annuler</button>
                             </div>
                         </div>
@@ -359,8 +253,9 @@
                     // Tabs
                     document.getElementById('tab-dashboard').classList.add('hidden');
                     document.getElementById('tab-products').classList.add('hidden');
-                    document.getElementById('tab-gains').classList.add('hidden');
-                    document.getElementById('tab-settings').classList.add('hidden');
+                    // tab-gains a Ã©tÃ© retirÃ© du DOM â€” rÃ©fÃ©rence supprimÃ©e pour Ã©viter erreur JS
+                    const tabSettings = document.getElementById('tab-settings');
+                    if (tabSettings) tabSettings.classList.add('hidden');
 
                     // Links
                     document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
@@ -373,10 +268,6 @@
                         document.getElementById('tab-products').classList.remove('hidden');
                         document.querySelector('a[onclick*="products"]').classList.add('active');
                         renderVendorProducts();
-                    } else if (tabId === 'gains') {
-                        document.getElementById('tab-gains').classList.remove('hidden');
-                        document.querySelector('a[onclick*="gains"]').classList.add('active');
-                        renderVendorGains();
                     } else if (tabId === 'settings') {
                         document.getElementById('tab-settings').classList.remove('hidden');
                         document.querySelector('a[onclick*="settings"]').classList.add('active');
@@ -414,7 +305,7 @@
                                 email: document.getElementById('vSetEmail').value
                             };
                             ProfileManager.saveProfile(newProfile);
-                            showToast('Paramètres de la boutique enregistrés !', 'success');
+                            showToast('ParamÃ¨tres de la boutique enregistrÃ©s !', 'success');
 
                             // Refresh UI
                             document.getElementById('vendorName').textContent = newProfile.name;
@@ -422,12 +313,8 @@
                         });
                     }
 
-                    // Listen for updates
-                    window.addEventListener('withdrawalsUpdated', () => {
-                        if (!document.getElementById('tab-gains').classList.contains('hidden')) {
-                            renderVendorGains();
-                        }
-                    });
+                    // Listened to updates previously
+
                 });
 
                 function initVendorDashboard() {
@@ -492,13 +379,13 @@
                                     <p class="text-[10px] font-black text-gray-400 uppercase">${ActivityManager.formatTime(a.time)}</p>
                                 </div>
                             </div>
-                        `).join('') : '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activité.</p>';
+                        `).join('') : '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activitÃ©.</p>';
                     }
                 }
 
                 function getStatusColor(status) {
-                    if (status === 'Livré') return 'bg-green-50 text-green-600';
-                    if (status === 'Annulé') return 'bg-red-50 text-red-600';
+                    if (status === 'LivrÃ©') return 'bg-green-50 text-green-600';
+                    if (status === 'AnnulÃ©') return 'bg-red-50 text-red-600';
                     return 'bg-blue-50 text-blue-600';
                 }
 
@@ -548,110 +435,6 @@
                     `).join('') : '<div class="col-span-full py-12 text-center text-gray-400">Aucun produit.</div>';
                 }
 
-                function renderVendorGains() {
-                    const email = localStorage.getItem('newketUserEmail');
-                    const stats = OrderManager.getVendorStats(email);
-
-                    document.getElementById('gains-available').textContent = CurrencyManager.formatPrice(stats.availableBalance);
-                    document.getElementById('gains-pending').textContent = CurrencyManager.formatPrice(stats.pendingWithdrawals);
-                    document.getElementById('gains-commission').textContent = CurrencyManager.formatPrice(stats.commission);
-
-                    // Update payout history
-                    const historyBody = document.getElementById('payout-history-body');
-                    if (stats.payouts && stats.payouts.length > 0) {
-                        historyBody.innerHTML = stats.payouts.map(w => `
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="py-4 text-xs font-medium">${new Date(w.date).toLocaleDateString('fr-FR')}</td>
-                                <td class="py-4 font-black">${CurrencyManager.formatPrice(w.amount)}</td>
-                                <td class="py-4 text-xs">${w.method}</td>
-                                <td class="py-4">
-                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${w.status === 'Approuvé' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'}">${w.status}</span>
-                                </td>
-                            </tr>
-                        `).join('');
-                    } else {
-                        historyBody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-xs text-gray-400">Aucun retrait effectué</td></tr>`;
-                    }
-
-                    // Update modal max
-                    document.getElementById('maxAvailableWithdraw').textContent = CurrencyManager.formatPrice(stats.availableBalance);
-                }
-
-                // Withdrawal Modal Functions
-                function openWithdrawalModal() {
-                    const email = localStorage.getItem('newketUserEmail');
-                    const stats = OrderManager.getVendorStats(email);
-                    if (stats.availableBalance <= 0) {
-                        showToast("Votre solde est insuffisant pour un retrait.", "info");
-                        return;
-                    }
-                    document.getElementById('withdrawalModal').classList.remove('hidden');
-                    document.getElementById('maxAvailableWithdraw').textContent = CurrencyManager.formatPrice(stats.availableBalance);
-                }
-
-                function closeWithdrawalModal() {
-                    document.getElementById('withdrawalModal').classList.add('hidden');
-                }
-
-                function selectWithdrawMethod(method) {
-                    selectedWithdrawMethod = method;
-                    document.querySelectorAll('.withdraw-method-btn').forEach(btn => btn.classList.remove('border-black', 'bg-black/5'));
-                    if (method === 'M-Pesa') document.getElementById('btn-mpesa').classList.add('border-black', 'bg-black/5');
-                    if (method === 'Orange Money') document.getElementById('btn-orange').classList.add('border-black', 'bg-black/5');
-                }
-
-                async function submitWithdrawal() {
-                    const amountStr = document.getElementById('withdrawAmount').value;
-                    const phone = document.getElementById('withdrawPhone').value;
-                    const amount = parseFloat(amountStr);
-                    const email = localStorage.getItem('newketUserEmail');
-                    const stats = OrderManager.getVendorStats(email);
-
-                    if (!amount || amount <= 0) {
-                        showToast("Veuillez entrer un montant valide.", "error");
-                        return;
-                    }
-                    if (amount > stats.availableBalance) {
-                        showToast("Montant supérieur au solde disponible.", "error");
-                        return;
-                    }
-                    if (!selectedWithdrawMethod) {
-                        showToast("Veuillez choisir une méthode de retrait.", "error");
-                        return;
-                    }
-                    if (!phone || phone.length < 9) {
-                        showToast("Veuillez entrer un numéro de téléphone valide.", "error");
-                        return;
-                    }
-
-                    document.getElementById('btnSubmitWithdrawal').disabled = true;
-                    document.getElementById('btnSubmitWithdrawal').innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
-
-                    try {
-                        const success = await OrderManager.requestWithdrawal({
-                            supplier_email: email,
-                            amount: amount,
-                            method: selectedWithdrawMethod,
-                            phone_number: phone
-                        });
-
-                        if (success) {
-                            showToast("Demande de retrait envoyée avec succès !", "success");
-                            closeWithdrawalModal();
-                            renderVendorGains();
-                            ActivityManager.log(`Demande de retrait de ${CurrencyManager.formatPrice(amount)} envoyée`, 'finance');
-                        } else {
-                            showToast("Erreur lors de l'envoi de la demande.", "error");
-                        }
-                    } catch (error) {
-                        console.error("Withdrawal error:", error);
-                        showToast("Une erreur est survenue.", "error");
-                    } finally {
-                        document.getElementById('btnSubmitWithdrawal').disabled = false;
-                        document.getElementById('btnSubmitWithdrawal').innerHTML = 'Confirmer la demande <iconify-icon icon="solar:arrow-right-bold" width="20"></iconify-icon>';
-                    }
-                }
-            
                 // Order Detail Modal Functions
                 window.openOrderDetailModal = function(orderId) {
                     const order = OrderManager.getOrderById(orderId);
@@ -663,7 +446,7 @@
                     });
                     document.getElementById('vModalCustomerName').textContent = order.customer?.name || order.customer_name || 'Client';
                     document.getElementById('vModalCustomerEmail').textContent = order.customer?.email || 'Pas d\'email';
-                    document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numéro';
+                    document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numÃ©ro';
                     document.getElementById('vModalOrderTotal').textContent = CurrencyManager.formatPrice(order.total);
 
                     const itemsContainer = document.getElementById('vModalOrderItems');
@@ -678,7 +461,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="font-bold text-sm">${CurrencyManager.formatPrice(item.price)}</p>
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Qté: ${item.quantity || 1}</p>
+                                <p class="text-[10px] font-black text-gray-400 uppercase">QtÃ©: ${item.quantity || 1}</p>
                             </div>
                         </div>
                     `).join('');
@@ -687,8 +470,8 @@
                     const actions = document.getElementById('vModalActions');
                     if (order.status === 'En attente') {
                         actions.classList.remove('hidden');
-                        document.getElementById('btnMarkDelivered').onclick = () => updateVendorOrderStatus(order.id, 'Livré');
-                        document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'Annulé');
+                        document.getElementById('btnMarkDelivered').onclick = () => updateVendorOrderStatus(order.id, 'LivrÃ©');
+                        document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'AnnulÃ©');
                     } else {
                         actions.classList.add('hidden');
                     }
@@ -712,13 +495,44 @@
                             
                             // Activity log
                             const order = OrderManager.getOrderById(orderId);
-                            ActivityManager.log(`Commande #${orderId.substring(0,6)} marquée comme ${newStatus}`, 'order');
+                            ActivityManager.log(`Commande #${orderId.substring(0,6)} marquÃ©e comme ${newStatus}`, 'order');
                         }
                     } catch (error) {
                         showToast('Une erreur est survenue.', 'error');
                     }
                 }
     </script>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+        <div class="modal-box">
+            <p class="modal-title" id="confirmModalTitle">Confirmer l'action</p>
+            <p class="modal-message" id="confirmModalMessage"></p>
+            <div class="modal-actions">
+                <button class="btn-confirm-cancel" id="confirmModalCancel">Annuler</button>
+                <button class="btn-confirm-ok" id="confirmModalOk">Confirmer</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.showConfirm = function(message, onConfirm, title) {
+            title = title || 'Confirmer l\'action';
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confirmModalTitle').textContent = title;
+            document.getElementById('confirmModalMessage').textContent = message;
+            modal.classList.add('active');
+            const ok = document.getElementById('confirmModalOk');
+            const cancel = document.getElementById('confirmModalCancel');
+            const close = () => modal.classList.remove('active');
+            ok.onclick = () => { close(); onConfirm(); };
+            cancel.onclick = close;
+            modal.onclick = (e) => { if (e.target === modal) close(); };
+        };
+    </script>
+
 </body>
 
 </html>
+
+
+

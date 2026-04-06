@@ -38,8 +38,11 @@ window.SupabaseAdapter = {
 
     _invalidateTable(table) {
         const prefix = table + ':';
+        const now = Date.now();
         Object.keys(this._cache).forEach(key => {
-            if (key.startsWith(prefix)) {
+            const entry = this._cache[key];
+            // Nettoyage de la cible OU Garbage Collection passif des clés périmées globales
+            if (key.startsWith(prefix) || (now - entry.timestamp > entry.ttl)) {
                 delete this._cache[key];
             }
         });
@@ -68,25 +71,19 @@ window.SupabaseAdapter = {
                 const errMsg = (err.message || '').toLowerCase();
                 const errDetails = (err.details || '').toLowerCase();
                 if (errMsg.includes('jwt expired') || errDetails.includes('jwt expired') || err.status === 401) {
-                    console.error('[NewKet] Fatal Auth Error: JWT expired or 401 Unauthorized detected. Forcing logout to recover.');
-                    if (window.AuthManager && typeof window.AuthManager.logout === 'function') {
-                        // Suppress further retries, trigger logout immediately
-                        window.AuthManager.logout();
-                        throw new Error('Session expirée. Veuillez rafraîchir la page.');
-                    } else {
-                        // Fallback if AuthManager isn't fully loaded yet
-                        localStorage.removeItem('newketRole');
-                        localStorage.removeItem('newketUserEmail');
-                        localStorage.removeItem('newketUserAvatar');
-
-                        if (window.supabaseClient) {
-                            window.supabaseClient.auth.signOut().then(() => {
-                                window.location.reload();
-                            });
+                    console.warn(`[NewKet] Auth Warning: JWT expired or 401 (Attempt ${attempt}). Allowing SDK refresh...`);
+                    
+                    if (attempt >= maxAttempts) {
+                        console.error('[NewKet] Fatal Auth Error: Token could not be refreshed. Forcing logout.');
+                        if (window.AuthManager && typeof window.AuthManager.logout === 'function') {
+                            window.AuthManager.logout();
                         } else {
-                            window.location.reload();
+                            localStorage.removeItem('newketRole');
+                            localStorage.removeItem('newketUserEmail');
+                            if (window.supabaseClient) window.supabaseClient.auth.signOut().then(() => window.location.reload());
+                            else window.location.reload();
                         }
-                        throw new Error('Session expirée. Rechargement...');
+                        throw new Error('Session expirée définitivement. Veuillez vous reconnecter.');
                     }
                 }
                 // --------------------------------------
@@ -382,6 +379,23 @@ window.SupabaseAdapter = {
             console.error(`[NewKet] Error upserting into ${table}:`, err);
             return null;
         }
+    },
+
+    /**
+     * Subscribe to real-time changes on a table.
+     * @param {string} table - Table name
+     * @param {string} event - 'INSERT', 'UPDATE', 'DELETE', or '*'
+     * @param {function} callback - Callback function receiving the payload
+     */
+    subscribeToTable(table, event, callback) {
+        const client = this.getClient();
+        if (!client) return null;
+
+        return client.channel(`public:${table}:${event}`)
+            .on('postgres_changes', { event, schema: 'public', table }, payload => {
+                callback(payload);
+            })
+            .subscribe();
     },
 
     async uploadFile(bucket, filePath, file) {

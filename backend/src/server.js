@@ -14,9 +14,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ────────────────────────────────────────────────
-// TODO: Importer et utiliser tes routes ici
-// import productRoutes from './routes/products.js';
-// app.use('/api/products', productRoutes);
+// Import des routes
+import productRoutes from './routes/product.routes.js';
+import orderRoutes from './routes/order.routes.js';
+import favoriteRoutes from './routes/favorite.routes.js';
+import userRoutes from './routes/user.routes.js';
+
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/users', userRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {

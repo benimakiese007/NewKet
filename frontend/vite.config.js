@@ -23,7 +23,6 @@ export default defineConfig({
         catalog: './pages/catalog.html',
         product: './pages/product.html',
         publish: './pages/publish.html',
-        cart: './pages/cart.html',
         login: './pages/login.html',
         dashboard: './pages/vendor-dashboard.html',
         customer: './pages/customer-dashboard.html',

@@ -7,14 +7,14 @@ const UserManager = {
     _initialized: false,
 
     async init() {
-        if (!window.SupabaseAdapter) {
-            console.error('[UserManager] SupabaseAdapter not found.');
+        if (!window.ApiClient) {
+            console.error('[UserManager] ApiClient not found.');
             return;
         }
 
         try {
-            // Fetch all users from the 'users' table
-            const users = await SupabaseAdapter.fetch('users');
+            // Fetch all users from the Express Backend
+            const users = await ApiClient.get('/users');
             this.data = users || [];
             this._initialized = true;
         } catch (error) {
@@ -32,27 +32,35 @@ const UserManager = {
     },
 
     async updateStatus(userId, status) {
-        const client = SupabaseAdapter.getClient();
-        if (!client) return { error: 'Supabase not initialized' };
+        if (!window.ApiClient) return { error: 'ApiClient not initialized' };
 
-        const result = await SupabaseAdapter.update('users', userId, { status });
-        
-        if (result) {
-            // Update local cache
-            const index = this.data.findIndex(u => u.id === userId);
-            if (index !== -1) this.data[index].status = status;
-            return { success: true };
+        try {
+            const data = await ApiClient.put(`/users/${userId}/status`, { status });
+            if (data.success) {
+                // Update local cache
+                const index = this.data.findIndex(u => u.id === userId);
+                if (index !== -1) this.data[index].status = status;
+                return { success: true };
+            }
+            return { error: 'Update failed' };
+        } catch (err) {
+            return { error: err.message };
         }
-        return { error: 'Update failed' };
     },
 
     async deleteUser(userId) {
-        const success = await SupabaseAdapter.delete('users', userId);
-        if (success) {
-            this.data = this.data.filter(u => u.id !== userId);
-            return true;
+        if (!window.ApiClient) return false;
+        
+        try {
+            const data = await ApiClient.delete(`/users/${userId}`);
+            if (data.success) {
+                this.data = this.data.filter(u => u.id !== userId);
+                return true;
+            }
+            return false;
+        } catch (err) {
+            return false;
         }
-        return false;
     }
 };
 

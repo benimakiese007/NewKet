@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Notifications | NewKet Admin</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <script type="module" src="../../services/app.js"></script>
@@ -113,7 +114,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900">Notifications</h1>
-                    <p class="text-gray-500">Gérez et envoyez des alertes à vos utilisateurs.</p>
+                    <p class="text-gray-500">GÃ©rez et envoyez des alertes Ã  vos utilisateurs.</p>
                 </div>
                 <button onclick="openNewNotifModal()"
                     class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-xl shadow-black/10">
@@ -125,7 +126,7 @@
             <!-- Stats -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total envoyées</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total envoyÃ©es</div>
                     <div class="text-2xl font-black text-gray-900" id="statTotal">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
@@ -137,7 +138,7 @@
                     <div class="text-2xl font-black text-purple-500" id="statPromos">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Alertes système</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Alertes systÃ¨me</div>
                     <div class="text-2xl font-black text-red-500" id="statAlerts">0</div>
                 </div>
             </div>
@@ -161,7 +162,7 @@
                         <select id="notifType"
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors bg-white">
                             <option value="info">Information</option>
-                            <option value="success">Succès</option>
+                            <option value="success">SuccÃ¨s</option>
                             <option value="warning">Avertissement</option>
                             <option value="danger">Alerte</option>
                             <option value="promo">Promotion</option>
@@ -170,7 +171,7 @@
                     <div class="sm:col-span-2">
                         <label
                             class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Message</label>
-                        <textarea id="notifMessage" placeholder="Rédigez votre message ici..." rows="3"
+                        <textarea id="notifMessage" placeholder="RÃ©digez votre message ici..." rows="3"
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors resize-none"></textarea>
                     </div>
                     <div>
@@ -205,7 +206,7 @@
                             class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black cursor-pointer">
                             <option value="all">Tous les types</option>
                             <option value="info">Information</option>
-                            <option value="success">Succès</option>
+                            <option value="success">SuccÃ¨s</option>
                             <option value="warning">Avertissement</option>
                             <option value="danger">Alerte</option>
                             <option value="promo">Promotion</option>
@@ -270,14 +271,14 @@
             document.getElementById('notifMessage').value = '';
             renderNotifications();
             updateStats();
-            showToast('Notification envoyée avec succès !', 'success');
-            if (window.ActivityManager) ActivityManager.log(`Notification envoyée : "${title}"`, 'system');
+            showToast('Notification envoyÃ©e avec succÃ¨s !', 'success');
+            if (window.ActivityManager) ActivityManager.log(`Notification envoyÃ©e : "${title}"`, 'system');
         }
 
         function getTypeBadge(type) {
             const badges = {
                 'info': '<span class="badge badge-info">Info</span>',
-                'success': '<span class="badge badge-success">Succès</span>',
+                'success': '<span class="badge badge-success">SuccÃ¨s</span>',
                 'warning': '<span class="badge badge-warning">Avertiss.</span>',
                 'danger': '<span class="badge badge-danger">Alerte</span>',
                 'promo': '<span class="badge badge-promo">Promo</span>'
@@ -295,7 +296,7 @@
             saveNotifications(notifs);
             renderNotifications();
             updateStats();
-            showToast('Notification supprimée.', 'success');
+            showToast('Notification supprimÃ©e.', 'success');
         }
 
         function clearAllNotifications() {
@@ -303,7 +304,7 @@
             saveNotifications([]);
             renderNotifications();
             updateStats();
-            showToast('Historique effacé.', 'success');
+            showToast('Historique effacÃ©.', 'success');
         }
 
         function renderNotifications() {
@@ -313,7 +314,7 @@
             if (filterType !== 'all') notifs = notifs.filter(n => n.type === filterType);
 
             if (notifs.length === 0) {
-                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucune notification envoyée.</div>`;
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucune notification envoyÃ©e.</div>`;
                 return;
             }
 
@@ -333,7 +334,7 @@
                                 <p class="text-sm text-gray-600 mb-2">${n.message}</p>
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                     ${new Date(n.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                    · Par ${n.sentBy}
+                                    Â· Par ${n.sentBy}
                                 </div>
                             </div>
                         </div>
@@ -376,3 +377,4 @@
 </body>
 
 </html>
+

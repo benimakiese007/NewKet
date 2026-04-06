@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Livraisons | NewKet Admin</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <script type="module" src="../../services/app.js"></script>
@@ -68,7 +69,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900">Livraisons</h1>
-                    <p class="text-gray-500">Gérez et suivez toutes les livraisons en cours.</p>
+                    <p class="text-gray-500">GÃ©rez et suivez toutes les livraisons en cours.</p>
                 </div>
                 <button onclick="exportDeliveries()"
                     class="bg-white text-black border border-gray-200 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm">
@@ -81,19 +82,19 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="glass-panel p-5">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Livraisons</p>
-                    <p class="text-3xl font-black text-gray-900" id="statTotalDeliv">–</p>
+                    <p class="text-3xl font-black text-gray-900" id="statTotalDeliv">â€“</p>
                 </div>
                 <div class="glass-panel p-5">
                     <p class="text-[10px] font-black uppercase tracking-widest text-yellow-500 mb-1">En Attente</p>
-                    <p class="text-3xl font-black text-yellow-500" id="statPending">–</p>
+                    <p class="text-3xl font-black text-yellow-500" id="statPending">â€“</p>
                 </div>
                 <div class="glass-panel p-5">
                     <p class="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-1">En Livraison</p>
-                    <p class="text-3xl font-black text-blue-500" id="statInTransit">–</p>
+                    <p class="text-3xl font-black text-blue-500" id="statInTransit">â€“</p>
                 </div>
                 <div class="glass-panel p-5">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-green-500 mb-1">Livrées</p>
-                    <p class="text-3xl font-black text-green-500" id="statDelivered">–</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-green-500 mb-1">LivrÃ©es</p>
+                    <p class="text-3xl font-black text-green-500" id="statDelivered">â€“</p>
                 </div>
             </div>
 
@@ -106,8 +107,8 @@
                     class="filter-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-yellow-50 text-yellow-600 hover:bg-yellow-100 transition-all">En attente</button>
                 <button onclick="setFilter('En livraison')" id="filter-transit"
                     class="filter-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all">En livraison</button>
-                <button onclick="setFilter('Livré')" id="filter-delivered"
-                    class="filter-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-green-50 text-green-600 hover:bg-green-100 transition-all">Livrées</button>
+                <button onclick="setFilter('LivrÃ©')" id="filter-delivered"
+                    class="filter-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-green-50 text-green-600 hover:bg-green-100 transition-all">LivrÃ©es</button>
             </div>
 
             <!-- Deliveries Table -->
@@ -118,7 +119,7 @@
                             <tr class="bg-gray-50 border-b border-gray-100">
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">ID</th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Client</th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Téléphone</th>
+                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">TÃ©lÃ©phone</th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Articles</th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Date</th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Total</th>
@@ -151,7 +152,7 @@
                 'all': 'filter-all',
                 'En attente': 'filter-pending',
                 'En livraison': 'filter-transit',
-                'Livré': 'filter-delivered'
+                'LivrÃ©': 'filter-delivered'
             };
             const activeBtn = document.getElementById(activeMap[filter]);
             if (activeBtn) {
@@ -170,7 +171,7 @@
             switch (status) {
                 case 'En attente': return 'bg-yellow-50 text-yellow-600';
                 case 'En livraison': return 'bg-blue-50 text-blue-600';
-                case 'Livré': return 'bg-green-50 text-green-600';
+                case 'LivrÃ©': return 'bg-green-50 text-green-600';
                 default: return 'bg-gray-50 text-gray-500';
             }
         }
@@ -180,13 +181,13 @@
             const orders = getFilteredOrders();
 
             if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-gray-400 font-medium">Aucune livraison trouvée.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-gray-400 font-medium">Aucune livraison trouvÃ©e.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = orders.map(o => `
                 <tr class="group hover:bg-gray-50/50 transition-colors text-xs">
-                    <td class="p-4 font-black text-gray-400">#${o.id || '–'}</td>
+                    <td class="p-4 font-black text-gray-400">#${o.id || 'â€“'}</td>
                     <td class="p-4">
                         <div class="font-bold text-gray-900">${o.customer?.name || o.customer_name || 'Client'}</div>
                         <div class="text-[10px] text-gray-400 font-medium">${o.customer?.email || o.customer_email || ''}</div>
@@ -213,7 +214,7 @@
                             class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-black cursor-pointer">
                             <option value="En attente" ${(o.status === 'En attente' || !o.status) ? 'selected' : ''}>Attente</option>
                             <option value="En livraison" ${o.status === 'En livraison' ? 'selected' : ''}>Livraison</option>
-                            <option value="Livré" ${o.status === 'Livré' ? 'selected' : ''}>Livré</option>
+                            <option value="LivrÃ©" ${o.status === 'LivrÃ©' ? 'selected' : ''}>LivrÃ©</option>
                         </select>
                     </td>
                 </tr>
@@ -226,7 +227,7 @@
             document.getElementById('statTotalDeliv').textContent = allOrders.length;
             document.getElementById('statPending').textContent = allOrders.filter(o => o.status === 'En attente' || !o.status).length;
             document.getElementById('statInTransit').textContent = allOrders.filter(o => o.status === 'En livraison').length;
-            document.getElementById('statDelivered').textContent = allOrders.filter(o => o.status === 'Livré').length;
+            document.getElementById('statDelivered').textContent = allOrders.filter(o => o.status === 'LivrÃ©').length;
         }
 
         async function updateDeliveryStatus(id, newStatus) {
@@ -253,16 +254,16 @@
 
             renderDeliveries();
             updateStats();
-            if (typeof showToast === 'function') showToast('Statut mis à jour !', 'success');
+            if (typeof showToast === 'function') showToast('Statut mis Ã  jour !', 'success');
         }
 
         function exportDeliveries() {
             const orders = getFilteredOrders();
             if (!orders.length) {
-                if (typeof showToast === 'function') showToast('Aucune livraison à exporter.', 'info');
+                if (typeof showToast === 'function') showToast('Aucune livraison Ã  exporter.', 'info');
                 return;
             }
-            const headers = ['ID', 'Client', 'Email', 'Téléphone', 'Articles', 'Date', 'Total', 'Statut'];
+            const headers = ['ID', 'Client', 'Email', 'TÃ©lÃ©phone', 'Articles', 'Date', 'Total', 'Statut'];
             const rows = orders.map(o => [
                 o.id,
                 o.customer?.name || o.customer_name || 'Client',
@@ -281,7 +282,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            if (typeof showToast === 'function') showToast('Export réussi !', 'success');
+            if (typeof showToast === 'function') showToast('Export rÃ©ussi !', 'success');
         }
 
         async function initPage() {
@@ -322,3 +323,4 @@
 </body>
 
 </html>
+

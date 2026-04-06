@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Espace Vendeur | NewKet</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -37,7 +38,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900">Tableau de bord</h1>
-                    <p class="text-gray-500">Bienvenue, voici un aperçu de votre activité.</p>
+                    <p class="text-gray-500">Bienvenue, voici un aperÃ§u de votre activitÃ©.</p>
                 </div>
 
                 <div class="flex items-center gap-4">
@@ -50,7 +51,7 @@
                         <button onclick="updateTimeframe('month', this)"
                             class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Mois</button>
                         <button onclick="updateTimeframe('year', this)"
-                            class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Année</button>
+                            class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">AnnÃ©e</button>
                         <button onclick="updateTimeframe('all', this)"
                             class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all bg-black text-white">Tout</button>
                     </div>
@@ -134,7 +135,7 @@
                             <h3 class="font-bold text-gray-900 flex items-center gap-2">
                                 <iconify-icon icon="solar:history-bold-duotone" width="20"
                                     class="text-gray-400"></iconify-icon>
-                                 Leads récents (Clicks WhatsApp)
+                                 Leads rÃ©cents (Clicks WhatsApp)
                             </h3>
                             <a href="orders.html"
                                 class="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors">Tout
@@ -155,7 +156,7 @@
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:pie-chart-bold-duotone" width="20"
                                 class="text-purple-500"></iconify-icon>
-                            Par Catégorie
+                            Par CatÃ©gorie
                         </h3>
                         <div class="h-[200px]">
                             <canvas id="categoryChart"></canvas>
@@ -179,7 +180,7 @@
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:bell-bing-bold-duotone" width="20"
                                 class="text-blue-500"></iconify-icon>
-                            Activité
+                            ActivitÃ©
                         </h3>
                         <div id="activityFeed" class="space-y-6">
                             <!-- Activity items injected here -->
@@ -234,18 +235,18 @@
                 if (isAdmin) {
                     document.title = "Administration | NewKet";
                     document.querySelector('h1').textContent = "Vue d'ensemble";
-                    document.querySelector('h1 + p').textContent = "Performances et activité globales de la plateforme.";
+                    document.querySelector('h1 + p').textContent = "Performances et activitÃ© globales de la plateforme.";
 
                     // Hide Nouveau Produit button for admin
                     const newProdBtn = document.querySelector('a[href="products.html"].bg-black');
                     if (newProdBtn) newProdBtn.style.display = 'none';
 
                     document.querySelectorAll('.stat-label-sales').forEach(el => el.textContent = 'Volume Brut (Platform)');
-                    document.querySelectorAll('.stat-label-comm').forEach(el => el.textContent = 'Commissions Perçues');
+                    document.querySelectorAll('.stat-label-comm').forEach(el => el.textContent = 'Commissions PerÃ§ues');
                     document.querySelectorAll('.stat-label-net').forEach(el => el.textContent = 'Profit Plateforme');
                 } else {
                     document.querySelectorAll('.stat-label-sales').forEach(el => el.textContent = 'Mes Gains (Brut)');
-                    document.querySelectorAll('.stat-label-comm').forEach(el => el.textContent = 'Comm. Déduite');
+                    document.querySelectorAll('.stat-label-comm').forEach(el => el.textContent = 'Comm. DÃ©duite');
                     document.querySelectorAll('.stat-label-net').forEach(el => el.textContent = 'Mes Revenus Nets');
                 }
             }
@@ -331,7 +332,7 @@
             const recent = leads.slice(0, 5);
 
             if (recent.length === 0) {
-                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucun lead pour cette période.</div>`;
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucun lead pour cette pÃ©riode.</div>`;
                 return;
             }
 
@@ -361,7 +362,7 @@
             switch (status) {
                 case 'En attente': return 'bg-yellow-50 text-yellow-600';
                 case 'En livraison': return 'bg-blue-50 text-blue-600';
-                case 'Livré': return 'bg-green-50 text-green-600';
+                case 'LivrÃ©': return 'bg-green-50 text-green-600';
                 default: return 'bg-gray-50 text-gray-500';
             }
         }
@@ -480,7 +481,7 @@
             const activities = ActivityManager.getActivities().slice(0, 5);
 
             if (activities.length === 0) {
-                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activité récente.</div>`;
+                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activitÃ© rÃ©cente.</div>`;
                 return;
             }
 
@@ -502,7 +503,7 @@
             const topProducts = stats.topProducts || [];
 
             if (topProducts.length === 0) {
-                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">Aucune vente pour cette période.</div>`;
+                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">Aucune vente pour cette pÃ©riode.</div>`;
                 return;
             }
 
@@ -565,3 +566,4 @@
 </body>
 
 </html>
+

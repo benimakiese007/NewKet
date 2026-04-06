@@ -1,4 +1,6 @@
 /* newket EMarket Auth Manager */
+// Admin email list is now centralized in admin-config.js (synchronous script)
+const ADMIN_EMAILS = window.ADMIN_EMAILS || [];
 
 const AuthManager = {
     role: null,
@@ -14,8 +16,16 @@ const AuthManager = {
                 if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                     const user = session.user;
                     this.user = user; // Store user object for settings page
-                    const role = user.user_metadata.role || 'customer';
                     const email = user.email;
+                    let role = user.user_metadata.role || 'customer';
+                    
+                    // Force admin role if email is in ADMIN_EMAILS (from admin-config.js)
+                    const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+                    if (email && admins.includes(email.toLowerCase())) {
+                        role = 'admin';
+                    }
+                    
+                    // L'utilisateur est admin uniquement si son métadata le dit, ou son email figure dans ADMIN_EMAILS.
 
                     this.role = role;
                     localStorage.setItem('newketRole', role);
@@ -49,7 +59,17 @@ const AuthManager = {
             if (data.session) {
                 const user = data.session.user;
                 this.user = user; 
-                this.role = user.user_metadata.role || 'customer';
+                let role = user.user_metadata.role || 'customer';
+
+                // Force admin role if email is in ADMIN_EMAILS (from admin-config.js)
+                const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+                if (user.email && admins.includes(user.email.toLowerCase())) {
+                    role = 'admin';
+                }
+
+                // L'utilisateur est admin uniquement si son métadata le dit, ou son email figure dans ADMIN_EMAILS.
+                
+                this.role = role;
                 
                 // Ensure localStorage is in sync with session (Fix for Issue 2: Info mixup)
                 localStorage.setItem('newketRole', this.role);
@@ -66,6 +86,13 @@ const AuthManager = {
                 this.status = null;
                 this.user = null;
                 this.clearSession(); // Ensure old data is wiped if no session
+                
+                // Pas de bypass autorisé si l'utilisateur n'est pas connecté.
+                if (window.location.pathname.includes('/admin/')) {
+                    if (!window.location.pathname.includes('login.html') && !window.location.pathname.endsWith('admin/')) {
+                        window.location.href = '/index.html';
+                    }
+                }
             }
         }
 
@@ -127,6 +154,12 @@ const AuthManager = {
                 .eq('email', email)
                 .maybeSingle();
             if (error) throw error;
+            
+            // If user is a known admin (from admin-config.js), force status 'approved'
+            const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+            if (email && admins.includes(email.toLowerCase())) {
+                return 'approved';
+            }
             
             // If user not yet in DB (e.g. just signed up), determine default by role
             if (!data) {
@@ -202,25 +235,9 @@ const AuthManager = {
         if (this.status) body.classList.add(`status-${this.status}`);
 
         // Mobile Nav Visibility
-        if (this.role === 'supplier' || this.role === 'admin') {
-            document.querySelectorAll('.vendor-nav').forEach(el => {
-                el.classList.remove('hidden');
-                // el.style.display = 'flex'; // Removed: breaks 'contents' display
-            });
-            document.querySelectorAll('.customer-nav').forEach(el => {
-                el.classList.add('hidden');
-                // el.style.display = 'none';
-            });
-        } else {
-            document.querySelectorAll('.vendor-nav').forEach(el => {
-                el.classList.add('hidden');
-                // el.style.display = 'none';
-            });
-            document.querySelectorAll('.customer-nav').forEach(el => {
-                el.classList.remove('hidden');
-                // el.style.display = 'flex';
-            });
-        }
+        const isVendor = this.role === 'supplier' || this.role === 'admin';
+        document.querySelectorAll('.vendor-nav').forEach(el => el.classList.toggle('hidden', !isVendor));
+        document.querySelectorAll('.customer-nav').forEach(el => el.classList.toggle('hidden', isVendor));
 
         if (this.role === 'supplier' || this.role === 'admin') {
             const isAdmin = this.role === 'admin';
@@ -246,6 +263,13 @@ const AuthManager = {
             document.querySelectorAll('.publish-btn, .supplier-only, .admin-only, #headerDashboardLink').forEach(el => {
                 el.style.display = '';
             });
+
+            // Safeguard: Redirect admin away from supplier-only pages (onboarding) if landed there by error
+            if (window.location.pathname.includes('seller-onboarding.html')) {
+                window.location.href = '/pages/admin/dashboard.html';
+                return;
+            }
+            
             return;
         }
 
@@ -265,22 +289,26 @@ const AuthManager = {
                     path.includes('orders.html');
 
                 if (isProtectedVendorPage && !path.includes('seller-onboarding.html')) {
-                    window.location.href = '/pages/seller-onboarding.html';
+                    // [CORRECTIF C] Revalidation asynchrone KYC depuis Supabase
+                    // Evite le bug où l'admin a approuvé le vendeur mais le cache local est encore 'pending'
+                    const email = this.user?.email || localStorage.getItem('newketUserEmail');
+                    if (email) {
+                        this.fetchUserStatus(email).then(freshStatus => {
+                            this.status = freshStatus;
+                            localStorage.setItem('newketUserStatus', freshStatus);
+                            if (freshStatus !== 'approved') {
+                                window.location.href = '/pages/seller-onboarding.html';
+                            }
+                            // Si freshStatus === 'approved', on reste sur la page, pas de redirection
+                        });
+                    } else {
+                        window.location.href = '/pages/seller-onboarding.html';
+                    }
                     return;
                 }
             } else if (isSubmitted) {
                 // Form submitted, waiting for admin to review — show notice
                 this.showPendingNotice();
-
-                // Hide publish/seller-only links
-                document.querySelectorAll('.publish-btn, .supplier-only').forEach(el => {
-                    el.style.display = 'none';
-                });
-
-                const path = window.location.pathname;
-                if (path.includes('publish.html')) {
-                    window.location.href = '/pages/vendor-dashboard.html';
-                }
             } else if (this.status === 'rejected') {
                 this.showRejectedNotice();
             }
@@ -307,7 +335,7 @@ const AuthManager = {
         if (this.role === null) {
             const path = window.location.pathname;
             const isAdminFolder = path.includes('/admin/');
-            const isLoginPage = path.endsWith('/admin/') || path.endsWith('index.html');
+            const isLoginPage = path.includes('login.html'); // Refuser formellement l'accès admin sans connexion
 
             if (isAdminFolder && !isLoginPage) {
                 window.location.href = '/index.html';

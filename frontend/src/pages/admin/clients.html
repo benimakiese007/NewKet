@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Mes Clients | NewKet</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <script type="module" src="../../services/app.js"></script>
@@ -32,7 +33,7 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div>
                 <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Mes Clients</h1>
-                <p class="text-gray-500" id="pageSubtitle">Gérez votre base de clients fidèles.</p>
+                <p class="text-gray-500" id="pageSubtitle">GÃ©rez votre base de clients fidÃ¨les.</p>
             </div>
 
             <div class="glass-panel overflow-hidden">
@@ -45,9 +46,9 @@
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Achats
                                 </th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Total
-                                    Dépensé</th>
+                                    DÃ©pensÃ©</th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
-                                    Dernière activité</th>
+                                    DerniÃ¨re activitÃ©</th>
                             </tr>
                         </thead>
                         <tbody id="clientsBody" class="divide-y divide-gray-50">
@@ -71,7 +72,7 @@
             const userRoleMap = {};
             allUsers.forEach(u => { if (u.email) userRoleMap[u.email] = u.role; });
 
-            // Unique clients from orders — only role 'customer', exclude admin & supplier
+            // Unique clients from orders â€” only role 'customer', exclude admin & supplier
             const clientMap = new Map();
             orders.forEach(o => {
                 if (o.customer && o.customer.email) {
@@ -98,7 +99,7 @@
             const clients = Array.from(clientMap.values());
 
             if (clients.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-12 text-center text-gray-400">Aucun client répertorié.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-12 text-center text-gray-400">Aucun client rÃ©pertoriÃ©.</td></tr>`;
                 return;
             }
 
@@ -133,7 +134,7 @@
                 const pageTitle = document.getElementById('pageTitle');
                 const pageSubtitle = document.getElementById('pageSubtitle');
                 if (pageTitle) pageTitle.textContent = 'Clients Plateforme';
-                if (pageSubtitle) pageSubtitle.textContent = 'Gérez la base de données globale des clients.';
+                if (pageSubtitle) pageSubtitle.textContent = 'GÃ©rez la base de donnÃ©es globale des clients.';
             }
         }
 
@@ -148,3 +149,4 @@
 </body>
 
 </html>
+

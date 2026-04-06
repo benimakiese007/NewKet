@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -12,9 +12,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Vendre un article — NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <title>Vendre un article â€” NewKet</title>
+    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
     <link rel="stylesheet" href="../assets/css/input.css">
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -66,15 +67,15 @@
 
                 <div class="grid sm:grid-cols-2 gap-6">
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 ml-1">Catégorie</label>
+                        <label class="text-sm font-bold text-gray-700 ml-1">CatÃ©gorie</label>
                         <div
                             class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
                             <select id="pCategoryInput"
                                 class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent">
                                 <option>High-Tech</option>
                                 <option>Mode</option>
-                                <option>Maison & Déco</option>
-                                <option>Beauté</option>
+                                <option>Maison & DÃ©co</option>
+                                <option>BeautÃ©</option>
                                 <option>Sports</option>
                             </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="20"
@@ -111,7 +112,7 @@
                         <div>
                             <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Taux de
                                 conversion</div>
-                            <div class="text-sm font-semibold text-gray-700">Estimé en <span
+                            <div class="text-sm font-semibold text-gray-700">EstimÃ© en <span
                                     id="otherCurrencyName">USD</span></div>
                         </div>
                     </div>
@@ -131,7 +132,7 @@
 
             <!-- Media Card -->
             <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-4">
-                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit (jusqu'à 5)</label>
+                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit (jusqu'Ã  5)</label>
                 <input type="file" id="pImageUpload" accept="image/png, image/jpeg" multiple class="hidden">
                 <div id="uploadZone" onclick="document.getElementById('pImageUpload').click()"
                     class="border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center hover:border-black hover:bg-gray-50/30 transition-all cursor-pointer group">
@@ -142,7 +143,7 @@
                     </div>
                     <p class="text-gray-500 font-medium">Glissez vos photos ici ou <span
                             class="text-black border-b border-gray-200">parcourez vos fichiers</span></p>
-                    <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'à 10MB</p>
+                    <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'Ã  10MB</p>
                 </div>
 
                 <div id="imagePreviewContainer" class="hidden flex gap-4 overflow-x-auto pb-4 custom-scrollbar"></div>
@@ -153,7 +154,7 @@
                     <label for="removeBackgroundCheck"
                         class="text-sm font-semibold text-gray-700 flex items-center gap-2 cursor-pointer">
                         <iconify-icon icon="solar:magic-stick-3-linear" class="text-purple-500 text-lg"></iconify-icon>
-                        Transformer en PNG (Détourage transparent par intelligence artificielle)
+                        Transformer en PNG (DÃ©tourage transparent par intelligence artificielle)
                     </label>
                 </div>
             </div>
@@ -164,7 +165,7 @@
                     <label class="text-sm font-bold text-gray-700 ml-1">Description</label>
                     <div
                         class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                        <textarea id="pDescInput" rows="5" placeholder="Décrivez votre produit (état, caractéristiques, etc.)"
+                        <textarea id="pDescInput" rows="5" placeholder="DÃ©crivez votre produit (Ã©tat, caractÃ©ristiques, etc.)"
                             class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 resize-none"></textarea>
                     </div>
                 </div>
@@ -188,7 +189,7 @@
                     class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                     <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Chef-d'œuvre publié !</h2>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Chef-d'Å“uvre publiÃ© !</h2>
                 <p class="text-gray-500 mb-8">Votre article d'exception a rejoint notre collection exclusive.</p>
                 <button onclick="window.location.href='catalog.html'"
                     class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-xl transition-all hover:bg-black">
@@ -302,6 +303,17 @@
             document.getElementById('publishForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
 
+                const userStatus = localStorage.getItem('newketUserStatus') || 'pending';
+                const userRole = localStorage.getItem('newketUserRole');
+                if ((userStatus === 'submitted' || userStatus === 'pending') && userRole !== 'admin') {
+                    if (typeof showToast === 'function') {
+                        showToast("Veuillez patienter que votre boutique soit validÃ©e par un administrateur pour dÃ©bloquer cette fonctionnalitÃ©.", "warning");
+                    } else {
+                        alert("Veuillez patienter que votre boutique soit validÃ©e par un administrateur pour dÃ©bloquer cette fonctionnalitÃ©.");
+                    }
+                    return;
+                }
+
                 const titleInput = document.getElementById('pTitleInput');
                 const categorySelect = document.getElementById('pCategoryInput');
                 const descInput = document.getElementById('pDescInput');
@@ -363,7 +375,7 @@
                         stock: 10,
                         reviews: 0,
                         is_new: true,
-                        status: 'active',
+                        status: 'published',
                         created_at: new Date().toISOString()
                     };
 
@@ -389,3 +401,4 @@
 </body>
 
 </html>
+
