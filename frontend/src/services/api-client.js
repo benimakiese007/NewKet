@@ -1,4 +1,7 @@
-const API_BASE_URL = 'http://localhost:3001/api';
+// En production (Vercel), les appels /api/* sont servis par la Serverless Function sur le même domaine.
+// En développement local, on pointe vers le serveur Express sur :3001.
+const API_BASE_URL = import.meta.env.VITE_API_URL
+    || (location.hostname === 'localhost' ? 'http://localhost:3001/api' : '/api');
 
 /**
  * Fetch wrapper for connecting to the Express Backend.
