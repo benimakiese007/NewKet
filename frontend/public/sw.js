@@ -1,4 +1,4 @@
-const CACHE_NAME = 'newket-cache-v3';
+const CACHE_NAME = 'newket-cache-v5'; // Increment version
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -8,33 +8,35 @@ const ASSETS_TO_CACHE = [
     '/pages/favorites.html',
     '/pages/shops.html',
     '/pages/shop.html',
-    '/css/style.css',
-    '/css/tailwind.css',
-    '/js/main.js',
-    '/js/supabase-client.js',
-    '/js/supabase-adapter.js',
-    '/js/auth.js',
-    '/js/cart.js',
-    '/js/favorites.js',
-    '/js/currency.js',
-    '/js/products.js',
-    '/js/orders.js',
-    '/js/managers.js',
-    '/js/ui-helpers.js',
-    '/js/ui.js',
-    '/js/search.js',
-    '/js/components-loader.js',
+    '/assets/css/style.css',
+    '/assets/css/responsive.css',
+    '/services/main.js',
+    '/services/supabase-client.js',
+    '/services/supabase-adapter.js',
+    '/services/auth.js',
+    '/services/favorites.js',
+    '/services/currency.js',
+    '/services/products.js',
+    '/services/orders.js',
+    '/services/managers.js',
+    '/services/ui-helpers.js',
+    '/services/ui.js',
+    '/services/search.js',
+    '/services/components-loader.js',
     '/manifest.json',
-    '/Images/Logo NewKet V2.jpeg'
+    '/assets/Images/Logo NewKet V2.jpeg'
 ];
 
 // Install Event
 self.addEventListener('install', (event) => {
-    self.skipWaiting(); // Force installation immediately
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('[Service Worker] Caching critical assets');
-            return cache.addAll(ASSETS_TO_CACHE);
+            // Use silent failure for non-critical assets to avoid install loop
+            return Promise.allSettled(
+                ASSETS_TO_CACHE.map(url => cache.add(url))
+            );
         })
     );
 });
@@ -60,7 +62,12 @@ self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     const method = event.request.method;
 
-    // Skip: non-http, Supabase, Iconify, and all backend API calls (localhost:3001)
+    // Fix: Disable SW intercept for localhost during development to avoid "ghost" version
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        return;
+    }
+
+    // Skip: non-http, Supabase, Iconify, and all backend API calls
     if (
         !event.request.url.startsWith('http') ||
         url.hostname.includes('supabase.co') ||
@@ -68,10 +75,9 @@ self.addEventListener('fetch', (event) => {
         url.port === '3001' ||
         url.pathname.startsWith('/api/')
     ) {
-        return; // Let the browser handle it natively — no SW interference
+        return;
     }
 
-    // Never intercept POST / PUT / DELETE (mutations must not be cached)
     if (method !== 'GET') {
         return;
     }
@@ -88,20 +94,17 @@ self.addEventListener('fetch', (event) => {
                 return networkResponse;
             }).catch((err) => {
                 console.warn('[Service Worker] Fetch failed:', event.request.url, err);
-                // HTML pages → serve cached index
+                
+                // Smart fallback: Only serve index.html if the request is actually for the login or root
                 const acceptHeader = event.request.headers.get('accept') || '';
                 if (acceptHeader.includes('text/html')) {
-                    return caches.match('/index.html');
+                    if (url.pathname === '/' || url.pathname.includes('index.html')) {
+                        return caches.match('/index.html');
+                    }
                 }
-                // JSON consumers → return valid JSON error so api-client.js doesn't crash
-                if (acceptHeader.includes('application/json')) {
-                    return new Response(
-                        JSON.stringify({ error: 'Offline: réseau indisponible.' }),
-                        { status: 503, statusText: 'Service Unavailable', headers: { 'Content-Type': 'application/json' } }
-                    );
-                }
-                // Fallback for other assets
-                return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+                
+                // Response with offline status instead of serving wrong page
+                return new Response('Offline: Resource not found in cache.', { status: 503, statusText: 'Service Unavailable' });
             });
 
             return cachedResponse || fetchPromise;

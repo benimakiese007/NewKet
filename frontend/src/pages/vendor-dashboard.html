@@ -118,7 +118,7 @@
                 <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Note Vendeur</p>
                     <div class="flex items-center gap-2">
-                        <div class="text-3xl font-black text-gray-900" id="vendorRating">0.0</div>
+                        <div class="text-3xl font-black text-gray-900" id="vendorRating">-</div>
                         <iconify-icon icon="solar:star-bold" class="text-amber-400 text-2xl"></iconify-icon>
                     </div>
                     <p class="text-xs text-gray-400 mt-2 font-bold">Moyenne avis</p>
@@ -692,7 +692,7 @@
                                 if (window.SupabaseAdapter) {
                                     const user = await window.SupabaseAdapter.getClient().auth.getUser();
                                     if (user && user.data.user) {
-                                        await window.SupabaseAdapter.updateRecord('users', user.data.user.id, {
+                                        await window.SupabaseAdapter.update('users', user.data.user.id, {
                                             name: newName,
                                             shipping_time: newShipping
                                         });
@@ -786,18 +786,23 @@
                     const myProducts = ProductManager.getProducts().filter(p => p.supplier_email === email);
                     document.getElementById('vendorProducts').textContent = myProducts.length;
 
-                    // Calculate Average Rating
-                    let totalRating = 0;
-                    let ratingCount = 0;
-                    myProducts.forEach(p => {
-                        if (p.rating) {
-                            totalRating += p.rating;
-                            ratingCount++;
-                        }
-                    });
-                    const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : '5.0';
-                    if (document.getElementById('vendorRating')) {
-                        document.getElementById('vendorRating').textContent = avgRating;
+                    // Calculate Average Rating from Reviews
+                    const productIds = myProducts.map(p => p.id);
+                    if (productIds.length > 0) {
+                        window.SupabaseAdapter.fetchWithFilters('product_reviews', {
+                            in: [['product_id', productIds]],
+                            select: 'rating'
+                        }).then(reviews => {
+                            if (reviews && reviews.length > 0) {
+                                const sum = reviews.reduce((acc, r) => acc + (parseInt(r.rating) || 0), 0);
+                                const avg = (sum / reviews.length).toFixed(1);
+                                if (document.getElementById('vendorRating')) document.getElementById('vendorRating').textContent = avg;
+                            } else {
+                                if (document.getElementById('vendorRating')) document.getElementById('vendorRating').textContent = '-';
+                            }
+                        });
+                    } else {
+                        if (document.getElementById('vendorRating')) document.getElementById('vendorRating').textContent = '-';
                     }
 
                     // Render Recent Orders (stats.orders est le bon champ, pas stats.recentOrders)

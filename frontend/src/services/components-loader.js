@@ -72,8 +72,8 @@ const HEADER_HTML = `
                         style="display:none; font-size:10px; width:18px; height:18px;">0</span>
                 </a>
 
-                <!-- Account -->
-                <a href="{{ROOT}}pages/login.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block"
+                <!-- Account (MODIFIED: removed hidden sm:block) -->
+                <a href="{{ROOT}}pages/login.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     title="Compte" id="accountLink">
                     <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
                 </a>
@@ -118,13 +118,39 @@ const HEADER_HTML = `
     class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden">
 </div>
 <div id="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
-    <div class="p-4 border-b border-gray-100 flex items-center justify-end">
+    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+        <span class="text-xl font-black tracking-tighter">NEWKET</span>
         <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100">
             <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
         </button>
     </div>
 
     <div class="flex-1 overflow-y-auto py-4">
+        <!-- Guest Call to Action -->
+        <div id="mobileGuestCTA" class="px-4 mb-6">
+            <a href="{{ROOT}}pages/login.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
+                <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                    <iconify-icon icon="solar:user-bold" width="24"></iconify-icon>
+                </div>
+                <div class="text-base font-bold">Compte NewKet</div>
+                <div class="text-xs text-white/60 font-medium">Connectez-vous pour voir vos favoris et vos commandes.</div>
+                <div class="mt-4 px-6 py-2.5 bg-white text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest">Se connecter</div>
+            </a>
+        </div>
+
+        <!-- Logged User Call to Action -->
+        <div id="mobileLoggedCTA" class="px-4 mb-6" style="display: none;">
+            <a id="mobileLoggedLink" href="{{ROOT}}pages/customer-dashboard.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800 shadow-xl">
+                <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
+                    <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden">
+                    <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="30" class="text-white hidden"></iconify-icon>
+                </div>
+                <div id="mobileLoggedName" class="text-base font-bold leading-tight mt-1">Mon Compte</div>
+                <div id="mobileLoggedRole" class="text-xs text-white/50 font-medium uppercase tracking-widest mt-1">Membre NewKet</div>
+                <div class="mt-4 px-6 py-2.5 bg-white/10 text-white border border-white/20 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-colors w-full">Mon Espace</div>
+            </a>
+        </div>
+
         <div class="px-4 mb-6">
             <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Catégories</h3>
             <nav class="flex flex-col gap-1">
@@ -179,9 +205,9 @@ const HEADER_HTML = `
             </nav>
         </div>
 
-        <div class="px-4 mt-auto border-t border-gray-50 pt-6">
-            <div class="p-4 bg-gray-50 rounded-2xl">
-                <p class="text-xs text-gray-500 mb-3">Devise d'affichage</p>
+        <div class="px-4 mt-auto border-t border-gray-50 pt-5 pb-6">
+            <div class="p-4 bg-gray-50 rounded-2xl mb-4">
+                <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
                 <div class="currency-switch-segmented scale-90 origin-left" id="mobileCurrencyToggle" data-active="CDF">
                     <div class="segmented-track">
                         <div class="segmented-handle"></div>
@@ -190,9 +216,15 @@ const HEADER_HTML = `
                     </div>
                 </div>
             </div>
+            
+            <!-- Logout Button (Authenticated Only) -->
+            <button id="mobileLogoutBtn" onclick="AuthManager.logout()" style="display: none;"
+                class="flex items-center justify-center gap-2 w-full px-3 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-colors">
+                <iconify-icon icon="solar:logout-3-bold" width="20"></iconify-icon> Se déconnecter
+            </button>
         </div>
     </div>
-</div>`;
+</div>`;;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
 <footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5">
@@ -326,10 +358,12 @@ const ComponentLoader = {
             );
         }
 
-        // Always load mobile nav as requested by user
+        // Mobile nav is disabled as per user request (No bottom navbar)
+        /*
         componentsToLoad.push(
             this.loadComponent('mobile-nav-placeholder', 'components/mobile-nav.html', MOBILE_NAV_HTML)
         );
+        */
 
         if (!isMinimalPage) {
             componentsToLoad.push(

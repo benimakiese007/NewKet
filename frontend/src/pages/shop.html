@@ -103,7 +103,7 @@
                         <div class="w-px h-8 bg-white/10"></div>
                         <div class="text-white">
                             <div class="text-xl font-black flex items-center gap-1">
-                                <span id="vendor-rating-value">5.0</span> <iconify-icon icon="solar:star-bold" class="text-yellow-400 text-sm"></iconify-icon>
+                                <span id="vendor-rating-value">-</span> <iconify-icon icon="solar:star-bold" class="text-yellow-400 text-sm"></iconify-icon>
                             </div>
                             <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Note</div>
                         </div>
@@ -249,7 +249,7 @@
                         const avg = (sum / reviews.length).toFixed(1);
                         document.getElementById('vendor-rating-value').textContent = avg;
                     } else {
-                        document.getElementById('vendor-rating-value').textContent = '5.0';
+                        document.getElementById('vendor-rating-value').textContent = '-';
                     }
                 }
 

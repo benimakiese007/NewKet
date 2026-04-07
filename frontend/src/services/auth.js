@@ -313,6 +313,16 @@ const AuthManager = {
         document.querySelectorAll('.vendor-nav').forEach(el => el.classList.toggle('hidden', !isVendor));
         document.querySelectorAll('.customer-nav').forEach(el => el.classList.toggle('hidden', isVendor));
 
+        // Mobile Menu Toggles (Guest vs Auth)
+        const isLoggedIn = this.role !== null;
+        const guestCTA = document.getElementById('mobileGuestCTA');
+        const loggedCTA = document.getElementById('mobileLoggedCTA');
+        const logoutBtn = document.getElementById('mobileLogoutBtn');
+
+        if (guestCTA) guestCTA.style.display = isLoggedIn ? 'none' : 'block';
+        if (loggedCTA) loggedCTA.style.display = isLoggedIn ? 'block' : 'none';
+        if (logoutBtn) logoutBtn.style.display = isLoggedIn ? 'flex' : 'none';
+
         if (this.role === 'supplier' || this.role === 'admin') {
             const isAdmin = this.role === 'admin';
 
@@ -515,12 +525,60 @@ const AuthManager = {
                     icon.setAttribute('icon', 'solar:user-linear');
                     icon.className = 'text-gray-600';
                 }
-                accountLink.classList.remove('bg-gray-900', 'bg-gray-100', 'text-white');
+                accountLink.classList.remove('bg-gray-900', 'bg-gray-100', 'text-white', 'bg-white');
                 accountLink.classList.add('hover:bg-gray-50');
                 const badge = accountLink.querySelector('.role-badge');
                 if (badge) badge.style.display = 'none';
+
+                // Ensure mobile cta reflects guest status if needed
+                const guestCTA = document.getElementById('mobileGuestCTA');
+                const loggedCTA = document.getElementById('mobileLoggedCTA');
+                const logoutBtn = document.getElementById('mobileLogoutBtn');
+                if (guestCTA) guestCTA.style.display = 'block';
+                if (loggedCTA) loggedCTA.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'none';
             }
         });
+
+        // Update Mobile Logged CTA Details
+        const loggedLink = document.getElementById('mobileLoggedLink');
+        const loggedName = document.getElementById('mobileLoggedName');
+        const loggedRole = document.getElementById('mobileLoggedRole');
+        const loggedAvatar = document.getElementById('mobileLoggedAvatar');
+        const loggedIcon = document.getElementById('mobileLoggedIcon');
+
+        if (loggedLink) {
+            let userName = 'Mon Compte';
+            if (window.ProfileManager) {
+                const p = window.ProfileManager.getProfile();
+                if (p && p.name) userName = p.name;
+            }
+
+            if (this.role === 'admin') {
+                loggedLink.href = '/pages/admin/dashboard.html';
+                if (loggedName) loggedName.textContent = userName;
+                if (loggedRole) loggedRole.textContent = 'Administrateur';
+            } else if (this.role === 'supplier') {
+                loggedLink.href = '/pages/vendor-dashboard.html';
+                // Fetch company if available, fallback to user name
+                const companyName = localStorage.getItem('newketCompany') || userName;
+                if (loggedName) loggedName.textContent = companyName;
+                if (loggedRole) loggedRole.textContent = 'Vendeur Premium';
+            } else {
+                loggedLink.href = '/pages/customer-dashboard.html';
+                if (loggedName) loggedName.textContent = userName;
+                if (loggedRole) loggedRole.textContent = 'Membre NewKet';
+            }
+
+            if (avatarUrl && loggedAvatar) {
+                loggedAvatar.src = avatarUrl;
+                loggedAvatar.classList.remove('hidden');
+                if (loggedIcon) loggedIcon.classList.add('hidden');
+            } else if (loggedAvatar) {
+                loggedAvatar.classList.add('hidden');
+                if (loggedIcon) loggedIcon.classList.remove('hidden');
+            }
+        }
     },
 
     showPendingNotice() {
