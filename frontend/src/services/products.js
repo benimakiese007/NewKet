@@ -102,18 +102,36 @@ const ProductManager = {
 
     /**
      * Fetches the first page of products, replacing any cached/stale state.
-     * Called on init and on manual refresh.
+     * Uses SupabaseAdapter directly (same as catalog.html) for production compatibility.
      */
     async fetchFreshData() {
         try {
-            const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_PAGE_SIZE}`);
+            let products = [];
 
-            if (result && result.data) {
-                const mappedProducts = result.data.map(p => this._mapProduct(p));
+            // ── Priorité 1 : SupabaseAdapter (direct, fonctionne en prod Vercel) ──
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                products = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    select: '*',
+                    order: ['created_at', { ascending: false }],
+                    limit: PRODUCTS_PAGE_SIZE,
+                    skipCache: true
+                });
+                this._totalCount = products.length; // Supabase ne retourne pas count ici
+                this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
+            }
+            // ── Fallback : ApiClient (backend Express local) ──
+            else if (window.ApiClient) {
+                const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_PAGE_SIZE}`);
+                if (result && result.data) {
+                    products = result.data;
+                    this._totalCount = result.count;
+                    this._hasMore = products.length < result.count;
+                }
+            }
 
-                this._totalCount = result.count;
+            if (products && products.length > 0) {
+                const mappedProducts = products.map(p => this._mapProduct(p));
                 this._currentPage = 1;
-                this._hasMore = mappedProducts.length < result.count;
 
                 const dataChanged = this.products.length !== mappedProducts.length ||
                     (mappedProducts.length > 0 && this.products[0]?.id !== mappedProducts[0].id);
@@ -141,15 +159,33 @@ const ProductManager = {
         this._loading = true;
 
         try {
-            const nextPage = this._currentPage + 1;
-            const result = await window.ApiClient.get(`/products?page=${nextPage}&limit=${PRODUCTS_PAGE_SIZE}`);
+            const offset = this._currentPage * PRODUCTS_PAGE_SIZE;
+            let newProducts = [];
 
-            if (result && result.data && result.data.length > 0) {
-                const mappedNew = result.data.map(p => this._mapProduct(p));
+            // ── Priorité 1 : SupabaseAdapter ──
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                newProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    select: '*',
+                    order: ['created_at', { ascending: false }],
+                    range: [offset, offset + PRODUCTS_PAGE_SIZE - 1],
+                    skipCache: true
+                });
+                this._hasMore = newProducts.length === PRODUCTS_PAGE_SIZE;
+            }
+            // ── Fallback : ApiClient ──
+            else if (window.ApiClient) {
+                const nextPage = this._currentPage + 1;
+                const result = await window.ApiClient.get(`/products?page=${nextPage}&limit=${PRODUCTS_PAGE_SIZE}`);
+                if (result && result.data) {
+                    newProducts = result.data;
+                    this._hasMore = this.products.length + newProducts.length < this._totalCount;
+                }
+            }
+
+            if (newProducts && newProducts.length > 0) {
+                const mappedNew = newProducts.map(p => this._mapProduct(p));
                 this.products = [...this.products, ...mappedNew];
-                this._currentPage = nextPage;
-                this._hasMore = this.products.length < this._totalCount;
-
+                this._currentPage++;
                 window.dispatchEvent(new CustomEvent('productsUpdated'));
             } else {
                 this._hasMore = false;
