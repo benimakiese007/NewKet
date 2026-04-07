@@ -6,7 +6,7 @@ Bienvenue dans le projet NewKet V2. Ceci est une application web de commerce él
 
 Structure du Projet :
 -------------------
-- / (Racine) : Contient les pages principales du site client (Accueil, Catalogue, Panier, etc.)
+- / (Racine) : Contient les pages principales du site client (Accueil, Catalogue, Favoris, etc.)
 - /ADMIN NEWKET : Contient le panneau d'administration pour gérer les produits, commandes et paramètres.
 - /css : Fichiers de style.
 - /js : Scripts frontend, incluant l'intégration Supabase.
@@ -24,7 +24,7 @@ PAGES PRINCIPALES
 - index.html : Page d'accueil.
 - catalog.html : Catalogue des produits.
 - product.html : Détails d'un produit.
-- cart.html : Panier d'achat.
+- promo.html : Produits en promotion.
 - login.html : Connexion utilisateur/admin.
 - favorites.html : Liste des favoris.
 - publish.html : Page de publication (vendeur).

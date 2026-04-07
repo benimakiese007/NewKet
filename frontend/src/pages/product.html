@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -101,9 +101,9 @@
                         </div>
 
                         <div class="flex gap-3">
-                            <button id="mainAddToCartBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 sm:py-4 rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all hover:-translate-y-1 active:translate-y-0 shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">
-                                <span>Commander via WhatsApp</span>
-                                <iconify-icon icon="ic:baseline-whatsapp" width="24"></iconify-icon>
+                            <button id="mainOrderBtn" class="flex-1 bg-gray-900 hover:bg-black text-white py-3 sm:py-4 rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all hover:-translate-y-1 active:translate-y-0 shadow-lg shadow-gray-900/20 flex items-center justify-center gap-2">
+                                <span>Commander</span>
+                                <iconify-icon icon="solar:chat-round-call-bold" width="24"></iconify-icon>
                             </button>
                             <button id="mainWishlistBtn" class="w-12 h-12 flex items-center justify-center rounded-2xl border-2 border-gray-100 text-gray-300 hover:text-red-500 hover:border-red-50 transition-all">
                                 <iconify-icon icon="solar:heart-bold" width="28"></iconify-icon>
@@ -164,13 +164,13 @@
                 <div id="stickyName" class="text-[10px] font-black text-gray-900 truncate uppercase tracking-widest">...</div>
                 <div id="stickyPrice" class="text-sm font-black text-gray-900">...</div>
             </div>
-            <button onclick="buyFromSticky()" class="bg-green-600 text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1"><iconify-icon icon="ic:baseline-whatsapp" width="16"></iconify-icon>Contacter</button>
+            <button onclick="buyFromSticky()" class="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all"><iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon> Commander</button>
         </div>
     </div>
 
     <script>
         const productId = new URLSearchParams(window.location.search).get('id');
-        let currentRating = 5;
+        let currentRating = 0;
 
                 // Skeleton management
         function showSkeleton() {
@@ -247,8 +247,8 @@
         }
 
         function setupListeners(p) {
-            document.getElementById('mainAddToCartBtn').onclick = () => {
-                if (window.contactSeller) window.contactSeller(p.id, document.getElementById('mainAddToCartBtn'));
+            document.getElementById('mainOrderBtn').onclick = () => {
+                if (window.contactSeller) window.contactSeller(p.id, document.getElementById('mainOrderBtn'));
             };
 
             document.getElementById('mainWishlistBtn').onclick = () => {
@@ -261,7 +261,7 @@
             };
 
             window.addEventListener('scroll', () => {
-                const btn = document.getElementById('mainAddToCartBtn');
+                const btn = document.getElementById('mainOrderBtn');
                 const bar = document.getElementById('stickyBar');
                 if (btn && bar) {
                     const rect = btn.getBoundingClientRect();
@@ -293,7 +293,7 @@
                 // Update average rating in header if possible
                 const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
                 const roundedAvg = Math.round(avg);
-                const starsHTML = Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < roundedAvg ? '' : 'opacity-20'}"></iconify-icon>`).join('');
+                const starsHTML = Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < roundedAvg ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('');
                 
                 // Header Rating Update
                 const hr = document.getElementById('headerRating');
@@ -305,7 +305,7 @@
 
                 countText.innerHTML = `
                     <div class="flex items-center gap-3">
-                        <div class="flex gap-0.5 text-amber-400">${starsHTML}</div>
+                        <div class="flex gap-0.5">${starsHTML}</div>
                         <span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis vÃ©rifiÃ©${reviews.length > 1 ? 's' : ''}</span>
                     </div>
                 `;
@@ -324,8 +324,8 @@
                                         <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${date}</div>
                                     </div>
                                 </div>
-                                <div class="flex gap-0.5 text-amber-400 bg-amber-50 px-3 py-1.5 rounded-full scale-90 group-hover:scale-100 transition-transform">
-                                    ${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < r.rating ? '' : 'opacity-20'}"></iconify-icon>`).join('')}
+                                <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90 group-hover:scale-100 transition-transform">
+                                    ${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < Number(r.rating) ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('')}
                                 </div>
                             </div>
                             <p class="text-base text-gray-600 font-medium leading-relaxed italic border-l-4 border-gray-100 pl-6 capitalize-first">${r.comment}</p>
@@ -384,13 +384,14 @@
                                         <iconify-icon 
                                             icon="solar:star-bold" 
                                             width="32" 
-                                            class="cursor-pointer transition-all ${i <= currentRating ? 'text-amber-400' : 'text-white/20 hover:text-white/40'}" 
+                                            data-star="${i}"
+                                            class="cursor-pointer transition-all ${currentRating > 0 && i <= currentRating ? 'text-amber-400' : 'text-white/20 hover:text-white/40'}" 
                                             onclick="window.setRating(${i})"
-                                            style="transform: ${i <= currentRating ? 'scale(1.15)' : 'scale(1)'}"
+                                            style="transform: ${currentRating > 0 && i <= currentRating ? 'scale(1.15)' : 'scale(1)'}"
                                         ></iconify-icon>
                                     `).join('')}
                                 </div>
-                                <p class="text-[9px] font-bold text-white/50 uppercase leading-relaxed max-w-xs">Votre avis aide d'autres passionnÃ©s Ã  dÃ©couvrir des piÃ¨ces uniques sur NewKet.</p>
+                                <p id="ratingHint" class="text-[9px] font-bold ${currentRating === 0 ? 'text-amber-400/80' : 'text-white/50'} uppercase leading-relaxed max-w-xs">${currentRating === 0 ? '&#11088; Sélectionnez une note pour continuer' : 'Votre avis aide d\'autres passionés à découvrir des pièces uniques sur NewKet.'}</p>
                             </div>
                             <div class="space-y-6">
                                 <div class="relative group/field">
@@ -450,15 +451,28 @@
         window.setRating = (v) => {
             currentRating = v;
             const stars = document.querySelectorAll('#starSelector iconify-icon');
-            stars.forEach((s, i) => {
-                const active = i < v;
+            stars.forEach((s) => {
+                const starValue = parseInt(s.getAttribute('data-star'));
+                const active = starValue <= v;
                 s.classList.toggle('text-amber-400', active);
                 s.classList.toggle('text-white/20', !active);
                 s.style.transform = active ? 'scale(1.15)' : 'scale(1)';
             });
+            // Update the hint text
+            const hint = document.getElementById('ratingHint');
+            if (hint) {
+                hint.textContent = `Vous avez donné ${v} étoile${v > 1 ? 's' : ''}`;
+                hint.classList.remove('text-amber-400/80');
+                hint.classList.add('text-white/50');
+            }
         };
 
         window.submitReview = async (pid) => {
+            // Validate rating FIRST - protect against default 0
+            if (!currentRating || currentRating < 1 || currentRating > 5) {
+                return showToast('Veuillez sélectionner une note (1 à 5 étoiles)', 'warning');
+            }
+
             const txt = document.getElementById('reviewText').value.trim();
             if (!txt) return showToast('Veuillez Ã©crire un commentaire', 'warning');
             
@@ -466,6 +480,10 @@
             btn.disabled = true; 
             btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" class="mr-2"></iconify-icon> Publication...';
             
+            // Capture rating NOW to prevent any race condition
+            const ratingToSubmit = currentRating;
+            console.log('[NewKet] Submitting review with rating:', ratingToSubmit);
+
             try {
                 const user = AuthManager.user;
                 if (!user) { window.location.href = 'login.html'; return; }
@@ -479,14 +497,16 @@
                     product_id: pid,
                     user_id: user.id,
                     user_name: userName,
-                    rating: currentRating,
+                    rating: ratingToSubmit,
                     comment: txt
                 });
 
                 if (!success) throw new Error('Insertion failed in database');
 
-                showToast('Votre avis d\'exception a Ã©tÃ© publiÃ© !', 'success');
+                showToast('Votre avis (' + ratingToSubmit + ' étoiles) a été publié !', 'success');
                 document.getElementById('reviewText').value = '';
+                // Reset rating for next review
+                currentRating = 0;
                 // Refresh list using the same PID
                 await loadReviews(pid);
             } catch (e) {
@@ -515,7 +535,7 @@
         }
 
         window.buyFromSticky = () => {
-            document.getElementById('mainAddToCartBtn').click();
+            document.getElementById('mainOrderBtn').click();
         };
 
         document.addEventListener('DOMContentLoaded', () => {

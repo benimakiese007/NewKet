@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -134,6 +134,165 @@
         .sticky-sidebar {
             top: 110px;
         }
+
+        /* Premium Filter Sidebar Styles */
+        .filter-card {
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 1.25rem;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+            border-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .filter-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-icon-box {
+            width: 32px;
+            height: 32px;
+            background: #f8fafc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .filter-card:hover .filter-icon-box {
+            background: var(--primary);
+            color: white;
+        }
+
+        .filter-title {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+        }
+
+        .filter-card:hover .filter-title {
+            color: #1e293b;
+        }
+
+        /* Price Range Premium UI - Compact & Elegant */
+        .range-slider {
+            height: 4px;
+            background: #f1f5f9;
+            border-radius: 2px;
+            position: relative;
+            margin: 1.5rem 0.5rem;
+        }
+
+        .range-selected {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 2px;
+            position: absolute;
+        }
+
+        .range-input {
+            position: relative;
+            height: 4px;
+        }
+
+        .range-input input {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            top: -4px;
+            background: none;
+            pointer-events: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .range-input input::-webkit-slider-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--primary);
+            pointer-events: auto;
+            -webkit-appearance: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .range-input input::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: var(--primary);
+        }
+
+        .price-inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        /* Custom Checkbox Animation */
+        .filter-checkbox {
+            cursor: pointer;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .filter-checkbox:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        /* Dark Mode Support */
+        html.dark .filter-card {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        html.dark .filter-icon-box {
+            background: #334155;
+        }
+
+        html.dark .filter-title {
+            color: #94a3b8;
+        }
+
+        html.dark .filter-card:hover {
+            border-color: #475569;
+        }
+
+        html.dark .range-slider {
+            background: #334155;
+        }
+
+        html.dark .price-inputs input {
+            background: #0f172a;
+            border-color: #334155;
+            color: white;
+        }
     </style>
 </head>
 
@@ -148,9 +307,9 @@
             <h1 class="text-4xl font-bold tracking-tight text-slate-900">Explorez l'Exceptionnel</h1>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-12">
+        <div class="flex flex-col lg:flex-row gap-6">
             <!-- Sidebar -->
-            <aside class="catalog-sidebar-aside w-full lg:w-72 lg:max-w-xs flex-shrink-0 animate-fade-in" style="animation-delay: 0.2s;">
+            <aside class="catalog-sidebar-aside w-full lg:w-[180px] lg:max-w-[180px] flex-shrink-0 animate-fade-in" style="animation-delay: 0.2s;">
                 <!-- Filter Drawer Header (mobile only) -->
                 <div class="filter-drawer-header">
                     <h2 class="text-base font-bold text-slate-900">Filtres</h2>
@@ -158,126 +317,149 @@
                         <iconify-icon icon="solar:close-circle-linear" width="22" class="text-slate-600"></iconify-icon>
                     </button>
                 </div>
-                <div class="lg:sticky sticky-sidebar space-y-10">
-                    <!-- Catégories -->
-                    <section>
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Catégories</h3>
+                <div class="lg:sticky sticky-sidebar">
+                    <!-- Reset Button - Now at the Top -->
+                    <div class="mb-6">
+                        <button onclick="resetFilters()"
+                            class="w-full group flex items-center justify-center gap-3 bg-white border border-slate-200 hover:border-black hover:bg-slate-50 text-slate-600 hover:text-black font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95">
+                            <iconify-icon icon="solar:restart-linear" width="18" class="group-hover:rotate-180 transition-transform duration-500"></iconify-icon>
+                            Réinitialiser tout
+                        </button>
+                    </div>
+
+                    <!-- Category Filter Card -->
+                    <div class="filter-card group">
+                        <div class="filter-title-wrapper">
+                            <div class="filter-icon-box">
+                                <iconify-icon icon="solar:folder-with-files-bold" width="18"></iconify-icon>
+                            </div>
+                            <h3 class="filter-title">Catégories</h3>
+                        </div>
                         <div class="space-y-4" id="categoryFilters">
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="checkbox" value="Collections Femme"
                                     class="filter-checkbox category-filter">
                                 <span
-                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Femme</span>
+                                    class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Femme</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="checkbox" value="Style Homme" class="filter-checkbox category-filter">
                                 <span
-                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Homme</span>
+                                    class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Homme</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="checkbox" value="Tech & Gadgets"
                                     class="filter-checkbox category-filter">
                                 <span
-                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Tech &amp; Gadgets</span>
+                                    class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Tech &amp; Gadgets</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
                                 <span
-                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Art de vivre</span>
+                                    class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Art de vivre</span>
                             </label>
                         </div>
-                    </section>
+                    </div>
 
-                    <hr class="border-slate-100">
-
-                    <!-- Condition -->
-                    <section>
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">État de l'objet
-                        </h3>
+                    <!-- Condition Filter Card -->
+                    <div class="filter-card">
+                        <div class="filter-title-wrapper">
+                            <div class="filter-icon-box">
+                                <iconify-icon icon="solar:checklist-minimalistic-bold" width="18"></iconify-icon>
+                            </div>
+                            <h3 class="filter-title">État de l'objet</h3>
+                        </div>
                         <div class="space-y-4">
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="checkbox" value="true" class="filter-checkbox condition-filter">
                                 <span
-                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Neuf</span>
+                                    class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Neuf</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="checkbox" value="false" class="filter-checkbox condition-filter">
                                 <span
-                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Occasion</span>
+                                    class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Occasion</span>
                             </label>
                         </div>
-                    </section>
+                    </div>
 
-                    <hr class="border-slate-100">
-
-                    <!-- Price -->
-                    <section>
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Gamme de Prix</h3>
-
-                        <div class="range-slider mb-8 relative">
-                            <div class="range-selected" id="price-range-track"></div>
-                        </div>
-                        <div class="range-input relative mb-8">
-                            <input type="range" id="min-price-slider" min="0" max="250000000" value="0" step="10000">
-                            <input type="range" id="max-price-slider" min="0" max="250000000" value="250000000" step="10000">
+                    <!-- Price Filter Card -->
+                    <div class="filter-card">
+                        <div class="filter-title-wrapper">
+                            <div class="filter-icon-box">
+                                <iconify-icon icon="solar:wad-of-money-bold" width="18"></iconify-icon>
+                            </div>
+                            <h3 class="filter-title">Gamme de Prix</h3>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 price-inputs">
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Min (<span
-                                        class="currency-label">FC</span>)</label>
+                        <div class="price-inputs-grid">
+                            <div class="relative">
+                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">MIN</span>
                                 <input type="number" id="minPrice" placeholder="0"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
+                                    class="w-full bg-slate-50 border border-slate-100 rounded-lg pl-8 pr-2 py-2 text-[11px] font-bold outline-none focus:border-primary transition-all">
                             </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Max (<span
-                                        class="currency-label">FC</span>)</label>
-                                <input type="number" id="maxPrice" placeholder="Max"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
+                            <span class="text-slate-300 text-[10px]">—</span>
+                            <div class="relative">
+                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">MAX</span>
+                                <input type="number" id="maxPrice" placeholder="250M"
+                                    class="w-full bg-slate-50 border border-slate-100 rounded-lg pl-9 pr-2 py-2 text-[11px] font-bold outline-none focus:border-primary transition-all">
                             </div>
                         </div>
-                    </section>
+                    </div>
 
-                    <hr class="border-slate-100">
+                    <!-- Promo Filter Card -->
+                    <div class="filter-card">
+                        <div class="filter-title-wrapper">
+                            <div class="filter-icon-box">
+                                <iconify-icon icon="solar:fire-bold" width="18"></iconify-icon>
+                            </div>
+                            <h3 class="filter-title">Promotions</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input type="checkbox" value="true" class="filter-checkbox promo-filter">
+                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">En Promo</span>
+                            </label>
+                        </div>
+                    </div>
 
-                    <!-- Seller Rating -->
-                    <section>
-                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Notation Vendeur
-                        </h3>
+                    <!-- Rating Filter Card -->
+                    <div class="filter-card">
+                        <div class="filter-title-wrapper">
+                            <div class="filter-icon-box">
+                                <iconify-icon icon="solar:star-ring-bold" width="18"></iconify-icon>
+                            </div>
+                            <h3 class="filter-title">Notation Vendeur</h3>
+                        </div>
                         <div class="space-y-4" id="ratingFilters">
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="radio" name="rating-filter" value="4" class="filter-radio rating-filter">
-                                <div class="flex items-center text-yellow-400 gap-0.5">
+                                <div class="flex items-center text-yellow-400 gap-1">
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
-                                    <span class="text-[10px] font-bold text-slate-500 ml-1">4 Ã©toiles et +</span>
+                                    <span class="text-[11px] font-bold text-slate-500 ml-1">4 étoiles et +</span>
                                 </div>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="radio" name="rating-filter" value="3" class="filter-radio rating-filter">
-                                <div class="flex items-center text-yellow-400 gap-0.5">
+                                <div class="flex items-center text-yellow-400 gap-1">
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
-                                    <span class="text-[10px] font-bold text-slate-500 ml-1">3 Ã©toiles et +</span>
+                                    <span class="text-[11px] font-bold text-slate-500 ml-1">3 étoiles et +</span>
                                 </div>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
                                 <input type="radio" name="rating-filter" value="0" class="filter-radio rating-filter"
                                     checked>
                                 <span
-                                    class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Tous
+                                    class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Tous
                                     les avis</span>
                             </label>
                         </div>
-                    </section>
-
-                    <button onclick="resetFilters()"
-                        class="w-full border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all">
-                        RÃ©initialiser tout
-                    </button>
+                    </div>
                 </div>
             </aside>
 
@@ -292,8 +474,8 @@
                         <iconify-icon icon="solar:tuning-square-2-linear" width="16"></iconify-icon>
                         Filtres
                     </button>
-                    <p class="text-sm font-medium text-slate-500">Affichage de <span class="text-slate-900 font-bold"
-                            id="productCount">0</span> trÃ©sors</p>
+                    <p class="text-[13px] font-medium text-slate-500">Affichage de <span class="text-slate-900 font-bold"
+                            id="productCount">0</span> trésors</p>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
                         <div class="relative flex-1 sm:w-48">
@@ -301,8 +483,8 @@
                                 class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none cursor-pointer focus:ring-2 focus:ring-slate-100">
                                 <option value="default">Plus Pertinents</option>
                                 <option value="price-asc">Prix Croissant</option>
-                                <option value="price-desc">Prix DÃ©croissant</option>
-                                <option value="newest">DerniÃ¨res pÃ©pites</option>
+                                <option value="price-desc">Prix Décroissant</option>
+                                <option value="newest">Dernières pépites</option>
                             </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="14"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"></iconify-icon>
@@ -325,10 +507,30 @@
             // Handle category parameter from URL
             const urlParams = new URLSearchParams(window.location.search);
 
-            // Handle search parameter
+            // Handle search parameter — try to prefill the header input if it already exists
             const queryParam = urlParams.get('q');
             if (queryParam) {
-                document.getElementById('searchInput').value = queryParam;
+                const sInput = document.getElementById('searchInput');
+                const mInput = document.getElementById('mobileSearchInput');
+                if (sInput) sInput.value = queryParam;
+                if (mInput) mInput.value = queryParam;
+            }
+
+            // Set search input value after header component is injected
+            // Check immediately in case componentsLoaded already fired (it fires before newketInitialized)
+            const prefillSearchInput = () => {
+                const qp = new URLSearchParams(window.location.search).get('q');
+                if (qp) {
+                    const sInput = document.getElementById('searchInput');
+                    const mInput = document.getElementById('mobileSearchInput');
+                    if (sInput) sInput.value = qp;
+                    if (mInput) mInput.value = qp;
+                }
+            };
+            if (window.componentsLoaded) {
+                prefillSearchInput(); // Already loaded, set it now
+            } else {
+                window.addEventListener('componentsLoaded', prefillSearchInput, { once: true });
             }
 
             // Handle category parameter
@@ -340,26 +542,39 @@
                 }
             }
 
+            // Handle promo parameter
+            const promoParam = urlParams.get('promo');
+            if (promoParam === 'true') {
+                const promoCheckbox = document.querySelector('.promo-filter');
+                if (promoCheckbox) {
+                    promoCheckbox.checked = true;
+                }
+            }
+
             renderCatalog();
 
             document.querySelectorAll('.category-filter').forEach(cb => {
-                cb.addEventListener('change', renderCatalog);
+                cb.addEventListener('change', () => renderCatalog());
             });
 
             document.querySelectorAll('.condition-filter').forEach(cb => {
-                cb.addEventListener('change', renderCatalog);
+                cb.addEventListener('change', () => renderCatalog());
             });
 
             document.querySelectorAll('.rating-filter').forEach(rb => {
-                rb.addEventListener('change', renderCatalog);
+                rb.addEventListener('change', () => renderCatalog());
+            });
+
+            document.querySelectorAll('.promo-filter').forEach(cb => {
+                cb.addEventListener('change', () => renderCatalog());
             });
 
             initializePriceSlider();
 
-            document.getElementById('sortSelect').addEventListener('change', renderCatalog);
+            document.getElementById('sortSelect').addEventListener('change', () => renderCatalog());
 
             // Re-render when currency changes
-            window.addEventListener('currencyChanged', renderCatalog);
+            window.addEventListener('currencyChanged', () => renderCatalog());
 
             // Instant filter on search input
             const handleSearchChange = () => {
@@ -430,6 +645,23 @@
             } else {
                 window.addEventListener('newketInitialized', initializeCatalog);
             }
+
+            // Sync search query to search input once components (header) are loaded
+            const syncSearchInput = () => {
+                const urlQ = new URLSearchParams(window.location.search).get('q');
+                if (urlQ) {
+                    const searchInput = document.getElementById('searchInput');
+                    const mobileSearchInput = document.getElementById('mobileSearchInput');
+                    if (searchInput) searchInput.value = urlQ;
+                    if (mobileSearchInput) mobileSearchInput.value = urlQ;
+                }
+            };
+
+            if (window.componentsLoaded) {
+                syncSearchInput();
+            } else {
+                window.addEventListener('componentsLoaded', syncSearchInput);
+            }
         });
 
         const CATALOG_PAGE_SIZE = 24;
@@ -439,11 +671,14 @@
         async function renderCatalog(append = false) {
             const searchInput = document.getElementById('searchInput');
             const mobileSearchInput = document.getElementById('mobileSearchInput');
-            const query = (searchInput?.value || mobileSearchInput?.value || "").trim().toLowerCase();
+            // Fallback: read ?q= from URL directly when header input not yet injected
+            const urlQ = new URLSearchParams(window.location.search).get('q') || '';
+            const query = (searchInput?.value || mobileSearchInput?.value || urlQ).trim().toLowerCase();
 
             const activeCatégories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
             const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
+            const activePromo = document.querySelector('.promo-filter:checked') !== null;
 
             const sortBy = document.getElementById('sortSelect').value;
             const minInput = document.getElementById('minPrice');
@@ -502,6 +737,12 @@
                         options.eq = [['is_new', activeConditions[0] === 'true']];
                     }
 
+                    // Promo filter
+                    if (activePromo) {
+                        options.eq = options.eq || [];
+                        options.eq.push(['is_promo', true]);
+                    }
+
                     // Rating filter
                     if (activeRating > 0) {
                         // We use reviews as a proxy for rating if rating is not explicitly in table
@@ -546,6 +787,9 @@
                 if (activeRating > 0) {
                     allProducts = allProducts.filter(p => (p.reviews || 0) >= activeRating);
                 }
+                if (activePromo) {
+                    allProducts = allProducts.filter(p => p.oldPrice > 0 || p.isPromo || p.is_promo);
+                }
 
                 allProducts = allProducts.filter(p => p.price >= minPrice && p.price <= maxPrice);
 
@@ -575,9 +819,9 @@
                 grid.innerHTML = `
                     <div class="col-span-full py-20 text-center">
                         <iconify-icon icon="solar:magnifer-zoom-out-linear" width="64" class="text-slate-200 mb-4"></iconify-icon>
-                        <h2 class="text-xl font-bold text-slate-900">QuÃªte infructueuse</h2>
-                        <p class="text-slate-500">L'article d'exception que vous recherchez semble s'Ãªtre Ã©vanoui. Ajustez vos critÃ¨res pour une nouvelle dÃ©couverte.</p>
-                        <button onclick="resetFilters()" class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">RÃ©initialiser l'horizon</button>
+                        <h2 class="text-xl font-bold text-slate-900">Quête infructueuse</h2>
+                        <p class="text-slate-500">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</p>
+                        <button onclick="resetFilters()" class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">Réinitialiser l'horizon</button>
                     </div>
                 `;
                 removeLoadMoreButton();
@@ -627,12 +871,15 @@
         }
 
         function resetFilters() {
-            document.getElementById('searchInput').value = '';
+            const sInput = document.getElementById('searchInput');
+            if (sInput) sInput.value = '';
+            const mInput = document.getElementById('mobileSearchInput');
+            if (mInput) mInput.value = '';
 
             const minSlider = document.getElementById('min-price-slider');
             const maxSlider = document.getElementById('max-price-slider');
             if (minSlider) minSlider.value = 0;
-            if (maxSlider) maxSlider.value = 5000000;
+            if (maxSlider) maxSlider.value = 250000000;
 
             const minInput = document.getElementById('minPrice');
             const maxInput = document.getElementById('maxPrice');
@@ -641,6 +888,7 @@
 
             document.querySelectorAll('.category-filter').forEach(cb => cb.checked = false);
             document.querySelectorAll('.condition-filter').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.promo-filter').forEach(cb => cb.checked = false);
             document.querySelectorAll('.rating-filter').forEach(rb => {
                 if (rb.value === '0') rb.checked = true;
                 else rb.checked = false;
@@ -662,16 +910,17 @@
             renderCatalog();
         }
 
-        function addToCart(id) {
-            const product = ProductManager.getProduct(id);
-            CartManager.addItem(product);
+        function orderProduct(id) {
+            if (window.contactSeller) {
+                window.contactSeller(id, window.event ? window.event.target.closest('button') : null);
+            }
         }
 
         function shareProductCard(id, name) {
             const productUrl = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'product.html?id=' + id;
             const shareData = {
-                title: name + ' â€” NewKet',
-                text: 'DÃ©couvrez ' + name + ' sur NewKet !',
+                title: name + ' — NewKet',
+                text: 'Découvrez ' + name + ' sur NewKet !',
                 url: productUrl
             };
 
@@ -680,7 +929,7 @@
             } else {
                 navigator.clipboard.writeText(productUrl).then(() => {
                     if (window.showToast) {
-                        showToast('Lien copiÃ© dans le presse-papier !', 'success');
+                        showToast('Lien copié dans le presse-papier !', 'success');
                     }
                 });
             }

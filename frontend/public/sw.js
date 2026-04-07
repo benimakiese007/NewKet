@@ -1,4 +1,4 @@
-const CACHE_NAME = 'newket-cache-v2';
+const CACHE_NAME = 'newket-cache-v3';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -58,9 +58,21 @@ self.addEventListener('activate', (event) => {
 // Fetch Event
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
+    const method = event.request.method;
 
-    // Only handle http/https and skip Supabase
-    if (!event.request.url.startsWith('http') || url.hostname.includes('supabase.co') || url.hostname.includes('iconify.design')) {
+    // Skip: non-http, Supabase, Iconify, and all backend API calls (localhost:3001)
+    if (
+        !event.request.url.startsWith('http') ||
+        url.hostname.includes('supabase.co') ||
+        url.hostname.includes('iconify.design') ||
+        url.port === '3001' ||
+        url.pathname.startsWith('/api/')
+    ) {
+        return; // Let the browser handle it natively — no SW interference
+    }
+
+    // Never intercept POST / PUT / DELETE (mutations must not be cached)
+    if (method !== 'GET') {
         return;
     }
 
@@ -76,10 +88,19 @@ self.addEventListener('fetch', (event) => {
                 return networkResponse;
             }).catch((err) => {
                 console.warn('[Service Worker] Fetch failed:', event.request.url, err);
-                if (event.request.headers.get('accept').includes('text/html')) {
+                // HTML pages → serve cached index
+                const acceptHeader = event.request.headers.get('accept') || '';
+                if (acceptHeader.includes('text/html')) {
                     return caches.match('/index.html');
                 }
-                // Return a basic error response instead of throwing to avoid "Failed to convert value to Response"
+                // JSON consumers → return valid JSON error so api-client.js doesn't crash
+                if (acceptHeader.includes('application/json')) {
+                    return new Response(
+                        JSON.stringify({ error: 'Offline: réseau indisponible.' }),
+                        { status: 503, statusText: 'Service Unavailable', headers: { 'Content-Type': 'application/json' } }
+                    );
+                }
+                // Fallback for other assets
                 return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
             });
 

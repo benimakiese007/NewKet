@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -351,7 +351,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de
                                 passe</label>
-                            <input type="password" id="confirmPassword" placeholdeRépéter le mot de passe"
+                            <input type="password" id="confirmPassword" placeholder="Répéter le mot de passe"
                                 class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                         </div>
                         <button type="submit"
@@ -572,14 +572,14 @@
             const profile = ProfileManager.getProfile();
             document.getElementById('profName').value = profile.name || '';
             document.getElementById('profEmail').value = profile.email || '';
-            documenTéléphone').value = profile.phone || '';
+            document.getElementById('profPhone').value = profile.phone || '';
 
             // Load Address
             const addr = JSON.parse(localStorage.getItem('newketAddress') || '{}');
             if (document.getElementById('addrStreet')) document.getElementById('addrStreet').value = addr.street || '';
             if (document.getElementById('addrQuartier')) document.getElementById('addrQuartier').value = addr.quartier || '';
             if (document.getElementById('addrCity')) document.getElementById('addrCity').value = addr.city || '';
-            if (documenTéléphone')) documenTéléphone').value = addr.phone || '';
+            if (document.getElementById('addrPhone')) document.getElementById('addrPhone').value = addr.phone || '';
 
             // Avatar & name
             const displayName = profile.name || localStorage.getItem('newketUserEmail') || 'Utilisateur';
@@ -616,7 +616,7 @@
             const profile = {
                 name,
                 email: document.getElementById('profEmail').value,
-                phone: documenTéléphone').value
+                phone: document.getElementById('profPhone').value
             };
             ProfileManager.saveProfile(profile);
             document.getElementById('userDisplayName').textContent = name || 'Mon Compte';
@@ -631,7 +631,7 @@
                 street: document.getElementById('addrStreet').value,
                 quartier: document.getElementById('addrQuartier').value,
                 city: document.getElementById('addrCity').value,
-                phone: documenTéléphone').value
+                phone: document.getElementById('addrPhone').value
             };
             localStorage.setItem('newketAddress', JSON.stringify(addr));
             showToast('Adresse de livraison sauvegardÃ©e !', 'success');
@@ -800,8 +800,8 @@
                         </div>
                         <h3 class="font-bold text-gray-900 text-[10px] sm:text-base mb-1 truncate">${item.name}</h3>
                         <div class="text-[9px] sm:text-sm text-gray-500 mb-4">${CurrencyManager.formatPrice(item.price)}</div>
-                        <button onclick="if(window.contactSeller) window.contactSeller('${item.id}', this)" class="w-full py-2 bg-green-600 text-white rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-green-700 flex items-center justify-center gap-2 transition-colors">
-                            <iconify-icon icon="ic:baseline-whatsapp" width="16"></iconify-icon> Contacter via WhatsApp
+                        <button onclick="if(window.contactSeller) window.contactSeller('${item.id}', this)" class="w-full py-2 bg-gray-900 text-white rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-black flex items-center justify-center gap-2 transition-colors">
+                            <iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon> Commander
                         </button>
                     </div>
                 `).join('');
@@ -886,8 +886,8 @@
             printWindow.document.write('<html><head><title>Facture NewKet</title>    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'><path fill=\'%23000\' d=\'m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.51Z\'/></svg>">');
             printWindow.document.write('</head><body>');
             printWindow.document.write(printContent);
-            printWindow.document.write('
-    <script>
+            printWindow.document.write(`
+    <scri` + `pt>
         // ===== Sprint 2: Form Loading States =====
         function setButtonLoading(btn, loading) {
             if (loading) {
@@ -914,9 +914,9 @@
                 });
             });
         });
-    </script>
+    </scri` + `pt>
 
-</body></html > ');
+</body></html>`);
             printWindow.document.close();
             printWindow.focus();
             setTimeout(() => {

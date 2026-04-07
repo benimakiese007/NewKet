@@ -91,7 +91,7 @@ const AdminLayout = {
             { href: 'dashboard.html', icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
             { href: 'user.html', icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
             { href: 'products.html', icon: 'solar:box-bold', label: "Contrôle Catalogue" },
-            { href: 'orders.html', icon: 'solar:cart-large-bold', label: "Commandes & Retraits" },
+            { href: 'orders.html', icon: 'solar:bag-bold', label: "Commandes & Retraits" },
             { href: 'diagnostics.html', icon: 'solar:chart-square-bold', label: "Audit & Diagnostics" },
             { href: 'reviews.html', icon: 'solar:star-bold', label: "Avis & Modération" },
             { href: 'newsletter.html', icon: 'solar:letter-bold', label: "Newsletter" },

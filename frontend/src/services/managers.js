@@ -124,6 +124,7 @@ const ActivityManager = {
         window.dispatchEvent(new CustomEvent('activitiesUpdated'));
     },
     getActivities() { return this.activities; },
+    getRecentActivity(limit = 5) { return this.activities.slice(0, limit); },
     async log(text, type = 'system') {
         if (!window.ApiClient) return;
         try {

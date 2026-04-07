@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -35,7 +35,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Mes Produits</h1>
-                    <p class="text-gray-500" id="pageSubtitle">GÃ©rez votre catalogue d'articles.</p>
+                    <p class="text-gray-500" id="pageSubtitle">Gérez votre catalogue d'articles.</p>
                 </div>
                 <button onclick="openModal()"
                     class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2">
@@ -47,7 +47,7 @@
             <div id="bulkActionsBar"
                 class="hidden glass-panel p-4 mb-4 bg-black text-white flex justify-between items-center animate-in slide-in-from-top duration-300">
                 <div class="flex items-center gap-4">
-                    <span id="selectedCount" class="text-sm font-bold">0 produits sÃ©lectionnÃ©s</span>
+                    <span id="selectedCount" class="text-sm font-bold">0 produits sélectionnés</span>
                     <button onclick="deleteSelected()"
                         class="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors">
                         <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="16"></iconify-icon>
@@ -56,12 +56,12 @@
                     <div class="h-4 w-px bg-gray-700"></div>
                     <select onchange="updateSelectedCategory(this.value); this.value='';"
                         class="bulk-select bg-transparent text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
-                        <option value="" disabled selected>Changer catÃ©gorie</option>
+                        <option value="" disabled selected>Changer catégorie</option>
                         <option value="Collections Femme">Collections Femme</option>
                         <option value="Style Homme">Style Homme</option>
                         <option value="Tech & Gadgets">Tech & Gadgets</option>
                         <option value="Art de vivre">Art de vivre</option>
-                        <option value="BeautÃ©">BeautÃ©</option>
+                        <option value="Beauté">Beauté</option>
                     </select>
                 </div>
                 <button onclick="deselectAll()"
@@ -80,13 +80,13 @@
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Image
                                 </th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Nom</th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">CatÃ©gorie
+                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Catégorie
                                 </th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Prix</th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Stock
                                 </th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">
-                                    Ã‰pinglÃ©</th>
+                                    Épinglé</th>
                                 <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
                                     Actions</th>
                             </tr>
@@ -120,14 +120,14 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-2">
                         <label
-                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">CatÃ©gorie</label>
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Catégorie</label>
                         <select id="pCategory"
                             class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                             <option>Collections Femme</option>
                             <option>Style Homme</option>
                             <option>Tech & Gadgets</option>
                             <option>Art de vivre</option>
-                            <option>BeautÃ©</option>
+                            <option>Beauté</option>
                         </select>
                     </div>
                     <div class="space-y-2">
@@ -178,13 +178,13 @@
                     </td>
                     <td class="p-4">
                         <div class="w-12 h-12 bg-gray-50 rounded-xl border border-gray-100 p-1">
-                            <img loading="lazy" src="../${p.image}" class="w-full h-full object-contain" onerror="this.src='https://via.placeholder.com/100'">
+                            <img loading="lazy" src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}" class="w-full h-full object-contain" onerror="this.src='../../assets/Images/default.png'">
                         </div>
                     </td>
                     <td class="p-4">
                         <div class="flex items-center gap-2">
                             <span class="font-bold text-gray-900">${p.name}</span>
-                            ${isPinned ? '<span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-black uppercase rounded-full tracking-wider">Ã‰pinglÃ©</span>' : ''}
+                            ${isPinned ? '<span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-black uppercase rounded-full tracking-wider">Épinglé</span>' : ''}
                         </div>
                     </td>
                     <td class="p-4"><span class="px-3 py-1 bg-gray-100 text-[10px] font-bold uppercase rounded-full text-gray-500">${p.category}</span></td>
@@ -194,7 +194,7 @@
                         ${isLowStock ? '<span class="text-[8px] font-bold text-red-400 block uppercase">Stock faible</span>' : ''}
                     </td>
                     <td class="p-4 text-center">
-                        <button onclick="togglePin('${p.id}')" title="${isPinned ? 'DÃ©sÃ©pingler' : 'Ã‰pingler sur la homepage'}" 
+                        <button onclick="togglePin('${p.id}')" title="${isPinned ? 'Désépingler' : 'Épingler sur la homepage'}" 
                             class="w-8 h-8 rounded-lg transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-yellow-100 text-yellow-500 hover:bg-yellow-200' : 'bg-gray-100 text-gray-400 hover:bg-yellow-50 hover:text-yellow-500'}">
                             <iconify-icon icon="solar:pin-bold" width="16"></iconify-icon>
                         </button>
@@ -256,7 +256,7 @@
 
             if (selected.length > 0) {
                 bar.classList.remove('hidden');
-                count.textContent = `${selected.length} produit(s) sÃ©lectionnÃ©(s)`;
+                count.textContent = `${selected.length} produit(s) sélectionné(s)`;
             } else {
                 bar.classList.add('hidden');
             }
@@ -270,11 +270,11 @@
 
         function deleteSelected() {
             const selected = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(c => c.value);
-            showPasswordConfirm('Supprimer groupÃ©e ?', `Voulez-vous vraiment retirer ces ${selected.length} articles ?`, () => {
+            showPasswordConfirm('Supprimer groupée ?', `Voulez-vous vraiment retirer ces ${selected.length} articles ?`, () => {
                 ProductManager.deleteBulk(selected);
                 renderAdminProducts();
                 updateSelectedUI();
-                showToast(`${selected.length} articles retirÃ©s.`, 'info');
+                showToast(`${selected.length} articles retirés.`, 'info');
             });
         }
 
@@ -283,14 +283,14 @@
             ProductManager.updateCategoryBulk(selected, category);
             renderAdminProducts();
             updateSelectedUI();
-            showToast('CatÃ©gories mises Ã  jour.', 'success');
+            showToast('Catégories mises à jour.', 'success');
         }
 
         function deleteProduct(id) {
             showPasswordConfirm('Supprimer ?', 'Voulez-vous vraiment retirer cet article ?', () => {
                 ProductManager.deleteProduct(id);
                 renderAdminProducts();
-                showToast('Article retirÃ©.', 'info');
+                showToast('Article retiré.', 'info');
             });
         }
 
@@ -300,7 +300,7 @@
             const newPinned = !p.pinned;
             await ProductManager.updateProduct(id, { pinned: newPinned });
             renderAdminProducts();
-            showToast(newPinned ? 'Produit Ã©pinglÃ© sur la homepage !' : 'Produit dÃ©sÃ©pinglÃ©.', newPinned ? 'success' : 'info');
+            showToast(newPinned ? 'Produit épinglé sur la homepage !' : 'Produit désépinglé.', newPinned ? 'success' : 'info');
         }
 
         form.addEventListener('submit', (e) => {
@@ -313,12 +313,12 @@
             const priceVal = priceInput.value.trim();
 
             if (!name) {
-                showToast("Un nom est indispensable pour prÃ©senter cet article.", "error");
+                showToast("Un nom est indispensable pour présenter cet article.", "error");
                 nameInput.focus();
                 return;
             }
             if (!priceVal || parseFloat(priceVal) <= 0) {
-                showToast("Veuillez attribuer une valeur juste Ã  ce produit.", "error");
+                showToast("Veuillez attribuer une valeur juste à ce produit.", "error");
                 priceInput.focus();
                 return;
             }
@@ -339,7 +339,7 @@
             }
             closeModal();
             renderAdminProducts();
-            showToast('Produit enregistrÃ©.', 'success');
+            showToast('Produit enregistré.', 'success');
         });
 
         function initializeProducts() {
@@ -351,7 +351,7 @@
                 const pageTitle = document.getElementById('pageTitle');
                 const pageSubtitle = document.getElementById('pageSubtitle');
                 if (pageTitle) pageTitle.textContent = 'Gestion Produits';
-                if (pageSubtitle) pageSubtitle.textContent = 'GÃ©rez le catalogue global de la plateforme.';
+                if (pageSubtitle) pageSubtitle.textContent = 'Gérez le catalogue global de la plateforme.';
             }
         }
 

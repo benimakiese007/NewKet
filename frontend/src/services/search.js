@@ -5,32 +5,81 @@ const SearchManager = {
     debounceTimer: null,
 
     init() {
-        const searchInputs = document.querySelectorAll('.search-input, #searchInput, #mobileSearchInput');
-        const suggestionsContainer = document.getElementById('searchSuggestions');
+        if (this.initialized) return;
+        this.initialized = true;
 
-        searchInputs.forEach(input => {
-            const container = suggestionsContainer;
-            if (!container) return;
-
-            input.addEventListener('input', (e) => {
+        // Use Event Delegation for robust binding
+        document.addEventListener('input', (e) => {
+            if (e.target.matches('.search-input, #searchInput, #mobileSearchInput')) {
                 const query = e.target.value.trim();
+                const container = document.getElementById('searchSuggestions');
                 
                 clearTimeout(this.debounceTimer);
                 this.debounceTimer = setTimeout(() => {
                     this.updateSuggestions(query, container);
                 }, 300); // 300ms debounce
-            });
-
-            // Hide suggestions on blur (with delay for clicks)
-            input.addEventListener('blur', () => {
-                setTimeout(() => container.classList.add('hidden'), 200);
-            });
-
-            input.addEventListener('focus', (e) => {
-                const query = e.target.value.trim();
-                if (query.length >= 2) container.classList.remove('hidden');
-            });
+            }
         });
+
+        // Hide suggestions on blur (with delay for clicks)
+        document.addEventListener('focusout', (e) => {
+            if (e.target.matches('.search-input, #searchInput, #mobileSearchInput')) {
+                const container = document.getElementById('searchSuggestions');
+                if (container) {
+                    setTimeout(() => container.classList.add('hidden'), 200);
+                }
+            }
+        });
+
+        document.addEventListener('focusin', (e) => {
+            if (e.target.matches('.search-input, #searchInput, #mobileSearchInput')) {
+                const query = e.target.value.trim();
+                const container = document.getElementById('searchSuggestions');
+                if (query.length >= 2 && container) container.classList.remove('hidden');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('#searchBtn');
+            if (btn) {
+                const input = document.getElementById('searchInput') || document.getElementById('mobileSearchInput');
+                const query = input ? input.value.trim() : '';
+                this.executeSearch(query);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (e.target.matches('.search-input, #searchInput, #mobileSearchInput')) {
+                    const query = e.target.value.trim();
+                    this.executeSearch(query);
+                }
+            }
+        });
+
+        // Initial sync from URL
+        this.syncQueryFromURL();
+    },
+
+    executeSearch(query) {
+        if (!query) return;
+        const basePath = window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog.html') : 'catalog.html';
+        const searchPath = `${basePath}?q=${encodeURIComponent(query)}`;
+        
+        // If already on catalog/promo, we might want to just update the URL without reload, 
+        // but for simplicity and consistency with current logic, we use location.href
+        window.location.href = searchPath;
+    },
+
+    syncQueryFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        if (query) {
+            const inputs = document.querySelectorAll('.search-input, #searchInput, #mobileSearchInput');
+            inputs.forEach(input => {
+                input.value = query;
+            });
+        }
     },
 
     async updateSuggestions(query, container) {
@@ -84,7 +133,7 @@ const SearchManager = {
                     </a>
                 `}).join('') + `
                     <div class="p-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-                        <button onclick="window.location.href='catalog.html?search=${encodeURIComponent(query)}'" class="w-full py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                        <button onclick="window.location.href=(window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog.html') : 'catalog.html') + '?q=${encodeURIComponent(query)}'" class="w-full py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             Voir tous les résultats
                         </button>
                     </div>`;

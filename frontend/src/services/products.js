@@ -179,8 +179,8 @@ const ProductManager = {
             isNew: p.is_new,
             isPromo: p.is_promo,
             oldPrice: p.old_price,
-            // Optimize the primary image URL for faster loading
-            image: window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : p.image,
+            // Keep the original comma-separated string for multi-image support
+            image: p.image,
         };
     },
 
@@ -220,8 +220,16 @@ const ProductManager = {
 
     async addProduct(product) {
         const userId = localStorage.getItem('newketUserId');
+        
+        // Support both array and existing string formats for images
+        let imageData = product.image;
+        if (Array.isArray(imageData)) {
+            imageData = imageData.join(',');
+        }
+
         const productWithSupplier = {
             ...product,
+            image: imageData,
             user_id: userId
         };
 
@@ -237,6 +245,11 @@ const ProductManager = {
     },
 
     async updateProduct(id, updatedData) {
+        // Support both array and existing string formats for images
+        if (updatedData.image && Array.isArray(updatedData.image)) {
+            updatedData.image = updatedData.image.join(',');
+        }
+
         const updated = await window.ApiClient.put(`/products/${id}`, updatedData);
         if (updated) {
             const index = this.products.findIndex(p => p.id === id);

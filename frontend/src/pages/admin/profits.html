@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -11,7 +11,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Calcul des Profits | NewKet</title>
+    <title>Calcul des Revenus | NewKet</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -34,9 +34,9 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Anatomie de vos Profits
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Analyse de Performance
                     </h1>
-                    <p class="text-gray-500" id="pageSubtitle">Suivez vos gains réels et la répartition des commissions.
+                    <p class="text-gray-500" id="pageSubtitle">Suivez le volume des transactions et la performance globale.
                     </p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -63,24 +63,24 @@
                             <iconify-icon icon="solar:wad-of-money-bold" width="28"></iconify-icon>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-400"
-                            id="labelGross">Total Brut</span>
+                            id="labelGross">Volume Brut</span>
                     </div>
                     <div class="text-3xl font-black text-gray-900" id="grossTotal" data-price-cdf="0">0</div>
-                    <p class="text-xs text-gray-400 mt-2" id="descGross">Chiffre d'affaires total généré</p>
+                    <p class="text-xs text-gray-400 mt-2" id="descGross">Valeur totale estimée des transactions</p>
                 </div>
 
                 <!-- Commissions (Perçus par la plateforme) -->
                 <div class="glass-panel p-8 profit-card">
                     <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-2xl bg-gray-50 text-gray-400 flex items-center justify-center">
                             <iconify-icon icon="solar:tag-price-bold" width="28"></iconify-icon>
                         </div>
-                        <span class="text-[10px] font-black uppercase tracking-widest text-red-400"
-                            id="labelComm">Commissions</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400"
+                            id="labelComm">Frais de Service</span>
                     </div>
-                    <div class="text-3xl font-black text-red-600" id="commissionTotal" data-price-cdf="0">0</div>
-                    <p class="text-xs text-gray-400 mt-2" id="descComm">Part prélevée par NewKet (<span
-                            id="commissionRate">5</span>%)
+                    <div class="text-3xl font-black text-gray-400" id="commissionTotal" data-price-cdf="0">0</div>
+                    <p class="text-xs text-gray-400 mt-2" id="descComm">Aucune commission prélevée (<span
+                            id="commissionRate">0</span>%)
                     </p>
                 </div>
 
@@ -91,10 +91,10 @@
                             <iconify-icon icon="solar:wallet-money-bold" width="28"></iconify-icon>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-400"
-                            id="labelNet">Profit Net</span>
+                            id="labelNet">Volume Réel</span>
                     </div>
                     <div class="text-3xl font-black text-white" id="netProfit" data-price-cdf="0">0</div>
-                    <p class="text-xs text-gray-400 mt-2" id="descNet">Ce qui vous revient réellement</p>
+                    <p class="text-xs text-gray-400 mt-2" id="descNet">Montant total sans déductions</p>
                 </div>
             </div>
 
@@ -168,13 +168,13 @@
                             <iconify-icon icon="solar:bill-list-bold" width="24"></iconify-icon>
                         </div>
                         <div>
-                            <h3 class="font-bold text-gray-900">Notes de frais et Taxes</h3>
-                            <p class="text-xs text-gray-500">Estimations basées sur la réglementation locale.</p>
+                            <h3 class="font-bold text-gray-900">Notes et Informations</h3>
+                            <p class="text-xs text-gray-500">Estimations basées sur la performance actuelle.</p>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="p-4 rounded-2xl bg-gray-50">
-                            <div class="text-[10px] font-black text-gray-400 uppercase">TVA (16%)</div>
+                            <div class="text-[10px] font-black text-gray-400 uppercase">TVA Estimée (16%)</div>
                             <div class="text-lg font-black text-gray-900" id="estimatedTVA" data-price-cdf="0">0</div>
                         </div>
                         <div class="p-4 rounded-2xl bg-gray-50">
@@ -183,12 +183,12 @@
                             </div>
                         </div>
                         <div class="p-4 rounded-2xl bg-gray-50">
-                            <div class="text-[10px] font-black text-gray-400 uppercase">Charges Opérat.</div>
-                            <div class="text-lg font-black text-gray-900">Estimé à 5%</div>
+                            <div class="text-[10px] font-black text-gray-400 uppercase">Revenu Plateforme</div>
+                            <div class="text-lg font-black text-gray-900">0% Comm.</div>
                         </div>
-                        <div class="p-4 rounded-2xl bg-gray-50">
-                            <div class="text-[10px] font-black text-gray-400 uppercase">Profit Estimé Net-Net</div>
-                            <div class="text-lg font-black text-green-600" id="estimatedFinalProfit" data-price-cdf="0">
+                        <div class="p-4 rounded-2xl bg-gray-50 border border-green-200 bg-green-50/30">
+                            <div class="text-[10px] font-black text-green-600 uppercase tracking-widest">Gains Totaux</div>
+                            <div class="text-lg font-black text-green-700" id="estimatedFinalProfit" data-price-cdf="0">
                                 0
                             </div>
                         </div>
@@ -245,10 +245,10 @@
                 document.getElementById('pageSubtitle').textContent = 'Analyse de la rentabilité globale de la plateforme.';
                 document.getElementById('labelGross').textContent = 'Volume d\'Affaires';
                 document.getElementById('descGross').textContent = 'Total des transactions sur la plateforme';
-                document.getElementById('labelComm').textContent = 'Frais de Service';
-                document.getElementById('descComm').innerHTML = 'Commisions brutes perçues (<span id="commissionRate">0</span>%)';
-                document.getElementById('labelNet').textContent = 'Revenu Plateforme';
-                document.getElementById('descNet').textContent = 'Profit net après charges';
+                document.getElementById('labelComm').textContent = 'Service Admin';
+                document.getElementById('descComm').innerHTML = 'Aucune commission prélevée (<span id="commissionRate">0</span>%)';
+                document.getElementById('labelNet').textContent = 'Revenu Brut';
+                document.getElementById('descNet').textContent = 'Volume financier total';
 
                 // Hide Payout for admin as they are the ones paying
                 const payoutCard = document.querySelector('#availablePayout')?.closest('.glass-panel');
@@ -269,25 +269,29 @@
                     totalCommission: 0,
                     totalNet: 0,
                     pendingPayout: 0,
-                    commissionPercent: stats.commissionPercent || 5,
+                    commissionPercent: 0,
                     payouts: []
                 };
                 document.getElementById('restoreBtn')?.classList.remove('hidden');
             } else {
                 document.getElementById('restoreBtn')?.classList.add('hidden');
+                // Ensure commission is 0 even if manager has old logic
+                stats.totalCommission = 0;
+                stats.totalNet = stats.totalGross;
+                stats.commissionPercent = 0;
             }
 
             // Cards Update
             document.getElementById('grossTotal').dataset.priceCdf = stats.totalGross;
-            document.getElementById('commissionTotal').dataset.priceCdf = stats.totalCommission;
-            document.getElementById('netProfit').dataset.priceCdf = stats.totalNet;
+            document.getElementById('commissionTotal').dataset.priceCdf = 0;
+            document.getElementById('netProfit').dataset.priceCdf = stats.totalGross;
             document.getElementById('availablePayout').dataset.priceCdf = stats.pendingPayout;
-            document.getElementById('commissionRate').textContent = stats.commissionPercent;
+            document.getElementById('commissionRate').textContent = "0";
 
             // Estimated Taxes (Simulated)
             const tva = stats.totalGross * 0.16;
             const networkFees = stats.totalGross * 0.01;
-            const finalProfit = stats.totalNet - tva - networkFees;
+            const finalProfit = stats.totalGross - tva - networkFees;
 
             document.getElementById('estimatedTVA').dataset.priceCdf = tva;
             document.getElementById('estimatedNetworkFees').dataset.priceCdf = networkFees;
@@ -462,10 +466,10 @@
             profitChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Votre Profit Net', 'Commission NewKet'],
+                    labels: ['Total Ventes (100%)', 'Commission (0%)'],
                     datasets: [{
-                        data: [stats.totalNet, stats.totalCommission],
-                        backgroundColor: ['#000000', '#EF4444'],
+                        data: [stats.totalGross || 1, 0],
+                        backgroundColor: ['#000000', '#F3F4F6'],
                         borderWidth: 0,
                         hoverOffset: 10
                     }]
@@ -491,5 +495,3 @@
 </body>
 
 </html>
- 
- 

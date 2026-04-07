@@ -28,12 +28,26 @@ export const ApiClient = {
 
         try {
             const response = await fetch(url, config);
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Erreur API inconnue');
+
+            // Safe JSON parse — SW may return plain text (e.g. "Offline") on network failure
+            let data;
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                try {
+                    data = JSON.parse(text);
+                } catch {
+                    // Plain text fallback (e.g. Service Worker offline response)
+                    data = { error: text || `Erreur réseau (${response.status})` };
+                }
             }
-            
+
+            if (!response.ok) {
+                throw new Error(data.error || `Erreur API ${response.status}`);
+            }
+
             return data;
         } catch (error) {
             console.error(`[ApiClient] Error on ${endpoint}:`, error);

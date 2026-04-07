@@ -167,11 +167,11 @@ function buildProductCardHTML(p, options = {}) {
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: auto;">
                     <button 
                         onclick="if(window.contactSeller) window.contactSeller('${p.id}', this)"
-                        style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; background:#16a34a; color:white; border:none; border-radius:12px; font-size:0.875rem; font-weight:700; padding:0.75rem 1rem; cursor:pointer; transition:background 0.2s ease; letter-spacing:0.01em;"
-                        onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'"
+                        class="flex-1 bg-gray-900 hover:bg-black text-white py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                        style="border:none; cursor:pointer;"
                         data-product-id="${p.id}">
-                        <iconify-icon icon="ic:baseline-whatsapp" width="16"></iconify-icon>
-                        WhatsApp
+                        <iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon>
+                        Commander
                     </button>
                     <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product.html?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product.html?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
                         style="width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280; background:white; cursor:pointer; flex-shrink:0; transition: all 0.2s ease;"

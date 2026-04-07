@@ -48,7 +48,6 @@ const AuthManager = {
                     this.setupRealtimeSync(user.id);
                     this.enforcePermissions();
 
-                    if (window.CartManager) CartManager.syncFromSupabase();
                     if (window.FavoritesManager) FavoritesManager.syncFromSupabase();
                 } else if (event === 'SIGNED_OUT') {
                     if (this._realtimeChannel) {
@@ -170,7 +169,7 @@ const AuthManager = {
                     // Notify user if status changed to approved
                     if (oldStatus !== 'approved' && newData.status === 'approved') {
                         if (typeof showToast === 'function') {
-                            showToast('FÃ©licitations ! Votre profil a Ã©tÃ© approuvÃ©. Vous pouvez maintenant publier.', 'success');
+                            showToast('Félicitations ! Votre profil a été approuvé. Vous pouvez maintenant publier.', 'success');
                         }
                     }
 
@@ -201,7 +200,7 @@ const AuthManager = {
         }
         if (localStorage.getItem('newketSupplierBonus') === 'true') {
             if (typeof showToast === 'function') {
-                showToast('Bienvenue ! 0% de commission sur votre première vente', 'success');
+                showToast('Bienvenue ! Profitez de la marketplace NewKet.', 'success');
             }
             localStorage.removeItem('newketSupplierBonus');
         }
@@ -321,7 +320,7 @@ const AuthManager = {
                 const text = link.textContent.trim();
                 if (isAdmin) {
                     if (text.includes('Mes Produits')) link.innerHTML = '<iconify-icon icon="solar:box-bold" width="20"></iconify-icon> Gestion Produits';
-                    if (text.includes('Commandes') && text === 'Commandes') link.innerHTML = '<iconify-icon icon="solar:cart-large-bold" width="20"></iconify-icon> Gestion Commandes';
+                    if (text.includes('Commandes') && text === 'Commandes') link.innerHTML = '<iconify-icon icon="solar:bag-bold" width="20"></iconify-icon> Gestion Commandes';
                     if (text.includes('Mes Clients')) link.innerHTML = '<iconify-icon icon="solar:users-group-rounded-bold" width="20"></iconify-icon> Clients Plateforme';
                     if (text.includes('Calcul des Profits')) link.innerHTML = '<iconify-icon icon="solar:wad-of-money-bold" width="20"></iconify-icon> Profits Plateforme';
                     if (text === 'Utilisateurs') link.innerHTML = '<iconify-icon icon="solar:user-bold" width="20"></iconify-icon> Fournisseurs Plateforme';
@@ -335,7 +334,7 @@ const AuthManager = {
 
         if (this.role === 'admin') {
             // Admin has access to everything
-            document.querySelectorAll('.publish-btn, .supplier-only, .admin-only, #headerDashboardLink').forEach(el => {
+            document.querySelectorAll('.publish-btn, .supplier-only, .admin-only').forEach(el => {
                 el.style.display = '';
             });
 
@@ -371,7 +370,7 @@ const AuthManager = {
                             localStorage.setItem('newketUserStatus', freshStatus);
                             this.enforcePermissions();
                             if (oldStatus !== 'approved' && freshStatus === 'approved') {
-                                if (typeof showToast === 'function') showToast('Votre profil a Ã©tÃ© approuvÃ© !', 'success');
+                                if (typeof showToast === 'function') showToast('Votre profil a été approuvé !', 'success');
                             }
                         }
                     });
@@ -389,7 +388,7 @@ const AuthManager = {
         }
 
         if (this.role === 'customer') {
-            document.querySelectorAll('.publish-btn, .supplier-only, #headerDashboardLink').forEach(el => {
+            document.querySelectorAll('.publish-btn, .supplier-only').forEach(el => {
                 el.style.display = 'none';
             });
 

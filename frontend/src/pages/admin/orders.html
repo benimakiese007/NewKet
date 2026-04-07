@@ -81,7 +81,7 @@
             const orders = OrderManager.getOrders();
 
             if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-gray-400">Aucune commande enregistrÃ©e.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-12 text-center text-gray-400">Aucune commande enregistrée.</td></tr>`;
                 return;
             }
 
@@ -112,7 +112,7 @@
                         <select onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-bold uppercase tracking-widest bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-black cursor-pointer">
                             <option value="En attente" ${o.status === 'En attente' ? 'selected' : ''}>Attente</option>
                             <option value="En livraison" ${o.status === 'En livraison' ? 'selected' : ''}>Livraison</option>
-                            <option value="LivrÃ©" ${o.status === 'LivrÃ©' ? 'selected' : ''}>LivrÃ©</option>
+                            <option value="Livré" ${o.status === 'Livré' ? 'selected' : ''}>Livré</option>
                         </select>
                     </td>
                 </tr>
@@ -125,7 +125,7 @@
             switch (status) {
                 case 'En attente': return 'bg-yellow-50 text-yellow-600';
                 case 'En livraison': return 'bg-blue-50 text-blue-600';
-                case 'LivrÃ©': return 'bg-green-50 text-green-600';
+                case 'Livré': return 'bg-green-50 text-green-600';
                 default: return 'bg-gray-50 text-gray-500';
             }
         }
@@ -133,13 +133,13 @@
         function updateStatus(id, newStatus) {
             OrderManager.updateStatus(id, newStatus);
             renderAdminOrders();
-            showToast('Statut mis Ã  jour !', 'success');
+            showToast('Statut mis à jour !', 'success');
         }
 
         function exportOrdersToCSV() {
             const orders = OrderManager.getOrders();
             if (orders.length === 0) {
-                showToast('Aucune commande Ã  exporter.', 'info');
+                showToast('Aucune commande à exporter.', 'info');
                 return;
             }
 
@@ -170,7 +170,7 @@
             link.click();
             document.body.removeChild(link);
 
-            showToast('Exportation rÃ©ussie !', 'success');
+            showToast('Exportation réussie !', 'success');
             if (window.ActivityManager) ActivityManager.log('Exportation des commandes en CSV', 'system');
         }
 

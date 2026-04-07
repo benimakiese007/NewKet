@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -11,7 +11,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>DÃ©tails du Client | NewKet</title>
+    <title>Détails du Client | NewKet</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -45,7 +45,7 @@
                     <iconify-icon icon="solar:arrow-left-bold" width="20"></iconify-icon>
                 </button>
                 <div class="h-6 w-px bg-gray-200"></div>
-                <h1 class="text-xl font-black tracking-tight" id="clientNameHeader">DÃ©tails du Client</h1>
+                <h1 class="text-xl font-black tracking-tight" id="clientNameHeader">Détails du Client</h1>
             </div>
         </div>
     </nav>
@@ -72,7 +72,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="glass-panel p-6 flex flex-col gap-1">
                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
-                    <iconify-icon icon="solar:cart-large-bold" width="24"></iconify-icon>
+                    <iconify-icon icon="solar:bag-large-bold" width="24"></iconify-icon>
                 </div>
                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Commandes</p>
                 <div class="text-2xl font-black text-gray-900" id="statOrdersCount">0</div>
@@ -81,7 +81,7 @@
                 <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center mb-4">
                     <iconify-icon icon="solar:wad-of-money-bold" width="24"></iconify-icon>
                 </div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total DÃ©pensÃ©</p>
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Dépensé</p>
                 <div class="text-2xl font-black" id="statTotalSpent">0</div>
             </div>
             <div class="glass-panel p-6 flex flex-col gap-1">
@@ -119,7 +119,7 @@
             </div>
             <div id="noOrdersMsg" class="hidden p-12 text-center text-gray-400">
                 <iconify-icon icon="solar:box-linear" width="48" class="mb-4 text-gray-200"></iconify-icon>
-                <p>Aucune commande associÃ©e Ã  de client.</p>
+                <p>Aucune commande associée à de client.</p>
             </div>
         </div>
 
@@ -130,7 +130,7 @@
             switch (status) {
                 case 'En attente': return 'bg-yellow-50 text-yellow-600';
                 case 'En livraison': return 'bg-blue-50 text-blue-600';
-                case 'LivrÃ©': return 'bg-green-50 text-green-600';
+                case 'Livré': return 'bg-green-50 text-green-600';
                 default:
                     if (status === 'pending') return 'bg-yellow-50 text-yellow-600';
                     if (status === 'cancelled') return 'bg-red-50 text-red-600';
@@ -144,9 +144,9 @@
                 'pending': 'En attente',
                 'processing': 'En cours',
                 'shipped': 'En livraison',
-                'delivered': 'LivrÃ©',
-                'completed': 'TerminÃ©e',
-                'cancelled': 'AnnulÃ©e'
+                'delivered': 'Livré',
+                'completed': 'Terminée',
+                'cancelled': 'Annulée'
             };
             return map[status] || status;
         }
@@ -174,7 +174,7 @@
             }
 
             // Calculations
-            const validOrders = clientOrders.filter(o => o.status !== 'AnnulÃ©' && o.status !== 'cancelled');
+            const validOrders = clientOrders.filter(o => o.status !== 'Annulé' && o.status !== 'cancelled');
             const totalSpent = validOrders.reduce((sum, o) => sum + (o.total || 0), 0);
             const avgSpent = validOrders.length > 0 ? (totalSpent / validOrders.length) : 0;
 

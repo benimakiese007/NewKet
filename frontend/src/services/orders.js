@@ -99,25 +99,35 @@ const OrderManager = {
         );
         const totalEstimatedValue = vendorOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
-        const revenueGrowth = this._calculateGrowth(vendorOrders, o => o.total || 0);
-        const leadsGrowth = this._calculateGrowth(vendorOrders, () => 1);
-
         return {
             totalOrders: vendorOrders.length,
             totalLeads: vendorOrders.length,
             totalRevenue: totalEstimatedValue,
             estimatedValue: totalEstimatedValue,
-            commission: 0, // Commission zero per request
+            commission: 0, 
+            commissionPercent: 0,
+            netGains: totalEstimatedValue,
             netRevenue: totalEstimatedValue,
             pendingOrders: vendorOrders.filter(o => o.status === 'En attente' || o.status === 'Lead').length,
             deliveredOrders: vendorOrders.filter(o => o.status === 'Livré').length,
             topProducts: this._getTopProducts(vendorOrders),
             orders: vendorOrders,
-            revenueGrowth,
-            leadsGrowth,
-            // For withdrawal balance
             availableBalance: totalEstimatedValue,
             pendingWithdrawals: 0
+        };
+    },
+
+    getProfitStats() {
+        const orders = this.data;
+        const totalGross = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+        return {
+            totalGross,
+            totalCommission: 0,
+            totalNet: totalGross,
+            commissionPercent: 0,
+            pendingPayout: 0, // Placeholder
+            payouts: [] // Placeholder
         };
     },
 
@@ -130,6 +140,8 @@ const OrderManager = {
         return {
             totalOrders: customerOrders.length,
             totalSpent,
+            avgOrderValue: customerOrders.length > 0 ? totalSpent / customerOrders.length : 0,
+            newketPoints: Math.floor(totalSpent / 100), // 1 point per 100 FC
             orders: customerOrders
         };
     },

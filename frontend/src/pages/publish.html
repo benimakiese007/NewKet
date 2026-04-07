@@ -12,8 +12,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Vendre un article â€” NewKet</title>
-    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
+    <title>Vendre un article — NewKet</title>
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
     <link rel="stylesheet" href="../assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -70,15 +70,15 @@
 
                 <div class="grid sm:grid-cols-2 gap-6">
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 ml-1">CatÃ©gorie</label>
+                        <label class="text-sm font-bold text-gray-700 ml-1">Catégorie</label>
                         <div
                             class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
                             <select id="pCategoryInput"
                                 class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent">
                                 <option>High-Tech</option>
                                 <option>Mode</option>
-                                <option>Maison & DÃ©co</option>
-                                <option>BeautÃ©</option>
+                                <option>Maison & Déco</option>
+                                <option>Beauté</option>
                                 <option>Sports</option>
                             </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="20"
@@ -115,7 +115,7 @@
                         <div>
                             <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Taux de
                                 conversion</div>
-                            <div class="text-sm font-semibold text-gray-700">EstimÃ© en <span
+                            <div class="text-sm font-semibold text-gray-700">Estimé en <span
                                     id="otherCurrencyName">USD</span></div>
                         </div>
                     </div>
@@ -133,9 +133,39 @@
                 </div>
             </div>
 
+            <!-- Promotion Card -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600 shadow-sm">
+                            <iconify-icon icon="solar:fire-bold" width="24"></iconify-icon>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-gray-900">Promotion</div>
+                            <p class="text-xs text-gray-500">Mettre cet article en promotion</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="isPromoToggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                    </label>
+                </div>
+
+                <div id="promoFields" class="hidden space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700 ml-1">Prix avant promotion (Ancien prix)</label>
+                        <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
+                            <input type="number" id="oldPriceInput" placeholder="ex: 1200"
+                                class="w-full px-5 py-4 rounded-2xl outline-none text-gray-400 line-through decoration-red-500">
+                        </div>
+                        <p class="text-[10px] text-gray-400 ml-1 italic">Ce prix sera affiché barré à côté du nouveau prix.</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Media Card -->
             <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-4">
-                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit (jusqu'Ã  5)</label>
+                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit (jusqu'à 5)</label>
                 <input type="file" id="pImageUpload" accept="image/png, image/jpeg" multiple class="hidden">
                 <div id="uploadZone" onclick="document.getElementById('pImageUpload').click()"
                     class="border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center hover:border-black hover:bg-gray-50/30 transition-all cursor-pointer group">
@@ -146,7 +176,7 @@
                     </div>
                     <p class="text-gray-500 font-medium">Glissez vos photos ici ou <span
                             class="text-black border-b border-gray-200">parcourez vos fichiers</span></p>
-                    <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'Ã  10MB</p>
+                    <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'à 10MB</p>
                 </div>
 
                 <div id="imagePreviewContainer" class="hidden flex gap-4 overflow-x-auto pb-4 custom-scrollbar"></div>
@@ -157,7 +187,7 @@
                     <label for="removeBackgroundCheck"
                         class="text-sm font-semibold text-gray-700 flex items-center gap-2 cursor-pointer">
                         <iconify-icon icon="solar:magic-stick-3-linear" class="text-purple-500 text-lg"></iconify-icon>
-                        Transformer en PNG (DÃ©tourage transparent par intelligence artificielle)
+                        Transformer en PNG (Détourage transparent par intelligence artificielle)
                     </label>
                 </div>
             </div>
@@ -168,7 +198,7 @@
                     <label class="text-sm font-bold text-gray-700 ml-1">Description</label>
                     <div
                         class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                        <textarea id="pDescInput" rows="5" placeholder="DÃ©crivez votre produit (Ã©tat, caractÃ©ristiques, etc.)"
+                        <textarea id="pDescInput" rows="5" placeholder="Décrivez votre produit (état, caractéristiques, etc.)"
                             class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 resize-none"></textarea>
                     </div>
                 </div>
@@ -192,7 +222,7 @@
                     class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                     <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Chef-d'Å“uvre publiÃ© !</h2>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Chef-d'œuvre publié !</h2>
                 <p class="text-gray-500 mb-8">Votre article d'exception a rejoint notre collection exclusive.</p>
                 <button onclick="window.location.href='catalog.html'"
                     class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-xl transition-all hover:bg-black">
@@ -235,7 +265,7 @@
                                 <h3 class="font-bold text-amber-900">Profil incomplet</h3>
                                 <p class="text-sm text-amber-700">Vous devez soumettre vos informations avant de pouvoir publier.</p>
                             </div>
-                            <a href="./seller-onboarding.html" class="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-xs">ComplÃ©ter</a>
+                            <a href="./seller-onboarding.html" class="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-xs">Compléter</a>
                         </div>
                     `;
                 } else if (status === 'submitted') {
@@ -246,7 +276,7 @@
                             </div>
                             <div class="flex-1">
                                 <h3 class="font-bold text-blue-900">Validation en cours</h3>
-                                <p class="text-sm text-blue-700">Votre boutique est en cours d'examen. La publication sera active dÃ¨s validation.</p>
+                                <p class="text-sm text-blue-700">Votre boutique est en cours d'examen. La publication sera active dès validation.</p>
                             </div>
                         </div>
                     `;
@@ -257,7 +287,7 @@
                                 <iconify-icon icon="solar:danger-bold" width="24"></iconify-icon>
                             </div>
                             <div class="flex-1">
-                                <h3 class="font-bold text-red-900">Profil rejetÃ©</h3>
+                                <h3 class="font-bold text-red-900">Profil rejeté</h3>
                                 <p class="text-sm text-red-700">Veuillez corriger vos informations pour pouvoir publier.</p>
                             </div>
                             <a href="./seller-onboarding.html" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs">Corriger</a>
@@ -271,7 +301,7 @@
                 if (submitBtn) {
                    submitBtn.disabled = true;
                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                   submitBtn.title = "Votre compte doit Ãªtre approuvÃ© pour publier.";
+                   submitBtn.title = "Votre compte doit être approuvé pour publier.";
                 }
             }
             updateStatusBanner();
@@ -298,10 +328,75 @@
                 }
             }
 
-            priceInput.addEventListener('input', updateEstimate);
-            currencyInput.addEventListener('change', updateEstimate);
-            exchangeRateInput.addEventListener('input', updateEstimate);
             updateEstimate();
+
+            // Promotion Toggle Logic
+            const isPromoToggle = document.getElementById('isPromoToggle');
+            const promoFields = document.getElementById('promoFields');
+            const oldPriceInput = document.getElementById('oldPriceInput');
+
+            isPromoToggle.addEventListener('change', () => {
+                if (isPromoToggle.checked) {
+                    promoFields.classList.remove('hidden');
+                } else {
+                    promoFields.classList.add('hidden');
+                }
+            });
+
+            // Edit Mode Logic
+            let isEditMode = false;
+            let editProductId = null;
+            const urlParams = new URLSearchParams(window.location.search);
+            const editId = urlParams.get('edit');
+
+            if (editId) {
+                isEditMode = true;
+                editProductId = editId;
+                document.querySelector('h1').textContent = "Modifier l'article";
+                document.querySelector('p.text-gray-500').textContent = "Mettez à jour les détails de votre produit";
+                const submitBtn = document.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = 'Mettre à jour l\'article <iconify-icon icon="solar:check-read-linear" width="24"></iconify-icon>';
+                
+                loadProductToEdit(editId);
+            }
+
+            async function loadProductToEdit(id) {
+                try {
+                    const product = await ProductManager.getProductById(id);
+                    if (!product) throw new Error("Produit non trouvé");
+
+                    document.getElementById('pTitleInput').value = product.name;
+                    document.getElementById('pCategoryInput').value = product.category;
+                    document.getElementById('pDescInput').value = product.description || '';
+                    
+                    // Price handling (Assuming stored in CDF like the publish logic suggests)
+                    const currentRate = parseFloat(exchangeRateInput.value) || 2800;
+                    
+                    // Simple logic: if price is small, assume it was USD, but current publish logic converts to CDF
+                    // So we probably need to reverse the conversion if user prefers USD view
+                    document.getElementById('priceInput').value = product.price;
+                    document.getElementById('currencyInput').value = 'CDF';
+                    
+                    if (product.isPromo) {
+                        isPromoToggle.checked = true;
+                        promoFields.classList.remove('hidden');
+                        document.getElementById('oldPriceInput').value = product.oldPrice;
+                    }
+
+                    if (product.image) {
+                        const images = product.image.split(',').map(img => img.trim()).filter(img => img);
+                        selectedProductImages = images;
+                        // For editing, we don't need to populate selectedFileBlobs for existing images,
+                        // because submit handler filters by 'http' to identify existing ones.
+                        renderPreviews();
+                    }
+                    
+                    updateEstimate();
+                } catch (error) {
+                    console.error('Error loading product for edit:', error);
+                    if (typeof showToast === 'function') showToast("Erreur lors du chargement du produit", "error");
+                }
+            }
 
             const pImageUpload = document.getElementById('pImageUpload');
             const imagePreviewContainer = document.getElementById('imagePreviewContainer');
@@ -343,7 +438,15 @@
             }
 
             window.removeImage = function (index) {
-                selectedFileBlobs.splice(index, 1);
+                const img = selectedProductImages[index];
+                if (img && !img.startsWith('http')) {
+                    // Find corresponding file index
+                    let fileIndex = 0;
+                    for (let i = 0; i < index; i++) {
+                        if (!selectedProductImages[i].startsWith('http')) fileIndex++;
+                    }
+                    selectedFileBlobs.splice(fileIndex, 1);
+                }
                 selectedProductImages.splice(index, 1);
                 renderPreviews();
                 if (selectedProductImages.length === 0) pImageUpload.value = '';
@@ -371,12 +474,12 @@
                 e.preventDefault();
 
                 const userStatus = localStorage.getItem('newketUserStatus') || 'pending';
-                const userRole = localStorage.getItem('newketUserRole');
+                const userRole = localStorage.getItem('newketRole');
                 if ((userStatus === 'submitted' || userStatus === 'pending') && userRole !== 'admin') {
                     if (typeof showToast === 'function') {
-                        showToast("Veuillez patienter que votre boutique soit validÃ©e par un administrateur pour dÃ©bloquer cette fonctionnalitÃ©.", "warning");
+                        showToast("Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.", "warning");
                     } else {
-                        alert("Veuillez patienter que votre boutique soit validÃ©e par un administrateur pour dÃ©bloquer cette fonctionnalitÃ©.");
+                        alert("Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.");
                     }
                     return;
                 }
@@ -412,26 +515,32 @@
                 try {
                     const exchangeRate = parseFloat(exchangeRateInput.value) || 2800;
                     const finalPrice = currency === 'USD' ? priceVal * exchangeRate : priceVal;
+                    const isPromo = isPromoToggle.checked;
+                    const oldPrice = isPromo ? parseFloat(oldPriceInput.value) : null;
 
                     let finalImagePaths = [];
+                    // Keep existing image URLs if they are not Blobs/Base64
+                    const existingImages = selectedProductImages.filter(img => img.startsWith('http'));
+                    const newImages = selectedProductImages.filter(img => !img.startsWith('http'));
+
+                    finalImagePaths = [...existingImages];
+
                     if (window.SupabaseAdapter && window.SupabaseAdapter.uploadFile) {
+                        // Find the original files for new images
                         for (let i = 0; i < selectedFileBlobs.length; i++) {
                             const file = selectedFileBlobs[i];
                             const fileName = `${Date.now()}_${i}.${file.name.split('.').pop()}`;
                             const publicUrl = await SupabaseAdapter.uploadFile('product-images', fileName, file);
                             if (publicUrl) {
                                 finalImagePaths.push(publicUrl);
-                            } else {
-                                console.warn(`[NewKet] Upload failed for ${file.name}, using local preview as fallback`);
-                                finalImagePaths.push(selectedProductImages[i]);
                             }
                         }
                     } else {
+                        // Fallback logic
                         finalImagePaths = selectedProductImages;
                     }
 
-                    const newProduct = {
-                        id: 'prod-' + Date.now(),
+                    const productData = {
                         name: titleInput.value.trim(),
                         category: categorySelect.value,
                         price: Math.round(finalPrice),
@@ -439,21 +548,39 @@
                         image: finalImagePaths.join(','),
                         supplier_email: localStorage.getItem('newketUserEmail') || 'anonymous',
                         user_id: userId,
-                        stock: 10,
-                        reviews: 0,
-                        is_new: true,
-                        status: 'published',
-                        created_at: new Date().toISOString()
+                        is_promo: isPromo,
+                        old_price: oldPrice,
+                        status: 'published'
                     };
 
-                    await ProductManager.addProduct(newProduct);
+                    if (isEditMode) {
+                        await ProductManager.updateProduct(editProductId, productData);
+                        if (typeof showToast === 'function') showToast("Article mis à jour avec succès !", "success");
+                    } else {
+                        const newProduct = {
+                            id: 'prod-' + Date.now(),
+                            ...productData,
+                            stock: 10,
+                            reviews: 0,
+                            is_new: true,
+                            created_at: new Date().toISOString()
+                        };
+                        await ProductManager.addProduct(newProduct);
+                    }
                     
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
+                    const successTitle = isEditMode ? "Mise à jour réussie !" : "Chef-d'œuvre publié !";
+                    const successText = isEditMode ? "Les modifications ont été enregistrées avec succès." : "Votre article d'exception a rejoint notre collection exclusive.";
+                    
                     document.getElementById('publishOverlay').classList.remove('invisible', 'opacity-0');
+                    document.querySelector('#successState h2').textContent = successTitle;
+                    document.querySelector('#successState p').textContent = successText;
                     document.getElementById('successState').classList.remove('hidden');
-                    this.reset();
+                    
+                    if (!isEditMode) this.reset();
+                    else setTimeout(() => window.location.href = 'vendor-dashboard.html', 2000);
                 } catch (error) {
                     console.error('Publish error:', error);
                     submitBtn.disabled = false;

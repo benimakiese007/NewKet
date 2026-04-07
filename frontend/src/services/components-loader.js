@@ -26,10 +26,10 @@ const HEADER_HTML = `
                 class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:w-auto relative group flex flex-row flex-nowrap gap-2 sm:gap-3 items-center min-w-0">
                 <div
                     class="search-bar flex-1 flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300 pr-2">
-                    <input type="text" placeholder="Qu'est-ce qui vous ferait plaisir ?"
+                    <input type="text" id="searchInput" placeholder="Qu'est-ce qui vous ferait plaisir ?"
                         class="w-full py-2 px-4 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
                     <iconify-icon icon="solar:magnifer-linear" width="20" class="text-slate-400 sm:hidden"></iconify-icon>
-                    <button
+                    <button id="searchBtn"
                         class="bg-slate-900 text-white px-5 py-2 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all uppercase tracking-wider hidden sm:block">RECHERCHE</button>
                 </div>
                 <!-- Publish Button (Desktop Only) -->
@@ -104,8 +104,8 @@ const HEADER_HTML = `
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Tech & Gadgets</a>
                     <a href="{{ROOT}}pages/catalog.html?category=Art de vivre"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Art de vivre</a>
-                    <a href="{{ROOT}}pages/catalog.html"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-100 transition-colors flex items-center gap-1">
+                    <a href="{{ROOT}}pages/catalog.html?promo=true"
+                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1">
                         <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
                     </a>
                 </nav>
@@ -140,7 +140,10 @@ const HEADER_HTML = `
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum Communauté
                 </a>
-                <!-- ... other category links ... -->
+                <a href="{{ROOT}}pages/catalog.html?promo=true"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-red-600 font-bold">
+                    <iconify-icon icon="solar:fire-bold" width="20"></iconify-icon> Promos
+                </a>
             </nav>
         </div>
 

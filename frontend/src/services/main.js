@@ -21,7 +21,9 @@ const App = {
         const initPromises = [];
         if (window.ProductManager) initPromises.push(ProductManager.init());
         if (window.OrderManager) initPromises.push(OrderManager.init());
-        if (window.UserManager) initPromises.push(UserManager.init());
+        // UserManager calls /api/users which requires admin rights — only init for admins
+        const currentRole = window.AuthManager?.role || localStorage.getItem('newketRole');
+        if (window.UserManager && currentRole === 'admin') initPromises.push(UserManager.init());
 
         await Promise.all(initPromises);
 
@@ -41,7 +43,7 @@ const App = {
     },
 
     bindGlobalEvents() {
-        // Sync Cart and Favorites across tabs
+        // Sync Favorites across tabs
         window.addEventListener('storage', (e) => {
             if (e.key === 'newketFavorites' && window.FavoritesManager) FavoritesManager.updateUI();
         });

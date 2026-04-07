@@ -94,7 +94,7 @@
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs
                     </h1>
-                    <p class="text-gray-500" id="pageSubtitle">GÃ©rez l'ensemble des comptes de la plateforme.</p>
+                    <p class="text-gray-500" id="pageSubtitle">Gérez l'ensemble des comptes de la plateforme.</p>
                 </div>
             </div>
 
@@ -141,7 +141,7 @@
                 <div id="emptyState" class="hidden p-12 text-center">
                     <iconify-icon icon="solar:users-group-rounded-linear" class="text-gray-200 mb-4"
                         width="48"></iconify-icon>
-                    <p class="text-gray-400">Aucun utilisateur trouvÃ©.</p>
+                    <p class="text-gray-400">Aucun utilisateur trouvé.</p>
                 </div>
             </div>
 
@@ -166,7 +166,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
-                            <span id="modalUserRole" class="role-badge">RÃ´le</span>
+                            <span id="modalUserRole" class="role-badge">Rôle</span>
                             <button onclick="closeUserDetailsModal()"
                                 class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-colors shadow-sm">
                                 <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
@@ -190,7 +190,7 @@
                             </div>
                             <div class="glass-panel p-4 flex flex-col gap-1" id="modalUserRevenueContainer">
                                 <span class="text-xs font-bold text-gray-400 uppercase tracking-widest text-[#059669]"
-                                    id="modalUserRevenueLabel">Montant DÃ©pensÃ©</span>
+                                    id="modalUserRevenueLabel">Montant Dépensé</span>
                                 <span id="modalUserRevenue" class="text-lg font-black text-[#059669]">0 FC</span>
                             </div>
                         </div>
@@ -228,7 +228,7 @@
                                     </table>
                                 </div>
                                 <div id="modalUserOrdersEmpty" class="hidden p-8 text-center text-gray-400 text-sm">
-                                    Aucune commande trouvÃ©e.</div>
+                                    Aucune commande trouvée.</div>
                             </div>
                         </div>
 
@@ -238,7 +238,7 @@
                                 <!-- Products loaded via JS -->
                             </div>
                             <div id="modalUserProductsEmpty" class="hidden p-8 text-center text-gray-400 text-sm">Aucun
-                                produit listÃ©.</div>
+                                produit listé.</div>
                         </div>
                     </div>
                 </div>
@@ -297,9 +297,9 @@
                     : isPending
                         ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-yellow-100 text-yellow-700">En attente</span>'
                         : u.status === 'approved'
-                            ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-green-100 text-green-700">ApprouvÃ©</span>'
+                            ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-green-100 text-green-700">Approuvé</span>'
                             : u.status === 'rejected'
-                                ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-red-100 text-red-600">RejetÃ©</span>'
+                                ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-red-100 text-red-600">Rejeté</span>'
                                 : '';
 
                 return `
@@ -360,7 +360,7 @@
                 
                 if (error) throw error;
                 
-                if (window.showToast) showToast(`Vendeur ${name} approuvÃ© avec succÃ¨s !`, "success");
+                if (window.showToast) showToast(`Vendeur ${name} approuvé avec succès !`, "success");
                 // Refresh data
                 UserManager.init().then(() => renderUsers());
                 if (window.LoaderManager) LoaderManager.hide();
@@ -383,7 +383,7 @@
                 
                 if (error) throw error;
                 
-                if (window.showToast) showToast(`Vendeur ${name} rejetÃ©.`, "warning");
+                if (window.showToast) showToast(`Vendeur ${name} rejeté.`, "warning");
                 UserManager.init().then(() => renderUsers());
                 if (window.LoaderManager) LoaderManager.hide();
             } catch (err) {
@@ -429,11 +429,11 @@
             if (window.showConfirm) {
                 showConfirm(
                     "Supprimer l'utilisateur",
-                    `ÃŠtes-vous sÃ»r de vouloir supprimer ${name} ? Cette action est irrÃ©versible.`,
+                    `Êtes-vous sûr de vouloir supprimer ${name} ? Cette action est irréversible.`,
                     async () => {
                         await UserManager.deleteUser(id);
                         renderUsers();
-                        showToast("Utilisateur supprimÃ© avec succÃ¨s", "success");
+                        showToast("Utilisateur supprimé avec succès", "success");
                     }
                 );
             } else if (confirm(`Supprimer ${name} ?`)) {
@@ -482,7 +482,7 @@
                 const revenue = userOrders.filter(o => o.status === 'delivered' || o.status === 'completed').reduce((sum, o) => sum + (o.total || 0), 0);
                 document.getElementById('modalUserRevenue').textContent = CurrencyManager ? CurrencyManager.formatPrice(revenue) : `${revenue} FC`;
             } else {
-                document.getElementById('modalUserRevenueLabel').textContent = "Montant DÃ©pensÃ©";
+                document.getElementById('modalUserRevenueLabel').textContent = "Montant Dépensé";
                 document.getElementById('modalUserRevenue').textContent = CurrencyManager ? CurrencyManager.formatPrice(spent) : `${spent} FC`;
             }
 
@@ -563,10 +563,10 @@
             const statusLabels = {
                 'pending': 'En attente',
                 'processing': 'En cours',
-                'shipped': 'ExpÃ©diÃ©e',
-                'delivered': 'LivrÃ©e',
-                'completed': 'TerminÃ©e',
-                'cancelled': 'AnnulÃ©e'
+                'shipped': 'Expédiée',
+                'delivered': 'Livrée',
+                'completed': 'Terminée',
+                'cancelled': 'Annulée'
             };
 
             tbody.innerHTML = orders.map(o => {

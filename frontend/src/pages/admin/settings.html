@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -11,7 +11,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>ParamÃ¨tres Admin | NewKet</title>
+    <title>Paramètres Admin | NewKet</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -35,14 +35,14 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex justify-between items-end">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">ParamÃ¨tres</h1>
-                    <p class="text-gray-500" id="pageSubtitle">Configurez votre boutique et vos prÃ©fÃ©rences globales.
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Paramètres</h1>
+                    <p class="text-gray-500" id="pageSubtitle">Configurez votre boutique et vos préférences globales.
                     </p>
                 </div>
                 <div id="saveStatus"
                     class="hidden flex items-center gap-2 text-green-600 text-xs font-bold uppercase tracking-widest">
                     <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
-                    EnregistrÃ©
+                    Enregistré
                 </div>
             </div>
 
@@ -53,7 +53,7 @@
                         <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
                             <iconify-icon icon="solar:shop-2-bold" width="24"></iconify-icon>
                         </div>
-                        <h3 class="font-bold text-lg text-gray-900">IdentitÃ© & Contact</h3>
+                        <h3 class="font-bold text-lg text-gray-900">Identité & Contact</h3>
                     </div>
 
                     <form id="identityForm" class="space-y-6">
@@ -74,7 +74,7 @@
                             </div>
                             <div class="space-y-2">
                                 <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">TÃ©lÃ©phone
+                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Téléphone
                                     support</label>
                                 <input type="text" id="supportPhone"
                                     class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
@@ -83,7 +83,7 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">URL du
-                                Logo (SimulÃ©)</label>
+                                Logo (Simulé)</label>
                             <input type="text" id="logoUrl"
                                 class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
                                 placeholder="https://...">
@@ -117,28 +117,21 @@
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Seuil
-                                    gratuitÃ© (USD)</label>
+                                    gratuité (USD)</label>
                                 <input type="number" id="freeShippingThreshold"
                                     class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                             </div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Commission
-                                    Vendeur (%)</label>
-                                <input type="number" id="sellerCommission"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
-                                    placeholder="10">
-                            </div>
+                            <!-- Commission field removed -->
                             <div class="space-y-2">
                                 <label
                                     class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Devise
-                                    par dÃ©faut</label>
+                                    par défaut</label>
                                 <select id="shopCurrency"
                                     class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                                     <option value="CDF">Franc Congolais (FC)</option>
-                                    <option value="USD">Dollar AmÃ©ricain ($)</option>
+                                    <option value="USD">Dollar Américain ($)</option>
                                 </select>
                             </div>
                         </div>
@@ -162,7 +155,7 @@
                     </form>
                 </div>
 
-                <!-- RÃ©seaux Sociaux -->
+                <!-- Réseaux Sociaux -->
                 <div class="glass-panel p-8 space-y-8 text-gray-900">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
@@ -195,7 +188,7 @@
                         <div class="w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
                             <iconify-icon icon="solar:shield-warning-bold" width="24"></iconify-icon>
                         </div>
-                        <h3 class="font-bold text-lg">Maintenance & SÃ©curitÃ©</h3>
+                        <h3 class="font-bold text-lg">Maintenance & Sécurité</h3>
                     </div>
 
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
@@ -223,15 +216,15 @@
                     </div>
 
                     <div class="p-4 bg-red-50 rounded-2xl border border-red-100">
-                        <h4 class="font-bold text-red-600 text-sm mb-2">RÃ©initialiser les donnÃ©es de test</h4>
+                        <h4 class="font-bold text-red-600 text-sm mb-2">Réinitialiser les données de test</h4>
                         <p class="text-xs text-red-500 mb-4">
-                            Cette action supprimera de faÃ§on permanente toutes les <strong>commandes</strong> et
-                            l'<strong>historique d'activitÃ©s</strong> de la base de donnÃ©es.
-                            Cette action est irrÃ©versible. Un mot de passe administrateur sera demandÃ©.
+                            Cette action supprimera de façon permanente toutes les <strong>commandes</strong> et
+                            l'<strong>historique d'activités</strong> de la base de données.
+                            Cette action est irréversible. Un mot de passe administrateur sera demandé.
                         </p>
                         <button id="resetTestDataBtn"
                             class="w-full bg-red-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-red-500/20 hover:shadow-red-500/40 hover:-translate-y-0.5 transition-all">
-                            Effacer toutes les commandes et activitÃ©s
+                            Effacer toutes les commandes et activités
                         </button>
                     </div>
                 </div>
@@ -240,7 +233,7 @@
             <div class="max-w-xl mx-auto mt-12 pb-8">
                 <button id="saveAllBtn"
                     class="w-full bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 transition-all">
-                    Enregistrer tous les paramÃ¨tres
+                    Enregistrer tous les paramètres
                 </button>
             </div>
     </div>
@@ -257,8 +250,8 @@
             // Dynamic Labels based on role
             const role = localStorage.getItem('newketRole');
             if (role === 'admin') {
-                document.getElementById('pageTitle').textContent = 'ParamÃ¨tres Plateforme';
-                document.getElementById('pageSubtitle').textContent = 'Configuration globale de la marketplace et options systÃ¨me.';
+                document.getElementById('pageTitle').textContent = 'Paramètres Plateforme';
+                document.getElementById('pageSubtitle').textContent = 'Configuration globale de la marketplace et options système.';
             }
         });
 
@@ -280,7 +273,7 @@
             const labels = document.querySelectorAll('#deliveryForm label');
             if (labels.length >= 2) {
                 labels[0].textContent = `Frais de livraison (${curr})`;
-                labels[1].textContent = `Seuil gratuitÃ© (${curr})`;
+                labels[1].textContent = `Seuil gratuité (${curr})`;
             }
 
             // Optional: Conversion logic
@@ -312,7 +305,10 @@
                 // Delivery & Economy
                 document.getElementById('shippingFee').value = config.shippingFee || 0;
                 document.getElementById('freeShippingThreshold').value = config.freeShippingThreshold || 0;
-                document.getElementById('sellerCommission').value = config.commissionRate || config.sellerCommission || 0;
+                // sellerCommission set to 0 automatically
+                if (document.getElementById('sellerCommission')) {
+                    document.getElementById('sellerCommission').value = 0;
+                }
                 document.getElementById('shopCurrency').value = config.currencySymbol || 'CDF';
                 document.getElementById('exchangeRate').value = config.exchangeRate || 2500;
                 document.getElementById('targetAOV').value = config.targetAOV || 0;
@@ -340,7 +336,7 @@
                 shippingFee: parseFloat(document.getElementById('shippingFee').value),
                 freeShippingThreshold: parseFloat(document.getElementById('freeShippingThreshold').value),
                 shippingCurrency: currentShippingCurrency,
-                sellerCommission: parseFloat(document.getElementById('sellerCommission').value),
+                sellerCommission: 0,
                 currencySymbol: document.getElementById('shopCurrency').value,
                 socialLinks: {
                     instagram: document.getElementById('socialInstagram').value,
@@ -358,14 +354,14 @@
                 // Show success feedback
                 const btn = document.getElementById('saveAllBtn');
                 const originalText = btn.textContent;
-                btn.textContent = 'EnregistrÃ© !';
+                btn.textContent = 'Enregistré !';
                 btn.classList.replace('bg-black', 'bg-green-600');
 
                 const status = document.getElementById('saveStatus');
                 status.classList.remove('hidden');
 
                 if (typeof showToast === 'function') {
-                    showToast('Configuration mise Ã  jour avec succÃ¨s', 'success');
+                    showToast('Configuration mise à jour avec succès', 'success');
                 }
 
                 setTimeout(() => {
@@ -380,8 +376,8 @@
         document.getElementById('resetTestDataBtn').addEventListener('click', () => {
             if (typeof showPasswordConfirm === 'function') {
                 showPasswordConfirm(
-                    "RÃ©initialisation",
-                    "Entrez le mot de passe administrateur (PHOENIX) pour effacer les donnÃ©es de test de votre base de donnÃ©es.",
+                    "Réinitialisation",
+                    "Entrez le mot de passe administrateur (PHOENIX) pour effacer les données de test de votre base de données.",
                     async () => {
                         window.LoaderManager.show('Suppression en cours...');
                         try {
@@ -397,7 +393,7 @@
 
                             window.LoaderManager.hide();
                             if (typeof showToast === 'function') {
-                                showToast("DonnÃ©es de test rÃ©initialisÃ©es avec succÃ¨s.", "success");
+                                showToast("Données de test réinitialisées avec succès.", "success");
                             }
                             // Reload after a short delay
                             setTimeout(() => location.reload(), 1500);

@@ -27,7 +27,7 @@ NewKet/
 │   └── supabase-adapter.js # Abstraction CRUD, Cache TTL et Retry
 ├── Images/           # Ressources graphiques
 ├── supabase/         # Scripts SQL et configuration de la base
-└── *.html            # Pages Client (index, catalog, cart, etc.)
+└── *.html            # Pages Client (index, catalog, promo, etc.)
 ```
 
 ## 3. Gestion des Données (Supabase)
@@ -37,7 +37,7 @@ Le projet utilise Supabase pour stocker toutes les données critiques. La sécur
 - **Utilisateurs :** Gérés via Supabase Auth. Les rôles (`customer`, `supplier`, `admin`) sont stockés dans les métadonnées de l'utilisateur.
 - **Produits :** Table `products`. Seuls les administrateurs et fournisseurs peuvent modifier le stock.
 - **Commandes :** Table `orders`. Synchronisation en temps réel pour le suivi.
-- **Panier & Favoris :** Stockés localement pour la réactivité (UX), mais synchronisés avec Supabase (`user_carts`, `user_favorites`) lors de la connexion pour une expérience multi-appareil.
+- **Favoris :** Stockés localement pour la réactivité (UX), mais synchronisés avec Supabase (`user_favorites`) lors de la connexion pour une expérience multi-appareil.
 
 ## 4. Fonctionnalités Clés
 
@@ -50,7 +50,7 @@ Le projet utilise Supabase pour stocker toutes les données critiques. La sécur
 
 ### Côté Administration & Vendeurs
 1. **Panneau Admin :** Gestion globale (Produits, Commandes, Utilisateurs, Promos).
-2. **Dashboard Vendeur :** Statistiques spécifiques pour les fournisseurs (ventes, gains nets, commissions).
+2. **Dashboard Vendeur :** Statistiques spécifiques pour les fournisseurs (ventes, gains).
 3. **Gestion des Stocks :** Mise à jour en temps réel des quantités et statuts.
 4. **Code Promo :** Système de réduction avec limites d'utilisation et dates d'expiration.
 
@@ -58,8 +58,8 @@ Le projet utilise Supabase pour stocker toutes les données critiques. La sécur
 
 - **`SupabaseAdapter`** : Le moteur d'interaction avec la base de données. Gère le cache (TTL), les tentatives automatiques (Retry) et l'invalidation du cache après mutation.
 - **`AuthManager`** : Gère les sessions, les rôles et les redirections de sécurité basées sur les permissions.
-- **`CartManager` / `FavoritesManager`** : Logique de gestion hybride (Local + Cloud Sync).
-- **`OrderManager`** : Calcul complexe des statistiques, gains et commissions.
+- **`FavoritesManager`** : Logique de gestion hybride (Local + Cloud Sync) pour les favoris.
+- **`OrderManager`** : Gestion des statistiques et des leads.
 
 ## 6. Installation et Déploiement
 
