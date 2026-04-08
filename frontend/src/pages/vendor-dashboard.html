@@ -116,6 +116,14 @@
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Produits en ligne</p>
                     <div class="text-3xl font-black text-gray-900" id="vendorProducts">0</div>
                 <div class="glass-panel p-8">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Taux de Conversion</p>
+                    <div class="flex items-center gap-2">
+                        <div class="text-3xl font-black text-gray-900" id="vendorConversionRate">0%</div>
+                        <iconify-icon icon="solar:graph-up-bold" class="text-blue-500 text-2xl"></iconify-icon>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2 font-bold">Vues vs WhatsApp</p>
+                </div>
+                <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Note Vendeur</p>
                     <div class="flex items-center gap-2">
                         <div class="text-3xl font-black text-gray-900" id="vendorRating">-</div>
@@ -424,7 +432,7 @@
                     // Update Sidebar Name & Settings
                     const updateVendorName = async () => {
                         const profile = ProfileManager.getProfile();
-                        const name = profile.name || localStorage.getItem('newketUserName') || 'Vendeur';
+                        const name = profile.company_name || profile.name || localStorage.getItem('newketUserName') || 'Vendeur';
                         if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = name;
                         if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = name;
 
@@ -679,7 +687,7 @@
                             
                             const newProfile = {
                                 ...ProfileManager.getProfile(),
-                                name: newName,
+                                company_name: newName,
                                 email: newEmail,
                                 shipping_time: newShipping
                             };
@@ -693,7 +701,7 @@
                                     const user = await window.SupabaseAdapter.getClient().auth.getUser();
                                     if (user && user.data.user) {
                                         await window.SupabaseAdapter.update('users', user.data.user.id, {
-                                            name: newName,
+                                            company_name: newName,
                                             shipping_time: newShipping
                                         });
                                     }
@@ -706,8 +714,8 @@
                             else alert('Paramètres enregistrés !');
 
                             // Refresh UI
-                            if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.name;
-                            if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = newProfile.name;
+                            if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.company_name;
+                            if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = newProfile.company_name;
                         });
                     }
 
@@ -780,11 +788,13 @@
                     const stats = OrderManager.getVendorStats(email);
 
                     // Update Stats Slates
-                    document.getElementById('vendorTotalSales').textContent = CurrencyManager.formatPrice(stats.totalRevenue || 0);
+                    if (document.getElementById('vendorTotalSales')) document.getElementById('vendorTotalSales').textContent = CurrencyManager.formatPrice(stats.totalRevenue || 0);
+                    if (document.getElementById('vendorConversionRate')) document.getElementById('vendorConversionRate').textContent = (stats.conversionRate || 0) + '%';
+                    if (document.getElementById('vendorAvgOrder')) document.getElementById('vendorAvgOrder').textContent = CurrencyManager.formatPrice(stats.averageOrderValue || 0);
                     document.getElementById('vendorOrders').textContent = stats.totalOrders;
 
                     const myProducts = ProductManager.getProducts().filter(p => p.supplier_email === email);
-                    document.getElementById('vendorProducts').textContent = myProducts.length;
+                    if (document.getElementById('vendorProducts')) document.getElementById('vendorProducts').textContent = myProducts.length;
 
                     // Calculate Average Rating from Reviews
                     const productIds = myProducts.map(p => p.id);
@@ -915,7 +925,13 @@
                             <h3 class="font-bold text-sm mb-1 truncate">${p.name}</h3>
                             <div class="flex items-center justify-between text-xs mb-3">
                                 <span class="font-black text-gray-900">${CurrencyManager.formatPrice(p.price)}</span>
-                                <span class="text-gray-400">Stock: ${p.stock || 0}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="flex items-center gap-1 text-gray-400">
+                                        <iconify-icon icon="solar:eye-bold" width="12"></iconify-icon>
+                                        ${p.views || 0}
+                                    </span>
+                                    <span class="text-gray-400">Stock: ${p.stock || 0}</span>
+                                </div>
                             </div>
                             <div class="flex gap-2 mt-auto">
                                 <button onclick="window.location.href='publish.html?edit=${p.id}'" class="flex-1 py-2.5 bg-black text-white rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-gray-800 transition-all flex items-center justify-center gap-2">

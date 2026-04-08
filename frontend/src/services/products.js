@@ -111,7 +111,7 @@ const ProductManager = {
             // ── Priorité 1 : SupabaseAdapter (direct, fonctionne en prod Vercel) ──
             if (window.SupabaseAdapter && window.supabaseClient) {
                 products = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*',
+                    select: '*, users(company_name, name, shipping_time, avatar)',
                     order: ['created_at', { ascending: false }],
                     limit: PRODUCTS_PAGE_SIZE,
                     skipCache: true
@@ -165,7 +165,7 @@ const ProductManager = {
             // ── Priorité 1 : SupabaseAdapter ──
             if (window.SupabaseAdapter && window.supabaseClient) {
                 newProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*',
+                    select: '*, users(company_name, name, shipping_time, avatar)',
                     order: ['created_at', { ascending: false }],
                     range: [offset, offset + PRODUCTS_PAGE_SIZE - 1],
                     skipCache: true
@@ -229,6 +229,22 @@ const ProductManager = {
     },
 
     /**
+     * Increment the view counter for a product in the backend.
+     */
+    async recordView(id) {
+        if (!id) return;
+        if (!window.ApiClient) return;
+        
+        try {
+            // Send to Express Backend (which increments Supabase)
+            // We use a fire-and-forget style to not slow down the UI
+            window.ApiClient.post(`/analytics/view/${id}`).catch(() => {});
+        } catch (err) {
+            // Silently fail, analytics shouldn't break the shop
+        }
+    },
+
+    /**
      * Attempts to find a product locally, then fetches from Supabase if missing.
      * Essential for direct links to products not in the first 20 results.
      */
@@ -239,14 +255,20 @@ const ProductManager = {
 
         // 2. Fetch from network
         try {
-            const product = await window.ApiClient.get(`/products/${id}`);
-
-            if (product) {
-                const mapped = this._mapProduct(product);
-                // Optional: add to local list so future lookups are instant
-                // but we might not want to pollute the paginated list if it's strictly ordered
-                return mapped;
+            // Priority 1: Supabase (direct join)
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                const product = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    select: '*, users(company_name, name, shipping_time, avatar)',
+                    eq: [['id', id]],
+                    single: true
+                });
+                if (product) return this._mapProduct(product);
             }
+
+            // Fallback: ApiClient
+            const product = await window.ApiClient.get(`/products/${id}`);
+            if (product) return this._mapProduct(product);
+
             return null;
         } catch (err) {
             console.error(`[NewKet] Error fetching product ${id}:`, err);

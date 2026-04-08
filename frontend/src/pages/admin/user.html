@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -22,223 +22,186 @@
     <link rel="stylesheet" href="../../assets/css/style.css">
     <link rel="stylesheet" href="../../assets/css/responsive.css">
     <style>
-        body {
-            background-color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .glass-panel {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 1.5rem;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            color: #64748b;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .sidebar-link:hover,
-        .sidebar-link.active {
-            background: #f1f5f9;
-            color: #0f172a;
-        }
-
-        .sidebar-link.active {
-            background: #000000;
-            color: white;
-        }
-
         .role-badge {
-            padding: 0.25rem 0.75rem;
+            padding: 0.35rem 0.85rem;
             border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.65rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .role-customer {
-            background-color: #ecfdf5;
-            color: #059669;
+        .role-customer { background-color: #f0fdf4; color: #16a34a; }
+        .role-supplier { background-color: #eff6ff; color: #2563eb; }
+        .role-admin { background-color: #fff7ed; color: #ea580c; }
+
+        .branding-alert {
+            position: relative;
+        }
+        .branding-alert::after {
+            content: '!';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            animation: pulse 2s infinite;
         }
 
-        .role-supplier {
-            background-color: #eff6ff;
-            color: #2563eb;
-        }
-
-        .role-admin {
-            background-color: #fff7ed;
-            color: #ea580c;
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
     </style>
 
     <link rel="stylesheet" href="../../assets/css/admin.css">
 </head>
 
-<body class="text-gray-900">
+<body class="text-gray-900 bg-[#f8fafc]">
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-6">        <div id="adminSidebarPlaceholder"></div>
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-8">
+        <div id="adminSidebarPlaceholder"></div>
 
         <!-- Main Content -->
         <main class="flex-1 min-w-0 space-y-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs
-                    </h1>
-                    <p class="text-gray-500" id="pageSubtitle">Gérez l'ensemble des comptes de la plateforme.</p>
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs</h1>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Gérez l'ensemble des comptes et validez les nouveaux vendeurs.</p>
                 </div>
             </div>
 
             <!-- Filters & Search -->
-            <div class="glass-panel p-4 space-y-4">
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="filterUsers('all')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-gray-50 text-gray-500">Tous</button>
-                    <button onclick="filterUsers('supplier')" id="btn-supplier" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-black text-white">Vendeurs</button>
-                    <button onclick="filterUsers('customer')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-gray-50 text-gray-500">Clients</button>
-                    <button onclick="filterUsers('pending')" id="btn-pending" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-yellow-50 text-yellow-600 border border-yellow-100 flex items-center gap-2">
-                        <iconify-icon icon="solar:clock-circle-bold"></iconify-icon>
-                        En Attente de Validation
-                    </button>
-                </div>
-                <div class="flex-1 relative">
-                    <iconify-icon icon="solar:magnifer-linear"
-                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
-                    <input type="text" id="userSearch" placeholder="Rechercher un utilisateur par nom ou email..."
-                        class="w-full pl-11 pr-4 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm">
+            <div class="glass-panel p-6 space-y-6 animate-premium stagger-1">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="filterUsers('all')" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">Tous</button>
+                        <button onclick="filterUsers('supplier')" id="btn-supplier" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">Vendeurs</button>
+                        <button onclick="filterUsers('customer')" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">Clients</button>
+                        <button onclick="filterUsers('pending')" id="btn-pending" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-orange-50 text-orange-600 border border-orange-100 flex items-center gap-2">
+                            <iconify-icon icon="solar:shield-warning-bold" width="16"></iconify-icon>
+                            En Attente
+                        </button>
+                    </div>
+
+                    <div class="flex-1 max-w-md relative">
+                        <iconify-icon icon="solar:magnifer-bold"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
+                        <input type="text" id="userSearch" placeholder="Rechercher un utilisateur..."
+                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/5 transition-all text-sm font-medium">
+                    </div>
                 </div>
             </div>
 
             <!-- Users Table -->
-            <div class="glass-panel overflow-hidden">
+            <div class="glass-panel overflow-hidden animate-premium stagger-2">
                 <div class="overflow-x-auto">
-                    <table class="min-w-[800px] w-full text-left border-collapse">
+                    <table class="premium-table w-full">
                         <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                                    Utilisateur</th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Produits
-                                </th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Ventes
-                                    Totales</th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
-                                    Actions</th>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Statut</th>
+                                <th>Articles</th>
+                                <th>Ventes (Brut)</th>
+                                <th class="text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="usersBody" class="divide-y divide-gray-50">
+                        <tbody id="usersBody">
                             <!-- Users loaded via JS -->
                         </tbody>
                     </table>
                 </div>
-                <div id="emptyState" class="hidden p-12 text-center">
-                    <iconify-icon icon="solar:users-group-rounded-linear" class="text-gray-200 mb-4"
-                        width="48"></iconify-icon>
-                    <p class="text-gray-400">Aucun utilisateur trouvé.</p>
+                <div id="emptyState" class="hidden p-20 text-center">
+                    <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
+                    </div>
+                    <p class="text-gray-400 font-bold">Aucun utilisateur trouvé dans cette catégorie.</p>
                 </div>
             </div>
 
-            <!-- User Details Modal -->
-            <div id="userDetailsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
-                aria-hidden="true">
-                <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity"
-                    onclick="closeUserDetailsModal()"></div>
+            <!-- User Details Modal (Premium Redesign) -->
+            <div id="userDetailsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+                <div class="absolute inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity" onclick="closeUserDetailsModal()"></div>
 
-                <div class="relative w-full max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[90vh] scale-95 opacity-0 transition-all duration-200"
-                    id="userDetailsModalContent">
-                    <!-- Header -->
-                    <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-gray-50/50">
-                        <div class="flex items-center gap-4">
-                            <div id="modalUserAvatar"
-                                class="w-14 h-14 rounded-full bg-black text-white flex items-center justify-center text-xl font-black shadow-lg">
-                                U</div>
-                            <div>
-                                <h3 id="modalUserName" class="text-xl font-black text-gray-900 tracking-tight">Nom
-                                    d'utilisateur</h3>
-                                <p id="modalUserEmail" class="text-sm text-gray-500 font-medium">email@example.com</p>
+                <div class="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] scale-95 opacity-0 transition-all duration-300 border border-white/20" id="userDetailsModalContent">
+                    <!-- Premium Header -->
+                    <div class="relative p-8 border-b border-gray-100 bg-gradient-to-br from-gray-50 to-white">
+                        <div class="flex items-center justify-between relative z-10">
+                            <div class="flex items-center gap-6">
+                                <div id="modalUserAvatar" class="w-20 h-20 rounded-[2rem] bg-black text-white flex items-center justify-center text-3xl font-black shadow-2xl shadow-black/20 overflow-hidden ring-4 ring-white">
+                                    U
+                                </div>
+                                <div>
+                                    <h3 id="modalUserName" class="text-2xl font-black text-gray-900 tracking-tight leading-none mb-2">Chargement...</h3>
+                                    <div class="flex items-center gap-3">
+                                        <p id="modalUserEmail" class="text-sm text-gray-400 font-bold">email@example.com</p>
+                                        <div id="modalUserRole" class="role-badge">Rôle</div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <span id="modalUserRole" class="role-badge">Rôle</span>
-                            <button onclick="closeUserDetailsModal()"
-                                class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-colors shadow-sm">
-                                <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
+                            <button onclick="closeUserDetailsModal()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-black hover:scale-110 transition-all shadow-sm">
+                                <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
                             </button>
                         </div>
                     </div>
 
                     <!-- Content -->
-                    <div class="p-6 overflow-y-auto flex-1 space-y-8 bg-gray-50/30">
-                        <!-- Stats Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="glass-panel p-4 flex flex-col gap-1">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Inscrit
-                                    le</span>
-                                <span id="modalUserDate" class="text-lg font-black text-gray-900">1 Jan 2024</span>
+                    <div class="p-8 overflow-y-auto flex-1 space-y-8 scrollbar-hide">
+                        <!-- Quick Stats -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="glass-panel p-6 premium-gradient-blue border-none">
+                                <p class="stat-card-label">Membre Depuis</p>
+                                <p id="modalUserDate" class="stat-card-value">--/--/----</p>
                             </div>
-                            <div class="glass-panel p-4 flex flex-col gap-1">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total des
-                                    commandes</span>
-                                <span id="modalUserOrderCount" class="text-lg font-black text-gray-900">0</span>
+                            <div class="glass-panel p-6 premium-gradient-orange border-none">
+                                <p class="stat-card-label">Commandes / Leads</p>
+                                <p id="modalUserOrderCount" class="stat-card-value">0</p>
                             </div>
-                            <div class="glass-panel p-4 flex flex-col gap-1" id="modalUserRevenueContainer">
-                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest text-[#059669]"
-                                    id="modalUserRevenueLabel">Montant Dépensé</span>
-                                <span id="modalUserRevenue" class="text-lg font-black text-[#059669]">0 FC</span>
+                            <div class="glass-panel p-6 premium-gradient-green border-none">
+                                <p id="modalUserRevenueLabel" class="stat-card-label">Montant Global</p>
+                                <p id="modalUserRevenue" class="stat-card-value text-green-700">0 FC</p>
                             </div>
                         </div>
 
-                        <!-- Tabs -->
-                        <div class="flex gap-4 border-b border-gray-200">
-                            <button onclick="switchTab('orders')" id="tabBtn-orders"
-                                class="px-4 py-2 text-sm font-bold text-black border-b-2 border-black pb-3">Commandes
-                                (<span id="tabOrderCount">0</span>)</button>
-                            <button onclick="switchTab('products')" id="tabBtn-products"
-                                class="hidden px-4 py-2 text-sm font-bold text-gray-500 border-b-2 border-transparent pb-3 hover:text-black hover:border-gray-300">Produits
-                                (<span id="tabProductCount">0</span>)</button>
-                        </div>
+                        <!-- Main Display Area -->
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4 border-b border-gray-100">
+                                <button onclick="switchTab('orders')" id="tabBtn-orders" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-black transition-all">Activités & Commandes</button>
+                                <button onclick="switchTab('products')" id="tabBtn-products" class="hidden px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400 border-b-4 border-transparent hover:text-black transition-all">Catalogue Boutique</button>
+                            </div>
 
-                        <!-- Tab Content : Orders -->
-                        <div id="tabContent-orders" class="space-y-4">
-                            <div class="glass-panel overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="min-w-[800px] w-full text-left border-collapse">
+                            <div id="tabContent-orders" class="animate-premium">
+                                <div class="glass-panel overflow-hidden">
+                                    <table class="premium-table w-full">
                                         <thead>
-                                            <tr class="bg-gray-50 border-b border-gray-100">
-                                                <th class="p-3 text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
-                                                    Date</th>
-                                                <th class="p-3 text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
-                                                    Statut</th>
-                                                <th class="p-3 text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
-                                                    Articles</th>
-                                                <th class="p-3 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right whitespace-nowrap">
-                                                    Total</th>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Statut</th>
+                                                <th>Articles</th>
+                                                <th class="text-right">Total</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="modalUserOrdersList" class="divide-y divide-gray-50">
-                                            <!-- Orders loaded via JS -->
-                                        </tbody>
+                                        <tbody id="modalUserOrdersList"></tbody>
                                     </table>
+                                    <div id="modalUserOrdersEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Aucune interaction trouvée.</div>
                                 </div>
-                                <div id="modalUserOrdersEmpty" class="hidden p-8 text-center text-gray-400 text-sm">
-                                    Aucune commande trouvée.</div>
                             </div>
-                        </div>
 
-                        <!-- Tab Content : Products -->
-                        <div id="tabContent-products" class="hidden space-y-4">
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="modalUserProductsList">
-                                <!-- Products loaded via JS -->
+                            <div id="tabContent-products" class="hidden animate-premium">
+                                <div id="modalUserProductsList" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+                                <div id="modalUserProductsEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Catalogue vide.</div>
                             </div>
-                            <div id="modalUserProductsEmpty" class="hidden p-8 text-center text-gray-400 text-sm">Aucun
-                                produit listé.</div>
                         </div>
                     </div>
                 </div>
@@ -259,7 +222,6 @@
             const allOrders = OrderManager.getOrders();
 
             const filteredUsers = allUsers.filter(u => {
-                // Exclude admins from this page always
                 if (u.role === 'admin') return false;
                 
                 const matchesRole = currentFilter === 'all' || 
@@ -268,8 +230,10 @@
                                         : u.role === currentFilter);
                 
                 const userName = u.name || 'Utilisateur sans nom';
+                const storeName = u.store_name || '';
                 const userEmail = u.email || '';
                 const matchesSearch = userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     userEmail.toLowerCase().includes(searchQuery.toLowerCase());
                 return matchesRole && matchesSearch;
             });
@@ -281,64 +245,61 @@
             }
 
             emptyState.classList.add('hidden');
-            tbody.innerHTML = filteredUsers.map(u => {
+            tbody.innerHTML = filteredUsers.map((u, i) => {
                 const userProducts = allProducts.filter(p => p.supplier_email === u.email);
                 const userSales = allOrders.reduce((sum, o) => {
                     const mine = (o.items || []).filter(item => userProducts.some(p => p.id === item.id));
                     return sum + mine.reduce((s, it) => s + (it.price * it.quantity), 0);
                 }, 0);
-                const isPending = u.status === 'pending';     // Never filled form
-                const isSubmitted = u.status === 'submitted'; // Form sent, awaiting review
-                const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
 
-                // Status badge label
-                const statusBadge = isSubmitted
-                    ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-orange-100 text-orange-600">Dossier soumis</span>'
-                    : isPending
-                        ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-yellow-100 text-yellow-700">En attente</span>'
-                        : u.status === 'approved'
-                            ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-green-100 text-green-700">Approuvé</span>'
-                            : u.status === 'rejected'
-                                ? '<span class="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-red-100 text-red-600">Rejeté</span>'
-                                : '';
+                const isSubmitted = u.status === 'submitted';
+                const isPending = u.status === 'pending';
+                const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
+                const hasNoLogo = u.role === 'supplier' && !(u.avatar || u.cover_image);
+
+                const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
+                const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
 
                 return `
-                <tr class="group hover:bg-gray-50/50 transition-colors cursor-pointer" onclick="window.open('user-details.html?email=' + encodeURIComponent('${u.email}'), '_blank')">
-                    <td class="p-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center text-xs font-black">
-                                ${u.avatar || (u.name ? u.name.substring(0, 2).toUpperCase() : 'U')}
+                <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
+                    <td class="p-4" onclick="window.open('user-details.html?email=' + encodeURIComponent('${u.email}'), '_blank')">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
+                                ${(u.avatar || u.cover_image) 
+                                    ? `<img src="${u.avatar || u.cover_image}" class="w-full h-full object-cover">` 
+                                    : `<span class="text-lg opacity-30">${(u.store_name || u.name || 'U').charAt(0)}</span>`
+                                }
                             </div>
                             <div>
-                                <div class="font-bold text-gray-900 flex items-center gap-2">
-                                    ${u.name || 'Utilisateur sans nom'}
-                                    ${needsReview ? '<span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" title="Validation requise"></span>' : ''}
+                                <div class="font-black text-gray-900 flex items-center gap-2">
+                                    ${u.store_name || u.name || 'Sans Nom'}
+                                    ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping"></span>' : ''}
                                 </div>
-                                <div class="text-[10px] text-gray-400 font-medium">${u.email || 'Pas d\'email'}</div>
-                                ${u.company_name ? `<div class="text-[9px] font-bold text-blue-500 uppercase">${u.company_name}</div>` : ''}
-                                ${statusBadge}
+                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${u.email}</div>
+                                ${(u.store_name && u.name && u.store_name !== u.name) ? `<div class="text-[9px] font-bold text-blue-500 uppercase mt-1 italic">${u.name}</div>` : ''}
                             </div>
                         </div>
                     </td>
-                    <td class="p-4">
-                        <span class="font-black text-gray-900">${userProducts.length}</span>
-                        <span class="text-[8px] text-gray-400 font-bold uppercase block">Article(s)</span>
+                    <td>
+                        <div class="badge-premium ${statusColor}">
+                            ${statusLabel}
+                        </div>
                     </td>
-                    <td class="p-4">
+                    <td>
+                        <span class="font-black text-gray-900">${userProducts.length}</span>
+                        <span class="text-[9px] text-gray-400 font-bold uppercase block tracking-tighter">Articles</span>
+                    </td>
+                    <td>
                         <span class="font-black text-gray-900">${CurrencyManager.formatPrice(userSales)}</span>
                     </td>
-                    <td class="p-4 text-right">
+                    <td class="text-right">
                         <div class="flex items-center justify-end gap-2">
                             ${needsReview ? `
-                                <button onclick="event.stopPropagation(); approveVendor('${u.id}', '${u.name}')" class="px-3 py-1.5 bg-green-500 text-white text-[10px] font-bold rounded-lg hover:bg-green-600 transition-all flex items-center gap-1">
-                                    <iconify-icon icon="solar:check-read-bold"></iconify-icon> Approuver
-                                </button>
-                                <button onclick="event.stopPropagation(); rejectVendor('${u.id}', '${u.name}')" class="px-3 py-1.5 bg-red-50 text-red-500 text-[10px] font-bold rounded-lg hover:bg-red-100 transition-all">
-                                    Rejeter
-                                </button>
+                                <button onclick="approveVendor('${u.id}', '${u.name}')" class="px-4 py-2 bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-all shadow-lg shadow-black/10">Approuver</button>
+                                <button onclick="rejectVendor('${u.id}', '${u.name}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon></button>
                             ` : `
-                                <button onclick="event.stopPropagation(); confirmDelete('${u.id}', '${u.name}')" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                                    <iconify-icon icon="solar:trash-bin-trash-linear" width="18"></iconify-icon>
+                                <button onclick="confirmDelete('${u.id}', '${u.name}')" class="p-2 text-gray-200 hover:text-red-500 transition-colors">
+                                    <iconify-icon icon="solar:trash-bin-trash-linear" width="22"></iconify-icon>
                                 </button>
                             `}
                         </div>
@@ -350,46 +311,32 @@
 
         async function approveVendor(id, name) {
             if (!confirm(`Approuver le vendeur ${name} ?`)) return;
-            
             try {
-                if (window.LoaderManager) LoaderManager.show(`Approbation de ${name}...`);
-                const { error } = await window.supabaseClient
-                    .from('users')
-                    .update({ status: 'approved' })
-                    .eq('id', id);
-                
+                if (window.LoaderManager) LoaderManager.show(`Activation de ${name}...`);
+                const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier' }).eq('id', id);
                 if (error) throw error;
-                
-                if (window.showToast) showToast(`Vendeur ${name} approuvé avec succès !`, "success");
-                // Refresh data
+                if (window.showToast) showToast(`Vendeur activé !`, "success");
                 UserManager.init().then(() => renderUsers());
                 if (window.LoaderManager) LoaderManager.hide();
             } catch (err) {
                 console.error(err);
                 if (window.LoaderManager) LoaderManager.hide();
-                alert("Erreur lors de l'approbation.");
+                alert("Erreur activation.");
             }
         }
 
         async function rejectVendor(id, name) {
-            if (!confirm(`Rejeter le vendeur ${name} ?`)) return;
-            
+            if (!confirm(`Refuser le dossier de ${name} ?`)) return;
             try {
-                if (window.LoaderManager) LoaderManager.show(`Rejet de ${name}...`);
-                const { error } = await window.supabaseClient
-                    .from('users')
-                    .update({ status: 'rejected' })
-                    .eq('id', id);
-                
+                if (window.LoaderManager) LoaderManager.show(`Rejet...`);
+                const { error } = await window.supabaseClient.from('users').update({ status: 'rejected' }).eq('id', id);
                 if (error) throw error;
-                
-                if (window.showToast) showToast(`Vendeur ${name} rejeté.`, "warning");
+                if (window.showToast) showToast(`Rejeté.`, "warning");
                 UserManager.init().then(() => renderUsers());
                 if (window.LoaderManager) LoaderManager.hide();
             } catch (err) {
                 console.error(err);
                 if (window.LoaderManager) LoaderManager.hide();
-                alert("Erreur lors du rejet.");
             }
         }
 
@@ -414,11 +361,13 @@
         function filterUsers(role) {
             currentFilter = role;
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                if (btn.textContent.toLowerCase().includes(getRoleLabel(role).toLowerCase()) || (role === 'all' && btn.textContent === 'Tous')) {
-                    btn.classList.add('bg-black', 'text-white');
-                    btn.classList.remove('bg-gray-50', 'text-gray-500');
+                const text = btn.textContent.toLowerCase();
+                const target = getRoleLabel(role).toLowerCase();
+                if (text.includes(target) || (role === 'all' && text === 'tous') || (role === 'pending' && text.includes('attente'))) {
+                    btn.classList.add('bg-black', 'text-white', 'shadow-lg');
+                    btn.classList.remove('bg-gray-50', 'text-gray-500', 'bg-orange-50', 'text-orange-600');
                 } else {
-                    btn.classList.remove('bg-black', 'text-white');
+                    btn.classList.remove('bg-black', 'text-white', 'shadow-lg');
                     btn.classList.add('bg-gray-50', 'text-gray-500');
                 }
             });
@@ -427,15 +376,11 @@
 
         async function confirmDelete(id, name) {
             if (window.showConfirm) {
-                showConfirm(
-                    "Supprimer l'utilisateur",
-                    `Êtes-vous sûr de vouloir supprimer ${name} ? Cette action est irréversible.`,
-                    async () => {
-                        await UserManager.deleteUser(id);
-                        renderUsers();
-                        showToast("Utilisateur supprimé avec succès", "success");
-                    }
-                );
+                showConfirm("Supprimer ?", `Voulez-vous supprimer définitivement ${name} ?`, async () => {
+                    await UserManager.deleteUser(id);
+                    renderUsers();
+                    showToast("Supprimé", "success");
+                });
             } else if (confirm(`Supprimer ${name} ?`)) {
                 await UserManager.deleteUser(id);
                 renderUsers();
@@ -447,180 +392,25 @@
             renderUsers();
         });
 
-        // --- Modals Functions ---
-        function openUserDetailsModal(userId) {
-            const user = UserManager.getUsers().find(u => u.id === userId);
-            if (!user) return;
-
-            // Populate base info
-            document.getElementById('modalUserName').textContent = user.name || 'Utilisateur sans nom';
-            document.getElementById('modalUserEmail').textContent = user.email || 'Pas d\'email';
-            document.getElementById('modalUserAvatar').textContent = user.avatar || (user.name ? user.name.substring(0, 2).toUpperCase() : 'U');
-            document.getElementById('modalUserDate').textContent = new Date(user.dateJoined).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-            const roleBadge = document.getElementById('modalUserRole');
-            roleBadge.className = `role-badge ${getRoleClass(user.role)}`;
-            roleBadge.textContent = getRoleLabel(user.role);
-
-            // Fetch relations
-            const allOrders = window.OrderManager ? OrderManager.getOrders() : [];
-            const allProducts = window.ProductManager ? ProductManager.getProducts() : [];
-
-            // Orders (Filter by user id/email)
-            const userOrders = allOrders.filter(o =>
-                o.customerId === user.id ||
-                (o.customer && o.customer.email === user.email) ||
-                o.user_email === user.email ||
-                o.customerEmail === user.email
-            ).sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            document.getElementById('modalUserOrderCount').textContent = userOrders.length;
-            document.getElementById('tabOrderCount').textContent = userOrders.length;
-
-            if (user.role === 'supplier') {
-                document.getElementById('modalUserRevenueLabel').textContent = "Chiffre d'Affaires";
-                const revenue = userOrders.filter(o => o.status === 'delivered' || o.status === 'completed').reduce((sum, o) => sum + (o.total || 0), 0);
-                document.getElementById('modalUserRevenue').textContent = CurrencyManager ? CurrencyManager.formatPrice(revenue) : `${revenue} FC`;
-            } else {
-                document.getElementById('modalUserRevenueLabel').textContent = "Montant Dépensé";
-                document.getElementById('modalUserRevenue').textContent = CurrencyManager ? CurrencyManager.formatPrice(spent) : `${spent} FC`;
-            }
-
-            // Products (if supplier)
-            const productsBtn = document.getElementById('tabBtn-products');
-            if (user.role === 'supplier') {
-                productsBtn.classList.remove('hidden');
-                const userProducts = allProducts.filter(p => p.supplierId === user.id || p.ownerId === user.id);
-                document.getElementById('tabProductCount').textContent = userProducts.length;
-                renderModalProducts(userProducts);
-            } else {
-                productsBtn.classList.add('hidden');
-            }
-
-            renderModalOrders(userOrders);
-            switchTab('orders'); // Default tab
-
-            // Show Modal
-            const modal = document.getElementById('userDetailsModal');
-            const modalContent = document.getElementById('userDetailsModalContent');
-            modal.classList.remove('hidden');
-            // Small trigger force layout
-            void modal.offsetWidth;
-            modalContent.classList.remove('scale-95', 'opacity-0');
-            modalContent.classList.add('scale-100', 'opacity-100');
-        }
-
-        function closeUserDetailsModal() {
-            const modal = document.getElementById('userDetailsModal');
-            const modalContent = document.getElementById('userDetailsModalContent');
-
-            modalContent.classList.remove('scale-100', 'opacity-100');
-            modalContent.classList.add('scale-95', 'opacity-0');
-
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 200);
-        }
-
         function switchTab(tabId) {
-            // Update buttons
             ['orders', 'products'].forEach(id => {
                 const btn = document.getElementById(`tabBtn-${id}`);
                 const content = document.getElementById(`tabContent-${id}`);
                 if (!btn || !content) return;
-
                 if (id === tabId) {
                     btn.classList.add('text-black', 'border-black');
-                    btn.classList.remove('text-gray-500', 'border-transparent');
+                    btn.classList.remove('text-gray-400', 'border-transparent');
                     content.classList.remove('hidden');
                 } else {
                     btn.classList.remove('text-black', 'border-black');
-                    btn.classList.add('text-gray-500', 'border-transparent');
+                    btn.classList.add('text-gray-400', 'border-transparent');
                     content.classList.add('hidden');
                 }
             });
         }
 
-        function renderModalOrders(orders) {
-            const tbody = document.getElementById('modalUserOrdersList');
-            const empty = document.getElementById('modalUserOrdersEmpty');
-
-            if (orders.length === 0) {
-                tbody.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
-            empty.classList.add('hidden');
-
-            const statusColors = {
-                'pending': 'bg-yellow-50 text-yellow-600',
-                'processing': 'bg-blue-50 text-blue-600',
-                'shipped': 'bg-purple-50 text-purple-600',
-                'delivered': 'bg-green-50 text-green-600',
-                'completed': 'bg-green-50 text-green-600',
-                'cancelled': 'bg-red-50 text-red-600'
-            };
-            const statusLabels = {
-                'pending': 'En attente',
-                'processing': 'En cours',
-                'shipped': 'Expédiée',
-                'delivered': 'Livrée',
-                'completed': 'Terminée',
-                'cancelled': 'Annulée'
-            };
-
-            tbody.innerHTML = orders.map(o => {
-                const date = o.date ? new Date(o.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A';
-                const statusColor = statusColors[o.status] || 'bg-gray-100 text-gray-600';
-                const statusLabel = statusLabels[o.status] || o.status;
-                const itemsCount = o.items ? o.items.reduce((s, i) => s + (i.quantity || 1), 0) : 0;
-
-                return `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-3 text-sm font-medium text-gray-900">${date}</td>
-                        <td class="p-3">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${statusColor}">
-                                ${statusLabel}
-                            </span>
-                        </td>
-                        <td class="p-3 text-sm text-gray-500">${itemsCount} article(s)</td>
-                        <td class="p-3 text-sm font-bold text-gray-900 text-right">${CurrencyManager ? CurrencyManager.formatPrice(o.total) : o.total + ' FC'}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function renderModalProducts(products) {
-            const list = document.getElementById('modalUserProductsList');
-            const empty = document.getElementById('modalUserProductsEmpty');
-
-            if (products.length === 0) {
-                list.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
-            empty.classList.add('hidden');
-
-            list.innerHTML = products.map(p => {
-                const imgUrl = (p.images && p.images.length > 0) ? p.images[0] : '../Images/placeholder.png';
-                return `
-                    <div class="glass-panel overflow-hidden group">
-                        <div class="aspect-square bg-gray-100 relative">
-                            <img loading="lazy" src="${imgUrl}" alt="${p.name}" class="w-full h-full object-cover">
-                            ${!p.isActive ? '<div class="absolute inset-x-0 bottom-0 bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest text-center py-1">Inactif</div>' : ''}
-                        </div>
-                        <div class="p-3">
-                            <h4 class="text-xs font-bold text-gray-900 truncate" title="${p.name}">${p.name}</h4>
-                            <p class="text-xs text-gray-500 font-medium mt-1">${CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC'}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
         function initializeUsers() {
             renderUsers();
-            // Listen for changes
             window.addEventListener('usersUpdated', renderUsers);
         }
 
@@ -630,6 +420,11 @@
             } else {
                 window.addEventListener('newketInitialized', initializeUsers);
             }
+        });
+
+        // Closing modal on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeUserDetailsModal();
         });
     </script>
 </body>

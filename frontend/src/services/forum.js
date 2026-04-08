@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .from('forum_topics')
                 .select(`
                     *,
-                    users (name, avatar),
+                    users (name, avatar, company_name),
                     forum_posts (count)
                 `)
                 .order('created_at', { ascending: false });
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ${escapeHTML(topic.content)}
                             </p>
                             <div class="flex items-center gap-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">
-                                <span class="text-gray-900">${escapeHTML(topic.users?.name || 'Utilisateur')}</span>
+                                <span class="text-gray-900">${escapeHTML(topic.users?.company_name || topic.users?.name || 'Utilisateur')}</span>
                                 <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
                                 <span>${escapeHTML(date)}</span>
                             </div>
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const { data, error } = await window.supabaseClient
                 .from('forum_topics')
-                .select('*, users(name, avatar), forum_categories(name)')
+                .select('*, users(name, avatar, company_name), forum_categories(name)')
                 .eq('id', topicId)
                 .single();
 
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="${detailAvatar}" 
                         class="w-12 h-12 rounded-full border-2 border-white shadow-sm object-cover">
                     <div>
-                        <div class="font-bold text-gray-900">${escapeHTML(data.users?.name || 'Utilisateur')}</div>
+                        <div class="font-bold text-gray-900">${escapeHTML(data.users?.company_name || data.users?.name || 'Utilisateur')}</div>
                         <div class="text-xs text-gray-400 font-medium">${escapeHTML(date)}</div>
                     </div>
                 </div>
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const { data, error } = await window.supabaseClient
                 .from('forum_posts')
-                .select('*, users(name, avatar)')
+                .select('*, users(name, avatar, company_name)')
                 .eq('topic_id', topicId)
                 .order('created_at', { ascending: true });
 
@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 class="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover">
                             <div class="flex-1">
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="font-bold text-gray-900 text-sm">${escapeHTML(post.users?.name || 'Utilisateur')}</span>
+                                    <span class="font-bold text-gray-900 text-sm">${escapeHTML(post.users?.company_name || post.users?.name || 'Utilisateur')}</span>
                                     <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">${escapeHTML(date)}</span>
                                 </div>
                                 <div class="text-gray-700 text-sm whitespace-pre-wrap">

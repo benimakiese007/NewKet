@@ -178,12 +178,13 @@
                     return;
                 }
 
-                document.getElementById('vendorName').textContent = vendor.name || 'Boutique sans nom';
-                document.getElementById('vendorAvatar').src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(vendor.name || 'V')}&background=f3f4f6&color=000&bold=true`;
+                const shopName = vendor.company_name || vendor.name || 'Boutique sans nom';
+                document.getElementById('vendorName').textContent = shopName;
+                document.getElementById('vendorAvatar').src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=f3f4f6&color=000&bold=true`;
 
                 const joinDate = vendor.date_joined ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
                 document.getElementById('vendorMeta').innerHTML = `<iconify-icon icon="solar:calendar-outline"></iconify-icon> Membre depuis ${joinDate}`;
-                document.title = `${vendor.name || 'Boutique'} — NewKet`;
+                document.title = `${shopName} — NewKet`;
 
                 // Apply custom cover photo if set
                 const heroEl = document.querySelector('.vendor-hero');

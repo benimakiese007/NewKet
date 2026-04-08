@@ -25,130 +25,128 @@
     <link rel="stylesheet" href="../../assets/css/admin.css">
 </head>
 
-<body class="text-gray-900">
+<body class="text-gray-900 bg-[#f8fafc]">
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-6">
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-8">
         <div id="adminSidebarPlaceholder"></div>
 
         <!-- Main Content -->
-        <main class="flex-1 min-w-0 space-y-8">
-            <div class="flex justify-between items-end">
+        <main class="flex-1 min-w-0 space-y-12">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-premium">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Paramètres</h1>
-                    <p class="text-gray-500" id="pageSubtitle">Configurez votre boutique et vos préférences globales.
-                    </p>
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Paramètres Plateforme</h1>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Configuration globale de la marketplace et options système.</p>
                 </div>
                 <div id="saveStatus"
-                    class="hidden flex items-center gap-2 text-green-600 text-xs font-bold uppercase tracking-widest">
-                    <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
-                    Enregistré
+                    class="hidden flex items-center gap-3 px-6 py-3 bg-green-50 text-green-600 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-green-100 shadow-xl shadow-green-500/10">
+                    <iconify-icon icon="solar:check-circle-bold-duotone" width="20"></iconify-icon>
+                    Modifications Enregistrées
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Informations de la Boutique -->
-                <div class="glass-panel p-8 space-y-8">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:shop-2-bold" width="24"></iconify-icon>
+                <div class="glass-panel p-10 space-y-10 animate-premium stagger-1">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:shop-2-bold-duotone" width="32"></iconify-icon>
                         </div>
-                        <h3 class="font-bold text-lg text-gray-900">Identité & Contact</h3>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Identité & Contact</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Branding et informations publiques</p>
+                        </div>
                     </div>
 
                     <form id="identityForm" class="space-y-6">
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nom de
-                                l'enseigne</label>
-                            <input type="text" id="shopName"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
-                                placeholder="NewKet EMarket">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Nom de l'enseigne</label>
+                            <div class="relative">
+                                <iconify-icon icon="solar:pen-bold" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" width="18"></iconify-icon>
+                                <input type="text" id="shopName"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold placeholder:text-gray-200"
+                                    placeholder="NewKet EMarket">
+                            </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Email
-                                    public</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Email public</label>
                                 <input type="email" id="shopEmail"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold"
                                     placeholder="contact@newket.com">
                             </div>
                             <div class="space-y-2">
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Téléphone
-                                    support</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Téléphone support</label>
                                 <input type="text" id="supportPhone"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold"
                                     placeholder="+243 ...">
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">URL du
-                                Logo (Simulé)</label>
-                            <input type="text" id="logoUrl"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
-                                placeholder="https://...">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">URL du Logo Officiel</label>
+                            <div class="relative">
+                                <iconify-icon icon="solar:gallery-bold" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" width="18"></iconify-icon>
+                                <input type="text" id="logoUrl"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="https://...">
+                            </div>
                         </div>
                     </form>
                 </div>
 
                 <!-- Livraison & Devises -->
-                <div class="glass-panel p-8 space-y-8">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:delivery-bold" width="24"></iconify-icon>
+                <div class="glass-panel p-10 space-y-10 animate-premium stagger-2">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-orange-50 text-orange-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:delivery-bold-duotone" width="32"></iconify-icon>
                         </div>
-                        <h3 class="font-bold text-lg text-gray-900">Livraison & Devises</h3>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Livraison & Économie</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Frais, Devises et Objectifs</p>
+                        </div>
                     </div>
 
-                    <div class="flex items-center gap-2 p-1 bg-gray-100 rounded-xl w-fit">
+                    <div class="flex items-center gap-2 p-1.5 bg-gray-100 rounded-2xl w-fit">
                         <button type="button" onclick="setShippingCurrency('USD')" id="shipUSD"
-                            class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">USD</button>
+                            class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">USD</button>
                         <button type="button" onclick="setShippingCurrency('CDF')" id="shipCDF"
-                            class="px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">CDF</button>
+                            class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">CDF</button>
                     </div>
 
                     <form id="deliveryForm" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Frais
-                                    de livraison (USD)</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2" id="labelFee">Frais de livraison (USD)</label>
                                 <input type="number" id="shippingFee"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black">
                             </div>
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Seuil
-                                    gratuité (USD)</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2" id="labelThreshold">Seuil gratuité (USD)</label>
                                 <input type="number" id="freeShippingThreshold"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black">
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Commission field removed -->
-                            <div class="space-y-2">
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Devise
-                                    par défaut</label>
-                                <select id="shopCurrency"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                                    <option value="CDF">Franc Congolais (FC)</option>
-                                    <option value="USD">Dollar Américain ($)</option>
-                                </select>
-                            </div>
+                        
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Devise d'affichage par défaut</label>
+                            <select id="shopCurrency"
+                                class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black appearance-none cursor-pointer">
+                                <option value="CDF">Franc Congolais (FC)</option>
+                                <option value="USD">Dollar Américain ($)</option>
+                            </select>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100">
                             <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Taux
-                                    de Change (1 USD = X FC)</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Taux de Change (1 USD = X FC)</label>
                                 <input type="number" id="exchangeRate"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black text-blue-600"
                                     placeholder="2500">
                             </div>
                             <div class="space-y-2">
-                                <label
-                                    class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Objectif
-                                    Panier Moyen ($)</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Objectif Panier Moyen ($)</label>
                                 <input type="number" id="targetAOV"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black text-purple-600"
                                     placeholder="20">
                             </div>
                         </div>
@@ -156,88 +154,93 @@
                 </div>
 
                 <!-- Réseaux Sociaux -->
-                <div class="glass-panel p-8 space-y-8 text-gray-900">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:share-circle-bold" width="24"></iconify-icon>
+                <div class="glass-panel p-10 space-y-10 animate-premium stagger-3">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:share-circle-bold-duotone" width="32"></iconify-icon>
                         </div>
-                        <h3 class="font-bold text-lg">Liens Sociaux</h3>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Liens Sociaux</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Visibilité et communauté</p>
+                        </div>
                     </div>
 
-                    <div class="space-y-4">
-                        <div class="relative">
-                            <iconify-icon icon="solar:camera-bold" width="18"
-                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></iconify-icon>
-                            <input type="text" id="socialInstagram"
-                                class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
-                                placeholder="Instagram URL">
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Instagram</label>
+                            <div class="relative">
+                                <iconify-icon icon="solar:camera-bold" width="20"
+                                    class="absolute left-6 top-1/2 -translate-y-1/2 text-pink-500"></iconify-icon>
+                                <input type="text" id="socialInstagram"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="Lien Instagram">
+                            </div>
                         </div>
-                        <div class="relative">
-                            <iconify-icon icon="solar:pen-new-square-bold" width="18"
-                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></iconify-icon>
-                            <input type="text" id="socialFacebook"
-                                class="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors"
-                                placeholder="Facebook URL">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Facebook</label>
+                            <div class="relative">
+                                <iconify-icon icon="solar:pen-new-square-bold" width="20"
+                                    class="absolute left-6 top-1/2 -translate-y-1/2 text-blue-600"></iconify-icon>
+                                <input type="text" id="socialFacebook"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="Lien Facebook">
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Site Management -->
-                <div class="glass-panel p-8 space-y-8">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:shield-warning-bold" width="24"></iconify-icon>
+                <div class="glass-panel p-10 space-y-10 animate-premium stagger-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:shield-warning-bold-duotone" width="32"></iconify-icon>
                         </div>
-                        <h3 class="font-bold text-lg">Maintenance & Sécurité</h3>
-                    </div>
-
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                         <div>
-                            <div class="text-sm font-bold">Mode Maintenance</div>
-                            <div class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Rendre le site
-                                inaccessible</div>
+                            <h3 class="font-black text-xl text-gray-900">Centre de Sécurité</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Maintenance et intégrité</p>
                         </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="maintenanceMode" class="sr-only peer">
-                            <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem] border border-gray-100 group hover:bg-white hover:shadow-2xl hover:shadow-black/5 transition-all">
+                            <div>
+                                <div class="text-sm font-black text-gray-900">Mode Maintenance</div>
+                                <div class="text-[9px] text-gray-400 uppercase tracking-widest font-black mt-1">Désactiver l'accès public</div>
                             </div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Database / Test Data Section -->
-                <div class="glass-panel p-8 space-y-8">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center">
-                            <iconify-icon icon="solar:trash-bin-trash-bold" width="24"></iconify-icon>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="maintenanceMode" class="sr-only peer">
+                                <div
+                                    class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500 shadow-inner">
+                                </div>
+                            </label>
                         </div>
-                        <h3 class="font-bold text-lg text-red-600">Zone Dangereuse</h3>
-                    </div>
 
-                    <div class="p-4 bg-red-50 rounded-2xl border border-red-100">
-                        <h4 class="font-bold text-red-600 text-sm mb-2">Réinitialiser les données de test</h4>
-                        <p class="text-xs text-red-500 mb-4">
-                            Cette action supprimera de façon permanente toutes les <strong>commandes</strong> et
-                            l'<strong>historique d'activités</strong> de la base de données.
-                            Cette action est irréversible. Un mot de passe administrateur sera demandé.
-                        </p>
-                        <button id="resetTestDataBtn"
-                            class="w-full bg-red-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-red-500/20 hover:shadow-red-500/40 hover:-translate-y-0.5 transition-all">
-                            Effacer toutes les commandes et activités
-                        </button>
+                        <!-- Database Reset -->
+                        <div class="p-6 bg-red-50 rounded-[2rem] border border-red-100 flex flex-col gap-4">
+                            <div>
+                                <h4 class="font-black text-red-600 text-sm">Zone Critique</h4>
+                                <p class="text-[10px] text-red-400 font-bold uppercase tracking-tight mt-1 leading-relaxed">
+                                    Réinitialisation permanente des commandes et activités. Action irréversible.
+                                </p>
+                            </div>
+                            <button id="resetTestDataBtn"
+                                class="w-full bg-red-600 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-red-500/20 hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                                Effacer les données de test
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="max-w-xl mx-auto mt-12 pb-8">
+            <div class="max-w-xl mx-auto mt-16 pb-12 animate-premium stagger-5">
                 <button id="saveAllBtn"
-                    class="w-full bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:shadow-black/20 hover:-translate-y-0.5 transition-all">
+                    class="w-full bg-black text-white py-6 rounded-3xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-black/20 hover:bg-gray-800 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
+                    <iconify-icon icon="solar:check-read-bold" width="22"></iconify-icon>
                     Enregistrer tous les paramètres
                 </button>
             </div>
-    </div>
-    </main>
+        </main>
     </div>
 
     <script type="module" src="../../services/admin-layout.js"></script>
@@ -247,11 +250,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
 
-            // Dynamic Labels based on role
             const role = localStorage.getItem('newketRole');
             if (role === 'admin') {
                 document.getElementById('pageTitle').textContent = 'Paramètres Plateforme';
-                document.getElementById('pageSubtitle').textContent = 'Configuration globale de la marketplace et options système.';
+                document.getElementById('pageSubtitle').textContent = 'Contrôle global et configuration du système.';
             }
         });
 
@@ -260,27 +262,21 @@
             const btnUSD = document.getElementById('shipUSD');
             const btnCDF = document.getElementById('shipCDF');
             
-            // Update Buttons
             if (curr === 'USD') {
-                btnUSD.className = "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg shadow-black/20";
-                btnCDF.className = "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-black";
+                btnUSD.className = "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-xl shadow-black/20";
+                btnCDF.className = "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-black hover:bg-white";
             } else {
-                btnCDF.className = "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg shadow-black/20";
-                btnUSD.className = "px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-black";
+                btnCDF.className = "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-xl shadow-black/20";
+                btnUSD.className = "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-black hover:bg-white";
             }
 
-            // Update Labels
-            const labels = document.querySelectorAll('#deliveryForm label');
-            if (labels.length >= 2) {
-                labels[0].textContent = `Frais de livraison (${curr})`;
-                labels[1].textContent = `Seuil gratuité (${curr})`;
-            }
+            document.getElementById('labelFee').textContent = `Frais de livraison (${curr})`;
+            document.getElementById('labelThreshold').textContent = `Seuil gratuité (${curr})`;
 
-            // Optional: Conversion logic
             if (convert) {
                 const feeInput = document.getElementById('shippingFee');
                 const thresholdInput = document.getElementById('freeShippingThreshold');
-                const rate = ConfigManager ? ConfigManager.getExchangeRate() : 2800;
+                const rate = window.ConfigManager ? ConfigManager.getExchangeRate() : 2800;
 
                 if (curr === 'CDF') {
                     feeInput.value = Math.round(parseFloat(feeInput.value || 0) * rate);
@@ -296,38 +292,33 @@
             if (window.ConfigManager) {
                 const config = ConfigManager.getConfig();
 
-                // Identity
                 document.getElementById('shopName').value = config.shopName || '';
                 document.getElementById('shopEmail').value = config.email || '';
                 document.getElementById('supportPhone').value = config.supportPhone || '';
                 document.getElementById('logoUrl').value = config.logoUrl || '';
 
-                // Delivery & Economy
                 document.getElementById('shippingFee').value = config.shippingFee || 0;
                 document.getElementById('freeShippingThreshold').value = config.freeShippingThreshold || 0;
-                // sellerCommission set to 0 automatically
-                if (document.getElementById('sellerCommission')) {
-                    document.getElementById('sellerCommission').value = 0;
-                }
                 document.getElementById('shopCurrency').value = config.currencySymbol || 'CDF';
                 document.getElementById('exchangeRate').value = config.exchangeRate || 2500;
                 document.getElementById('targetAOV').value = config.targetAOV || 0;
 
-                // Set shipping currency UI
                 setShippingCurrency(config.shippingCurrency || 'USD', false);
 
-                // Social
                 if (config.socialLinks) {
                     document.getElementById('socialInstagram').value = config.socialLinks.instagram || '';
                     document.getElementById('socialFacebook').value = config.socialLinks.facebook || '';
                 }
 
-                // Security
                 document.getElementById('maintenanceMode').checked = config.maintenanceMode || false;
             }
         }
 
         document.getElementById('saveAllBtn').addEventListener('click', () => {
+            const btn = document.getElementById('saveAllBtn');
+            const status = document.getElementById('saveStatus');
+            const originalText = btn.innerHTML;
+
             const newConfig = {
                 shopName: document.getElementById('shopName').value,
                 email: document.getElementById('shopEmail').value,
@@ -351,35 +342,29 @@
             if (window.ConfigManager) {
                 ConfigManager.saveConfig(newConfig);
 
-                // Show success feedback
-                const btn = document.getElementById('saveAllBtn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Enregistré !';
-                btn.classList.replace('bg-black', 'bg-green-600');
-
-                const status = document.getElementById('saveStatus');
+                btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="22"></iconify-icon> Configuration Enregistrée';
+                btn.classList.add('bg-green-600');
                 status.classList.remove('hidden');
 
                 if (typeof showToast === 'function') {
-                    showToast('Configuration mise à jour avec succès', 'success');
+                    showToast('Configuration sauvegardée avec succès', 'success');
                 }
 
                 setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.classList.replace('bg-green-600', 'bg-black');
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-600');
                     status.classList.add('hidden');
-                }, 2000);
+                }, 3000);
             }
         });
 
-        // Test Data Reset Logic
         document.getElementById('resetTestDataBtn').addEventListener('click', () => {
             if (typeof showPasswordConfirm === 'function') {
                 showPasswordConfirm(
-                    "Réinitialisation",
-                    "Entrez le mot de passe administrateur (PHOENIX) pour effacer les données de test de votre base de données.",
+                    "Action Critique",
+                    "Cette opération supprimera TOUTES les commandes et activités de test. Confirmez avec le mot de passe maître.",
                     async () => {
-                        window.LoaderManager.show('Suppression en cours...');
+                        window.LoaderManager.show('Purge des données...');
                         try {
                             const orders = await window.SupabaseAdapter.fetch('orders');
                             for (let order of orders) {
@@ -393,21 +378,18 @@
 
                             window.LoaderManager.hide();
                             if (typeof showToast === 'function') {
-                                showToast("Données de test réinitialisées avec succès.", "success");
+                                showToast("Base de données nettoyée.", "success");
                             }
-                            // Reload after a short delay
                             setTimeout(() => location.reload(), 1500);
                         } catch (e) {
-                            console.error("Error resetting data:", e);
+                            console.error(e);
                             window.LoaderManager.hide();
                             if (typeof showToast === 'function') {
-                                showToast("Une erreur est survenue lors de la suppression.", "error");
+                                showToast("Échec de la réinitialisation.", "error");
                             }
                         }
                     }
                 );
-            } else {
-                alert("Erreur: Le gestionnaire de mot de passe n'est pas disponible.");
             }
         });
     </script>

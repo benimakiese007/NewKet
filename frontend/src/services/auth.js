@@ -11,7 +11,8 @@ const AuthManager = {
     role: null,
     status: null, // Status KYC : pending (jamais soumis), submitted (en attente validation), approved, rejected
     user: null, // Supabase user object for pages like settings.html
-    _authChecking: true, // Prevents redirect loops while checking auth
+    _authChecking: false,
+    _initialized: false, // New flag
     _realtimeChannel: null,
 
     async init() {
@@ -69,6 +70,14 @@ const AuthManager = {
             if (data.session) {
                 const user = data.session.user;
                 this.user = user; 
+                
+                const hasProfile = await this.checkProfile(user.id);
+                if (!hasProfile) {
+                    console.error('[NewKet Auth] No profile found for user:', user.id);
+                    this.logout('Profil utilisateur introuvable');
+                    return;
+                }
+
                 let role = user.user_metadata.role || 'customer';
 
                 // Force admin role if email is in ADMIN_EMAILS (from admin-config.js)
@@ -109,6 +118,7 @@ const AuthManager = {
         }
 
         this._authChecking = false;
+        this._initialized = true; // Mark as fully initialized
         this.enforcePermissions();
         this.updateAccountLink();
         this.checkWelcomeBonus();
@@ -122,6 +132,27 @@ const AuthManager = {
                 this.enforcePermissions();
                 this.updateAccountLink();
             });
+        }
+    },
+
+    async checkProfile(userId) {
+        if (!window.supabaseClient || !userId) return false;
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('users')
+                .select('id')
+                .eq('id', userId)
+                .maybeSingle();
+            
+            if (error) {
+                console.error('[NewKet Auth] Database error during profile check:', error);
+                return false;
+            }
+            
+            return !!data;
+        } catch (err) {
+            console.error('[NewKet Auth] Unexpected error checking profile:', err);
+            return false;
         }
     },
 
@@ -260,7 +291,10 @@ const AuthManager = {
         window.dispatchEvent(new CustomEvent('roleChanged', { detail: { role } }));
     },
 
-    async logout() {
+    async logout(reason = 'Utilisateur/Système') {
+        console.warn(`[NewKet Auth] Logout triggered. Reason: ${reason}`);
+        console.trace('[NewKet Auth] Logout Stack Trace');
+
         if (window.supabaseClient) {
             await window.supabaseClient.auth.signOut();
         }
@@ -303,6 +337,7 @@ const AuthManager = {
 
     enforcePermissions() {
         if (this._authChecking) return;
+        console.log(`[NewKet Auth] Enforcing permissions for role: ${this.role}, status: ${this.status}`);
 
         const body = document.body;
         body.classList.add(`role-${this.role}`);
@@ -411,13 +446,24 @@ const AuthManager = {
             }
         }
 
+        // If still initializing, don't enforce yet to avoid race conditions
+        if (!this._initialized) {
+            console.log('[NewKet Auth] Skipping enforcement: Initialization in progress.');
+            return;
+        }
+
         if (this.role === null) {
             const path = window.location.pathname;
-            const isAdminFolder = path.includes('/admin/');
-            const isLoginPage = path.includes('login.html'); // Refuser formellement l'accès admin sans connexion
+            const isProtectedPage = path.includes('/admin/') || 
+                                   path.includes('dashboard.html') || 
+                                   path.includes('publish.html') ||
+                                   path.includes('settings.html');
+            const isLoginPage = path.includes('login.html');
 
-            if (isAdminFolder && !isLoginPage) {
-                window.location.href = '/index.html';
+            if (isProtectedPage && !isLoginPage) {
+                console.error('[NewKet Auth] Access denied: No active role on protected page.');
+                this.logout('Session ou rôle manquant sur page protégée');
+                return;
             }
         }
     },

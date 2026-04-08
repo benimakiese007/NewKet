@@ -48,25 +48,32 @@ const ProfileManager = {
         return true;
     },
 
-    /**
-     * Syncs the local profile with the Supabase 'profiles' table.
-     */
     async syncWithSupabase() {
         if (!window.SupabaseAdapter) return;
         
-        const user = AuthManager.getUser();
+        let user;
+        try {
+            const { data } = await window.SupabaseAdapter.getClient().auth.getUser();
+            user = data?.user;
+        } catch(e) {}
         if (!user || !user.id) return;
 
         try {
-            const profile = await window.ApiClient.get('/profiles/me');
+            const profile = await window.SupabaseAdapter.fetchWithFilters('users', {
+                eq: [['id', user.id]],
+                single: true,
+                skipCache: true
+            });
 
             if (profile) {
                 this.saveProfile({
-                    name: profile.full_name || profile.username || this._profile.name,
+                    name: profile.name || this._profile.name,
+                    company_name: profile.company_name || this._profile.company_name,
                     email: user.email || this._profile.email,
                     phone: profile.phone || profile.store_phone_whatsapp || this._profile.phone,
-                    avatar: profile.avatar_url || this._profile.avatar,
-                    role: profile.role || user.role
+                    avatar: profile.avatar || profile.avatar_url || this._profile.avatar,
+                    role: profile.role || user.role,
+                    shipping_time: profile.shipping_time || this._profile.shipping_time
                 });
             }
         } catch (error) {

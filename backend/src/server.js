@@ -27,6 +27,8 @@ import activityRoutes from './routes/activity.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
 import profileRoutes from './routes/profile.routes.js';
+import emailRoutes from './routes/emailRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -37,6 +39,8 @@ app.use('/api/promos', promoRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/emails', emailRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {

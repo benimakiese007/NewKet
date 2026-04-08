@@ -27,132 +27,163 @@
 <body class="text-gray-900">
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-6">
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-32 pb-12 flex flex-col md:flex-row gap-8">
         <div id="adminSidebarPlaceholder"></div>
 
         <!-- Main Content -->
         <main class="flex-1 min-w-0 space-y-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Mes Produits</h1>
-                    <p class="text-gray-500" id="pageSubtitle">Gérez votre catalogue d'articles.</p>
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion du Catalogue</h1>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Supervisez et modérez l'ensemble des articles de la plateforme.</p>
                 </div>
                 <button onclick="openModal()"
-                    class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2">
-                    <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>Nouveau Produit
+                    class="bg-black text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20">
+                    <iconify-icon icon="solar:add-circle-bold-duotone" width="20"></iconify-icon>
+                    Ajouter un Produit
                 </button>
             </div>
 
-            <!-- Bulk Actions Bar -->
+            <!-- Bulk Actions Bar (Flottante Premium) -->
             <div id="bulkActionsBar"
-                class="hidden glass-panel p-4 mb-4 bg-black text-white flex justify-between items-center animate-in slide-in-from-top duration-300">
-                <div class="flex items-center gap-4">
-                    <span id="selectedCount" class="text-sm font-bold">0 produits sélectionnés</span>
+                class="hidden sticky top-32 z-40 glass-panel p-4 mb-8 bg-black/90 backdrop-blur-xl text-white flex justify-between items-center animate-premium border-white/10 shadow-2xl shadow-black/40">
+                <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-black" id="selectedCountText">0</div>
+                        <span class="text-[10px] font-black uppercase tracking-widest opacity-60">Sélectionnés</span>
+                    </div>
+                    
+                    <div class="h-6 w-px bg-white/10"></div>
+                    
                     <button onclick="deleteSelected()"
-                        class="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-red-400 hover:text-red-300 transition-colors">
-                        <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="16"></iconify-icon>
-                        Supprimer
+                        class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-all hover:scale-105">
+                        <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                        Supprimer la sélection
                     </button>
-                    <div class="h-4 w-px bg-gray-700"></div>
-                    <select onchange="updateSelectedCategory(this.value); this.value='';"
-                        class="bulk-select bg-transparent text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
-                        <option value="" disabled selected>Changer catégorie</option>
-                        <option value="Collections Femme">Collections Femme</option>
-                        <option value="Style Homme">Style Homme</option>
-                        <option value="Tech & Gadgets">Tech & Gadgets</option>
-                        <option value="Art de vivre">Art de vivre</option>
-                        <option value="Beauté">Beauté</option>
-                    </select>
+                    
+                    <div class="h-6 w-px bg-white/10"></div>
+                    
+                    <div class="flex items-center gap-4">
+                        <iconify-icon icon="solar:tag-bold" class="text-white/40" width="18"></iconify-icon>
+                        <select onchange="updateSelectedCategory(this.value); this.value='';"
+                            class="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer border-none focus:ring-0">
+                            <option value="" disabled selected class="bg-black">Déplacer vers...</option>
+                            <option value="Collections Femme" class="bg-black">Collections Femme</option>
+                            <option value="Style Homme" class="bg-black">Style Homme</option>
+                            <option value="Tech & Gadgets" class="bg-black">Tech & Gadgets</option>
+                            <option value="Art de vivre" class="bg-black">Art de vivre</option>
+                            <option value="Beauté" class="bg-black">Beauté</option>
+                        </select>
+                    </div>
                 </div>
                 <button onclick="deselectAll()"
-                    class="text-xs font-bold uppercase tracking-widest opacity-60 hover:opacity-100">Annuler</button>
+                    class="px-6 py-2 rounded-xl bg-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all">Annuler</button>
             </div>
 
-            <div class="glass-panel overflow-hidden">
+            <div class="glass-panel overflow-hidden animate-premium stagger-1">
                 <div class="overflow-x-auto">
-                    <table class="min-w-[800px] w-full text-left border-collapse">
+                    <table class="premium-table w-full">
                         <thead>
-                            <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="whitespace-nowrap p-4 w-10">
+                            <tr>
+                                <th class="w-10">
                                     <input type="checkbox" id="selectAll" onclick="toggleSelectAll()"
-                                        class="rounded border-gray-300 text-black focus:ring-black">
+                                        class="rounded-md border-gray-300 text-black focus:ring-black">
                                 </th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Image
-                                </th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Nom</th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Catégorie
-                                </th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Prix</th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Stock
-                                </th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-center">
-                                    Épinglé</th>
-                                <th class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">
-                                    Actions</th>
+                                <th>Produit</th>
+                                <th>Catégorie</th>
+                                <th>Prix</th>
+                                <th>Stock</th>
+                                <th class="text-center">Épinglé</th>
+                                <th class="text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="productsBody" class="divide-y divide-gray-50">
+                        <tbody id="productsBody">
                             <!-- Products loaded via JS -->
                         </tbody>
                     </table>
+                </div>
+                <div id="emptyState" class="hidden p-20 text-center">
+                    <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <iconify-icon icon="solar:box-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
+                    </div>
+                    <p class="text-gray-400 font-bold">Le catalogue est actuellement vide.</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Product Modal -->
-    <div id="productModal"
-        class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div class="glass-panel w-full max-w-lg p-8 animate-in fade-in zoom-in duration-300">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-black tracking-tight" id="modalTitle">Ajouter un produit</h2>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-black"><iconify-icon
-                        icon="solar:close-circle-bold" width="24"></iconify-icon></button>
+    <!-- Product Modal (Premium Redesign) -->
+    <div id="productModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity" onclick="closeModal()"></div>
+
+        <div class="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-premium border border-white/20" id="productModalContent">
+            <!-- Header -->
+            <div class="p-8 border-b border-gray-100 flex items-center justify-between bg-gradient-to-br from-gray-50 to-white">
+                <div>
+                    <h2 class="text-2xl font-black tracking-tight text-gray-900" id="modalTitle">Nouveau Produit</h2>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Configurez les détails de l'article</p>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-400 hover:text-black transition-all">
+                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                </button>
             </div>
-            <form id="productForm" class="space-y-6" novalidate>
+
+            <!-- Form -->
+            <form id="productForm" class="p-8 space-y-6">
                 <input type="hidden" id="pId">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nom du
-                        produit</label>
-                    <input type="text" id="pName" required
-                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nom du produit</label>
+                        <input type="text" id="pName" required
+                            class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold placeholder:text-gray-300" placeholder="Ex: Montre Luxe Quartz">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Catégorie</label>
+                            <select id="pCategory"
+                                class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold appearance-none cursor-pointer">
+                                <option>Collections Femme</option>
+                                <option>Style Homme</option>
+                                <option>Tech & Gadgets</option>
+                                <option>Art de vivre</option>
+                                <option>Beauté</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Stock Initial</label>
+                            <input type="number" id="pStock" required value="0"
+                                class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Prix de vente (FC)</label>
+                        <div class="relative">
+                            <input type="number" id="pPrice" required
+                                class="w-full pl-6 pr-16 py-5 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black text-xl">
+                            <span class="absolute right-6 top-1/2 -translate-y-1/2 font-black text-gray-300">FC</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Url de l'image principale</label>
+                        <div class="relative">
+                            <iconify-icon icon="solar:gallery-bold" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" width="20"></iconify-icon>
+                            <input type="text" id="pImage" placeholder="https://..."
+                                class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm">
+                        </div>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label
-                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Catégorie</label>
-                        <select id="pCategory"
-                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                            <option>Collections Femme</option>
-                            <option>Style Homme</option>
-                            <option>Tech & Gadgets</option>
-                            <option>Art de vivre</option>
-                            <option>Beauté</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Prix (Base
-                            FC)</label>
-                        <input type="number" id="pPrice" required
-                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                    </div>
+
+                <div class="pt-4">
+                    <button type="submit"
+                        class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-black/20 hover:bg-gray-800 transition-all flex items-center justify-center gap-3">
+                        <iconify-icon icon="solar:check-read-bold" width="20"></iconify-icon>
+                        Enregistrer dans le Catalogue
+                    </button>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Image (URL ou
-                            chemin)</label>
-                        <input type="text" id="pImage" placeholder="Images/produit.jpg"
-                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Stock</label>
-                        <input type="number" id="pStock" required value="0"
-                            class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                    </div>
-                </div>
-                <button type="submit"
-                    class="w-full bg-black text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-xl shadow-black/10 hover:bg-gray-800 transition-all">Enregistrer
-                    l'article</button>
             </form>
         </div>
     </div>
@@ -161,51 +192,65 @@
     <script>
         function renderAdminProducts() {
             const tbody = document.getElementById('productsBody');
+            const emptyState = document.getElementById('emptyState');
             const products = ProductManager.getProducts();
 
             if (products.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-gray-400">Aucun produit dans votre catalogue.</td></tr>`;
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
                 return;
             }
 
-            tbody.innerHTML = products.map(p => {
+            emptyState.classList.add('hidden');
+            tbody.innerHTML = products.map((p, i) => {
                 const isLowStock = (p.stock || 0) < 10;
+                const isOut = (p.stock || 0) <= 0;
                 const isPinned = p.pinned === true;
+                
                 return `
-                <tr class="group hover:bg-gray-50/50 transition-colors ${isPinned ? 'bg-yellow-50/40' : ''}">
+                <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
                     <td class="p-4">
-                        <input type="checkbox" value="${p.id}" onclick="updateSelectedUI()" class="product-checkbox rounded border-gray-300 text-black focus:ring-black">
+                        <input type="checkbox" value="${p.id}" onclick="updateSelectedUI()" class="product-checkbox rounded-md border-gray-300 text-black focus:ring-black">
                     </td>
                     <td class="p-4">
-                        <div class="w-12 h-12 bg-gray-50 rounded-xl border border-gray-100 p-1">
-                            <img loading="lazy" src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}" class="w-full h-full object-contain" onerror="this.src='../../assets/Images/default.png'">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-gray-50 rounded-2xl p-2 relative overflow-hidden group-hover:scale-110 transition-transform">
+                                <img loading="lazy" src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}" class="w-full h-full object-contain" onerror="this.src='../../assets/Images/default.png'">
+                                ${isOut ? '<div class="absolute inset-0 bg-red-500/20 backdrop-blur-[1px] flex items-center justify-center text-[8px] font-black text-red-700 uppercase">Épuisé</div>' : ''}
+                            </div>
+                            <div>
+                                <div class="font-black text-gray-900 leading-tight">${p.name}</div>
+                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">${p.id.substring(0, 8).toUpperCase()}</div>
+                            </div>
                         </div>
                     </td>
-                    <td class="p-4">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-gray-900">${p.name}</span>
-                            ${isPinned ? '<span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[9px] font-black uppercase rounded-full tracking-wider">Épinglé</span>' : ''}
+                    <td>
+                        <div class="badge-premium bg-gray-100 text-gray-500">
+                            ${p.category}
                         </div>
                     </td>
-                    <td class="p-4"><span class="px-3 py-1 bg-gray-100 text-[10px] font-bold uppercase rounded-full text-gray-500">${p.category}</span></td>
-                    <td class="p-4 font-black text-gray-900" data-price-cdf="${p.price}">${CurrencyManager.formatPrice(p.price)}</td>
-                    <td class="p-4">
-                        <span class="font-black ${isLowStock ? 'text-red-500' : 'text-gray-900'}">${p.stock || 0}</span>
-                        ${isLowStock ? '<span class="text-[8px] font-bold text-red-400 block uppercase">Stock faible</span>' : ''}
+                    <td>
+                        <div class="font-black text-gray-900">${CurrencyManager.formatPrice(p.price)}</div>
                     </td>
-                    <td class="p-4 text-center">
-                        <button onclick="togglePin('${p.id}')" title="${isPinned ? 'Désépingler' : 'Épingler sur la homepage'}" 
-                            class="w-8 h-8 rounded-lg transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-yellow-100 text-yellow-500 hover:bg-yellow-200' : 'bg-gray-100 text-gray-400 hover:bg-yellow-50 hover:text-yellow-500'}">
-                            <iconify-icon icon="solar:pin-bold" width="16"></iconify-icon>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-black ${isLowStock ? 'text-red-500' : 'text-gray-900'}">${p.stock || 0}</span>
+                            ${isLowStock ? `<span class="text-[9px] font-bold text-red-400 uppercase tracking-tighter">${isOut ? 'Vente stoppée' : 'Stock critique'}</span>` : ''}
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <button onclick="togglePin('${p.id}')" 
+                            class="w-10 h-10 rounded-xl transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-orange-50 text-orange-500 shadow-lg' : 'bg-gray-50 text-gray-300 hover:text-orange-500'}" title="${isPinned ? 'Désépingler' : 'Mettre en avant'}">
+                            <iconify-icon icon="solar:star-bold-duotone" width="20"></iconify-icon>
                         </button>
                     </td>
                     <td class="p-4 text-right">
-                        <div class="flex justify-end gap-2">
-                            <button onclick="editProduct('${p.id}')" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-black hover:text-white transition-all flex items-center justify-center">
-                                <iconify-icon icon="solar:pen-bold" width="16"></iconify-icon>
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editProduct('${p.id}')" class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-black hover:text-white transition-all flex items-center justify-center">
+                                <iconify-icon icon="solar:pen-bold" width="20"></iconify-icon>
                             </button>
-                            <button onclick="deleteProduct('${p.id}')" class="w-8 h-8 rounded-lg bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
-                                <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="16"></iconify-icon>
+                            <button onclick="deleteProduct('${p.id}')" class="w-10 h-10 rounded-xl bg-red-50 text-red-300 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
+                                <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
                             </button>
                         </div>
                     </td>
@@ -215,17 +260,15 @@
             if (window.CurrencyManager) CurrencyManager.updateAllPrices();
         }
 
-        const modal = document.getElementById('productModal');
-        const form = document.getElementById('productForm');
-
         function openModal(isEdit = false) {
+            const modal = document.getElementById('productModal');
+            document.getElementById('modalTitle').textContent = isEdit ? 'Modifier l\'Article' : 'Nouvel Article';
+            if (!isEdit) document.getElementById('productForm').reset();
             modal.classList.remove('hidden');
-            document.getElementById('modalTitle').textContent = isEdit ? 'Modifier le produit' : 'Ajouter un produit';
-            if (!isEdit) form.reset();
         }
 
         function closeModal() {
-            modal.classList.add('hidden');
+            document.getElementById('productModal').classList.add('hidden');
         }
 
         function editProduct(id) {
@@ -241,7 +284,6 @@
             }
         }
 
-        // Bulk Actions Logic
         function toggleSelectAll() {
             const master = document.getElementById('selectAll');
             const checkboxes = document.querySelectorAll('.product-checkbox');
@@ -252,11 +294,11 @@
         function updateSelectedUI() {
             const selected = document.querySelectorAll('.product-checkbox:checked');
             const bar = document.getElementById('bulkActionsBar');
-            const count = document.getElementById('selectedCount');
+            const count = document.getElementById('selectedCountText');
 
             if (selected.length > 0) {
                 bar.classList.remove('hidden');
-                count.textContent = `${selected.length} produit(s) sélectionné(s)`;
+                count.textContent = selected.length;
             } else {
                 bar.classList.add('hidden');
             }
@@ -270,12 +312,11 @@
 
         function deleteSelected() {
             const selected = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(c => c.value);
-            showPasswordConfirm('Supprimer groupée ?', `Voulez-vous vraiment retirer ces ${selected.length} articles ?`, () => {
-                ProductManager.deleteBulk(selected);
-                renderAdminProducts();
-                updateSelectedUI();
-                showToast(`${selected.length} articles retirés.`, 'info');
-            });
+            if (!confirm(`Voulez-vous vraiment supprimer ces ${selected.length} articles ?`)) return;
+            ProductManager.deleteBulk(selected);
+            renderAdminProducts();
+            updateSelectedUI();
+            if (window.showToast) showToast(`${selected.length} articles retirés.`, 'info');
         }
 
         function updateSelectedCategory(category) {
@@ -283,15 +324,14 @@
             ProductManager.updateCategoryBulk(selected, category);
             renderAdminProducts();
             updateSelectedUI();
-            showToast('Catégories mises à jour.', 'success');
+            if (window.showToast) showToast('Catégories mises à jour.', 'success');
         }
 
         function deleteProduct(id) {
-            showPasswordConfirm('Supprimer ?', 'Voulez-vous vraiment retirer cet article ?', () => {
-                ProductManager.deleteProduct(id);
-                renderAdminProducts();
-                showToast('Article retiré.', 'info');
-            });
+            if (!confirm('Supprimer cet article ?')) return;
+            ProductManager.deleteProduct(id);
+            renderAdminProducts();
+            if (window.showToast) showToast('Article retiré.', 'info');
         }
 
         async function togglePin(id) {
@@ -300,29 +340,11 @@
             const newPinned = !p.pinned;
             await ProductManager.updateProduct(id, { pinned: newPinned });
             renderAdminProducts();
-            showToast(newPinned ? 'Produit épinglé sur la homepage !' : 'Produit désépinglé.', newPinned ? 'success' : 'info');
+            if (window.showToast) showToast(newPinned ? 'Produit épinglé !' : 'Décroché.', 'success');
         }
 
-        form.addEventListener('submit', (e) => {
+        document.getElementById('productForm').addEventListener('submit', (e) => {
             e.preventDefault();
-
-            // Custom Validation
-            const nameInput = document.getElementById('pName');
-            const priceInput = document.getElementById('pPrice');
-            const name = nameInput.value.trim();
-            const priceVal = priceInput.value.trim();
-
-            if (!name) {
-                showToast("Un nom est indispensable pour présenter cet article.", "error");
-                nameInput.focus();
-                return;
-            }
-            if (!priceVal || parseFloat(priceVal) <= 0) {
-                showToast("Veuillez attribuer une valeur juste à ce produit.", "error");
-                priceInput.focus();
-                return;
-            }
-
             const id = document.getElementById('pId').value;
             const product = {
                 name: document.getElementById('pName').value,
@@ -339,19 +361,15 @@
             }
             closeModal();
             renderAdminProducts();
-            showToast('Produit enregistré.', 'success');
+            if (window.showToast) showToast('Catalogue mis à jour.', 'success');
         });
 
         function initializeProducts() {
             renderAdminProducts();
-
-            // Dynamic Labels based on role
             const role = localStorage.getItem('newketRole');
             if (role === 'admin') {
                 const pageTitle = document.getElementById('pageTitle');
-                const pageSubtitle = document.getElementById('pageSubtitle');
-                if (pageTitle) pageTitle.textContent = 'Gestion Produits';
-                if (pageSubtitle) pageSubtitle.textContent = 'Gérez le catalogue global de la plateforme.';
+                if (pageTitle) pageTitle.textContent = 'Gestion du Catalogue';
             }
         }
 
@@ -361,6 +379,10 @@
             } else {
                 window.addEventListener('newketInitialized', initializeProducts);
             }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
         });
     </script>
 </body>

@@ -393,6 +393,76 @@ const ComponentLoader = {
             script.src = this.getAdjustedPath('js/newsletter.js');
             document.head.appendChild(script);
         }
+
+        // Setup dynamic spacing for fixed header to prevent overlap
+        this.setupHeaderSpacing();
+    },
+
+    setupHeaderSpacing() {
+        const adjustSpacing = () => {
+            const header = document.querySelector('.main-header');
+            if (!header) return;
+            
+            const height = header.offsetHeight;
+            if (height === 0) return; // Not rendered yet
+
+            let spacer = document.getElementById('dynamic-header-spacer');
+            if (!spacer) {
+                spacer = document.createElement('div');
+                spacer.id = 'dynamic-header-spacer';
+                spacer.style.width = '100%';
+                spacer.style.display = 'block';
+                spacer.style.flexShrink = '0';
+                
+                // Remove hardcoded spacer elements to prevent double spacing
+                const staticSpacers = document.querySelectorAll('.h-28, .h-24, .h-32');
+                staticSpacers.forEach(s => {
+                    if(s.innerHTML.trim() === '' && !s.children.length) s.remove();
+                });
+
+                // Remove top-padding from main containers that were manually added
+                const mainTags = document.querySelectorAll('main, section, div');
+                mainTags.forEach(m => {
+                    if (m.className && typeof m.className === 'string') {
+                        // Only remove specific padding classes to prevent double spacing
+                        const newClass = m.className.replace(/\bpt-(20|24|28|32)\b/g, '').trim();
+                        if (newClass !== m.className) m.className = newClass;
+                    }
+                });
+                
+                // insert after header placeholder
+                const placeholder = document.getElementById('header-placeholder');
+                if (placeholder && placeholder.parentNode) {
+                    placeholder.parentNode.insertBefore(spacer, placeholder.nextSibling);
+                } else {
+                    document.body.insertBefore(spacer, document.body.firstChild);
+                }
+            }
+            
+            spacer.style.height = height + 'px';
+            spacer.style.minHeight = height + 'px'; // Ensure it doesn't get collapsed
+            
+            // Adjust scroll-padding-top for anchors (#)
+            document.documentElement.style.scrollPaddingTop = (height + 20) + 'px';
+        };
+
+        // Run initially completely after rendering
+        setTimeout(adjustSpacing, 50);
+        setTimeout(adjustSpacing, 500); // Fail-safe for slow rendering
+
+        // Re-calculate on resize
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(adjustSpacing);
+        });
+
+        // Observer for dynamic changes inside the header (like promos expanding)
+        const headerNode = document.querySelector('.main-header');
+        if (headerNode) {
+            const resizeObserver = new ResizeObserver(() => {
+                requestAnimationFrame(adjustSpacing);
+            });
+            resizeObserver.observe(headerNode);
+        }
     },
 
     async loadComponent(elementId, path, fallbackHTML = '') {

@@ -150,9 +150,15 @@ window.SupabaseAdapter = {
                     }
                 }
 
-                // Apply .or() filter (e.g. search across multiple columns)
+                // Apply .or() filters (supports single string or array of strings)
                 if (options.or) {
-                    query = query.or(options.or);
+                    if (Array.isArray(options.or)) {
+                        for (const orCond of options.or) {
+                            query = query.or(orCond);
+                        }
+                    } else {
+                        query = query.or(options.or);
+                    }
                 }
 
                 // Apply .gte() filters (greater than or equal)

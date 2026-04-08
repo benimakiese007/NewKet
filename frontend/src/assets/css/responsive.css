@@ -85,10 +85,7 @@ canvas {
 
 @media (max-width: 639px) {
 
-    /* Le spacer header sur mobile - Reduced for very compact 2 rows */
-    .h-28.sm\:h-24 {
-        height: 5.5rem !important;
-    }
+    /* Removing static header spacers override to use dynamic JS spacing */
 
     .main-header .w-full {
         padding-top: 0.5rem !important;
@@ -609,18 +606,7 @@ canvas {
    22. BOTTOM NAV MOBILE — Espacement
    ========================================== */
 
-@media (max-width: 639px) {
-
-    /* Espacer le contenu au-dessus du bottom nav */
-    body {
-        padding-bottom: 4.5rem;
-    }
-
-    /* Bottom nav fixe */
-    nav.fixed.bottom-0 {
-        padding-bottom: env(safe-area-inset-bottom, 0.75rem);
-    }
-}
+/* Removing unused bottom nav padding entirely as it was removed */
 
 /* ==========================================
    23. WITHDRAWAL MODAL (vendor)

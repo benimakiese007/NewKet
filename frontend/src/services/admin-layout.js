@@ -53,7 +53,7 @@ const AdminLayout = {
                             <iconify-icon icon="solar:hamburger-menu-bold" width="24"></iconify-icon>
                         </button>
                         <a href="dashboard.html" class="flex items-center gap-2 group">
-                            <img src="/Images/Logo NewKet V2.jpeg" alt="NewKet" class="h-10 w-auto invert">
+                            <img src="../../assets/Images/Logo NewKet V2.jpeg" alt="NewKet" class="h-7 w-auto invert transition-transform group-hover:scale-105">
                             <span class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
                         </a>
                     </div>

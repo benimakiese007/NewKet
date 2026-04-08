@@ -10,7 +10,6 @@
     <meta name="theme-color" content="#111827">
     <title>Produit &ndash; NewKet</title>
     <script type="module" src="../services/app.js"></script>
-    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,11 +24,9 @@
 </head>
 
 <body class="bg-gray-50 text-gray-900 antialiased">
-
     <div id="header-placeholder"></div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-6" id="main-content">
-        
         <!-- Breadcrumbs -->
         <nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs">
             <a href="/index.html" class="hover:text-gray-900 transition-colors">Accueil</a>
@@ -39,29 +36,29 @@
             <span class="text-gray-900" id="breadcrumb-current">Produit</span>
         </nav>
 
-                <!-- Skeleton Loading (shown before product loads) -->
+        <!-- Skeleton Loading -->
         <div id="productSkeleton" class="block" aria-hidden="true">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:flex-start;">
                 <div class="skeleton skeleton-img" style="border-radius:1.5rem; aspect-ratio:1;"></div>
                 <div>
                     <div class="skeleton skeleton-text" style="height:12px; width:40%; margin-bottom:16px;"></div>
                     <div class="skeleton skeleton-text w-3-4" style="height:36px; margin-bottom:12px;"></div>
-                    <div class="skeleton skeleton-text w-2-3" style="height:28px; width:35%; margin-bottom:24px;"></div>
-                    <div class="skeleton skeleton-text" style="height:14px; margin-bottom:8px;"></div>
-                    <div class="skeleton skeleton-text" style="height:14px; margin-bottom:8px;"></div>
-                    <div class="skeleton skeleton-text w-3-4" style="height:14px; margin-bottom:32px;"></div>
+                    <div class="skeleton-text w-2-3" style="height:28px; width:35%; margin-bottom:24px;"></div>
+                    <div class="skeleton-text" style="height:14px; margin-bottom:8px;"></div>
+                    <div class="skeleton-text" style="height:14px; margin-bottom:8px;"></div>
+                    <div class="skeleton-text w-3-4" style="height:14px; margin-bottom:32px;"></div>
                     <div class="skeleton" style="height:52px; border-radius:1rem;"></div>
                 </div>
             </div>
         </div>
-<div id="productGrid" style="display:none;">
+
+        <div id="productGrid" style="display:none;" class="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
             <!-- Image Section -->
             <div id="productImageCol">
                 <div class="aspect-square glass-card rounded-3xl overflow-hidden group relative flex items-center justify-center p-6 hover:shadow-2xl transition-all duration-700">
                     <img id="mainImage" src="" alt="" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-1000 ease-out cursor-zoom-in" onclick="openZoom()">
                 </div>
-                <!-- Thumbnails -->
-                <div class="grid grid-cols-4 gap-4" id="thumbnailGrid"></div>
+                <div class="grid grid-cols-4 gap-4 mt-6" id="thumbnailGrid"></div>
             </div>
 
             <!-- Details Section -->
@@ -76,32 +73,44 @@
                         </div>
                         <h1 id="productName" class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-[1.1] mb-4">Chargement...</h1>
                         
-                        <div id="headerRating" class="flex items-center gap-4 mb-8 invisible">
+                        <div id="headerRating" class="flex items-center gap-4 mb-4 invisible">
                             <div class="flex gap-0.5 text-amber-400" id="headerStars"></div>
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest" id="headerReviewCount">...</span>
+                        </div>
+
+                        <div id="vendorInfo" class="flex items-center gap-4 mb-8 bg-gray-50/80 p-4 rounded-2xl border border-gray-100">
+                             <div class="w-10 h-10 bg-gray-900 text-white rounded-xl flex items-center justify-center font-black text-xs overflow-hidden" id="vendorAvatarDetail">V</div>
+                             <div class="flex-1">
+                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Vendu par</div>
+                                 <a href="#" id="vendorLink" class="text-sm font-black text-gray-900 hover:text-blue-600 transition-colors uppercase tracking-tight">Chargement...</a>
+                             </div>
+                             <div class="text-right">
+                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Expédition</div>
+                                 <div class="text-xs font-black text-gray-900 flex items-center justify-end gap-1">
+                                     <iconify-icon icon="solar:delivery-bold" class="text-green-500"></iconify-icon>
+                                     <span id="shippingValue">...</span>
+                                 </div>
+                             </div>
                         </div>
 
                         <div class="flex items-baseline gap-4 mb-8">
                             <span id="productPrice" class="text-2xl font-black text-gray-900">... FC</span>
                         </div>
-
                         <p id="productDescription" class="text-sm leading-relaxed text-gray-500 font-medium mb-10 max-w-md">...</p>
                     </div>
 
-                    <!-- Actions -->
                     <div class="space-y-4">
                         <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm w-fit">
                             <button onclick="updateQty(-1)" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-400 hover:text-gray-900">
                                 <iconify-icon icon="solar:minus-linear" width="20"></iconify-icon>
                             </button>
-                            <input type="number" id="qty-input" value="1" min="1" class="w-12 text-center font-bold text-gray-900 bg-transparent border-none outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                            <input type="number" id="qty-input" value="1" min="1" class="w-12 text-center font-bold text-gray-900 bg-transparent border-none outline-none">
                             <button onclick="updateQty(1)" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-400 hover:text-gray-900">
                                 <iconify-icon icon="solar:add-linear" width="20"></iconify-icon>
                             </button>
                         </div>
-
                         <div class="flex gap-3">
-                            <button id="mainOrderBtn" class="flex-1 bg-gray-900 hover:bg-black text-white py-3 sm:py-4 rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all hover:-translate-y-1 active:translate-y-0 shadow-lg shadow-gray-900/20 flex items-center justify-center gap-2">
+                            <button id="mainOrderBtn" class="flex-1 bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-lg shadow-gray-900/20 flex items-center justify-center gap-2">
                                 <span>Commander</span>
                                 <iconify-icon icon="solar:chat-round-call-bold" width="24"></iconify-icon>
                             </button>
@@ -114,24 +123,13 @@
             </div>
         </div>
 
-        <!-- Reviews Section -->
         <div class="mt-32 pt-20 border-t border-gray-100">
-            <div class="flex items-center justify-between mb-16">
-                <div>
-                    <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tighter">Avis Clients</h2>
-                    <p class="text-xs font-bold text-gray-400 mt-2 uppercase tracking-widest" id="reviewCountText">0 avis vÃ©rifiÃ©s</p>
-                </div>
-            </div>
-
-            <div id="reviewsList" class="space-y-12">
-                <!-- Reviews injected by JS -->
-            </div>
-
-            <!-- Review Form -->
+            <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tighter mb-4">Avis Clients</h2>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-16" id="reviewCountText">0 avis vérifiés</p>
+            <div id="reviewsList" class="space-y-12"></div>
             <div id="reviewFormContainer" class="mt-20"></div>
         </div>
 
-        <!-- Recommended Products -->
         <section class="mt-32 pb-20 border-t border-gray-100 pt-20">
             <div class="flex items-center justify-between mb-12">
                 <h2 class="text-3xl font-bold tracking-tight text-gray-900">Articles similaires</h2>
@@ -139,24 +137,20 @@
                     Voir tout <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
                 </a>
             </div>
-            <div id="recommendedGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-6">
-                <!-- Data from JS -->
-            </div>
+            <div id="recommendedGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-6"></div>
         </section>
     </main>
 
     <div id="mobile-nav-placeholder"></div>
     <div id="footer-placeholder"></div>
 
-    <!-- Modals -->
     <div id="zoomModal" class="fixed inset-0 z-[100] invisible opacity-0 transition-all duration-500 bg-black/95 flex items-center justify-center p-4 backdrop-blur-2xl" onclick="closeZoom()">
         <button class="absolute top-8 right-8 text-white/50 hover:text-white transition-all">
             <iconify-icon icon="solar:close-circle-bold" width="40"></iconify-icon>
         </button>
-        <img id="zoomModalImg" src="" loading="lazy" decoding="async" class="max-w-full max-h-[90vh] object-contain select-none" alt="Zoom">
+        <img id="zoomModalImg" src="" class="max-w-full max-h-[90vh] object-contain select-none" alt="Zoom">
     </div>
 
-    <!-- Sticky Mobile Bar -->
     <div id="stickyBar" class="fixed bottom-[72px] left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 translate-y-full transition-all duration-500 z-[40] sm:hidden shadow-2xl">
         <div class="flex items-center gap-4">
             <img id="stickyImg" src="" class="w-12 h-12 object-contain bg-gray-50 rounded-xl" alt="">
@@ -164,22 +158,23 @@
                 <div id="stickyName" class="text-[10px] font-black text-gray-900 truncate uppercase tracking-widest">...</div>
                 <div id="stickyPrice" class="text-sm font-black text-gray-900">...</div>
             </div>
-            <button onclick="buyFromSticky()" class="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all"><iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon> Commander</button>
+            <button onclick="buyFromSticky()" class="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all">
+                <iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon> Commander
+            </button>
         </div>
     </div>
 
-    <script>
+    <script shadow>
         const productId = new URLSearchParams(window.location.search).get('id');
         let currentRating = 0;
 
-                // Skeleton management
         function showSkeleton() {
             document.getElementById('productSkeleton').style.display = 'block';
             document.getElementById('productGrid').style.display = 'none';
         }
         function hideSkeleton() {
             document.getElementById('productSkeleton').style.display = 'none';
-            document.getElementById('productGrid').style.display = '';
+            document.getElementById('productGrid').style.display = 'grid';
         }
 
         async function initPage() {
@@ -195,11 +190,15 @@
                     <div class="py-32 text-center">
                         <iconify-icon icon="solar:ghost-broken" width="80" class="text-gray-200 mb-8"></iconify-icon>
                         <h1 class="text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Article Introuvable</h1>
-                        <p class="text-gray-400 mb-10 max-w-sm mx-auto font-bold uppercase tracking-widest text-[10px]">Cet article n'existe plus ou le lien est incorrect.</p>
                         <a href="catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
                     </div>
                 `;
                 return;
+            }
+
+            // Record view for analytics
+            if (window.ProductManager && ProductManager.recordView) {
+                ProductManager.recordView(productId);
             }
 
             renderProductDetails(p);
@@ -210,35 +209,41 @@
         }
 
         function renderProductDetails(p) {
-            document.getElementById('productName').textContent = p.name;
             hideSkeleton();
+            document.getElementById('productName').textContent = p.name;
             document.getElementById('breadcrumb-current').textContent = p.name;
             document.getElementById('productCategory').textContent = p.category;
-            document.getElementById('productDescription').textContent = p.description || "Aucune description disponible pour cet article d'exception.";
+            document.getElementById('productDescription').textContent = p.description || "Aucune description disponible.";
             document.getElementById('stickyName').textContent = p.name;
 
             const priceStr = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC';
             document.getElementById('productPrice').textContent = priceStr;
             document.getElementById('stickyPrice').textContent = priceStr;
 
+            const vendor = p.users || {};
+            const shopName = vendor.company_name || vendor.name || 'Vendeur NewKet';
+            const vendorLink = document.getElementById('vendorLink');
+            if (vendorLink) {
+                vendorLink.textContent = shopName;
+                vendorLink.href = `shop.html?email=${p.supplier_email || ''}`;
+                const avatar = document.getElementById('vendorAvatarDetail');
+                if (vendor.avatar) avatar.innerHTML = `<img src="${vendor.avatar}" class="w-full h-full object-cover">`;
+                else avatar.textContent = shopName.charAt(0).toUpperCase();
+                document.getElementById('shippingValue').textContent = vendor.shipping_time || '24h';
+            }
+
             const images = (p.image || '').split(',').map(img => img.trim()).filter(img => img);
             const mainImgUrl = images[0] || '../assets/Images/default.png';
-            const optimizedMain = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mainImgUrl) : mainImgUrl;
-            
-            document.getElementById('mainImage').src = optimizedMain;
-            document.getElementById('stickyImg').src = optimizedMain;
+            document.getElementById('mainImage').src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mainImgUrl) : mainImgUrl;
+            document.getElementById('stickyImg').src = document.getElementById('mainImage').src;
 
             const thumbs = document.getElementById('thumbnailGrid');
-            thumbs.innerHTML = images.map((img, i) => {
-                const optimizedThumb = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200 }) : img;
-                return `
-                    <div class="aspect-square bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900' : 'border-transparent'} hover:border-gray-200 transition-all p-2 glass-card" onclick="window.changeImage('${img.replace(/'/g, "\\'")}', this)">
-                        <img src="${optimizedThumb}" class="w-full h-full object-contain mix-blend-multiply" onerror="this.src='../assets/Images/default.png'">
-                    </div>
-                `;
-            }).join('');
+            thumbs.innerHTML = images.map((img, i) => `
+                <div class="aspect-square bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900' : 'border-transparent'} hover:border-gray-200 transition-all p-2 glass-card" onclick="window.changeImage('${img.replace(/'/g, "\\'")}', this)">
+                    <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200 }) : img}" class="w-full h-full object-contain mix-blend-multiply">
+                </div>
+            `).join('');
 
-            // Wishlist state
             const isFav = FavoritesManager.isInFavorites(p.id);
             const favBtn = document.getElementById('mainWishlistBtn');
             favBtn.classList.toggle('text-red-500', isFav);
@@ -250,16 +255,11 @@
             document.getElementById('mainOrderBtn').onclick = () => {
                 if (window.contactSeller) window.contactSeller(p.id, document.getElementById('mainOrderBtn'));
             };
-
             document.getElementById('mainWishlistBtn').onclick = () => {
-                if (FavoritesManager.isInFavorites(p.id)) {
-                    FavoritesManager.removeItem(p.id);
-                } else {
-                    FavoritesManager.addItem(p);
-                }
-                renderProductDetails(p); // Re-render to update heart color
+                if (FavoritesManager.isInFavorites(p.id)) FavoritesManager.removeItem(p.id);
+                else FavoritesManager.addItem(p);
+                renderProductDetails(p);
             };
-
             window.addEventListener('scroll', () => {
                 const btn = document.getElementById('mainOrderBtn');
                 const bar = document.getElementById('stickyBar');
@@ -279,300 +279,100 @@
                 });
                 const list = document.getElementById('reviewsList');
                 const countText = document.getElementById('reviewCountText');
-                
                 if (!reviews || reviews.length === 0) {
-                    list.innerHTML = `<div class="text-center py-24 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100">
-                        <iconify-icon icon="solar:chat-line-broken" width="48" class="text-gray-200 mb-4"></iconify-icon>
-                        <div class="text-gray-400 font-black uppercase tracking-widest text-[10px]">Soyez le premier Ã  donner votre avis d'exception</div>
-                    </div>`;
-                    countText.textContent = "0 avis vÃ©rifiÃ©s";
+                    list.innerHTML = `<div class="text-center py-24 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100 text-gray-400 font-black uppercase tracking-widest text-[10px]">Soyez le premier à donner votre avis</div>`;
+                    countText.textContent = "0 avis vérifiés";
                     renderReviewForm(pid);
                     return;
                 }
-
-                // Update average rating in header if possible
                 const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
-                const roundedAvg = Math.round(avg);
-                const starsHTML = Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < roundedAvg ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('');
-                
-                // Header Rating Update
-                const hr = document.getElementById('headerRating');
-                if (hr) {
-                    hr.classList.remove('invisible');
-                    document.getElementById('headerStars').innerHTML = starsHTML;
-                    document.getElementById('headerReviewCount').textContent = `${reviews.length} avis client${reviews.length > 1 ? 's' : ''}`;
-                }
-
-                countText.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="flex gap-0.5">${starsHTML}</div>
-                        <span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis vÃ©rifiÃ©${reviews.length > 1 ? 's' : ''}</span>
-                    </div>
-                `;
-
-                list.innerHTML = reviews.map(r => {
-                    const date = r.created_at ? new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'RÃ©cemment';
-                    return `
-                        <div class="glass-card p-10 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 group">
-                            <div class="flex items-start justify-between mb-8">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase tracking-tighter">
-                                        ${r.user_name ? r.user_name.charAt(0) : '?'}
-                                    </div>
-                                    <div>
-                                        <div class="font-black text-gray-900 uppercase tracking-tighter text-sm mb-1">${r.user_name || 'Anonyme'}</div>
-                                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${date}</div>
-                                    </div>
-                                </div>
-                                <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90 group-hover:scale-100 transition-transform">
-                                    ${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < Number(r.rating) ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('')}
-                                </div>
+                const starsHTML = Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < Math.round(avg) ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('');
+                document.getElementById('headerRating').classList.remove('invisible');
+                document.getElementById('headerStars').innerHTML = starsHTML;
+                document.getElementById('headerReviewCount').textContent = `${reviews.length} avis client${reviews.length > 1 ? 's' : ''}`;
+                countText.innerHTML = `<div class="flex items-center gap-3"><div class="flex gap-0.5">${starsHTML}</div><span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis vérifiés</span></div>`;
+                list.innerHTML = reviews.map(r => `
+                    <div class="glass-card p-10 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                        <div class="flex items-start justify-between mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase">${r.user_name?.charAt(0) || '?'}</div>
+                                <div><div class="font-black text-gray-900 uppercase tracking-tighter text-sm mb-1">${r.user_name || 'Anonyme'}</div><div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${new Date(r.created_at).toLocaleDateString()}</div></div>
                             </div>
-                            <p class="text-base text-gray-600 font-medium leading-relaxed italic border-l-4 border-gray-100 pl-6 capitalize-first">${r.comment}</p>
+                            <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90">${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < r.rating ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('')}</div>
                         </div>
-                    `;
-                }).join('');
-
+                        <p class="text-base text-gray-600 font-medium leading-relaxed italic border-l-4 border-gray-100 pl-6 capitalize-first">${r.comment}</p>
+                    </div>
+                `).join('');
                 renderReviewForm(pid);
-            } catch (e) {
-                console.error('[Product] Reviews error:', e);
-            }
+            } catch (e) { console.error(e); }
         }
 
         function renderReviewForm(pid) {
             const cont = document.getElementById('reviewFormContainer');
-            const user = AuthManager.user;
-
-            if (!user) {
-                cont.innerHTML = `
-                    <div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100">
-                        <div class="max-w-md mx-auto space-y-8">
-                            <div class="w-20 h-20 bg-white rounded-[2rem] shadow-xl flex items-center justify-center mx-auto text-gray-900 border border-gray-100">
-                                <iconify-icon icon="solar:user-bold" width="32"></iconify-icon>
-                            </div>
-                            <div class="space-y-4">
-                                <h3 class="text-2xl font-black text-gray-900 uppercase tracking-tighter">Votre avis compte</h3>
-                                <p class="text-sm text-gray-500 font-medium leading-relaxed">Connectez-vous pour partager votre expÃ©rience avec cet article d'exception et aider la communautÃ© NewKet.</p>
-                            </div>
-                            <a href="login.html" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-black transition-all hover:-translate-y-1 active:translate-y-0 shadow-lg shadow-gray-900/10">
-                                Se connecter maintenant
-                            </a>
-                        </div>
-                    </div>
-                `;
+            if (!AuthManager.user) {
+                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="login.html" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
                 return;
             }
-
             cont.innerHTML = `
-                <div class="hero-gradient rounded-[3rem] p-10 sm:p-16 text-white overflow-hidden relative shadow-2xl border border-white/10 group">
-                    <div class="relative z-10 space-y-12">
-                        <div class="flex items-center gap-6">
-                            <div class="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20">
-                                <iconify-icon icon="solar:pen-new-square-bold" width="32"></iconify-icon>
-                            </div>
-                            <div>
-                                <h3 class="text-3xl font-black uppercase tracking-tighter">Votre avis d'exception</h3>
-                                <p class="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Partagez votre expÃ©rience NewKet</p>
-                            </div>
+                <div class="hero-gradient rounded-[3rem] p-10 sm:p-16 text-white relative shadow-2xl border border-white/10">
+                    <h3 class="text-3xl font-black uppercase tracking-tighter mb-8">Votre avis d'exception</h3>
+                    <div class="grid lg:grid-cols-2 gap-16">
+                        <div class="space-y-6">
+                            <div class="flex gap-3" id="starSelector">${[1, 2, 3, 4, 5].map(i => `<iconify-icon icon="solar:star-bold" width="32" data-star="${i}" class="cursor-pointer text-white/20" onclick="window.setRating(${i})"></iconify-icon>`).join('')}</div>
                         </div>
-
-                        <div class="grid lg:grid-cols-2 gap-16">
-                            <div class="space-y-6">
-                                <span class="text-[10px] font-black text-white/40 uppercase tracking-widest">Note de l'article</span>
-                                <div class="flex gap-3" id="starSelector">
-                                    ${[1, 2, 3, 4, 5].map(i => `
-                                        <iconify-icon 
-                                            icon="solar:star-bold" 
-                                            width="32" 
-                                            data-star="${i}"
-                                            class="cursor-pointer transition-all ${currentRating > 0 && i <= currentRating ? 'text-amber-400' : 'text-white/20 hover:text-white/40'}" 
-                                            onclick="window.setRating(${i})"
-                                            style="transform: ${currentRating > 0 && i <= currentRating ? 'scale(1.15)' : 'scale(1)'}"
-                                        ></iconify-icon>
-                                    `).join('')}
-                                </div>
-                                <p id="ratingHint" class="text-[9px] font-bold ${currentRating === 0 ? 'text-amber-400/80' : 'text-white/50'} uppercase leading-relaxed max-w-xs">${currentRating === 0 ? '&#11088; Sélectionnez une note pour continuer' : 'Votre avis aide d\'autres passionés à découvrir des pièces uniques sur NewKet.'}</p>
-                            </div>
-                            <div class="space-y-6">
-                                <div class="relative group/field">
-                                    <textarea id="reviewText" placeholder="Confiez-nous votre avis sur cette piÃ¨ce..." class="w-full bg-white/5 border border-white/10 rounded-3xl p-8 text-sm outline-none focus:bg-white/10 focus:ring-4 focus:ring-white/5 transition-all min-h-[160px] text-white placeholder:text-white/20"></textarea>
-                                </div>
-                                <button 
-                                    onclick="window.submitReview('${pid}')" 
-                                    id="reviewSubmitBtn" 
-                                    class="w-full bg-white text-gray-900 font-black py-6 rounded-2xl hover:bg-gray-50 hover:-translate-y-1 active:scale-[0.98] transition-all uppercase tracking-widest text-[10px] shadow-xl shadow-black/20"
-                                >
-                                    Publier mon avis
-                                </button>
-                            </div>
+                        <div class="space-y-6">
+                            <textarea id="reviewText" placeholder="Confiez-nous votre avis..." class="w-full bg-white/5 border border-white/10 rounded-3xl p-8 text-sm outline-none text-white min-h-[160px]"></textarea>
+                            <button onclick="window.submitReview('${pid}')" id="reviewSubmitBtn" class="w-full bg-white text-gray-900 font-black py-6 rounded-2xl font-black uppercase tracking-widest text-[10px]">Publier mon avis</button>
                         </div>
                     </div>
-                    <!-- Decorative element -->
-                    <iconify-icon icon="solar:quote-bold" width="300" class="absolute -bottom-24 -right-24 text-white/5 transition-transform duration-1000 group-hover:scale-110 group-hover:-rotate-12 pointer-events-none"></iconify-icon>
-                </div>
-            `;
+                </div>`;
         }
-
-        function renderRecommended(category) {
-            const grid = document.getElementById('recommendedGrid');
-            if (!grid || !window.ProductManager) return;
-            const recs = ProductManager.getProducts().filter(p => p.id !== productId && p.category === category).slice(0, 4);
-            grid.innerHTML = (recs.length > 0 ? recs : ProductManager.getProducts().filter(p => p.id !== productId).slice(0, 4))
-                .map(p => window.buildProductCardHTML(p)).join('');
-        }
-
-        // Global functions
-        window.updateQty = (val) => {
-            const inp = document.getElementById('qty-input');
-            inp.value = Math.max(1, (parseInt(inp.value) || 1) + val);
-        };
-
-        window.changeImage = (url, el) => {
-            const optimized = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(url) : url;
-            document.getElementById('mainImage').src = optimized;
-            document.getElementById('zoomModalImg').src = optimized;
-            document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900'));
-            el.classList.add('border-gray-900');
-        };
-
-        window.openZoom = () => {
-            document.getElementById('zoomModalImg').src = document.getElementById('mainImage').src;
-            const modal = document.getElementById('zoomModal');
-            modal.classList.remove('invisible', 'opacity-0');
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.closeZoom = () => {
-            const modal = document.getElementById('zoomModal');
-            modal.classList.add('invisible', 'opacity-0');
-            document.body.style.overflow = '';
-        };
 
         window.setRating = (v) => {
             currentRating = v;
-            const stars = document.querySelectorAll('#starSelector iconify-icon');
-            stars.forEach((s) => {
-                const starValue = parseInt(s.getAttribute('data-star'));
-                const active = starValue <= v;
+            document.querySelectorAll('#starSelector iconify-icon').forEach(s => {
+                const active = parseInt(s.dataset.star) <= v;
                 s.classList.toggle('text-amber-400', active);
                 s.classList.toggle('text-white/20', !active);
-                s.style.transform = active ? 'scale(1.15)' : 'scale(1)';
             });
-            // Update the hint text
-            const hint = document.getElementById('ratingHint');
-            if (hint) {
-                hint.textContent = `Vous avez donné ${v} étoile${v > 1 ? 's' : ''}`;
-                hint.classList.remove('text-amber-400/80');
-                hint.classList.add('text-white/50');
-            }
         };
 
         window.submitReview = async (pid) => {
-            // Validate rating FIRST - protect against default 0
-            if (!currentRating || currentRating < 1 || currentRating > 5) {
-                return showToast('Veuillez sélectionner une note (1 à 5 étoiles)', 'warning');
-            }
-
+            if (!currentRating) return showToast('Veuillez sélectionner une note', 'warning');
             const txt = document.getElementById('reviewText').value.trim();
-            if (!txt) return showToast('Veuillez Ã©crire un commentaire', 'warning');
-            
-            const btn = document.getElementById('reviewSubmitBtn');
-            btn.disabled = true; 
-            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" class="mr-2"></iconify-icon> Publication...';
-            
-            // Capture rating NOW to prevent any race condition
-            const ratingToSubmit = currentRating;
-            console.log('[NewKet] Submitting review with rating:', ratingToSubmit);
-
+            if (!txt) return showToast('Veuillez écrire un commentaire', 'warning');
             try {
-                const user = AuthManager.user;
-                if (!user) { window.location.href = 'login.html'; return; }
-                
-                // Safe name extraction
-                const userName = user.user_metadata?.name || 
-                                user.user_metadata?.full_name || 
-                                (user.email ? user.email.split('@')[0] : 'Utilisateur NewKet');
-
-                const success = await SupabaseAdapter.insert('product_reviews', {
-                    product_id: pid,
-                    user_id: user.id,
-                    user_name: userName,
-                    rating: ratingToSubmit,
-                    comment: txt
-                });
-
-                if (!success) throw new Error('Insertion failed in database');
-
-                showToast('Votre avis (' + ratingToSubmit + ' étoiles) a été publié !', 'success');
-                document.getElementById('reviewText').value = '';
-                // Reset rating for next review
-                currentRating = 0;
-                // Refresh list using the same PID
-                await loadReviews(pid);
-            } catch (e) {
-                console.error("[Product] Review Submission Error:", e);
-                showToast('Erreur lors de l\'envoi. Veuillez rÃ©essayer.', 'error');
-            } finally {
-                btn.disabled = false; 
-                btn.textContent = 'Publier mon avis';
-            }
+                const success = await SupabaseAdapter.insert('product_reviews', { product_id: pid, user_id: AuthManager.user.id, user_name: AuthManager.user.user_metadata?.name || 'Utilisateur', rating: currentRating, comment: txt });
+                if (success) { showToast('Avis publié !', 'success'); loadReviews(pid); }
+            } catch (e) { showToast('Erreur', 'error'); }
         };
 
-        window.shareProduct = () => {
-            const url = window.location.href;
-            if (navigator.share) {
-                navigator.share({ title: document.title, url: url });
-            } else {
-                navigator.clipboard.writeText(url);
-                showToast('Lien copiÃ© dans le presse-papier !', 'info');
-            }
-        };
-
-        function initRecentlyViewed(p) {
-            let list = JSON.parse(localStorage.getItem('newketRecentlyViewed') || '[]');
-            list = [p, ...list.filter(item => item.id !== p.id)].slice(0, 10);
-            localStorage.setItem('newketRecentlyViewed', JSON.stringify(list));
+        function renderRecommended(cat) {
+            const grid = document.getElementById('recommendedGrid');
+            const pms = ProductManager.getProducts().filter(p => p.id !== productId && p.category === cat).slice(0, 4);
+            grid.innerHTML = (pms.length ? pms : ProductManager.getProducts().slice(0, 4)).map(p => window.buildProductCardHTML(p)).join('');
         }
 
-        window.buyFromSticky = () => {
-            document.getElementById('mainOrderBtn').click();
-        };
+        window.updateQty = (val) => { const inp = document.getElementById('qty-input'); inp.value = Math.max(1, (parseInt(inp.value) || 1) + val); };
+        window.changeImage = (url, el) => { document.getElementById('mainImage').src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(url) : url; document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); };
+        window.openZoom = () => { document.getElementById('zoomModalImg').src = document.getElementById('mainImage').src; document.getElementById('zoomModal').classList.remove('invisible', 'opacity-0'); document.body.style.overflow = 'hidden'; };
+        window.closeZoom = () => { document.getElementById('zoomModal').classList.add('invisible', 'opacity-0'); document.body.style.overflow = ''; };
+        window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copié !', 'info'); } };
+        function initRecentlyViewed(p) { let list = JSON.parse(localStorage.getItem('newketRecentlyViewed') || '[]'); list = [p, ...list.filter(item => item.id !== p.id)].slice(0, 10); localStorage.setItem('newketRecentlyViewed', JSON.stringify(list)); }
+        window.buyFromSticky = () => document.getElementById('mainOrderBtn').click();
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.newketInitialized) initPage();
-            else window.addEventListener('newketInitialized', initPage);
-        });
+        document.addEventListener('DOMContentLoaded', () => { if (window.newketInitialized) initPage(); else window.addEventListener('newketInitialized', initPage); });
     </script>
 
-    <!-- Custom Confirmation Modal (replaces native confirm()) -->
-    <div id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
-        <div class="modal-box">
-            <p class="modal-title" id="confirmModalTitle">Confirmer l'action</p>
-            <p class="modal-message" id="confirmModalMessage"></p>
-            <div class="modal-actions">
-                <button class="btn-confirm-cancel" id="confirmModalCancel">Annuler</button>
-                <button class="btn-confirm-ok" id="confirmModalOk">Confirmer</button>
+    <div id="confirmModal" role="dialog" aria-modal="true" class="fixed inset-0 z-[110] invisible opacity-0 transition-opacity bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl">
+            <p class="text-xl font-black text-gray-900 uppercase tracking-tighter mb-4" id="confirmModalTitle">Confirmer</p>
+            <p class="text-sm text-gray-500 font-medium mb-8" id="confirmModalMessage"></p>
+            <div class="flex gap-3">
+                <button class="flex-1 py-4 bg-gray-50 text-gray-400 font-bold rounded-xl uppercase tracking-widest text-[10px]" id="confirmModalCancel">Annuler</button>
+                <button class="flex-1 py-4 bg-gray-900 text-white font-black rounded-xl uppercase tracking-widest text-[10px]" id="confirmModalOk">Confirmer</button>
             </div>
         </div>
     </div>
-    <script>
-        // Custom confirm() replacement
-        window.showConfirm = function(message, onConfirm, title = 'Confirmer l\'action') {
-            const modal = document.getElementById('confirmModal');
-            document.getElementById('confirmModalTitle').textContent = title;
-            document.getElementById('confirmModalMessage').textContent = message;
-            modal.classList.add('active');
-            const ok = document.getElementById('confirmModalOk');
-            const cancel = document.getElementById('confirmModalCancel');
-            const close = () => modal.classList.remove('active');
-            ok.onclick = () => { close(); onConfirm(); };
-            cancel.onclick = close;
-            modal.onclick = (e) => { if (e.target === modal) close(); };
-        };
-    </script>
 </body>
 </html>
-
-
-
-

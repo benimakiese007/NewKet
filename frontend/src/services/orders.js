@@ -159,6 +159,11 @@ const OrderManager = {
 
         const totalRevenue = filtered.reduce((sum, o) => sum + (o.total || 0), 0);
         const products = window.ProductManager ? ProductManager.getProducts() : [];
+        const totalLeads = filtered.length;
+
+        // Conversion Rate Logic
+        const totalViews = products.reduce((sum, p) => sum + (parseInt(p.views) || 0), 0);
+        const conversionRate = totalViews > 0 ? (totalLeads / totalViews) * 100 : 0;
 
         // Category breakdown
         const categorySales = {};
@@ -177,17 +182,25 @@ const OrderManager = {
             dailyData[day].revenue += (o.total || 0);
         });
 
+        // Platform Health Score (out of 100)
+        // Based on conversion rate (target: 3%), stock availability, and lead volume
+        const healthScore = Math.min(100, Math.round(
+            (conversionRate / 3 * 40) + // 40pts for conversion
+            (totalLeads > 0 ? 30 : 0) + // 30pts for activity
+            (products.filter(p => (p.stock || 0) > 0).length / Math.max(1, products.length) * 30) // 30pts for stock
+        ));
+
         return {
-            totalOrders: filtered.length,
-            totalLeads: filtered.length,
+            totalOrders: totalLeads,
+            totalLeads,
             totalRevenue,
-            averageOrderValue: filtered.length > 0 ? totalRevenue / filtered.length : 0,
+            averageOrderValue: totalLeads > 0 ? totalRevenue / totalLeads : 0,
             categorySales,
             dailyData,
             topProducts: this._getTopProducts(filtered),
-            conversionRate: null,
-            productsInDanger: products.filter(p => (p.stock || 0) < 10).length,
-            healthScore: null
+            conversionRate: conversionRate.toFixed(2),
+            productsInDanger: products.filter(p => (p.stock || 0) < 10 && (p.stock || 0) > 0).length,
+            healthScore
         };
     },
 

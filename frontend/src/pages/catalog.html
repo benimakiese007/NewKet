@@ -504,22 +504,12 @@
 
     <script>
         function initializeCatalog() {
-            // Handle category parameter from URL
             const urlParams = new URLSearchParams(window.location.search);
-
-            // Handle search parameter — try to prefill the header input if it already exists
-            const queryParam = urlParams.get('q');
-            if (queryParam) {
-                const sInput = document.getElementById('searchInput');
-                const mInput = document.getElementById('mobileSearchInput');
-                if (sInput) sInput.value = queryParam;
-                if (mInput) mInput.value = queryParam;
-            }
-
-            // Set search input value after header component is injected
-            // Check immediately in case componentsLoaded already fired (it fires before newketInitialized)
+            console.log('Catalog Initialization Started');
+            console.log('Current URL Search:', window.location.search);
+            
             const prefillSearchInput = () => {
-                const qp = new URLSearchParams(window.location.search).get('q');
+                const qp = urlParams.get('q');
                 if (qp) {
                     const sInput = document.getElementById('searchInput');
                     const mInput = document.getElementById('mobileSearchInput');
@@ -528,7 +518,7 @@
                 }
             };
             if (window.componentsLoaded) {
-                prefillSearchInput(); // Already loaded, set it now
+                prefillSearchInput(); 
             } else {
                 window.addEventListener('componentsLoaded', prefillSearchInput, { once: true });
             }
@@ -536,22 +526,21 @@
             // Handle category parameter
             const categoryParam = urlParams.get('category');
             if (categoryParam) {
-                const checkbox = document.querySelector(`.category-filter[value="${categoryParam}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                }
+                console.log('Applying Category Filter:', categoryParam);
+                document.querySelectorAll(`.category-filter[value="${categoryParam}"]`).forEach(cb => {
+                    cb.checked = true;
+                });
             }
 
             // Handle promo parameter
             const promoParam = urlParams.get('promo');
+            console.log('Promo Parameter Read:', promoParam);
             if (promoParam === 'true') {
-                const promoCheckbox = document.querySelector('.promo-filter');
-                if (promoCheckbox) {
-                    promoCheckbox.checked = true;
-                }
+                console.log('Enabling Promo Filter UI');
+                document.querySelectorAll('.promo-filter').forEach(cb => {
+                    cb.checked = true;
+                });
             }
-
-            renderCatalog();
 
             document.querySelectorAll('.category-filter').forEach(cb => {
                 cb.addEventListener('change', () => renderCatalog());
@@ -588,6 +577,10 @@
             document.querySelectorAll('.search-input, #searchInput, #mobileSearchInput').forEach(input => {
                 input.addEventListener('input', handleSearchChange);
             });
+
+            // Trigger initial render to apply URL parameters
+            console.log('Triggering Initial Render');
+            renderCatalog();
         }
 
         function initializePriceSlider() {
@@ -597,7 +590,10 @@
             const maxInput = document.getElementById('maxPrice');
             const track = document.getElementById('price-range-track');
 
-            if (!minSlider || !maxSlider || !track) return;
+            if (!minSlider || !maxSlider) {
+                console.warn('[NewKet Catalog] Price sliders missing from DOM');
+                return;
+            }
 
             const updateSlider = (e) => {
                 let minVal = parseInt(minSlider.value);
@@ -737,10 +733,15 @@
                         options.eq = [['is_new', activeConditions[0] === 'true']];
                     }
 
-                    // Promo filter
+                    // Promo filter (is_promo flag OR products with an old price)
                     if (activePromo) {
-                        options.eq = options.eq || [];
-                        options.eq.push(['is_promo', true]);
+                        const promoOr = 'is_promo.eq.true,old_price.gt.0';
+                        if (options.or) {
+                            options.or = Array.isArray(options.or) ? options.or : [options.or];
+                            options.or.push(promoOr);
+                        } else {
+                            options.or = promoOr;
+                        }
                     }
 
                     // Rating filter

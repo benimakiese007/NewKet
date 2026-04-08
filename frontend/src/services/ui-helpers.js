@@ -153,6 +153,15 @@ function buildProductCardHTML(p, options = {}) {
             </div>
             <div class="product-info">
                 <div class="product-cat">${p.category || ''}</div>
+                <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                    <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
+                        ${p.users?.avatar 
+                            ? `<img src="${p.users.avatar}" style="width: 100%; height: 100%; object-cover">` 
+                            : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
+                        }
+                    </div>
+                    <span>Vendu par : ${p.users?.company_name || p.users?.name || 'NewKet Shop'}</span>
+                </div>
                 <h3 class="product-title">
                     <a href="${getRootPath()}pages/product.html?id=${p.id}">${p.name}</a>
                 </h3>
