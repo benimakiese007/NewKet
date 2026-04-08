@@ -11,6 +11,13 @@ import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
 
 const app = express();
+const router = express.Router();
+
+// Middleware pour logger les requêtes (utile pour le debug Vercel)
+app.use((req, res, next) => {
+    console.log(`[Vercel API] ${req.method} ${req.url}`);
+    next();
+});
 
 // ── CORS : autoriser le domaine Vercel + localhost dev ────────
 const allowedOrigins = [
@@ -80,12 +87,12 @@ const requireAdmin = async (req, res, next) => {
 };
 
 // ── Health ────────────────────────────────────────────────────
-app.get('/api/health', (req, res) =>
+router.get('/health', (req, res) =>
     res.json({ status: 'ok', message: 'NewKet Serverless API 🚀', timestamp: new Date().toISOString() })
 );
 
 // ── PRODUITS ──────────────────────────────────────────────────
-app.get('/api/products', optionalAuth, async (req, res) => {
+router.get('/products', optionalAuth, async (req, res) => {
     try {
         const { page = 1, limit = 20, category } = req.query;
         const offset = (page - 1) * limit;
@@ -100,7 +107,7 @@ app.get('/api/products', optionalAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/api/products/:id', optionalAuth, async (req, res) => {
+router.get('/products/:id', optionalAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('products').select('*').eq('id', req.params.id).single();
@@ -110,7 +117,7 @@ app.get('/api/products/:id', optionalAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/products', requireAuth, async (req, res) => {
+router.post('/products', requireAuth, async (req, res) => {
     try {
         const productData = { ...req.body, user_id: req.user.id };
         const sb = getSupabase(req.token);
@@ -120,7 +127,7 @@ app.post('/api/products', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.put('/api/products/:id', requireAuth, async (req, res) => {
+router.put('/products/:id', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('products').update(req.body).eq('id', req.params.id).select().single();
@@ -129,7 +136,7 @@ app.put('/api/products/:id', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete('/api/products/:id', requireAuth, async (req, res) => {
+router.delete('/products/:id', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { error } = await sb.from('products').delete().eq('id', req.params.id);
@@ -138,7 +145,7 @@ app.delete('/api/products/:id', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/products/bulk-delete', requireAuth, async (req, res) => {
+router.post('/products/bulk-delete', requireAuth, async (req, res) => {
     try {
         const { ids } = req.body;
         if (!Array.isArray(ids)) return res.status(400).json({ error: 'IDs invalides' });
@@ -148,7 +155,7 @@ app.post('/api/products/bulk-delete', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/products/bulk-category', requireAuth, async (req, res) => {
+router.post('/products/bulk-category', requireAuth, async (req, res) => {
     try {
         const { ids, category } = req.body;
         if (!Array.isArray(ids) || !category) return res.status(400).json({ error: 'Paramètres invalides' });
@@ -159,7 +166,7 @@ app.post('/api/products/bulk-category', requireAuth, async (req, res) => {
 });
 
 // ── PROMOS ────────────────────────────────────────────────────
-app.get('/api/promos', optionalAuth, async (req, res) => {
+router.get('/promos', optionalAuth, async (req, res) => {
     try {
         const { data, error } = await supabaseAdmin().from('promos').select('*')
             .order('created_at', { ascending: false }).limit(100);
@@ -168,7 +175,7 @@ app.get('/api/promos', optionalAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/promos/apply', requireAuth, async (req, res) => {
+router.post('/promos/apply', requireAuth, async (req, res) => {
     try {
         const { code } = req.body;
         if (!code) return res.status(400).json({ error: 'Code requis.' });
@@ -179,7 +186,7 @@ app.post('/api/promos/apply', requireAuth, async (req, res) => {
 });
 
 // ── ACTIVITÉS ─────────────────────────────────────────────────
-app.get('/api/activities', requireAuth, async (req, res) => {
+router.get('/activities', requireAuth, async (req, res) => {
     try {
         const { data, error } = await supabaseAdmin().from('activities').select('*')
             .eq('user_email', req.user.email).order('time', { ascending: false }).limit(50);
@@ -188,7 +195,7 @@ app.get('/api/activities', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/activities', requireAuth, async (req, res) => {
+router.post('/activities', requireAuth, async (req, res) => {
     try {
         const { text, type } = req.body;
         if (!text) return res.status(400).json({ error: 'Texte requis.' });
@@ -201,7 +208,7 @@ app.post('/api/activities', requireAuth, async (req, res) => {
 });
 
 // ── PARAMÈTRES ────────────────────────────────────────────────
-app.get('/api/settings', async (req, res) => {
+router.get('/settings', async (req, res) => {
     try {
         const { data, error } = await getSupabase().from('settings').select('*');
         if (error) throw error;
@@ -209,7 +216,7 @@ app.get('/api/settings', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/settings', requireAuth, requireAdmin, async (req, res) => {
+router.post('/settings', requireAuth, requireAdmin, async (req, res) => {
     try {
         const config = req.body;
         let existingId = config.id;
@@ -225,7 +232,7 @@ app.post('/api/settings', requireAuth, requireAdmin, async (req, res) => {
 });
 
 // ── UTILISATEURS ──────────────────────────────────────────────
-app.get('/api/users', requireAuth, requireAdmin, async (req, res) => {
+router.get('/users', requireAuth, requireAdmin, async (req, res) => {
     try {
         const { data, error } = await supabaseAdmin().auth.admin.listUsers();
         if (error) throw error;
@@ -233,7 +240,7 @@ app.get('/api/users', requireAuth, requireAdmin, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.get('/api/users/:id', requireAuth, async (req, res) => {
+router.get('/users/:id', requireAuth, async (req, res) => {
     try {
         const { data, error } = await supabaseAdmin().from('profiles').select('*').eq('id', req.params.id).single();
         if (error) throw error;
@@ -242,7 +249,7 @@ app.get('/api/users/:id', requireAuth, async (req, res) => {
 });
 
 // ── FAVORIS ───────────────────────────────────────────────────
-app.get('/api/favorites', requireAuth, async (req, res) => {
+router.get('/favorites', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('favorites').select('*, products(*)').eq('user_id', req.user.id);
@@ -251,7 +258,7 @@ app.get('/api/favorites', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/favorites', requireAuth, async (req, res) => {
+router.post('/favorites', requireAuth, async (req, res) => {
     try {
         const { product_id } = req.body;
         const sb = getSupabase(req.token);
@@ -261,7 +268,7 @@ app.post('/api/favorites', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.delete('/api/favorites/:product_id', requireAuth, async (req, res) => {
+router.delete('/favorites/:product_id', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { error } = await sb.from('favorites').delete()
@@ -272,7 +279,7 @@ app.delete('/api/favorites/:product_id', requireAuth, async (req, res) => {
 });
 
 // ── COMMANDES ─────────────────────────────────────────────────
-app.get('/api/orders', requireAuth, async (req, res) => {
+router.get('/orders', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('orders').select('*, products(name, images)').eq('user_id', req.user.id)
@@ -282,7 +289,7 @@ app.get('/api/orders', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/orders', requireAuth, async (req, res) => {
+router.post('/orders', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('orders').insert({ ...req.body, user_id: req.user.id }).select().single();
@@ -292,7 +299,7 @@ app.post('/api/orders', requireAuth, async (req, res) => {
 });
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────
-app.get('/api/notifications', requireAuth, async (req, res) => {
+router.get('/notifications', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('notifications').select('*').eq('user_id', req.user.id)
@@ -302,7 +309,7 @@ app.get('/api/notifications', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.patch('/api/notifications/:id/read', requireAuth, async (req, res) => {
+router.patch('/notifications/:id/read', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('notifications').update({ read: true })
@@ -313,7 +320,7 @@ app.patch('/api/notifications/:id/read', requireAuth, async (req, res) => {
 });
 
 // ── PROFIL ────────────────────────────────────────────────────
-app.get('/api/profile', requireAuth, async (req, res) => {
+router.get('/profile', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('profiles').select('*').eq('id', req.user.id).single();
@@ -322,7 +329,7 @@ app.get('/api/profile', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.put('/api/profile', requireAuth, async (req, res) => {
+router.put('/profile', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('profiles').upsert({ ...req.body, id: req.user.id }).select().single();
@@ -330,6 +337,10 @@ app.put('/api/profile', requireAuth, async (req, res) => {
         res.json(data);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+// Montage du routeur sur '/' et '/api' pour une compatibilité maximale
+app.use('/api', router);
+app.use('/', router);
 
 // ── Gestion des erreurs globale ───────────────────────────────
 app.use((err, req, res, next) => {
