@@ -29,9 +29,9 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-6" id="main-content">
         <!-- Breadcrumbs -->
         <nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs">
-            <a href="/index.html" class="hover:text-gray-900 transition-colors">Accueil</a>
+            <a href="/index" class="hover:text-gray-900 transition-colors">Accueil</a>
             <iconify-icon icon="solar:alt-arrow-right-linear" width="10"></iconify-icon>
-            <a href="catalog.html" class="hover:text-gray-900 transition-colors">Catalogue</a>
+            <a href="catalog" class="hover:text-gray-900 transition-colors">Catalogue</a>
             <iconify-icon icon="solar:alt-arrow-right-linear" width="10"></iconify-icon>
             <span class="text-gray-900" id="breadcrumb-current">Produit</span>
         </nav>
@@ -133,7 +133,7 @@
         <section class="mt-32 pb-20 border-t border-gray-100 pt-20">
             <div class="flex items-center justify-between mb-12">
                 <h2 class="text-3xl font-bold tracking-tight text-gray-900">Articles similaires</h2>
-                <a href="catalog.html" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
+                <a href="catalog" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
                     Voir tout <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
                 </a>
             </div>
@@ -180,7 +180,7 @@
         async function initPage() {
             showSkeleton();
             if (!productId) {
-                window.location.href = 'catalog.html';
+                window.location.href = 'catalog';
                 return;
             }
 
@@ -190,7 +190,7 @@
                     <div class="py-32 text-center">
                         <iconify-icon icon="solar:ghost-broken" width="80" class="text-gray-200 mb-8"></iconify-icon>
                         <h1 class="text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Article Introuvable</h1>
-                        <a href="catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
+                        <a href="catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
                     </div>
                 `;
                 return;
@@ -225,7 +225,7 @@
             const vendorLink = document.getElementById('vendorLink');
             if (vendorLink) {
                 vendorLink.textContent = shopName;
-                vendorLink.href = `shop.html?email=${p.supplier_email || ''}`;
+                vendorLink.href = `shop?email=${p.supplier_email || ''}`;
                 const avatar = document.getElementById('vendorAvatarDetail');
                 if (vendor.avatar) avatar.innerHTML = `<img src="${vendor.avatar}" class="w-full h-full object-cover">`;
                 else avatar.textContent = shopName.charAt(0).toUpperCase();
@@ -310,7 +310,7 @@
         function renderReviewForm(pid) {
             const cont = document.getElementById('reviewFormContainer');
             if (!AuthManager.user) {
-                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="login.html" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
+                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="login" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
                 return;
             }
             cont.innerHTML = `

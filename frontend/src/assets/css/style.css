@@ -1485,7 +1485,7 @@ h6 {
 
   /* Simplify "Vendre" to just a clean icon or smaller text */
 
-  a[href="publish.html"].btn {
+  a[href="publish"].btn {
     padding: 0.35rem 0.75rem !important;
     font-size: 0.75rem !important;
     background-color: var(--primary-color);
@@ -1495,11 +1495,11 @@ h6 {
     justify-content: center;
   }
 
-  a[href="publish.html"].btn .btn-text {
+  a[href="publish"].btn .btn-text {
     display: none;
   }
 
-  a[href="publish.html"].btn i {
+  a[href="publish"].btn i {
     margin-right: 0 !important;
     font-size: 1rem;
   }
@@ -7784,3 +7784,87 @@ html.dark #confirmModal .btn-confirm-cancel {
 .status-badge.active   { background: #D1FAE5; color: #065F46; }
 .status-badge.delivered{ background: #DBEAFE; color: #1E40AF; }
 .status-badge.cancelled{ background: #FEE2E2; color: #991B1B; }
+
+/* ========================================== 
+   PREMIUM SKELETON LOADING SYSTEM 
+   ========================================== */ 
+@keyframes skeleton-shimmer { 
+    0% { background-position: -468px 0; } 
+    100% { background-position: 468px 0; } 
+} 
+ 
+.skeleton { 
+    background: #f6f7f8; 
+    background-image: linear-gradient( 
+        to right, 
+        #f6f7f8 0%, 
+        #edeef1 20%, 
+        #f6f7f8 40%, 
+        #f6f7f8 100% 
+    ); 
+    background-repeat: no-repeat; 
+    background-size: 800px 100%; 
+    display: inline-block; 
+    position: relative; 
+    animation: skeleton-shimmer 1.5s infinite linear; 
+    border-radius: 4px; 
+} 
+ 
+.skeleton-card { 
+    background: white; 
+    border-radius: 1.5rem; 
+    padding: 1rem; 
+    border: 1px solid #f1f5f9; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100%; 
+} 
+ 
+.skeleton-image { 
+    width: 100%; 
+    aspect-ratio: 1; 
+    border-radius: 1.25rem; 
+    margin-bottom: 1rem; 
+} 
+ 
+.skeleton-title { 
+    height: 20px; 
+    width: 80%; 
+    border-radius: 6px; 
+    margin-bottom: 0.75rem; 
+} 
+ 
+.skeleton-text { 
+    height: 12px; 
+    width: 60%; 
+    border-radius: 4px; 
+    margin-bottom: 0.5rem; 
+} 
+ 
+.skeleton-price { 
+    height: 24px; 
+    width: 40%; 
+    border-radius: 6px; 
+    margin-top: auto; 
+    margin-bottom: 1rem; 
+} 
+ 
+.skeleton-button { 
+    height: 44px; 
+    width: 100%; 
+    border-radius: 12px; 
+} 
+ 
+.skeleton-avatar { 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%; 
+} 
+ 
+.skeleton-stat-card { 
+    padding: 1.5rem; 
+    background: white; 
+    border-radius: 1.5rem; 
+    border: 1px solid #f1f5f9; 
+} 
+

@@ -68,7 +68,7 @@
             if (window.supabaseClient) {
                 const { data } = await window.supabaseClient.auth.getSession();
                 if (!data.session) {
-                    window.location.href = '/pages/login.html';
+                    window.location.href = '/pages/login';
                 }
             }
         });
@@ -87,17 +87,17 @@
             <!-- Sidebar Navigation -->
             <aside class="w-full lg:w-72 lg:sticky lg:top-28 space-y-2">
                 <div class="bg-gray-100/50 p-2 rounded-2xl flex flex-col gap-1" id="settingsSidebar">
-                    <a href="./customer-dashboard.html" id="dashboardLink"
+                    <a href="./customer-dashboard" id="dashboardLink"
                         class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/80 transition-all font-medium text-gray-500 hover:text-gray-900">
                         <iconify-icon icon="solar:box-linear" width="20"></iconify-icon>
                         <span id="dashboardLinkLabel">Mes Commandes</span>
                     </a>
-                    <a href="./favorites.html"
+                    <a href="./favorites"
                         class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/80 transition-all font-medium text-gray-500 hover:text-gray-900">
                         <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
                         Mes Favoris
                     </a>
-                    <a href="./settings.html"
+                    <a href="./settings"
                         class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium">
                         <iconify-icon icon="solar:user-linear" width="20"></iconify-icon>
                         Profil & Sécurité
@@ -324,13 +324,13 @@
                     const label = document.getElementById('dashboardLinkLabel');
                     
                     if (role === 'admin') {
-                        dashboardLink.href = 'admin/dashboard.html';
+                        dashboardLink.href = 'admin/dashboard';
                         label.textContent = 'Tableau de bord Admin';
                         
                         // Add link to platform settings
                         const sidebar = document.getElementById('settingsSidebar');
                         const adminSettingsLink = document.createElement('a');
-                        adminSettingsLink.href = 'admin/settings.html';
+                        adminSettingsLink.href = 'admin/settings';
                         adminSettingsLink.className = 'nav-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/80 transition-all font-medium text-gray-500 hover:text-gray-900';
                         adminSettingsLink.innerHTML = `
                             <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
@@ -338,10 +338,10 @@
                         `;
                         sidebar.insertBefore(adminSettingsLink, sidebar.querySelector('.h-px'));
                     } else if (role === 'supplier') {
-                        dashboardLink.href = 'vendor-dashboard.html';
+                        dashboardLink.href = 'vendor-dashboard';
                         label.textContent = 'Tableau de bord Vendeur';
                     } else {
-                        dashboardLink.href = 'customer-dashboard.html';
+                        dashboardLink.href = 'customer-dashboard';
                         label.textContent = 'Mes Commandes';
                     }
                 },

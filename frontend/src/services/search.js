@@ -63,7 +63,7 @@ const SearchManager = {
 
     executeSearch(query) {
         if (!query) return;
-        const basePath = window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog.html') : 'catalog.html';
+        const basePath = window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog') : 'catalog';
         const searchPath = `${basePath}?q=${encodeURIComponent(query)}`;
         
         // If already on catalog/promo, we might want to just update the URL without reload, 
@@ -119,7 +119,7 @@ const SearchManager = {
                         ? `${firstImg}?width=100&quality=70` : firstImg;
                         
                     return `
-                    <a href="product.html?id=${escapeHTML(p.id)}" class="flex items-center gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
+                    <a href="${window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'product'}?id=${escapeHTML(p.id)}" class="flex items-center gap-4 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group">
                         <div class="w-10 h-10 bg-gray-50 dark:bg-gray-900 rounded-xl p-1.5 flex-shrink-0">
                             <img src="${escapeHTML(optImg)}" loading="lazy" class="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal" alt="${escapeHTML(p.name)}">
                         </div>
@@ -133,7 +133,7 @@ const SearchManager = {
                     </a>
                 `}).join('') + `
                     <div class="p-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-                        <button onclick="window.location.href=(window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog.html') : 'catalog.html') + '?q=${encodeURIComponent(query)}'" class="w-full py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                        <button onclick="window.location.href=(window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/catalog') : 'catalog') + '?q=${encodeURIComponent(query)}'" class="w-full py-2 text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
                             Voir tous les résultats
                         </button>
                     </div>`;

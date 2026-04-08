@@ -692,6 +692,7 @@
             const grid = document.getElementById('catalog-grid');
 
             if (!append) {
+                grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
                 catalogPage = 0;
                 catalogHasMore = true;
             }
@@ -918,7 +919,7 @@
         }
 
         function shareProductCard(id, name) {
-            const productUrl = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'product.html?id=' + id;
+            const productUrl = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'product?id=' + id;
             const shareData = {
                 title: name + ' — NewKet',
                 text: 'Découvrez ' + name + ' sur NewKet !',

@@ -9,10 +9,10 @@
             const role = localStorage.getItem('newketRole');
             const email = localStorage.getItem('newketUserEmail');
             if (role && email) {
-                let target = '/index.html';
-                if (role === 'admin') target = '/pages/admin/dashboard.html';
-                else if (role === 'supplier') target = '/pages/vendor-dashboard.html';
-                else if (role === 'customer') target = '/pages/customer-dashboard.html';
+                let target = '/';
+                if (role === 'admin') target = '/pages/admin/dashboard';
+                else if (role === 'supplier') target = '/pages/vendor-dashboard';
+                else if (role === 'customer') target = '/pages/customer-dashboard';
                 
                 // Use replace to keep history clean
                 window.location.replace(target);
@@ -351,9 +351,9 @@
                     </div>
 
                     <p class="text-[10px] font-medium text-gray-400 text-center mt-12 animate-item">
-                        En continuant, vous acceptez nos <br><a href="./terms.html"
+                        En continuant, vous acceptez nos <br><a href="./terms"
                             class="text-black font-bold hover:underline">Conditions d'utilisation</a> et notre <a
-                            href="./privacy.html" class="text-black font-bold hover:underline">Politique de
+                            href="./privacy" class="text-black font-bold hover:underline">Politique de
                             confidentialité</a>.
                     </p>
 
@@ -636,7 +636,7 @@
                         // Suppliers must complete KYC form before accessing dashboard
                         if (typeof showToast !== 'undefined') showToast("Complétez votre profil vendeur pour continuer.", "info");
                         setTimeout(() => {
-                            window.location.href = '/pages/seller-onboarding.html';
+                            window.location.href = '/pages/seller-onboarding';
                         }, 1000);
                     } else {
                         finalizeAuth(data?.user || { user_metadata: { role } }, email);
@@ -668,7 +668,7 @@
 
             setTimeout(async () => {
                 if (role === 'admin') {
-                    window.location.href = '/pages/admin/dashboard.html';
+                    window.location.href = '/pages/admin/dashboard';
                 } else if (role === 'supplier') {
                     // Fetch real status from DB for accurate redirection
                     let status = userStatus;
@@ -684,9 +684,9 @@
                     // 'submitted' = form submitted, waiting for admin review â†’ show waiting screen
                     // 'approved' = validated â†’ go to vendor dashboard
                     if (status === 'pending') {
-                        window.location.href = '/pages/seller-onboarding.html';
+                        window.location.href = '/pages/seller-onboarding';
                     } else {
-                        window.location.href = '/pages/vendor-dashboard.html';
+                        window.location.href = '/pages/vendor-dashboard';
                     }
                 } else {
                     window.location.href = '/';
@@ -703,7 +703,7 @@
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: provider,
                     options: {
-                        redirectTo: window.location.origin + '/index.html'
+                        redirectTo: window.location.origin + '/'
                     }
                 });
                 if (error) throw error;
@@ -724,7 +724,7 @@
             }
             // Execute supabase reset (mock or real if configured)
             supabaseClient.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/login.html',
+                redirectTo: window.location.origin + '/pages/login',
             }).then(({ error }) => {
                 if (error) showError("Erreur. L'email est-il correct ?");
                 else if (typeof showToast !== 'undefined') showToast("Email de réinitialisation envoyé.", "success");

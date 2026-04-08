@@ -152,7 +152,7 @@
             const email = urlParams.get('email');
 
             if (!email) {
-                location.href = '/pages/shops.html';
+                location.href = '/pages/shops';
                 return;
             }
 
@@ -171,7 +171,7 @@
                             <iconify-icon icon="solar:shop-broken" width="64" class="text-gray-300 mb-6"></iconify-icon>
                             <h1 class="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Boutique Introuvable</h1>
                             <p class="text-gray-500 mb-8 max-w-md mx-auto">La boutique que vous recherchez n'existe pas ou n'est plus disponible sur NewKet.</p>
-                            <a href="./shops.html" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-colors inline-block uppercase tracking-wider text-sm">Voir toutes les boutiques</a>
+                            <a href="./shops" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-colors inline-block uppercase tracking-wider text-sm">Voir toutes les boutiques</a>
                         </div>
                     `;
                     document.querySelector('.vendor-hero').style.display = 'none';
@@ -223,7 +223,7 @@
 
                 noProducts.classList.add('hidden');
                 grid.innerHTML = products.map((p, idx) => `
-                    <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50" onclick="location.href='product.html?id=${p.id}'">
+                    <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50" onclick="location.href='product?id=${p.id}'">
                         <div class="img-container aspect-[4/5] img-zoom">
                              <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : p.image}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700" alt="${p.name}">
                              <button onclick="event.stopPropagation(); orderProduct('${p.id}')" class="absolute bottom-4 right-4 w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-xl">
@@ -256,7 +256,7 @@
 
             } catch (err) {
                 console.error('Error loading shop:', err);
-                location.href = '/pages/shops.html';
+                location.href = '/pages/shops';
             }
         }
 

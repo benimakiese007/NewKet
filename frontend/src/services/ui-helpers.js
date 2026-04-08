@@ -16,7 +16,7 @@ function getRootPath() {
         depth = parts.length - rIndex - 1;
     } else {
         const srcIndex = parts.lastIndexOf('src');
-        if (srcIndex !== -1 && !pathname.endsWith('index.html')) {
+        if (srcIndex !== -1 && !pathname.includes('index')) {
             depth = parts.length - srcIndex - 1;
         }
     }
@@ -25,6 +25,11 @@ function getRootPath() {
     for(let i=0; i<depth; i++) {
         prefix += '../';
     }
+    
+    // Auto-rewrite to clean URLs in production (strip .html)
+    // Using MutationObserver or similar at runtime isn't efficient, 
+    // so we handle it in component generation logic instead.
+    
     return prefix;
 }
 
@@ -147,7 +152,7 @@ function buildProductCardHTML(p, options = {}) {
                 <button onclick="addToWishlist('${p.id}', event)" class="wishlist-btn ${isFavorite ? 'active' : ''}" title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="${isFavorite ? 'color:#ef4444' : 'color:#6b7280'}"></iconify-icon>
                 </button>
-                <a href="${getRootPath()}pages/product.html?id=${p.id}">
+                <a href="${getRootPath()}pages/product?id=${p.id}">
                     <img src="${mainImg}" alt="${p.name}" loading="lazy" onerror="this.src='${getRootPath()}assets/Images/default.png'">
                 </a>
             </div>
@@ -163,7 +168,7 @@ function buildProductCardHTML(p, options = {}) {
                     <span>Vendu par : ${p.users?.company_name || p.users?.name || 'NewKet Shop'}</span>
                 </div>
                 <h3 class="product-title">
-                    <a href="${getRootPath()}pages/product.html?id=${p.id}">${p.name}</a>
+                    <a href="${getRootPath()}pages/product?id=${p.id}">${p.name}</a>
                 </h3>
                 <div class="product-rating">
                     ${starsHTML}
@@ -182,7 +187,7 @@ function buildProductCardHTML(p, options = {}) {
                         <iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon>
                         Commander
                     </button>
-                    <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product.html?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product.html?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
+                    <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
                         style="width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280; background:white; cursor:pointer; flex-shrink:0; transition: all 0.2s ease;"
                         onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'"
                         title="Partager">
@@ -201,14 +206,48 @@ function buildSkeletonCardHTML(count = 5) {
     let html = '';
     for (let i = 0; i < count; i++) {
         html += `
-            <div class="product-card" style="animation: pulse 1.5s infinite;">
-                <div class="product-image" style="background:#f3f4f6;"></div>
-                <div class="product-info">
-                    <div style="height:12px; background:#f3f4f6; border-radius:6px; width:40%; margin-bottom:10px;"></div>
-                    <div style="height:18px; background:#f3f4f6; border-radius:6px; width:80%; margin-bottom:10px;"></div>
-                    <div style="height:14px; background:#f3f4f6; border-radius:6px; width:60%; margin-bottom:16px;"></div>
-                    <div style="height:24px; background:#f3f4f6; border-radius:6px; width:50%; margin-bottom:16px;"></div>
-                    <div style="height:44px; background:#f3f4f6; border-radius:12px; width:100%;"></div>
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-image"></div>
+                <div class="skeleton skeleton-text" style="width: 40%"></div>
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text" style="width: 60%"></div>
+                <div class="skeleton skeleton-price"></div>
+                <div class="skeleton skeleton-button"></div>
+            </div>
+        `;
+    }
+    return html;
+}
+
+/**
+ * Builds Skeleton for Dashboard Statistics Grid.
+ */
+function buildSkeletonDashboardStatsHTML(count = 4) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        html += `
+            <div class="skeleton-stat-card">
+                <div class="skeleton" style="width: 40px; height: 40px; border-radius: 12px; margin-bottom: 1rem;"></div>
+                <div class="skeleton skeleton-text" style="width: 60%; margin-bottom: 0.5rem;"></div>
+                <div class="skeleton skeleton-title" style="width: 40%;"></div>
+            </div>
+        `;
+    }
+    return html;
+}
+
+/**
+ * Builds Skeleton for Activity Feed.
+ */
+function buildSkeletonActivityHTML(count = 3) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        html += `
+            <div class="flex items-start gap-4 p-3">
+                <div class="skeleton skeleton-avatar flex-shrink-0"></div>
+                <div class="flex-1">
+                    <div class="skeleton skeleton-text" style="width: 80%; margin-bottom: 0.5rem;"></div>
+                    <div class="skeleton skeleton-text" style="width: 30%; height: 10px;"></div>
                 </div>
             </div>
         `;
@@ -318,7 +357,7 @@ window.contactSeller = async (productId, btnElement) => {
         recordLead(p.id, p.user_id, p.name);
 
         const cleanPhone = phone.replace(/[^0-9]/g, '');
-        const productUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + getRootPath() + 'pages/product.html?id=' + p.id;
+        const productUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + getRootPath() + 'pages/product?id=' + p.id;
         const message = encodeURIComponent(`Bonjour, je suis intéressé par l'article *${p.name}*\nPrix: ${p.price} FC\n\nLien: ${productUrl}`);
         window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
         
@@ -335,5 +374,7 @@ window.showToast = showToast;
 window.debounce = debounce;
 window.buildProductCardHTML = buildProductCardHTML;
 window.buildSkeletonCardHTML = buildSkeletonCardHTML;
+window.buildSkeletonDashboardStatsHTML = buildSkeletonDashboardStatsHTML;
+window.buildSkeletonActivityHTML = buildSkeletonActivityHTML;
 window.buildStarsHTML = buildStarsHTML;
 window.getOptimizedImageUrl = getOptimizedImageUrl;

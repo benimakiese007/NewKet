@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -104,7 +104,7 @@
             }
 
             tbody.innerHTML = clients.map(c => `
-                <tr onclick="window.open('user-details.html?email=' + encodeURIComponent('${c.email}'), '_blank')" class="group hover:bg-gray-50/50 cursor-pointer transition-colors">
+                <tr onclick="window.open('user-details?email=' + encodeURIComponent('${c.email}'), '_blank')" class="group hover:bg-gray-50/50 cursor-pointer transition-colors">
                     <td class="p-4">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-xs font-black text-gray-400">

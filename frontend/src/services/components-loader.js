@@ -15,7 +15,7 @@ const HEADER_HTML = `
                     title="Menu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
-                <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+                <a href="{{ROOT}}index" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
                     <span
                         class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
                 </a>
@@ -33,7 +33,7 @@ const HEADER_HTML = `
                         class="bg-slate-900 text-white px-5 py-2 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all uppercase tracking-wider hidden sm:block">RECHERCHE</button>
                 </div>
                 <!-- Publish Button (Desktop Only) -->
-                <a href="{{ROOT}}pages/publish.html"
+                <a href="{{ROOT}}pages/publish"
                     class="shrink-0 bg-gray-900 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors hidden sm:flex items-center gap-2 publish-btn h-[40px] whitespace-nowrap">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     Vendre
@@ -54,7 +54,7 @@ const HEADER_HTML = `
                 </div>
 
                 <!-- Notifications -->
-                <a href="{{ROOT}}pages/notifications.html"
+                <a href="{{ROOT}}pages/notifications"
                     class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block"
                     title="Notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
@@ -64,7 +64,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}pages/favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block"
+                <a href="{{ROOT}}pages/favorites" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block"
                     title="Favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
@@ -90,21 +90,21 @@ const HEADER_HTML = `
         <div class="border-t border-gray-50 bg-white hidden sm:block">
             <div class="w-full px-4 sm:px-8">
                 <nav class="flex items-center gap-1 overflow-x-auto py-1 -mx-2" style="scrollbar-width:none;">
-                    <a href="{{ROOT}}pages/catalog.html"
+                    <a href="{{ROOT}}pages/catalog"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Toutes les pièces</a>
-                    <a href="{{ROOT}}pages/shops.html"
+                    <a href="{{ROOT}}pages/shops"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Boutiques</a>
-                    <a href="{{ROOT}}pages/forum.html"
+                    <a href="{{ROOT}}pages/forum"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Forum</a>
-                    <a href="{{ROOT}}pages/catalog.html?category=Collections Femme"
+                    <a href="{{ROOT}}pages/catalog?category=Collections Femme"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Collections Femme</a>
-                    <a href="{{ROOT}}pages/catalog.html?category=Style Homme"
+                    <a href="{{ROOT}}pages/catalog?category=Style Homme"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Style Homme</a>
-                    <a href="{{ROOT}}pages/catalog.html?category=Tech & Gadgets"
+                    <a href="{{ROOT}}pages/catalog?category=Tech & Gadgets"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Tech & Gadgets</a>
-                    <a href="{{ROOT}}pages/catalog.html?category=Art de vivre"
+                    <a href="{{ROOT}}pages/catalog?category=Art de vivre"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Art de vivre</a>
-                    <a href="{{ROOT}}pages/catalog.html?promo=true"
+                    <a href="{{ROOT}}pages/catalog?promo=true"
                         class="nav-link px-3 py-1.5 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1">
                         <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
                     </a>
@@ -140,7 +140,7 @@ const HEADER_HTML = `
 
         <!-- Logged User Call to Action -->
         <div id="mobileLoggedCTA" class="px-4 mb-6" style="display: none;">
-            <a id="mobileLoggedLink" href="{{ROOT}}pages/customer-dashboard.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800 shadow-xl">
+            <a id="mobileLoggedLink" href="{{ROOT}}pages/customer-dashboard" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800 shadow-xl">
                 <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
                     <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden">
                     <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="30" class="text-white hidden"></iconify-icon>
@@ -154,19 +154,19 @@ const HEADER_HTML = `
         <div class="px-4 mb-6">
             <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Catégories</h3>
             <nav class="flex flex-col gap-1">
-                <a href="{{ROOT}}pages/catalog.html"
+                <a href="{{ROOT}}pages/catalog"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon> Toutes les pièces
                 </a>
-                <a href="{{ROOT}}pages/shops.html"
+                <a href="{{ROOT}}pages/shops"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon> Boutiques
                 </a>
-                <a href="{{ROOT}}pages/forum.html"
+                <a href="{{ROOT}}pages/forum"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum Communauté
                 </a>
-                <a href="{{ROOT}}pages/catalog.html?promo=true"
+                <a href="{{ROOT}}pages/catalog?promo=true"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-red-600 font-bold">
                     <iconify-icon icon="solar:fire-bold" width="20"></iconify-icon> Promos
                 </a>
@@ -176,14 +176,14 @@ const HEADER_HTML = `
         <div class="px-4 mb-6 border-t border-gray-50 pt-6">
             <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Personnel</h3>
             <nav class="flex flex-col gap-1">
-                <a href="{{ROOT}}pages/notifications.html"
+                <a href="{{ROOT}}pages/notifications"
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:bell-linear"
                             width="20"></iconify-icon> Notifications</span>
                     <span
                         class="notification-badge bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
-                <a href="{{ROOT}}pages/favorites.html"
+                <a href="{{ROOT}}pages/favorites"
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:heart-linear"
                             width="20"></iconify-icon> Favoris</span>
@@ -194,7 +194,7 @@ const HEADER_HTML = `
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium w-full text-left" title="Changer le thème">
                     <span class="flex items-center gap-3"><iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon> Mode Sombre</span>
                 </button>
-                <a href="{{ROOT}}pages/publish.html"
+                <a href="{{ROOT}}pages/publish"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900 text-white font-medium mt-2 publish-btn">
                     <iconify-icon icon="solar:add-circle-linear" width="20"></iconify-icon> Vendre un article
                 </a>
@@ -248,8 +248,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                 <ul class="space-y-4">
                     <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
                     <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mes Activités</a></li>
-                    <li><a href="{{ROOT}}pages/about.html" class="text-gray-400 hover:text-white text-sm transition-colors">Aide & FAQ</a></li>
-                    <li><a href="{{ROOT}}pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
+                    <li><a href="{{ROOT}}pages/about" class="text-gray-400 hover:text-white text-sm transition-colors">Aide & FAQ</a></li>
+                    <li><a href="{{ROOT}}pages/publish" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
                 </ul>
             </div>
             <div class="lg:col-span-4 space-y-6">
@@ -264,8 +264,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
         <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience Luxe</p>
             <div class="flex gap-8">
-                <a href="{{ROOT}}pages/privacy.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
-                <a href="{{ROOT}}pages/terms.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
+                <a href="{{ROOT}}pages/privacy" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
+                <a href="{{ROOT}}pages/terms" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-gray-500 text-[10px] uppercase tracking-widest font-semibold italic">Designed by</span>
@@ -279,19 +279,19 @@ const MOBILE_NAV_HTML = `<!-- NewKet Mobile Bottom Navigation Bar (Fallback) -->
 <nav id="mobileBottomNav" role="navigation" aria-label="Navigation mobile" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 z-50 sm:hidden shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.05)]">
     <!-- Acheteur (Customer) Nav - 4 items -->
     <div class="nav-bar customer-nav flex justify-around items-center w-full px-2 py-1" style="display: none;">
-        <a href="{{ROOT}}index.html" class="nav-item flex flex-col items-center justify-center gap-1" title="Accueil" id="nav-home">
+        <a href="{{ROOT}}index" class="nav-item flex flex-col items-center justify-center gap-1" title="Accueil" id="nav-home">
             <div class="nav-icon-wrap"><iconify-icon icon="solar:home-2-bold" width="22"></iconify-icon></div>
             <span class="text-[10px] font-medium">Accueil</span>
         </a>
-        <a href="{{ROOT}}pages/catalog.html" class="nav-item flex flex-col items-center justify-center gap-1" title="Boutique" id="nav-catalog">
+        <a href="{{ROOT}}pages/catalog" class="nav-item flex flex-col items-center justify-center gap-1" title="Boutique" id="nav-catalog">
             <div class="nav-icon-wrap"><iconify-icon icon="solar:shop-linear" width="22"></iconify-icon></div>
             <span class="text-[10px] font-medium">Boutique</span>
         </a>
-        <a href="{{ROOT}}pages/forum.html" class="nav-item flex flex-col items-center justify-center gap-1" title="Forum" id="nav-forum">
+        <a href="{{ROOT}}pages/forum" class="nav-item flex flex-col items-center justify-center gap-1" title="Forum" id="nav-forum">
             <div class="nav-icon-wrap"><iconify-icon icon="solar:chat-round-line-linear" width="22"></iconify-icon></div>
             <span class="text-[10px] font-medium">Forum</span>
         </a>
-        <a href="{{ROOT}}pages/customer-dashboard.html" class="nav-item flex flex-col items-center justify-center gap-1" title="Compte" id="mobileBottomAccountCustomer">
+        <a href="{{ROOT}}pages/customer-dashboard" class="nav-item flex flex-col items-center justify-center gap-1" title="Compte" id="mobileBottomAccountCustomer">
             <div class="nav-icon-wrap relative"><iconify-icon icon="solar:user-linear" width="22"></iconify-icon></div>
             <span class="text-[10px] font-medium">Compte</span>
         </a>
@@ -299,27 +299,27 @@ const MOBILE_NAV_HTML = `<!-- NewKet Mobile Bottom Navigation Bar (Fallback) -->
 
     <!-- Vendeur (Supplier/Admin) Nav - 6 items -->
     <div class="nav-bar vendor-nav flex justify-between items-center w-full px-1 py-1 overflow-x-auto" style="display: none; gap: 2px;">
-        <a href="{{ROOT}}index.html" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Accueil">
+        <a href="{{ROOT}}index" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Accueil">
             <div class="nav-icon-wrap"><iconify-icon icon="solar:home-2-bold" width="20"></iconify-icon></div>
             <span class="text-[9px] font-medium">Accueil</span>
         </a>
-        <a href="{{ROOT}}pages/catalog.html" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Boutique">
+        <a href="{{ROOT}}pages/catalog" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Boutique">
             <div class="nav-icon-wrap"><iconify-icon icon="solar:shop-linear" width="20"></iconify-icon></div>
             <span class="text-[9px] font-medium">Boutique</span>
         </a>
-        <a href="{{ROOT}}pages/publish.html" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[65px] publish-btn relative" title="Vendre">
+        <a href="{{ROOT}}pages/publish" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[65px] publish-btn relative" title="Vendre">
             <div class="nav-icon-wrap bg-gray-900 text-white rounded-full w-12 h-12 flex items-center justify-center absolute -top-8 left-1/2 transform -translate-x-1/2 shadow-lg border-4 border-white"><iconify-icon icon="solar:add-circle-bold" width="26"></iconify-icon></div>
             <span class="text-[9px] font-bold" style="margin-top: 18px;">Vendre</span>
         </a>
-        <a href="{{ROOT}}pages/forum.html" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Forum">
+        <a href="{{ROOT}}pages/forum" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Forum">
             <div class="nav-icon-wrap"><iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon></div>
             <span class="text-[9px] font-medium">Forum</span>
         </a>
-        <a href="{{ROOT}}pages/vendor-dashboard.html" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Dashboard">
+        <a href="{{ROOT}}pages/vendor-dashboard" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Dashboard">
             <div class="nav-icon-wrap"><iconify-icon icon="solar:chart-square-linear" width="20"></iconify-icon></div>
             <span class="text-[9px] font-medium">Stats</span>
         </a>
-        <a href="{{ROOT}}pages/vendor-dashboard.html" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Compte" id="mobileBottomAccountVendor">
+        <a href="{{ROOT}}pages/vendor-dashboard" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Compte" id="mobileBottomAccountVendor">
             <div class="nav-icon-wrap relative"><iconify-icon icon="solar:user-linear" width="20"></iconify-icon></div>
             <span class="text-[9px] font-medium">Profil</span>
         </a>
@@ -328,7 +328,7 @@ const MOBILE_NAV_HTML = `<!-- NewKet Mobile Bottom Navigation Bar (Fallback) -->
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm flex h-[60px] sm:h-[64px] items-center justify-center">
-    <a href="{{ROOT}}index.html" class="flex items-center group" title="Retour à l'accueil">
+    <a href="{{ROOT}}index" class="flex items-center group" title="Retour à l'accueil">
         <span class="text-xl sm:text-2xl font-black tracking-tighter text-gray-900 transition-transform group-hover:scale-105">NEWKET</span>
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-gray-300">
@@ -342,9 +342,9 @@ const ComponentLoader = {
 
         // Determine if we are on the home page (index.html or root)
         const currentPath = window.location.pathname;
-        const isHomePage = currentPath === '/' || currentPath === '' || currentPath.endsWith('index.html');
+        const isHomePage = currentPath === '/' || currentPath === '' || currentPath.endsWith('index.html') || currentPath.endsWith('/index') || currentPath.endsWith('/');
         // Pages that require focus/conversion
-        const isMinimalPage = currentPath.endsWith('login.html') || currentPath.endsWith('publish.html');
+        const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish');
 
         const componentsToLoad = [];
 
@@ -493,17 +493,29 @@ const ComponentLoader = {
         // --- NEW: Sync Account Path Resolution ---
         const role = localStorage.getItem('newketRole');
         const email = localStorage.getItem('newketUserEmail');
-        let accountPath = 'pages/login.html';
+        let accountPath = 'pages/login';
         
         if (role && email) {
-            if (role === 'admin') accountPath = 'pages/admin/dashboard.html';
-            else if (role === 'supplier') accountPath = 'pages/vendor-dashboard.html';
-            else accountPath = 'pages/customer-dashboard.html';
+            if (role === 'admin') accountPath = 'pages/admin/dashboard';
+            else if (role === 'supplier') accountPath = 'pages/vendor-dashboard';
+            else accountPath = 'pages/customer-dashboard';
         }
         
-        const processedHTML = html
+        // If file:// protocol, keep .html extensions
+        const isFileProtocol = window.location.protocol === 'file:';
+        if (isFileProtocol) {
+            accountPath += '.html';
+        }
+
+        let processedHTML = html
             .replace(/{{ROOT}}/g, rootPrefix)
             .replace(/{{ACCOUNT_PATH}}/g, accountPath);
+        
+        // --- GLOBAL CLEAN URL CLEANUP for production ---
+        if (!isFileProtocol) {
+            // Remove .html from all links in the injected content
+            processedHTML = processedHTML.replace(/href="([^"]+)\.html"/g, 'href="$1"');
+        }
         
         element.innerHTML = processedHTML;
         // Execute any inline scripts injected
@@ -519,7 +531,13 @@ const ComponentLoader = {
     getAdjustedPath(path) {
         // Utilisation robuste des chemins absolus via le serveur (Vite/Prod)
         if (window.location.protocol !== 'file:') {
-            return '/' + path;
+            let adjusted = '/' + path;
+            // Optional: Strip .html for clean URLs if it's an internal link
+            // (Only for internal pages, not for files like .js or .css)
+            if (adjusted.includes('.html') && !adjusted.match(/\.(js|css|png|jpg|webp|svg|jpeg)$/i)) {
+                adjusted = adjusted.replace('.html', '');
+            }
+            return adjusted;
         }
 
         // Sécurité de contournement (Fallback pour ouverture des fichiers au protocole file://)

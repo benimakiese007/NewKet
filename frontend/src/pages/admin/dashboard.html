@@ -54,7 +54,7 @@
                             class="time-btn px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-black text-white shadow-lg">Tout</button>
                     </div>
 
-                    <a href="products.html"
+                    <a href="products"
                         class="bg-black text-white px-6 py-3 rounded-2xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20">
                         <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                         Nouveau Produit
@@ -140,7 +140,7 @@
                                     class="text-gray-400"></iconify-icon>
                                  Historique des Intéractions
                             </h3>
-                            <a href="orders.html"
+                            <a href="orders"
                                 class="text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-400 hover:text-black hover:border-black transition-all">Tout
                                 voir</a>
                         </div>
@@ -242,7 +242,7 @@
                     document.querySelector('h1 + p').textContent = "Performances et activité globales de la plateforme.";
 
                     // Hide Nouveau Produit button for admin
-                    const newProdBtn = document.querySelector('a[href="products.html"].bg-black');
+                    const newProdBtn = document.querySelector('a[href="products"].bg-black');
                     if (newProdBtn) newProdBtn.style.display = 'none';
 
                     document.querySelectorAll('.stat-label-sales').forEach(el => el.textContent = 'Volume Brut (Platform)');

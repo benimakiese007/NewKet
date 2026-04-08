@@ -61,7 +61,7 @@ const AuthManager = {
                     this.clearSession();
                     this.enforcePermissions();
                     if (window.location.pathname.includes('/admin/') || window.location.pathname.includes('customer-dashboard')) {
-                        window.location.href = '/index.html';
+                        window.location.href = '/index';
                     }
                 }
             });
@@ -110,8 +110,8 @@ const AuthManager = {
                 
                 // Pas de bypass autorisé si l'utilisateur n'est pas connecté.
                 if (window.location.pathname.includes('/admin/')) {
-                    if (!window.location.pathname.includes('login.html') && !window.location.pathname.endsWith('admin/')) {
-                        window.location.href = '/index.html';
+                    if (!window.location.pathname.includes('login') && !window.location.pathname.endsWith('admin/')) {
+                        window.location.href = '/index';
                     }
                 }
             }
@@ -302,11 +302,11 @@ const AuthManager = {
         this.status = null;
         this.user = null;
         this.clearSession();
-        window.location.href = '/pages/login.html';
+        window.location.href = '/pages/login';
     },
 
     redirectToOnboarding() {
-        window.location.href = '/pages/seller-onboarding.html';
+        window.location.href = '/pages/seller-onboarding';
     },
 
     async adminLogin(email, password) {
@@ -340,7 +340,7 @@ const AuthManager = {
         console.log(`[NewKet Auth] Enforcing permissions for role: ${this.role}, status: ${this.status}`);
 
         const path = window.location.pathname;
-        const isLoginPage = path.includes('login.html');
+        const isLoginPage = path.includes('login');
 
         // --- NEW: Bounce logic for users already logged in ---
         if (this.role && isLoginPage) {
@@ -350,11 +350,11 @@ const AuthManager = {
             document.body.style.pointerEvents = 'none';
 
             if (this.role === 'admin') {
-                window.location.href = '/pages/admin/dashboard.html';
+                window.location.href = '/pages/admin/dashboard';
             } else if (this.role === 'supplier') {
-                window.location.href = '/pages/vendor-dashboard.html';
+                window.location.href = '/pages/vendor-dashboard';
             } else {
-                window.location.href = '/pages/customer-dashboard.html';
+                window.location.href = '/pages/customer-dashboard';
             }
             return;
         }
@@ -404,8 +404,8 @@ const AuthManager = {
             });
 
             // Safeguard: Redirect admin away from supplier-only pages (onboarding) if landed there by error
-            if (window.location.pathname.includes('seller-onboarding.html')) {
-                window.location.href = '/pages/admin/dashboard.html';
+            if (window.location.pathname.includes('seller-onboarding')) {
+                window.location.href = '/pages/admin/dashboard';
                 return;
             }
             
@@ -421,8 +421,8 @@ const AuthManager = {
             if (isPending) {
                 // Determine if we are on a protected vendor-only page
                 const path = window.location.pathname;
-                const isDashboard = path.includes('vendor-dashboard.html');
-                const isPublish = path.includes('publish.html');
+                const isDashboard = path.includes('vendor-dashboard');
+                const isPublish = path.includes('publish');
 
                 // On n'empêche plus l'accès, mais on laisse le "CORRECTIF C" tourner en arrière-plan
                 // Pour rafraîchir le statut dès que possible au cas où Supabase Realtime a eu un souci
@@ -448,7 +448,7 @@ const AuthManager = {
             }
 
             if (window.location.pathname.includes('/admin/')) {
-                window.location.href = '/pages/vendor-dashboard.html';
+                window.location.href = '/pages/vendor-dashboard';
             }
         }
 
@@ -458,11 +458,11 @@ const AuthManager = {
             });
 
             if (window.location.pathname.includes('/admin/')) {
-                window.location.href = '/pages/customer-dashboard.html';
+                window.location.href = '/pages/customer-dashboard';
             }
 
-            if (window.location.pathname.includes('publish.html') || window.location.pathname.includes('vendor-dashboard.html')) {
-                window.location.href = '/index.html';
+            if (window.location.pathname.includes('publish') || window.location.pathname.includes('vendor-dashboard')) {
+                window.location.href = '/index';
             }
         }
 
@@ -475,10 +475,10 @@ const AuthManager = {
         if (this.role === null) {
             const path = window.location.pathname;
             const isProtectedPage = path.includes('/admin/') || 
-                                   path.includes('dashboard.html') || 
-                                   path.includes('publish.html') ||
-                                   path.includes('settings.html');
-            const isLoginPage = path.includes('login.html');
+                                   path.includes('dashboard') || 
+                                   path.includes('publish') ||
+                                   path.includes('settings');
+            const isLoginPage = path.includes('login');
 
             if (isProtectedPage && !isLoginPage) {
                 console.error('[NewKet Auth] Access denied: No active role on protected page.');
@@ -514,7 +514,7 @@ const AuthManager = {
             }
 
             if (this.role === 'admin') {
-                accountLink.href = '/pages/admin/dashboard.html';
+                accountLink.href = '/pages/admin/dashboard';
                 accountLink.title = 'Dashboard Admin';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
@@ -541,7 +541,7 @@ const AuthManager = {
                 }
 
             } else if (this.role === 'supplier') {
-                accountLink.href = '/pages/vendor-dashboard.html';
+                accountLink.href = '/pages/vendor-dashboard';
                 accountLink.title = 'Tableau de bord Vendeur';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
@@ -559,7 +559,7 @@ const AuthManager = {
                 badge.style.display = 'block';
 
             } else if (this.role === 'customer') {
-                accountLink.href = '/pages/customer-dashboard.html';
+                accountLink.href = '/pages/customer-dashboard';
                 accountLink.title = 'Mon Espace';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
@@ -585,7 +585,7 @@ const AuthManager = {
                 }
 
             } else {
-                accountLink.href = '/pages/login.html';
+                accountLink.href = '/pages/login';
                 accountLink.title = 'Se connecter';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-linear');
@@ -621,17 +621,17 @@ const AuthManager = {
             }
 
             if (this.role === 'admin') {
-                loggedLink.href = '/pages/admin/dashboard.html';
+                loggedLink.href = '/pages/admin/dashboard';
                 if (loggedName) loggedName.textContent = userName;
                 if (loggedRole) loggedRole.textContent = 'Administrateur';
             } else if (this.role === 'supplier') {
-                loggedLink.href = '/pages/vendor-dashboard.html';
+                loggedLink.href = '/pages/vendor-dashboard';
                 // Fetch company if available, fallback to user name
                 const companyName = localStorage.getItem('newketCompany') || userName;
                 if (loggedName) loggedName.textContent = companyName;
                 if (loggedRole) loggedRole.textContent = 'Vendeur Premium';
             } else {
-                loggedLink.href = '/pages/customer-dashboard.html';
+                loggedLink.href = '/pages/customer-dashboard';
                 if (loggedName) loggedName.textContent = userName;
                 if (loggedRole) loggedRole.textContent = 'Membre NewKet';
             }
@@ -659,7 +659,7 @@ const AuthManager = {
             <div class="flex-1">
                 <div class="text-sm font-black text-gray-900 leading-tight">Profil vendeur en attente</div>
                 <div class="text-[10px] text-gray-500 font-medium mb-2">Veuillez finaliser votre dossier pour vendre.</div>
-                <a href="/pages/seller-onboarding.html" class="text-[11px] font-bold text-yellow-600 underline">Compléter mon profil</a>
+                <a href="/pages/seller-onboarding" class="text-[11px] font-bold text-yellow-600 underline">Compléter mon profil</a>
             </div>
             <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-900">
                 <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
@@ -680,7 +680,7 @@ const AuthManager = {
             <div class="flex-1">
                 <div class="text-sm font-black text-gray-900 leading-tight">Profil vendeur rejeté</div>
                 <div class="text-[10px] text-gray-500 font-medium mb-2">Veuillez contacter le support pour plus d'infos.</div>
-                <a href="/pages/seller-onboarding.html" class="text-[11px] font-bold text-red-600 underline">Soumettre à nouveau</a>
+                <a href="/pages/seller-onboarding" class="text-[11px] font-bold text-red-600 underline">Soumettre à nouveau</a>
             </div>
             <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-900">
                 <iconify-icon icon="solar:close-circle-bold"></iconify-icon>

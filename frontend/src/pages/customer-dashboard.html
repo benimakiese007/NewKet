@@ -174,7 +174,7 @@
                     <!-- Admin Link for Suppliers -->
                     <div id="supplier-link-container" class="hidden">
                         <div class="h-px bg-gray-100 my-4 mx-2"></div>
-                        <a href="admin/dashboard.html" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
+                        <a href="admin/dashboard" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
                             <iconify-icon icon="solar:shield-user-bold" width="20"></iconify-icon>
                             Espace Vendeur
                         </a>
@@ -550,10 +550,32 @@
             if (!confirm('Se déconnecter de NewKet ?')) return;
             const keys = ['newketUserEmail', 'newketRole', 'newketUser', 'newketToken'];
             keys.forEach(k => localStorage.removeItem(k));
-            window.location.href = '/pages/login.html';
+            window.location.href = '/pages/login';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // --- INITIALIZE SKELETONS ---
+            const statsGrid = document.querySelector('#view-dashboard .grid');
+            if (statsGrid && typeof window.buildSkeletonDashboardStatsHTML === 'function') {
+                statsGrid.innerHTML = window.buildSkeletonDashboardStatsHTML(4);
+            }
+
+            const activityFeed = document.getElementById('customer-activity-feed');
+            if (activityFeed && typeof window.buildSkeletonActivityHTML === 'function') {
+                activityFeed.innerHTML = window.buildSkeletonActivityHTML(3);
+            }
+
+            const ordersList = document.getElementById('orders-list');
+            if (ordersList && typeof window.buildSkeletonActivityHTML === 'function') {
+                // Using activity skeleton as a decent proxy for order list items
+                ordersList.innerHTML = window.buildSkeletonActivityHTML(4);
+            }
+
+            const favoritesGrid = document.getElementById('favorites-grid');
+            if (favoritesGrid && typeof window.buildSkeletonCardHTML === 'function') {
+                favoritesGrid.innerHTML = window.buildSkeletonCardHTML(3);
+            }
+
             renderOrders();
             renderFavorites();
             renderDashboardNotifications();
@@ -745,7 +767,7 @@
                     <div class="glass-panel p-12 text-center text-gray-500">
                         <iconify-icon icon="solar:chat-round-line-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
                         <p>Vous n'avez pas encore envoyé de demande. L'exceptionnel vous attend.</p>
-                        <a href="./catalog.html" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Voir les articles</a>
+                        <a href="./catalog" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Voir les articles</a>
                     </div>
                 `;
             } else {
@@ -786,7 +808,7 @@
                     <div class="col-span-full glass-panel p-12 text-center text-gray-500">
                         <iconify-icon icon="solar:heart-broken-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
                         <p>Votre liste de désirs est vide. Laissez-vous séduire par nos pièces d'exception.</p>
-                        <a href="./catalog.html" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Explorer le catalogue</a>
+                        <a href="./catalog" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Explorer le catalogue</a>
                     </div>
                 `;
             } else {
