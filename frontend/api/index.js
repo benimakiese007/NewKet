@@ -188,8 +188,13 @@ router.post('/promos/apply', requireAuth, async (req, res) => {
 // ── ACTIVITÉS ─────────────────────────────────────────────────
 router.get('/activities', requireAuth, async (req, res) => {
     try {
-        const { data, error } = await supabaseAdmin().from('activities').select('*')
-            .eq('user_email', req.user.email).order('time', { ascending: false }).limit(50);
+        const sb = getSupabase(req.token);
+        // On essaie d'abord par user_id, sinon par email (legacy)
+        const { data, error } = await sb.from('activities')
+            .select('*')
+            .or(`user_id.eq.${req.user.id},user_email.eq.${req.user.email}`)
+            .order('time', { ascending: false })
+            .limit(50);
         if (error) throw error;
         res.json(data);
     } catch (err) { res.status(500).json({ error: err.message }); }
@@ -199,8 +204,15 @@ router.post('/activities', requireAuth, async (req, res) => {
     try {
         const { text, type } = req.body;
         if (!text) return res.status(400).json({ error: 'Texte requis.' });
-        const { data, error } = await supabaseAdmin().from('activities')
-            .insert({ user_email: req.user.email, text, type: type || 'info', time: new Date().toISOString() })
+        const sb = getSupabase(req.token);
+        const { data, error } = await sb.from('activities')
+            .insert({ 
+                user_id: req.user.id,
+                user_email: req.user.email, 
+                text, 
+                type: type || 'info', 
+                time: new Date().toISOString() 
+            })
             .select().single();
         if (error) throw error;
         res.json(data);
@@ -278,34 +290,33 @@ router.delete('/favorites/:product_id', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ── COMMANDES ─────────────────────────────────────────────────
+// ── COMMANDES (DÉSACTIVÉES - MODÈLE LEAD GEN) ─────────────────
 router.get('/orders', requireAuth, async (req, res) => {
-    try {
-        const sb = getSupabase(req.token);
-        const { data, error } = await sb.from('orders').select('*, products(name, images)').eq('user_id', req.user.id)
-            .order('created_at', { ascending: false });
-        if (error) throw error;
-        res.json(data);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    // NewKet est passé à un modèle Lead Generation (WhatsApp). 
+    // La table 'orders' a été supprimée. On retourne une liste vide instantanément.
+    res.json([]);
 });
 
 router.post('/orders', requireAuth, async (req, res) => {
-    try {
-        const sb = getSupabase(req.token);
-        const { data, error } = await sb.from('orders').insert({ ...req.body, user_id: req.user.id }).select().single();
-        if (error) throw error;
-        res.status(201).json(data);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    res.status(410).json({ error: 'Le système de commande directe est désactivé. Utilisez les boutons WhatsApp.' });
 });
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────
 router.get('/notifications', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
-        const { data, error } = await sb.from('notifications').select('*').eq('user_id', req.user.id)
-            .order('created_at', { ascending: false }).limit(50);
+        
+        // On cible par email (plus stable sur les notifications legacy)
+        // Et on filtre pour exclure les notifications liées aux commandes
+        const { data, error } = await sb.from('notifications')
+            .select('*')
+            .or(`user_id.eq.${req.user.id},user_email.eq.${req.user.email}`)
+            .not('type', 'in', '("order","purchase","sale","command")')
+            .order('created_at', { ascending: false })
+            .limit(50);
+            
         if (error) throw error;
-        res.json(data);
+        res.json(data || []);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -313,7 +324,8 @@ router.patch('/notifications/:id/read', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
         const { data, error } = await sb.from('notifications').update({ read: true })
-            .eq('id', req.params.id).eq('user_id', req.user.id).select().single();
+            .eq('id', req.params.id)
+            .select().single();
         if (error) throw error;
         res.json(data);
     } catch (err) { res.status(500).json({ error: err.message }); }
