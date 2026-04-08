@@ -73,7 +73,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Account (MODIFIED: removed hidden sm:block) -->
-                <a href="{{ROOT}}pages/login.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     title="Compte" id="accountLink">
                     <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
                 </a>
@@ -128,7 +128,7 @@ const HEADER_HTML = `
     <div class="flex-1 overflow-y-auto py-4">
         <!-- Guest Call to Action -->
         <div id="mobileGuestCTA" class="px-4 mb-6">
-            <a href="{{ROOT}}pages/login.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
+            <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
                 <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                     <iconify-icon icon="solar:user-bold" width="24"></iconify-icon>
                 </div>
@@ -246,8 +246,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
             <div class="lg:col-span-2 space-y-6">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
                 <ul class="space-y-4">
-                    <li><a href="{{ROOT}}pages/customer-dashboard.html" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
-                    <li><a href="{{ROOT}}pages/customer-dashboard.html" class="text-gray-400 hover:text-white text-sm transition-colors">Mes Activités</a></li>
+                    <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
+                    <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mes Activités</a></li>
                     <li><a href="{{ROOT}}pages/about.html" class="text-gray-400 hover:text-white text-sm transition-colors">Aide & FAQ</a></li>
                     <li><a href="{{ROOT}}pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
                 </ul>
@@ -489,7 +489,21 @@ const ComponentLoader = {
     injectHTML(element, html) {
         // Replace {{ROOT}} placeholder with actual relative path prefix
         const rootPrefix = this.getAdjustedPath('');
-        const processedHTML = html.replace(/{{ROOT}}/g, rootPrefix);
+        
+        // --- NEW: Sync Account Path Resolution ---
+        const role = localStorage.getItem('newketRole');
+        const email = localStorage.getItem('newketUserEmail');
+        let accountPath = 'pages/login.html';
+        
+        if (role && email) {
+            if (role === 'admin') accountPath = 'pages/admin/dashboard.html';
+            else if (role === 'supplier') accountPath = 'pages/vendor-dashboard.html';
+            else accountPath = 'pages/customer-dashboard.html';
+        }
+        
+        const processedHTML = html
+            .replace(/{{ROOT}}/g, rootPrefix)
+            .replace(/{{ACCOUNT_PATH}}/g, accountPath);
         
         element.innerHTML = processedHTML;
         // Execute any inline scripts injected

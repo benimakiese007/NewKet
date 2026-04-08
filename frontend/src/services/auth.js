@@ -339,6 +339,26 @@ const AuthManager = {
         if (this._authChecking) return;
         console.log(`[NewKet Auth] Enforcing permissions for role: ${this.role}, status: ${this.status}`);
 
+        const path = window.location.pathname;
+        const isLoginPage = path.includes('login.html');
+
+        // --- NEW: Bounce logic for users already logged in ---
+        if (this.role && isLoginPage) {
+            console.log('[NewKet Auth] User already logged in, redirecting from login page...');
+            // Zero-flash: Hide body until redirect starts
+            document.body.style.opacity = '0';
+            document.body.style.pointerEvents = 'none';
+
+            if (this.role === 'admin') {
+                window.location.href = '/pages/admin/dashboard.html';
+            } else if (this.role === 'supplier') {
+                window.location.href = '/pages/vendor-dashboard.html';
+            } else {
+                window.location.href = '/pages/customer-dashboard.html';
+            }
+            return;
+        }
+
         const body = document.body;
         body.classList.add(`role-${this.role}`);
         if (this.status) body.classList.add(`status-${this.status}`);

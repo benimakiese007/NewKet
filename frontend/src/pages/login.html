@@ -2,6 +2,23 @@
 <html lang="fr">
 
 <head>
+    <script>
+        // IMMEDIATE SYNC REDIRECT (ZERO-BOUNCE)
+        // Checks localStorage before even parsing the body
+        (function() {
+            const role = localStorage.getItem('newketRole');
+            const email = localStorage.getItem('newketUserEmail');
+            if (role && email) {
+                let target = '/index.html';
+                if (role === 'admin') target = '/pages/admin/dashboard.html';
+                else if (role === 'supplier') target = '/pages/vendor-dashboard.html';
+                else if (role === 'customer') target = '/pages/customer-dashboard.html';
+                
+                // Use replace to keep history clean
+                window.location.replace(target);
+            }
+        })();
+    </script>
     <script src="../services/admin-config.js" defer></script>
     <script type="module" src="../services/app.js"></script>
     <meta charset="UTF-8">
@@ -25,6 +42,7 @@
     
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/responsive.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
