@@ -12,10 +12,8 @@ const UI = {
             this.renderHomeGrid();
         });
 
-        // Listen for favorites changes
-        window.addEventListener('favoritesUpdated', () => {
-            this.renderHomeGrid();
-        });
+        // favoritesUpdated listener removed - handled by FavoritesManager.updateUI() for better performance.
+
 
         // Listen for currency changes
         window.addEventListener('currencyChanged', () => {

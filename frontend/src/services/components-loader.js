@@ -374,9 +374,11 @@ const ComponentLoader = {
                         // Remove top-padding and top-margins that were manually added
                         // For py-*, we convert it to pb-* to keep the bottom spacing
                         const newClass = m.className
-                            .replace(/\bpt-(20|24|28|32)\b/g, '')
-                            .replace(/\bmt-(16|20|24|28|32)\b/g, '')
-                            .replace(/\bpy-(20|24|28|32)\b/g, (match) => match.replace('py-', 'pb-'))
+                            .replace(/\b([\w-]*:)?(pt|mt)-(0|[1-9]\d*)\b/g, '')
+                            .replace(/\b([\w-]*:)?(py|my)-(0|[1-9]\d*)\b/g, (match, prefix, type, value) => {
+                                return (prefix || '') + (type === 'py' ? 'pb-' : 'mb-') + value;
+                            })
+                            .replace(/\s+/g, ' ')
                             .trim();
                         if (newClass !== m.className) m.className = newClass;
                     }
