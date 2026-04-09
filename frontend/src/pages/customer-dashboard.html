@@ -139,7 +139,7 @@
     <div id="header-placeholder"></div>
 
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-12 flex flex-col md:flex-row gap-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 flex flex-col md:flex-row gap-8">
         <!-- Sidebar -->
         <aside class="w-full md:w-64 flex-shrink-0">
             <div class="glass-panel p-6 sticky top-24">
@@ -822,8 +822,8 @@
                         </div>
                         <h3 class="font-bold text-gray-900 text-[10px] sm:text-base mb-1 truncate">${item.name}</h3>
                         <div class="text-[9px] sm:text-sm text-gray-500 mb-4">${CurrencyManager.formatPrice(item.price)}</div>
-                        <button onclick="if(window.contactSeller) window.contactSeller('${item.id}', this)" class="w-full py-2 bg-gray-900 text-white rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-black flex items-center justify-center gap-2 transition-colors">
-                            <iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon> Commander
+                        <button onclick="if(window.contactSeller) window.contactSeller('${item.id}', this)" class="w-full py-2 sm:py-2.5 bg-gray-900 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold tracking-normal sm:tracking-widest uppercase hover:bg-black flex items-center justify-center gap-1 sm:gap-2 transition-colors">
+                            <iconify-icon icon="solar:chat-round-call-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon> <span class="truncate">Commander</span>
                         </button>
                     </div>
                 `).join('');

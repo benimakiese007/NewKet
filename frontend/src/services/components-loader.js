@@ -276,56 +276,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
     </div>
 </footer>`;
 
-const MOBILE_NAV_HTML = `<!-- NewKet Mobile Bottom Navigation Bar (Fallback) -->
-<nav id="mobileBottomNav" role="navigation" aria-label="Navigation mobile" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 z-50 sm:hidden shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.05)]">
-    <!-- Acheteur (Customer) Nav - 4 items -->
-    <div class="nav-bar customer-nav flex justify-around items-center w-full px-2 py-1" style="display: none;">
-        <a href="{{ROOT}}index" class="nav-item flex flex-col items-center justify-center gap-1" title="Accueil" id="nav-home">
-            <div class="nav-icon-wrap"><iconify-icon icon="solar:home-2-bold" width="22"></iconify-icon></div>
-            <span class="text-[10px] font-medium">Accueil</span>
-        </a>
-        <a href="{{ROOT}}pages/catalog" class="nav-item flex flex-col items-center justify-center gap-1" title="Boutique" id="nav-catalog">
-            <div class="nav-icon-wrap"><iconify-icon icon="solar:shop-linear" width="22"></iconify-icon></div>
-            <span class="text-[10px] font-medium">Boutique</span>
-        </a>
-        <a href="{{ROOT}}pages/forum" class="nav-item flex flex-col items-center justify-center gap-1" title="Forum" id="nav-forum">
-            <div class="nav-icon-wrap"><iconify-icon icon="solar:chat-round-line-linear" width="22"></iconify-icon></div>
-            <span class="text-[10px] font-medium">Forum</span>
-        </a>
-        <a href="{{ROOT}}pages/customer-dashboard" class="nav-item flex flex-col items-center justify-center gap-1" title="Compte" id="mobileBottomAccountCustomer">
-            <div class="nav-icon-wrap relative"><iconify-icon icon="solar:user-linear" width="22"></iconify-icon></div>
-            <span class="text-[10px] font-medium">Compte</span>
-        </a>
-    </div>
 
-    <!-- Vendeur (Supplier/Admin) Nav - 6 items -->
-    <div class="nav-bar vendor-nav flex justify-between items-center w-full px-1 py-1 overflow-x-auto" style="display: none; gap: 2px;">
-        <a href="{{ROOT}}index" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Accueil">
-            <div class="nav-icon-wrap"><iconify-icon icon="solar:home-2-bold" width="20"></iconify-icon></div>
-            <span class="text-[9px] font-medium">Accueil</span>
-        </a>
-        <a href="{{ROOT}}pages/catalog" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Boutique">
-            <div class="nav-icon-wrap"><iconify-icon icon="solar:shop-linear" width="20"></iconify-icon></div>
-            <span class="text-[9px] font-medium">Boutique</span>
-        </a>
-        <a href="{{ROOT}}pages/publish" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[65px] publish-btn relative" title="Vendre">
-            <div class="nav-icon-wrap bg-gray-900 text-white rounded-full w-12 h-12 flex items-center justify-center absolute -top-8 left-1/2 transform -translate-x-1/2 shadow-lg border-4 border-white"><iconify-icon icon="solar:add-circle-bold" width="26"></iconify-icon></div>
-            <span class="text-[9px] font-bold" style="margin-top: 18px;">Vendre</span>
-        </a>
-        <a href="{{ROOT}}pages/forum" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Forum">
-            <div class="nav-icon-wrap"><iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon></div>
-            <span class="text-[9px] font-medium">Forum</span>
-        </a>
-        <a href="{{ROOT}}pages/vendor-dashboard" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Dashboard">
-            <div class="nav-icon-wrap"><iconify-icon icon="solar:chart-square-linear" width="20"></iconify-icon></div>
-            <span class="text-[9px] font-medium">Stats</span>
-        </a>
-        <a href="{{ROOT}}pages/vendor-dashboard" class="nav-item flex flex-col items-center justify-center shrink-0 min-w-[50px] gap-1" title="Compte" id="mobileBottomAccountVendor">
-            <div class="nav-icon-wrap relative"><iconify-icon icon="solar:user-linear" width="20"></iconify-icon></div>
-            <span class="text-[9px] font-medium">Profil</span>
-        </a>
-    </div>
-</nav>`;
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm flex h-[60px] sm:h-[64px] items-center justify-center">
@@ -359,12 +310,7 @@ const ComponentLoader = {
             );
         }
 
-        // Mobile nav is disabled as per user request (No bottom navbar)
-        /*
-        componentsToLoad.push(
-            this.loadComponent('mobile-nav-placeholder', 'components/mobile-nav.html', MOBILE_NAV_HTML)
-        );
-        */
+
 
         if (!isMinimalPage) {
             componentsToLoad.push(
@@ -425,8 +371,13 @@ const ComponentLoader = {
                 const mainTags = document.querySelectorAll('main, section, div');
                 mainTags.forEach(m => {
                     if (m.className && typeof m.className === 'string') {
-                        // Only remove specific padding classes to prevent double spacing
-                        const newClass = m.className.replace(/\bpt-(20|24|28|32)\b/g, '').trim();
+                        // Remove top-padding and top-margins that were manually added
+                        // For py-*, we convert it to pb-* to keep the bottom spacing
+                        const newClass = m.className
+                            .replace(/\bpt-(20|24|28|32)\b/g, '')
+                            .replace(/\bmt-(16|20|24|28|32)\b/g, '')
+                            .replace(/\bpy-(20|24|28|32)\b/g, (match) => match.replace('py-', 'pb-'))
+                            .trim();
                         if (newClass !== m.className) m.className = newClass;
                     }
                 });
@@ -440,11 +391,18 @@ const ComponentLoader = {
                 }
             }
             
-            spacer.style.height = height + 'px';
-            spacer.style.minHeight = height + 'px'; // Ensure it doesn't get collapsed
+            // On mobile, add a bit more safety space (+15px)
+            const isMobile = window.innerWidth < 640;
+            const safetyMargin = isMobile ? 15 : 0;
+            const finalHeight = height + safetyMargin;
+            
+            spacer.style.height = finalHeight + 'px';
+            spacer.style.minHeight = finalHeight + 'px';
+            
+
             
             // Adjust scroll-padding-top for anchors (#)
-            document.documentElement.style.scrollPaddingTop = (height + 20) + 'px';
+            document.documentElement.style.scrollPaddingTop = (finalHeight + 20) + 'px';
         };
 
         // Run initially completely after rendering

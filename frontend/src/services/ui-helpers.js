@@ -178,14 +178,14 @@ function buildProductCardHTML(p, options = {}) {
                     <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
                     ${oldPriceDisplay ? `<span class="old-price" style="font-size:0.9rem; color:#9ca3af; text-decoration:line-through; margin-left:0.5rem;">${oldPriceDisplay}</span>` : ''}
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; margin-top: auto;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 4px;">
                     <button 
                         onclick="if(window.contactSeller) window.contactSeller('${p.id}', this)"
-                        class="flex-1 bg-gray-900 hover:bg-black text-white py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
-                        style="border:none; cursor:pointer;"
+                        class="flex-1 bg-gray-900 hover:bg-black text-white py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
+                        style="border:none; cursor:pointer; min-width: 0;"
                         data-product-id="${p.id}">
-                        <iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon>
-                        Commander
+                        <iconify-icon icon="solar:chat-round-call-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
+                        <span class="truncate">Commander</span>
                     </button>
                     <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
                         style="width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280; background:white; cursor:pointer; flex-shrink:0; transition: all 0.2s ease;"
