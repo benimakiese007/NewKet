@@ -86,8 +86,6 @@ const AuthManager = {
                     role = 'admin';
                 }
 
-                // L'utilisateur est admin uniquement si son métadata le dit, ou son email figure dans ADMIN_EMAILS.
-                
                 this.role = role;
                 
                 // Ensure localStorage is in sync with session (Fix for Issue 2: Info mixup)
@@ -98,8 +96,22 @@ const AuthManager = {
                 const avatar = user.user_metadata.avatar_url || user.user_metadata.picture || null;
                 if (avatar) localStorage.setItem('newketUserAvatar', avatar);
 
-                this.status = await this.fetchUserStatus(user.email);
-                localStorage.setItem('newketUserStatus', this.status);
+                // Optimization: Use cached status to avoid blocking initialization
+                const cachedStatus = localStorage.getItem('newketUserStatus');
+                if (cachedStatus) {
+                    this.status = cachedStatus;
+                    // Refresh in background
+                    this.fetchUserStatus(user.email).then(freshStatus => {
+                        if (freshStatus !== this.status) {
+                            this.status = freshStatus;
+                            localStorage.setItem('newketUserStatus', freshStatus);
+                            this.enforcePermissions();
+                        }
+                    });
+                } else {
+                    this.status = await this.fetchUserStatus(user.email);
+                    localStorage.setItem('newketUserStatus', this.status);
+                }
 
                 this.setupRealtimeSync(user.id);
             } else {

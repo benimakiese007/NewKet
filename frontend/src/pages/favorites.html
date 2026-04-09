@@ -48,7 +48,7 @@
         <div class="flex items-center justify-between mb-10">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Mes Favoris</h1>
-                <p class="text-gray-500 text-sm mt-1">Gérez vos articles coups de cœur</p>
+                <p id="fav-status" class="text-gray-500 text-sm mt-1">Récupération de vos coups de cœur...</p>
             </div>
             <button id="clearAllBtn"
                 class="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-4 py-2 rounded-xl">
@@ -74,14 +74,50 @@
         <!-- Favorites Grid -->
         <div id="favoritesGrid"
             class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            <!-- Dynamically filled -->
+            <!-- Skeleton Grid -->
+            <div class="fav-skeleton group bg-white rounded-2xl border border-gray-50 p-2 animate-pulse">
+                <div class="aspect-square bg-gray-100 rounded-xl mb-4"></div>
+                <div class="h-4 w-1/2 bg-gray-100 rounded mb-2"></div>
+                <div class="h-3 w-1/4 bg-gray-100 rounded mb-4"></div>
+                <div class="flex gap-2">
+                    <div class="h-8 w-1/2 bg-gray-100 rounded-lg"></div>
+                    <div class="h-8 w-1/2 bg-gray-100 rounded-lg"></div>
+                </div>
+            </div>
+            <div class="fav-skeleton group bg-white rounded-2xl border border-gray-50 p-2 animate-pulse opacity-60">
+                <div class="aspect-square bg-gray-100 rounded-xl mb-4"></div>
+                <div class="h-4 w-3/4 bg-gray-100 rounded mb-2"></div>
+                <div class="h-3 w-1/3 bg-gray-100 rounded mb-4"></div>
+                <div class="flex gap-2">
+                    <div class="h-8 w-1/2 bg-gray-100 rounded-lg"></div>
+                    <div class="h-8 w-1/2 bg-gray-100 rounded-lg"></div>
+                </div>
+            </div>
+            <div class="fav-skeleton group bg-white rounded-2xl border border-gray-50 p-2 animate-pulse opacity-40">
+                <div class="aspect-square bg-gray-100 rounded-xl mb-4"></div>
+                <div class="h-4 w-2/3 bg-gray-100 rounded mb-2"></div>
+                <div class="h-3 w-1/4 bg-gray-100 rounded mb-4"></div>
+                <div class="flex gap-2">
+                    <div class="h-8 w-1/2 bg-gray-100 rounded-lg"></div>
+                    <div class="h-8 w-1/2 bg-gray-100 rounded-lg"></div>
+                </div>
+            </div>
+            <div class="fav-skeleton group bg-white rounded-2xl border border-gray-50 p-2 animate-pulse opacity-30">
+                <div class="aspect-square bg-gray-100 rounded-xl mb-4"></div>
+                <div class="h-4 w-1/2 bg-gray-100 rounded mb-2"></div>
+                <div class="h-3 w-1/4 bg-gray-100 rounded mb-4"></div>
+                <div class="flex gap-2">
+                    <div class="h-8 w-1/2 bg-gray-100 rounded-lg"></div>
+                    <div class="h-8 w-1/2 bg-gray-100 rounded-lg"></div>
+                </div>
+            </div>
         </div>
     </main>
 
 
 
     <div id="mobile-nav-placeholder"></div>
-    <div id="footer-placeholder"></div>
+
 
 
     <script>
@@ -89,14 +125,21 @@
         function renderFavorites() {
             const grid = document.getElementById('favoritesGrid');
             const empty = document.getElementById('emptyState');
+            const statusText = document.getElementById('fav-status');
+            const skeletons = document.querySelectorAll('.fav-skeleton');
             const favs = window.FavoritesManager ? window.FavoritesManager.getFavorites() : [];
+
+            // Clear skeletons
+            skeletons.forEach(s => s.remove());
 
             if (favs.length === 0) {
                 empty.classList.remove('hidden');
                 grid.classList.add('hidden');
+                if (statusText) statusText.textContent = "Aucun favori pour le moment";
                 return;
             }
 
+            if (statusText) statusText.textContent = "Gérez vos articles coups de cœur";
             empty.classList.add('hidden');
             grid.classList.remove('hidden');
 

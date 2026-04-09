@@ -36,18 +36,48 @@
             <span class="text-gray-900" id="breadcrumb-current">Produit</span>
         </nav>
 
-        <!-- Skeleton Loading -->
+        <!-- Skeleton Loading Premium -->
         <div id="productSkeleton" class="block" aria-hidden="true">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:flex-start;">
-                <div class="skeleton skeleton-img" style="border-radius:1.5rem; aspect-ratio:1;"></div>
-                <div>
-                    <div class="skeleton skeleton-text" style="height:12px; width:40%; margin-bottom:16px;"></div>
-                    <div class="skeleton skeleton-text w-3-4" style="height:36px; margin-bottom:12px;"></div>
-                    <div class="skeleton-text w-2-3" style="height:28px; width:35%; margin-bottom:24px;"></div>
-                    <div class="skeleton-text" style="height:14px; margin-bottom:8px;"></div>
-                    <div class="skeleton-text" style="height:14px; margin-bottom:8px;"></div>
-                    <div class="skeleton-text w-3-4" style="height:14px; margin-bottom:32px;"></div>
-                    <div class="skeleton" style="height:52px; border-radius:1rem;"></div>
+            <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
+                <!-- Image Skeleton -->
+                <div class="aspect-square bg-white rounded-3xl p-6 border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="skeleton skeleton-image w-full h-full rounded-2xl"></div>
+                </div>
+                <!-- Content Skeleton -->
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="skeleton h-3 w-24 rounded-full"></div>
+                            <div class="skeleton h-10 w-10 rounded-xl"></div>
+                        </div>
+                        <div class="skeleton h-10 w-3/4 mb-6 rounded-xl"></div>
+                        <div class="skeleton h-4 w-32 mb-8 rounded-full"></div>
+                        
+                        <!-- Vendor Box Skeleton -->
+                        <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-100 mb-8 flex items-center gap-4">
+                            <div class="skeleton h-10 w-10 rounded-xl"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="skeleton h-2 w-16 rounded-full"></div>
+                                <div class="skeleton h-3 w-32 rounded-full"></div>
+                            </div>
+                            <div class="skeleton h-6 w-16 rounded-full"></div>
+                        </div>
+
+                        <div class="skeleton h-8 w-40 mb-8 rounded-xl"></div>
+                        <div class="space-y-3 mb-10">
+                            <div class="skeleton h-3 w-full rounded-full"></div>
+                            <div class="skeleton h-3 w-full rounded-full"></div>
+                            <div class="skeleton h-3 w-2/3 rounded-full"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="skeleton h-14 w-32 rounded-2xl"></div>
+                        <div class="flex gap-3">
+                            <div class="skeleton h-14 flex-1 rounded-2xl"></div>
+                            <div class="skeleton h-14 w-14 rounded-2xl"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

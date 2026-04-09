@@ -49,16 +49,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render Categories in Sidebar
     const renderCategories = () => {
-        categoriesList.innerHTML = `
+        const allDiscussionsHtml = `
             <button class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${!currentCategoryId ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100'}" 
                 onclick="window.forumManager.filterByCategory(null)">
                 Toutes les discussions
             </button>
         `;
 
-        categories.forEach(cat => {
+        const categoriesHtml = categories.map(cat => {
             const isActive = currentCategoryId === cat.id;
-            categoriesList.innerHTML += `
+            return `
                 <button class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive ? 'bg-gray-900 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}" 
                     onclick="window.forumManager.filterByCategory('${escapeHTML(cat.id)}')">
                     <div class="flex items-center gap-3">
@@ -67,7 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </button>
             `;
-        });
+        }).join('');
+
+        categoriesList.innerHTML = allDiscussionsHtml + categoriesHtml;
     };
 
     // Load Topics from Supabase

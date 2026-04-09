@@ -108,6 +108,32 @@
         </div>
 
         <div id="notifications-list" class="space-y-4">
+            <!-- Skeleton Loading State (Initial UI) -->
+            <div id="notifications-skeleton">
+                <div class="glass-card p-5 animate-pulse flex gap-4 opacity-60">
+                    <div class="w-12 h-12 rounded-2xl bg-gray-100 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="h-4 w-32 bg-gray-100 rounded"></div>
+                            <div class="h-3 w-16 bg-gray-100 rounded"></div>
+                        </div>
+                        <div class="h-3 w-full bg-gray-100 rounded mb-2"></div>
+                        <div class="h-3 w-2/3 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+                <!-- Add 2-3 more skeletons if desired -->
+                <div class="glass-card p-5 animate-pulse flex gap-4 opacity-40 mt-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gray-100 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="h-4 w-24 bg-gray-100 rounded"></div>
+                            <div class="h-3 w-20 bg-gray-100 rounded"></div>
+                        </div>
+                        <div class="h-3 w-3/4 bg-gray-100 rounded mb-2"></div>
+                        <div class="h-3 w-1/2 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+            </div>
             <!-- Notifications will be injected here -->
         </div>
 
@@ -126,7 +152,7 @@
     </main>
 
     <div id="mobile-nav-placeholder"></div>
-    <div id="footer-placeholder"></div>
+
 
 
     <script>
@@ -136,8 +162,13 @@
             const list = document.getElementById('notifications-list');
             const empty = document.getElementById('empty-state');
             const unreadText = document.getElementById('unread-text');
+            const skeleton = document.getElementById('notifications-skeleton');
+            
             const allNotifications = NotificationManager.getNotifications();
             const unreadCount = NotificationManager.getUnreadCount();
+
+            // Clear skeleton if still present
+            if (skeleton) skeleton.remove();
 
             // Apply filter
             let filteredNotifications = allNotifications;
@@ -239,6 +270,10 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Set loading state text early
+            const unreadText = document.getElementById('unread-text');
+            if (unreadText) unreadText.textContent = "Récupération de vos notifications...";
+
             if (window.newketInitialized) {
                 renderNotifications();
             } else {

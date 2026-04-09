@@ -55,7 +55,7 @@ const HEADER_HTML = `
 
                 <!-- Notifications -->
                 <a href="{{ROOT}}pages/notifications"
-                    class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block"
+                    class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     title="Notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
@@ -64,7 +64,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}pages/favorites" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block"
+                <a href="{{ROOT}}pages/favorites" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     title="Favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
@@ -255,9 +255,10 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
             <div class="lg:col-span-4 space-y-6">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
                 <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.</p>
-                <form class="relative group" onsubmit="event.preventDefault(); alert('Merci pour votre inscription !');"> 
-                    <input type="email" placeholder="Votre email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
-                    <button type="submit" class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">S'inscrire</button>
+                <form id="newsletterForm" class="relative group" onsubmit="window.handleNewsletterSubmit ? window.handleNewsletterSubmit(event) : (event.preventDefault(), alert('Merci pour votre inscription !'))"> 
+                    <input id="newsletterEmail" type="email" placeholder="Votre email" autocomplete="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
+                    <button id="newsletterBtn" type="submit" class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">S'inscrire</button>
+                    <div id="newsletterMsg" class="hidden text-xs absolute -bottom-6 left-0 w-full mt-2"></div>
                 </form>
             </div>
         </div>
@@ -474,10 +475,18 @@ const ComponentLoader = {
             const adjustedPath = this.getAdjustedPath(path);
             const response = await fetch(adjustedPath);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
             const html = await response.text();
+            
+            // SECURITY: Check if the fetched content is actually a full page (fallback)
+            // If it contains <!DOCTYPE or <html, it's a server fallback and shouldn't be injected
+            if (html.toLowerCase().includes('<!doctype') || html.toLowerCase().includes('<html')) {
+                throw new Error(`Fetched content for ${path} appears to be a full HTML document (likely a fallback).`);
+            }
+            
             this.injectHTML(element, html);
         } catch (error) {
-            // CORS / file:// fallback: use inline HTML
+            // CORS / file:// fallback or missing file error: use inline HTML
             if (fallbackHTML) {
                 this.injectHTML(element, fallbackHTML);
             } else {
@@ -566,7 +575,10 @@ const ComponentLoader = {
 
 window.ComponentLoader = ComponentLoader;
 
-// Auto-init
-document.addEventListener('DOMContentLoaded', () => {
+// Auto-init: guard against DOMContentLoaded already having fired (ES module behavior)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => ComponentLoader.init());
+} else {
+    // DOM is already ready (module evaluated after DOMContentLoaded)
     ComponentLoader.init();
-});
+}

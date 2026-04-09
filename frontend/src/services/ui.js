@@ -168,16 +168,19 @@ window.showMoreProducts = async function () {
     }
 };
 
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-    // Wait for App to initialize data managers
+// Initialize: guard against DOMContentLoaded already fired (ES module behavior)
+const uiBootstrap = () => {
     if (window.newketInitialized) {
         UI.init();
     } else {
-        window.addEventListener('newketInitialized', () => {
-            UI.init();
-        });
+        window.addEventListener('newketInitialized', () => UI.init());
     }
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', uiBootstrap);
+} else {
+    uiBootstrap();
+}
 
 window.UI = UI;

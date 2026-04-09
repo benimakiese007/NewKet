@@ -246,7 +246,7 @@
                 document.getElementById('labelGross').textContent = 'Volume d\'Affaires';
                 document.getElementById('descGross').textContent = 'Total des transactions sur la plateforme';
                 document.getElementById('labelComm').textContent = 'Service Admin';
-                document.getElementById('descComm').innerHTML = 'Aucune commission prélevée (<span id="commissionRate">0</span>%)';
+                document.getElementById('descComm').innerHTML = 'Aucune commission prélevée (<span id="commissionRateAdmin">0</span>%)';
                 document.getElementById('labelNet').textContent = 'Revenu Brut';
                 document.getElementById('descNet').textContent = 'Volume financier total';
 
@@ -286,7 +286,8 @@
             document.getElementById('commissionTotal').dataset.priceCdf = 0;
             document.getElementById('netProfit').dataset.priceCdf = stats.totalGross;
             document.getElementById('availablePayout').dataset.priceCdf = stats.pendingPayout;
-            document.getElementById('commissionRate').textContent = "0";
+            const commRateEl = document.getElementById('commissionRate') || document.getElementById('commissionRateAdmin');
+            if (commRateEl) commRateEl.textContent = "0";
 
             // Estimated Taxes (Simulated)
             const tva = stats.totalGross * 0.16;

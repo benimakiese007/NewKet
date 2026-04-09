@@ -20,10 +20,20 @@ const App = {
         // Product and Order managers now handle their own internal "immediate resolve" from cache
         const initPromises = [];
         if (window.ProductManager) initPromises.push(ProductManager.init());
-        if (window.OrderManager) initPromises.push(OrderManager.init());
-        // UserManager calls /api/users which requires admin rights — only init for admins
-        const currentRole = window.AuthManager?.role || localStorage.getItem('newketRole');
-        if (window.UserManager && currentRole === 'admin') initPromises.push(UserManager.init());
+        
+        const currentRole = window.AuthManager?.role;
+        const isLoggedIn = !!currentRole;
+        const isAdmin = currentRole === 'admin';
+        const isSupplier = currentRole === 'supplier';
+
+        if (window.OrderManager && (isAdmin || isSupplier)) initPromises.push(OrderManager.init());
+        if (window.UserManager && isAdmin) initPromises.push(UserManager.init());
+        
+        // Managed Utilities
+        if (window.PromoManager && isAdmin) initPromises.push(PromoManager.init());
+        if (window.ActivityManager && isAdmin) initPromises.push(ActivityManager.init());
+        if (window.NotificationManager && isLoggedIn) initPromises.push(NotificationManager.init());
+        if (window.FavoritesManager && isLoggedIn) initPromises.push(FavoritesManager.syncFromSupabase());
 
         await Promise.all(initPromises);
 
@@ -144,8 +154,9 @@ const App = {
 
 window.App = App;
 
-// Bootstrap
-document.addEventListener('DOMContentLoaded', () => {
-    // If ComponentLoader is present, it will re-trigger manager updates after loading header/footer
+// Bootstrap: guard against DOMContentLoaded already fired (ES module behavior with Vite)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => App.init());
+} else {
     App.init();
-});
+}

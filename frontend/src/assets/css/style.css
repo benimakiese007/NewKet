@@ -7593,25 +7593,50 @@ html.dark .skeleton {
 
 /* Product skeleton placeholders */
 .skeleton-card {
-  border-radius: 1rem;
+  border-radius: 20px;
   overflow: hidden;
+  background: white;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem;
 }
 
-.skeleton-img {
+.skeleton-image {
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 0.75rem;
+  border-radius: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .skeleton-text {
-  height: 14px;
+  height: 12px;
   border-radius: 4px;
   margin-bottom: 8px;
 }
 
-.skeleton-text.w-3-4 { width: 75%; }
-.skeleton-text.w-1-2 { width: 50%; }
-.skeleton-text.w-2-3 { width: 66%; }
+.skeleton-title {
+    height: 20px;
+    width: 80%;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-price {
+    height: 24px;
+    width: 40%;
+    border-radius: 6px;
+    margin-top: auto;
+    margin-bottom: 1rem;
+}
+
+.skeleton-button {
+    height: 44px;
+    width: 100%;
+    border-radius: 12px;
+}
+
 
 /* Product page skeleton */
 #productGrid.loading .skeleton-product-img {
@@ -7786,74 +7811,38 @@ html.dark #confirmModal .btn-confirm-cancel {
 .status-badge.cancelled{ background: #FEE2E2; color: #991B1B; }
 
 /* ========================================== 
-   PREMIUM SKELETON LOADING SYSTEM 
+   PREMIUM SKELETON LOADING SYSTEM — V2
    ========================================== */ 
 @keyframes skeleton-shimmer { 
-    0% { background-position: -468px 0; } 
-    100% { background-position: 468px 0; } 
+    0% { background-position: -100% 0; } 
+    100% { background-position: 100% 0; } 
 } 
  
 .skeleton { 
     background: #f6f7f8; 
     background-image: linear-gradient( 
-        to right, 
-        #f6f7f8 0%, 
-        #edeef1 20%, 
-        #f6f7f8 40%, 
-        #f6f7f8 100% 
+        90deg, 
+        rgba(246, 247, 248, 0) 0%, 
+        rgba(237, 238, 241, 0.8) 20%, 
+        rgba(246, 247, 248, 0) 40%
     ); 
-    background-repeat: no-repeat; 
-    background-size: 800px 100%; 
+    background-size: 200% 100%; 
     display: inline-block; 
     position: relative; 
-    animation: skeleton-shimmer 1.5s infinite linear; 
-    border-radius: 4px; 
-} 
- 
-.skeleton-card { 
-    background: white; 
-    border-radius: 1.5rem; 
-    padding: 1rem; 
-    border: 1px solid #f1f5f9; 
-    display: flex; 
-    flex-direction: column; 
-    height: 100%; 
-} 
- 
-.skeleton-image { 
-    width: 100%; 
-    aspect-ratio: 1; 
-    border-radius: 1.25rem; 
-    margin-bottom: 1rem; 
-} 
- 
-.skeleton-title { 
-    height: 20px; 
-    width: 80%; 
+    animation: skeleton-shimmer 2s infinite linear; 
     border-radius: 6px; 
-    margin-bottom: 0.75rem; 
+    background-color: #f1f5f9; /* Base color fallback */
 } 
- 
-.skeleton-text { 
-    height: 12px; 
-    width: 60%; 
-    border-radius: 4px; 
-    margin-bottom: 0.5rem; 
-} 
- 
-.skeleton-price { 
-    height: 24px; 
-    width: 40%; 
-    border-radius: 6px; 
-    margin-top: auto; 
-    margin-bottom: 1rem; 
-} 
- 
-.skeleton-button { 
-    height: 44px; 
-    width: 100%; 
-    border-radius: 12px; 
-} 
+
+html.dark .skeleton {
+    background-color: #374151;
+    background-image: linear-gradient( 
+        90deg, 
+        rgba(55, 65, 81, 0) 0%, 
+        rgba(75, 85, 99, 0.8) 20%, 
+        rgba(55, 65, 81, 0) 40%
+    ); 
+}
  
 .skeleton-avatar { 
     width: 40px; 

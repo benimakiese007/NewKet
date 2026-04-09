@@ -9,7 +9,11 @@ const OrderManager = {
 
     async init() {
         if (!window.ApiClient) {
-            console.warn('[OrderManager] ApiClient not found, using empty data.');
+            console.error('[OrderManager] ApiClient introuvable.');
+            return;
+        }
+        if (!window.AuthManager || !['admin', 'supplier'].includes(window.AuthManager.role)) {
+            console.warn('[OrderManager] Check skipped: non-admin/supplier role');
             this._initialized = true;
             return;
         }

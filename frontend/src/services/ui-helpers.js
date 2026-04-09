@@ -208,9 +208,10 @@ function buildSkeletonCardHTML(count = 5) {
         html += `
             <div class="skeleton-card">
                 <div class="skeleton skeleton-image"></div>
-                <div class="skeleton skeleton-text" style="width: 40%"></div>
+                <div class="skeleton skeleton-text" style="width: 30%"></div>
+                <div class="skeleton skeleton-text" style="width: 50%"></div>
                 <div class="skeleton skeleton-title"></div>
-                <div class="skeleton skeleton-text" style="width: 60%"></div>
+                <div class="skeleton skeleton-text" style="width: 40%"></div>
                 <div class="skeleton skeleton-price"></div>
                 <div class="skeleton skeleton-button"></div>
             </div>
@@ -248,6 +249,41 @@ function buildSkeletonActivityHTML(count = 3) {
                 <div class="flex-1">
                     <div class="skeleton skeleton-text" style="width: 80%; margin-bottom: 0.5rem;"></div>
                     <div class="skeleton skeleton-text" style="width: 30%; height: 10px;"></div>
+                </div>
+            </div>
+        `;
+    }
+    return html;
+}
+
+/**
+ * Builds Skeleton for Notifications list.
+ */
+function buildSkeletonNotificationHTML(count = 4) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        html += `
+            <div class="glass-card p-5 animate-pulse flex gap-4 opacity-60">
+                <style>
+                    @keyframes shimmer {
+                        0% { background-position: -200% 0; }
+                        100% { background-position: 200% 0; }
+                    }
+                    .skeleton-shimmer {
+                        background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%);
+                        background-size: 200% 100%;
+                        animation: shimmer 1.5s infinite linear;
+                        border-radius: 0.5rem;
+                    }
+                </style>
+                <div class="w-12 h-12 rounded-2xl skeleton-shimmer flex-shrink-0"></div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="h-4 w-32 skeleton-shimmer"></div>
+                        <div class="h-3 w-16 skeleton-shimmer"></div>
+                    </div>
+                    <div class="h-3 w-full skeleton-shimmer mb-2"></div>
+                    <div class="h-3 w-2/3 skeleton-shimmer"></div>
                 </div>
             </div>
         `;
@@ -376,5 +412,6 @@ window.buildProductCardHTML = buildProductCardHTML;
 window.buildSkeletonCardHTML = buildSkeletonCardHTML;
 window.buildSkeletonDashboardStatsHTML = buildSkeletonDashboardStatsHTML;
 window.buildSkeletonActivityHTML = buildSkeletonActivityHTML;
+window.buildSkeletonNotificationHTML = buildSkeletonNotificationHTML;
 window.buildStarsHTML = buildStarsHTML;
 window.getOptimizedImageUrl = getOptimizedImageUrl;

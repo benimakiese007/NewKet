@@ -494,7 +494,37 @@
 
                 <!-- Product grid -->
                 <div class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4" id="catalog-grid">
-                    <!-- Products injected by JS -->
+                    <!-- Skeletons Premium (Hardcoded) -->
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden hidden sm:block">
+                        <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden hidden lg:block">
+                        <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden hidden lg:block">
+                        <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -512,9 +542,7 @@
                 const qp = urlParams.get('q');
                 if (qp) {
                     const sInput = document.getElementById('searchInput');
-                    const mInput = document.getElementById('mobileSearchInput');
                     if (sInput) sInput.value = qp;
-                    if (mInput) mInput.value = qp;
                 }
             };
             if (window.componentsLoaded) {
@@ -574,7 +602,7 @@
                 }
             };
 
-            document.querySelectorAll('.search-input, #searchInput, #mobileSearchInput').forEach(input => {
+            document.querySelectorAll('.search-input, #searchInput').forEach(input => {
                 input.addEventListener('input', handleSearchChange);
             });
 
@@ -647,9 +675,7 @@
                 const urlQ = new URLSearchParams(window.location.search).get('q');
                 if (urlQ) {
                     const searchInput = document.getElementById('searchInput');
-                    const mobileSearchInput = document.getElementById('mobileSearchInput');
                     if (searchInput) searchInput.value = urlQ;
-                    if (mobileSearchInput) mobileSearchInput.value = urlQ;
                 }
             };
 
@@ -666,10 +692,9 @@
 
         async function renderCatalog(append = false) {
             const searchInput = document.getElementById('searchInput');
-            const mobileSearchInput = document.getElementById('mobileSearchInput');
             // Fallback: read ?q= from URL directly when header input not yet injected
             const urlQ = new URLSearchParams(window.location.search).get('q') || '';
-            const query = (searchInput?.value || mobileSearchInput?.value || urlQ).trim().toLowerCase();
+            const query = (searchInput?.value || urlQ).trim().toLowerCase();
 
             const activeCatégories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);

@@ -54,6 +54,11 @@ const FavoritesManager = {
             const merged = Array.from(mergedMap.values());
             localStorage.setItem('newketFavorites', JSON.stringify(merged));
             this.updateUI();
+            
+            // Trigger local page render if on favorites page
+            if (typeof window.renderFavorites === 'function') {
+                window.renderFavorites();
+            }
         } catch (err) {
             console.warn('[NewKet] Favorites API pull failed (non-blocking):', err.message);
         }

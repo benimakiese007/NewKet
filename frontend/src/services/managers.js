@@ -55,7 +55,15 @@ const RecentlyViewedManager = {
 const PromoManager = {
     promos: {},
     async init() {
-        if (!window.ApiClient) return;
+        if (!window.ApiClient) {
+            console.error('[PromoManager] ApiClient not found');
+            return;
+        }
+        if (!window.AuthManager || window.AuthManager.role !== 'admin') {
+            console.warn('[PromoManager] Init skipped: requires admin role');
+            return;
+        }
+
         try {
             const data = await window.ApiClient.get('/promos');
         if (data && data.length > 0) {
@@ -112,7 +120,14 @@ const PromoManager = {
 const ActivityManager = {
     activities: [],
     async init() {
-        if (!window.ApiClient) return;
+        if (!window.ApiClient) {
+            console.error('[ActivityManager] ApiClient not found');
+            return;
+        }
+        if (!window.AuthManager || window.AuthManager.role !== 'admin') {
+            return;
+        }
+
         try {
             const data = await window.ApiClient.get('/activities');
         if (data && data.length > 0) {
@@ -153,14 +168,20 @@ const ActivityManager = {
 const NotificationManager = {
     notifications: [],
     async init() {
-        if (!window.ApiClient) return;
+        if (!window.ApiClient) {
+            console.error('[NotificationManager] ApiClient not found');
+            return;
+        }
+        if (!window.AuthManager || !window.AuthManager.role) {
+            return;
+        }
+        
         try {
             const data = await window.ApiClient.get('/notifications');
-        if (data && data.length > 0) {
-            this.notifications = data;
-        }
+            this.notifications = Array.isArray(data) ? data : [];
         } catch (e) {
             console.error('[NotificationManager] Init error:', e);
+            this.notifications = [];
         }
         this.updateBadge();
         window.dispatchEvent(new CustomEvent('notificationsUpdated'));
@@ -218,10 +239,3 @@ window.RecentlyViewedManager = RecentlyViewedManager;
 window.PromoManager = PromoManager;
 window.ActivityManager = ActivityManager;
 window.NotificationManager = NotificationManager;
-
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-    PromoManager.init();
-    ActivityManager.init();
-    NotificationManager.init();
-});
