@@ -330,6 +330,11 @@
 
             updateEstimate();
 
+            // Écouteurs pour le calcul en temps réel
+            priceInput.addEventListener('input', updateEstimate);
+            currencyInput.addEventListener('change', updateEstimate);
+            exchangeRateInput.addEventListener('input', updateEstimate);
+
             // Promotion Toggle Logic
             const isPromoToggle = document.getElementById('isPromoToggle');
             const promoFields = document.getElementById('promoFields');
