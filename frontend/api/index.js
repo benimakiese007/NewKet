@@ -264,29 +264,35 @@ router.get('/users/:id', requireAuth, async (req, res) => {
 router.get('/favorites', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
-        const { data, error } = await sb.from('favorites').select('*, products(*)').eq('user_id', req.user.id);
-        if (error) throw error;
-        res.json(data);
+        const { data, error } = await sb.from('user_favorites').select('favorites_data').eq('user_id', req.user.id).single();
+        if (error && error.code !== 'PGRST116') throw error;
+        
+        let favorites = [];
+        if (data && data.favorites_data) {
+            favorites = typeof data.favorites_data === 'string' 
+                ? JSON.parse(data.favorites_data) 
+                : data.favorites_data;
+        }
+        res.json({ favorites });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.post('/favorites', requireAuth, async (req, res) => {
     try {
-        const { product_id } = req.body;
+        const { favorites } = req.body;
+        if (!favorites) {
+            return res.status(400).json({ error: 'favorites data is required' });
+        }
+        
         const sb = getSupabase(req.token);
-        const { data, error } = await sb.from('favorites').insert({ user_id: req.user.id, product_id }).select().single();
+        const { data, error } = await sb.from('user_favorites').upsert({ 
+            user_id: req.user.id, 
+            favorites_data: typeof favorites === 'string' ? favorites : JSON.stringify(favorites), 
+            updated_at: new Date().toISOString() 
+        }, { onConflict: 'user_id' }).select().single();
+        
         if (error) throw error;
-        res.status(201).json(data);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
-
-router.delete('/favorites/:product_id', requireAuth, async (req, res) => {
-    try {
-        const sb = getSupabase(req.token);
-        const { error } = await sb.from('favorites').delete()
-            .eq('user_id', req.user.id).eq('product_id', req.params.product_id);
-        if (error) throw error;
-        res.json({ success: true });
+        res.status(200).json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
