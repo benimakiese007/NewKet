@@ -30,10 +30,10 @@ const App = {
         if (window.UserManager && isAdmin) initPromises.push(UserManager.init());
         
         // Managed Utilities
-        if (window.PromoManager && isAdmin) initPromises.push(PromoManager.init());
-        if (window.ActivityManager && isAdmin) initPromises.push(ActivityManager.init());
-        if (window.NotificationManager && isLoggedIn) initPromises.push(NotificationManager.init());
-        if (window.FavoritesManager && isLoggedIn) initPromises.push(FavoritesManager.syncFromSupabase());
+        if (window.PromoManager && isAdmin) initPromises.push(PromoManager.init().catch(e => console.warn('[App] PromoManager init failed (non-blocking):', e.message)));
+        if (window.ActivityManager && isAdmin) initPromises.push(ActivityManager.init().catch(e => console.warn('[App] ActivityManager init failed (non-blocking):', e.message)));
+        if (window.NotificationManager && isLoggedIn) initPromises.push(NotificationManager.init().catch(e => console.warn('[App] NotificationManager init failed (non-blocking):', e.message)));
+        if (window.FavoritesManager && isLoggedIn) initPromises.push(FavoritesManager.syncFromSupabase().catch(e => console.warn('[App] FavoritesManager sync failed (non-blocking):', e.message)));
 
         await Promise.all(initPromises);
 

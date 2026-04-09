@@ -2,16 +2,24 @@ import { supabaseAdmin } from '../config/supabase.js';
 
 export const getNotifications = async (req, res) => {
     try {
+        const userId = req.user?.id;
         const userEmail = req.user?.email;
-        if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
+        if (!userId && !userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
-        const { data, error } = await supabaseAdmin
+        // Build query: prefer user_id (UUID) for RLS compatibility, fallback to user_email
+        let query = supabaseAdmin
             .from('notifications')
             .select('*')
-            .eq('user_email', userEmail)
             .order('date', { ascending: false })
             .limit(50);
 
+        if (userId) {
+            query = query.eq('user_id', userId);
+        } else {
+            query = query.eq('user_email', userEmail);
+        }
+
+        const { data, error } = await query;
         if (error) throw error;
         res.json(data);
     } catch (err) {
@@ -20,9 +28,11 @@ export const getNotifications = async (req, res) => {
     }
 };
 
+
 export const addNotification = async (req, res) => {
     try {
         const { title, message, type } = req.body;
+        const userId = req.user?.id;
         const userEmail = req.user?.email;
         
         if (!userEmail) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
@@ -31,6 +41,7 @@ export const addNotification = async (req, res) => {
         const { data, error } = await supabaseAdmin
             .from('notifications')
             .insert({
+                ...(userId ? { user_id: userId } : {}),
                 user_email: userEmail,
                 title,
                 message,
@@ -49,20 +60,28 @@ export const addNotification = async (req, res) => {
     }
 };
 
+
 export const markAsRead = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.user?.id;
         const userEmail = req.user?.email;
         
-        if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
+        if (!userId && !userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
-        const { data, error } = await supabaseAdmin
+        let query = supabaseAdmin
             .from('notifications')
             .update({ read: true })
-            .eq('id', id)
-            .eq('user_email', userEmail)
-            .select()
-            .single();
+            .eq('id', id);
+
+        // Filter by user_id (UUID) if available, else fallback to email
+        if (userId) {
+            query = query.eq('user_id', userId);
+        } else {
+            query = query.eq('user_email', userEmail);
+        }
+
+        const { data, error } = await query.select().single();
 
         if (error) throw error;
         res.json(data);
@@ -71,3 +90,4 @@ export const markAsRead = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la mise à jour de la notification.' });
     }
 };
+
