@@ -22,11 +22,8 @@ const AdminLayout = {
     },
 
     checkAccess() {
-        const role = localStorage.getItem('newketRole');
-        const email = localStorage.getItem('newketUserEmail');
-        const isAdmin = role === 'admin' || (window.ADMIN_EMAILS && window.ADMIN_EMAILS.includes(email));
-
-        if (!isAdmin) {
+        // Use AuthManager for single source of truth
+        if (!window.AuthManager || !window.AuthManager.isAdmin()) {
             console.error('[NewKet] Unauthorized access to Admin CMS.');
             window.location.href = '/pages/login';
         }
@@ -52,7 +49,7 @@ const AdminLayout = {
                         <button id="adminMobileMenuBtn" class="md:hidden p-2 text-gray-500 hover:text-black focus:outline-none flex items-center justify-center">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="24"></iconify-icon>
                         </button>
-                        <a href="dashboard" class="flex items-center gap-2 group">
+                        <a href="./" class="flex items-center gap-2 group">
                             <img src="../../assets/Images/Logo NewKet V2.jpeg" alt="NewKet" class="h-7 w-auto invert transition-transform group-hover:scale-105">
                             <span class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
                         </a>
@@ -85,10 +82,10 @@ const AdminLayout = {
         const sidebarPlaceholder = document.getElementById('adminSidebarPlaceholder');
         if (!sidebarPlaceholder) return;
 
-        const currentFile = window.location.pathname.split('/').pop().replace('.html', '') || 'dashboard';
+        const currentFile = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
 
         const links = [
-            { href: 'dashboard', icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
+            { href: './', icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
             { href: 'user', icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
             { href: 'products', icon: 'solar:box-bold', label: "Contrôle Catalogue" },
             { href: 'orders', icon: 'solar:bag-bold', label: "Commandes & Retraits" },
@@ -97,6 +94,7 @@ const AdminLayout = {
             { href: 'newsletter', icon: 'solar:letter-bold', label: "Newsletter" },
             { href: 'notifications-admin', icon: 'solar:bell-bing-bold', label: "Notifications" },
             { href: 'support', icon: 'solar:chat-round-dots-bold', label: "Support Platform" },
+            { href: 'security', icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins" },
             { href: 'settings', icon: 'solar:settings-bold', label: "Paramètres", sub: true }
         ];
 

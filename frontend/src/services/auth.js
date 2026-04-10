@@ -22,13 +22,29 @@ const AuthManager = {
             window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                     const user = session.user;
-                    this.user = user; // Store user object for settings page
+                    this.user = user;
                     const email = user.email;
                     let role = user.user_metadata.role || 'customer';
                     
-                    // Force admin role if email is in ADMIN_EMAILS (from admin-config.js)
-                    const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-                    if (email && admins.includes(email.toLowerCase())) {
+                    // Fetch dynamic admin list from ConfigManager or direct from Supabase
+                    let admins = [];
+                    if (window.ConfigManager && window.ConfigManager.config.admin_emails) {
+                        admins = window.ConfigManager.config.admin_emails;
+                    } else if (window.supabaseClient) {
+                        try {
+                            const { data } = await window.supabaseClient
+                                .from('settings')
+                                .select('admin_emails')
+                                .eq('id', 'global-settings')
+                                .single();
+                            admins = data?.admin_emails || [];
+                        } catch (e) {
+                            console.warn('[AuthManager] Direct settings fetch failed:', e);
+                        }
+                    }
+
+                    const adminEmailsLower = admins.map(e => e.toLowerCase());
+                    if (email && adminEmailsLower.includes(email.toLowerCase())) {
                         role = 'admin';
                     }
                     
@@ -373,7 +389,7 @@ const AuthManager = {
             document.body.style.pointerEvents = 'none';
 
             if (this.role === 'admin') {
-                window.location.href = '/pages/admin/dashboard';
+                window.location.href = '/pages/admin/';
             } else if (this.role === 'supplier') {
                 window.location.href = '/pages/vendor-dashboard';
             } else {
@@ -428,7 +444,7 @@ const AuthManager = {
 
             // Safeguard: Redirect admin away from supplier-only pages (onboarding) if landed there by error
             if (window.location.pathname.includes('seller-onboarding')) {
-                window.location.href = '/pages/admin/dashboard';
+                window.location.href = '/pages/admin/';
                 return;
             }
             
@@ -537,7 +553,7 @@ const AuthManager = {
             }
 
             if (this.role === 'admin') {
-                accountLink.href = '/pages/admin/dashboard';
+                accountLink.href = '/pages/admin/';
                 accountLink.title = 'Dashboard Admin';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
@@ -644,7 +660,7 @@ const AuthManager = {
             }
 
             if (this.role === 'admin') {
-                loggedLink.href = '/pages/admin/dashboard';
+                loggedLink.href = '/pages/admin/';
                 if (loggedName) loggedName.textContent = userName;
                 if (loggedRole) loggedRole.textContent = 'Administrateur';
             } else if (this.role === 'supplier') {

@@ -399,6 +399,7 @@ const ComponentLoader = {
             const finalHeight = height + safetyMargin;
             
             spacer.style.height = finalHeight + 'px';
+            document.documentElement.style.setProperty('--header-height', finalHeight + 'px');
             spacer.style.minHeight = finalHeight + 'px';
             
 
@@ -466,7 +467,7 @@ const ComponentLoader = {
         let accountPath = 'pages/login';
         
         if (role && email) {
-            if (role === 'admin') accountPath = 'pages/admin/dashboard';
+            if (role === 'admin') accountPath = 'pages/admin/';
             else if (role === 'supplier') accountPath = 'pages/vendor-dashboard';
             else accountPath = 'pages/customer-dashboard';
         }

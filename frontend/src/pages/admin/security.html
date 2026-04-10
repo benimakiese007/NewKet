@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sécurité & Accès | NewKet Admin</title>
+    <link rel="stylesheet" href="../../assets/css/input.css">
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script type="module" src="../../services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/admin.css">
+    <style>
+        .admin-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .admin-item:hover {
+            transform: translateX(5px);
+            background: white;
+            border-color: black;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pb-12 flex flex-col md:flex-row gap-6 mt-24">
+        <div id="adminSidebarPlaceholder"></div>
+
+        <main class="flex-1 min-w-0 space-y-8 animate-premium">
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900">Sécurité & Accès</h1>
+                    <p class="text-gray-500 font-medium">Gestion dynamique des rôles administrateurs et privilèges plateforme.</p>
+                </div>
+                
+                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-full text-xs font-black uppercase tracking-widest border border-green-100">
+                    <iconify-icon icon="solar:shield-check-bold" width="16"></iconify-icon>
+                    Système Sécurisé
+                </div>
+            </div>
+
+            <!-- Management Card -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Admin List -->
+                <div class="glass-panel p-8">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="w-2 h-8 bg-black rounded-full"></span>
+                        <h3 class="font-black text-xl text-gray-900">Whitelist Administrateurs</h3>
+                    </div>
+
+                    <div id="adminList" class="space-y-2">
+                        <!-- Iterated by JS -->
+                        <div class="flex justify-center py-12">
+                            <iconify-icon icon="solar:spinner-bold" class="animate-spin text-gray-300" width="32"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="space-y-6">
+                    <div class="glass-panel p-8 premium-gradient-dark text-white">
+                        <h3 class="font-black text-xl mb-4">Ajouter un Admin</h3>
+                        <p class="text-white/60 text-sm mb-6">L'adresse e-mail doit être associée à un compte utilisateur existant sur NewKet pour que les privilèges s'activent.</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2 block">Adresse E-mail</label>
+                                <input type="email" id="newAdminEmail" placeholder="admin@newket.com" 
+                                    class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-white transition-all">
+                            </div>
+                            <button onclick="handleAddAdmin()" class="w-full bg-white text-black font-black py-3 rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl">
+                                Valider les privilèges
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 border-l-4 border-amber-500">
+                        <div class="flex gap-4">
+                            <iconify-icon icon="solar:danger-bold" class="text-amber-500" width="24"></iconify-icon>
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-sm">Zone Critique</h4>
+                                <p class="text-xs text-gray-500 mt-1">Les modifications sont appliquées instantanément. Retirer votre propre e-mail vous fera perdre l'accès immédiatement.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../../services/admin-layout.js"></script>
+    <script>
+        let adminEmails = [];
+
+        async function loadAdmins() {
+            const listContainer = document.getElementById('adminList');
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('settings')
+                    .select('admin_emails')
+                    .eq('id', 'global-settings')
+                    .single();
+
+                if (error) throw error;
+                adminEmails = data?.admin_emails || [];
+                renderAdmins();
+            } catch (err) {
+                console.error('[Security] Failed to load admins:', err);
+                listContainer.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erreur de chargement. Vérifiez vos permissions.</div>`;
+            }
+        }
+
+        function renderAdmins() {
+            const listContainer = document.getElementById('adminList');
+            if (adminEmails.length === 0) {
+                listContainer.innerHTML = `<div class="p-12 text-center text-gray-400 italic">Aucun administrateur configuré.</div>`;
+                return;
+            }
+
+            listContainer.innerHTML = adminEmails.map(email => `
+                <div class="admin-item group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-all">
+                            <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                        </div>
+                        <span class="font-bold text-gray-700">${email}</span>
+                    </div>
+                    <button onclick="removeAdmin('${email}')" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all rounded-lg">
+                        <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function handleAddAdmin() {
+            const input = document.getElementById('newAdminEmail');
+            const email = input.value.trim().toLowerCase();
+
+            if (!email || !email.includes('@')) {
+                alert('Veuillez entrer une adresse e-mail valide.');
+                return;
+            }
+
+            if (adminEmails.includes(email)) {
+                alert('Cet e-mail est déjà dans la liste.');
+                return;
+            }
+
+            const updatedList = [...adminEmails, email];
+            await saveAdmins(updatedList);
+            input.value = '';
+        }
+
+        async function removeAdmin(email) {
+            if (!confirm(`Voulez-vous vraiment retirer les accès admin pour ${email} ?`)) return;
+
+            const updatedList = adminEmails.filter(e => e !== email);
+            await saveAdmins(updatedList);
+        }
+
+        async function saveAdmins(newList) {
+            try {
+                const { error } = await window.supabaseClient
+                    .from('settings')
+                    .update({ 
+                        admin_emails: newList,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', 'global-settings');
+
+                if (error) throw error;
+                
+                adminEmails = newList;
+                renderAdmins();
+                
+                // Show success notification (if Toast manager exists, or simple alert)
+                console.log('[Security] Admins updated successfully');
+            } catch (err) {
+                console.error('[Security] Save failed:', err);
+                alert('Échec de la sauvegarde. Vérifiez votre connexion.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.newketInitialized) {
+                loadAdmins();
+            } else {
+                window.addEventListener('newketInitialized', loadAdmins);
+            }
+        });
+    </script>
+</body>
+
+</html>

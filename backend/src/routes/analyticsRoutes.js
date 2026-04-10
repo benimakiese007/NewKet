@@ -20,32 +20,10 @@ router.post('/view/:productId', async (req, res) => {
     }
 
     try {
-        // Increment the 'views' column using RPC or direct update
-        // We use a raw SQL-like operation via increment if available, 
-        // or a fetch-then-update (less efficient but works without RPC)
+        // Increment the 'views' column using the atomic RPC function
+        const { error } = await supabase.rpc('increment_product_views', { product_id: productId });
         
-        // Let's try to use the 'rpc' if they have an 'increment_views' function, 
-        // but for compatibility we'll do a direct update.
-        const { data, error } = await supabase.rpc('increment_product_views', { product_id: productId });
-        
-        if (error) {
-            // Fallback: direct update if RPC is missing
-            const { data: currentData, error: fetchError } = await supabase
-                .from('products')
-                .select('views')
-                .eq('id', productId)
-                .single();
-            
-            if (fetchError) throw fetchError;
-
-            const newViews = (currentData?.views || 0) + 1;
-            const { error: updateError } = await supabase
-                .from('products')
-                .update({ views: newViews })
-                .eq('id', productId);
-            
-            if (updateError) throw updateError;
-        }
+        if (error) throw error;
 
         res.json({ success: true, message: 'View counted.' });
     } catch (error) {

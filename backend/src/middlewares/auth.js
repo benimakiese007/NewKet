@@ -59,6 +59,41 @@ export const optionalAuth = async (req, res, next) => {
     }
 };
 
+let adminEmailCache = {
+    emails: [],
+    lastFetched: 0
+};
+
+/**
+ * Helper to fetch admin emails from the database with caching
+ */
+const getAdminEmails = async () => {
+    const now = Date.now();
+    // Cache for 5 minutes
+    if (adminEmailCache.emails.length > 0 && (now - adminEmailCache.lastFetched) < 5 * 60 * 1000) {
+        return adminEmailCache.emails;
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('settings')
+            .select('admin_emails')
+            .eq('id', 'global-settings')
+            .single();
+
+        if (error) throw error;
+
+        adminEmailCache = {
+            emails: Array.isArray(data?.admin_emails) ? data.admin_emails.map(e => e.toLowerCase()) : [],
+            lastFetched: now
+        };
+        return adminEmailCache.emails;
+    } catch (err) {
+        console.error('Error fetching admin emails from DB:', err);
+        return []; // Fallback empty to prevent unauthorized access
+    }
+};
+
 /**
  * Middleware pour exiger les droits administrateur.
  * Doit être utilisé APRÈS requireAuth.
@@ -69,10 +104,10 @@ export const requireAdmin = async (req, res, next) => {
             return res.status(401).json({ error: 'Non autorisé: Utilisateur introuvable.' });
         }
 
-        const ADMIN_EMAILS = ['benimakiese1234@gmail.com'];
+        const adminEmails = await getAdminEmails();
         const userEmail = req.user.email?.toLowerCase();
         
-        const isAdmin = ADMIN_EMAILS.includes(userEmail) || req.user.user_metadata?.role === 'admin';
+        const isAdmin = adminEmails.includes(userEmail) || req.user.user_metadata?.role === 'admin';
         
         if (!isAdmin) {
             return res.status(403).json({ error: 'Accès refusé: droits administrateur requis.' });

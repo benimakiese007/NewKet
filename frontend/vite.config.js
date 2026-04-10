@@ -41,24 +41,16 @@ export default defineConfig({
         error500: resolve(__dirname, 'src/pages/500.html'),
         
         // Admin pages
-        admin_dashboard: resolve(__dirname, 'src/pages/admin/dashboard.html'),
-        admin_clients: resolve(__dirname, 'src/pages/admin/clients.html'),
-        admin_client_details: resolve(__dirname, 'src/pages/admin/client-details.html'),
+        admin_index: resolve(__dirname, 'src/pages/admin/index.html'),
         admin_diagnostics: resolve(__dirname, 'src/pages/admin/diagnostics.html'),
-        admin_livraisons: resolve(__dirname, 'src/pages/admin/livraisons.html'),
         admin_notifications: resolve(__dirname, 'src/pages/admin/notifications-admin.html'),
         admin_orders: resolve(__dirname, 'src/pages/admin/orders.html'),
         admin_products: resolve(__dirname, 'src/pages/admin/products.html'),
-        admin_profits: resolve(__dirname, 'src/pages/admin/profits.html'),
-        admin_promos: resolve(__dirname, 'src/pages/admin/promos.html'),
-        admin_rapports: resolve(__dirname, 'src/pages/admin/rapports.html'),
         admin_reviews: resolve(__dirname, 'src/pages/admin/reviews.html'),
         admin_settings: resolve(__dirname, 'src/pages/admin/settings.html'),
         admin_support: resolve(__dirname, 'src/pages/admin/support.html'),
-        admin_user_details: resolve(__dirname, 'src/pages/admin/user-details.html'),
-        admin_user_stats: resolve(__dirname, 'src/pages/admin/user-stats.html'),
         admin_user: resolve(__dirname, 'src/pages/admin/user.html'),
-        admin_index: resolve(__dirname, 'src/pages/admin/index.html'),
+        admin_security: resolve(__dirname, 'src/pages/admin/security.html'),
         admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html')
       }
     }

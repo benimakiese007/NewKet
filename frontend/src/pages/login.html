@@ -10,7 +10,7 @@
             const email = localStorage.getItem('newketUserEmail');
             if (role && email) {
                 let target = '/';
-                if (role === 'admin') target = '/pages/admin/dashboard';
+                if (role === 'admin') target = '/pages/admin/';
                 else if (role === 'supplier') target = '/pages/vendor-dashboard';
                 else if (role === 'customer') target = '/pages/customer-dashboard';
                 
@@ -667,7 +667,7 @@
 
             setTimeout(async () => {
                 if (role === 'admin') {
-                    window.location.href = '/pages/admin/dashboard';
+                    window.location.href = '/pages/admin/';
                 } else if (role === 'supplier') {
                     // Fetch real status from DB for accurate redirection
                     let status = userStatus;
