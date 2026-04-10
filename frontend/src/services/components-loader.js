@@ -502,8 +502,8 @@ const ComponentLoader = {
         if (window.location.protocol !== 'file:') {
             let adjusted = '/' + path;
             // Optional: Strip .html for clean URLs if it's an internal link
-            // (Only for internal pages, not for files like .js or .css)
-            if (adjusted.includes('.html') && !adjusted.match(/\.(js|css|png|jpg|webp|svg|jpeg)$/i)) {
+            // (Only for internal pages, not for files like .js or .css or components)
+            if (adjusted.includes('.html') && !adjusted.match(/\.(js|css|png|jpg|webp|svg|jpeg)$/i) && !adjusted.includes('/components/')) {
                 adjusted = adjusted.replace('.html', '');
             }
             return adjusted;

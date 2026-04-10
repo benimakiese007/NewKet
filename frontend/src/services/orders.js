@@ -18,17 +18,38 @@ const OrderManager = {
             return;
         }
 
-        try {
-            // Fetch from Express Backend API
-            const leads = await ApiClient.get('/orders');
-            this.data = (leads || []).map(lead => this._normalizeLeadToOrder(lead));
-            this._initialized = true;
-            console.log(`[OrderManager] Loaded ${this.data.length} leads/orders.`);
-        } catch (error) {
-            console.warn('[OrderManager] Could not fetch leads, using empty data:', error.message);
-            this.data = [];
-            this._initialized = true;
+        // Wait for existing fetch
+        if (this._fetchPromise) {
+            await this._fetchPromise;
+            return;
         }
+        
+        // Prevent spamming requests unless manual refresh is forced
+        const lastFetch = localStorage.getItem('newket_orders_sync_time');
+        const now = Date.now();
+        const COOLDOWN = 1000 * 60 * 5; // 5 mins
+        
+        if (this._initialized && lastFetch && (now - parseInt(lastFetch)) < COOLDOWN && this.data.length > 0) {
+            return; // Skip if recently fetched and data exists
+        }
+
+        this._fetchPromise = (async () => {
+            try {
+                // Fetch from Express Backend API
+                const leads = await ApiClient.get('/orders');
+                this.data = (leads || []).map(lead => this._normalizeLeadToOrder(lead));
+                this._initialized = true;
+                localStorage.setItem('newket_orders_sync_time', now.toString());
+                console.log(`[OrderManager] Loaded ${this.data.length} leads/orders.`);
+            } catch (error) {
+                console.warn('[OrderManager] Could not fetch leads, using empty data:', error.message);
+                if (!this._initialized) this.data = [];
+                this._initialized = true;
+            }
+        })();
+        
+        await this._fetchPromise;
+        this._fetchPromise = null;
     },
 
     /**

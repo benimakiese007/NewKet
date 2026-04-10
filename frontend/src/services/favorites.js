@@ -36,29 +36,49 @@ const FavoritesManager = {
             if (!window.ApiClient || !window.supabaseClient) return;
             const { data: { user } } = await window.supabaseClient.auth.getUser();
             if (!user) return;
-
-            const data = await ApiClient.get('/favorites');
-
-            if (!data || !data.favorites) return;
-
-            const remoteFavs = data.favorites || [];
-            const localFavs = this.getFavorites();
-
-            // Merge: remote wins if same id, otherwise combine
-            const mergedMap = new Map();
-            remoteFavs.forEach(item => mergedMap.set(item.id, item));
-            localFavs.forEach(item => {
-                if (!mergedMap.has(item.id)) mergedMap.set(item.id, item);
-            });
-
-            const merged = Array.from(mergedMap.values());
-            localStorage.setItem('newketFavorites', JSON.stringify(merged));
-            this.updateUI();
             
-            // Trigger local page render if on favorites page
-            if (typeof window.renderFavorites === 'function') {
-                window.renderFavorites();
+            // Wait for existing fetch
+            if (this._syncPromise) {
+                await this._syncPromise;
+                return;
             }
+            
+            // Check cooldown
+            const lastSync = localStorage.getItem('newket_favorites_sync_time');
+            const now = Date.now();
+            const SYNC_COOLDOWN = 1000 * 60 * 5; // 5 minutes cooldown
+            if (lastSync && (now - parseInt(lastSync) < SYNC_COOLDOWN)) {
+                return; // Skip if recently synced
+            }
+
+            this._syncPromise = (async () => {
+                const data = await ApiClient.get('/favorites');
+
+                if (!data || !data.favorites) return;
+
+                const remoteFavs = data.favorites || [];
+                const localFavs = this.getFavorites();
+
+                // Merge: remote wins if same id, otherwise combine
+                const mergedMap = new Map();
+                remoteFavs.forEach(item => mergedMap.set(item.id, item));
+                localFavs.forEach(item => {
+                    if (!mergedMap.has(item.id)) mergedMap.set(item.id, item);
+                });
+
+                const merged = Array.from(mergedMap.values());
+                localStorage.setItem('newketFavorites', JSON.stringify(merged));
+                localStorage.setItem('newket_favorites_sync_time', now.toString());
+                this.updateUI();
+                
+                // Trigger local page render if on favorites page
+                if (typeof window.renderFavorites === 'function') {
+                    window.renderFavorites();
+                }
+            })();
+            
+            await this._syncPromise;
+            this._syncPromise = null;
         } catch (err) {
             console.warn('[NewKet] Favorites API pull failed (non-blocking):', err.message);
         }

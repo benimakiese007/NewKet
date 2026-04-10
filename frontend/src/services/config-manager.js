@@ -20,6 +20,10 @@ const ConfigManager = {
 
     async init() {
         const saved = localStorage.getItem('newket_global_config');
+        const fetchTime = localStorage.getItem('newket_global_config_time');
+        const now = Date.now();
+        const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+
         if (saved) {
             try {
                 this.config = { ...this.config, ...JSON.parse(saved) };
@@ -28,20 +32,30 @@ const ConfigManager = {
             }
         }
 
-        // Try to fetch from backend if possible
-        if (window.ApiClient) {
-            try {
-                const remoteConfig = await window.ApiClient.get('/settings');
-                if (remoteConfig && remoteConfig.length > 0) {
-                    // Assuming settings is a table with key/value pairs or a single row
-                    // If it's a single row:
-                    const settings = remoteConfig[0];
-                    this.config = { ...this.config, ...settings };
-                    this.saveLocal();
-                }
-            } catch (err) {
-                console.warn('[NewKet] Failed to fetch settings from backend:', err);
+        // Try to fetch from backend if cache is expired or missing
+        if (window.ApiClient && (!fetchTime || now - parseInt(fetchTime) > CACHE_DURATION)) {
+            // Check if we are already fetching to prevent duplicate calls from multiple managers
+            if (this._fetchPromise) {
+                await this._fetchPromise;
+                return;
             }
+            
+            this._fetchPromise = (async () => {
+                try {
+                    const remoteConfig = await window.ApiClient.get('/settings');
+                    if (remoteConfig && remoteConfig.length > 0) {
+                        const settings = remoteConfig[0];
+                        this.config = { ...this.config, ...settings };
+                        this.saveLocal();
+                        localStorage.setItem('newket_global_config_time', now.toString());
+                    }
+                } catch (err) {
+                    console.warn('[NewKet] Failed to fetch settings from backend:', err);
+                }
+            })();
+            
+            await this._fetchPromise;
+            this._fetchPromise = null;
         }
 
         // Global export for legacy code

@@ -64,8 +64,21 @@ const PromoManager = {
             return;
         }
 
-        try {
-            const data = await window.ApiClient.get('/promos');
+        if (this._fetchPromise) {
+            await this._fetchPromise;
+            return;
+        }
+
+        const lastFetch = localStorage.getItem('newket_promos_sync_time');
+        const now = Date.now();
+        if (lastFetch && (now - parseInt(lastFetch)) < 1000 * 60 * 5 && Object.keys(this.promos).length > 0) {
+            window.dispatchEvent(new CustomEvent('promosUpdated'));
+            return;
+        }
+
+        this._fetchPromise = (async () => {
+            try {
+                const data = await window.ApiClient.get('/promos');
         if (data && data.length > 0) {
             const promoMap = {};
             data.forEach(p => {
@@ -80,9 +93,13 @@ const PromoManager = {
             });
             this.promos = promoMap;
         }
+            localStorage.setItem('newket_promos_sync_time', now.toString());
         } catch (e) {
             console.error('[PromoManager] Init error:', e);
         }
+        })();
+        await this._fetchPromise;
+        this._fetchPromise = null;
         window.dispatchEvent(new CustomEvent('promosUpdated'));
     },
     getPromos() { return this.promos; },
@@ -128,14 +145,31 @@ const ActivityManager = {
             return;
         }
 
-        try {
-            const data = await window.ApiClient.get('/activities');
+        if (this._fetchPromise) {
+            await this._fetchPromise;
+            return;
+        }
+
+        const lastFetch = localStorage.getItem('newket_activities_sync_time');
+        const now = Date.now();
+        if (lastFetch && (now - parseInt(lastFetch)) < 1000 * 60 * 5 && this.activities.length > 0) {
+            window.dispatchEvent(new CustomEvent('activitiesUpdated'));
+            return;
+        }
+
+        this._fetchPromise = (async () => {
+            try {
+                const data = await window.ApiClient.get('/activities');
         if (data && data.length > 0) {
             this.activities = data;
         }
+            localStorage.setItem('newket_activities_sync_time', now.toString());
         } catch (e) {
             console.error('[ActivityManager] Init error:', e);
         }
+        })();
+        await this._fetchPromise;
+        this._fetchPromise = null;
         window.dispatchEvent(new CustomEvent('activitiesUpdated'));
     },
     getActivities() { return this.activities; },
@@ -176,13 +210,32 @@ const NotificationManager = {
             return;
         }
         
-        try {
-            const data = await window.ApiClient.get('/notifications');
-            this.notifications = Array.isArray(data) ? data : [];
-        } catch (e) {
-            console.error('[NotificationManager] Init error:', e);
-            this.notifications = [];
+        if (this._fetchPromise) {
+            await this._fetchPromise;
+            return;
         }
+
+        const lastFetch = localStorage.getItem('newket_notifications_sync_time');
+        const now = Date.now();
+        if (lastFetch && (now - parseInt(lastFetch)) < 1000 * 60 * 5 && this.notifications.length > 0) {
+            this.updateBadge();
+            window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+            return;
+        }
+
+        this._fetchPromise = (async () => {
+            try {
+                const data = await window.ApiClient.get('/notifications');
+            this.notifications = Array.isArray(data) ? data : [];
+                localStorage.setItem('newket_notifications_sync_time', now.toString());
+            } catch (e) {
+                console.error('[NotificationManager] Init error:', e);
+                this.notifications = [];
+            }
+        })();
+        await this._fetchPromise;
+        this._fetchPromise = null;
+
         this.updateBadge();
         window.dispatchEvent(new CustomEvent('notificationsUpdated'));
     },
