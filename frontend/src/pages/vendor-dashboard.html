@@ -196,7 +196,7 @@
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-xl font-bold">Mes Produits en Ligne</h2>
                         <div class="flex gap-2">
-                            <input type="text" placeholder="Rechercher..."
+                            <input type="text" id="dashboardSearch" name="dashboardSearch" placeholder="Rechercher..."
                                 class="text-sm px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all">
                         </div>
                     </div>
@@ -307,15 +307,15 @@
                         <form id="vendorSettingsForm" class="space-y-6 max-w-lg">
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Nom de la boutique</label>
-                                <input id="vSetStoreName" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Votre nom de boutique">
+                                <input id="vSetStoreName" name="vSetStoreName" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Votre nom de boutique">
                             </div>
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Email</label>
-                                <input id="vSetEmail" type="email" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="votre@email.com">
+                                <input id="vSetEmail" name="vSetEmail" type="email" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="votre@email.com">
                             </div>
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Délai d'expédition</label>
-                                <input id="vSetShipping" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Sous 24h, 48h...">
+                                <input id="vSetShipping" name="vSetShipping" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Sous 24h, 48h...">
                             </div>
                             <button type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all">Enregistrer les modifications</button>
                         </form>

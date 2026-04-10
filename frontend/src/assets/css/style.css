@@ -760,7 +760,7 @@ h6 {
 }
 
 .product-info {
-  padding: 1rem 1.25rem 1.25rem;
+  padding: 1rem 1.15rem 1.15rem;
   position: relative;
   z-index: 2;
   flex: 1;
@@ -778,14 +778,14 @@ h6 {
   color: var(--primary-color);
   text-transform: uppercase;
   letter-spacing: 1.2px;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.25rem;
   opacity: 0.9;
 }
 
 .product-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   line-height: 1.4;
   color: var(--secondary-color);
   transition: color 0.3s ease;
@@ -806,7 +806,7 @@ h6 {
 
 .product-rating {
   font-size: 0.85rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.25rem;

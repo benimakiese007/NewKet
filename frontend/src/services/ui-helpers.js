@@ -158,7 +158,7 @@ function buildProductCardHTML(p, options = {}) {
             </div>
             <div class="product-info">
                 <div class="product-cat">${p.category || ''}</div>
-                <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
                         ${p.users?.avatar 
                             ? `<img src="${p.users.avatar}" style="width: 100%; height: 100%; object-cover">` 
@@ -178,7 +178,7 @@ function buildProductCardHTML(p, options = {}) {
                     <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
                     ${oldPriceDisplay ? `<span class="old-price" style="font-size:0.9rem; color:#9ca3af; text-decoration:line-through; margin-left:0.5rem;">${oldPriceDisplay}</span>` : ''}
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 4px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 2px;">
                     <button 
                         onclick="if(window.contactSeller) window.contactSeller('${p.id}', this)"
                         class="flex-1 bg-gray-900 hover:bg-black text-white py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"

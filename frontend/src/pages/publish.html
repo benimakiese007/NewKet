@@ -63,7 +63,7 @@
                     <label class="text-sm font-bold text-gray-700 ml-1">Titre de l'annonce</label>
                     <div
                         class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                        <input type="text" id="pTitleInput" required placeholder="ex: iPhone 15 Pro Max - Titanium"
+                        <input type="text" id="pTitleInput" name="pTitleInput" required placeholder="ex: iPhone 15 Pro Max - Titanium"
                             class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 placeholder:text-gray-400">
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                         <label class="text-sm font-bold text-gray-700 ml-1">Catégorie</label>
                         <div
                             class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                            <select id="pCategoryInput"
+                            <select id="pCategoryInput" name="pCategoryInput"
                                 class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent">
                                 <option>High-Tech</option>
                                 <option>Mode</option>
@@ -90,12 +90,12 @@
                         <div class="flex gap-2">
                             <div
                                 class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white flex-1">
-                                <input type="number" id="priceInput" required placeholder="0.00"
+                                <input type="number" id="priceInput" name="priceInput" required placeholder="0.00"
                                     class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900">
                             </div>
                             <div
                                 class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white w-24">
-                                <select id="currencyInput"
+                                <select id="currencyInput" name="currencyInput"
                                     class="w-full px-4 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent font-bold">
                                     <option value="CDF">FC</option>
                                     <option value="USD">$</option>
@@ -124,7 +124,7 @@
                         <div
                             class="flex items-center gap-2 bg-white rounded-lg px-2 py-1 shadow-sm border border-gray-200">
                             <span class="text-xs text-gray-500 font-bold">1$ = </span>
-                            <input type="number" id="exchangeRate"
+                            <input type="number" id="exchangeRate" name="exchangeRate"
                                 class="w-16 outline-none text-sm text-gray-900 font-bold bg-transparent text-right"
                                 value="2800">
                             <span class="text-xs text-gray-500 font-bold">FC</span>
@@ -146,7 +146,7 @@
                         </div>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="isPromoToggle" class="sr-only peer">
+                        <input type="checkbox" id="isPromoToggle" name="isPromoToggle" class="sr-only peer">
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
                     </label>
                 </div>
@@ -155,7 +155,7 @@
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Prix avant promotion (Ancien prix)</label>
                         <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                            <input type="number" id="oldPriceInput" placeholder="ex: 1200"
+                            <input type="number" id="oldPriceInput" name="oldPriceInput" placeholder="ex: 1200"
                                 class="w-full px-5 py-4 rounded-2xl outline-none text-gray-400 line-through decoration-red-500">
                         </div>
                         <p class="text-[10px] text-gray-400 ml-1 italic">Ce prix sera affiché barré à côté du nouveau prix.</p>
@@ -182,7 +182,7 @@
                 <div id="imagePreviewContainer" class="hidden flex gap-4 overflow-x-auto pb-4 custom-scrollbar"></div>
 
                 <div class="flex items-center gap-2 mt-4 px-2" id="bgRemovalContainer" style="display: none;">
-                    <input type="checkbox" id="removeBackgroundCheck"
+                    <input type="checkbox" id="removeBackgroundCheck" name="removeBackgroundCheck"
                         class="w-5 h-5 rounded border-gray-300 text-black focus:ring-black cursor-pointer">
                     <label for="removeBackgroundCheck"
                         class="text-sm font-semibold text-gray-700 flex items-center gap-2 cursor-pointer">
@@ -198,7 +198,7 @@
                     <label class="text-sm font-bold text-gray-700 ml-1">Description</label>
                     <div
                         class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                        <textarea id="pDescInput" rows="5" placeholder="Décrivez votre produit (état, caractéristiques, etc.)"
+                        <textarea id="pDescInput" name="pDescInput" rows="5" placeholder="Décrivez votre produit (état, caractéristiques, etc.)"
                             class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 resize-none"></textarea>
                     </div>
                 </div>

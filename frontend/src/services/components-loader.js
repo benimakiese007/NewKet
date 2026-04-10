@@ -8,7 +8,7 @@ const HEADER_HTML = `
     <!-- Main header container -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <!-- Main header content (Logo, Search, Icons) -->
-        <div class="header-content w-full px-2 sm:px-8 py-1 sm:py-2 flex flex-wrap items-center justify-between sm:gap-x-4">
+        <div class="header-content w-full px-2 sm:px-8 py-1 sm:py-1.5 flex flex-wrap items-center justify-between sm:gap-x-4">
             <!-- Left: Hamburger (Mobile) & Logo -->
             <div class="flex items-center gap-2 sm:gap-4">
                 <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
@@ -26,7 +26,7 @@ const HEADER_HTML = `
                 class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:w-auto relative group flex flex-row flex-nowrap gap-2 sm:gap-3 items-center min-w-0">
                 <div
                     class="search-bar flex-1 flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300 pr-2">
-                    <input type="text" id="searchInput" placeholder="Qu'est-ce qui vous ferait plaisir ?"
+                    <input type="text" id="searchInput" name="search" placeholder="Qu'est-ce qui vous ferait plaisir ?"
                         class="w-full py-2 px-4 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
                     <iconify-icon icon="solar:magnifer-linear" width="20" class="text-slate-400 sm:hidden"></iconify-icon>
                     <button id="searchBtn"
@@ -227,9 +227,9 @@ const HEADER_HTML = `
 </div>`;;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5">
+<footer class="bg-gray-900 text-white mt-12 pt-12 pb-8 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-10 gap-12 mb-16">
+        <div class="grid grid-cols-1 lg:grid-cols-10 gap-10 mb-12">
             <div class="lg:col-span-4 space-y-6">
                 <div class="flex items-center gap-3">
                     <span class="text-xl font-bold tracking-tight">NEWKET</span>
@@ -256,7 +256,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
                 <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.</p>
                 <form id="newsletterForm" class="relative group" onsubmit="window.handleNewsletterSubmit ? window.handleNewsletterSubmit(event) : (event.preventDefault(), alert('Merci pour votre inscription !'))"> 
-                    <input id="newsletterEmail" type="email" placeholder="Votre email" autocomplete="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
+                    <input id="newsletterEmail" name="newsletterEmail" type="email" placeholder="Votre email" autocomplete="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
                     <button id="newsletterBtn" type="submit" class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">S'inscrire</button>
                     <div id="newsletterMsg" class="hidden text-xs absolute -bottom-6 left-0 w-full mt-2"></div>
                 </form>
@@ -393,9 +393,9 @@ const ComponentLoader = {
                 }
             }
             
-            // On mobile, add a bit more safety space (+15px)
+            // On mobile, add a bit more safety space (+8px)
             const isMobile = window.innerWidth < 640;
-            const safetyMargin = isMobile ? 15 : 0;
+            const safetyMargin = isMobile ? 8 : 0;
             const finalHeight = height + safetyMargin;
             
             spacer.style.height = finalHeight + 'px';
@@ -430,6 +430,12 @@ const ComponentLoader = {
         const element = document.getElementById(elementId);
         if (!element) return;
 
+        // Use inline HTML directly to avoid 404 errors and speed up loading
+        if (fallbackHTML) {
+            this.injectHTML(element, fallbackHTML);
+            return;
+        }
+
         try {
             // Adjust path based on current directory depth
             const adjustedPath = this.getAdjustedPath(path);
@@ -446,12 +452,7 @@ const ComponentLoader = {
             
             this.injectHTML(element, html);
         } catch (error) {
-            // CORS / file:// fallback or missing file error: use inline HTML
-            if (fallbackHTML) {
-                this.injectHTML(element, fallbackHTML);
-            } else {
-                console.error(`[NewKet] Failed to load component ${path}:`, error);
-            }
+            console.error(`[NewKet] Failed to load component ${path}:`, error);
         }
     },
 

@@ -131,19 +131,19 @@
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Catégories</h3>
                         <div class="space-y-4" id="categoryFilters">
                             <label class="flex items-center gap-3 group cursor-pointer">
-                                <input type="checkbox" value="Collections Femme" class="filter-checkbox category-filter">
+                                <input id="catFemme" name="catFemme" type="checkbox" value="Collections Femme" class="filter-checkbox category-filter">
                                 <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Femme</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
-                                <input type="checkbox" value="Style Homme" class="filter-checkbox category-filter">
+                                <input id="catHomme" name="catHomme" type="checkbox" value="Style Homme" class="filter-checkbox category-filter">
                                 <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Homme</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
-                                <input type="checkbox" value="Tech & Gadgets" class="filter-checkbox category-filter">
+                                <input id="catTech" name="catTech" type="checkbox" value="Tech & Gadgets" class="filter-checkbox category-filter">
                                 <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Tech &amp; Gadgets</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
-                                <input type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
+                                <input id="catLife" name="catLife" type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
                                 <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Art de vivre</span>
                             </label>
                         </div>
@@ -161,8 +161,8 @@
                             <input type="range" id="max-price-slider" min="0" max="250000000" value="250000000" step="10000">
                         </div>
                         <div class="grid grid-cols-2 gap-4 price-inputs">
-                            <input type="number" id="minPrice" placeholder="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
-                            <input type="number" id="maxPrice" placeholder="Max" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
+                            <input type="number" id="minPrice" name="minPrice" placeholder="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
+                            <input type="number" id="maxPrice" name="maxPrice" placeholder="Max" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
                         </div>
                     </section>
 

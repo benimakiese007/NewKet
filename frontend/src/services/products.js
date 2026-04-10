@@ -44,7 +44,6 @@ const ProductManager = {
                     window.dispatchEvent(new CustomEvent('productsUpdated'));
                 }
             } catch (e) {
-                console.warn('[NewKet] Error parsing local products cache', e);
             }
         }
 
@@ -108,18 +107,26 @@ const ProductManager = {
         try {
             let products = [];
 
-            // ── Priorité 1 : SupabaseAdapter (direct, fonctionne en prod Vercel) ──
             if (window.SupabaseAdapter && window.supabaseClient) {
-                products = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*, users(company_name, name, shipping_time, avatar)',
-                    order: ['created_at', { ascending: false }],
-                    limit: PRODUCTS_PAGE_SIZE,
-                    skipCache: true
-                });
-                this._totalCount = products.length; // Supabase ne retourne pas count ici
+                try {
+                    // Try with join first - explicit relationship check
+                    products = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        limit: PRODUCTS_PAGE_SIZE,
+                        skipCache: true
+                    });
+                } catch (joinErr) {
+                    products = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*',
+                        order: ['created_at', { ascending: false }],
+                        limit: PRODUCTS_PAGE_SIZE,
+                        skipCache: true
+                    });
+                }
+                this._totalCount = products.length;
                 this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
             }
-            // ── Fallback : ApiClient (backend Express local) ──
             else if (window.ApiClient) {
                 const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_PAGE_SIZE}`);
                 if (result && result.data) {
@@ -129,24 +136,21 @@ const ProductManager = {
                 }
             }
 
-            if (products && products.length > 0) {
-                const mappedProducts = products.map(p => this._mapProduct(p));
-                this._currentPage = 1;
+            // Map and update state
+            const mappedProducts = (products || []).map(p => this._mapProduct(p));
+            this._currentPage = 1;
+            this.products = mappedProducts;
 
-                const dataChanged = this.products.length !== mappedProducts.length ||
-                    (mappedProducts.length > 0 && this.products[0]?.id !== mappedProducts[0].id);
-
-                this.products = mappedProducts;
-
-                // Save a small cache for instant display on next load
+            // Cache subset for instant next load
+            if (this.products.length > 0) {
                 localStorage.setItem('newket_products_cache', JSON.stringify(this.products.slice(0, 20)));
-
-                if (dataChanged) {
-                    window.dispatchEvent(new CustomEvent('productsUpdated'));
-                }
             }
+
+            // Always dispatch to clear loading state
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+            
         } catch (err) {
-            console.error('[NewKet] Error fetching products:', err);
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
         }
     },
 
@@ -192,7 +196,6 @@ const ProductManager = {
                 window.dispatchEvent(new CustomEvent('productsUpdated'));
             }
         } catch (err) {
-            console.error('[NewKet] Error loading more products:', err);
         } finally {
             this._loading = false;
         }
@@ -240,7 +243,6 @@ const ProductManager = {
             // We use a fire-and-forget style to not slow down the UI
             window.ApiClient.post(`/analytics/view/${id}`).catch(() => {});
         } catch (err) {
-            // Silently fail, analytics shouldn't break the shop
         }
     },
 
@@ -271,7 +273,6 @@ const ProductManager = {
 
             return null;
         } catch (err) {
-            console.error(`[NewKet] Error fetching product ${id}:`, err);
             return null;
         }
     },

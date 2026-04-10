@@ -16,10 +16,10 @@ const AuthManager = {
     _realtimeChannel: null,
 
     async init() {
+        console.log('[NewKet Auth] Initializing AuthManager...');
         this._authChecking = true;
         if (window.supabaseClient) {
             window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
-
                 if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                     const user = session.user;
                     this.user = user; // Store user object for settings page
@@ -66,8 +66,19 @@ const AuthManager = {
                 }
             });
 
-            const { data } = await window.supabaseClient.auth.getSession();
-            if (data.session) {
+            // Safety: Use a timeout or race to ensure getSession doesn't block forever if auth lock is stuck
+            console.log('[NewKet Auth] Fetching session...');
+            const sessionPromise = window.supabaseClient.auth.getSession();
+            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ data: { session: null }, error: 'timeout' }), 5000));
+            
+            const { data, error } = await Promise.race([sessionPromise, timeoutPromise]);
+            
+            if (error === 'timeout') {
+                console.warn('[NewKet Auth] Session fetch timed out (possibly auth lock issue), proceeding as guest.');
+            }
+
+            if (data?.session) {
+                console.log('[NewKet Auth] Active session found for:', data.session.user.email);
                 const user = data.session.user;
                 this.user = user; 
                 

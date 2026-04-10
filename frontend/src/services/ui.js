@@ -26,8 +26,9 @@ const UI = {
      */
     renderHomeGrid() {
         if (!window.ProductManager) return;
-
+        
         const allProducts = ProductManager.getProducts();
+        console.log(`[NewKet UI] Rendering home grid. Product count: ${allProducts.length}`);
 
         // 1. Pinned Products Section
         this.renderPinned(allProducts);

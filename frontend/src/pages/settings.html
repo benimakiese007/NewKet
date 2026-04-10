@@ -201,7 +201,7 @@
                                 <p class="text-xs text-gray-500 mt-1">Ajouter une couche de sécurité supplémentaire à votre compte.</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="" class="sr-only peer">
+                                <input id="toggle2FA" name="toggle2FA" type="checkbox" value="" class="sr-only peer">
                                 <div
                                     class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
                                 </div>
@@ -232,7 +232,7 @@
                                     <p class="text-xs text-gray-500">Recevoir des mises à jour sur vos commandes.</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" value="" class="sr-only peer" checked>
+                                    <input id="notifEmails" name="notifEmails" type="checkbox" value="" class="sr-only peer" checked>
                                     <div
                                         class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
                                     </div>
@@ -244,7 +244,7 @@
                                     <p class="text-xs text-gray-500">Alertes importantes par SMS.</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" value="" class="sr-only peer">
+                                    <input id="notifSMS" name="notifSMS" type="checkbox" value="" class="sr-only peer">
                                     <div
                                         class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
                                     </div>
@@ -263,7 +263,7 @@
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Langue</label>
                                 <div class="relative">
-                                    <select
+                                    <select id="languageSelect" name="languageSelect"
                                         class="form-select w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 appearance-none cursor-pointer">
                                         <option value="fr" selected>Français</option>
                                         <option value="en">English</option>

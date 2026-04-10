@@ -1,7 +1,9 @@
 @echo off
+title NewKet - Frontend
 echo ===================================
 echo   Demarrage de NewKet (FRONTEND)
 echo ===================================
 
 cd frontend
-npm run dev
+call npm run dev
+pause

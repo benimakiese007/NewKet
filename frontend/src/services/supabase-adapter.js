@@ -195,15 +195,20 @@ window.SupabaseAdapter = {
                     query = query.single();
                 }
 
+                console.log(`[NewKet] Fetching from ${table} with options:`, options);
                 const { data, error } = await query;
-                if (error) throw error;
+                if (error) {
+                    console.error(`[NewKet] Supabase Error in ${table}:`, error);
+                    throw error;
+                }
+                console.log(`[NewKet] Fetched ${data?.length || 0} rows from ${table}.`);
                 return data;
             });
 
             this._setCache(cacheKey, data, table);
             return data;
         } catch (err) {
-            console.error(`[NewKet] Error fetching from ${table} (filtered):`, err);
+            console.error(`[NewKet] Critical Error fetching from ${table} (filtered):`, err);
             return options.single ? null : [];
         }
     },
