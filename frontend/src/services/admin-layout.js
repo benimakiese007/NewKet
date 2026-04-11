@@ -5,7 +5,7 @@
 
 const AdminLayout = {
     async init() {
-        
+
         // 1. Security Check (Strict Admin only for admin/ folder)
         this.checkAccess();
 
@@ -18,7 +18,7 @@ const AdminLayout = {
 
         // 4. Global Event Listeners (Mobile menu etc)
         this.bindEvents();
-        
+
     },
 
     checkAccess() {
@@ -119,10 +119,10 @@ const AdminLayout = {
 
         links.forEach(link => {
             if (link.sub) sidebarHTML += `<div class="py-4"><div class="h-px bg-gray-100 mb-4"></div>`;
-            
+
             const normalizedHref = link.href === './' ? 'index' : link.href;
             const isActive = currentFile === normalizedHref ? 'active' : '';
-            
+
             sidebarHTML += `
                 <a href="${this.getAdjustedPath(link.href)}" class="sidebar-link ${isActive}">
                     <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
@@ -164,10 +164,18 @@ const AdminLayout = {
 window.AdminLayout = AdminLayout;
 
 // Wait for Core Systems
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.newketInitialized) {
+            AdminLayout.init();
+        } else {
+            window.addEventListener('newketInitialized', () => AdminLayout.init());
+        }
+    });
+} else {
     if (window.newketInitialized) {
         AdminLayout.init();
     } else {
         window.addEventListener('newketInitialized', () => AdminLayout.init());
     }
-});
+}
