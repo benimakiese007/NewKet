@@ -38,6 +38,16 @@ const AdminLayout = {
         }
     },
 
+    getAdjustedPath(path) {
+        if (!path) return './';
+        // Local file protocol needs .html extension
+        if (window.location.protocol === 'file:') {
+            if (path === './') return 'index.html';
+            return path.endsWith('.html') ? path : `${path}.html`;
+        }
+        return path;
+    },
+
     renderNavbar() {
         const navbarPlaceholder = document.getElementById('adminNavbarPlaceholder');
         if (!navbarPlaceholder) return;
@@ -49,8 +59,8 @@ const AdminLayout = {
                         <button id="adminMobileMenuBtn" class="md:hidden p-2 text-gray-500 hover:text-black focus:outline-none flex items-center justify-center">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="24"></iconify-icon>
                         </button>
-                        <a href="./" class="flex items-center gap-2 group">
-                            <img src="../../assets/Images/Logo NewKet V2.jpeg" alt="NewKet" class="h-7 w-auto invert transition-transform group-hover:scale-105">
+                        <a href="${this.getAdjustedPath('./')}" class="flex items-center gap-2 group">
+                            <img src="../../assets/Images/logo-newket-v2.jpeg" alt="NewKet" class="h-7 w-auto invert transition-transform group-hover:scale-105">
                             <span class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
                         </a>
                     </div>
@@ -64,7 +74,7 @@ const AdminLayout = {
                             </div>
                         </div>
 
-                        <a href="/" target="_blank" class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+                        <a href="${window.location.protocol === 'file:' ? '../../index.html' : '/'}" target="_blank" class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors flex items-center gap-2">
                             <iconify-icon icon="solar:globus-linear" width="18"></iconify-icon>
                             <span class="hidden sm:inline">Voir la boutique</span>
                         </a>
@@ -82,7 +92,8 @@ const AdminLayout = {
         const sidebarPlaceholder = document.getElementById('adminSidebarPlaceholder');
         if (!sidebarPlaceholder) return;
 
-        const currentFile = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+        const currentPath = window.location.pathname;
+        const currentFile = currentPath.split('/').pop().replace('.html', '') || 'index';
 
         const links = [
             { href: './', icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
@@ -109,9 +120,11 @@ const AdminLayout = {
         links.forEach(link => {
             if (link.sub) sidebarHTML += `<div class="py-4"><div class="h-px bg-gray-100 mb-4"></div>`;
             
-            const isActive = currentFile === link.href ? 'active' : '';
+            const normalizedHref = link.href === './' ? 'index' : link.href;
+            const isActive = currentFile === normalizedHref ? 'active' : '';
+            
             sidebarHTML += `
-                <a href="${link.href}" class="sidebar-link ${isActive}">
+                <a href="${this.getAdjustedPath(link.href)}" class="sidebar-link ${isActive}">
                     <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
                     ${link.label}
                 </a>

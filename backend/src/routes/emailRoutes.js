@@ -1,5 +1,6 @@
 import express from 'express';
 import EmailService from '../services/emailService.js';
+import { requireAuth, requireAdmin } from '../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
  * Endpoint to send vendor approval email
  * POST /api/emails/vendor-approval
  */
-router.post('/vendor-approval', async (req, res) => {
+router.post('/vendor-approval', requireAuth, requireAdmin, async (req, res) => {
     const { email, name } = req.body;
     
     if (!email || !name) {
@@ -26,7 +27,7 @@ router.post('/vendor-approval', async (req, res) => {
  * Endpoint to notify vendor of a new lead
  * POST /api/emails/lead-notification
  */
-router.post('/lead-notification', async (req, res) => {
+router.post('/lead-notification', requireAuth, async (req, res) => {
     const { vendorEmail, vendorName, productName, customerName, customerPhone } = req.body;
     
     if (!vendorEmail || !vendorName || !productName) {

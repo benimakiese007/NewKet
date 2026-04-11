@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { getPromos, applyPromo } from '../controllers/promo.controller.js';
-import { requireAuth, optionalAuth } from '../middlewares/auth.js';
+import { requireAuth, optionalAuth, requireAdmin } from '../middlewares/auth.js';
 
 import { body } from 'express-validator';
 import { validate } from '../middlewares/validation.js';
 
 const router = Router();
 
-router.get('/', optionalAuth, getPromos);
+router.get('/', requireAuth, requireAdmin, getPromos);
 router.post('/apply', 
     requireAuth, 
     [

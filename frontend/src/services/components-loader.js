@@ -482,12 +482,6 @@ const ComponentLoader = {
             .replace(/{{ROOT}}/g, rootPrefix)
             .replace(/{{ACCOUNT_PATH}}/g, accountPath);
         
-        // --- GLOBAL CLEAN URL CLEANUP for production ---
-        if (!isFileProtocol) {
-            // Remove .html from all links in the injected content
-            processedHTML = processedHTML.replace(/href="([^"]+)\.html"/g, 'href="$1"');
-        }
-        
         element.innerHTML = processedHTML;
         // Execute any inline scripts injected
         const scripts = element.querySelectorAll('script');
@@ -502,13 +496,7 @@ const ComponentLoader = {
     getAdjustedPath(path) {
         // Utilisation robuste des chemins absolus via le serveur (Vite/Prod)
         if (window.location.protocol !== 'file:') {
-            let adjusted = '/' + path;
-            // Optional: Strip .html for clean URLs if it's an internal link
-            // (Only for internal pages, not for files like .js or .css or components)
-            if (adjusted.includes('.html') && !adjusted.match(/\.(js|css|png|jpg|webp|svg|jpeg)$/i) && !adjusted.includes('/components/')) {
-                adjusted = adjusted.replace('.html', '');
-            }
-            return adjusted;
+            return '/' + path;
         }
 
         // Sécurité de contournement (Fallback pour ouverture des fichiers au protocole file://)

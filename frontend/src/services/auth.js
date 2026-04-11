@@ -11,167 +11,130 @@ const AuthManager = {
     role: null,
     status: null, // Status KYC : pending (jamais soumis), submitted (en attente validation), approved, rejected
     user: null, // Supabase user object for pages like settings.html
-    _authChecking: false,
-    _initialized: false, // New flag
+    _authChecking: true, // Start as true to block UI
+    _initialized: false,
     _realtimeChannel: null,
 
     async init() {
         console.log('[NewKet Auth] Initializing AuthManager...');
         this._authChecking = true;
-        if (window.supabaseClient) {
-            window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-                    const user = session.user;
-                    this.user = user;
-                    const email = user.email;
-                    let role = user.user_metadata.role || 'customer';
-                    
-                    // Fetch dynamic admin list from ConfigManager or direct from Supabase
-                    let admins = [];
-                    if (window.ConfigManager && window.ConfigManager.config.admin_emails) {
-                        admins = window.ConfigManager.config.admin_emails;
-                    } else if (window.supabaseClient) {
-                        try {
-                            const { data } = await window.supabaseClient
-                                .from('settings')
-                                .select('admin_emails')
-                                .eq('id', 'global-settings')
-                                .single();
-                            admins = data?.admin_emails || [];
-                        } catch (e) {
-                            console.warn('[AuthManager] Direct settings fetch failed:', e);
+        
+        try {
+            if (window.supabaseClient) {
+                window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                    console.log(`[NewKet Auth] Auth Event: ${event}`);
+                    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                        if (session) {
+                            const user = session.user;
+                            this.user = user;
+                            await this.handleSessionUpdate(user);
                         }
+                    } else if (event === 'SIGNED_OUT') {
+                        this.handleLogoutCleanup();
                     }
+                });
 
-                    const adminEmailsLower = admins.map(e => e.toLowerCase());
-                    if (email && adminEmailsLower.includes(email.toLowerCase())) {
-                        role = 'admin';
-                    }
+                console.log('[NewKet Auth] Verifying persistent session...');
+                const { data, error } = await window.supabaseClient.auth.getSession();
+                
+                if (data?.session) {
+                    const user = data.session.user;
+                    this.user = user; 
+                    console.log('[NewKet Auth] Session valid for:', user.email);
                     
-                    // L'utilisateur est admin uniquement si son métadata le dit, ou son email figure dans ADMIN_EMAILS.
-
-                    this.role = role;
-                    localStorage.setItem('newketRole', role);
-                    localStorage.setItem('newketUserEmail', email);
-                    localStorage.setItem('newketUserId', user.id);
-
-                    const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture || null;
-                    if (avatarUrl) localStorage.setItem('newketUserAvatar', avatarUrl);
-
-                    const status = await this.fetchUserStatus(email);
-                    this.status = status;
-                    localStorage.setItem('newketUserStatus', status);
-
-                    this.setupRealtimeSync(user.id);
-                    this.enforcePermissions();
-
-                    if (window.FavoritesManager) FavoritesManager.syncFromSupabase();
-                } else if (event === 'SIGNED_OUT') {
-                    if (this._realtimeChannel) {
-                        window.supabaseClient.removeChannel(this._realtimeChannel);
-                        this._realtimeChannel = null;
+                    const hasProfile = await this.checkProfile(user.id);
+                    if (!hasProfile) {
+                        console.warn('[NewKet Auth] Profile missing, logout triggered.');
+                        await this.logout('Profil manquant');
+                        return;
                     }
-                    this.role = null;
-                    this.status = null;
-                    this.user = null;
-                    this.clearSession();
-                    this.enforcePermissions();
-                    if (window.location.pathname.includes('/admin/') || window.location.pathname.includes('customer-dashboard')) {
-                        window.location.href = '/index';
-                    }
-                }
-            });
 
-            // Safety: Use a timeout or race to ensure getSession doesn't block forever if auth lock is stuck
-            console.log('[NewKet Auth] Fetching session...');
-            const sessionPromise = window.supabaseClient.auth.getSession();
-            const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ data: { session: null }, error: 'timeout' }), 5000));
-            
-            const { data, error } = await Promise.race([sessionPromise, timeoutPromise]);
-            
-            if (error === 'timeout') {
-                console.warn('[NewKet Auth] Session fetch timed out (possibly auth lock issue), proceeding as guest.');
-            }
-
-            if (data?.session) {
-                console.log('[NewKet Auth] Active session found for:', data.session.user.email);
-                const user = data.session.user;
-                this.user = user; 
-                
-                const hasProfile = await this.checkProfile(user.id);
-                if (!hasProfile) {
-                    console.error('[NewKet Auth] No profile found for user:', user.id);
-                    this.logout('Profil utilisateur introuvable');
-                    return;
-                }
-
-                let role = user.user_metadata.role || 'customer';
-
-                // Force admin role if email is in ADMIN_EMAILS (from admin-config.js)
-                const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-                if (user.email && admins.includes(user.email.toLowerCase())) {
-                    role = 'admin';
-                }
-
-                this.role = role;
-                
-                // Ensure localStorage is in sync with session (Fix for Issue 2: Info mixup)
-                localStorage.setItem('newketRole', this.role);
-                localStorage.setItem('newketUserEmail', user.email);
-                localStorage.setItem('newketUserId', user.id);
-                
-                const avatar = user.user_metadata.avatar_url || user.user_metadata.picture || null;
-                if (avatar) localStorage.setItem('newketUserAvatar', avatar);
-
-                // Optimization: Use cached status to avoid blocking initialization
-                const cachedStatus = localStorage.getItem('newketUserStatus');
-                if (cachedStatus) {
-                    this.status = cachedStatus;
-                    // Refresh in background
-                    this.fetchUserStatus(user.email).then(freshStatus => {
-                        if (freshStatus !== this.status) {
-                            this.status = freshStatus;
-                            localStorage.setItem('newketUserStatus', freshStatus);
-                            this.enforcePermissions();
-                        }
-                    });
+                    await this.handleSessionUpdate(user);
                 } else {
-                    this.status = await this.fetchUserStatus(user.email);
-                    localStorage.setItem('newketUserStatus', this.status);
-                }
-
-                this.setupRealtimeSync(user.id);
-            } else {
-                this.role = null;
-                this.status = null;
-                this.user = null;
-                this.clearSession(); // Ensure old data is wiped if no session
-                
-                // Pas de bypass autorisé si l'utilisateur n'est pas connecté.
-                if (window.location.pathname.includes('/admin/')) {
-                    if (!window.location.pathname.includes('login') && !window.location.pathname.endsWith('admin/')) {
-                        window.location.href = '/index';
+                    console.log('[NewKet Auth] No active session found.');
+                    this.handleLogoutCleanup();
+                    
+                    // Redirect if on protected page
+                    const path = window.location.pathname;
+                    if (path.includes('/admin/') || path.includes('dashboard') || path.includes('publish')) {
+                        if (!path.includes('login')) {
+                            console.warn('[NewKet Auth] Protected page access attempt without session.');
+                            window.location.href = '/pages/login';
+                            return;
+                        }
                     }
                 }
             }
-        }
-
-        this._authChecking = false;
-        this._initialized = true; // Mark as fully initialized
-        this.enforcePermissions();
-        this.updateAccountLink();
-        this.checkWelcomeBonus();
-
-        // Listen for components-loader events (Re-enforce once DOM is populated)
-        if (window.componentsLoaded) {
+        } catch (err) {
+            console.error('[NewKet Auth] Unexpected error during init:', err);
+            this.handleLogoutCleanup();
+        } finally {
+            this._authChecking = false;
+            this._initialized = true; // Mark as fully initialized
             this.enforcePermissions();
             this.updateAccountLink();
-        } else {
-            window.addEventListener('componentsLoaded', () => {
+            this.checkWelcomeBonus();
+            document.documentElement.classList.remove('auth-loading');
+
+            // Listen for components-loader events (Re-enforce once DOM is populated)
+            if (window.componentsLoaded) {
                 this.enforcePermissions();
                 this.updateAccountLink();
-            });
+            } else {
+                window.addEventListener('componentsLoaded', () => {
+                    this.enforcePermissions();
+                    this.updateAccountLink();
+                });
+            }
         }
+    },
+
+    async handleSessionUpdate(user) {
+        const email = user.email;
+        let role = user.user_metadata.role || 'customer';
+
+        // Admin check
+        const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+        if (email && admins.includes(email.toLowerCase())) {
+            role = 'admin';
+        }
+
+        this.role = role;
+        localStorage.setItem('newketRole', role);
+        localStorage.setItem('newketUserEmail', email);
+        localStorage.setItem('newketUserId', user.id);
+
+        const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture || null;
+        if (avatarUrl) localStorage.setItem('newketUserAvatar', avatarUrl);
+
+        this.status = await this.fetchUserStatus(email);
+        localStorage.setItem('newketUserStatus', this.status);
+
+        this.setupRealtimeSync(user.id);
+        this.enforcePermissions();
+
+        if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
+        
+        // Finalize initialization
+        this._authChecking = false;
+        this._initialized = true;
+        document.documentElement.classList.remove('auth-loading');
+    },
+
+    handleLogoutCleanup() {
+        if (this._realtimeChannel) {
+            window.supabaseClient.removeChannel(this._realtimeChannel);
+            this._realtimeChannel = null;
+        }
+        this.role = null;
+        this.status = null;
+        this.user = null;
+        this.clearSession();
+        this.enforcePermissions();
+        
+        this._authChecking = false;
+        this._initialized = true;
+        document.documentElement.classList.remove('auth-loading');
     },
 
     async checkProfile(userId) {
@@ -463,21 +426,10 @@ const AuthManager = {
                 const isDashboard = path.includes('vendor-dashboard');
                 const isPublish = path.includes('publish');
 
-                // On n'empêche plus l'accès, mais on laisse le "CORRECTIF C" tourner en arrière-plan
-                // Pour rafraîchir le statut dès que possible au cas où Supabase Realtime a eu un souci
-                const email = this.user?.email || localStorage.getItem('newketUserEmail');
-                if (email && (isDashboard || isPublish)) {
-                    this.fetchUserStatus(email).then(freshStatus => {
-                        if (freshStatus !== this.status) {
-                            const oldStatus = this.status;
-                            this.status = freshStatus;
-                            localStorage.setItem('newketUserStatus', freshStatus);
-                            this.enforcePermissions();
-                            if (oldStatus !== 'approved' && freshStatus === 'approved') {
-                                if (typeof showToast === 'function') showToast('Votre profil a été approuvé !', 'success');
-                            }
-                        }
-                    });
+                if (isDashboard || isPublish) {
+                    console.log('[NewKet Auth] Redirecting pending vendor to onboarding.');
+                    window.location.href = '/pages/seller-onboarding';
+                    return;
                 }
             } else if (isSubmitted) {
                 // Form submitted, waiting for admin to review — show notice

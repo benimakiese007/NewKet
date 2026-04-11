@@ -179,10 +179,13 @@ const FavoritesManager = {
 
                 if (iconify) {
                     iconify.setAttribute('icon', isFavorite ? 'solar:heart-bold' : 'solar:heart-linear');
+                    // Force the color transition
+                    iconify.style.color = isFavorite ? '#ef4444' : '#6b7280';
+                    
                     if (isFavorite) {
-                        wishlistBtn.classList.add('text-red-500');
+                        wishlistBtn.classList.add('active');
                     } else {
-                        wishlistBtn.classList.remove('text-red-500');
+                        wishlistBtn.classList.remove('active');
                     }
                 } else if (faIcon) {
                     if (isFavorite) {

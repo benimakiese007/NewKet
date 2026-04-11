@@ -3,29 +3,17 @@
 
 <head>
     <script>
-        // IMMEDIATE SYNC REDIRECT (ZERO-BOUNCE)
-        // Checks localStorage before even parsing the body
-        (function() {
-            const role = localStorage.getItem('newketRole');
-            const email = localStorage.getItem('newketUserEmail');
-            if (role && email) {
-                let target = '/';
-                if (role === 'admin') target = '/pages/admin/';
-                else if (role === 'supplier') target = '/pages/vendor-dashboard';
-                else if (role === 'customer') target = '/pages/customer-dashboard';
-                
-                // Use replace to keep history clean
-                window.location.replace(target);
-            }
-        })();
+        // PREMIUM AUTH SHIELD
+        // Prevents content flash by hiding body until AuthManager is ready
+        document.documentElement.classList.add('auth-loading');
     </script>
     <script src="/services/admin-config.js" defer></script>
     <script type="module" src="../services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../assets/Images/Logo NewKet V2.jpeg">
-    <link rel="icon" type="image/png" href="../assets/Images/Logo NewKet V2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="../assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="../assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -147,6 +135,16 @@
 
         .tab-btn.active::after {
             transform: scaleX(1);
+        }
+
+        /* Loading Shield Styles */
+        html.auth-loading body {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        body {
+            transition: opacity 0.4s ease;
         }
     </style>
 </head>
@@ -598,7 +596,9 @@
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email: loginEmail, password });
                     if (error) throw error;
 
-                    finalizeAuth(data.user, loginEmail);
+                    // AuthManager.handleSessionUpdate will handle the redirect via onAuthStateChange
+                    // but we can also trigger it manually for speed if needed.
+                    if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
                     return;
 
                 } else {

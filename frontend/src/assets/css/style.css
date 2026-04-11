@@ -1,5 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
 
+/* PREMIUM AUTH SHIELD */
+html.auth-loading body {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: none !important;
+}
+
+html:not(.auth-loading) body {
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+}
+
+
 /* 
    NewKet EMarket - Premium E-commerce Design 
    Style Guide & Core CSS
@@ -30,8 +43,7 @@
   /* Typography */
   --font-heading: 'Poppins', sans-serif;
   --font-body: 'Inter', sans-serif;
-    /* Header and Layout */
-    --header-height: 145px; /* Desktop height with categories */
+    --header-height: 115px; /* Reduced from 145px */
     --footer-height: 400px;
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -42,11 +54,9 @@
 
 @media (max-width: 639px) {
   :root {
-    --header-height: 100px; /* Mobile: Search + Main row */
+    --header-height: 90px; /* Reduced from 100px */
   }
 }
-
-/* ===== DARK MODE VARIABLE OVERRIDES ===== */
 
 html.dark {
   --text-dark: #F9FAFB;
@@ -126,7 +136,11 @@ button {
 }
 
 .section {
-  padding: 2.5rem 0;
+  padding: 5rem 0;
+}
+
+#heroSection {
+  margin-bottom: 6rem !important;
 }
 
 .text-center {
@@ -464,19 +478,31 @@ h6 {
   color: var(--primary-color);
 }
 
-/* Hero Section */
-
-.hero-section {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)), url('../Images/marketplace-hero.jpg');
-  background-size: cover;
-  background-position: center;
-  height: 420px;
-  /* Reduced banner height */
-  display: flex;
-  align-items: center;
-  color: white;
-  margin-bottom: 2rem;
+/* Hero Section & Slider */
+#heroSection {
+    min-height: 500px;
+    display: flex;
+    align-items: center;
 }
+
+#heroSlider {
+    pointer-events: none;
+}
+
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    z-index: 0;
+}
+
+.hero-slide.active {
+    opacity: 1;
+}
+
 
 .hero-content {
   max-width: 600px;
@@ -743,6 +769,16 @@ h6 {
   z-index: 10;
   font-size: 1.1rem;
   color: var(--text-light);
+}
+
+.wishlist-btn.active {
+  color: #ef4444;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.wishlist-btn.active iconify-icon {
+  filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.3));
 }
 
 .product-card:hover .wishlist-btn {

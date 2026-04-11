@@ -150,7 +150,7 @@ function buildProductCardHTML(p, options = {}) {
             <div class="product-image">
                 ${badgeHTML}
                 <button onclick="addToWishlist('${p.id}', event)" class="wishlist-btn ${isFavorite ? 'active' : ''}" title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
-                    <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="${isFavorite ? 'color:#ef4444' : 'color:#6b7280'}"></iconify-icon>
+                    <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
                 <a href="${getRootPath()}pages/product?id=${p.id}">
                     <img src="${mainImg}" alt="${p.name}" loading="lazy" onerror="this.src='${getRootPath()}assets/Images/default.png'">
