@@ -8,9 +8,9 @@ const HEADER_HTML = `
     <!-- Main header container -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <!-- Main header content (Logo, Search, Icons) -->
-        <div class="header-content w-full px-2 sm:px-8 py-1 sm:py-1.5 flex flex-wrap items-center justify-between sm:gap-x-4">
+        <div class="header-content w-full px-2 sm:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between sm:gap-x-8">
             <!-- Left: Hamburger (Mobile) & Logo -->
-            <div class="flex items-center gap-2 sm:gap-4">
+            <div class="flex items-center gap-3 sm:gap-6">
                 <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
                     title="Menu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
@@ -23,14 +23,14 @@ const HEADER_HTML = `
 
             <!-- Center: Search & Publish -->
             <div id="mobileSearchContainer"
-                class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:w-auto relative group flex flex-row flex-nowrap gap-2 sm:gap-3 items-center min-w-0">
+                class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:max-w-xl lg:max-w-2xl sm:mx-auto relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0">
                 <div
                     class="search-bar flex-1 flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300 pr-2">
                     <input type="text" id="searchInput" name="search" placeholder="Qu'est-ce qui vous ferait plaisir ?"
-                        class="w-full py-2 px-4 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
+                        class="w-full py-2.5 px-5 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
                     <iconify-icon icon="solar:magnifer-linear" width="20" class="text-slate-400 sm:hidden"></iconify-icon>
                     <button id="searchBtn"
-                        class="bg-slate-900 text-white px-5 py-2 m-1 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all uppercase tracking-wider hidden sm:block">RECHERCHE</button>
+                        class="bg-slate-900 text-white px-6 py-2 m-1 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all uppercase tracking-wider hidden sm:block">RECHERCHE</button>
                 </div>
                 <!-- Publish Button (Desktop Only) -->
                 <a href="{{ROOT}}pages/publish"
@@ -43,7 +43,7 @@ const HEADER_HTML = `
             </div>
 
             <!-- Right: Icons -->
-            <div class="order-2 sm:order-3 flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div class="order-2 sm:order-3 flex items-center gap-3 sm:gap-4 shrink-0">
                 <!-- Currency Switch -->
                 <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
                     <div class="segmented-track">
@@ -89,23 +89,23 @@ const HEADER_HTML = `
         <!-- Category Nav -->
         <div class="border-t border-gray-50 bg-white hidden sm:block">
             <div class="w-full px-4 sm:px-8">
-                <nav class="flex items-center gap-1 overflow-x-auto py-1 -mx-2" style="scrollbar-width:none;">
+                <nav class="flex items-center gap-2 overflow-x-auto py-2 -mx-2" style="scrollbar-width:none;">
                     <a href="{{ROOT}}pages/catalog"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Toutes les pièces</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Toutes les pièces</a>
                     <a href="{{ROOT}}pages/shops"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Boutiques</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Boutiques</a>
                     <a href="{{ROOT}}pages/forum"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Forum</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Forum</a>
                     <a href="{{ROOT}}pages/catalog?category=Collections Femme"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Collections Femme</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Collections Femme</a>
                     <a href="{{ROOT}}pages/catalog?category=Style Homme"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Style Homme</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Style Homme</a>
                     <a href="{{ROOT}}pages/catalog?category=Tech & Gadgets"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Tech & Gadgets</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Tech & Gadgets</a>
                     <a href="{{ROOT}}pages/catalog?category=Art de vivre"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Art de vivre</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors">Art de vivre</a>
                     <a href="{{ROOT}}pages/catalog?promo=true"
-                        class="nav-link px-3 py-1.5 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1">
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1">
                         <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
                     </a>
                 </nav>

@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="./assets/css/input.css">
     <!-- Theme FOUC prevention (must be first, inline) -->
     <script type="module" src="./services/app.js"></script>
-    <script src="./services/HeroSlider.js"></script>
+    <script type="module" src="./services/HeroSlider.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.HeroSlider) window.HeroSlider.init();
@@ -127,7 +127,7 @@
     <!-- The header component handles its own spacing if needed -->
 
     <!-- ========== PRODUITS ÉPINGLÉS ========== -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-20" id="pinnedSection">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-32" id="pinnedSection">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-black rounded-xl flex items-center justify-center shadow-lg shadow-black/10">
@@ -205,7 +205,7 @@
     </section>
 
     <!-- ========== 10 RÉCEMMENT PUBLIÉS ========== -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 mt-20 mb-20">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 mt-32 mb-32">
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Récemment publiés</h2>
@@ -237,7 +237,7 @@
     </section>
 
     <!-- ========== FEATURES SECTION ========== -->
-    <section class="mx-4 sm:mx-6 lg:mx-8 mt-20 mb-20 overflow-hidden features-gradient-edge">
+    <section class="mx-4 sm:mx-6 lg:mx-8 mt-32 mb-32 overflow-hidden features-gradient-edge">
         <div class="flex gap-4 animate-scroll w-max">
             <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
                 <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
@@ -288,15 +288,15 @@
     </script>
 
     <!-- ========== TOUS LES PRODUITS + FILTRE ========== -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 mt-32 mb-20">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 mt-40 mb-32">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900">Tous les produits</h2>
             <div class="flex flex-wrap items-center gap-2" id="filterBar">
-                <button type="button" id="btnFilterAll" data-filter="all" onclick="filterAllProducts('all')" class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-900 text-white transition-all">Tout</button>
-                <button type="button" id="btnFilterWomen" data-filter="Collections Femme" onclick="filterAllProducts('Collections Femme')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Collections Femme</button>
-                <button type="button" id="btnFilterMen" data-filter="Style Homme" onclick="filterAllProducts('Style Homme')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Style Homme</button>
-                <button type="button" id="btnFilterTech" data-filter="Tech &amp; Gadgets" onclick="filterAllProducts('Tech &amp; Gadgets')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Tech &amp; Gadgets</button>
-                <button type="button" id="btnFilterArt" data-filter="Art de vivre" onclick="filterAllProducts('Art de vivre')" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Art de vivre</button>
+                <button type="button" id="btnFilterAll" data-filter="all" onclick="filterAllProducts('all')" class="filter-btn active px-4 py-2 rounded-xl text-xs font-bold bg-gray-900 text-white transition-all">Tout</button>
+                <button type="button" id="btnFilterWomen" data-filter="Collections Femme" onclick="filterAllProducts('Collections Femme')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Collections Femme</button>
+                <button type="button" id="btnFilterMen" data-filter="Style Homme" onclick="filterAllProducts('Style Homme')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Style Homme</button>
+                <button type="button" id="btnFilterTech" data-filter="Tech &amp; Gadgets" onclick="filterAllProducts('Tech &amp; Gadgets')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Tech &amp; Gadgets</button>
+                <button type="button" id="btnFilterArt" data-filter="Art de vivre" onclick="filterAllProducts('Art de vivre')" class="filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">Art de vivre</button>
                 <div class="ml-2 flex items-center gap-1.5 border-l border-gray-200 pl-2">
                     <iconify-icon icon="solar:sort-by-time-linear" width="16" class="text-gray-500"></iconify-icon>
                     <select id="sortAllProducts" name="sortAllProducts" aria-label="Trier les produits par" onchange="sortAndRenderAll()" class="text-xs font-semibold text-gray-700 bg-transparent border-none outline-none cursor-pointer">

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -11,7 +11,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Avis & ��valuations | NewKet Admin</title>
+    <title>Avis & ÉÉvaluations | NewKet Admin</title>
     <link rel="stylesheet" href="../../assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -94,17 +94,17 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Avis & �valuations</h1>
-                    <p class="text-gray-500">Mof�rez et analysez les retours clients sur vos produits.</p>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Avis & ï¿½valuations</h1>
+                    <p class="text-gray-500">Mofï¿½rez et analysez les retours clients sur vos produits.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <select id="filterRating" onchange="renderReviews()"
                         class="text-xs font-black uppercase tracking-widest bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black cursor-pointer">
                         <option value="all">Toutes les notes</option>
-                        <option value="5">5 �toiles</option>
-                        <option value="4">4 �toiles</option>
-                        <option value="3">3 �toiles</option>
-                        <option value="low">1-2 �toiles</option>
+                        <option value="5">5 ï¿½toiles</option>
+                        <option value="4">4 ï¿½toiles</option>
+                        <option value="3">3 ï¿½toiles</option>
+                        <option value="low">1-2 ï¿½toiles</option>
                     </select>
                 </div>
             </div>
@@ -122,11 +122,11 @@
                     </div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Avis 5 �toiles</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Avis 5 ï¿½toiles</div>
                     <div class="text-2xl font-black text-green-500" id="stat5Star">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">� mod�rer</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">ï¿½ modï¿½rer</div>
                     <div class="text-2xl font-black text-red-500" id="statLowStar">0</div>
                 </div>
             </div>
@@ -149,12 +149,12 @@
 
     <script type="module" src="../../services/admin-layout.js"></script>
     <script>
-        // Simulons des avis puisqu'ils ne sont pas stock�s de mani�re globale dans appState actuellement
+        // Simulons des avis puisqu'ils ne sont pas stockï¿½s de maniï¿½re globale dans appState actuellement
         function getMockReviews() {
             return [
                 { id: '1', productId: 'p1', productName: 'iPhone 15 Pro Max', customer: 'Alice M.', rating: 5, comment: 'Excellent produit, livraison rapide !', date: new Date().toISOString() },
-                { id: '2', productId: 'p2', productName: 'Sneakers Nike', customer: 'Bob K.', rating: 4, comment: 'Tr�s confortable, mais un peu cher.', date: new Date(Date.now() - 86400000).toISOString() },
-                { id: '3', productId: 'p3', productName: 'MacBook Pro', customer: 'Charlie T.', rating: 2, comment: 'La batterie se d�charge vite.', date: new Date(Date.now() - 172800000).toISOString() },
+                { id: '2', productId: 'p2', productName: 'Sneakers Nike', customer: 'Bob K.', rating: 4, comment: 'Trï¿½s confortable, mais un peu cher.', date: new Date(Date.now() - 86400000).toISOString() },
+                { id: '3', productId: 'p3', productName: 'MacBook Pro', customer: 'Charlie T.', rating: 2, comment: 'La batterie se dï¿½charge vite.', date: new Date(Date.now() - 172800000).toISOString() },
                 { id: '4', productId: 'p1', productName: 'iPhone 15 Pro Max', customer: 'David L.', rating: 5, comment: 'Magnifique design.', date: new Date(Date.now() - 259200000).toISOString() },
             ];
         }
@@ -170,7 +170,7 @@
             else if (filterRating !== 'all') filtered = filtered.filter(r => r.rating == filterRating);
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouv�.</div>`;
+                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouvï¿½.</div>`;
                 return;
             }
 
@@ -200,7 +200,7 @@
             if (!confirm('Supprimer cet avis ?')) return;
             allReviews = allReviews.filter(r => r.id !== id);
             renderReviews();
-            showToast('Avis supprim�', 'success');
+            showToast('Avis supprimï¿½', 'success');
         }
 
         function updateStats() {
@@ -223,6 +223,3 @@
 </body>
 
 </html>
-��
- 
- 

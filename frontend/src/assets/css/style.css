@@ -64,12 +64,13 @@ html:not(.auth-loading) body {
   --space-4xl: 4rem;     /* 64px */
   --space-5xl: 5rem;     /* 80px */
   --space-6xl: 6rem;     /* 96px */
+  --space-7xl: 8rem;     /* 128px */
 
   /* Semantic Mappings */
-  --section-padding-v: var(--space-5xl);
+  --section-padding-v: var(--space-7xl); /* Increased for luxury feel */
   --container-padding-h: var(--space-lg);
   --component-gap: var(--space-md);
-  --card-padding: var(--space-md);
+  --card-padding: var(--space-lg); /* Increased from md */
 }
 
 @media (max-width: 639px) {
@@ -816,7 +817,7 @@ h6 {
 }
 
 .product-info {
-  padding: var(--space-md) var(--space-lg) var(--space-lg);
+  padding: var(--card-padding);
   position: relative;
   z-index: 2;
   flex: 1;
@@ -2731,7 +2732,7 @@ body.sidebar-resizing {
 .skeleton-card {
   background: white;
   border-radius: 20px;
-  padding: 1rem;
+  padding: var(--card-padding);
   height: 100%;
   border: 1px solid #f0f0f0;
 }
