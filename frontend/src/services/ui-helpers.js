@@ -131,13 +131,17 @@ function buildProductCardHTML(p, options = {}) {
 
     // Format price
     const priceDisplay = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : `${(p.price || 0).toLocaleString()} FC`;
-    const oldPriceDisplay = p.oldPrice ? (window.CurrencyManager ? CurrencyManager.formatPrice(p.oldPrice) : `${p.oldPrice.toLocaleString()} FC`) : null;
+    const oldPrice = p.oldPrice || p.old_price;
+    const oldPriceDisplay = oldPrice ? (window.CurrencyManager ? CurrencyManager.formatPrice(oldPrice) : `${oldPrice.toLocaleString()} FC`) : null;
 
     // Badge
     let badgeHTML = '';
-    if (p.isNew || p.is_new) {
+    const isNew = p.isNew || p.is_new;
+    const isPromo = p.isPromo || p.is_promo;
+
+    if (isNew) {
         badgeHTML = `<span class="badge badge-new"><iconify-icon icon="solar:star-bold" width="10"></iconify-icon> NOUVEAU</span>`;
-    } else if (p.isPromo || p.is_promo) {
+    } else if (isPromo) {
         badgeHTML = `<span class="badge badge-sale"><iconify-icon icon="solar:fire-bold" width="10"></iconify-icon> PROMO</span>`;
     }
 
@@ -160,12 +164,16 @@ function buildProductCardHTML(p, options = {}) {
                 <div class="product-cat">${p.category || ''}</div>
                 <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
-                        ${p.users?.avatar 
-                            ? `<img src="${p.users.avatar}" style="width: 100%; height: 100%; object-cover">` 
+                        ${(Array.isArray(p.users) ? p.users[0] : p.users)?.avatar 
+                            ? `<img src="${(Array.isArray(p.users) ? p.users[0] : p.users).avatar}" style="width: 100%; height: 100%; object-cover">` 
                             : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
                         }
                     </div>
-                    <span>Vendu par : ${p.users?.company_name || p.users?.name || 'NewKet Shop'}</span>
+                    <span>Vendu par : ${ 
+                        (Array.isArray(p.users) ? p.users[0] : p.users)?.company_name || 
+                        (Array.isArray(p.users) ? p.users[0] : p.users)?.name || 
+                        'NewKet Shop' 
+                    }</span>
                 </div>
                 <h3 class="product-title">
                     <a href="${getRootPath()}pages/product?id=${p.id}">${p.name}</a>
@@ -174,9 +182,9 @@ function buildProductCardHTML(p, options = {}) {
                     ${starsHTML}
                     <span>(${reviewCount})</span>
                 </div>
-                <div class="product-price" style="flex-wrap: nowrap; align-items: baseline;">
+                <div class="product-price">
                     <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
-                    ${oldPriceDisplay ? `<span class="old-price" style="font-size:0.9rem; color:#9ca3af; text-decoration:line-through; margin-left:0.5rem;">${oldPriceDisplay}</span>` : ''}
+                    ${oldPriceDisplay ? `<span class="old-price">${oldPriceDisplay}</span>` : ''}
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 2px;">
                     <button 

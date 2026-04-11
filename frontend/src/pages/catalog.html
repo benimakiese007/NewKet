@@ -731,7 +731,7 @@
             if (window.SupabaseAdapter && window.supabaseClient) {
                 try {
                     const options = {
-                        select: '*',
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
                         range: [from, to],
                         skipCache: true // Always fresh for catalog browsing
                     };
@@ -788,6 +788,12 @@
                     }
 
                     products = await SupabaseAdapter.fetchWithFilters('products', options);
+                    
+                    // Map raw products to standardization format (converts snake_case to camelCase)
+                    if (products && products.length > 0 && typeof ProductManager._mapProduct === 'function') {
+                        products = products.map(p => ProductManager._mapProduct(p));
+                    }
+
                     catalogHasMore = products.length === CATALOG_PAGE_SIZE;
                 } catch (err) {
                     console.warn('[NewKet Catalog] Server-side query failed, falling back to client-side:', err.message);

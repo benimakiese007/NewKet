@@ -7,6 +7,22 @@
 const HEADER_HTML = `
     <!-- Main header container -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+        <!-- Top Info Bar -->
+        <div class="bg-gray-950 text-white py-1.5 px-4 sm:px-8 border-b border-white/5">
+            <div class="max-w-7xl mx-auto w-full flex items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-4">
+                <div class="hidden md:flex items-center gap-6">
+                    <span class="flex items-center gap-1.5"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-400"></iconify-icon> Livraison Offerte</span>
+                    <span class="flex items-center gap-1.5 opacity-60"><iconify-icon icon="solar:shield-check-bold" width="12"></iconify-icon> Paiement Sécurisé</span>
+                </div>
+                <div class="flex-1 flex justify-center text-center">
+                    <span class="px-4">Marketplace de Luxe — Boutique NewKet Officielle</span>
+                </div>
+                <div class="hidden sm:flex items-center gap-6">
+                    <a href="#" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Support</a>
+                    <a href="#" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">FAQ</a>
+                </div>
+            </div>
+        </div>
         <!-- Main header content (Logo, Search, Icons) -->
         <div class="header-content w-full px-2 sm:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between sm:gap-x-8">
             <!-- Left: Hamburger (Mobile) & Logo -->

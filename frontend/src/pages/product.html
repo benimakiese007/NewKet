@@ -250,7 +250,7 @@
             document.getElementById('productPrice').textContent = priceStr;
             document.getElementById('stickyPrice').textContent = priceStr;
 
-            const vendor = p.users || {};
+            const vendor = (Array.isArray(p.users) ? p.users[0] : p.users) || {};
             const shopName = vendor.company_name || vendor.name || 'Vendeur NewKet';
             const vendorLink = document.getElementById('vendorLink');
             if (vendorLink) {

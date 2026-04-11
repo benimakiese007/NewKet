@@ -169,7 +169,7 @@ const ProductManager = {
             // ── Priorité 1 : SupabaseAdapter ──
             if (window.SupabaseAdapter && window.supabaseClient) {
                 newProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*, users(company_name, name, shipping_time, avatar)',
+                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
                     order: ['created_at', { ascending: false }],
                     range: [offset, offset + PRODUCTS_PAGE_SIZE - 1],
                     skipCache: true
@@ -213,8 +213,15 @@ const ProductManager = {
      * Also applies image URL optimization.
      */
     _mapProduct(p) {
+        // Handle joined 'users' which can sometimes be returned as an array [] by PostgREST
+        let userInfo = p.users;
+        if (Array.isArray(userInfo)) {
+            userInfo = userInfo[0] || null;
+        }
+
         return {
             ...p,
+            users: userInfo, // Standardize as an object or null
             isNew: p.is_new,
             isPromo: p.is_promo,
             oldPrice: p.old_price,
@@ -260,7 +267,7 @@ const ProductManager = {
             // Priority 1: Supabase (direct join)
             if (window.SupabaseAdapter && window.supabaseClient) {
                 const product = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*, users(company_name, name, shipping_time, avatar)',
+                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
                     eq: [['id', id]],
                     single: true
                 });
