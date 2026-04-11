@@ -109,29 +109,31 @@ const AppNotifications = {
             })
             .subscribe();
 
-        // Listen for order status updates for the current user
-        client.auth.getSession().then(({ data: { session } }) => {
-            if (session && session.user) {
-                const userId = session.user.id;
-                client.channel(`public:orders:${userId}`)
-                    .on('postgres_changes', { 
-                        event: 'UPDATE', 
-                        schema: 'public', 
-                        table: 'orders',
-                        filter: `user_id=eq.${userId}` 
-                    }, payload => {
-                        if (payload.new.status !== payload.old.status) {
-                            this.showToast(
-                                'Mise à jour de commande 📦',
-                                `Le statut de votre commande #${payload.new.id.split('-')[0]} est passé à : ${payload.new.status}.`,
-                                'info',
-                                'solar:box-minimalistic-bold'
-                            );
-                        }
-                    })
-                    .subscribe();
-            }
-        });
+        // Listen for order status updates for the current user safely
+        if (window.SupabaseAdapter) {
+            window.SupabaseAdapter.getSession().then(session => {
+                if (session && session.user) {
+                    const userId = session.user.id;
+                    client.channel(`public:orders:${userId}`)
+                        .on('postgres_changes', { 
+                            event: 'UPDATE', 
+                            schema: 'public', 
+                            table: 'orders',
+                            filter: `user_id=eq.${userId}` 
+                        }, payload => {
+                            if (payload.new.status !== payload.old.status) {
+                                this.showToast(
+                                    'Mise à jour de commande 📦',
+                                    `Le statut de votre commande #${payload.new.id.split('-')[0]} est passé à : ${payload.new.status}.`,
+                                    'info',
+                                    'solar:box-minimalistic-bold'
+                                );
+                            }
+                        })
+                        .subscribe();
+                }
+            });
+        }
     },
 
     _setupPWA() {

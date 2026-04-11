@@ -18,16 +18,32 @@ const AuthManager = {
     async init() {
         console.log('[NewKet Auth] Initializing AuthManager...');
         this._authChecking = true;
+
+        // --- GLOBAL FAIL-SAFE ---
+        // Force-remove loading screen after 5s regardless of what happens
+        setTimeout(() => {
+            if (this._authChecking) {
+                console.warn('[NewKet Auth] Fail-safe: Forcefully removing loading screen.');
+                document.documentElement.classList.remove('auth-loading');
+                this._authChecking = false;
+            }
+        }, 5000);
         
         try {
             if (window.supabaseClient) {
-                window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                window.supabaseClient.auth.onAuthStateChange((event, session) => {
                     console.log(`[NewKet Auth] Auth Event: ${event}`);
                     if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                         if (session) {
                             const user = session.user;
                             this.user = user;
-                            await this.handleSessionUpdate(user);
+                            
+                            // ⚠️ CRITICAL FIRE-AND-FORGET ⚠️
+                            // Do not use 'await' or make this callback async. 
+                            // Supabase internal auth lock will deadlock if you await DB queries here!
+                            setTimeout(() => {
+                                this.handleSessionUpdate(user).catch(err => console.error('[NewKet Auth] Error updating session:', err));
+                            }, 0);
                         }
                     } else if (event === 'SIGNED_OUT') {
                         this.handleLogoutCleanup();
@@ -35,35 +51,39 @@ const AuthManager = {
                 });
 
                 console.log('[NewKet Auth] Verifying persistent session...');
-                const { data, error } = await window.supabaseClient.auth.getSession();
                 
-                if (data?.session) {
-                    const user = data.session.user;
-                    this.user = user; 
-                    console.log('[NewKet Auth] Session valid for:', user.email);
-                    
-                    const hasProfile = await this.checkProfile(user.id);
-                    if (!hasProfile) {
-                        console.warn('[NewKet Auth] Profile missing, logout triggered.');
-                        await this.logout('Profil manquant');
-                        return;
-                    }
-
-                    await this.handleSessionUpdate(user);
-                } else {
-                    console.log('[NewKet Auth] No active session found.');
-                    this.handleLogoutCleanup();
-                    
-                    // Redirect if on protected page
-                    const path = window.location.pathname;
-                    if (path.includes('/admin/') || path.includes('dashboard') || path.includes('publish')) {
-                        if (!path.includes('login')) {
-                            console.warn('[NewKet Auth] Protected page access attempt without session.');
-                            window.location.href = '/pages/login';
+                // --- SAFETY TIMEOUT ---
+                // We use SupabaseAdapter.getSession() which has a built-in timeout 
+                // to prevent white screens if Supabase auth-locking hangs.
+                const session = await window.SupabaseAdapter.getSession(3000);
+                
+                if (session) {
+                    const user = session.user;
+                        this.user = user; 
+                        console.log('[NewKet Auth] Session valid for:', user.email);
+                        
+                        const hasProfile = await this.checkProfile(user.id);
+                        if (!hasProfile) {
+                            console.warn('[NewKet Auth] Profile missing, logout triggered.');
+                            await this.logout('Profil manquant');
                             return;
                         }
+
+                        await this.handleSessionUpdate(user);
+                    } else {
+                        console.log('[NewKet Auth] No active session found.');
+                        this.handleLogoutCleanup();
+                        
+                        // Redirect if on protected page
+                        const path = window.location.pathname;
+                        if (path.includes('/admin/') || path.includes('dashboard') || path.includes('publish')) {
+                            if (!path.includes('login')) {
+                                console.warn('[NewKet Auth] Protected page access attempt without session.');
+                                window.location.href = '/pages/login';
+                                return;
+                            }
+                        }
                     }
-                }
             }
         } catch (err) {
             console.error('[NewKet Auth] Unexpected error during init:', err);
@@ -538,8 +558,7 @@ const AuthManager = {
                     icon.setAttribute('icon', 'solar:user-bold');
                     icon.className = 'text-gray-900';
                 }
-                accountLink.classList.add('bg-gray-100');
-                accountLink.classList.remove('hover:bg-gray-50');
+                // Retrait du fond gris pour garder l'icône transparente
                 let badge = accountLink.querySelector('.role-badge');
                 if (!badge) {
                     badge = document.createElement('span');
@@ -556,8 +575,7 @@ const AuthManager = {
                     icon.setAttribute('icon', 'solar:user-bold');
                     icon.className = 'text-gray-900';
                 }
-                accountLink.classList.add('bg-gray-100');
-                accountLink.classList.remove('hover:bg-gray-50');
+                // Retrait du fond gris pour garder l'icône transparente
                 let badge = accountLink.querySelector('.role-badge');
                 if (!badge) {
                     badge = document.createElement('span');

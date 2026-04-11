@@ -154,11 +154,16 @@
                 <div id="promoFields" class="hidden space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Prix avant promotion (Ancien prix)</label>
-                        <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                            <input type="number" id="oldPriceInput" name="oldPriceInput" placeholder="ex: 1200"
-                                class="w-full px-5 py-4 rounded-2xl outline-none text-gray-400 line-through decoration-red-500">
+                        <div class="flex gap-2">
+                            <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white flex-1">
+                                <input type="number" id="oldPriceInput" name="oldPriceInput" placeholder="ex: 1200"
+                                    class="w-full px-5 py-4 rounded-2xl outline-none text-gray-400 line-through decoration-red-500">
+                            </div>
+                            <div class="flex items-center justify-center bg-gray-100 rounded-2xl px-4 py-4 w-24 text-gray-500 font-bold border border-gray-200">
+                                <span id="promoCurrencyBadge">FC</span>
+                            </div>
                         </div>
-                        <p class="text-[10px] text-gray-400 ml-1 italic">Ce prix sera affiché barré à côté du nouveau prix.</p>
+                        <p class="text-[10px] text-gray-400 ml-1 italic">Ce prix sera affiché barré à côté du prix actuel (doit être dans la même devise).</p>
                     </div>
                 </div>
             </div>
@@ -317,6 +322,17 @@
                 const currency = currencyInput.value;
                 const exchangeRate = parseFloat(exchangeRateInput.value) || 2800;
 
+                // Sync promo currency badge
+                const promoCurrencyBadge = document.getElementById('promoCurrencyBadge');
+                if (promoCurrencyBadge) {
+                    promoCurrencyBadge.textContent = currency === 'USD' ? '$' : 'FC';
+                    // Optional: adjust placeholder
+                    const oldPriceInput = document.getElementById('oldPriceInput');
+                    if (oldPriceInput) {
+                        oldPriceInput.placeholder = currency === 'USD' ? 'ex: 100' : 'ex: 280000';
+                    }
+                }
+
                 if (currency === 'CDF') {
                     const estimatedAmount = price / exchangeRate;
                     otherCurrencyNameEl.textContent = 'USD';
@@ -367,7 +383,7 @@
 
             async function loadProductToEdit(id) {
                 try {
-                    const product = await ProductManager.getProductById(id);
+                    const product = await ProductManager.fetchProductById(id);
                     if (!product) throw new Error("Produit non trouvé");
 
                     document.getElementById('pTitleInput').value = product.name;
@@ -520,8 +536,16 @@
                 try {
                     const exchangeRate = parseFloat(exchangeRateInput.value) || 2800;
                     const finalPrice = currency === 'USD' ? priceVal * exchangeRate : priceVal;
+                    
                     const isPromo = isPromoToggle.checked;
-                    const oldPrice = isPromo ? parseFloat(oldPriceInput.value) : null;
+                    let finalOldPrice = null;
+                    
+                    if (isPromo) {
+                        const oldPriceVal = parseFloat(oldPriceInput.value);
+                        if (oldPriceVal) {
+                            finalOldPrice = currency === 'USD' ? Math.round(oldPriceVal * exchangeRate) : Math.round(oldPriceVal);
+                        }
+                    }
 
                     let finalImagePaths = [];
                     // Keep existing image URLs if they are not Blobs/Base64
@@ -554,7 +578,7 @@
                         supplier_email: localStorage.getItem('newketUserEmail') || 'anonymous',
                         user_id: userId,
                         is_promo: isPromo,
-                        old_price: oldPrice,
+                        old_price: finalOldPrice,
                         status: 'published'
                     };
 

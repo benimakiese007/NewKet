@@ -16,8 +16,14 @@ export const ApiClient = {
             ...(options.headers || {})
         };
 
-        // Try to obtain the Supabase JWT token
-        if (window.supabaseClient) {
+        // Try to obtain the Supabase JWT token safely
+        if (window.SupabaseAdapter) {
+            const session = await window.SupabaseAdapter.getSession(2000); // 2s timeout
+            if (session?.access_token) {
+                headers['Authorization'] = `Bearer ${session.access_token}`;
+            }
+        } else if (window.supabaseClient) {
+            // Fallback if adapter not ready
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (session?.access_token) {
                 headers['Authorization'] = `Bearer ${session.access_token}`;

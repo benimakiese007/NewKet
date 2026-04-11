@@ -98,6 +98,49 @@ window.SupabaseAdapter = {
         throw lastError;
     },
 
+    /**
+     * Internal helper to enforce a timeout on an async operation.
+     */
+    async _withTimeout(promise, ms = 7000, label = 'Operation') {
+        let timeoutId;
+        const timeoutPromise = new Promise((_, reject) => {
+            timeoutId = setTimeout(() => {
+                reject(new Error(`[NewKet] ${label} timed out after ${ms}ms`));
+            }, ms);
+        });
+
+        return Promise.race([
+            promise,
+            timeoutPromise
+        ]).finally(() => clearTimeout(timeoutId));
+    },
+
+    /**
+     * Safely retrieves the current Supabase session with a timeout.
+     * Prevents UI hangs if the auth module is struggling.
+     */
+    async getSession(timeoutMs = 3000) {
+        const client = this.getClient();
+        if (!client) return null;
+
+        try {
+            const result = await Promise.race([
+                client.auth.getSession(),
+                new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), timeoutMs))
+            ]);
+
+            if (result.timeout) {
+                console.warn('[NewKet Adapter] getSession timed out. Proceeding as Guest.');
+                return null;
+            }
+
+            return result.data?.session || null;
+        } catch (err) {
+            console.error('[NewKet Adapter] Error in getSession:', err);
+            return null;
+        }
+    },
+
     // ========== FETCH WITH FILTERS (centralized, cached + retry) ==========
     /**
      * Fetch data with Supabase filters, caching, and retry.
@@ -110,6 +153,7 @@ window.SupabaseAdapter = {
      * @param {number} [options.limit]     - Max rows to return
      * @param {boolean}[options.single]    - Use .single() for single row
      * @param {boolean}[options.skipCache] - Force bypass cache
+     * @param {number} [options.timeout]   - Custom timeout in ms
      * @returns {Promise<Array|Object|null>}
      */
     async fetchWithFilters(table, options = {}) {
@@ -126,84 +170,88 @@ window.SupabaseAdapter = {
         if (!client) return options.single ? null : [];
 
         try {
-            const data = await this._retry(async () => {
-                let query = client.from(table).select(options.select || '*');
+            const data = await this._withTimeout(
+                this._retry(async () => {
+                    let query = client.from(table).select(options.select || '*');
 
-                // Apply .eq() filters
-                if (options.eq) {
-                    for (const [col, val] of options.eq) {
-                        query = query.eq(col, val);
-                    }
-                }
-
-                // Apply .in() filters
-                if (options.in) {
-                    for (const [col, vals] of options.in) {
-                        query = query.in(col, vals);
-                    }
-                }
-
-                // Apply .ilike() filters (text search)
-                if (options.ilike) {
-                    for (const [col, pattern] of options.ilike) {
-                        query = query.ilike(col, pattern);
-                    }
-                }
-
-                // Apply .or() filters (supports single string or array of strings)
-                if (options.or) {
-                    if (Array.isArray(options.or)) {
-                        for (const orCond of options.or) {
-                            query = query.or(orCond);
+                    // Apply .eq() filters
+                    if (options.eq) {
+                        for (const [col, val] of options.eq) {
+                            query = query.eq(col, val);
                         }
-                    } else {
-                        query = query.or(options.or);
                     }
-                }
 
-                // Apply .gte() filters (greater than or equal)
-                if (options.gte) {
-                    for (const [col, val] of options.gte) {
-                        query = query.gte(col, val);
+                    // Apply .in() filters
+                    if (options.in) {
+                        for (const [col, vals] of options.in) {
+                            query = query.in(col, vals);
+                        }
                     }
-                }
 
-                // Apply .lte() filters (less than or equal)
-                if (options.lte) {
-                    for (const [col, val] of options.lte) {
-                        query = query.lte(col, val);
+                    // Apply .ilike() filters (text search)
+                    if (options.ilike) {
+                        for (const [col, pattern] of options.ilike) {
+                            query = query.ilike(col, pattern);
+                        }
                     }
-                }
 
-                // Apply .order()
-                if (options.order) {
-                    query = query.order(options.order[0], options.order[1] || {});
-                }
+                    // Apply .or() filters (supports single string or array of strings)
+                    if (options.or) {
+                        if (Array.isArray(options.or)) {
+                            for (const orCond of options.or) {
+                                query = query.or(orCond);
+                            }
+                        } else {
+                            query = query.or(options.or);
+                        }
+                    }
 
-                // Apply .range() for pagination (from, to inclusive)
-                if (options.range) {
-                    query = query.range(options.range[0], options.range[1]);
-                }
+                    // Apply .gte() filters (greater than or equal)
+                    if (options.gte) {
+                        for (const [col, val] of options.gte) {
+                            query = query.gte(col, val);
+                        }
+                    }
 
-                // Apply .limit()
-                if (options.limit) {
-                    query = query.limit(options.limit);
-                }
+                    // Apply .lte() filters (less than or equal)
+                    if (options.lte) {
+                        for (const [col, val] of options.lte) {
+                            query = query.lte(col, val);
+                        }
+                    }
 
-                // Apply .single()
-                if (options.single) {
-                    query = query.single();
-                }
+                    // Apply .order()
+                    if (options.order) {
+                        query = query.order(options.order[0], options.order[1] || {});
+                    }
 
-                console.log(`[NewKet] Fetching from ${table} with options:`, options);
-                const { data, error } = await query;
-                if (error) {
-                    console.error(`[NewKet] Supabase Error in ${table}:`, error);
-                    throw error;
-                }
-                console.log(`[NewKet] Fetched ${data?.length || 0} rows from ${table}.`);
-                return data;
-            });
+                    // Apply .range() for pagination (from, to inclusive)
+                    if (options.range) {
+                        query = query.range(options.range[0], options.range[1]);
+                    }
+
+                    // Apply .limit()
+                    if (options.limit) {
+                        query = query.limit(options.limit);
+                    }
+
+                    // Apply .single()
+                    if (options.single) {
+                        query = query.single();
+                    }
+
+                    console.log(`[NewKet] Fetching from ${table} with options:`, options);
+                    const { data, error } = await query;
+                    if (error) {
+                        console.error(`[NewKet] Supabase Error in ${table}:`, error);
+                        throw error;
+                    }
+                    console.log(`[NewKet] Fetched ${data?.length || 0} rows from ${table}.`);
+                    return data;
+                }),
+                options.timeout || 7000,
+                `Fetch from ${table}`
+            );
 
             this._setCache(cacheKey, data, table);
             return data;
