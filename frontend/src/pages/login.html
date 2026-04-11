@@ -341,10 +341,13 @@
 
                     <!-- Oauth Providers -->
                     <div class="grid grid-cols-1 gap-4 animate-item">
-                        <button type="button" onclick="signInWithGoogle()"
-                            class="social-btn h-12 flex items-center justify-center gap-3 border-2 border-gray-100 rounded-2xl bg-white text-[11px] font-black uppercase tracking-widest text-gray-700 hover:border-gray-200 hover:bg-gray-50">
-                            <iconify-icon icon="logos:google-icon" width="16"></iconify-icon>
-                            Google
+                        <button type="button" onclick="signInWithGoogle()" id="google-btn"
+                            class="social-btn h-12 flex items-center justify-center gap-3 border-2 border-gray-100 rounded-2xl bg-white text-[11px] font-black uppercase tracking-widest text-gray-700 hover:border-gray-200 hover:bg-gray-50 transition-all relative">
+                            <iconify-icon icon="logos:google-icon" width="16" id="google-icon"></iconify-icon>
+                            <span id="google-btn-text">Google</span>
+                            <div id="google-spinner" class="hidden">
+                                <i class="fas fa-circle-notch fa-spin text-black"></i>
+                            </div>
                         </button>
                     </div>
 
@@ -366,12 +369,20 @@
 
     <script>
         // --- 1. GSAP Intros ---
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             gsap.to("#bgImage", { scale: 1, duration: 10, ease: "power1.out" });
 
             const tl = gsap.timeline();
             tl.from("#heroContent > *", { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: "power2.out", delay: 0.2 })
                 .from(".animate-item", { opacity: 0, y: 15, stagger: 0.05, duration: 0.6, ease: "power2.out", clearProps: "all" }, "-=0.6");
+
+            // Redirection logic for already logged in users (Skill 3)
+            window.addEventListener('newketInitialized', () => {
+                if (window.AuthManager && window.AuthManager.user) {
+                    console.log('[NewKet Login] Redirecting authenticated user...');
+                    window.location.href = '/';
+                }
+            });
         });
 
         // --- 2. State & Elements ---
@@ -695,8 +706,16 @@
 
         // --- 6. Oauth Logic ---
         async function signInWithProvider(provider) {
+            const btn = document.getElementById('google-btn');
+            const text = document.getElementById('google-btn-text');
+            const icon = document.getElementById('google-icon');
+            const spinner = document.getElementById('google-spinner');
+
             // UI feedback
-            if (typeof showToast !== 'undefined') showToast(`Connexion via ${provider}...`, "info");
+            if (btn) btn.disabled = true;
+            if (text) text.innerText = 'Connexion...';
+            if (icon) icon.classList.add('hidden');
+            if (spinner) spinner.classList.remove('hidden');
 
             try {
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
@@ -706,10 +725,16 @@
                     }
                 });
                 if (error) throw error;
-                // Redirect will be handled by supabase SDK immediately
+                // Redirect will be handled by browser
             } catch (e) {
                 console.error("OAuth Error:", e);
                 showError(`Erreur lors de la connexion via ${provider}.`);
+                
+                // Reset UI
+                if (btn) btn.disabled = false;
+                if (text) text.innerText = 'Google';
+                if (icon) icon.classList.remove('hidden');
+                if (spinner) spinner.classList.add('hidden');
             }
         }
 

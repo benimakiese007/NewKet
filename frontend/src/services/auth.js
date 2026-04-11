@@ -62,13 +62,7 @@ const AuthManager = {
                         this.user = user; 
                         console.log('[NewKet Auth] Session valid for:', user.email);
                         
-                        const hasProfile = await this.checkProfile(user.id);
-                        if (!hasProfile) {
-                            console.warn('[NewKet Auth] Profile missing, logout triggered.');
-                            await this.logout('Profil manquant');
-                            return;
-                        }
-
+                        // We now let handleSessionUpdate manage profile creation/validation
                         await this.handleSessionUpdate(user);
                     } else {
                         console.log('[NewKet Auth] No active session found.');
@@ -110,10 +104,11 @@ const AuthManager = {
     },
 
     async handleSessionUpdate(user) {
+        if (!user) return;
         const email = user.email;
         let role = user.user_metadata.role || 'customer';
 
-        // Admin check
+        // Admin check (centralized list)
         const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
         if (email && admins.includes(email.toLowerCase())) {
             role = 'admin';
@@ -127,6 +122,30 @@ const AuthManager = {
         const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture || null;
         if (avatarUrl) localStorage.setItem('newketUserAvatar', avatarUrl);
 
+        // --- 🛡️ AUTO-PROFILE CREATION (Skill 5 & 6) ---
+        // Verify if user exists in the 'users' table, if not, create it.
+        const profileExists = await this.checkProfile(user.id);
+        if (!profileExists) {
+            console.log('[NewKet Auth] New user detected, creating database profile...');
+            const fullName = user.user_metadata.full_name || user.user_metadata.name || email.split('@')[0];
+            
+            const newProfile = {
+                id: user.id,
+                email: email,
+                name: fullName,
+                avatar_url: avatarUrl,
+                role: role,
+                status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending'
+            };
+
+            const success = await window.SupabaseAdapter.upsert('users', newProfile);
+            if (!success) {
+                console.error('[NewKet Auth] Failed to create profile. User might have limited access.');
+            } else {
+                 console.log('[NewKet Auth] Database profile created successfully.');
+            }
+        }
+
         this.status = await this.fetchUserStatus(email);
         localStorage.setItem('newketUserStatus', this.status);
 
@@ -134,6 +153,7 @@ const AuthManager = {
         this.enforcePermissions();
 
         if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
+        if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
         
         // Finalize initialization
         this._authChecking = false;
