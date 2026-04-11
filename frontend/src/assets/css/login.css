@@ -7,13 +7,13 @@
     align-items: center;
     justify-content: center;
     background-color: var(--bg-light);
-    padding: 2rem 0;
+    padding: var(--space-xl) 0;
     /* Add padding to prevent cut-off on small height screens */
 }
 
 .login-container {
     background-color: white;
-    padding: 2.5rem;
+    padding: var(--space-2xl);
     border-radius: 16px;
     box-shadow: var(--shadow-lg);
     width: 100%;
@@ -23,13 +23,13 @@
 
 .login-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-xl);
 }
 
 .login-header h2 {
     font-size: 2rem;
     color: var(--secondary-color);
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-sm);
     font-weight: 700;
 }
 
@@ -39,12 +39,12 @@
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-lg);
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-sm);
     color: var(--secondary-color);
     font-weight: 500;
     font-size: 0.9rem;
@@ -56,7 +56,7 @@
 
 .input-wrapper i {
     position: absolute;
-    left: 1rem;
+    left: var(--space-md);
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-light);
@@ -65,7 +65,7 @@
 
 .input-wrapper input {
     width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.8rem;
+    padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-2xl);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 0.95rem;
@@ -83,7 +83,7 @@
 
 .toggle-password {
     position: absolute;
-    right: 1rem;
+    right: var(--space-md);
     left: auto;
     /* Reset left property from i styles if necessary, though it's a button here */
     top: 50%;
@@ -105,7 +105,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-lg);
     font-size: 0.85rem;
 }
 
@@ -118,7 +118,7 @@
 }
 
 .checkbox-wrapper input {
-    margin-right: 0.5rem;
+    margin-right: var(--space-sm);
     accent-color: var(--primary-color);
     width: 16px;
     height: 16px;
@@ -137,7 +137,7 @@
     display: flex;
     align-items: center;
     text-align: center;
-    margin: 1.5rem 0;
+    margin: var(--space-lg) 0;
     color: var(--text-light);
     font-size: 0.85rem;
 }
@@ -150,22 +150,22 @@
 }
 
 .divider span {
-    padding: 0 1rem;
+    padding: 0 var(--space-md);
 }
 
 .social-login {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
 }
 
 .social-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.6rem;
+    gap: var(--space-sm);
+    padding: var(--space-xs);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     background-color: white;
@@ -205,7 +205,7 @@
 
 @media (max-width: 480px) {
     .login-container {
-        padding: 1.5rem 1.25rem;
+        padding: var(--space-lg) var(--space-md);
         /* Slightly reduced padding */
         width: 100%;
         border-radius: 12px;

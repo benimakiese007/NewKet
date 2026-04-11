@@ -88,7 +88,7 @@ canvas {
     /* Removing static header spacers override to use dynamic JS spacing */
 
     .main-header .w-full {
-        padding-top: 0.5rem !important;
+        padding-top: var(--space-sm) !important;
         padding-bottom: 0px !important;
     }
 
@@ -98,7 +98,7 @@ canvas {
     }
 
     .search-bar {
-        margin: 0 0.5rem 0.5rem !important;
+        margin: 0 var(--space-sm) var(--space-sm) !important;
         background-color: #f3f4f6 !important;
         border-radius: 10px !important;
         width: 100% !important;
@@ -137,7 +137,7 @@ canvas {
 
     /* Reduire l'ecart entre le logo et le hamburger */
     .header-content>div:first-child {
-        gap: 0.25rem !important;
+        gap: var(--space-sm) !important;
     }
 }
 
@@ -154,8 +154,8 @@ canvas {
 
     /* About hero */
     .hero-pattern {
-        padding-top: 4rem !important;
-        padding-bottom: 4rem !important;
+        padding-top: var(--space-4xl) !important;
+        padding-bottom: var(--space-4xl) !important;
     }
 }
 
@@ -187,7 +187,7 @@ canvas {
 
     /* Espacement réduit pour les grilles produits mobile */
     .product-grid {
-        gap: 0.5rem !important;
+        gap: var(--space-sm) !important;
     }
 
     .product-card {
@@ -248,7 +248,7 @@ canvas {
 /* Checkout modal responsive */
 @media (max-width: 480px) {
     #checkoutModal {
-        padding: 1.5rem !important;
+        padding: var(--space-lg) !important;
         border-radius: 1.5rem !important;
     }
 
@@ -288,7 +288,7 @@ canvas {
     /* Padding réduit dans les stats cards */
     .glass-panel.p-8,
     .glass-panel.p-6 {
-        padding: 1rem !important;
+        padding: var(--space-md) !important;
     }
 
     /* Vendor dashboard header — empiler les éléments */
@@ -338,12 +338,12 @@ canvas {
     /* Shop cards : 1 colonne sur mobile */
     #shopsGrid {
         grid-template-columns: 1fr !important;
-        gap: 1rem !important;
+        gap: var(--space-md) !important;
     }
 
     /* Réduction du padding dans les shop cards */
     .shop-card {
-        padding: 1.5rem !important;
+        padding: var(--space-lg) !important;
         border-radius: 1.5rem !important;
     }
 
@@ -400,7 +400,7 @@ canvas {
 
     .login-container,
     .auth-container {
-        padding: 1.5rem !important;
+        padding: var(--space-lg) !important;
         border-radius: 1.5rem !important;
     }
 
@@ -429,7 +429,7 @@ canvas {
     .filter-group {
         display: flex !important;
         flex-wrap: wrap !important;
-        gap: 0.5rem !important;
+        gap: var(--space-sm) !important;
     }
 }
 
@@ -441,7 +441,7 @@ canvas {
 
     /* Story section : empiler image et texte */
     .grid.md\:grid-cols-2.gap-20 {
-        gap: 2rem !important;
+        gap: var(--space-xl) !important;
     }
 
     /* Réduire l'aspect-ratio de l'image */
@@ -502,11 +502,11 @@ canvas {
 
     /* Modal padding réduit */
     .fixed.inset-0 .p-10 {
-        padding: 1.5rem !important;
+        padding: var(--space-lg) !important;
     }
 
     .fixed.inset-0 .p-8 {
-        padding: 1.25rem !important;
+        padding: var(--space-lg) !important;
     }
 
     /* Max height pour les modals scrollables */
@@ -537,7 +537,7 @@ canvas {
 @media (max-width: 639px) {
     .footer-grid {
         grid-template-columns: 1fr !important;
-        gap: 1.5rem !important;
+        gap: var(--space-lg) !important;
     }
 
     .footer-bottom {

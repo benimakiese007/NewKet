@@ -1,7 +1,6 @@
-/* Catalog Page Specifics */
 .catalog-layout {
     display: flex;
-    gap: 3rem;
+    gap: var(--space-3xl);
 }
 
 .sidebar {
@@ -14,9 +13,9 @@
 }
 
 .filter-group {
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-xl);
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 1.5rem;
+    padding-bottom: var(--space-lg);
 }
 
 .filter-group:last-child {
@@ -25,7 +24,7 @@
 
 .filter-group h3 {
     font-size: 1.1rem;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-md);
     font-weight: 600;
 }
 
@@ -34,7 +33,7 @@
 }
 
 .filter-list li {
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-sm);
 }
 
 .filter-list label {
@@ -46,7 +45,7 @@
 }
 
 .filter-list input[type="checkbox"] {
-    margin-right: 0.75rem;
+    margin-right: var(--space-xs);
     accent-color: var(--primary-color);
     width: 16px;
     height: 16px;
@@ -57,7 +56,7 @@
 }
 
 .sort-select {
-    padding: 0.5rem 1rem;
+    padding: var(--space-sm) var(--space-md);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-family: inherit;
@@ -72,6 +71,6 @@
 
     .sidebar {
         width: 100%;
-        margin-bottom: 2rem;
+        margin-bottom: var(--space-xl);
     }
 }

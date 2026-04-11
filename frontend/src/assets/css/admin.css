@@ -35,8 +35,8 @@ body {
 .sidebar-link {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
-    padding: 0.85rem 1.25rem;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
     border-radius: 1rem;
     color: #64748b;
     font-weight: 600;
@@ -48,7 +48,7 @@ body {
 .sidebar-link:hover {
     background: #f1f5f9;
     color: #0f172a;
-    padding-left: 1.5rem;
+    padding-left: var(--space-lg);
 }
 
 .sidebar-link.active {
@@ -117,7 +117,7 @@ body {
 
 /* Status Badges */
 .badge-premium {
-    padding: 0.35rem 0.85rem;
+    padding: var(--space-xs) var(--space-md);
     border-radius: 999px;
     font-size: 0.65rem;
     font-weight: 800;
@@ -125,13 +125,13 @@ body {
     letter-spacing: 0.05em;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: var(--space-xs);
 }
 
 /* Table Enhancements */
 .premium-table thead th {
     background: #f8fafc;
-    padding: 1rem;
+    padding: var(--space-md);
     font-size: 0.65rem;
     font-weight: 900;
     color: #64748b;
@@ -141,7 +141,7 @@ body {
 }
 
 .premium-table tbody td {
-    padding: 1rem;
+    padding: var(--space-md);
     border-bottom: 1px solid #f1f5f9;
     vertical-align: middle;
 }

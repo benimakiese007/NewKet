@@ -50,6 +50,26 @@ html:not(.auth-loading) body {
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Spacing Scale (8px base) */
+  --space-3xs: 0.125rem; /* 2px */
+  --space-2xs: 0.25rem;  /* 4px */
+  --space-xs: 0.375rem;  /* 6px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 2.5rem;   /* 40px */
+  --space-3xl: 3rem;     /* 48px */
+  --space-4xl: 4rem;     /* 64px */
+  --space-5xl: 5rem;     /* 80px */
+  --space-6xl: 6rem;     /* 96px */
+
+  /* Semantic Mappings */
+  --section-padding-v: var(--space-5xl);
+  --container-padding-h: var(--space-lg);
+  --component-gap: var(--space-md);
+  --card-padding: var(--space-md);
 }
 
 @media (max-width: 639px) {
@@ -132,15 +152,15 @@ button {
 .container {
   max-width: var(--container-width);
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 var(--container-padding-h);
 }
 
 .section {
-  padding: 5rem 0;
+  padding: var(--section-padding-v) 0;
 }
 
 #heroSection {
-  margin-bottom: 6rem !important;
+  margin-bottom: var(--space-6xl) !important;
 }
 
 .text-center {
@@ -164,15 +184,15 @@ button {
 }
 
 .gap-4 {
-  gap: 1rem;
+  gap: var(--space-md);
 }
 
 .gap-8 {
-  gap: 2rem;
+  gap: var(--space-xl);
 }
 
 .mb-4 {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-md);
 }
 
 .w-full {
@@ -180,7 +200,7 @@ button {
 }
 
 .mt-3 {
-  margin-top: 0.75rem;
+  margin-top: var(--space-xs);
 }
 
 .text-yellow-400 {
@@ -213,7 +233,7 @@ h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.5rem;
+  padding: var(--space-xs) var(--space-lg);
   border-radius: 9999px;
   /* Pill shape */
   font-weight: 600;
@@ -222,7 +242,7 @@ h6 {
 }
 
 .btn-sm {
-  padding: 0.5rem 1rem;
+  padding: var(--space-sm) var(--space-md);
   font-size: 0.85rem;
 }
 
@@ -367,7 +387,7 @@ h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0 var(--space-md);
   /* Add internal padding */
 }
 
@@ -421,7 +441,7 @@ h6 {
 
 .nav-icons {
   display: flex;
-  gap: 2rem;
+  gap: var(--space-xl);
   /* Increased gap */
 }
 
@@ -456,14 +476,14 @@ h6 {
 .category-nav {
   background-color: var(--bg-white);
   border-bottom: 1px solid var(--border-color);
-  padding: 0.75rem 0;
+  padding: var(--space-xs) 0;
   overflow-x: auto;
 }
 
 .category-list {
   display: flex;
   justify-content: center;
-  gap: 2rem;
+  gap: var(--space-xl);
   list-style: none;
 }
 
@@ -511,12 +531,12 @@ h6 {
 
 .hero-tag {
   display: inline-block;
-  padding: 0.6rem 1.25rem;
+  padding: var(--space-xs) var(--space-lg);
   background: linear-gradient(135deg, var(--primary-color) 0%, #333333 100%);
   border-radius: 50px;
   font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-lg);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: white;
@@ -527,14 +547,14 @@ h6 {
 .hero-content h1 {
   color: white;
   font-size: 2.8rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-sm);
   font-weight: 800;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
 }
 
 .hero-content p {
   font-size: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg);
   opacity: 0.95;
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
 }
@@ -542,7 +562,7 @@ h6 {
 /* Features Bar */
 
 .features-bar {
-  padding: 1.5rem 0;
+  padding: var(--space-lg) 0;
   background-color: white;
   border-bottom: 1px solid var(--border-color);
   overflow: hidden;
@@ -553,7 +573,7 @@ h6 {
   display: flex;
   width: -moz-max-content;
   width: max-content;
-  gap: 4rem;
+  gap: var(--space-4xl);
   animation: scroll 40s linear infinite;
 }
 
@@ -564,7 +584,7 @@ h6 {
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-md);
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -639,7 +659,7 @@ h6 {
 
 .product-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--space-lg);
   /* Reduced gap for better tablet/mobile fit */
 }
 
@@ -796,7 +816,7 @@ h6 {
 }
 
 .product-info {
-  padding: 1rem 1.15rem 1.15rem;
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
   position: relative;
   z-index: 2;
   flex: 1;
