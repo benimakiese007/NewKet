@@ -22,9 +22,11 @@ const AdminLayout = {
     },
 
     checkAccess() {
-        // Use AuthManager for single source of truth
-        if (!window.AuthManager || !window.AuthManager.isAdmin()) {
-            console.error('[NewKet] Unauthorized access to Admin CMS.');
+        // Use AuthManager.role or fallback to localStorage for the admin check.
+        // NOTE: AuthManager.isAdmin() does not exist — use .role directly.
+        const role = window.AuthManager?.role || localStorage.getItem('newketRole');
+        if (role !== 'admin') {
+            console.error('[NewKet] Unauthorized access to Admin CMS. Role:', role);
             window.location.href = '/pages/login';
         }
     },
