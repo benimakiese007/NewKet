@@ -133,7 +133,7 @@ const AuthManager = {
                 id: user.id,
                 email: email,
                 name: fullName,
-                avatar_url: avatarUrl,
+                avatar: avatarUrl,
                 role: role,
                 status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending'
             };
