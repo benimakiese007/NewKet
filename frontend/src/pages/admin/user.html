@@ -70,7 +70,7 @@
 <body class="text-gray-900 bg-[#f8fafc]">
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pb-12 flex flex-col md:flex-row gap-8">
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-[52px] pb-12 flex flex-col md:flex-row gap-8">
         <div id="adminSidebarPlaceholder"></div>
 
         <!-- Main Content -->
@@ -127,6 +127,21 @@
                         <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
                     </div>
                     <p class="text-gray-400 font-bold">Aucun utilisateur trouvé dans cette catégorie.</p>
+                </div>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div id="paginationControls" class="flex items-center justify-between p-6 bg-white border-t border-gray-100 hidden">
+                <div class="text-[11px] font-black uppercase tracking-widest text-gray-400">
+                    Page <span id="currentPageDisplay" class="text-black">1</span> sur <span id="totalPagesDisplay" class="text-black">1</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="prevPage()" class="p-3 bg-gray-50 text-gray-400 hover:bg-black hover:text-white rounded-xl transition-all disabled:opacity-30 disabled:pointer-events-none" id="prevBtn">
+                        <iconify-icon icon="solar:alt-arrow-left-bold" width="20"></iconify-icon>
+                    </button>
+                    <button onclick="nextPage()" class="p-3 bg-gray-50 text-gray-400 hover:bg-black hover:text-white rounded-xl transition-all disabled:opacity-30 disabled:pointer-events-none" id="nextBtn">
+                        <iconify-icon icon="solar:alt-arrow-right-bold" width="20"></iconify-icon>
+                    </button>
                 </div>
             </div>
 
@@ -213,101 +228,187 @@
     <script>
         let currentFilter = 'supplier';
         let searchQuery = '';
+        let currentPage = 1;
+        const itemsPerPage = 20;
 
-        function renderUsers() {
+        let _renderLock = false;
+        let _statsCache = null; // High-performance cache for sales totals
+
+        // Debounce search to prevent UI stutters
+        const debouncedSearch = (val) => {
+            searchQuery = val;
+            currentPage = 1;
+            renderUsers();
+        };
+
+        let searchTimeout;
+        document.getElementById('userSearch')?.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => debouncedSearch(e.target.value), 300);
+        }        function renderUsers() {
+            if (_renderLock) return;
+            if (!window.UserManager || !window.ProductManager || !window.OrderManager) return;
+
             const tbody = document.getElementById('usersBody');
             const emptyState = document.getElementById('emptyState');
-            const allUsers = UserManager.getUsers();
-            const allProducts = ProductManager.getProducts();
-            const allOrders = OrderManager.getOrders();
+            const pagControls = document.getElementById('paginationControls');
+            if (!tbody || !emptyState) return;
 
-            const filteredUsers = allUsers.filter(u => {
-                if (u.role === 'admin') return false;
-                
-                const matchesRole = currentFilter === 'all' || 
-                                   (currentFilter === 'pending' 
-                                        ? (u.status === 'pending' || u.status === 'submitted') 
-                                        : u.role === currentFilter);
-                
-                const userName = u.name || 'Utilisateur sans nom';
-                const storeName = u.store_name || '';
-                const userEmail = u.email || '';
-                const matchesSearch = userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    storeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    userEmail.toLowerCase().includes(searchQuery.toLowerCase());
-                return matchesRole && matchesSearch;
-            });
+            _renderLock = true;
 
-            if (filteredUsers.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
+            const doRender = () => {
+                try {
+                    const allUsers = UserManager.getUsers();
+                    const allProducts = ProductManager.getProducts();
+                    const allOrders = OrderManager.getOrders();
 
-            emptyState.classList.add('hidden');
-            tbody.innerHTML = filteredUsers.map((u, i) => {
-                const userProducts = allProducts.filter(p => p.supplier_email === u.email);
-                const userSales = allOrders.reduce((sum, o) => {
-                    const mine = (o.items || []).filter(item => userProducts.some(p => p.id === item.id));
-                    return sum + mine.reduce((s, it) => s + (it.price * it.quantity), 0);
-                }, 0);
+                    // 1. COMPUTE STATS ONLY ONCE (High-perf cache)
+                    if (!_statsCache) {
+                        const salesByEmail = {};
+                        const productsByEmail = {};
+                        const productSupplierMap = {};
+                        
+                        allProducts.forEach(p => {
+                            if (!p.supplier_email) return;
+                            if (!productsByEmail[p.supplier_email]) productsByEmail[p.supplier_email] = [];
+                            productsByEmail[p.supplier_email].push(p.id);
+                            productSupplierMap[p.id] = p.supplier_email;
+                        });
+                        
+                        allOrders.forEach(o => {
+                            (o.items || []).forEach(item => {
+                                const email = productSupplierMap[item.id];
+                                if (!email) return;
+                                if (!salesByEmail[email]) salesByEmail[email] = 0;
+                                salesByEmail[email] += (item.price || 0) * (item.quantity || 1);
+                            });
+                        });
+                        _statsCache = { salesByEmail, productsByEmail };
+                    }
 
-                const isSubmitted = u.status === 'submitted';
-                const isPending = u.status === 'pending';
-                const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
-                const hasNoLogo = u.role === 'supplier' && !(u.avatar || u.cover_image);
+                    // 2. FILTER USERS
+                    const filteredUsers = allUsers.filter(u => {
+                        if (u.role === 'admin') return false;
+                        const matchesRole = currentFilter === 'all' || 
+                                           (currentFilter === 'pending' 
+                                                ? (u.status === 'pending' || u.status === 'submitted') 
+                                                : u.role === currentFilter);
+                        
+                        const matchesSearch = (u.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (u.store_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (u.email || '').toLowerCase().includes(searchQuery.toLowerCase());
+                        return matchesRole && matchesSearch;
+                    });
 
-                const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
-                const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
+                    // 3. PAGINATION MATH
+                    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage) || 1;
+                    if (currentPage > totalPages) currentPage = totalPages;
+                    
+                    const start = (currentPage - 1) * itemsPerPage;
+                    const paginatedUsers = filteredUsers.slice(start, start + itemsPerPage);
 
-                return `
-                <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
-                    <td class="p-4" onclick="window.open('user-details?email=' + encodeURIComponent('${u.email}'), '_blank')">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
-                                ${(u.avatar || u.cover_image) 
-                                    ? `<img src="${u.avatar || u.cover_image}" class="w-full h-full object-cover">` 
-                                    : `<span class="text-lg opacity-30">${(u.store_name || u.name || 'U').charAt(0)}</span>`
-                                }
-                            </div>
-                            <div>
-                                <div class="font-black text-gray-900 flex items-center gap-2">
-                                    ${u.store_name || u.name || 'Sans Nom'}
-                                    ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping"></span>' : ''}
+                    // Update Pagination UI
+                    if (pagControls) {
+                        pagControls.classList.toggle('hidden', filteredUsers.length <= itemsPerPage);
+                        const currDisplay = document.getElementById('currentPageDisplay');
+                        const totalDisplay = document.getElementById('totalPagesDisplay');
+                        const pBtn = document.getElementById('prevBtn');
+                        const nBtn = document.getElementById('nextBtn');
+                        
+                        if (currDisplay) currDisplay.textContent = currentPage;
+                        if (totalDisplay) totalDisplay.textContent = totalPages;
+                        if (pBtn) pBtn.disabled = currentPage === 1;
+                        if (nBtn) nBtn.disabled = currentPage === totalPages;
+                    }
+
+                    if (filteredUsers.length === 0) {
+                        tbody.innerHTML = '';
+                        emptyState.classList.remove('hidden');
+                        return;
+                    }
+
+                    emptyState.classList.add('hidden');
+                    
+                    // 4. RENDER PAGE
+                    tbody.innerHTML = paginatedUsers.map((u, i) => {
+                        const userProducts = _statsCache.productsByEmail[u.email] || [];
+                        const userSales = _statsCache.salesByEmail[u.email] || 0;
+
+                        const isSubmitted = u.status === 'submitted';
+                        const isPending = u.status === 'pending';
+                        const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
+                        const hasNoLogo = u.role === 'supplier' && !(u.avatar || u.cover_image);
+
+                        const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
+                        const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
+
+                        return `
+                        <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
+                            <td class="p-4" onclick="window.open('user-details?email=' + encodeURIComponent('${u.email}'), '_blank')">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
+                                        ${(u.avatar || u.cover_image) 
+                                            ? `<img src="${u.avatar || u.cover_image}" class="w-full h-full object-cover">` 
+                                            : `<span class="text-lg opacity-30">${(u.store_name || u.name || 'U').charAt(0)}</span>`
+                                        }
+                                    </div>
+                                    <div>
+                                        <div class="font-black text-gray-900 flex items-center gap-2">
+                                            ${u.store_name || u.name || 'Sans Nom'}
+                                            ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping"></span>' : ''}
+                                        </div>
+                                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${u.email}</div>
+                                    </div>
                                 </div>
-                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${u.email}</div>
-                                ${(u.store_name && u.name && u.store_name !== u.name) ? `<div class="text-[9px] font-bold text-blue-500 uppercase mt-1 italic">${u.name}</div>` : ''}
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="badge-premium ${statusColor}">
-                            ${statusLabel}
-                        </div>
-                    </td>
-                    <td>
-                        <span class="font-black text-gray-900">${userProducts.length}</span>
-                        <span class="text-[9px] text-gray-400 font-bold uppercase block tracking-tighter">Articles</span>
-                    </td>
-                    <td>
-                        <span class="font-black text-gray-900">${CurrencyManager.formatPrice(userSales)}</span>
-                    </td>
-                    <td class="text-right">
-                        <div class="flex items-center justify-end gap-2">
-                            ${needsReview ? `
-                                <button onclick="approveVendor('${u.id}', '${u.name}')" class="px-4 py-2 bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-all shadow-lg shadow-black/10">Approuver</button>
-                                <button onclick="rejectVendor('${u.id}', '${u.name}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon></button>
-                            ` : `
-                                <button onclick="confirmDelete('${u.id}', '${u.name}')" class="p-2 text-gray-200 hover:text-red-500 transition-colors">
-                                    <iconify-icon icon="solar:trash-bin-trash-linear" width="22"></iconify-icon>
-                                </button>
-                            `}
-                        </div>
-                    </td>
-                </tr>
-            `;
-            }).join('');
+                            </td>
+                            <td><div class="badge-premium ${statusColor}">${statusLabel}</div></td>
+                            <td><span class="font-black text-gray-900">${userProducts.length}</span></td>
+                            <td><span class="font-black text-gray-900">${CurrencyManager.formatPrice(userSales)}</span></td>
+                            <td class="text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    ${needsReview ? `
+                                        <button onclick="approveVendor('${u.id}', '${u.name}')" class="px-4 py-2 bg-black text-white text-[10px] font-black uppercase rounded-xl hover:bg-gray-800 transition-all shadow-lg">Approuver</button>
+                                        <button onclick="rejectVendor('${u.id}', '${u.name}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon></button>
+                                    ` : `
+                                        <button onclick="confirmDelete('${u.id}', '${u.name}')" class="p-2 text-gray-200 hover:text-red-500 transition-colors">
+                                            <iconify-icon icon="solar:trash-bin-trash-linear" width="22"></iconify-icon>
+                                        </button>
+                                    `}
+                                </div>
+                            </td>
+                        </tr>
+                        `;
+                    }).join('');
+                } catch (err) {
+                    console.error('[UserPage] renderUsers error:', err);
+                } finally {
+                    _renderLock = false;
+                }
+            };
+
+            if (window.requestIdleCallback) {
+                requestIdleCallback(doRender, { timeout: 300 });
+            } else {
+                setTimeout(doRender, 0);
+            }
         }
+
+        function prevPage() { if (currentPage > 1) { currentPage--; renderUsers(); } }
+        function nextPage() { currentPage++; renderUsers(); }
+
+        function initializeUsers() {
+            window.addEventListener('usersUpdated', () => { _statsCache = null; renderUsers(); });
+            window.addEventListener('ordersUpdated', () => { _statsCache = null; renderUsers(); });
+            renderUsers();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.newketInitialized) {
+                initializeUsers();
+            } else {
+                window.addEventListener('newketInitialized', initializeUsers);
+            }
+        });
 
         async function approveVendor(id, name) {
             if (!confirm(`Approuver le vendeur ${name} ?`)) return;
@@ -340,15 +441,6 @@
             }
         }
 
-        function getRoleClass(role) {
-            switch (role) {
-                case 'customer': return 'role-customer';
-                case 'supplier': return 'role-supplier';
-                case 'admin': return 'role-admin';
-                default: return 'bg-gray-100 text-gray-500';
-            }
-        }
-
         function getRoleLabel(role) {
             switch (role) {
                 case 'customer': return 'Client';
@@ -360,6 +452,7 @@
 
         function filterUsers(role) {
             currentFilter = role;
+            currentPage = 1; // Reset to page 1 on filter change
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 const text = btn.textContent.toLowerCase();
                 const target = getRoleLabel(role).toLowerCase();
@@ -386,11 +479,6 @@
                 renderUsers();
             }
         }
-
-        document.getElementById('userSearch').addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            renderUsers();
-        });
 
         function switchTab(tabId) {
             ['orders', 'products'].forEach(id => {

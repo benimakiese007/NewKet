@@ -22,9 +22,22 @@ const AdminLayout = {
     },
 
     checkAccess() {
-        // Use AuthManager.role or fallback to localStorage for the admin check.
-        // NOTE: AuthManager.isAdmin() does not exist — use .role directly.
+        // Wait for AuthManager to be ready before checking role.
+        // AuthManager.role may be null at parse time — always read from localStorage as fallback.
         const role = window.AuthManager?.role || localStorage.getItem('newketRole');
+
+        // If no role found at all, wait 800ms then re-check once (handles async auth init)
+        if (!role) {
+            setTimeout(() => {
+                const retryRole = window.AuthManager?.role || localStorage.getItem('newketRole');
+                if (retryRole !== 'admin') {
+                    console.error('[NewKet] Unauthorized after retry. Role:', retryRole);
+                    window.location.href = '/pages/login';
+                }
+            }, 800);
+            return;
+        }
+
         if (role !== 'admin') {
             console.error('[NewKet] Unauthorized access to Admin CMS. Role:', role);
             window.location.href = '/pages/login';
@@ -52,7 +65,7 @@ const AdminLayout = {
 
     renderNavbar() {
         const navbarPlaceholder = document.getElementById('adminNavbarPlaceholder');
-        if (!navbarPlaceholder) return;
+        if (!navbarPlaceholder || navbarPlaceholder.dataset.rendered === 'true') return;
 
         navbarPlaceholder.innerHTML = `
             <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
@@ -88,6 +101,7 @@ const AdminLayout = {
                 </div>
             </nav>
         `;
+        navbarPlaceholder.dataset.rendered = 'true';
     },
 
     renderSidebar() {
@@ -96,6 +110,17 @@ const AdminLayout = {
 
         const currentPath = window.location.pathname;
         const currentFile = currentPath.split('/').pop().replace('.html', '') || 'index';
+
+        // Optimization: If already rendered, just update the active state to prevent flicker
+        if (sidebarPlaceholder.dataset.rendered === 'true') {
+            const sidebarLinks = sidebarPlaceholder.querySelectorAll('.sidebar-link');
+            sidebarLinks.forEach(link => {
+                const href = link.getAttribute('href').split('/').pop().replace('.html', '') || 'index';
+                const isActive = currentFile === href || (href === 'index' && currentFile === '');
+                link.classList.toggle('active', isActive);
+            });
+            return;
+        }
 
         const links = [
             { href: './', icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
@@ -114,8 +139,8 @@ const AdminLayout = {
         let sidebarHTML = `
             <div id="adminOverlay" class="fixed inset-0 bg-black/50 z-[55] hidden"></div>
             <aside id="adminSidebar" class="fixed inset-y-0 left-0 w-64 bg-white z-[60] transform -translate-x-full md:translate-x-0 md:static md:w-64 transition-transform duration-300 ease-in-out h-screen md:h-auto overflow-y-auto border-r md:border-none border-gray-100 flex-shrink-0">
-                <div class="p-6 md:p-0 md:sticky md:top-24">
-                    <div class="md:glass-panel md:p-6">
+                <div class="p-6 md:p-0 md:sticky md:top-[52px]">
+                    <div class="md:glass-panel p-6 md:px-6 md:py-4">
                         <nav class="space-y-1">
         `;
 
@@ -143,6 +168,7 @@ const AdminLayout = {
         `;
 
         sidebarPlaceholder.innerHTML = sidebarHTML;
+        sidebarPlaceholder.dataset.rendered = 'true';
     },
 
     bindEvents() {
@@ -165,19 +191,39 @@ const AdminLayout = {
 
 window.AdminLayout = AdminLayout;
 
-// Wait for Core Systems
+// ─── STRATÉGIE DOUBLE-PASSE ─────────────────────────────────────────────────
+//
+//  PASSE 1 — Rendu immédiat (DOMContentLoaded)
+//  → Injecte la navbar et la sidebar sans attendre l'auth.
+//  → Élimine le FOUC (flash of unstyled content) lors de la navigation.
+//
+//  PASSE 2 — Vérification d'accès (newketInitialized)
+//  → Une fois AuthManager prêt, on vérifie le rôle.
+//  → Si non-admin, redirection vers /pages/login.
+//
+// ────────────────────────────────────────────────────────────────────────────
+
+function _adminRenderLayout() {
+    AdminLayout.injectStyles();
+    AdminLayout.renderNavbar();
+    AdminLayout.renderSidebar();
+    AdminLayout.bindEvents();
+}
+
+function _adminCheckAuth() {
+    AdminLayout.checkAccess();
+}
+
+// Passe 1 : rendu immédiat
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        if (window.newketInitialized) {
-            AdminLayout.init();
-        } else {
-            window.addEventListener('newketInitialized', () => AdminLayout.init());
-        }
-    });
+    document.addEventListener('DOMContentLoaded', _adminRenderLayout);
 } else {
-    if (window.newketInitialized) {
-        AdminLayout.init();
-    } else {
-        window.addEventListener('newketInitialized', () => AdminLayout.init());
-    }
+    _adminRenderLayout();
+}
+
+// Passe 2 : vérification d'accès (attend que l'auth soit résolue)
+if (window.newketInitialized) {
+    _adminCheckAuth();
+} else {
+    window.addEventListener('newketInitialized', _adminCheckAuth);
 }

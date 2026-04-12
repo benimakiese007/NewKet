@@ -106,7 +106,8 @@
 <body class="text-gray-900">
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pb-12 flex flex-col md:flex-row gap-6">        <div id="adminSidebarPlaceholder"></div>
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-[52px] pb-12 flex flex-col md:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
 
         <!-- Main Content -->
         <main class="flex-1 min-w-0 space-y-8">
@@ -262,10 +263,10 @@
             notifs.unshift(notif);
             saveNotifications(notifs);
 
-            // Also add to user-facing notifications
-            const userNotifs = JSON.parse(localStorage.getItem('newket_notifications') || '[]');
-            userNotifs.unshift({ ...notif, read: false });
-            localStorage.setItem('newket_notifications', JSON.stringify(userNotifs));
+            // Add to database via NotificationManager for actual user delivery
+            if (window.NotificationManager) {
+                window.NotificationManager.addNotification(title, message, type, target);
+            }
 
             document.getElementById('notifTitle').value = '';
             document.getElementById('notifMessage').value = '';

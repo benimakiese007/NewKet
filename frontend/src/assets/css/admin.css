@@ -1,5 +1,21 @@
 /* NewKet Admin CMS Styles - Premium Redesign */
 
+/* ── CRITICAL: Reset global body padding-top (set to 115px in style.css) ─── */
+/* Admin pages use a fixed navbar injected by admin-layout.js.                 */
+/* The pt-[52px] on the main container handles the offset — body must be 0.   */
+body {
+    padding-top: 0 !important;
+}
+
+#adminSidebar {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.premium-container {
+    padding-top: 52px;
+}
+
 :root {
     --glass: rgba(255, 255, 255, 0.75);
     --glass-morphism: blur(16px) saturate(180%);

@@ -240,10 +240,10 @@ const NotificationManager = {
         window.dispatchEvent(new CustomEvent('notificationsUpdated'));
     },
     getNotifications() { return this.notifications; },
-    async addNotification(title, message, type = 'info') {
+    async addNotification(title, message, type = 'info', target = 'all') {
         if (!window.ApiClient) return null;
         try {
-            const inserted = await window.ApiClient.post('/notifications', { title, message, type });
+            const inserted = await window.ApiClient.post('/notifications', { title, message, type, target });
             if (inserted) {
                 this.notifications.unshift(inserted);
                 if (this.notifications.length > 50) this.notifications.pop();

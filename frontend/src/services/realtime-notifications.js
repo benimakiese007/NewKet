@@ -114,6 +114,8 @@ const AppNotifications = {
             window.SupabaseAdapter.getSession().then(session => {
                 if (session && session.user) {
                     const userId = session.user.id;
+                    const userEmail = session.user.email;
+                    
                     client.channel(`public:orders:${userId}`)
                         .on('postgres_changes', { 
                             event: 'UPDATE', 
@@ -128,6 +130,31 @@ const AppNotifications = {
                                     'info',
                                     'solar:box-minimalistic-bold'
                                 );
+                            }
+                        })
+                        .subscribe();
+
+                    // Listen for real-time notifications from admin
+                    client.channel(`public:notifications:${userId}`)
+                        .on('postgres_changes', {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'notifications'
+                        }, payload => {
+                            const notif = payload.new;
+                            const role = localStorage.getItem('newketRole') === 'supplier' ? 'suppliers' : 'customers';
+                            
+                            const isForMe = notif.target_role === 'all' || 
+                                            notif.target_role === role || 
+                                            notif.user_id === userId || 
+                                            notif.user_email === userEmail;
+
+                            if (isForMe) {
+                                this.showToast(notif.title, notif.message, notif.type, 'solar:bell-bold');
+                                // Refresh NotificationManager quietly to update badges and list
+                                if (window.NotificationManager) {
+                                    window.NotificationManager.init();
+                                }
                             }
                         })
                         .subscribe();
