@@ -136,7 +136,7 @@ const PromoManager = {
 // ========== ACTIVITY MANAGER ==========
 const ActivityManager = {
     activities: [],
-    async init() {
+    async init(force = false) {
         if (!window.ApiClient) {
             console.error('[ActivityManager] ApiClient not found');
             return;
@@ -152,7 +152,8 @@ const ActivityManager = {
 
         const lastFetch = localStorage.getItem('newket_activities_sync_time');
         const now = Date.now();
-        if (lastFetch && (now - parseInt(lastFetch)) < 1000 * 60 * 5 && this.activities.length > 0) {
+        const COOLDOWN = 1000 * 60 * 5; // 5 mins
+        if (!force && lastFetch && (now - parseInt(lastFetch)) < COOLDOWN && this.activities.length > 0) {
             window.dispatchEvent(new CustomEvent('activitiesUpdated'));
             return;
         }
@@ -160,13 +161,13 @@ const ActivityManager = {
         this._fetchPromise = (async () => {
             try {
                 const data = await window.ApiClient.get('/activities');
-        if (data && data.length > 0) {
-            this.activities = data;
-        }
-            localStorage.setItem('newket_activities_sync_time', now.toString());
-        } catch (e) {
-            console.error('[ActivityManager] Init error:', e);
-        }
+                if (Array.isArray(data)) {
+                    this.activities = data;
+                }
+                localStorage.setItem('newket_activities_sync_time', now.toString());
+            } catch (e) {
+                console.error('[ActivityManager] Init error:', e);
+            }
         })();
         await this._fetchPromise;
         this._fetchPromise = null;
@@ -201,7 +202,7 @@ const ActivityManager = {
 // ========== NOTIFICATION MANAGER ==========
 const NotificationManager = {
     notifications: [],
-    async init() {
+    async init(force = false) {
         if (!window.ApiClient) {
             console.error('[NotificationManager] ApiClient not found');
             return;
@@ -217,7 +218,8 @@ const NotificationManager = {
 
         const lastFetch = localStorage.getItem('newket_notifications_sync_time');
         const now = Date.now();
-        if (lastFetch && (now - parseInt(lastFetch)) < 1000 * 60 * 5 && this.notifications.length > 0) {
+        const COOLDOWN = 1000 * 60 * 5; // 5 mins
+        if (!force && lastFetch && (now - parseInt(lastFetch)) < COOLDOWN && this.notifications.length > 0) {
             this.updateBadge();
             window.dispatchEvent(new CustomEvent('notificationsUpdated'));
             return;
@@ -226,7 +228,7 @@ const NotificationManager = {
         this._fetchPromise = (async () => {
             try {
                 const data = await window.ApiClient.get('/notifications');
-            this.notifications = Array.isArray(data) ? data : [];
+                this.notifications = Array.isArray(data) ? data : [];
                 localStorage.setItem('newket_notifications_sync_time', now.toString());
             } catch (e) {
                 console.error('[NotificationManager] Init error:', e);
@@ -273,6 +275,38 @@ const NotificationManager = {
         }
     },
     getUnreadCount() { return this.notifications.filter(n => !n.read).length; },
+    async deleteNotification(id) {
+        if (!window.ApiClient) return;
+        try {
+            const result = await window.ApiClient.delete(`/notifications/${id}`);
+            if (result && result.success) {
+                this.notifications = this.notifications.filter(n => n.id !== id);
+                this.updateBadge();
+                window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+                return true;
+            }
+        } catch (e) {
+            console.error('[NotificationManager] Delete error:', e);
+        }
+        return false;
+    },
+    async clearAll() {
+        if (!window.ApiClient) return;
+        try {
+            const result = await window.ApiClient.delete('/notifications');
+            if (result && result.success) {
+                this.notifications = [];
+                // Reset sync time to force fresh fetch on next init
+                localStorage.removeItem('newket_notifications_sync_time');
+                this.updateBadge();
+                window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+                return true;
+            }
+        } catch (e) {
+            console.error('[NotificationManager] Clear error:', e);
+        }
+        return false;
+    },
     updateBadge() {
         const unreadCount = this.getUnreadCount();
         const badges = document.querySelectorAll('.notification-badge');
@@ -287,8 +321,85 @@ const NotificationManager = {
     }
 };
 
+// ========== REVIEW MANAGER ==========
+const ReviewManager = {
+    reviews: [],
+    async init() {
+        if (!window.ApiClient) return;
+        try {
+            const data = await window.ApiClient.get('/reviews');
+            this.reviews = Array.isArray(data) ? data : [];
+            window.dispatchEvent(new CustomEvent('reviewsUpdated'));
+        } catch (e) {
+            console.error('[ReviewManager] Init error:', e);
+        }
+    },
+    getReviews() { return this.reviews; },
+    async deleteReview(id) {
+        if (!window.ApiClient) return false;
+        try {
+            const result = await window.ApiClient.delete(`/reviews/${id}`);
+            if (result && result.success) {
+                this.reviews = this.reviews.filter(r => r.id !== id);
+                window.dispatchEvent(new CustomEvent('reviewsUpdated'));
+                return true;
+            }
+        } catch (e) {
+            console.error('[ReviewManager] Delete error:', e);
+        }
+        return false;
+    }
+};
+
+// ========== SUPPORT MANAGER ==========
+const SupportManager = {
+    tickets: [],
+    async init() {
+        if (!window.ApiClient) return;
+        try {
+            const data = await window.ApiClient.get('/support');
+            this.tickets = Array.isArray(data) ? data : [];
+            window.dispatchEvent(new CustomEvent('ticketsUpdated'));
+        } catch (e) {
+            console.error('[SupportManager] Init error:', e);
+        }
+    },
+    getTickets() { return this.tickets; },
+    async updateStatus(id, status) {
+        if (!window.ApiClient) return false;
+        try {
+            const updated = await window.ApiClient.patch(`/support/${id}/status`, { status });
+            if (updated) {
+                const ticket = this.tickets.find(t => t.id === id);
+                if (ticket) ticket.status = status;
+                window.dispatchEvent(new CustomEvent('ticketsUpdated'));
+                return true;
+            }
+        } catch (e) {
+            console.error('[SupportManager] Update status error:', e);
+        }
+        return false;
+    },
+    async deleteTicket(id) {
+        if (!window.ApiClient) return false;
+        try {
+            const result = await window.ApiClient.delete(`/support/${id}`);
+            if (result && result.success) {
+                this.tickets = this.tickets.filter(t => t.id !== id);
+                window.dispatchEvent(new CustomEvent('ticketsUpdated'));
+                return true;
+            }
+        } catch (e) {
+            console.error('[SupportManager] Delete error:', e);
+        }
+        return false;
+    }
+};
+
 // Export to window
 window.RecentlyViewedManager = RecentlyViewedManager;
 window.PromoManager = PromoManager;
 window.ActivityManager = ActivityManager;
 window.NotificationManager = NotificationManager;
+window.ReviewManager = ReviewManager;
+window.SupportManager = SupportManager;

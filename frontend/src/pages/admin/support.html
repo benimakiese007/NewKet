@@ -140,23 +140,17 @@
 
     <script type="module" src="../../services/admin-layout.js"></script>
     <script>
-        // Simulons des tickets
-        function getMockTickets() {
-            return [
-                { id: 'TKT-001', subject: 'Problème avec ma commande #1024', customer: 'Alice M.', message: 'Je n\'ai toujours pas reçu ma commande, pouvez-vous me donner une mise à jour ?', status: 'ouvert', date: new Date().toISOString() },
-                { id: 'TKT-002', subject: 'Comment utiliser mes points NewKet ?', customer: 'Bob K.', message: 'Je ne trouve pas l\'option pour payer avec mes points lors du checkout.', status: 'ouvert', date: new Date(Date.now() - 3600000).toISOString() },
-                { id: 'TKT-003', subject: 'Remboursement', customer: 'Charlie T.', message: 'Merci pour le remboursement rapide.', status: 'resolu', date: new Date(Date.now() - 86400000).toISOString() },
-            ];
-        }
-
-        let tickets = getMockTickets();
-
-        function renderTickets() {
+        async function renderTickets() {
             const container = document.getElementById('ticketsContainer');
             const filterStatus = document.getElementById('filterStatus').value;
 
-            let filtered = tickets;
-            if (filterStatus !== 'all') filtered = filtered.filter(t => t.status === filterStatus);
+            // Map UI values to DB values
+            const statusMap = { 'ouvert': 'open', 'resolu': 'resolved' };
+            const dbFilter = statusMap[filterStatus] || 'all';
+
+            const allTickets = SupportManager.getTickets();
+            let filtered = allTickets;
+            if (dbFilter !== 'all') filtered = filtered.filter(t => t.status === dbFilter);
 
             if (filtered.length === 0) {
                 container.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun ticket trouvé.</div>`;
@@ -164,18 +158,18 @@
             }
 
             container.innerHTML = filtered.map(t => {
-                const isResolved = t.status === 'resolu';
+                const isResolved = t.status === 'resolved';
                 return `
                 <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
-                            <span class="text-xs font-black uppercase text-gray-400">${t.id}</span>
+                            <span class="text-xs font-black uppercase text-gray-400">${t.id.slice(0, 8)}</span>
                             <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded-full ${isResolved ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}">${isResolved ? 'Résolu' : 'Ouvert'}</span>
-                            <div class="text-[10px] text-gray-400 ml-auto">${new Date(t.date).toLocaleDateString()}</div>
+                            <div class="text-[10px] text-gray-400 ml-auto">${new Date(t.created_at).toLocaleDateString()}</div>
                         </div>
                         <h3 class="font-bold text-gray-900 mb-1">${t.subject}</h3>
                         <div class="text-sm text-gray-600 mb-2">${t.message}</div>
-                        <div class="text-[10px] font-black uppercase text-gray-400">Client: <span class="text-black">${t.customer}</span></div>
+                        <div class="text-[10px] font-black uppercase text-gray-400">Client: <span class="text-black">${t.customer_name}</span></div>
                     </div>
                     <div class="flex items-center gap-2 mt-4 md:mt-0">
                         ${!isResolved ? `<button onclick="resolveTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Marquer Résolu</button>` : `<button onclick="reopenTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">Rouvrir</button>`}
@@ -187,40 +181,56 @@
             updateStats();
         }
 
-        function resolveTicket(id) {
-            const t = tickets.find(t => t.id === id);
-            if (t) t.status = 'resolu';
-            renderTickets();
-            showToast('Ticket résolu', 'success');
+        async function resolveTicket(id) {
+            const success = await SupportManager.updateStatus(id, 'resolved');
+            if (success) {
+                showToast('Ticket résolu', 'success');
+            } else {
+                showToast('Erreur lors de la mise à jour', 'error');
+            }
         }
 
-        function reopenTicket(id) {
-            const t = tickets.find(t => t.id === id);
-            if (t) t.status = 'ouvert';
-            renderTickets();
-            showToast('Ticket rouvert', 'info');
+        async function reopenTicket(id) {
+            const success = await SupportManager.updateStatus(id, 'open');
+            if (success) {
+                showToast('Ticket rouvert', 'info');
+            } else {
+                showToast('Erreur lors de la mise à jour', 'error');
+            }
         }
 
-        function deleteTicket(id) {
-            if (!confirm('Supprimer ce ticket ?')) return;
-            tickets = tickets.filter(t => t.id !== id);
-            renderTickets();
-            showToast('Ticket supprimé', 'success');
+        async function deleteTicket(id) {
+            if (!confirm('Supprimer définitivement ce ticket ?')) return;
+            const success = await SupportManager.deleteTicket(id);
+            if (success) {
+                showToast('Ticket supprimé', 'success');
+            } else {
+                showToast('Erreur lors de la suppression', 'error');
+            }
         }
 
         function updateStats() {
-            document.getElementById('statTotalTickets').textContent = tickets.length;
-            document.getElementById('statOpenTickets').textContent = tickets.filter(t => t.status === 'ouvert').length;
-            document.getElementById('statResolvedTickets').textContent = tickets.filter(t => t.status === 'resolu').length;
+            const allTickets = SupportManager.getTickets();
+            document.getElementById('statTotalTickets').textContent = allTickets.length;
+            document.getElementById('statOpenTickets').textContent = allTickets.filter(t => t.status === 'open').length;
+            document.getElementById('statResolvedTickets').textContent = allTickets.filter(t => t.status === 'resolved').length;
         }
 
-        function initPage() {
+        async function initPage() {
+            await SupportManager.init();
+            window.addEventListener('ticketsUpdated', renderTickets);
             renderTickets();
+
             const role = localStorage.getItem('newketRole');
-            document.querySelectorAll('.admin-only').forEach(el => { if (role === 'admin') el.classList.remove('hidden'); else el.classList.add('hidden'); });
+            document.querySelectorAll('.admin-only').forEach(el => { 
+                if (role === 'admin') el.classList.remove('hidden'); 
+                else el.classList.add('hidden'); 
+            });
         }
+
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.newketInitialized) { initPage(); } else { window.addEventListener('newketInitialized', initPage); }
+            if (window.newketInitialized) { initPage(); } 
+            else { window.addEventListener('newketInitialized', initPage); }
         });
     </script>
 </body>

@@ -245,7 +245,9 @@
         document.getElementById('userSearch')?.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => debouncedSearch(e.target.value), 300);
-        }        function renderUsers() {
+        });
+
+        function renderUsers() {
             if (_renderLock) return;
             if (!window.UserManager || !window.ProductManager || !window.OrderManager) return;
 
@@ -349,12 +351,12 @@
                                     <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
                                         ${(u.avatar || u.cover_image) 
                                             ? `<img src="${u.avatar || u.cover_image}" class="w-full h-full object-cover">` 
-                                            : `<span class="text-lg opacity-30">${(u.store_name || u.name || 'U').charAt(0)}</span>`
+                                            : `<span class="text-lg opacity-30">${UserManager.getDisplayName(u).charAt(0)}</span>`
                                         }
                                     </div>
                                     <div>
                                         <div class="font-black text-gray-900 flex items-center gap-2">
-                                            ${u.store_name || u.name || 'Sans Nom'}
+                                            ${UserManager.getDisplayName(u)}
                                             ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping"></span>' : ''}
                                         </div>
                                         <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${u.email}</div>

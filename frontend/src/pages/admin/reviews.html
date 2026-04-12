@@ -150,28 +150,17 @@
 
     <script type="module" src="../../services/admin-layout.js"></script>
     <script>
-        // Simulons des avis puisqu'ils ne sont pas stockï¿½s de maniï¿½re globale dans appState actuellement
-        function getMockReviews() {
-            return [
-                { id: '1', productId: 'p1', productName: 'iPhone 15 Pro Max', customer: 'Alice M.', rating: 5, comment: 'Excellent produit, livraison rapide !', date: new Date().toISOString() },
-                { id: '2', productId: 'p2', productName: 'Sneakers Nike', customer: 'Bob K.', rating: 4, comment: 'Trï¿½s confortable, mais un peu cher.', date: new Date(Date.now() - 86400000).toISOString() },
-                { id: '3', productId: 'p3', productName: 'MacBook Pro', customer: 'Charlie T.', rating: 2, comment: 'La batterie se dï¿½charge vite.', date: new Date(Date.now() - 172800000).toISOString() },
-                { id: '4', productId: 'p1', productName: 'iPhone 15 Pro Max', customer: 'David L.', rating: 5, comment: 'Magnifique design.', date: new Date(Date.now() - 259200000).toISOString() },
-            ];
-        }
-
-        let allReviews = getMockReviews(); // Replace with real DB fetch if needed
-
-        function renderReviews() {
+        async function renderReviews() {
             const tbody = document.getElementById('reviewsBody');
             const filterRating = document.getElementById('filterRating').value;
 
+            const allReviews = ReviewManager.getReviews();
             let filtered = allReviews;
             if (filterRating === 'low') filtered = filtered.filter(r => r.rating <= 2);
             else if (filterRating !== 'all') filtered = filtered.filter(r => r.rating == filterRating);
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouvï¿½.</div>`;
+                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouvé.</div>`;
                 return;
             }
 
@@ -179,11 +168,11 @@
                 <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
-                            <div class="font-bold text-gray-900">${r.customer}</div>
+                            <div class="font-bold text-gray-900">${r.user_name || 'Anonyme'}</div>
                             <div class="flex text-orange-400 text-xs">
                                 ${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-${i < r.rating ? 'bold' : 'linear'}"></iconify-icon>`).join('')}
                             </div>
-                            <div class="text-[10px] text-gray-400">${new Date(r.date).toLocaleDateString()}</div>
+                            <div class="text-[10px] text-gray-400">${new Date(r.created_at).toLocaleDateString()}</div>
                         </div>
                         <div class="text-sm text-gray-600 mb-1">"${r.comment}"</div>
                         <div class="text-[10px] font-black uppercase text-gray-400">Sur le produit: <span class="text-black">${r.productName}</span></div>
@@ -197,14 +186,18 @@
             updateStats();
         }
 
-        function deleteReview(id) {
-            if (!confirm('Supprimer cet avis ?')) return;
-            allReviews = allReviews.filter(r => r.id !== id);
-            renderReviews();
-            showToast('Avis supprimï¿½', 'success');
+        async function deleteReview(id) {
+            if (!confirm('Supprimer définitivement cet avis ?')) return;
+            const success = await ReviewManager.deleteReview(id);
+            if (success) {
+                showToast('Avis supprimé du serveur', 'success');
+            } else {
+                showToast('Erreur lors de la suppression', 'error');
+            }
         }
 
         function updateStats() {
+            const allReviews = ReviewManager.getReviews();
             document.getElementById('statTotalReviews').textContent = allReviews.length;
             const avg = allReviews.length ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1) : '0.0';
             document.getElementById('statAvgRating').innerHTML = `${avg} <iconify-icon icon="solar:star-bold" width="16"></iconify-icon>`;
@@ -212,13 +205,21 @@
             document.getElementById('statLowStar').textContent = allReviews.filter(r => r.rating <= 2).length;
         }
 
-        function initPage() {
+        async function initPage() {
+            await ReviewManager.init();
+            window.addEventListener('reviewsUpdated', renderReviews);
             renderReviews();
+            
             const role = localStorage.getItem('newketRole');
-            document.querySelectorAll('.admin-only').forEach(el => { if (role === 'admin') el.classList.remove('hidden'); else el.classList.add('hidden'); });
+            document.querySelectorAll('.admin-only').forEach(el => { 
+                if (role === 'admin') el.classList.remove('hidden'); 
+                else el.classList.add('hidden'); 
+            });
         }
+
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.newketInitialized) { initPage(); } else { window.addEventListener('newketInitialized', initPage); }
+            if (window.newketInitialized) { initPage(); } 
+            else { window.addEventListener('newketInitialized', initPage); }
         });
     </script>
 </body>

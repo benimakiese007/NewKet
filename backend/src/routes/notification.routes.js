@@ -1,11 +1,13 @@
-import { Router } from 'express';
-import { getNotifications, addNotification, markAsRead } from '../controllers/notification.controller.js';
+import express from 'express';
+import { getNotifications, addNotification, markAsRead, deleteNotification, clearNotifications } from '../controllers/notification.controller.js';
 import { requireAuth } from '../middlewares/auth.js';
 
-const router = Router();
+const router = express.Router();
 
 router.get('/', requireAuth, getNotifications);
 router.post('/', requireAuth, addNotification);
 router.put('/:id/read', requireAuth, markAsRead);
+router.delete('/:id', requireAuth, deleteNotification);
+router.delete('/', requireAuth, clearNotifications);
 
 export default router;

@@ -31,6 +31,12 @@ const UserManager = {
         return this.data.find(u => u.id === id || u.email === id);
     },
 
+    getDisplayName(user) {
+        if (!user) return 'Utilisateur inconnu';
+        const fallback = user.email ? user.email.split('@')[0] : 'Inconnu';
+        return user.company_name || user.store_name || user.name || fallback;
+    },
+
     async updateStatus(userId, status) {
         if (!window.ApiClient) return { error: 'ApiClient not initialized' };
 

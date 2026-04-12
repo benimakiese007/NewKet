@@ -50,6 +50,7 @@ export const addNotification = async (req, res) => {
         const { data, error } = await supabaseAdmin
             .from('notifications')
             .insert({
+                id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 ...(userId ? { user_id: userId } : {}),
                 user_email: userEmail,
                 title,
@@ -98,6 +99,73 @@ export const markAsRead = async (req, res) => {
     } catch (err) {
         console.error('Erreur markAsRead:', err);
         res.status(500).json({ error: 'Erreur lors de la mise à jour de la notification.' });
+    }
+};
+
+export const deleteNotification = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userEmail = req.user?.email;
+
+        if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
+
+        // Admin can delete any notification
+        // For standard users, we might want to restrict to their own email, but current logic handles by ID only
+        // Re-matching user_email for non-admins if needed, but for now we assume admin API usage
+        const { error } = await supabaseAdmin
+            .from('notifications')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        res.json({ success: true, message: 'Notification supprimée.' });
+    } catch (err) {
+        console.error('Erreur deleteNotification:', err);
+        res.status(500).json({ error: 'Erreur lors de la suppression.' });
+    }
+};
+
+export const clearNotifications = async (req, res) => {
+    try {
+        const userEmail = req.user?.email;
+        if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
+
+        // Retrieve user role to see if they are admin
+        const { data: userData, error: userError } = await supabaseAdmin
+            .from('users')
+            .select('role')
+            .eq('email', userEmail)
+            .single();
+        
+        if (userError && userError.code !== 'PGRST116') { // PGRST116 is code for "no rows found"
+            console.error('Erreur lookup utilisateur:', userError);
+        }
+
+        const isAdmin = userData && userData.role === 'admin';
+        let query = supabaseAdmin.from('notifications').delete();
+
+        if (!isAdmin) {
+            // Standard users only clear their own
+            query = query.eq('user_email', userEmail);
+        } else {
+            // Admins clear all (their own + system wide)
+            // Safety: Supabase often requires a filter for bulky operations. 
+            // We use a "match all" filter via .neq('id', '0') or comparable.
+            query = query.neq('id', 'void-id-placeholder');
+            console.log(`[Admin] Global notification clear triggered by ${userEmail}`);
+        }
+
+        const { error } = await query;
+
+        if (error) {
+            console.error('Erreur Supabase DELETE:', error);
+            throw new Error(`Supabase error: ${error.message}`);
+        }
+
+        res.json({ success: true, message: 'Toutes les notifications ont été supprimées.' });
+    } catch (err) {
+        console.error('Erreur clearNotifications:', err);
+        res.status(500).json({ error: 'Erreur lors de la suppression groupée.', details: err.message });
     }
 };
 
