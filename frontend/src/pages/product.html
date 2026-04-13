@@ -8,7 +8,26 @@
     <link rel="apple-touch-icon" sizes="512x512" href="../assets/Images/logo-newket-v2.jpeg">
     <link rel="icon" type="image/png" href="../assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
-    <title>Produit &ndash; NewKet</title>
+    <title>Produit — NewKet</title>
+    <meta name="description" content="Découvrez cet article d'exception sur NewKet.">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="Produit - NewKet">
+    <meta property="og:description" content="Découvrez cet article d'exception sur NewKet.">
+    <meta property="og:image" content="https://newket.vercel.app/assets/Images/logo-newket-v2.jpeg">
+    <meta id="og-price-amount" property="product:price:amount" content="0">
+    <meta id="og-price-currency" property="product:price:currency" content="CDF">
+
+    <!-- Structured Data Placeholder -->
+    <script type="application/ld+json" id="product-schema">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Chargement...",
+      "description": "Chargement..."
+    }
+    </script>
     <script type="module" src="../services/app.js"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
@@ -86,7 +105,7 @@
             <!-- Image Section -->
             <div id="productImageCol">
                 <div class="aspect-square glass-card rounded-3xl overflow-hidden group relative flex items-center justify-center p-6 hover:shadow-2xl transition-all duration-700">
-                    <img id="mainImage" src="" alt="" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-1000 ease-out cursor-zoom-in" onclick="openZoom()">
+                    <img id="mainImage" src="" alt="Image du produit" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-1000 ease-out cursor-zoom-in" onclick="openZoom()">
                 </div>
                 <div class="grid grid-cols-4 gap-4 mt-6" id="thumbnailGrid"></div>
             </div>
@@ -279,6 +298,37 @@
             favBtn.classList.toggle('text-red-500', isFav);
             favBtn.classList.toggle('border-red-50', isFav);
             favBtn.classList.toggle('bg-red-50/50', isFav);
+
+            // SEO Dynamic Updates
+            document.title = `${p.name} — NewKet`;
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.content = p.description || `Découvrez ${p.name} sur NewKet.`;
+            
+            document.querySelector('meta[property="og:title"]').content = p.name;
+            document.querySelector('meta[property="og:description"]').content = p.description || `Achetez ${p.name} sur NewKet.`;
+            document.querySelector('meta[property="og:image"]').content = mainImgUrl;
+            
+            const priceMeta = document.getElementById('og-price-amount');
+            if (priceMeta) priceMeta.content = p.price;
+
+            // Update JSON-LD
+            const schemaScript = document.getElementById('product-schema');
+            if (schemaScript) {
+                const schema = {
+                    "@context": "https://schema.org",
+                    "@type": "Product",
+                    "name": p.name,
+                    "image": images,
+                    "description": p.description,
+                    "offers": {
+                        "@type": "Offer",
+                        "price": p.price,
+                        "priceCurrency": "CDF",
+                        "availability": "https://schema.org/InStock"
+                    }
+                };
+                schemaScript.textContent = JSON.stringify(schema);
+            }
         }
 
         function setupListeners(p) {

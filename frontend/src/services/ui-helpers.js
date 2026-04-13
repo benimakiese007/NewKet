@@ -154,10 +154,10 @@ function buildProductCardHTML(p, options = {}) {
     //    L'IntersectionObserver (initLazyImages) switche data-src vers src
     //    uniquement quand la carte entre dans le viewport.
     return `
-        <div class="product-card ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}">
+        <div class="product-card card-active-scale ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}">
             <div class="product-image">
                 ${badgeHTML}
-                <button onclick="addToWishlist('${p.id}', event)" class="wishlist-btn ${isFavorite ? 'active' : ''}" title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
+                <button onclick="addToWishlist('${p.id}', event)" class="wishlist-btn btn-active-scale ${isFavorite ? 'active' : ''}" title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
                 <a href="${getRootPath()}pages/product?id=${p.id}">
@@ -177,7 +177,7 @@ function buildProductCardHTML(p, options = {}) {
                 <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
                         ${(Array.isArray(p.users) ? p.users[0] : p.users)?.avatar 
-                            ? `<img data-src="${(Array.isArray(p.users) ? p.users[0] : p.users).avatar}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" class="lazy-img" style="width: 100%; height: 100%; object-cover">` 
+                            ? `<img data-src="${(Array.isArray(p.users) ? p.users[0] : p.users).avatar}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Avatar Vendeur" class="lazy-img" style="width: 100%; height: 100%; object-cover">` 
                             : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
                         }
                     </div>
@@ -201,7 +201,7 @@ function buildProductCardHTML(p, options = {}) {
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 2px;">
                     <button 
                         onclick="if(window.initCheckout) window.initCheckout('${p.id}', this)"
-                        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
+                        class="flex-1 btn-active-scale bg-green-600 hover:bg-green-700 text-white py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
                         style="border:none; cursor:pointer; min-width: 0;"
                         data-product-id="${p.id}">
                         <iconify-icon icon="solar:cart-large-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
@@ -229,13 +229,13 @@ function buildSkeletonCardHTML(count = 5) {
     for (let i = 0; i < count; i++) {
         html += `
             <div class="skeleton-card">
-                <div class="skeleton skeleton-image"></div>
-                <div class="skeleton skeleton-text" style="width: 30%"></div>
-                <div class="skeleton skeleton-text" style="width: 50%"></div>
-                <div class="skeleton skeleton-title"></div>
-                <div class="skeleton skeleton-text" style="width: 40%"></div>
-                <div class="skeleton skeleton-price"></div>
-                <div class="skeleton skeleton-button"></div>
+                <div class="skeleton skeleton-shimmer skeleton-image"></div>
+                <div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div>
+                <div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div>
+                <div class="skeleton skeleton-shimmer skeleton-title"></div>
+                <div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div>
+                <div class="skeleton skeleton-shimmer skeleton-price"></div>
+                <div class="skeleton skeleton-shimmer skeleton-button"></div>
             </div>
         `;
     }
@@ -438,7 +438,7 @@ function showCheckoutModal(productName, productPrice) {
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:map-point-bold" width="18"></iconify-icon>
                                     </div>
-                                    <input type="text" id="${modalId}-city" value="Abidjan" placeholder="Ville" required 
+                                    <input type="text" id="${modalId}-city" value="Kinshasa" placeholder="Ville" required 
                                         class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
                             </div>
@@ -493,7 +493,7 @@ function showCheckoutModal(productName, productPrice) {
                 return;
             }
 
-            window.closeCheckoutModal(id, { name: name || "Client Web", phone, city: city || "Abidjan" });
+            window.closeCheckoutModal(id, { name: name || "Client Web", phone, city: city || "Kinshasa" });
         };
     });
 }

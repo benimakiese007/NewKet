@@ -57,7 +57,7 @@ const UI = {
         const displayList = pinned.length > 0 ? pinned : [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
 
         grid.innerHTML = displayList.map((p, idx) =>
-            window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.1}s` })
+            window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.05}s` })
         ).join('');
         // ✅ Activer le lazy loading sur les nouvelles images
         if (window.initLazyImages) window.initLazyImages(grid);

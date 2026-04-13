@@ -11,8 +11,8 @@ const HEADER_HTML = `
         <div class="bg-gray-950 text-white py-1.5 px-4 sm:px-8 border-b border-white/5">
             <div class="max-w-7xl mx-auto w-full flex items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-4">
                 <div class="hidden md:flex items-center gap-6">
-                    <span class="flex items-center gap-1.5"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-400"></iconify-icon> Livraison Offerte</span>
-                    <span class="flex items-center gap-1.5 opacity-60"><iconify-icon icon="solar:shield-check-bold" width="12"></iconify-icon> Paiement Sécurisé</span>
+                    <span class="flex items-center gap-1.5"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-400" aria-hidden="true"></iconify-icon> Livraison Offerte</span>
+                    <span class="flex items-center gap-1.5 opacity-60"><iconify-icon icon="solar:shield-check-bold" width="12" aria-hidden="true"></iconify-icon> Paiement Sécurisé</span>
                 </div>
                 <div class="flex-1 flex justify-center text-center">
                     <span class="px-4">Marketplace de Luxe — Boutique NewKet Officielle</span>
@@ -27,8 +27,8 @@ const HEADER_HTML = `
         <div class="header-content w-full px-2 sm:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between sm:gap-x-8">
             <!-- Left: Hamburger (Mobile) & Logo -->
             <div class="flex items-center gap-3 sm:gap-6">
-                <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
-                    title="Menu">
+                <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
+                    title="Menu" aria-label="Ouvrir le menu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
                 <a href="{{ROOT}}index" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
@@ -42,15 +42,16 @@ const HEADER_HTML = `
                 class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:max-w-xl lg:max-w-2xl sm:mx-auto relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0">
                 <div
                     class="search-bar order-first flex-1 flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300 pr-2">
-                    <input type="text" id="searchInput" name="search" placeholder="Qu'est-ce qui vous ferait plaisir ?"
+                    <input type="text" id="searchInput" name="search" placeholder="Qu'est-ce qui vous ferait plaisir ?" aria-label="Rechercher des produits"
                         class="w-full py-2.5 px-5 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
                     <iconify-icon icon="solar:magnifer-linear" width="20" class="text-slate-400 md:hidden"></iconify-icon>
                     <button id="searchBtn"
-                        class="bg-slate-900 text-white px-6 py-2 m-1 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all uppercase tracking-wider hidden md:block">RECHERCHE</button>
+                        class="bg-slate-900 text-white px-6 py-2 m-1 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all uppercase tracking-wider hidden md:block btn-active-scale">RECHERCHE</button>
                 </div>
                 <!-- Publish Button (Desktop Only) -->
                 <a href="{{ROOT}}pages/publish"
-                    class="order-last shrink-0 bg-gray-900 text-white px-4 md:px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors hidden sm:flex items-center gap-2 publish-btn h-[40px] whitespace-nowrap">
+                    class="order-last shrink-0 bg-gray-900 text-white px-4 md:px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors hidden sm:flex items-center gap-2 publish-btn h-[40px] whitespace-nowrap btn-active-scale"
+                    aria-label="Vendre un article">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span class="hidden md:inline">Vendre</span>
                 </a>
@@ -71,8 +72,8 @@ const HEADER_HTML = `
 
                 <!-- Notifications -->
                 <a href="{{ROOT}}pages/notifications"
-                    class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Notifications">
+                    class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                    title="Notifications" aria-label="Voir les notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
                         class="notification-badge absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
@@ -80,8 +81,8 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}pages/favorites" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Favoris">
+                <a href="{{ROOT}}pages/favorites" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                    title="Favoris" aria-label="Voir les favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
                         class="favorites-badge absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
@@ -89,13 +90,13 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Account (MODIFIED: removed hidden sm:block) -->
-                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Compte" id="accountLink">
+                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                    title="Compte" id="accountLink" aria-label="Mon compte">
                     <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
                 </a>
 
                 <!-- Theme Toggle -->
-                <button class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block"
+                <button class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block btn-active-scale"
                     data-theme-toggle onclick="ThemeManager.toggle()" title="Passer en mode sombre" aria-label="Passer en mode sombre">
                     <iconify-icon data-theme-icon icon="solar:moon-bold" width="22" class="text-gray-600"></iconify-icon>
                 </button>
@@ -105,7 +106,7 @@ const HEADER_HTML = `
         <!-- Category Nav -->
         <div class="border-t border-gray-50 bg-white hidden sm:block">
             <div class="w-full px-4 sm:px-8">
-                <nav class="flex items-center gap-2 overflow-x-auto py-2 -mx-2" style="scrollbar-width:none;">
+                <nav class="flex items-center gap-2 overflow-x-auto py-2 -mx-2 scroll-affordance" style="scrollbar-width:none;">
                     <a href="{{ROOT}}pages/catalog"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Toutes les pièces</a>
                     <a href="{{ROOT}}pages/shops"
@@ -136,7 +137,7 @@ const HEADER_HTML = `
 <div id="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
     <div class="p-4 border-b border-gray-100 flex items-center justify-between">
         <span class="text-xl font-black tracking-tighter">NEWKET</span>
-        <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100">
+        <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100 btn-active-scale" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
         </button>
     </div>
@@ -211,7 +212,7 @@ const HEADER_HTML = `
                     <span class="flex items-center gap-3"><iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon> Mode Sombre</span>
                 </button>
                 <a href="{{ROOT}}pages/publish"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900 text-white font-medium mt-2 publish-btn">
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900 text-white font-medium mt-2 publish-btn btn-active-scale">
                     <iconify-icon icon="solar:add-circle-linear" width="20"></iconify-icon> Vendre un article
                 </a>
                 <button onclick="window.AppNotifications && AppNotifications.promptInstall()" id="pwa-install-btn"
