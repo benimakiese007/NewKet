@@ -188,12 +188,12 @@ function buildProductCardHTML(p, options = {}) {
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 2px;">
                     <button 
-                        onclick="if(window.contactSeller) window.contactSeller('${p.id}', this)"
-                        class="flex-1 bg-gray-900 hover:bg-black text-white py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
+                        onclick="if(window.initCheckout) window.initCheckout('${p.id}', this)"
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
                         style="border:none; cursor:pointer; min-width: 0;"
                         data-product-id="${p.id}">
-                        <iconify-icon icon="solar:chat-round-call-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
-                        <span class="truncate">Commander</span>
+                        <iconify-icon icon="solar:cart-large-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
+                        <span class="truncate">Acheter</span>
                     </button>
                     <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
                         style="width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280; background:white; cursor:pointer; flex-shrink:0; transition: all 0.2s ease;"
@@ -369,11 +369,128 @@ async function recordLead(productId, vendorId, productName) {
 }
 
 /**
- * Handles WhatsApp redirection for product contact
+ * Shows a checkout modal to collect customer details before payment.
+ * Returns a Promise that resolves to { phone, name, city } or null if cancelled.
  */
-window.contactSeller = async (productId, btnElement) => {
+function showCheckoutModal(productName, productPrice) {
+    return new Promise((resolve) => {
+        const modalId = 'checkout-modal-' + Date.now();
+        const priceStr = window.CurrencyManager ? window.CurrencyManager.formatPrice(productPrice) : `${productPrice.toLocaleString()} FC`;
+        
+        const modalHtml = `
+            <div id="${modalId}" class="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+                <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeCheckoutModal('${modalId}', null)"></div>
+                
+                <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
+                    <!-- Header -->
+                    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+                        <div class="pr-4">
+                            <h3 class="text-lg font-bold text-gray-900">Finaliser la commande</h3>
+                            <p class="text-sm text-gray-500 mt-1 truncate max-w-[200px] sm:max-w-[250px]">${productName}</p>
+                        </div>
+                        <button onclick="closeCheckoutModal('${modalId}', null)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900 transition-colors flex-shrink-0">
+                            <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="px-6 py-5 space-y-4">
+                        <div class="bg-indigo-50/50 p-4 rounded-2xl flex items-center justify-between mb-2 border border-indigo-100/50">
+                            <span class="text-sm font-semibold text-indigo-900">Total à payer</span>
+                            <span class="text-xl font-black text-indigo-600">${priceStr}</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Informations de livraison</label>
+                            
+                            <div class="space-y-3">
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                                        <iconify-icon icon="solar:user-bold" width="18"></iconify-icon>
+                                    </div>
+                                    <input type="text" id="${modalId}-name" placeholder="Nom complet" required 
+                                        class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
+                                </div>
+
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                                        <iconify-icon icon="solar:phone-bold" width="18"></iconify-icon>
+                                    </div>
+                                    <input type="tel" id="${modalId}-phone" placeholder="Numéro de tél. (ex: 070707...)" required 
+                                        class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
+                                </div>
+
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                                        <iconify-icon icon="solar:map-point-bold" width="18"></iconify-icon>
+                                    </div>
+                                    <input type="text" id="${modalId}-city" value="Abidjan" placeholder="Ville" required 
+                                        class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-6 py-5 border-t border-gray-50 bg-gray-50 flex gap-3">
+                        <button onclick="closeCheckoutModal('${modalId}', null)" class="flex-1 px-4 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
+                            Annuler
+                        </button>
+                        <button onclick="submitCheckoutModal('${modalId}')" class="flex-1 px-4 py-3 bg-green-600 text-white font-bold rounded-xl text-sm hover:bg-green-700 transition-colors shadow-sm shadow-green-600/30 flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:card-bold" width="18"></iconify-icon>
+                            Payer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        const modalEl = document.getElementById(modalId);
+        
+        // Trigger animation
+        requestAnimationFrame(() => {
+            modalEl.classList.remove('opacity-0');
+            modalEl.querySelector('.transform').classList.remove('scale-95');
+        });
+
+        // Global handlers for this specific modal instance
+        window.closeCheckoutModal = (id, result) => {
+            if (id !== modalId) return;
+            modalEl.classList.add('opacity-0');
+            modalEl.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modalEl.remove();
+                delete window.closeCheckoutModal;
+                delete window.submitCheckoutModal;
+                resolve(result);
+            }, 300);
+        };
+
+        window.submitCheckoutModal = (id) => {
+            if (id !== modalId) return;
+            const name = document.getElementById(`${id}-name`).value.trim();
+            const phone = document.getElementById(`${id}-phone`).value.trim();
+            const city = document.getElementById(`${id}-city`).value.trim();
+
+            if (!phone) {
+                showToast("Le numéro de téléphone est obligatoire", "warning");
+                return;
+            }
+
+            window.closeCheckoutModal(id, { name: name || "Client Web", phone, city: city || "Abidjan" });
+        };
+    });
+}
+
+/**
+ * Initiates the checkout process via CinetPay
+ */
+window.initCheckout = async (productId, btnElement) => {
+    let originalHtml = '';
     try {
-        const originalHtml = btnElement.innerHTML;
+        originalHtml = btnElement.innerHTML;
         btnElement.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="16"></iconify-icon>...';
         btnElement.disabled = true;
         
@@ -385,31 +502,88 @@ window.contactSeller = async (productId, btnElement) => {
             return;
         }
 
-        const sellerInfo = await window.SupabaseAdapter.fetchWithFilters('profiles', {
-            eq: [['id', p.user_id]], single: true
+        // Add CinetPay seamless script if not present
+        if (!document.getElementById('cinetpay-script')) {
+            const script = document.createElement('script');
+            script.id = 'cinetpay-script';
+            script.src = 'https://cdn.cinetpay.com/seamless/main.js';
+            document.head.appendChild(script);
+        }
+
+        // Show a quick modal to collect customer info (Phone & City)
+        const customerInfo = await showCheckoutModal(p.name, p.price);
+        if (!customerInfo) {
+            btnElement.innerHTML = originalHtml;
+            btnElement.disabled = false;
+            return; // Cancelled
+        }
+
+        const { name: customerName, phone: customerPhone, city: customerCity } = customerInfo;
+
+        // 1. Appeler l'API Node.js pour initialiser le paiement
+        const apiUrl = (window.CONFIG?.API_URL || 'http://localhost:3001/api') + '/payments/initiate';
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                product_id: p.id,
+                vendor_id: p.user_id,
+                amount: p.price,
+                customer_phone: customerPhone,
+                customer_name: customerName,
+                customer_city: customerCity
+            })
         });
+
+        const data = await response.json();
         
-        const phone = sellerInfo?.store_phone_whatsapp || sellerInfo?.phone;
-        if (!phone) {
-            showToast("Ce vendeur n'a pas de numéro WhatsApp lié.", 'error');
+        if (!data.success) {
+            showToast(data.error || "Erreur lors de l'initialisation du paiement", "error");
             btnElement.innerHTML = originalHtml;
             btnElement.disabled = false;
             return;
         }
-        
-        // Record lead asynchronously
-        recordLead(p.id, p.user_id, p.name);
 
-        const cleanPhone = phone.replace(/[^0-9]/g, '');
-        const productUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + getRootPath() + 'pages/product?id=' + p.id;
-        const message = encodeURIComponent(`Bonjour, je suis intéressé par l'article *${p.name}*\nPrix: ${p.price} FC\n\nLien: ${productUrl}`);
-        window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+        // 2. Lancer CinetPay Seamless
+        window.CinetPay.setConfig({
+            apikey: data.apikey, 
+            site_id: data.site_id,
+            notify_url: 'https://swift-years-report.loca.lt/api/payments/notify' 
+        });
+
+        window.CinetPay.getCheckout({
+            transaction_id: data.transaction_id,
+            amount: p.price,
+            currency: 'XOF',
+            channels: 'ALL',
+            description: `Achat ${p.name}`,   
+            customer_name: customerName,
+            customer_surname: "",
+            customer_email: "client@domaine.com",
+            customer_phone_number: customerPhone,
+            customer_address: "BP",
+            customer_city: customerCity,
+            customer_country: "CI",
+            customer_state: "CI",
+            customer_zip_code: "00225"
+        });
+
+        // 3. Optionnel: Écouter les retours du Widget CinetPay
+        window.CinetPay.waitResponse(function(cinetpayData) {
+            if (cinetpayData.status == "REFUSED") {
+                showToast("Paiement refusé ou annulé.", "error");
+            } else if (cinetpayData.status == "ACCEPTED") {
+                showToast("Paiement réussi ! Merci.", "success");
+                // TODO: Rediriger ou mettre à jour l'UI
+            }
+        });
         
         btnElement.innerHTML = originalHtml;
         btnElement.disabled = false;
     } catch (err) {
-        console.error('[NewKet] Contact error:', err);
-        showToast("Erreur lors de la redirection WhatsApp.", "error");
+        console.error('[NewKet] Checkout error:', err);
+        showToast("Erreur lors de l'ouverture du paiement.", "error");
+        btnElement.innerHTML = originalHtml;
         btnElement.disabled = false;
     }
 };

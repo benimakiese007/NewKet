@@ -31,6 +31,7 @@ import emailRoutes from './routes/emailRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import reviewRoutes from './routes/review.routes.js';
 import supportRoutes from './routes/support.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
 
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -45,6 +46,7 @@ app.use('/api/emails', emailRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {
