@@ -381,6 +381,8 @@
             const grid = document.getElementById('recommendedGrid');
             const pms = ProductManager.getProducts().filter(p => p.id !== productId && p.category === cat).slice(0, 4);
             grid.innerHTML = (pms.length ? pms : ProductManager.getProducts().slice(0, 4)).map(p => window.buildProductCardHTML(p)).join('');
+            // ✅ Activer le lazy loading sur les images .lazy-img injectées
+            if (window.initLazyImages) window.initLazyImages(grid);
         }
 
         window.updateQty = (val) => { const inp = document.getElementById('qty-input'); inp.value = Math.max(1, (parseInt(inp.value) || 1) + val); };

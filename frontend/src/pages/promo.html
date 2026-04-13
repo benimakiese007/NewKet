@@ -309,6 +309,8 @@
                     delay: `${idx * 0.05}s`
                 })
             ).join('');
+            // ✅ Activer le lazy loading sur les images .lazy-img injectées
+            if (window.initLazyImages) window.initLazyImages(grid);
         }
 
         function resetFilters() {

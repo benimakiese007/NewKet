@@ -874,6 +874,9 @@
                 grid.innerHTML = newHTML;
             }
 
+            // ✅ Activer le lazy loading sur les images .lazy-img injectées
+            if (window.initLazyImages) window.initLazyImages(grid);
+
             // Manage Load More button
             if (catalogHasMore) {
                 showLoadMoreButton();
