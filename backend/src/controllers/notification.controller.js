@@ -21,9 +21,10 @@ export const getNotifications = async (req, res) => {
         if (userId) condition += `,user_id.eq.${userId}`;
         if (userEmail) condition += `,user_email.eq.${userEmail}`;
 
+        // ✅ OPTIMISATION: Colonnes précises seulement
         const { data, error } = await supabaseAdmin
             .from('notifications')
-            .select('*')
+            .select('id, user_id, user_email, title, message, type, target_role, read, date')
             .or(condition)
             .order('date', { ascending: false })
             .limit(50);

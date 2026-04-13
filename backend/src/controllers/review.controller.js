@@ -2,11 +2,15 @@ import { supabaseAdmin } from '../config/supabase.js';
 
 export const getReviews = async (req, res) => {
     try {
-        // Fetch reviews with product information using the relationship
+        const { page = 1, limit = 50 } = req.query;
+        const offset = (page - 1) * parseInt(limit);
+
+        // ✅ OPTIMISATION: Colonnes précises + pagination + join slim
         const { data, error } = await supabaseAdmin
             .from('product_reviews')
-            .select('*, products(name)')
-            .order('created_at', { ascending: false });
+            .select('id, product_id, user_id, rating, comment, created_at, products(name)')
+            .order('created_at', { ascending: false })
+            .range(offset, offset + parseInt(limit) - 1);
 
         if (error) throw error;
 

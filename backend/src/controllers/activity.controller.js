@@ -11,15 +11,16 @@ export const getActivities = async (req, res) => {
         if (userId) {
             const { data: userData } = await supabaseAdmin
                 .from('users')
-                .select('role')
+                .select('role')      // ✅ Seulement le champ nécessaire
                 .eq('id', userId)
                 .single();
             if (userData?.role === 'admin') isAdmin = true;
         }
 
+        // ✅ OPTIMISATION: Colonnes précises seulement
         let query = supabaseAdmin
             .from('activities')
-            .select('*')
+            .select('id, user_email, text, type, time')
             .order('time', { ascending: false })
             .limit(50);
 

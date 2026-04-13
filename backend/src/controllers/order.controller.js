@@ -3,14 +3,16 @@ import { supabaseAdmin, supabase } from '../config/supabase.js';
 // Order is a term used for whatsapp_clicks in NewKet
 export const getOrders = async (req, res) => {
     try {
+        const { page = 1, limit = 50 } = req.query;
+        const offset = (page - 1) * parseInt(limit);
         const client = supabaseAdmin || supabase;
-        // Limit to 500 for now, as in frontend
-        // Order is a term used for the orders table in NewKet
+
+        // ✅ OPTIMISATION: Pagination + colonnes précises (fini limit:500 d'un coup)
         const { data, error } = await client
             .from('orders')
-            .select('*')
+            .select('id, product_id, vendor_id, status, created_at, visitor_ip')
             .order('created_at', { ascending: false })
-            .limit(500);
+            .range(offset, offset + parseInt(limit) - 1);
 
         if (error) throw error;
         

@@ -24,11 +24,18 @@ export const getProducts = async (req, res) => {
 
         const supabase = getScopedClient(req);
         
+        // ✅ OPTIMISATION: Sélection de colonnes précises (au lieu de *)
+        //    + count: 'estimated' (rapide via stats PostgreSQL, pas un COUNT(*))
         let query = supabase
             .from('products')
-            .select('*', { count: 'exact' })
+            .select(
+                'id, name, price, old_price, image, category, description, ' +
+                'supplier_email, user_id, is_new, is_promo, stock, ' +
+                'whatsapp, phone, city, created_at',
+                { count: 'estimated' }
+            )
             .order('created_at', { ascending: false })
-            .range(offset, offset + limit - 1);
+            .range(offset, offset + parseInt(limit) - 1);
 
         if (category) {
             query = query.eq('category', category);
@@ -52,7 +59,11 @@ export const getProductById = async (req, res) => {
 
         const { data, error } = await supabase
             .from('products')
-            .select('*')
+            .select(
+                'id, name, price, old_price, image, category, description, ' +
+                'supplier_email, user_id, is_new, is_promo, stock, ' +
+                'whatsapp, phone, city, created_at'
+            )
             .eq('id', id)
             .single();
 

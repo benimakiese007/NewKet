@@ -5,9 +5,10 @@ export const getMyProfile = async (req, res) => {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ error: 'Utilisateur non authentifié' });
 
+        // ✅ OPTIMISATION: Colonnes précises seulement
         const { data, error } = await supabaseAdmin
             .from('users')
-            .select('*')
+            .select('id, email, name, role, status, avatar, company_name, phone, bio, province_id, commune_id, quartier_id, created_at, updated_at')
             .eq('id', userId)
             .single();
 

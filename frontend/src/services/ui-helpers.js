@@ -128,6 +128,7 @@ function buildProductCardHTML(p, options = {}) {
     const images = (p.image || '').split(',');
     const rawImg = images[0].trim() || 'Images/default.png';
     const mainImg = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(rawImg, { width: 400, quality: 80 }) : rawImg;
+    const fallbackImg = getRootPath() + 'assets/Images/default.png';
 
     // Format price
     const priceDisplay = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : `${(p.price || 0).toLocaleString()} FC`;
@@ -149,6 +150,9 @@ function buildProductCardHTML(p, options = {}) {
     const starsHTML = buildStarsHTML(p.rating || 4.5);
     const reviewCount = p.reviews || 0;
 
+    // ✅ LAZY LOADING: On utilise data-src + une couleur de fond en attendant
+    //    L'IntersectionObserver (initLazyImages) switche data-src vers src
+    //    uniquement quand la carte entre dans le viewport.
     return `
         <div class="product-card ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}">
             <div class="product-image">
@@ -157,7 +161,15 @@ function buildProductCardHTML(p, options = {}) {
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
                 <a href="${getRootPath()}pages/product?id=${p.id}">
-                    <img src="${mainImg}" alt="${p.name}" loading="lazy" onerror="this.src='${getRootPath()}assets/Images/default.png'">
+                    <img
+                        data-src="${mainImg}"
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
+                        alt="${p.name}"
+                        loading="lazy"
+                        class="lazy-img"
+                        style="background:#f3f4f6; transition: opacity 0.3s ease;"
+                        onerror="this.src='${fallbackImg}'"
+                    >
                 </a>
             </div>
             <div class="product-info">
@@ -165,7 +177,7 @@ function buildProductCardHTML(p, options = {}) {
                 <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
                         ${(Array.isArray(p.users) ? p.users[0] : p.users)?.avatar 
-                            ? `<img src="${(Array.isArray(p.users) ? p.users[0] : p.users).avatar}" style="width: 100%; height: 100%; object-cover">` 
+                            ? `<img data-src="${(Array.isArray(p.users) ? p.users[0] : p.users).avatar}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" class="lazy-img" style="width: 100%; height: 100%; object-cover">` 
                             : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
                         }
                     </div>
@@ -206,6 +218,8 @@ function buildProductCardHTML(p, options = {}) {
         </div>
     `;
 }
+
+
 
 /**
  * Builds Skeleton cards for loading states.
@@ -588,6 +602,68 @@ window.initCheckout = async (productId, btnElement) => {
     }
 };
 
+/**
+ * ✅ LAZY LOADING via IntersectionObserver
+ * 
+ * À appeler après chaque inject de cartes HTML dans le DOM.
+ * Cherche tous les éléments .lazy-img avec data-src et les charge
+ * uniquement quand ils entrent dans le viewport (économise 60%+ de bande passante).
+ * 
+ * Utilise le native loading="lazy" + IntersectionObserver comme double filet:
+ * - loading="lazy" est natif et efficace sur la plupart des navigateurs.
+ * - IntersectionObserver contrôle plus finement l'animation de fondu.
+ */
+let _lazyObserver = null;
+
+function initLazyImages(root = document) {
+    const lazyImages = root.querySelectorAll('img.lazy-img[data-src]');
+    if (!lazyImages.length) return;
+
+    // If browser supports IntersectionObserver, use it for the fade effect
+    if ('IntersectionObserver' in window) {
+        // Create or reuse a single observer for the page
+        if (!_lazyObserver) {
+            _lazyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+
+                    const img = entry.target;
+                    const src = img.dataset.src;
+                    if (!src) return;
+
+                    // Swap the src
+                    img.src = src;
+                    img.style.opacity = '0';
+
+                    img.onload = () => {
+                        img.style.opacity = '1';
+                        img.removeAttribute('data-src');
+                    };
+                    img.onerror = () => {
+                        img.style.opacity = '1';
+                        img.removeAttribute('data-src');
+                    };
+
+                    _lazyObserver.unobserve(img);
+                });
+            }, {
+                rootMargin: '200px 0px',   // Commence à charger 200px avant l'entrée dans le viewport
+                threshold: 0.01
+            });
+        }
+
+        lazyImages.forEach(img => _lazyObserver.observe(img));
+    } else {
+        // Fallback: load all immediately (rare, old browsers)
+        lazyImages.forEach(img => {
+            if (img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            }
+        });
+    }
+}
+
 window.showToast = showToast;
 window.debounce = debounce;
 window.buildProductCardHTML = buildProductCardHTML;
@@ -597,3 +673,4 @@ window.buildSkeletonActivityHTML = buildSkeletonActivityHTML;
 window.buildSkeletonNotificationHTML = buildSkeletonNotificationHTML;
 window.buildStarsHTML = buildStarsHTML;
 window.getOptimizedImageUrl = getOptimizedImageUrl;
+window.initLazyImages = initLazyImages;

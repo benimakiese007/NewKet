@@ -59,6 +59,8 @@ const UI = {
         grid.innerHTML = displayList.map((p, idx) =>
             window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.1}s` })
         ).join('');
+        // ✅ Activer le lazy loading sur les nouvelles images
+        if (window.initLazyImages) window.initLazyImages(grid);
     },
 
     renderRecent(products) {
@@ -76,6 +78,8 @@ const UI = {
         grid.innerHTML = recent.map((p, idx) =>
             window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.05}s` })
         ).join('');
+        // ✅ Activer le lazy loading sur les nouvelles images
+        if (window.initLazyImages) window.initLazyImages(grid);
     },
 
     renderAll(products) {
@@ -117,6 +121,8 @@ const UI = {
         container.innerHTML = displayList.map((p, idx) =>
             window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.05}s` })
         ).join('');
+        // ✅ Activer le lazy loading sur les nouvelles images injectées
+        if (window.initLazyImages) window.initLazyImages(container);
 
         // Handle "Voir Plus" button — show if more pages exist from the API
         const voirPlus = document.getElementById('voirPlusContainer');

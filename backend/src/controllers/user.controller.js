@@ -3,9 +3,11 @@ import { supabaseAdmin, supabase } from '../config/supabase.js';
 export const getUsers = async (req, res) => {
     try {
         const client = supabaseAdmin || supabase;
+        // ✅ OPTIMISATION: Colonnes précises seulement (pas de select('*'))
         const { data, error } = await client
             .from('users')
-            .select('*');
+            .select('id, email, name, role, status, avatar, company_name, phone, created_at, updated_at')
+            .order('created_at', { ascending: false });
 
         if (error) throw error;
 
