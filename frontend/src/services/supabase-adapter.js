@@ -115,28 +115,60 @@ window.SupabaseAdapter = {
         ]).finally(() => clearTimeout(timeoutId));
     },
 
+    // ========== AUTH SESSION CACHE & LOCK ==========
+    _cachedSession: null,
+    _lastSessionFetch: 0,
+    _sessionPromise: null,
+    _sessionCacheTTL: 5000, // 5 seconds cache to avoid SDK spamming
+
     /**
      * Safely retrieves the current Supabase session with a timeout.
-     * Prevents UI hangs if the auth module is struggling.
+     * Implements internal caching and locking to prevent parallel timeouts.
      */
     async getSession(timeoutMs = 3000) {
         const client = this.getClient();
         if (!client) return null;
 
-        try {
-            const result = await Promise.race([
-                client.auth.getSession(),
-                new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), timeoutMs))
-            ]);
+        const now = Date.now();
 
-            if (result.timeout) {
-                console.warn('[NewKet Adapter] getSession timed out. Proceeding as Guest.');
+        // 1. Return memory cache if fresh
+        if (this._cachedSession && (now - this._lastSessionFetch < this._sessionCacheTTL)) {
+            return this._cachedSession;
+        }
+
+        // 2. If a fetch is already in progress, Wait for it
+        if (this._sessionPromise) {
+            try {
+                // We wrap the existing promise with a timeout just in case
+                return await this._withTimeout(this._sessionPromise, timeoutMs, 'Parallel getSession');
+            } catch (err) {
+                console.warn('[NewKet Adapter] Parallel getSession check timed out. Proceeding as Guest.');
                 return null;
             }
+        }
 
-            return result.data?.session || null;
+        // 3. Start a new fetch
+        this._sessionPromise = (async () => {
+            try {
+                const { data: { session }, error } = await client.auth.getSession();
+                if (error) throw error;
+                
+                this._cachedSession = session;
+                this._lastSessionFetch = Date.now();
+                return session;
+            } catch (err) {
+                console.error('[NewKet Adapter] Supabase getSession error:', err);
+                return null;
+            } finally {
+                // Clear the promise lock immediately after resolution
+                this._sessionPromise = null;
+            }
+        })();
+
+        try {
+            return await this._withTimeout(this._sessionPromise, timeoutMs, 'Primary getSession');
         } catch (err) {
-            console.error('[NewKet Adapter] Error in getSession:', err);
+            console.warn('[NewKet Adapter] getSession timed out. Proceeding as Guest.');
             return null;
         }
     },

@@ -24,7 +24,7 @@ const HEADER_HTML = `
             </div>
         </div>
         <!-- Main header content (Logo, Search, Icons) -->
-        <div class="header-content w-full px-2 sm:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between sm:gap-x-8">
+        <div class="header-content w-full max-w-[1440px] mx-auto px-2 sm:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between sm:gap-x-8">
             <!-- Left: Hamburger (Mobile) & Logo -->
             <div class="flex items-center gap-3 sm:gap-6">
                 <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
@@ -39,7 +39,8 @@ const HEADER_HTML = `
 
             <!-- Center: Search & Publish -->
             <div id="mobileSearchContainer"
-                class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:max-w-xl lg:max-w-2xl sm:mx-auto relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0">
+                class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:mx-auto relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
+                style="max-width: 580px;">
                 <div
                     class="search-bar order-first flex-1 flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300 pr-2">
                     <input type="text" id="searchInput" name="search" placeholder="Qu'est-ce qui vous ferait plaisir ?" aria-label="Rechercher des produits"
@@ -244,7 +245,7 @@ const HEADER_HTML = `
 </div>`;;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="bg-gray-900 text-white mt-12 pt-12 pb-8 border-t border-white/5">
+<footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-10 mb-12">
             <div class="lg:col-span-4 space-y-6">
@@ -368,8 +369,8 @@ const ComponentLoader = {
             if (!header) return;
             
             const height = header.offsetHeight;
-            if (height === 0) return; // Not rendered yet
-
+            if (height === 0) return;
+            
             let spacer = document.getElementById('dynamic-header-spacer');
             if (!spacer) {
                 spacer = document.createElement('div');
@@ -378,48 +379,51 @@ const ComponentLoader = {
                 spacer.style.display = 'block';
                 spacer.style.flexShrink = '0';
                 
-                // Remove hardcoded spacer elements to prevent double spacing
-                const staticSpacers = document.querySelectorAll('.h-28, .h-24, .h-32');
-                staticSpacers.forEach(s => {
-                    if(s.innerHTML.trim() === '' && !s.children.length) s.remove();
-                });
-
-                // Remove top-padding from main containers that were manually added
-                const mainTags = document.querySelectorAll('main, section, div');
-                mainTags.forEach(m => {
-                    if (m.className && typeof m.className === 'string') {
-                        // Remove top-padding and top-margins that were manually added
-                        // For py-*, we convert it to pb-* to keep the bottom spacing
-                        const newClass = m.className
-                            .replace(/\b([\w-]*:)?(pt|mt)-(0|[1-9]\d*)\b/g, '')
-                            .replace(/\b([\w-]*:)?(py|my)-(0|[1-9]\d*)\b/g, (match, prefix, type, value) => {
-                                return (prefix || '') + (type === 'py' ? 'pb-' : 'mb-') + value;
-                            })
-                            .replace(/\s+/g, ' ')
-                            .trim();
-                        if (newClass !== m.className) m.className = newClass;
-                    }
-                });
-                
                 // insert after header placeholder
                 const placeholder = document.getElementById('header-placeholder');
                 if (placeholder && placeholder.parentNode) {
                     placeholder.parentNode.insertBefore(spacer, placeholder.nextSibling);
+
+                    // Find the first REAL content element (skip empty intermediate placeholders)
+                    let targetElement = spacer.nextElementSibling;
+                    while (
+                        targetElement &&
+                        targetElement.tagName === 'DIV' &&
+                        targetElement.children.length === 0 &&
+                        targetElement.textContent.trim() === ''
+                    ) {
+                        targetElement = targetElement.nextElementSibling;
+                    }
+
+                    if (targetElement && (targetElement.tagName === 'MAIN' || targetElement.tagName === 'SECTION' || targetElement.tagName === 'DIV')) {
+                        // Ensure consistent visual breathing room between the header and page content.
+                        // If it doesn't already have explicit top padding, we can ensure a baseline.
+                        if (!targetElement.className.includes('pt-') && !targetElement.className.includes('py-')) {
+                            targetElement.classList.add('pt-6', 'sm:pt-8');
+                        }
+                    }
                 } else {
                     document.body.insertBefore(spacer, document.body.firstChild);
                 }
+
+                // Remove hardcoded spacer elements if any
+                const staticSpacers = document.querySelectorAll('.h-28, .h-24, .h-32');
+                staticSpacers.forEach(s => {
+                    if(s.innerHTML.trim() === '' && !s.children.length) s.remove();
+                });
             }
             
-            // On mobile, add a bit more safety space (+8px)
-            const isMobile = window.innerWidth < 640;
-            const safetyMargin = isMobile ? 8 : 0;
-            const finalHeight = height + safetyMargin;
+            // Set exact height
+            const finalHeight = height;
             
-            spacer.style.height = finalHeight + 'px';
-            document.documentElement.style.setProperty('--header-height', finalHeight + 'px');
-            spacer.style.minHeight = finalHeight + 'px';
+            spacer.style.height = height + 'px';
+            document.documentElement.style.setProperty('--header-height', height + 'px');
+            // Remove unnecessary min-height and focus on exact height
+            spacer.style.minHeight = '0'; 
             
-
+            // Ensure body and html don't have legacy padding-top
+            document.body.style.paddingTop = '0';
+            document.documentElement.style.paddingTop = '0';
             
             // Adjust scroll-padding-top for anchors (#)
             document.documentElement.style.scrollPaddingTop = (finalHeight + 20) + 'px';

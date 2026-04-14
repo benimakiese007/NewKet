@@ -44,8 +44,8 @@ html:not(.auth-loading) body {
   /* Typography */
   --font-heading: 'Poppins', sans-serif;
   --font-body: 'Inter', sans-serif;
-    --header-height: 115px; /* Reduced from 145px */
-    --footer-height: 400px;
+    --header-height: 80px; /* Actual measured header height, overwritten by JS */
+    --footer-height: 0px; /* Set by JS after footer loads */
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 1px rgba(0, 0, 0, 0.02);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03), 0 0 1px rgba(0, 0, 0, 0.05);
@@ -65,10 +65,10 @@ html:not(.auth-loading) body {
   --space-4xl: clamp(4rem, 8vw, 6rem);
   --space-5xl: clamp(5rem, 10vw, 7.5rem);
   --space-6xl: clamp(6rem, 12vw, 9rem);
-  --space-7xl: clamp(8rem, 15vw, 12rem);
+  --space-7xl: clamp(4rem, 8vw, 6rem);
 
   /* Semantic Mappings */
-  --section-padding-v: var(--space-7xl); /* Increased for luxury feel */
+  --section-padding-v: var(--space-xl); /* Reduced from 7xl for better density */
   --container-padding-h: var(--space-lg);
   --component-gap: var(--space-md);
   --card-padding: var(--space-lg); /* Increased from md */
@@ -85,14 +85,14 @@ html:not(.auth-loading) body {
 }
 
 html.dark {
-  --text-dark: #F9FAFB;
-  --text-light: #9CA3AF;
-  --bg-white: #0F0F10;
-  --bg-light: #050505;
-  --border-color: #1A1A1C;
-  --primary-color: #FFFFFF;
-  --primary-hover: #E5E7EB;
-  --secondary-color: #D1D5DB;
+  --text-dark: #f8fafc;
+  --text-light: #9ca3af;
+  --bg-white: #0a0a0a;
+  --bg-light: #000000;
+  --border-color: #262626;
+  --primary-color: #ffffff;
+  --primary-hover: #e5e5e5;
+  --secondary-color: #d1d5db;
   
   /* Deep Layered Shadows for Dark Mode */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
@@ -123,7 +123,6 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  padding-top: var(--header-height);
 }
 
 /* Prevent mobile auto-zoom on focus by ensuring font-size is at least 16px */
@@ -177,16 +176,16 @@ button {
 
 /* CLS Mitigation - Reserve space for injected components */
 #header-placeholder {
-  min-height: 120px; /* Base height for header on desktop */
+  min-height: 0;
 }
 
 #footer-placeholder {
-  min-height: 400px; /* Approximate height for footer */
+  min-height: 0; /* Height is set dynamically after footer loads */
 }
 
 @media (max-width: 640px) {
   #header-placeholder {
-    min-height: 70px; /* Reduced height on mobile (no category nav) */
+    min-height: 0;
   }
 }
 
@@ -220,9 +219,7 @@ button {
   padding: var(--section-padding-v) 0;
 }
 
-#heroSection {
-  margin-bottom: var(--space-6xl) !important;
-}
+
 
 .text-center {
   text-align: center;
@@ -434,7 +431,9 @@ h6 {
   z-index: 1000;
   transition: all 0.3s ease-in-out;
   width: 100%;
-  position: sticky;
+  position: fixed;
+  left: 0;
+  right: 0;
 }
 
 .main-header.scrolled {

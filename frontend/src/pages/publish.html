@@ -40,6 +40,25 @@
         .glass {
             background: rgba(255, 255, 255, 0.8);
         }
+
+        .category-chip {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            background: #fff;
+        }
+
+        .category-chip:hover {
+            border-color: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .category-chip.active {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
@@ -47,7 +66,7 @@
 
     <div id="header-placeholder"></div>
 
-    <main class="max-w-3xl mx-auto px-4 pb-12">
+    <main class="max-w-3xl mx-auto px-4 pt-8 pb-12">
         <div class="text-center mb-12">
             <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-4">Vendre un article</h1>
             <p class="text-gray-500 text-lg">Mettez en ligne votre produit en quelques secondes</p>
@@ -68,23 +87,44 @@
                     </div>
                 </div>
 
-                <div class="grid sm:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 ml-1">Catégorie</label>
-                        <div
-                            class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                            <select id="pCategoryInput" name="pCategoryInput"
-                                class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent">
-                                <option>High-Tech</option>
-                                <option>Mode</option>
-                                <option>Maison & Déco</option>
-                                <option>Beauté</option>
-                                <option>Sports</option>
+                <div class="grid sm:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
+                            Catégorie
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
+                            <select id="pCategoryInput" name="pCategoryInput" required
+                                class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent font-medium">
+                                <option value="" disabled selected>Choisir une catégorie...</option>
+                                <option value="Femme">Femme</option>
+                                <option value="Homme">Homme</option>
+                                <option value="Tech & Gadgets">Tech & Gadgets</option>
+                                <option value="Art de vivre">Art de vivre</option>
+                                <option value="Autres">Autres</option>
                             </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="20"
                                 class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></iconify-icon>
                         </div>
                     </div>
+
+                    <div class="space-y-4">
+                        <label class="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
+                            État de l'objet
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
+                            <select id="pConditionInput" name="pConditionInput" required
+                                class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent font-medium">
+                                <option value="" disabled selected>Choisir l'état...</option>
+                                <option value="new">Neuf</option>
+                                <option value="used">Occasion</option>
+                            </select>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" width="20"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
                     <div class="space-y-2">
                         <label class="text-sm font-bold text-gray-700 ml-1">Prix de vente</label>
                         <div class="flex gap-2">
@@ -351,6 +391,9 @@
             currencyInput.addEventListener('change', updateEstimate);
             exchangeRateInput.addEventListener('input', updateEstimate);
 
+            // Category Selection Handling
+            const categoryInput = document.getElementById('pCategoryInput');
+
             // Promotion Toggle Logic
             const isPromoToggle = document.getElementById('isPromoToggle');
             const promoFields = document.getElementById('promoFields');
@@ -387,7 +430,18 @@
                     if (!product) throw new Error("Produit non trouvé");
 
                     document.getElementById('pTitleInput').value = product.name;
-                    document.getElementById('pCategoryInput').value = product.category;
+                    
+                    // Handle Category
+                    if (categoryInput) {
+                        categoryInput.value = product.category || '';
+                    }
+
+                    // Handle Condition
+                    const conditionInput = document.getElementById('pConditionInput');
+                    if (conditionInput) {
+                        conditionInput.value = product.is_new ? 'new' : 'used';
+                    }
+
                     document.getElementById('pDescInput').value = product.description || '';
                     
                     // Price handling (Assuming stored in CDF like the publish logic suggests)
@@ -518,8 +572,8 @@
                     return;
                 }
 
-                if (!titleInput.value.trim() || !priceVal || priceVal <= 0) {
-                    if (typeof showToast === 'function') showToast("Veuillez remplir les champs obligatoires.", "error");
+                if (!titleInput.value.trim() || !categoryInput.value || !document.getElementById('pConditionInput').value || !priceVal || priceVal <= 0) {
+                    if (typeof showToast === 'function') showToast("Veuillez remplir tous les champs obligatoires (*).", "error");
                     return;
                 }
 
@@ -571,7 +625,7 @@
 
                     const productData = {
                         name: titleInput.value.trim(),
-                        category: categorySelect.value,
+                        category: categoryInput.value,
                         price: Math.round(finalPrice),
                         description: descInput.value.trim(),
                         image: finalImagePaths.join(','),
@@ -579,6 +633,7 @@
                         user_id: userId,
                         is_promo: isPromo,
                         old_price: finalOldPrice,
+                        is_new: document.getElementById('pConditionInput').value === 'new',
                         status: 'published'
                     };
 
@@ -591,7 +646,6 @@
                             ...productData,
                             stock: 10,
                             reviews: 0,
-                            is_new: true,
                             created_at: new Date().toISOString()
                         };
                         await ProductManager.addProduct(newProduct);

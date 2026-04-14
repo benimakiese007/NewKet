@@ -6,8 +6,8 @@ export const getUsers = async (req, res) => {
         // ✅ OPTIMISATION: Colonnes précises seulement (pas de select('*'))
         const { data, error } = await client
             .from('users')
-            .select('id, email, name, role, status, avatar, company_name, phone, created_at, updated_at')
-            .order('created_at', { ascending: false });
+            .select('id, email, name, role, status, avatar, company_name, phone:store_phone_whatsapp, created_at:date_joined')
+            .order('date_joined', { ascending: false });
 
         if (error) throw error;
 

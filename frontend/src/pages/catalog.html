@@ -156,7 +156,8 @@
         }
 
         .sticky-sidebar {
-            top: 110px;
+            top: calc(var(--header-height, 115px) + 1.5rem);
+            transition: top 0.3s ease;
         }
 
         /* Premium Filter Sidebar Styles */
@@ -326,7 +327,7 @@
     <!-- Catalog Filter Overlay (mobile) -->
     <div id="catalogFilterOverlay"></div>
 
-    <main class="max-w-7xl mx-auto px-6 pb-20">
+    <main class="max-w-7xl mx-auto px-6 pt-6 pb-20">
         <div class="mb-10 animate-fade-in" style="animation-delay: 0.1s;">
             <h1 class="text-4xl font-bold tracking-tight text-slate-900">Explorez l'Exceptionnel</h1>
         </div>
@@ -361,13 +362,13 @@
                         </div>
                         <div class="space-y-4" id="categoryFilters">
                             <label class="flex items-center gap-3 group cursor-pointer">
-                                <input type="checkbox" value="Collections Femme"
+                                <input type="checkbox" value="Femme"
                                     class="filter-checkbox category-filter">
                                 <span
                                     class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Femme</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
-                                <input type="checkbox" value="Style Homme" class="filter-checkbox category-filter">
+                                <input type="checkbox" value="Homme" class="filter-checkbox category-filter">
                                 <span
                                     class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Homme</span>
                             </label>
@@ -381,6 +382,11 @@
                                 <input type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
                                 <span
                                     class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Art de vivre</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input type="checkbox" value="Autres" class="filter-checkbox category-filter">
+                                <span
+                                    class="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Autres</span>
                             </label>
                         </div>
                     </div>
