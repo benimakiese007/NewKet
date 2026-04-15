@@ -1,6 +1,7 @@
 // app.js - Centralized entry point for NewKet services
 // This file aggregates all the main modules to optimize loading and maintainability (Phases 5 & 6)
 
+import { inject } from '@vercel/analytics';
 import './supabase-client.js';
 import './supabase-adapter.js';
 import './api-client.js';
@@ -25,4 +26,7 @@ import './realtime-notifications.js';
 
 // main.js is usually the last one as it depends on initialized UI
 import './main.js';
+
+// Initialize Vercel Analytics
+inject();
 
