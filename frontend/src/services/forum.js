@@ -472,8 +472,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Handle Replies
-    document.getElementById('replyForm').addEventListener('submit', async (e) => {
-    replyForm.addEventListener('submit', async (e) => {
+    const replyForm = document.getElementById('replyForm');
+    const replyContent = document.getElementById('replyContent');
+
+    if (replyForm && replyContent) {
+        replyForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const content = replyContent.value.trim();
             const submitBtn = replyForm.querySelector('button[type="submit"]');
@@ -515,6 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.innerHTML = 'Erreur';
             }
         });
+    }
 
     initForum();
 });
