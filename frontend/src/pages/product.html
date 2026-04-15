@@ -319,7 +319,7 @@
 
         function setupListeners(p) {
             document.getElementById('mainOrderBtn').onclick = () => {
-                if (window.contactSeller) window.contactSeller(p.id, document.getElementById('mainOrderBtn'));
+                if (window.initCheckout) window.initCheckout(p.id, document.getElementById('mainOrderBtn'));
             };
             document.getElementById('mainWishlistBtn').onclick = () => {
                 if (FavoritesManager.isInFavorites(p.id)) FavoritesManager.removeItem(p.id);

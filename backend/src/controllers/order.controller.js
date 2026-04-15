@@ -10,7 +10,7 @@ export const getOrders = async (req, res) => {
         // ✅ OPTIMISATION: Pagination + colonnes précises (fini limit:500 d'un coup)
         const { data, error } = await client
             .from('orders')
-            .select('id, status, created_at, total_amount, customer_name, customer_email, phone_number')
+            .select('id, status, created_at, total_amount, customer_name, customer_email, phone_number, payment_status, transaction_id')
             .order('created_at', { ascending: false })
             .range(offset, offset + parseInt(limit) - 1);
 

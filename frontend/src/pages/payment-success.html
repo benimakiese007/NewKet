@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr" class="bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement Réussi - NewKet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center animate-[fade-in_0.5s_ease-out]">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <iconify-icon icon="solar:check-circle-bold" width="40" class="text-green-500"></iconify-icon>
+        </div>
+        <h1 class="text-2xl font-black text-gray-900 mb-2">Paiement Réussi !</h1>
+        <p class="text-gray-500 mb-8 border-b border-gray-100 pb-8">
+            Merci pour votre commande. Le vendeur a été notifié et préparera votre livraison dans les plus brefs délais.
+        </p>
+        
+        <script>
+            // On peut récupérer le transaction_id et le status depuis l'URL si besoin
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+            const tx_ref = urlParams.get('tx_ref');
+            
+            if (tx_ref) {
+                document.write(`<p class="text-xs text-gray-400 mb-6 font-mono">Réf: ${tx_ref}</p>`);
+            }
+        </script>
+
+        <a href="../index.html" class="inline-flex items-center justify-center w-full bg-gray-900 text-white font-bold rounded-xl py-4 transition-colors hover:bg-gray-800">
+            Retour à l'accueil
+        </a>
+    </div>
+
+    <style>
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</body>
+</html>

@@ -3,6 +3,10 @@
  * Common utilities for UI rendering and interactions.
  */
 
+// Global Notification Queue (One by one system)
+let _toastQueue = [];
+let _isShowingToast = false;
+
 /**
  * Returns the relative path to the project root.
  */
@@ -34,13 +38,25 @@ function getRootPath() {
 }
 
 /**
- * Shows a toast message to the user.
+ * Shows a toast message to the user using a queue system (One by one).
  */
-function showToast(message, type = 'info') {
+function showToast(message, type = 'info', title = null, iconOverride = null) {
+    _toastQueue.push({ message, type, title, iconOverride });
+    _processToastQueue();
+}
+
+async function _processToastQueue() {
+    if (_isShowingToast || _toastQueue.length === 0) return;
+    _isShowingToast = true;
+
+    const { message, type, title, iconOverride } = _toastQueue.shift();
+    
+    // Ensure container exists
     const toastContainer = document.getElementById('toast-container') || createToastContainer();
 
     const toast = document.createElement('div');
-    toast.className = 'flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transition-all duration-500 translate-y-10 opacity-0 bg-white border border-gray-100 mb-3 max-w-sm w-full';
+    // Centered classes
+    toast.className = 'flex items-start gap-4 px-6 py-5 rounded-3xl shadow-2xl transition-all duration-500 translate-y-[-20px] opacity-0 bg-white border border-gray-100 mb-3 max-w-sm w-full pointer-events-auto relative overflow-hidden';
 
     const icons = {
         success: { icon: 'solar:check-circle-bold', color: 'text-green-500' },
@@ -50,40 +66,54 @@ function showToast(message, type = 'info') {
     };
 
     const { icon, color } = icons[type] || icons.info;
+    const finalIcon = iconOverride || icon;
 
     const safeMsg = (typeof window.escapeHTML === 'function') ? window.escapeHTML(message) : String(message).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const safeTitle = title ? ((typeof window.escapeHTML === 'function') ? window.escapeHTML(title) : String(title).replace(/</g, '&lt;').replace(/>/g, '&gt;')) : null;
+
     toast.innerHTML = `
-        <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0">
-            <iconify-icon icon="${icon}" width="24" class="${color}"></iconify-icon>
+        <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0">
+            <iconify-icon icon="${finalIcon}" width="28" class="${color}"></iconify-icon>
         </div>
-        <div class="flex-1">
-            <p class="text-sm font-bold text-gray-900">${safeMsg}</p>
+        <div class="flex-1 min-w-0">
+            ${safeTitle ? `<h4 class="text-xs font-black text-gray-900 uppercase tracking-tighter mb-1">${safeTitle}</h4>` : ''}
+            <p class="text-[10px] font-bold text-gray-500 leading-relaxed uppercase tracking-widest">${safeMsg}</p>
         </div>
-        <div class="absolute bottom-0 left-0 h-1 bg-gray-100 w-full overflow-hidden rounded-b-2xl">
+        <div class="absolute bottom-0 left-0 h-1 bg-gray-100/50 w-full overflow-hidden">
             <div class="h-full ${color.replace('text', 'bg')} transition-all duration-[4000ms] ease-linear w-full" id="toast-progress-${Date.now()}"></div>
         </div>
     `;
 
     toastContainer.appendChild(toast);
 
-    // Trigger animation
-    setTimeout(() => {
-        toast.classList.remove('translate-y-10', 'opacity-0');
-        const progress = toast.querySelector('[id^="toast-progress-"]');
-        if (progress) progress.style.width = '0%';
-    }, 10);
+    // Trigger animation in
+    await new Promise(r => setTimeout(r, 10));
+    toast.classList.remove('translate-y-[-20px]', 'opacity-0');
+    const progress = toast.querySelector('[id^="toast-progress-"]');
+    if (progress) progress.style.width = '0%';
 
-    // Remove after delay
-    setTimeout(() => {
-        toast.classList.add('opacity-0', '-translate-y-5');
-        setTimeout(() => toast.remove(), 500);
-    }, 4000);
+    // Wait for display duration (4s)
+    await new Promise(r => setTimeout(r, 4000));
+
+    // Trigger animation out
+    toast.classList.add('opacity-0', 'translate-y-[-10px]');
+    
+    await new Promise(r => setTimeout(r, 500));
+    toast.remove();
+    _isShowingToast = false;
+    
+    // Process next in queue
+    _processToastQueue();
 }
 
 function createToastContainer() {
-    const container = document.createElement('div');
+    let container = document.getElementById('toast-container');
+    if (container) return container;
+    
+    container = document.createElement('div');
     container.id = 'toast-container';
-    container.className = 'fixed top-24 right-6 z-[100] flex flex-col items-end pointer-events-none w-full max-w-sm px-4 sm:px-0';
+    // Top-Middle Centering logic
+    container.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center pointer-events-none w-[90%] sm:w-full sm:max-w-sm px-4 sm:px-0';
     document.body.appendChild(container);
     return container;
 }
@@ -509,7 +539,7 @@ function showCheckoutModal(productName, productPrice) {
 }
 
 /**
- * Initiates the checkout process via CinetPay
+ * Initiates the checkout process via Flutterwave
  */
 window.initCheckout = async (productId, btnElement) => {
     let originalHtml = '';
@@ -526,15 +556,7 @@ window.initCheckout = async (productId, btnElement) => {
             return;
         }
 
-        // Add CinetPay seamless script if not present
-        if (!document.getElementById('cinetpay-script')) {
-            const script = document.createElement('script');
-            script.id = 'cinetpay-script';
-            script.src = 'https://cdn.cinetpay.com/seamless/main.js';
-            document.head.appendChild(script);
-        }
-
-        // Show a quick modal to collect customer info (Phone & City)
+        // Show a quick modal to collect customer info (Phone & City & Email for Flutterwave)
         const customerInfo = await showCheckoutModal(p.name, p.price);
         if (!customerInfo) {
             btnElement.innerHTML = originalHtml;
@@ -542,24 +564,29 @@ window.initCheckout = async (productId, btnElement) => {
             return; // Cancelled
         }
 
-        const { name: customerName, phone: customerPhone, city: customerCity } = customerInfo;
+        const { name: customerName, phone: customerPhone, city: customerCity, email: customerEmail } = customerInfo;
 
-        // 1. Appeler l'API Node.js pour initialiser le paiement
-        const apiUrl = (window.CONFIG?.API_URL || 'http://localhost:3001/api') + '/payments/initiate';
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                product_id: p.id,
-                vendor_id: p.user_id,
-                amount: p.price,
-                customer_phone: customerPhone,
-                customer_name: customerName,
-                customer_city: customerCity
-            })
+        // Vérifier que l'utilisateur est connecté avant de payer
+        if (window.SupabaseAdapter) {
+            const session = await window.SupabaseAdapter.getSession(3000);
+            if (!session?.access_token) {
+                showToast('Vous devez être connecté pour passer une commande.', 'warning');
+                btnElement.innerHTML = originalHtml;
+                btnElement.disabled = false;
+                return;
+            }
+        }
+
+        // Appeler le backend via ApiClient (injecte automatiquement le token JWT)
+        const data = await window.ApiClient.post('/payments/initiate', {
+            product_id: p.id,
+            vendor_id: p.user_id,
+            amount: p.price,
+            customer_phone: customerPhone,
+            customer_name: customerName,
+            customer_city: customerCity,
+            customer_email: customerEmail || 'client@newket.cd'
         });
-
-        const data = await response.json();
         
         if (!data.success) {
             showToast(data.error || "Erreur lors de l'initialisation du paiement", "error");
@@ -568,42 +595,15 @@ window.initCheckout = async (productId, btnElement) => {
             return;
         }
 
-        // 2. Lancer CinetPay Seamless
-        window.CinetPay.setConfig({
-            apikey: data.apikey, 
-            site_id: data.site_id,
-            notify_url: 'https://swift-years-report.loca.lt/api/payments/notify' 
-        });
+        // Rediriger vers le lien de paiement Flutterwave généré par le backend
+        if (data.payment_url) {
+            window.location.href = data.payment_url;
+        } else {
+             showToast("Lien de paiement non reçu", "error");
+             btnElement.innerHTML = originalHtml;
+             btnElement.disabled = false;
+        }
 
-        window.CinetPay.getCheckout({
-            transaction_id: data.transaction_id,
-            amount: p.price,
-            currency: 'XOF',
-            channels: 'ALL',
-            description: `Achat ${p.name}`,   
-            customer_name: customerName,
-            customer_surname: "",
-            customer_email: "client@domaine.com",
-            customer_phone_number: customerPhone,
-            customer_address: "BP",
-            customer_city: customerCity,
-            customer_country: "CI",
-            customer_state: "CI",
-            customer_zip_code: "00225"
-        });
-
-        // 3. Optionnel: Écouter les retours du Widget CinetPay
-        window.CinetPay.waitResponse(function(cinetpayData) {
-            if (cinetpayData.status == "REFUSED") {
-                showToast("Paiement refusé ou annulé.", "error");
-            } else if (cinetpayData.status == "ACCEPTED") {
-                showToast("Paiement réussi ! Merci.", "success");
-                // TODO: Rediriger ou mettre à jour l'UI
-            }
-        });
-        
-        btnElement.innerHTML = originalHtml;
-        btnElement.disabled = false;
     } catch (err) {
         console.error('[NewKet] Checkout error:', err);
         showToast("Erreur lors de l'ouverture du paiement.", "error");

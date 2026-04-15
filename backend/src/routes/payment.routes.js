@@ -7,7 +7,7 @@ const router = express.Router();
 // Route pour initialiser un paiement depuis le frontend - Protégée
 router.post('/initiate', requireAuth, paymentController.initiatePayment);
 
-// Webhook / Notify URL appelée par CinetPay
-router.post('/notify', paymentController.cinetpayWebhook);
+// Webhook appelé par Flutterwave après chaque paiement
+router.post('/notify', paymentController.flutterwaveWebhook);
 
 export default router;
