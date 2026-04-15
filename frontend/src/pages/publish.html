@@ -79,7 +79,7 @@
             <!-- Basic Info Card -->
             <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-6">
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Titre de l'annonce</label>
+                    <label for="pTitleInput" class="text-sm font-bold text-gray-700 ml-1">Titre de l'annonce</label>
                     <div
                         class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
                         <input type="text" id="pTitleInput" name="pTitleInput" required placeholder="ex: iPhone 15 Pro Max - Titanium"
@@ -89,9 +89,9 @@
 
                 <div class="grid sm:grid-cols-2 gap-8">
                     <div class="space-y-4">
-                        <label class="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
+                        <label for="pCategoryInput" class="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
                             Catégorie
-                            <span class="text-red-500">*</span>
+                            <span class="text-red-500" aria-hidden="true">*</span>
                         </label>
                         <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
                             <select id="pCategoryInput" name="pCategoryInput" required
@@ -109,9 +109,9 @@
                     </div>
 
                     <div class="space-y-4">
-                        <label class="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
+                        <label for="pConditionInput" class="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
                             État de l'objet
-                            <span class="text-red-500">*</span>
+                            <span class="text-red-500" aria-hidden="true">*</span>
                         </label>
                         <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
                             <select id="pConditionInput" name="pConditionInput" required
@@ -126,7 +126,7 @@
                     </div>
                 </div>
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 ml-1">Prix de vente</label>
+                        <label for="priceInput" class="text-sm font-bold text-gray-700 ml-1">Prix de vente</label>
                         <div class="flex gap-2">
                             <div
                                 class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white flex-1">
@@ -240,7 +240,7 @@
             <!-- Details Card -->
             <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-6">
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Description</label>
+                    <label for="pDescInput" class="text-sm font-bold text-gray-700 ml-1">Description</label>
                     <div
                         class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
                         <textarea id="pDescInput" name="pDescInput" rows="5" placeholder="Décrivez votre produit (état, caractéristiques, etc.)"

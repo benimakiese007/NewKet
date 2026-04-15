@@ -17,35 +17,36 @@ body {
 }
 
 :root {
-    --glass: rgba(255, 255, 255, 0.75);
-    --glass-morphism: blur(16px) saturate(180%);
-    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass: var(--grad-glass);
+    --glass-morphism: blur(var(--glass-blur)) saturate(180%);
+    --glass-border-color: var(--glass-border);
     --accent-blue: #2563eb;
     --accent-green: #10b981;
     --accent-orange: #f59e0b;
     --accent-purple: #8b5cf6;
-    --admin-bg: #f8fafc;
+    --admin-bg: var(--bg-light);
 }
 
 body {
     background-color: var(--admin-bg);
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-body);
+    color: var(--text-dark);
     -webkit-font-smoothing: antialiased;
 }
 
 /* Glassmorphism Panels - Premium Tier */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(25px) saturate(200%);
-    -webkit-backdrop-filter: blur(25px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255,255,255,0.7);
-    border-radius: 1.5rem;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: var(--grad-glass);
+    backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+    border-radius: 24px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+    box-shadow: var(--shadow-lg);
     transform: translateY(-4px);
     background: rgba(255, 255, 255, 0.85);
 }

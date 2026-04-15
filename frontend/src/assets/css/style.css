@@ -68,14 +68,16 @@ html:not(.auth-loading) body {
   --space-7xl: clamp(4rem, 8vw, 6rem);
 
   /* Semantic Mappings */
-  --section-padding-v: var(--space-xl); /* Reduced from 7xl for better density */
+  --section-padding-v: var(--space-xl);
   --container-padding-h: var(--space-lg);
   --component-gap: var(--space-md);
-  --card-padding: var(--space-lg); /* Increased from md */
+  --card-padding: var(--space-lg);
 
-  /* Premium Gradients */
+  /* Premium Gradients & Glassmorphism */
   --grad-premium: linear-gradient(135deg, #050505 0%, #1A1A1A 100%);
   --grad-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --glass-blur: blur(12px);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 @media (max-width: 639px) {
@@ -725,13 +727,13 @@ h6 {
 
 .product-card {
   background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: 20px;
+  border-radius: 24px; /* Increased for premium softness */
   overflow: hidden;
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Softer border */
   box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.06),
-        0 1px 3px rgba(0, 0, 0, 0.04),
+        0 4px 20px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.02),
         inset 0 1px 0 rgba(255, 255, 255, 0.9);
   position: relative;
   transform-style: preserve-3d;
@@ -773,9 +775,8 @@ h6 {
 
 .product-image {
   position: relative;
-  padding-top: 65%;
-  /* Optimized for PC/Tablet */
-  background: transparent;
+  aspect-ratio: 4 / 5; /* More elegant for luxury/fashion */
+  background: #f1f5f9; /* Subtle placeholder background color */
   overflow: hidden;
 }
 

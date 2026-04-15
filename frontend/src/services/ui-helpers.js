@@ -59,6 +59,9 @@ function showToast(message, type = 'info') {
         <div class="flex-1">
             <p class="text-sm font-bold text-gray-900">${safeMsg}</p>
         </div>
+        <div class="absolute bottom-0 left-0 h-1 bg-gray-100 w-full overflow-hidden rounded-b-2xl">
+            <div class="h-full ${color.replace('text', 'bg')} transition-all duration-[4000ms] ease-linear w-full" id="toast-progress-${Date.now()}"></div>
+        </div>
     `;
 
     toastContainer.appendChild(toast);
@@ -66,6 +69,8 @@ function showToast(message, type = 'info') {
     // Trigger animation
     setTimeout(() => {
         toast.classList.remove('translate-y-10', 'opacity-0');
+        const progress = toast.querySelector('[id^="toast-progress-"]');
+        if (progress) progress.style.width = '0%';
     }, 10);
 
     // Remove after delay
@@ -157,7 +162,10 @@ function buildProductCardHTML(p, options = {}) {
         <div class="product-card card-active-scale ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}">
             <div class="product-image">
                 ${badgeHTML}
-                <button onclick="addToWishlist('${p.id}', event)" class="wishlist-btn btn-active-scale ${isFavorite ? 'active' : ''}" title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
+                <button onclick="addToWishlist('${p.id}', event)" 
+                    class="wishlist-btn btn-active-scale ${isFavorite ? 'active' : ''}" 
+                    aria-label="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}"
+                    title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
                 <a href="${getRootPath()}pages/product?id=${p.id}">
@@ -203,6 +211,7 @@ function buildProductCardHTML(p, options = {}) {
                         onclick="if(window.initCheckout) window.initCheckout('${p.id}', this)"
                         class="flex-1 btn-active-scale bg-green-600 hover:bg-green-700 text-white py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
                         style="border:none; cursor:pointer; min-width: 0;"
+                        aria-label="Acheter ${p.name.replace(/"/g, '&quot;')}"
                         data-product-id="${p.id}">
                         <iconify-icon icon="solar:cart-large-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
                         <span class="truncate">Acheter</span>
@@ -210,6 +219,7 @@ function buildProductCardHTML(p, options = {}) {
                     <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
                         style="width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280; background:white; cursor:pointer; flex-shrink:0; transition: all 0.2s ease;"
                         onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'"
+                        aria-label="Partager ce produit"
                         title="Partager">
                         <iconify-icon icon="solar:share-linear" width="16"></iconify-icon>
                     </button>

@@ -91,52 +91,70 @@ const UI = {
             return;
         }
 
-        // Initial render of products for the main grid (can be further filtered by the user)
-        // We only render the first batch here
-        const initialBatchSize = 8;
-        this.renderFilteredBatch(products, grid, initialBatchSize);
+        // Initial render: always clear if called directly (e.g. on filter change)
+        this.renderFilteredBatch(products, grid, ProductManager.getBatchSize?.() || 8, false);
     },
 
-    renderFilteredBatch(products, container, batchSize) {
+    /**
+     * Renders or appends products to a container.
+     * @param {Array} products - List of products.
+     * @param {HTMLElement} container - Grid container.
+     * @param {number} batchSize - How many to show total or append.
+     * @param {boolean} append - If true, only append new products.
+     */
+    renderFilteredBatch(products, container, batchSize, append = false) {
         if (!products || products.length === 0) {
-            container.innerHTML = window.buildSkeletonCardHTML(batchSize);
+            if (!append) container.innerHTML = window.buildSkeletonCardHTML(batchSize);
             return;
         }
 
-        // This is the default render, used by the home page filter system
         const sortBy = document.getElementById('sortAllProducts')?.value || 'recent';
         let filtered = [...products];
 
         // Apply sort
         if (sortBy === 'price_asc') filtered.sort((a, b) => a.price - b.price);
         else if (sortBy === 'price_desc') filtered.sort((a, b) => b.price - a.price);
-        // 'recent' is default
 
         const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
         if (currentFilter !== 'all') {
             filtered = filtered.filter(p => p.category === currentFilter);
         }
 
-        const displayList = filtered.slice(0, batchSize);
-        container.innerHTML = displayList.map((p, idx) =>
+        const displayList = append 
+            ? filtered.slice(container.children.length, container.children.length + batchSize)
+            : filtered.slice(0, batchSize);
+
+        if (displayList.length === 0 && !append) {
+             // Handled by noMsg below usually
+        }
+
+        const html = displayList.map((p, idx) =>
             window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.05}s` })
         ).join('');
-        // ✅ Activer le lazy loading sur les nouvelles images injectées
+
+        if (append) {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            while (temp.firstChild) {
+                container.appendChild(temp.firstChild);
+            }
+        } else {
+            container.innerHTML = html;
+        }
+
+        // ✅ Activate lazy loading on newly injected images
         if (window.initLazyImages) window.initLazyImages(container);
 
-        // Handle "Voir Plus" button — show if more pages exist from the API
+        // UI toggles
         const voirPlus = document.getElementById('voirPlusContainer');
         if (voirPlus) {
             const hasMore = window.ProductManager && ProductManager.hasMore();
-            if (hasMore) voirPlus.classList.remove('hidden');
-            else voirPlus.classList.add('hidden');
+            voirPlus.classList.toggle('hidden', !hasMore);
         }
 
-        // Handle "No products" msg
         const noMsg = document.getElementById('noProductsMsg');
         if (noMsg) {
-            if (filtered.length === 0) noMsg.classList.remove('hidden');
-            else noMsg.classList.add('hidden');
+            noMsg.classList.toggle('hidden', filtered.length > 0);
         }
     }
 };
@@ -161,15 +179,25 @@ window.sortAndRenderAll = function () {
 
 window.showMoreProducts = async function () {
     const btn = document.getElementById('voirPlusBtn');
-    if (btn) {
-        btn.disabled = true;
-        btn.textContent = 'Chargement...';
-    }
-    await ProductManager.loadMore();
-    // Button visibility is re-evaluated in renderAll via hasMore()
-    if (btn) {
+    const grid = document.getElementById('allProductGrid');
+    if (!btn || !grid) return;
+
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon> <span class="ml-2">Chargement...</span>`;
+
+    try {
+        await ProductManager.loadMore();
+        // Since we want to APPEND, we call renderFilteredBatch with append=true
+        // Using batch size from manager or default
+        const batchSize = ProductManager.getBatchSize?.() || 8;
+        UI.renderFilteredBatch(ProductManager.getProducts(), grid, batchSize, true);
+    } catch (err) {
+        console.error("Error loading more products:", err);
+        if (window.showToast) showToast('Erreur lors du chargement', 'error');
+    } finally {
         btn.disabled = false;
-        btn.textContent = 'Voir plus';
+        btn.innerHTML = originalText;
     }
 };
 

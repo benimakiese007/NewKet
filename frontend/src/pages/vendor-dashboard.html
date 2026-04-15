@@ -338,7 +338,8 @@
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-widest" id="vModalOrderDate"></p>
                         </div>
                         <button onclick="closeOrderDetailModal()"
-                            class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                            class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
+                            aria-label="Fermer les détails de la commande">
                             <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                         </button>
                     </div>
@@ -1000,7 +1001,9 @@
                                         <p class="text-[10px] text-gray-500 truncate max-w-[150px]">${o.product_name || 'Produit'}</p>
                                     </div>
                                     <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${o.status}</span>
-                                    <button onclick="openOrderDetailModal('${o.id}')" class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                                    <button onclick="openOrderDetailModal('${o.id}')" 
+                                        aria-label="Voir les détails du prospect"
+                                        class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                                         <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
                                     </button>
                                 </div>
