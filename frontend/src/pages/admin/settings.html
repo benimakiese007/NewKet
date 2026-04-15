@@ -94,38 +94,19 @@
                     </form>
                 </div>
 
-                <!-- Livraison & Devises -->
+                <!-- Économie & Devises -->
                 <div class="glass-panel p-10 space-y-10 animate-premium stagger-2">
                     <div class="flex items-center gap-4">
                         <div class="w-14 h-14 bg-orange-50 text-orange-600 rounded-3xl flex items-center justify-center shadow-inner">
-                            <iconify-icon icon="solar:delivery-bold-duotone" width="32"></iconify-icon>
+                            <iconify-icon icon="solar:wallet-money-bold-duotone" width="32"></iconify-icon>
                         </div>
                         <div>
-                            <h3 class="font-black text-xl text-gray-900">Livraison & Économie</h3>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Frais, Devises et Objectifs</p>
+                            <h3 class="font-black text-xl text-gray-900">Économie & Devises</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Devises et Objectifs Financiers</p>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2 p-1.5 bg-gray-100 rounded-2xl w-fit">
-                        <button type="button" onclick="setShippingCurrency('USD')" id="shipUSD"
-                            class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">USD</button>
-                        <button type="button" onclick="setShippingCurrency('CDF')" id="shipCDF"
-                            class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">CDF</button>
-                    </div>
-
-                    <form id="deliveryForm" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2" id="labelFee">Frais de livraison (USD)</label>
-                                <input type="number" id="shippingFee"
-                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black">
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2" id="labelThreshold">Seuil gratuité (USD)</label>
-                                <input type="number" id="freeShippingThreshold"
-                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black">
-                            </div>
-                        </div>
+                    <form id="economyForm" class="space-y-6">
                         
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Devise d'affichage par défaut</label>
@@ -245,8 +226,6 @@
 
     <script type="module" src="../../services/admin-layout.js"></script>
     <script>
-        let currentShippingCurrency = 'USD';
-
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
 
@@ -257,37 +236,6 @@
             }
         });
 
-        function setShippingCurrency(curr, convert = true) {
-            currentShippingCurrency = curr;
-            const btnUSD = document.getElementById('shipUSD');
-            const btnCDF = document.getElementById('shipCDF');
-            
-            if (curr === 'USD') {
-                btnUSD.className = "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-xl shadow-black/20";
-                btnCDF.className = "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-black hover:bg-white";
-            } else {
-                btnCDF.className = "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-xl shadow-black/20";
-                btnUSD.className = "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-gray-400 hover:text-black hover:bg-white";
-            }
-
-            document.getElementById('labelFee').textContent = `Frais de livraison (${curr})`;
-            document.getElementById('labelThreshold').textContent = `Seuil gratuité (${curr})`;
-
-            if (convert) {
-                const feeInput = document.getElementById('shippingFee');
-                const thresholdInput = document.getElementById('freeShippingThreshold');
-                const rate = window.ConfigManager ? ConfigManager.getExchangeRate() : 2800;
-
-                if (curr === 'CDF') {
-                    feeInput.value = Math.round(parseFloat(feeInput.value || 0) * rate);
-                    thresholdInput.value = Math.round(parseFloat(thresholdInput.value || 0) * rate);
-                } else {
-                    feeInput.value = (parseFloat(feeInput.value || 0) / rate).toFixed(2);
-                    thresholdInput.value = (parseFloat(thresholdInput.value || 0) / rate).toFixed(2);
-                }
-            }
-        }
-
         function loadConfig() {
             if (window.ConfigManager) {
                 const config = ConfigManager.getConfig();
@@ -297,13 +245,9 @@
                 document.getElementById('supportPhone').value = config.supportPhone || '';
                 document.getElementById('logoUrl').value = config.logoUrl || '';
 
-                document.getElementById('shippingFee').value = config.shippingFee || 0;
-                document.getElementById('freeShippingThreshold').value = config.freeShippingThreshold || 0;
                 document.getElementById('shopCurrency').value = config.currencySymbol || 'CDF';
                 document.getElementById('exchangeRate').value = config.exchangeRate || 2500;
                 document.getElementById('targetAOV').value = config.targetAOV || 0;
-
-                setShippingCurrency(config.shippingCurrency || 'USD', false);
 
                 if (config.socialLinks) {
                     document.getElementById('socialInstagram').value = config.socialLinks.instagram || '';
@@ -324,9 +268,6 @@
                 email: document.getElementById('shopEmail').value,
                 supportPhone: document.getElementById('supportPhone').value,
                 logoUrl: document.getElementById('logoUrl').value,
-                shippingFee: parseFloat(document.getElementById('shippingFee').value),
-                freeShippingThreshold: parseFloat(document.getElementById('freeShippingThreshold').value),
-                shippingCurrency: currentShippingCurrency,
                 sellerCommission: 0,
                 currencySymbol: document.getElementById('shopCurrency').value,
                 socialLinks: {
@@ -390,6 +331,18 @@
                         }
                     }
                 );
+            }
+        });
+
+        document.getElementById('maintenanceMode').addEventListener('change', async (e) => {
+            if (window.ConfigManager) {
+                const config = ConfigManager.getConfig();
+                config.maintenanceMode = e.target.checked;
+                await ConfigManager.saveConfig(config);
+                
+                if (typeof showToast === 'function') {
+                    showToast(e.target.checked ? "Mode Maintenance Activé : Accès public désactivé" : "Mode Maintenance Désactivé : Accès public rétabli", "success");
+                }
             }
         });
     </script>

@@ -104,16 +104,25 @@ export const requireAdmin = async (req, res, next) => {
             return res.status(401).json({ error: 'Non autorisé: Utilisateur introuvable.' });
         }
 
+        // 1. Vérification rapide via les métadonnées JWT (App ou User)
+        const isAdminMetadata = req.user.app_metadata?.role === 'admin' || 
+                                req.user.user_metadata?.role === 'admin';
+        
+        if (isAdminMetadata) {
+            return next();
+        }
+
+        // 2. Fallback: Vérification via la liste des emails admins (mise en cache)
         const adminEmails = await getAdminEmails();
         const userEmail = req.user.email?.toLowerCase();
         
-        const isAdmin = adminEmails.includes(userEmail) || req.user.user_metadata?.role === 'admin';
-        
-        if (!isAdmin) {
-            return res.status(403).json({ error: 'Accès refusé: droits administrateur requis.' });
+        if (adminEmails.includes(userEmail)) {
+            return next();
         }
+        
+        // Si aucune condition n'est remplie
+        return res.status(403).json({ error: 'Accès refusé: droits administrateur requis.' });
 
-        next();
     } catch (err) {
         console.error('❌ Erreur middleware requireAdmin:', err);
         res.status(500).json({ error: 'Erreur interne lors de la vérification des droits' });

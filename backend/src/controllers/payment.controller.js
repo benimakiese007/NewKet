@@ -1,4 +1,5 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
+import NotificationService from '../services/notificationService.js';
 import crypto from 'crypto';
 
 /**
@@ -28,61 +29,81 @@ export const initiatePayment = async (req, res) => {
     try {
         const { product_id, vendor_id, amount, customer_phone, customer_name, customer_city } = req.body;
 
-        if (!product_id || !vendor_id || !amount) {
+        if (!product_id || !vendor_id) {
             return res.status(400).json({ error: 'Informations incomplètes pour le paiement' });
         }
 
         const client = supabaseAdmin || supabase;
+
+        // ─── SÉCURITÉ : Vérification du prix en base de données ────────────────
+        // On ne fait PAS confiance au 'amount' envoyé par le frontend.
+        const { data: product, error: prodError } = await client
+            .from('products')
+            .select('price, name, supplier_email')
+            .eq('id', product_id)
+            .single();
+
+        if (prodError || !product) {
+            console.error('❌ Produit non trouvé pour paiement:', product_id);
+            return res.status(404).json({ error: 'Produit introuvable' });
+        }
+
+        const verifiedAmount = product.price;
+        // On peut vérifier si l'écart entre verifiedAmount et amount est trop grand,
+        // mais le plus sûr est d'utiliser systématiquement verifiedAmount pour CinetPay.
+        
+        // ─── TRANSACTION ID ──────────────────────────────────────────────────
         const txId = generateTxId();
 
-        // 1. Sauvegarder la commande en base de données avec statut PENDING
+        // ─── SAUVEGARDE DE LA COMMANDE ───────────────────────────────────────
         const { data: orderData, error: dbError } = await client
             .from('orders')
             .insert({
-                items: [{ product_id, vendor_id, price: amount, quantity: 1 }],
-                total: amount,
-                total_amount: amount,
+                user_id: req.user?.id, // ID de l'acheteur authentifié
+                items: [{ 
+                    product_id, 
+                    vendor_id, 
+                    price: verifiedAmount, 
+                    name: product.name,
+                    quantity: 1 
+                }],
+                total: verifiedAmount,
+                total_amount: verifiedAmount,
                 status: 'PENDING',
                 payment_status: 'PENDING',
                 transaction_id: txId,
                 customer_phone,
                 customer_name,
-                customer_city
+                customer_city,
+                vendor_email: product.supplier_email
             })
             .select('*')
             .single();
 
         if (dbError) throw dbError;
 
-        // 2. Préparer les données pour l'API CinetPay (si on n'utilise pas le SDK Seamless client-side complet)
-        // Note: Dans une intégration Seamless, on peut aussi simplement renvoyer l'ID de transaction 
-        // et laisser le frontend faire le paiement, mais initialiser le token côté serveur est plus sûr.
-
+        // 2. Préparer les données pour l'API CinetPay
         const apiKey = process.env.CINETPAY_API_KEY;
         const siteId = process.env.CINETPAY_SITE_ID;
         const notifyUrl = process.env.CINETPAY_NOTIFY_URL;
         const returnUrl = process.env.CINETPAY_RETURN_URL;
 
-        // Appel à l'API CinetPay (ex: /v1/payment)
         const response = await fetch('https://api-checkout.cinetpay.com/v2/payment', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 apikey: apiKey,
                 site_id: siteId,
                 transaction_id: txId,
-                amount: amount,
-                currency: 'XOF', // Adapter selon la devise du produit
-                description: `Achat produit #${product_id} sur NewKet`,
+                amount: verifiedAmount, // UTILISATION DU PRIX VÉRIFIÉ
+                currency: 'XOF', 
+                description: `Achat ${product.name} sur NewKet`,
                 notify_url: notifyUrl,
                 return_url: returnUrl,
                 channels: 'ALL',
                 customer_name: customer_name || 'Client',
                 customer_surname: 'NewKet',
                 customer_phone_number: customer_phone || '',
-                // Champs optionnels...
             })
         });
 
@@ -92,15 +113,11 @@ export const initiatePayment = async (req, res) => {
             throw new Error('Erreur CinetPay : ' + cinetpayData.message);
         }
 
-        const paymentToken = cinetpayData.data.payment_token;
-        const paymentUrl = cinetpayData.data.payment_url;
-
-        // Renvoyer le token et l'URL au frontend
         return res.status(200).json({
             success: true,
             transaction_id: txId,
-            payment_token: paymentToken,
-            payment_url: paymentUrl,
+            payment_token: cinetpayData.data.payment_token,
+            payment_url: cinetpayData.data.payment_url,
             apikey: apiKey,
             site_id: siteId
         });
@@ -150,32 +167,44 @@ export const cinetpayWebhook = async (req, res) => {
         const txStatus = checkData.data.status; // ex: ACCEPTED, REFUSED
         const client = supabaseAdmin || supabase;
 
-        // Mise à jour de la table orders
-        let newPaymentStatus = 'PENDING';
-        let newOrderStatus = 'PENDING';
-
+        // Mise à jour de la table orders via RPC (Atomique: Stock + Statut)
         if (txStatus === 'ACCEPTED') {
-            newPaymentStatus = 'PAID';
-            newOrderStatus = 'PAYÉ';
+            const { data: rpcData, error: rpcError } = await client.rpc('process_order_payment', { 
+                p_transaction_id: cpm_trans_id 
+            });
+
+            if (rpcError || (rpcData && !rpcData.success)) {
+                console.error('[CinetPay Webhook] Erreur RPC process_order_payment:', rpcError || rpcData.message);
+                return res.status(500).send('Erreur lors de la validation atomique du stock et de la commande');
+            }
+
+            console.log(`[CinetPay Webhook] Commande ${cpm_trans_id} validée avec succès (Stock décrémenté)`);
             
-            // TODO: Déclencher une notification au vendeur ici en utilisant le NotificationService
+            // Déclencher une notification au vendeur
+            // On récupère l'ID de la commande à partir du transaction_id pour la notification
+            const { data: orderInfo } = await client
+                .from('orders')
+                .select('id')
+                .eq('transaction_id', cpm_trans_id)
+                .single();
+
+            if (orderInfo) {
+                NotificationService.notifyOrderSuccess(orderInfo.id);
+            }
         } else {
-            newPaymentStatus = 'FAILED';
-            newOrderStatus = 'ANNULÉ';
-        }
+            // Pour les échecs, on fait une mise à jour simple sans toucher au stock
+            const { error: dbUpdateError } = await client
+                .from('orders')
+                .update({
+                    payment_status: 'FAILED',
+                    status: 'ANNULÉ'
+                })
+                .eq('transaction_id', cpm_trans_id);
 
-        const { error: dbUpdateError } = await client
-            .from('orders')
-            .update({
-                payment_status: newPaymentStatus,
-                status: newOrderStatus
-                // on pourrait aussi sauvegarder l'ID de paiement cinetpay : cpm_payid
-            })
-            .eq('transaction_id', cpm_trans_id);
-
-        if (dbUpdateError) {
-            console.error('[CinetPay Webhook] Erreur mise à jour de DB:', dbUpdateError);
-            return res.status(500).send('Erreur DB');
+            if (dbUpdateError) {
+                console.error('[CinetPay Webhook] Erreur mise à jour de DB (Echec):', dbUpdateError);
+                return res.status(500).send('Erreur DB');
+            }
         }
 
         // Répondre 200 à CinetPay pour qu'ils arrêtent d'envoyer la notification

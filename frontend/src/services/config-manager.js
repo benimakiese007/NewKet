@@ -33,7 +33,7 @@ const ConfigManager = {
         }
 
         // Try to fetch from backend if cache is expired or missing
-        if (window.ApiClient && (!fetchTime || now - parseInt(fetchTime) > CACHE_DURATION)) {
+        if (window.SupabaseAdapter && (!fetchTime || now - parseInt(fetchTime) > CACHE_DURATION)) {
             // Check if we are already fetching to prevent duplicate calls from multiple managers
             if (this._fetchPromise) {
                 await this._fetchPromise;
@@ -42,15 +42,16 @@ const ConfigManager = {
             
             this._fetchPromise = (async () => {
                 try {
-                    const remoteConfig = await window.ApiClient.get('/settings');
+                    const remoteConfig = await window.SupabaseAdapter.fetch('settings');
                     if (remoteConfig && remoteConfig.length > 0) {
                         const settings = remoteConfig[0];
+                        // Parse JSON fields if necessary, though Supabase returns objects naturally
                         this.config = { ...this.config, ...settings };
                         this.saveLocal();
                         localStorage.setItem('newket_global_config_time', now.toString());
                     }
                 } catch (err) {
-                    console.warn('[NewKet] Failed to fetch settings from backend:', err);
+                    console.warn('[NewKet] Failed to fetch settings from Supabase:', err);
                 }
             })();
             
@@ -74,11 +75,17 @@ const ConfigManager = {
         this.config = { ...this.config, ...newConfig };
         this.saveLocal();
 
-        if (window.ApiClient) {
+        if (window.SupabaseAdapter) {
             try {
-                await window.ApiClient.put('/settings', newConfig);
+                // First get the row Id
+                const rows = await window.SupabaseAdapter.fetch('settings');
+                if (rows && rows.length > 0) {
+                    await window.SupabaseAdapter.update('settings', rows[0].id, newConfig);
+                } else {
+                    await window.SupabaseAdapter.insert('settings', newConfig);
+                }
             } catch (err) {
-                console.error('[NewKet] Error saving remote settings:', err);
+                console.error('[NewKet] Error saving remote settings to Supabase:', err);
             }
         }
         

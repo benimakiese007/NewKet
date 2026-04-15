@@ -15,7 +15,7 @@ router.put('/',
     requireAuth, 
     requireAdmin, 
     [
-        body('exchange_rate').optional().isNumeric(),
+        body('exchangeRate').optional().isNumeric(),
         body('admin_emails').optional().isArray(),
         body('admin_emails.*').isEmail().withMessage('Email invalide'),
         validate

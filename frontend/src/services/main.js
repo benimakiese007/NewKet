@@ -35,6 +35,25 @@ const App = {
         const isAdmin = currentRole === 'admin';
         const isSupplier = currentRole === 'supplier';
 
+        // Check Maintenance Mode
+        if (window.newketConfig && window.newketConfig.maintenanceMode === true && !isAdmin) {
+            const currentPath = window.location.pathname;
+            if (!currentPath.includes('/admin/') && !currentPath.includes('login.html')) {
+                // Remove loading screen immediately
+                document.documentElement.classList.remove('auth-loading');
+                // Replace entire body with maintenance view
+                document.body.innerHTML = `
+                    <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#111827; color:#fff; font-family:'Inter', sans-serif; text-align:center; padding:20px;">
+                        <iconify-icon icon="solar:shield-warning-bold-duotone" width="80" style="color:#ef4444; margin-bottom:20px;"></iconify-icon>
+                        <h1 style="font-size:2rem; font-weight:900; margin-bottom:10px;">NewKet en Maintenance</h1>
+                        <p style="color:#9ca3af; max-width:400px; line-height:1.6;">Notre plateforme fait actuellement l'objet d'une maintenance technique afin d'améliorer vos services. Nous serons de retour très rapidement !</p>
+                        <a href="login.html" style="margin-top:30px; font-size:12px; font-weight:bold; color:#4b5563; text-decoration:none;">Accès Administrateur</a>
+                    </div>
+                `;
+                return; // Halt further initialization
+            }
+        }
+
         if (window.OrderManager && (isAdmin || isSupplier)) initPromises.push(OrderManager.init());
         if (window.UserManager && isAdmin) initPromises.push(UserManager.init());
         

@@ -7684,66 +7684,11 @@ video {
   }
 }
 
-/* ==========================================
-   PRODUCT PAGE — Side-by-Side Layout
-   ========================================== */
-
-/* Mobile: stacked layout */
-#productGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  align-items: stretch;
-}
-
-#productImageCol {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-#productDetailsCol {
-  width: 100%;
-}
-
-/* Tablet+ (768px): side-by-side layout */
+/* CSS custom supprimé pour laisser la place aux vraies classes Tailwind (grid md:grid-cols-2) qui sont utilisées par le skeleton */
 @media (min-width: 768px) {
-  #productGrid {
-    flex-direction: row;
-    gap: 2rem;
-    align-items: flex-start;
-  }
-
   #productImageCol {
-    width: 38%;
-    max-width: none;
-    flex-shrink: 0;
-    margin: 0;
     position: sticky;
     top: 6rem;
-  }
-
-  #productDetailsCol {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
-/* Desktop (1024px+): more spacing */
-@media (min-width: 1024px) {
-  #productGrid {
-    gap: 3rem;
-  }
-
-  #productImageCol {
-    width: 35%;
-  }
-}
-
-/* Large Desktop (1280px+) */
-@media (min-width: 1280px) {
-  #productGrid {
-    gap: 4rem;
   }
 }
 /* ============================================================

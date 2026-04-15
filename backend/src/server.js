@@ -16,6 +16,13 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ─── Maintenance & Auth Globale ──────────────────────────────
+import { optionalAuth } from './middlewares/auth.js';
+import { maintenanceMiddleware } from './middlewares/maintenance.js';
+
+app.use(optionalAuth); // Récupère l'utilisateur si présent
+app.use(maintenanceMiddleware); // Bloque les écritures si maintenance ON
+
 // ─── Routes ────────────────────────────────────────────────
 // Import des routes
 import productRoutes from './routes/product.routes.js';

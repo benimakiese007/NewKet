@@ -104,10 +104,10 @@
         <div id="productGrid" style="display:none;" class="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
             <!-- Image Section -->
             <div id="productImageCol">
-                <div class="aspect-square glass-card rounded-3xl overflow-hidden group relative flex items-center justify-center p-6 hover:shadow-2xl transition-all duration-700">
-                    <img id="mainImage" src="" alt="Image du produit" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-1000 ease-out cursor-zoom-in" onclick="openZoom()">
+                <div class="w-full aspect-square glass-card rounded-3xl overflow-hidden group relative flex items-center justify-center p-1 sm:p-2 hover:shadow-2xl transition-all duration-700">
+                    <img id="mainImage" src="" alt="Image du produit" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply scale-105 group-hover:scale-125 transition-transform duration-1000 ease-out cursor-zoom-in" onclick="openZoom()">
                 </div>
-                <div class="grid grid-cols-4 gap-4 mt-6" id="thumbnailGrid"></div>
+                <div class="flex flex-wrap gap-3 sm:gap-4 mt-6" id="thumbnailGrid"></div>
             </div>
 
             <!-- Details Section -->
@@ -200,18 +200,7 @@
         <img id="zoomModalImg" src="" class="max-w-full max-h-[90vh] object-contain select-none" alt="Zoom">
     </div>
 
-    <div id="stickyBar" class="fixed bottom-[72px] left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-gray-100 p-4 translate-y-full transition-all duration-500 z-[40] sm:hidden shadow-2xl">
-        <div class="flex items-center gap-4">
-            <img id="stickyImg" src="" class="w-12 h-12 object-contain bg-gray-50 rounded-xl" alt="">
-            <div class="flex-1 min-w-0">
-                <div id="stickyName" class="text-[10px] font-black text-gray-900 truncate uppercase tracking-widest">...</div>
-                <div id="stickyPrice" class="text-sm font-black text-gray-900">...</div>
-            </div>
-            <button onclick="buyFromSticky()" class="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all">
-                <iconify-icon icon="solar:chat-round-call-bold" width="16"></iconify-icon> Commander
-            </button>
-        </div>
-    </div>
+
 
     <script shadow>
         const productId = new URLSearchParams(window.location.search).get('id');
@@ -263,11 +252,9 @@
             document.getElementById('breadcrumb-current').textContent = p.name;
             document.getElementById('productCategory').textContent = p.category;
             document.getElementById('productDescription').textContent = p.description || "Aucune description disponible.";
-            document.getElementById('stickyName').textContent = p.name;
 
             const priceStr = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC';
             document.getElementById('productPrice').textContent = priceStr;
-            document.getElementById('stickyPrice').textContent = priceStr;
 
             const vendor = (Array.isArray(p.users) ? p.users[0] : p.users) || {};
             const shopName = vendor.company_name || vendor.name || 'Vendeur NewKet';
@@ -284,11 +271,10 @@
             const images = (p.image || '').split(',').map(img => img.trim()).filter(img => img);
             const mainImgUrl = images[0] || '../assets/Images/default.png';
             document.getElementById('mainImage').src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mainImgUrl) : mainImgUrl;
-            document.getElementById('stickyImg').src = document.getElementById('mainImage').src;
 
             const thumbs = document.getElementById('thumbnailGrid');
             thumbs.innerHTML = images.map((img, i) => `
-                <div class="aspect-square bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900' : 'border-transparent'} hover:border-gray-200 transition-all p-2 glass-card" onclick="window.changeImage('${img.replace(/'/g, "\\'")}', this)">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900 shadow-sm' : 'border-transparent'} hover:border-gray-300 transition-all p-1 glass-card" onclick="window.changeImage('${img.replace(/'/g, "\\'")}', this)">
                     <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200 }) : img}" class="w-full h-full object-contain mix-blend-multiply">
                 </div>
             `).join('');
@@ -340,15 +326,6 @@
                 else FavoritesManager.addItem(p);
                 renderProductDetails(p);
             };
-            window.addEventListener('scroll', () => {
-                const btn = document.getElementById('mainOrderBtn');
-                const bar = document.getElementById('stickyBar');
-                if (btn && bar) {
-                    const rect = btn.getBoundingClientRect();
-                    if (rect.bottom < 0 && window.innerWidth < 640) bar.classList.remove('translate-y-full');
-                    else bar.classList.add('translate-y-full');
-                }
-            });
         }
 
         async function loadReviews(pid) {
@@ -441,7 +418,6 @@
         window.closeZoom = () => { document.getElementById('zoomModal').classList.add('invisible', 'opacity-0'); document.body.style.overflow = ''; };
         window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copié !', 'info'); } };
         function initRecentlyViewed(p) { let list = JSON.parse(localStorage.getItem('newketRecentlyViewed') || '[]'); list = [p, ...list.filter(item => item.id !== p.id)].slice(0, 10); localStorage.setItem('newketRecentlyViewed', JSON.stringify(list)); }
-        window.buyFromSticky = () => document.getElementById('mainOrderBtn').click();
 
         document.addEventListener('DOMContentLoaded', () => { if (window.newketInitialized) initPage(); else window.addEventListener('newketInitialized', initPage); });
     </script>
