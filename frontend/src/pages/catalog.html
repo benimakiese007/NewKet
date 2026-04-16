@@ -1,22 +1,22 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" class="auth-loading">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="../assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Catalogue Luxe &ndash; NewKet | Découvrez nos Pépites</title>
-    <meta name="description" content="Explorez le catalogue NewKet : mode féminine et masculine, tech, et art de vivre. Les meilleures pépites de luxe en RDC, livrées chez vous.">
+    <title>Catalogue Luxe &ndash; NewKet | D�©couvrez nos P�©pites</title>
+    <meta name="description" content="Explorez le catalogue NewKet : mode f�©minine et masculine, tech, et art de vivre. Les meilleures p�©pites de luxe en RDC, livr�©es chez vous.">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Catalogue Luxe — NewKet">
-    <meta property="og:description" content="Trouvez votre prochain coup de cœur parmi notre sélection d'articles de luxe.">
+    <meta property="og:title" content="Catalogue Luxe â�� NewKet">
+    <meta property="og:description" content="Trouvez votre prochain coup de c��ur parmi notre s�©lection d'articles de luxe.">
     <meta property="og:image" content="https://newket.vercel.app/assets/Images/logo-newket-v2.jpeg">
 
     <!-- Structured Data -->
@@ -41,11 +41,11 @@
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
-    <script type="module" src="../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <style>
         :root {
             --primary: #000000;
@@ -348,7 +348,7 @@
                         <button onclick="resetFilters()"
                             class="w-full group flex items-center justify-center gap-3 bg-white border border-slate-200 hover:border-black hover:bg-slate-50 text-slate-600 hover:text-black font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all shadow-sm active:scale-95">
                             <iconify-icon icon="solar:restart-linear" width="18" class="group-hover:rotate-180 transition-transform duration-500"></iconify-icon>
-                            Réinitialiser tout
+                            R�©initialiser tout
                         </button>
                     </div>
 
@@ -358,7 +358,7 @@
                             <div class="filter-icon-box">
                                 <iconify-icon icon="solar:folder-with-files-bold" width="18"></iconify-icon>
                             </div>
-                            <h3 class="filter-title">Catégories</h3>
+                            <h3 class="filter-title">Cat�©gories</h3>
                         </div>
                         <div class="space-y-4" id="categoryFilters">
                             <label class="flex items-center gap-3 group cursor-pointer">
@@ -397,7 +397,7 @@
                             <div class="filter-icon-box">
                                 <iconify-icon icon="solar:checklist-minimalistic-bold" width="18"></iconify-icon>
                             </div>
-                            <h3 class="filter-title">État de l'objet</h3>
+                            <h3 class="filter-title">��tat de l'objet</h3>
                         </div>
                         <div class="space-y-4">
                             <label class="flex items-center gap-3 group cursor-pointer">
@@ -428,7 +428,7 @@
                                 <input type="number" id="minPrice" placeholder="0"
                                     class="w-full bg-slate-50 border border-slate-100 rounded-lg pl-8 pr-2 py-2 text-[11px] font-bold outline-none focus:border-primary transition-all">
                             </div>
-                            <span class="text-slate-300 text-[10px]">—</span>
+                            <span class="text-slate-300 text-[10px]">â��</span>
                             <div class="relative">
                                 <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">MAX</span>
                                 <input type="number" id="maxPrice" placeholder="250M"
@@ -469,7 +469,7 @@
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
-                                    <span class="text-[11px] font-bold text-slate-500 ml-1">4 étoiles et +</span>
+                                    <span class="text-[11px] font-bold text-slate-500 ml-1">4 �©toiles et +</span>
                                 </div>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
@@ -478,7 +478,7 @@
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                                     <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
-                                    <span class="text-[11px] font-bold text-slate-500 ml-1">3 étoiles et +</span>
+                                    <span class="text-[11px] font-bold text-slate-500 ml-1">3 �©toiles et +</span>
                                 </div>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
@@ -505,7 +505,7 @@
                         Filtres
                     </button>
                     <p class="text-[13px] font-medium text-slate-500">Affichage de <span class="text-slate-900 font-bold"
-                            id="productCount">0</span> trésors</p>
+                            id="productCount">0</span> tr�©sors</p>
 
                     <div class="flex items-center gap-3 w-full sm:w-auto">
                         <div class="relative flex-1 sm:w-48">
@@ -513,8 +513,8 @@
                                 class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none cursor-pointer focus:ring-2 focus:ring-slate-100">
                                 <option value="default">Plus Pertinents</option>
                                 <option value="price-asc">Prix Croissant</option>
-                                <option value="price-desc">Prix Décroissant</option>
-                                <option value="newest">Dernières pépites</option>
+                                <option value="price-desc">Prix D�©croissant</option>
+                                <option value="newest">Derni�¨res p�©pites</option>
                             </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="14"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"></iconify-icon>
@@ -726,7 +726,7 @@
             const urlQ = new URLSearchParams(window.location.search).get('q') || '';
             const query = (searchInput?.value || urlQ).trim().toLowerCase();
 
-            const activeCatégories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const activeCat�©gories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
             const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
             const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
             const activePromo = document.querySelector('.promo-filter:checked') !== null;
@@ -772,8 +772,8 @@
                     }
 
                     // Category filter
-                    if (activeCatégories.length > 0) {
-                        options.in = [['category', activeCatégories]];
+                    if (activeCat�©gories.length > 0) {
+                        options.in = [['category', activeCat�©gories]];
                     }
 
                     // Price range
@@ -841,8 +841,8 @@
                         (p.category || '').toLowerCase().includes(query)
                     );
                 }
-                if (activeCatégories.length > 0) {
-                    allProducts = allProducts.filter(p => activeCatégories.includes(p.category));
+                if (activeCat�©gories.length > 0) {
+                    allProducts = allProducts.filter(p => activeCat�©gories.includes(p.category));
                 }
                 if (activeConditions.length === 1) {
                     allProducts = allProducts.filter(p => (p.is_new || p.isNew) === (activeConditions[0] === 'true'));
@@ -882,9 +882,9 @@
                 grid.innerHTML = `
                     <div class="col-span-full py-20 text-center">
                         <iconify-icon icon="solar:magnifer-zoom-out-linear" width="64" class="text-slate-200 mb-4"></iconify-icon>
-                        <h2 class="text-xl font-bold text-slate-900">Quête infructueuse</h2>
-                        <p class="text-slate-500">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</p>
-                        <button onclick="resetFilters()" class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">Réinitialiser l'horizon</button>
+                        <h2 class="text-xl font-bold text-slate-900">Qu�ªte infructueuse</h2>
+                        <p class="text-slate-500">L'article d'exception que vous recherchez semble s'�ªtre �©vanoui. Ajustez vos crit�¨res pour une nouvelle d�©couverte.</p>
+                        <button onclick="resetFilters()" class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">R�©initialiser l'horizon</button>
                     </div>
                 `;
                 removeLoadMoreButton();
@@ -904,7 +904,7 @@
                 grid.innerHTML = newHTML;
             }
 
-            // ✅ Activer le lazy loading sur les images .lazy-img injectées
+            // â�� Activer le lazy loading sur les images .lazy-img inject�©es
             if (window.initLazyImages) window.initLazyImages(grid);
 
             // Manage Load More button
@@ -985,8 +985,8 @@
         function shareProductCard(id, name) {
             const productUrl = window.location.origin + window.location.pathname.replace(/[^\/]*$/, '') + 'product?id=' + id;
             const shareData = {
-                title: name + ' — NewKet',
-                text: 'Découvrez ' + name + ' sur NewKet !',
+                title: name + ' â�� NewKet',
+                text: 'D�©couvrez ' + name + ' sur NewKet !',
                 url: productUrl
             };
 
@@ -995,7 +995,7 @@
             } else {
                 navigator.clipboard.writeText(productUrl).then(() => {
                     if (window.showToast) {
-                        showToast('Lien copié dans le presse-papier !', 'success');
+                        showToast('Lien copi�© dans le presse-papier !', 'success');
                     }
                 });
             }
@@ -1059,6 +1059,7 @@
 </body>
 
 </html>
+
 
 
 

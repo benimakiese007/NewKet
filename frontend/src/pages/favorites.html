@@ -1,27 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
-    <script type="module" src="../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="../assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Favoris — NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
-    <link rel="stylesheet" href="../assets/css/input.css">
+    <title>Favoris â�� NewKet</title>
+    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <style>
         * {
             font-family: 'Inter', sans-serif;
@@ -48,7 +48,7 @@
         <div class="flex items-center justify-between mb-10">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Mes Favoris</h1>
-                <p id="fav-status" class="text-gray-500 text-sm mt-1">Récupération de vos coups de cœur...</p>
+                <p id="fav-status" class="text-gray-500 text-sm mt-1">R�©cup�©ration de vos coups de c��ur...</p>
             </div>
             <button id="clearAllBtn"
                 class="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-4 py-2 rounded-xl">
@@ -62,9 +62,9 @@
             <div class="w-24 h-24 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
                 <iconify-icon icon="solar:heart-break-linear" width="48"></iconify-icon>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</h2>
-            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et
-                enregistrez vos coups de cœur ici.</p>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre liste de d�©sirs est vide</h2>
+            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous s�©duire par nos pi�¨ces d'exception et
+                enregistrez vos coups de c��ur ici.</p>
             <a href="./catalog"
                 class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                 Voir le catalogue
@@ -139,7 +139,7 @@
                 return;
             }
 
-            if (statusText) statusText.textContent = "Gérez vos articles coups de cœur";
+            if (statusText) statusText.textContent = "G�©rez vos articles coups de c��ur";
             empty.classList.add('hidden');
             grid.classList.remove('hidden');
 
@@ -182,11 +182,11 @@
         document.getElementById('clearAllBtn').onclick = () => {
             showConfirm(
                 'Tout effacer ?',
-                'Êtes-vous sûr de vouloir supprimer tous vos articles favoris ? Cette action est irréversible.',
+                '�Štes-vous s�»r de vouloir supprimer tous vos articles favoris ? Cette action est irr�©versible.',
                 () => {
                     window.FavoritesManager.clearAll();
                     renderFavorites();
-                    showToast('Tous les favoris ont été effacés', 'info');
+                    showToast('Tous les favoris ont �©t�© effac�©s', 'info');
                 }
             );
         };
@@ -202,4 +202,5 @@
 </body>
 
 </html>
+
 

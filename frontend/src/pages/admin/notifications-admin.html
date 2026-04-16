@@ -1,26 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../../assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="../../assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Notifications | NewKet Admin</title>
-    <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
-    <script type="module" src="../../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../../assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <style>
         body {
             background-color: #f8fafc;
@@ -100,7 +100,7 @@
         }
     </style>
 
-    <link rel="stylesheet" href="../../assets/css/admin.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
 </head>
 
 <body class="text-gray-900">
@@ -115,7 +115,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 class="text-3xl font-black tracking-tight text-gray-900">Notifications</h1>
-                        <p class="text-gray-500">Gérez et envoyez des alertes à vos utilisateurs.</p>
+                        <p class="text-gray-500">G�©rez et envoyez des alertes �  vos utilisateurs.</p>
                     </div>
                     <div class="flex items-center gap-3">
                         <button onclick="forceRefresh()"
@@ -135,7 +135,7 @@
             <!-- Stats -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total envoyées</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total envoy�©es</div>
                     <div class="text-2xl font-black text-gray-900" id="statTotal">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
@@ -147,7 +147,7 @@
                     <div class="text-2xl font-black text-purple-500" id="statPromos">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Alertes système</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Alertes syst�¨me</div>
                     <div class="text-2xl font-black text-red-500" id="statAlerts">0</div>
                 </div>
             </div>
@@ -171,7 +171,7 @@
                         <select id="notifType"
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors bg-white">
                             <option value="info">Information</option>
-                            <option value="success">Succès</option>
+                            <option value="success">Succ�¨s</option>
                             <option value="warning">Avertissement</option>
                             <option value="danger">Alerte</option>
                             <option value="promo">Promotion</option>
@@ -180,7 +180,7 @@
                     <div class="sm:col-span-2">
                         <label
                             class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Message</label>
-                        <textarea id="notifMessage" placeholder="Rédigez votre message ici..." rows="3"
+                        <textarea id="notifMessage" placeholder="R�©digez votre message ici..." rows="3"
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors resize-none"></textarea>
                     </div>
                     <div>
@@ -215,7 +215,7 @@
                             class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black cursor-pointer">
                             <option value="all">Tous les types</option>
                             <option value="info">Information</option>
-                            <option value="success">Succès</option>
+                            <option value="success">Succ�¨s</option>
                             <option value="warning">Avertissement</option>
                             <option value="danger">Alerte</option>
                             <option value="promo">Promotion</option>
@@ -233,10 +233,10 @@
         </main>
     </div>
 
-    <script type="module" src="../../services/admin-layout.js"></script>
+    <script type="module" src="/src/services/admin-layout.js"></script>
     <script>
         // =========================================================
-        // Notifications Admin Page — Database-first approach
+        // Notifications Admin Page â�� Database-first approach
         // Local key kept only for display of sent-by-me tracking
         // =========================================================
         const SENT_KEY = 'newket_admin_sent_notifs'; // lightweight sent-log for this session
@@ -248,10 +248,10 @@
             localStorage.setItem(SENT_KEY, JSON.stringify(log.slice(0, 100)));
         }
 
-        /** Force les managers de ré-interroger le serveur */
+        /** Force les managers de r�©-interroger le serveur */
         async function forceRefresh() {
             const list = document.getElementById('notifList');
-            list.innerHTML = '<div class="p-12 text-center text-gray-400">Rafraîchissement...</div>';
+            list.innerHTML = '<div class="p-12 text-center text-gray-400">Rafra�®chissement...</div>';
             // Purge cache timestamps so init() will re-fetch
             localStorage.removeItem('newket_notifications_sync_time');
             if (window.NotificationManager) {
@@ -293,14 +293,14 @@
 
             document.getElementById('notifTitle').value = '';
             document.getElementById('notifMessage').value = '';
-            showToast('Notification envoyée avec succès !', 'success');
-            if (window.ActivityManager) ActivityManager.log(`Notification envoyée : "${title}"`, 'system');
+            showToast('Notification envoy�©e avec succ�¨s !', 'success');
+            if (window.ActivityManager) ActivityManager.log(`Notification envoy�©e : "${title}"`, 'system');
         }
 
         function getTypeBadge(type) {
             const badges = {
                 'info': '<span class="badge badge-info">Info</span>',
-                'success': '<span class="badge badge-success">Succès</span>',
+                'success': '<span class="badge badge-success">Succ�¨s</span>',
                 'warning': '<span class="badge badge-warning">Avertiss.</span>',
                 'danger': '<span class="badge badge-danger">Alerte</span>',
                 'promo': '<span class="badge badge-promo">Promo</span>'
@@ -333,7 +333,7 @@
             if (filterType !== 'all') notifs = notifs.filter(n => n.type === filterType);
 
             if (notifs.length === 0) {
-                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucune notification trouvée.</div>`;
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucune notification trouv�©e.</div>`;
                 return;
             }
 
@@ -342,7 +342,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-start gap-4 flex-1 min-w-0">
                             <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0 text-lg">
-                                ${{ 'info': 'ℹ️', 'success': '✅', 'warning': '⚠️', 'danger': '🔴', 'promo': '🎉' }[n.type] || '📢'}
+                                ${{ 'info': 'â�¹ï¸�', 'success': 'â��', 'warning': 'âš ï¸�', 'danger': 'ðŸ�´', 'promo': 'ðŸŽ�' }[n.type] || 'ðŸ�¢'}
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -354,13 +354,13 @@
                                 <p class="text-sm text-gray-600 mb-2">${n.message}</p>
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                     ${new Date(n.date || n.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                    ${n.sentBy ? '· Par ' + n.sentBy : ''}
+                                    ${n.sentBy ? '�· Par ' + n.sentBy : ''}
                                 </div>
                             </div>
                         </div>
                         <button onclick="deleteNotification('${n.id}')" 
                                 class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" 
-                                title="Supprimer définitivement">
+                                title="Supprimer d�©finitivement">
                             <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                         </button>
                     </div>
@@ -377,12 +377,12 @@
         }
 
         async function deleteNotification(id) {
-            if (!confirm('Voulez-vous supprimer définitivement cette notification ?')) return;
+            if (!confirm('Voulez-vous supprimer d�©finitivement cette notification ?')) return;
             
             if (window.NotificationManager) {
                 const ok = await window.NotificationManager.deleteNotification(id);
                 if (ok) {
-                    showToast('Notification supprimée.', 'success');
+                    showToast('Notification supprim�©e.', 'success');
                     renderNotifications();
                     updateStats();
                 } else {
@@ -396,7 +396,7 @@
         }
 
         async function clearAllNotifications() {
-            if (!confirm('Effacer TOUTES les notifications définitivement (BDD + local) ?')) return;
+            if (!confirm('Effacer TOUTES les notifications d�©finitivement (BDD + local) ?')) return;
             
             if (window.NotificationManager) {
                 const ok = await window.NotificationManager.clearAll();
@@ -404,7 +404,7 @@
                     localStorage.removeItem(SENT_KEY);
                     renderNotifications();
                     updateStats();
-                    showToast('Historique effacé avec succès.', 'success');
+                    showToast('Historique effac�© avec succ�¨s.', 'success');
                 } else {
                     showToast('Erreur lors du nettoyage.', 'error');
                 }
@@ -441,4 +441,5 @@
 </body>
 
 </html>
+
 

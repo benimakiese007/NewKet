@@ -104,9 +104,9 @@ export const requireAdmin = async (req, res, next) => {
             return res.status(401).json({ error: 'Non autorisé: Utilisateur introuvable.' });
         }
 
-        // 1. Vérification rapide via les métadonnées JWT (App ou User)
-        const isAdminMetadata = req.user.app_metadata?.role === 'admin' || 
-                                req.user.user_metadata?.role === 'admin';
+        // 1. Vérification rapide via les métadonnées JWT (App Metadata uniquement)
+        // Les user_metadata sont modifiables par l'utilisateur via le client, on ne doit pas leur faire confiance pour les rôles.
+        const isAdminMetadata = req.user.app_metadata?.role === 'admin';
         
         if (isAdminMetadata) {
             return next();

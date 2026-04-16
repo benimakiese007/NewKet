@@ -10,17 +10,17 @@ export default defineConfig({
       protocol: 'ws',
     }
   },
-  root: 'src',
-  envDir: '../',
-  publicDir: '../public',
+  root: '.',
+  envDir: './',
+  publicDir: './public',
   // Vite va résoudre le build à la racine par défaut
   build: {
-    outDir: '../dist',
+    outDir: './dist',
     emptyOutDir: true,
     rollupOptions: {
       input: {
         // Root pages
-        main: resolve(__dirname, 'src/index.html'),
+        main: resolve(__dirname, 'index.html'),
         catalog: resolve(__dirname, 'src/pages/catalog.html'),
         product: resolve(__dirname, 'src/pages/product.html'),
         publish: resolve(__dirname, 'src/pages/publish.html'),

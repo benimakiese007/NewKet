@@ -1,22 +1,22 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" class="auth-loading">
 
 <head>
-    <script type="module" src="../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Vendeur | NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
-    <link rel="stylesheet" href="../assets/css/input.css">
+    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Supabase -->
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/responsive.css">
-    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
     <style>
         * {
             font-family: 'Inter', sans-serif;
@@ -71,13 +71,13 @@
                             <span>Mes Achats</span>
                         </a>
                         <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
-                            <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
+                            <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link group btn-active-scale" aria-label="Param�¨tres">
                                 <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                                <span>Paramètres</span>
+                                <span>Param�¨tres</span>
                             </a>
                             <a href="#" onclick="if(window.AuthManager) AuthManager.logout(); return false;" class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2">
                                 <iconify-icon icon="solar:logout-2-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
-                                <span>Se déconnecter</span>
+                                <span>Se d�©connecter</span>
                             </a>
                         </div>
                     </nav>
@@ -98,7 +98,7 @@
                 <div class="flex justify-between items-end">
                     <div>
                         <h1 class="text-3xl font-bold tracking-tight">Bonjour, <span id="vendorDisplay">Vendeur</span></h1>
-                        <p class="text-gray-500 mt-1">Voici un aperçu de l'activité de votre boutique aujourd'hui.</p>
+                        <p class="text-gray-500 mt-1">Voici un aper�§u de l'activit�© de votre boutique aujourd'hui.</p>
                     </div>
                     <a href="./publish"
                         class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all btn-active-scale">Ajouter
@@ -118,7 +118,7 @@
                 <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Prospects Uniques</p>
                     <div class="text-3xl font-black text-gray-900" id="vendorOrders">0</div>
-                    <p class="text-xs text-gray-400 mt-2 font-bold font-medium pt-1">Activité récente</p>
+                    <p class="text-xs text-gray-400 mt-2 font-bold font-medium pt-1">Activit�© r�©cente</p>
                 </div>
                 <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Produits en ligne</p>
@@ -146,7 +146,7 @@
                 <!-- Sales Chart -->
                 <div class="glass-panel p-8">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-bold text-gray-900">Intérêt pour vos produits</h3>
+                        <h3 class="font-bold text-gray-900">Int�©r�ªt pour vos produits</h3>
                         <div
                             class="text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md">
                             WhatsApp</div>
@@ -191,7 +191,7 @@
                 <!-- Recent Activity (New for Vendor) -->
                 <div class="glass-panel p-8 lg:col-span-2">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-bold text-gray-900">Activités Récentes de la Boutique</h3>
+                        <h3 class="font-bold text-gray-900">Activit�©s R�©centes de la Boutique</h3>
                         <iconify-icon icon="solar:history-bold" width="20" class="text-gray-300"></iconify-icon>
                     </div>
                     <div id="vendor-activity-feed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -235,7 +235,7 @@
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-xl font-bold">Mes Achats</h2>
                         <div class="bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
-                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total dépensé</p>
+                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total d�©pens�©</p>
                              <p class="font-black text-gray-900" id="vendorPurchasesTotal">0 FC</p>
                         </div>
                     </div>
@@ -252,7 +252,7 @@
                     <!-- Profile Photo Card -->
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-2">Photo de Profil (Logo)</h2>
-                        <p class="text-sm text-gray-400 mb-6">Cette image représentera votre boutique sur NewKet.</p>
+                        <p class="text-sm text-gray-400 mb-6">Cette image repr�©sentera votre boutique sur NewKet.</p>
 
                         <!-- Preview -->
                         <div class="flex items-center gap-8">
@@ -270,8 +270,8 @@
 
                             <div class="flex-1 space-y-4">
                                 <p class="text-xs text-gray-500 leading-relaxed">
-                                    <strong>Conseil :</strong> Utilisez une image carrée (proportion 1:1) pour un meilleur affichage. 
-                                    Le format PNG ou JPG est recommandé.
+                                    <strong>Conseil :</strong> Utilisez une image carr�©e (proportion 1:1) pour un meilleur affichage. 
+                                    Le format PNG ou JPG est recommand�©.
                                 </p>
                                 <button id="saveAvatarBtn" class="bg-black text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>
                                     Enregistrer le logo
@@ -291,7 +291,7 @@
                     <!-- Cover Photo Card -->
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-2">Photo de Couverture</h2>
-                        <p class="text-sm text-gray-400 mb-6">Cette image s'affiche en arrière-plan de votre boutique publique.</p>
+                        <p class="text-sm text-gray-400 mb-6">Cette image s'affiche en arri�¨re-plan de votre boutique publique.</p>
 
                         <!-- Preview -->
                         <div id="coverPreviewContainer" class="relative w-full h-48 rounded-2xl overflow-hidden bg-gray-100 mb-4 group cursor-pointer border-2 border-dashed border-gray-200 hover:border-black transition-all" onclick="document.getElementById('coverPhotoInput').click()">
@@ -299,7 +299,7 @@
                             <div id="coverPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-400">
                                 <iconify-icon icon="solar:camera-add-bold" width="40" class="text-gray-300"></iconify-icon>
                                 <p class="text-xs font-bold uppercase tracking-widest">Cliquer pour choisir une image</p>
-                                <p class="text-[10px] text-gray-300">JPG, PNG — Max 5 Mo</p>
+                                <p class="text-[10px] text-gray-300">JPG, PNG â�� Max 5 Mo</p>
                             </div>
                             <!-- Overlay on hover when image is set -->
                             <div id="coverOverlay" class="absolute inset-0 bg-black/50 hidden items-center justify-center gap-2 text-white group-hover:flex transition-all">
@@ -340,7 +340,7 @@
                                 <input id="vSetEmail" name="vSetEmail" type="email" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="votre@email.com">
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Délai d'expédition</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">D�©lai d'exp�©dition</label>
                                 <input id="vSetShipping" name="vSetShipping" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Sous 24h, 48h...">
                             </div>
                             <button type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all">Enregistrer les modifications</button>
@@ -356,12 +356,12 @@
                 <div class="glass-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                         <div>
-                            <h2 class="text-xl font-bold" id="vModalOrderId">Détails de la commande</h2>
+                            <h2 class="text-xl font-bold" id="vModalOrderId">D�©tails de la commande</h2>
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-widest" id="vModalOrderDate"></p>
                         </div>
                         <button onclick="closeOrderDetailModal()"
                             class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
-                            aria-label="Fermer les détails de la commande">
+                            aria-label="Fermer les d�©tails de la commande">
                             <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                         </button>
                     </div>
@@ -387,7 +387,7 @@
 
                         <!-- Items -->
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">Articles commandés</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">Articles command�©s</p>
                             <div id="vModalOrderItems" class="space-y-4">
                                 <!-- Items injected here -->
                             </div>
@@ -400,7 +400,7 @@
                                 <div class="text-2xl font-black text-gray-900" id="vModalOrderTotal">0 FC</div>
                             </div>
                             <div class="flex gap-2" id="vModalActions">
-                                <button id="btnMarkDelivered" class="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-gray-800 transition-all">Marquer comme livré
+                                <button id="btnMarkDelivered" class="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-gray-800 transition-all">Marquer comme livr�©
                                 <button id="btnMarkCancelled" class="px-4 py-2 border border-red-100 text-red-500 rounded-xl text-xs font-bold hover:bg-red-50 transition-all">Annuler</button>
                             </div>
                         </div>
@@ -409,7 +409,7 @@
                         <div class="bg-blue-50 p-4 rounded-xl flex items-start gap-3">
                             <iconify-icon icon="solar:info-circle-bold" class="text-blue-500 shrink-0" width="20"></iconify-icon>
                             <p class="text-[10px] text-blue-700 leading-relaxed font-medium">
-                                <strong>Note :</strong> Les paiements s'effectuent directement entre vous et le client. NewKet ne prélève aucune commission sur vos ventes.
+                                <strong>Note :</strong> Les paiements s'effectuent directement entre vous et le client. NewKet ne pr�©l�¨ve aucune commission sur vos ventes.
                             </p>
                         </div>
                     </div>
@@ -445,7 +445,7 @@
                     const activeLink = document.querySelector('a[onclick*="' + tabId + '"]');
                     if (activeLink) activeLink.classList.add('active');
 
-                    // Charger les données de l'onglet
+                    // Charger les donn�©es de l'onglet
                     if (tabId === 'dashboard') renderVendorDashboard();
                     else if (tabId === 'products') renderVendorProducts();
                     else if (tabId === 'leads') renderVendorLeads();
@@ -556,7 +556,7 @@
 
                             try {
                                 const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
-                                if (!user) throw new Error('Non authentifié');
+                                if (!user) throw new Error('Non authentifi�©');
 
                                 const ext = _selectedAvatarFile.name.split('.').pop();
                                 const filePath = `avatars/${user.id}_${Date.now()}.${ext}`;
@@ -564,7 +564,7 @@
                                 if (progressBar) progressBar.style.width = '60%';
 
                                 const publicUrl = await window.SupabaseAdapter.uploadFile('user-assets', filePath, _selectedAvatarFile);
-                                if (!publicUrl) throw new Error('Upload échoué');
+                                if (!publicUrl) throw new Error('Upload �©chou�©');
 
                                 if (progressBar) progressBar.style.width = '85%';
 
@@ -581,7 +581,7 @@
 
                                 if (progressBar) progressBar.style.width = '100%';
                                 setTimeout(() => { if (progressDiv) progressDiv.classList.add('hidden'); }, 1500);
-                                if (window.showToast) showToast('Logo mis à jour avec succès !', 'success');
+                                if (window.showToast) showToast('Logo mis �  jour avec succ�¨s !', 'success');
                                 _selectedAvatarFile = null;
                                 updateVendorName(); // Refresh sidebar
 
@@ -661,11 +661,11 @@
                             saveCoverBtn.disabled = true;
                             if (progressDiv) progressDiv.classList.remove('hidden');
                             if (progressBar) progressBar.style.width = '30%';
-                            if (progressLabel) progressLabel.textContent = 'Préparation...';
+                            if (progressLabel) progressLabel.textContent = 'Pr�©paration...';
 
                             try {
                                 const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
-                                if (!user) throw new Error('Non authentifié');
+                                if (!user) throw new Error('Non authentifi�©');
 
                                 const ext = _selectedCoverFile.name.split('.').pop();
                                 const filePath = `covers/${user.id}.${ext}`;
@@ -676,7 +676,7 @@
                                 // Upload to Supabase Storage
                                 const publicUrl = await window.SupabaseAdapter.uploadFile('vendor-covers', filePath, _selectedCoverFile);
 
-                                if (!publicUrl) throw new Error('Upload échoué');
+                                if (!publicUrl) throw new Error('Upload �©chou�©');
 
                                 if (progressBar) progressBar.style.width = '85%';
                                 if (progressLabel) progressLabel.textContent = 'Sauvegarde...';
@@ -688,15 +688,15 @@
                                 ProfileManager.saveProfile({ ...ProfileManager.getProfile(), cover_image: publicUrl });
 
                                 if (progressBar) progressBar.style.width = '100%';
-                                if (progressLabel) progressLabel.textContent = 'Terminé !';
+                                if (progressLabel) progressLabel.textContent = 'Termin�© !';
 
                                 setTimeout(() => { if (progressDiv) progressDiv.classList.add('hidden'); }, 1500);
-                                if (window.showToast) showToast('Photo de couverture mise à jour !', 'success');
+                                if (window.showToast) showToast('Photo de couverture mise �  jour !', 'success');
                                 _selectedCoverFile = null;
 
                             } catch(err) {
                                 console.error('[Cover] Upload error:', err);
-                                if (window.showToast) showToast('Erreur lors de l\'upload. Réessayez.', 'error');
+                                if (window.showToast) showToast('Erreur lors de l\'upload. R�©essayez.', 'error');
                                 if (progressDiv) progressDiv.classList.add('hidden');
                             } finally {
                                 saveCoverBtn.disabled = false;
@@ -742,8 +742,8 @@
                                 console.error('[Settings] Error saving to Supabase:', err);
                             }
                             
-                            if (window.showToast) showToast('Paramètres de la boutique enregistrés !', 'success');
-                            else alert('Paramètres enregistrés !');
+                            if (window.showToast) showToast('Param�¨tres de la boutique enregistr�©s !', 'success');
+                            else alert('Param�¨tres enregistr�©s !');
 
                             // Refresh UI
                             if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.company_name;
@@ -779,10 +779,10 @@
                                     <iconify-icon icon="solar:info-circle-bold" width="24"></iconify-icon>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="font-bold text-amber-900">Complétez votre profil vendeur</h3>
-                                    <p class="text-sm text-amber-700">Vous devez soumettre vos informations pour commencer à vendre sur NewKet.</p>
+                                    <h3 class="font-bold text-amber-900">Compl�©tez votre profil vendeur</h3>
+                                    <p class="text-sm text-amber-700">Vous devez soumettre vos informations pour commencer �  vendre sur NewKet.</p>
                                 </div>
-                                <a href="./seller-onboarding" class="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-amber-700 transition-all shadow-lg shadow-amber-200/50">Compléter maintenant</a>
+                                <a href="./seller-onboarding" class="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-amber-700 transition-all shadow-lg shadow-amber-200/50">Compl�©ter maintenant</a>
                             </div>
                         `;
                     } else if (status === 'submitted') {
@@ -793,7 +793,7 @@
                                 </div>
                                 <div class="flex-1">
                                     <h3 class="font-bold text-blue-900">Validation en cours</h3>
-                                    <p class="text-sm text-blue-700">Votre demande est en cours d'examen par notre équipe. Vous recevrez une notification dès que vous pourrez publier.</p>
+                                    <p class="text-sm text-blue-700">Votre demande est en cours d'examen par notre �©quipe. Vous recevrez une notification d�¨s que vous pourrez publier.</p>
                                 </div>
                                 <div class="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl font-bold text-[10px] uppercase tracking-widest">En attente</div>
                             </div>
@@ -805,10 +805,10 @@
                                     <iconify-icon icon="solar:danger-bold" width="24"></iconify-icon>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="font-bold text-red-900">Profil rejeté</h3>
-                                    <p class="text-sm text-red-700">Votre profil n'a pas pu être validé. Veuillez vérifier vos informations et soumettre à nouveau.</p>
+                                    <h3 class="font-bold text-red-900">Profil rejet�©</h3>
+                                    <p class="text-sm text-red-700">Votre profil n'a pas pu �ªtre valid�©. Veuillez v�©rifier vos informations et soumettre �  nouveau.</p>
                                 </div>
-                                <a href="./seller-onboarding" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-red-700 transition-all shadow-lg shadow-red-200/50">Réessayer</a>
+                                <a href="./seller-onboarding" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-red-700 transition-all shadow-lg shadow-red-200/50">R�©essayer</a>
                             </div>
                         `;
                     }
@@ -902,15 +902,15 @@
                                     <p class="text-[10px] font-black text-gray-400 uppercase">${ActivityManager.formatTime(a.time)}</p>
                                 </div>
                             </div>
-                        `).join('') : '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activité.</p>';
+                        `).join('') : '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activit�©.</p>';
                     }
             updateStatusBanner();
             window.addEventListener('userStatusUpdated', updateStatusBanner);
                 }
 
                 function getStatusColor(status) {
-                    if (status === 'Livré') return 'bg-green-50 text-green-600';
-                    if (status === 'Annulé') return 'bg-red-50 text-red-600';
+                    if (status === 'Livr�©') return 'bg-green-50 text-green-600';
+                    if (status === 'Annul�©') return 'bg-red-50 text-red-600';
                     return 'bg-blue-50 text-blue-600';
                 }
 
@@ -1000,14 +1000,14 @@
                 }
 
                 async function deleteProduct(id) {
-                    if (confirm('Voulez-vous vraiment supprimer cet article ? Cette action est irréversible.')) {
+                    if (confirm('Voulez-vous vraiment supprimer cet article ? Cette action est irr�©versible.')) {
                         try {
                             const success = await ProductManager.deleteProduct(id);
                             if (success) {
-                                if (window.showToast) showToast('Produit supprimé !', 'success');
+                                if (window.showToast) showToast('Produit supprim�© !', 'success');
                                 renderVendorDashboard(); // Refresh total count
                                 renderVendorProducts(); // Refresh grid
-                                ActivityManager.log(`Produit supprimé de votre catalogue`, 'stock');
+                                ActivityManager.log(`Produit supprim�© de votre catalogue`, 'stock');
                             }
                         } catch (error) {
                             if (window.showToast) showToast('Erreur lors de la suppression.', 'error');
@@ -1019,7 +1019,7 @@
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     
-                    // On récupère les stats via le service customer dédié
+                    // On r�©cup�¨re les stats via le service customer d�©di�©
                     const stats = OrderManager.getCustomerStats(email, userId);
                     const myPurchases = stats.orders || [];
                     
@@ -1037,7 +1037,7 @@
                                 <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                                     <iconify-icon icon="solar:bag-heart-bold" width="32"></iconify-icon>
                                 </div>
-                                <p class="text-sm text-gray-400">Vous n'avez pas encore effectué d'achats.</p>
+                                <p class="text-sm text-gray-400">Vous n'avez pas encore effectu�© d'achats.</p>
                                 <a href="../" class="inline-block mt-4 text-xs font-bold text-black border-b border-black">Commencer mes achats</a>
                             </div>
                         `;
@@ -1052,7 +1052,7 @@
                                         <h4 class="font-bold text-gray-900">${o.product_name || 'Commande multi-produits'}</h4>
                                         <div class="flex items-center gap-2 mt-1">
                                             <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">${new Date(o.date || o.timestamp).toLocaleDateString()}</span>
-                                            <span class="text-gray-300">•</span>
+                                            <span class="text-gray-300">â�¢</span>
                                             <span class="px-2 py-0.5 rounded-md text-[9px] font-bold ${getPaymentStatusStyle(o.payment_status)}">${o.payment_status || 'N/A'}</span>
                                         </div>
                                     </div>
@@ -1064,7 +1064,7 @@
                                     </div>
                                     <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${o.status}</span>
                                     <button onclick="openOrderDetailModal('${o.id}')" 
-                                        aria-label="Voir les détails de l'achat"
+                                        aria-label="Voir les d�©tails de l'achat"
                                         class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                                         <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
                                     </button>
@@ -1095,7 +1095,7 @@
                                         <h4 class="font-bold text-gray-900">${o.customer?.name || o.customer_name || 'Client'}</h4>
                                         <div class="flex items-center gap-2 mt-1">
                                             <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">${new Date(o.date || o.timestamp).toLocaleDateString()}</span>
-                                            <span class="text-gray-300">•</span>
+                                            <span class="text-gray-300">â�¢</span>
                                             <span class="flex items-center gap-1 text-[10px] font-bold text-gray-500">
                                                 <iconify-icon icon="solar:phone-bold" width="12"></iconify-icon>
                                                 ${o.phone_number || '-'}
@@ -1110,7 +1110,7 @@
                                     </div>
                                     <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${o.status}</span>
                                     <button onclick="openOrderDetailModal('${o.id}')" 
-                                        aria-label="Voir les détails du prospect"
+                                        aria-label="Voir les d�©tails du prospect"
                                         class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                                         <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
                                     </button>
@@ -1131,7 +1131,7 @@
                     });
                     document.getElementById('vModalCustomerName').textContent = order.customer?.name || order.customer_name || 'Client';
                     document.getElementById('vModalCustomerEmail').textContent = order.customer?.email || 'Pas d\'email';
-                    document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numéro';
+                    document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de num�©ro';
                     document.getElementById('vModalOrderTotal').textContent = CurrencyManager.formatPrice(order.total);
 
                     const payStatusEl = document.getElementById('vModalPaymentStatus');
@@ -1158,7 +1158,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="font-bold text-sm">${CurrencyManager.formatPrice(item.price)}</p>
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Qté: ${item.quantity || 1}</p>
+                                <p class="text-[10px] font-black text-gray-400 uppercase">Qt�©: ${item.quantity || 1}</p>
                             </div>
                         </div>
                     `).join('');
@@ -1167,8 +1167,8 @@
                     const actions = document.getElementById('vModalActions');
                     if (order.status === 'En attente') {
                         actions.classList.remove('hidden');
-                        document.getElementById('btnMarkDelivered').onclick = () => updateVendorOrderStatus(order.id, 'Livré');
-                        document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'Annulé');
+                        document.getElementById('btnMarkDelivered').onclick = () => updateVendorOrderStatus(order.id, 'Livr�©');
+                        document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'Annul�©');
                     } else {
                         actions.classList.add('hidden');
                     }
@@ -1192,7 +1192,7 @@
                             
                             // Activity log
                             const order = OrderManager.getOrderById(orderId);
-                            ActivityManager.log(`Commande #${orderId.substring(0,6)} marquée comme ${newStatus}`, 'order');
+                            ActivityManager.log(`Commande #${orderId.substring(0,6)} marqu�©e comme ${newStatus}`, 'order');
                         }
                     } catch (error) {
                         showToast('Une erreur est survenue.', 'error');
@@ -1230,6 +1230,7 @@
 </body>
 
 </html>
+
 
 
 

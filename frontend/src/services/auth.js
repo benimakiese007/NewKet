@@ -14,6 +14,7 @@ const AuthManager = {
     _authChecking: true, // Start as true to block UI
     _initialized: false,
     _realtimeChannel: null,
+    _syncInterval: null,
 
     async init() {
         console.log('[NewKet Auth] Initializing AuthManager...');
@@ -90,6 +91,9 @@ const AuthManager = {
             this.checkWelcomeBonus();
             document.documentElement.classList.remove('auth-loading');
 
+            // Start periodic role validation
+            this.startRoleValidation();
+
             // Listen for components-loader events (Re-enforce once DOM is populated)
             if (window.componentsLoaded) {
                 this.enforcePermissions();
@@ -106,9 +110,14 @@ const AuthManager = {
     async handleSessionUpdate(user) {
         if (!user) return;
         const email = user.email;
-        let role = user.user_metadata.role || 'customer';
+        
+        // --- 🛡️ SECURE ROLE RESOLUTION ---
+        // Priority 1: app_metadata (Controlled strictly by server/admin)
+        // Priority 2: window.ADMIN_EMAILS (Hardcoded whitelist)
+        // Priority 3: user_metadata (Legacy/User-set - fallback only)
+        
+        let role = (user.app_metadata && user.app_metadata.role) || user.user_metadata.role || 'customer';
 
-        // Admin check (centralized list)
         const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
         if (email && admins.includes(email.toLowerCase())) {
             role = 'admin';
@@ -165,6 +174,10 @@ const AuthManager = {
         if (this._realtimeChannel) {
             window.supabaseClient.removeChannel(this._realtimeChannel);
             this._realtimeChannel = null;
+        }
+        if (this._syncInterval) {
+            clearInterval(this._syncInterval);
+            this._syncInterval = null;
         }
         this.role = null;
         this.status = null;
@@ -344,7 +357,44 @@ const AuthManager = {
         this.status = null;
         this.user = null;
         this.clearSession();
+        
+        if (this._syncInterval) clearInterval(this._syncInterval);
+        
         window.location.href = '/pages/login';
+    },
+
+    // --- 🔐 PERIODIC SECURITY VALIDATION ---
+    startRoleValidation() {
+        if (this._syncInterval) clearInterval(this._syncInterval);
+        
+        // Validate every 10 minutes to ensure token/role consistency
+        this._syncInterval = setInterval(() => {
+            this.refreshAndValidateRole();
+        }, 1000 * 60 * 10);
+    },
+
+    async refreshAndValidateRole() {
+        if (!window.supabaseClient) return;
+        
+        try {
+            // getUser() always calls the server to get fresh data, unlike getSession()
+            const { data: { user }, error } = await window.supabaseClient.auth.getUser();
+            
+            if (error || !user) {
+                console.warn('[NewKet Auth] Session invalid or expired during refresh.');
+                this.logout('Session expirée');
+                return;
+            }
+
+            const newRole = (user.app_metadata && user.app_metadata.role) || user.user_metadata.role || 'customer';
+            
+            if (newRole !== this.role) {
+                console.log(`[NewKet Auth] Role change detected: ${this.role} -> ${newRole}`);
+                this.setRole(newRole);
+            }
+        } catch (err) {
+            console.error('[NewKet Auth] Periodic validation failed:', err);
+        }
     },
 
     redirectToOnboarding() {

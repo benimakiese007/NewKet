@@ -1,28 +1,28 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
-    <script type="module" src="../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="../assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Vendre un article — NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
-    <link rel="stylesheet" href="../assets/css/input.css">
+    <title>Vendre un article â�� NewKet</title>
+    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
     
-    <script type="module" src="../services/config-manager.js"></script>
+    <script type="module" src="/src/services/config-manager.js"></script>
     <style>
         * {
             font-family: 'Inter', sans-serif;
@@ -90,13 +90,13 @@
                 <div class="grid sm:grid-cols-2 gap-8">
                     <div class="space-y-4">
                         <label for="pCategoryInput" class="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
-                            Catégorie
+                            Cat�©gorie
                             <span class="text-red-500" aria-hidden="true">*</span>
                         </label>
                         <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
                             <select id="pCategoryInput" name="pCategoryInput" required
                                 class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent font-medium">
-                                <option value="" disabled selected>Choisir une catégorie...</option>
+                                <option value="" disabled selected>Choisir une cat�©gorie...</option>
                                 <option value="Femme">Femme</option>
                                 <option value="Homme">Homme</option>
                                 <option value="Tech & Gadgets">Tech & Gadgets</option>
@@ -110,13 +110,13 @@
 
                     <div class="space-y-4">
                         <label for="pConditionInput" class="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
-                            État de l'objet
+                            ��tat de l'objet
                             <span class="text-red-500" aria-hidden="true">*</span>
                         </label>
                         <div class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
                             <select id="pConditionInput" name="pConditionInput" required
                                 class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent font-medium">
-                                <option value="" disabled selected>Choisir l'état...</option>
+                                <option value="" disabled selected>Choisir l'�©tat...</option>
                                 <option value="new">Neuf</option>
                                 <option value="used">Occasion</option>
                             </select>
@@ -155,7 +155,7 @@
                         <div>
                             <div class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Taux de
                                 conversion</div>
-                            <div class="text-sm font-semibold text-gray-700">Estimé en <span
+                            <div class="text-sm font-semibold text-gray-700">Estim�© en <span
                                     id="otherCurrencyName">USD</span></div>
                         </div>
                     </div>
@@ -203,14 +203,14 @@
                                 <span id="promoCurrencyBadge">FC</span>
                             </div>
                         </div>
-                        <p class="text-[10px] text-gray-400 ml-1 italic">Ce prix sera affiché barré à côté du prix actuel (doit être dans la même devise).</p>
+                        <p class="text-[10px] text-gray-400 ml-1 italic">Ce prix sera affich�© barr�© �  c�´t�© du prix actuel (doit �ªtre dans la m�ªme devise).</p>
                     </div>
                 </div>
             </div>
 
             <!-- Media Card -->
             <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm space-y-4">
-                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit (jusqu'à 5)</label>
+                <label class="text-sm font-bold text-gray-700 ml-1">Photos du produit (jusqu'�  5)</label>
                 <input type="file" id="pImageUpload" accept="image/png, image/jpeg" multiple class="hidden">
                 <div id="uploadZone" onclick="document.getElementById('pImageUpload').click()"
                     class="border-2 border-dashed border-gray-200 rounded-3xl p-12 text-center hover:border-black hover:bg-gray-50/30 transition-all cursor-pointer group">
@@ -221,7 +221,7 @@
                     </div>
                     <p class="text-gray-500 font-medium">Glissez vos photos ici ou <span
                             class="text-black border-b border-gray-200">parcourez vos fichiers</span></p>
-                    <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'à 10MB</p>
+                    <p class="text-[11px] text-gray-400 mt-2">PNG, JPG jusqu'�  10MB</p>
                 </div>
 
                 <div id="imagePreviewContainer" class="hidden flex gap-4 overflow-x-auto pb-4 custom-scrollbar"></div>
@@ -232,7 +232,7 @@
                     <label for="removeBackgroundCheck"
                         class="text-sm font-semibold text-gray-700 flex items-center gap-2 cursor-pointer">
                         <iconify-icon icon="solar:magic-stick-3-linear" class="text-purple-500 text-lg"></iconify-icon>
-                        Transformer en PNG (Détourage transparent par intelligence artificielle)
+                        Transformer en PNG (D�©tourage transparent par intelligence artificielle)
                     </label>
                 </div>
             </div>
@@ -243,7 +243,7 @@
                     <label for="pDescInput" class="text-sm font-bold text-gray-700 ml-1">Description</label>
                     <div
                         class="relative group input-focus border border-gray-200 rounded-2xl transition-all duration-300 bg-white">
-                        <textarea id="pDescInput" name="pDescInput" rows="5" placeholder="Décrivez votre produit (état, caractéristiques, etc.)"
+                        <textarea id="pDescInput" name="pDescInput" rows="5" placeholder="D�©crivez votre produit (�©tat, caract�©ristiques, etc.)"
                             class="w-full px-5 py-4 rounded-2xl outline-none text-gray-900 resize-none"></textarea>
                     </div>
                 </div>
@@ -267,7 +267,7 @@
                     class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                     <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Chef-d'œuvre publié !</h2>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Chef-d'��uvre publi�© !</h2>
                 <p class="text-gray-500 mb-8">Votre article d'exception a rejoint notre collection exclusive.</p>
                 <button onclick="window.location.href='catalog'"
                     class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-xl transition-all hover:bg-black">
@@ -310,7 +310,7 @@
                                 <h3 class="font-bold text-amber-900">Profil incomplet</h3>
                                 <p class="text-sm text-amber-700">Vous devez soumettre vos informations avant de pouvoir publier.</p>
                             </div>
-                            <a href="./seller-onboarding" class="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-xs">Compléter</a>
+                            <a href="./seller-onboarding" class="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-xs">Compl�©ter</a>
                         </div>
                     `;
                 } else if (status === 'submitted') {
@@ -321,7 +321,7 @@
                             </div>
                             <div class="flex-1">
                                 <h3 class="font-bold text-blue-900">Validation en cours</h3>
-                                <p class="text-sm text-blue-700">Votre boutique est en cours d'examen. La publication sera active dès validation.</p>
+                                <p class="text-sm text-blue-700">Votre boutique est en cours d'examen. La publication sera active d�¨s validation.</p>
                             </div>
                         </div>
                     `;
@@ -332,7 +332,7 @@
                                 <iconify-icon icon="solar:danger-bold" width="24"></iconify-icon>
                             </div>
                             <div class="flex-1">
-                                <h3 class="font-bold text-red-900">Profil rejeté</h3>
+                                <h3 class="font-bold text-red-900">Profil rejet�©</h3>
                                 <p class="text-sm text-red-700">Veuillez corriger vos informations pour pouvoir publier.</p>
                             </div>
                             <a href="./seller-onboarding" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs">Corriger</a>
@@ -346,7 +346,7 @@
                 if (submitBtn) {
                    submitBtn.disabled = true;
                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                   submitBtn.title = "Votre compte doit être approuvé pour publier.";
+                   submitBtn.title = "Votre compte doit �ªtre approuv�© pour publier.";
                 }
             }
             updateStatusBanner();
@@ -386,7 +386,7 @@
 
             updateEstimate();
 
-            // Écouteurs pour le calcul en temps réel
+            // ��couteurs pour le calcul en temps r�©el
             priceInput.addEventListener('input', updateEstimate);
             currencyInput.addEventListener('change', updateEstimate);
             exchangeRateInput.addEventListener('input', updateEstimate);
@@ -417,9 +417,9 @@
                 isEditMode = true;
                 editProductId = editId;
                 document.querySelector('h1').textContent = "Modifier l'article";
-                document.querySelector('p.text-gray-500').textContent = "Mettez à jour les détails de votre produit";
+                document.querySelector('p.text-gray-500').textContent = "Mettez �  jour les d�©tails de votre produit";
                 const submitBtn = document.querySelector('button[type="submit"]');
-                submitBtn.innerHTML = 'Mettre à jour l\'article <iconify-icon icon="solar:check-read-linear" width="24"></iconify-icon>';
+                submitBtn.innerHTML = 'Mettre �  jour l\'article <iconify-icon icon="solar:check-read-linear" width="24"></iconify-icon>';
                 
                 loadProductToEdit(editId);
             }
@@ -427,7 +427,7 @@
             async function loadProductToEdit(id) {
                 try {
                     const product = await ProductManager.fetchProductById(id);
-                    if (!product) throw new Error("Produit non trouvé");
+                    if (!product) throw new Error("Produit non trouv�©");
 
                     document.getElementById('pTitleInput').value = product.name;
                     
@@ -552,9 +552,9 @@
                 const userRole = localStorage.getItem('newketRole');
                 if ((userStatus === 'submitted' || userStatus === 'pending') && userRole !== 'admin') {
                     if (typeof showToast === 'function') {
-                        showToast("Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.", "warning");
+                        showToast("Veuillez patienter que votre boutique soit valid�©e par un administrateur pour d�©bloquer cette fonctionnalit�©.", "warning");
                     } else {
-                        alert("Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.");
+                        alert("Veuillez patienter que votre boutique soit valid�©e par un administrateur pour d�©bloquer cette fonctionnalit�©.");
                     }
                     return;
                 }
@@ -640,7 +640,7 @@
 
                     if (isEditMode) {
                         await ProductManager.updateProduct(editProductId, productData);
-                        if (typeof showToast === 'function') showToast("Article mis à jour avec succès !", "success");
+                        if (typeof showToast === 'function') showToast("Article mis �  jour avec succ�¨s !", "success");
                     } else {
                         const newProduct = {
                             id: 'prod-' + Date.now(),
@@ -655,8 +655,8 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
 
-                    const successTitle = isEditMode ? "Mise à jour réussie !" : "Chef-d'œuvre publié !";
-                    const successText = isEditMode ? "Les modifications ont été enregistrées avec succès." : "Votre article d'exception a rejoint notre collection exclusive.";
+                    const successTitle = isEditMode ? "Mise �  jour r�©ussie !" : "Chef-d'��uvre publi�© !";
+                    const successText = isEditMode ? "Les modifications ont �©t�© enregistr�©es avec succ�¨s." : "Votre article d'exception a rejoint notre collection exclusive.";
                     
                     document.getElementById('publishOverlay').classList.remove('invisible', 'opacity-0');
                     document.querySelector('#successState h2').textContent = successTitle;
@@ -678,4 +678,5 @@
 </body>
 
 </html>
+
 

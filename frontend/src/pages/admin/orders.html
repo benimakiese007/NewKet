@@ -1,27 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../../assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="../../assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Suivi des Prospects | NewKet</title>
-    <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
-    <script type="module" src="../../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../../assets/css/responsive.css">
-    <link rel="stylesheet" href="../../assets/css/admin.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
 </head>
 
 <body class="text-gray-900 bg-[#f8fafc]">
@@ -35,7 +35,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
                     <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Suivi des Prospects</h1>
-                    <p class="text-gray-500 font-medium" id="pageSubtitle">Suivez les interactions et intentions d'achat générées par la plateforme.</p>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Suivez les interactions et intentions d'achat g�©n�©r�©es par la plateforme.</p>
                 </div>
                 <div class="flex items-center gap-3 w-full sm:w-auto">
                     <div class="relative flex-1 sm:w-64">
@@ -76,13 +76,13 @@
                     <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
                         <iconify-icon icon="solar:chat-round-call-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
                     </div>
-                    <p class="text-gray-400 font-bold">Aucun prospect enregistré pour le moment.</p>
+                    <p class="text-gray-400 font-bold">Aucun prospect enregistr�© pour le moment.</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <script type="module" src="../../services/admin-layout.js"></script>
+    <script type="module" src="/src/services/admin-layout.js"></script>
     <script>
         let filteredOrders = [];
 
@@ -154,7 +154,7 @@
                         <select onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-black transition-all cursor-pointer">
                             <option value="En attente" ${o.status === 'En attente' ? 'selected' : ''}>Attente</option>
                             <option value="En livraison" ${o.status === 'En livraison' ? 'selected' : ''}>Suivi</option>
-                            <option value="Livré" ${o.status === 'Livré' ? 'selected' : ''}>Conclu</option>
+                            <option value="Livr�©" ${o.status === 'Livr�©' ? 'selected' : ''}>Conclu</option>
                         </select>
                     </td>
                 </tr>
@@ -167,7 +167,7 @@
             switch (status) {
                 case 'En attente': return 'bg-yellow-50 text-yellow-600';
                 case 'En livraison': return 'bg-blue-50 text-blue-600';
-                case 'Livré': return 'bg-green-50 text-green-600';
+                case 'Livr�©': return 'bg-green-50 text-green-600';
                 case 'Conclu': return 'bg-green-50 text-green-600';
                 default: return 'bg-gray-50 text-gray-500';
             }
@@ -191,13 +191,13 @@
         function updateStatus(id, newStatus) {
             OrderManager.updateStatus(id, newStatus);
             renderAdminOrders();
-            if (window.showToast) showToast('Statut prospect mis à jour !', 'success');
+            if (window.showToast) showToast('Statut prospect mis �  jour !', 'success');
         }
 
         function exportOrdersToCSV() {
             const orders = OrderManager.getOrders();
             if (orders.length === 0) {
-                if (window.showToast) showToast('Aucune donnée à exporter.', 'info');
+                if (window.showToast) showToast('Aucune donn�©e �  exporter.', 'info');
                 return;
             }
 
@@ -225,7 +225,7 @@
             link.setAttribute("download", `newket - leads - ${new Date().toISOString().split('T')[0]}.csv`);
             link.click();
 
-            if (window.showToast) showToast('Exportation CSV générée !', 'success');
+            if (window.showToast) showToast('Exportation CSV g�©n�©r�©e !', 'success');
         }
 
         function initializeOrders() {
@@ -248,4 +248,5 @@
 </body>
 
 </html>
+
 

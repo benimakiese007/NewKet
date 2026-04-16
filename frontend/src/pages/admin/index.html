@@ -1,28 +1,28 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../../assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="../../assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Espace Vendeur | NewKet</title>
-    <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <script type="module" src="../../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../../assets/css/responsive.css">
-    <link rel="stylesheet" href="../../assets/css/admin.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
 </head>
 
 <body class="text-gray-900">
@@ -38,7 +38,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
                     <h1 class="text-4xl font-black tracking-tight text-gray-900">Tableau de bord</h1>
-                    <p class="text-gray-500 font-medium">Bon retour, voici un aperçu de la performance aujourd'hui.</p>
+                    <p class="text-gray-500 font-medium">Bon retour, voici un aper�§u de la performance aujourd'hui.</p>
                 </div>
 
                 <div class="flex items-center gap-4">
@@ -138,7 +138,7 @@
                             <h3 class="font-black text-gray-900 flex items-center gap-2">
                                 <iconify-icon icon="solar:history-bold-duotone" width="22"
                                     class="text-gray-400"></iconify-icon>
-                                 Historique des Intéractions
+                                 Historique des Int�©ractions
                             </h3>
                             <a href="orders"
                                 class="text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-400 hover:text-black hover:border-black transition-all">Tout
@@ -160,7 +160,7 @@
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:pie-chart-bold-duotone" width="20"
                                 class="text-purple-500"></iconify-icon>
-                            Par Catégorie
+                            Par Cat�©gorie
                         </h3>
                         <div class="h-[200px]">
                             <canvas id="categoryChart"></canvas>
@@ -184,7 +184,7 @@
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:bell-bing-bold-duotone" width="20"
                                 class="text-blue-500"></iconify-icon>
-                            Activité
+                            Activit�©
                         </h3>
                         <div id="activityFeed" class="space-y-6">
                             <!-- Activity items injected here -->
@@ -195,7 +195,7 @@
         </main>
     </div>
 
-    <script type="module" src="../../services/admin-layout.js"></script>
+    <script type="module" src="/src/services/admin-layout.js"></script>
     <script>
         let currentTimeframe = 'all';
         const currentCharts = {};
@@ -243,7 +243,7 @@
                 if (isAdmin) {
                     document.title = "Administration | NewKet";
                     document.querySelector('h1').textContent = "Vue d'ensemble";
-                    document.querySelector('h1 + p').textContent = "Performances et activité globales de la plateforme.";
+                    document.querySelector('h1 + p').textContent = "Performances et activit�© globales de la plateforme.";
 
                     // Hide Nouveau Produit button for admin
                     const newProdBtn = document.querySelector('a[href="products"].bg-black');
@@ -304,7 +304,7 @@
                 // Update label for clients to Health Score
                 const visitorsLabel = document.getElementById('statsClients').previousElementSibling;
                 if (visitorsLabel) {
-                    visitorsLabel.textContent = "Santé Plateforme";
+                    visitorsLabel.textContent = "Sant�© Plateforme";
                     visitorsLabel.classList.remove('text-purple-400');
                     visitorsLabel.classList.add('text-green-500', 'font-black');
                 }
@@ -360,7 +360,7 @@
                 .slice(0, 3);
 
             if (topVendors.length === 0) {
-                grid.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic col-span-3">Pas encore de données de performance.</div>`;
+                grid.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic col-span-3">Pas encore de donn�©es de performance.</div>`;
                 return;
             }
 
@@ -388,7 +388,7 @@
             const recent = leads.slice(0, 5);
 
             if (recent.length === 0) {
-                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucun lead pour cette période.</div>`;
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucun lead pour cette p�©riode.</div>`;
                 return;
             }
 
@@ -472,7 +472,7 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Intéractions',
+                            label: 'Int�©ractions',
                             data: dataLeads,
                             borderColor: '#000000',
                             borderWidth: 4,
@@ -548,7 +548,7 @@
             const activities = ActivityManager.getActivities().slice(0, 5);
 
             if (activities.length === 0) {
-                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activité récente.</div>`;
+                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activit�© r�©cente.</div>`;
                 return;
             }
 
@@ -570,7 +570,7 @@
             const topProducts = stats.topProducts || [];
 
             if (topProducts.length === 0) {
-                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">Aucune vente pour cette période.</div>`;
+                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">Aucune vente pour cette p�©riode.</div>`;
                 return;
             }
 
@@ -633,4 +633,5 @@
 </body>
 
 </html>
+
 

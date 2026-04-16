@@ -1,26 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../../assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="../../assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Avis & ÉÉvaluations | NewKet Admin</title>
-    <link rel="stylesheet" href="../../assets/css/input.css">
+    <title>Avis & ����valuations | NewKet Admin</title>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
-    <script type="module" src="../../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../../assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <style>
         body {
             background-color: #f8fafc;
@@ -55,7 +55,7 @@
         }
     </style>
 
-    <link rel="stylesheet" href="../../assets/css/admin.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
 </head>
 
 <body class="text-gray-900">
@@ -63,7 +63,7 @@
         <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
             <a href="dashboard.html" class="flex items-center gap-3">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 bg-black rounded-xl flex items-center justify-center p-1.5">
-                    <img loading="lazy" src="../../assets/Images/logo-newket-v2.jpeg" alt="NewKet" class="w-full h-full object-contain">
+                    <img loading="lazy" src="/src/assets/Images/logo-newket-v2.jpeg" alt="NewKet" class="w-full h-full object-contain">
                 </div>
                 <span class="text-xl font-bold tracking-tighter text-gray-900">NEWKET</span>
                 <span
@@ -95,17 +95,17 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Avis & ï¿½valuations</h1>
-                    <p class="text-gray-500">Mofï¿½rez et analysez les retours clients sur vos produits.</p>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Avis & �¯�¿�½valuations</h1>
+                    <p class="text-gray-500">Mof�¯�¿�½rez et analysez les retours clients sur vos produits.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <select id="filterRating" onchange="renderReviews()"
                         class="text-xs font-black uppercase tracking-widest bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black cursor-pointer">
                         <option value="all">Toutes les notes</option>
-                        <option value="5">5 ï¿½toiles</option>
-                        <option value="4">4 ï¿½toiles</option>
-                        <option value="3">3 ï¿½toiles</option>
-                        <option value="low">1-2 ï¿½toiles</option>
+                        <option value="5">5 �¯�¿�½toiles</option>
+                        <option value="4">4 �¯�¿�½toiles</option>
+                        <option value="3">3 �¯�¿�½toiles</option>
+                        <option value="low">1-2 �¯�¿�½toiles</option>
                     </select>
                 </div>
             </div>
@@ -123,11 +123,11 @@
                     </div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Avis 5 ï¿½toiles</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Avis 5 �¯�¿�½toiles</div>
                     <div class="text-2xl font-black text-green-500" id="stat5Star">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">ï¿½ modï¿½rer</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">�¯�¿�½ mod�¯�¿�½rer</div>
                     <div class="text-2xl font-black text-red-500" id="statLowStar">0</div>
                 </div>
             </div>
@@ -148,7 +148,7 @@
         </main>
     </div>
 
-    <script type="module" src="../../services/admin-layout.js"></script>
+    <script type="module" src="/src/services/admin-layout.js"></script>
     <script>
         async function renderReviews() {
             const tbody = document.getElementById('reviewsBody');
@@ -160,7 +160,7 @@
             else if (filterRating !== 'all') filtered = filtered.filter(r => r.rating == filterRating);
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouvé.</div>`;
+                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouv�©.</div>`;
                 return;
             }
 
@@ -187,10 +187,10 @@
         }
 
         async function deleteReview(id) {
-            if (!confirm('Supprimer définitivement cet avis ?')) return;
+            if (!confirm('Supprimer d�©finitivement cet avis ?')) return;
             const success = await ReviewManager.deleteReview(id);
             if (success) {
-                showToast('Avis supprimé du serveur', 'success');
+                showToast('Avis supprim�© du serveur', 'success');
             } else {
                 showToast('Erreur lors de la suppression', 'error');
             }

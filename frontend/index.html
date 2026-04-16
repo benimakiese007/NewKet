@@ -1,32 +1,32 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" class="auth-loading">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="./assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="./assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="./src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="./src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>NewKet — Marketplace de Luxe en RDC</title>
-    <meta name="description" content="Découvrez NewKet, la première marketplace de luxe en RDC. Achetez et vendez des articles d'exception en toute sécurité. Mode, Électronique, Art de vivre.">
+    <title>NewKet â�� Marketplace de Luxe en RDC</title>
+    <meta name="description" content="D�©couvrez NewKet, la premi�¨re marketplace de luxe en RDC. Achetez et vendez des articles d'exception en toute s�©curit�©. Mode, ��lectronique, Art de vivre.">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://newket.vercel.app/">
-    <meta property="og:title" content="NewKet — Marketplace de Luxe en RDC">
-    <meta property="og:description" content="Le luxe à portée de main. Découvrez une sélection curated de produits d'exception.">
-    <meta property="og:image" content="https://newket.vercel.app/assets/Images/logo-newket-v2.jpeg">
+    <meta property="og:title" content="NewKet â�� Marketplace de Luxe en RDC">
+    <meta property="og:description" content="Le luxe �  port�©e de main. D�©couvrez une s�©lection curated de produits d'exception.">
+    <meta property="og:image" content="https://newket.vercel.app/src/assets/Images/logo-newket-v2.jpeg">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://newket.vercel.app/">
-    <meta property="twitter:title" content="NewKet — Marketplace de Luxe en RDC">
-    <meta property="twitter:description" content="Le luxe à portée de main. Découvrez une sélection curated de produits d'exception.">
-    <meta property="twitter:image" content="https://newket.vercel.app/assets/Images/logo-newket-v2.jpeg">
+    <meta property="twitter:title" content="NewKet â�� Marketplace de Luxe en RDC">
+    <meta property="twitter:description" content="Le luxe �  port�©e de main. D�©couvrez une s�©lection curated de produits d'exception.">
+    <meta property="twitter:image" content="https://newket.vercel.app/src/assets/Images/logo-newket-v2.jpeg">
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -37,16 +37,16 @@
       "url": "https://newket.vercel.app/",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://newket.vercel.app/pages/catalog?q={search_term_string}",
+        "target": "https://newket.vercel.app/src/pages/catalog?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     }
     </script>
 
-    <link rel="stylesheet" href="./assets/css/input.css">
+    <link rel="stylesheet" href="./src/assets/css/input.css">
     <!-- Theme FOUC prevention (must be first, inline) -->
-    <script type="module" src="./services/app.js"></script>
-    <script type="module" src="./services/HeroSlider.js"></script>
+    <script type="module" src="./src/services/app.js"></script>
+    <script type="module" src="./src/services/HeroSlider.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (window.HeroSlider) window.HeroSlider.init();
@@ -56,11 +56,11 @@
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="preload" as="image" href="./assets/Images/marketplace-hero.jpg" type="image/jpeg">
+    <link rel="preload" as="image" href="./src/assets/Images/marketplace-hero.jpg" type="image/jpeg">
 
 
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <link rel="stylesheet" href="./assets/css/responsive.css">
+    <link rel="stylesheet" href="./src/assets/css/style.css">
+    <link rel="stylesheet" href="./src/assets/css/responsive.css">
     <style>
         * {
             font-family: 'Inter', sans-serif;
@@ -120,7 +120,7 @@
 
         .animate-scroll {
             animation: scroll 180s linear infinite;
-            pointer-events: none; /* Empêche l'arrêt sur mobile/tactile */
+            pointer-events: none; /* Emp�ªche l'arr�ªt sur mobile/tactile */
             user-select: none;
         }
 
@@ -156,16 +156,16 @@
 
     <!-- The header component handles its own spacing if needed -->
 
-    <!-- ========== PRODUITS ÉPINGLÉS ========== -->
+    <!-- ========== PRODUITS ��PINGL��S ========== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-12 md:mb-16 pt-6 md:pt-8" id="pinnedSection">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-black rounded-xl flex items-center justify-center shadow-lg shadow-black/10">
                     <iconify-icon icon="solar:pin-bold" width="16" class="text-white"></iconify-icon>
                 </div>
-                <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Produits épinglés</h2>
+                <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Produits �©pingl�©s</h2>
             </div>
-            <a href="pages/catalog"
+            <a href="src/pages/catalog"
                 class="text-sm font-bold text-gray-900 hover:text-gray-600 flex items-center gap-1 transition-all group">
                 Voir tout <iconify-icon icon="solar:arrow-right-linear" width="16" class="transition-transform group-hover:translate-x-1"></iconify-icon>
             </a>
@@ -183,9 +183,9 @@
     <section id="heroSection" class="relative overflow-hidden mx-4 sm:mx-6 lg:mx-8 rounded-3xl shadow-2xl shadow-black/20">
         <!-- Background Slider Container -->
         <div id="heroSlider" class="absolute inset-0 z-0">
-            <div class="hero-slide active" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('./assets/Images/marketplace-hero.jpg');"></div>
-            <div class="hero-slide" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('./assets/Images/hero-black-friday.png');"></div>
-            <div class="hero-slide" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('./assets/Images/hero-bf-definition.webp');"></div>
+            <div class="hero-slide active" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('./src/assets/Images/marketplace-hero.jpg');"></div>
+            <div class="hero-slide" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('./src/assets/Images/hero-black-friday.png');"></div>
+            <div class="hero-slide" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('./src/assets/Images/hero-bf-definition.webp');"></div>
         </div>
 
         <div class="absolute inset-0 bg-black/50 backdrop-blur-[4px] z-[1]"></div>
@@ -193,17 +193,17 @@
         <div class="relative max-w-7xl mx-auto px-6 sm:px-10 py-16 sm:py-24 lg:py-32 flex flex-col lg:flex-row items-center gap-12 z-10">
             <div class="flex-1 text-center lg:text-left drop-shadow-xl">
                 <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
-                    SUBTILE <br><span class="text-gray-300">ÉLÉGANCE.</span>
+                    SUBTILE <br><span class="text-gray-300">��L��GANCE.</span>
                 </h1>
                 <p class="text-white/90 text-base sm:text-xl mb-10 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed drop-shadow-md">
-                    L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment.
+                    L'excellence du luxe �  port�©e de main. D�©couvrez une s�©lection curat�©e des plus belles pi�¨ces du moment.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <a href="pages/catalog"
+                    <a href="src/pages/catalog"
                         class="bg-white text-black px-10 py-4 rounded-2xl text-sm font-bold hover:bg-gray-100 transition-all hover:scale-105 shadow-xl shadow-black/20 text-center uppercase tracking-widest">
-                        Découvrir
+                        D�©couvrir
                     </a>
-                    <a href="pages/publish"
+                    <a href="src/pages/publish"
                         class="bg-black/20 backdrop-blur-md border border-white/30 text-white px-10 py-4 rounded-2xl text-sm font-bold hover:bg-white/10 transition-all text-center publish-btn uppercase tracking-widest">
                         Vendre
                     </a>
@@ -215,7 +215,7 @@
                         <div class="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent"></div>
                         <div class="text-center p-8 relative">
                             <div class="text-7xl font-black text-white mb-4 tracking-tighter italic">-50%</div>
-                            <div class="text-white/60 text-xs font-bold uppercase tracking-widest">Sélection Premium</div>
+                            <div class="text-white/60 text-xs font-bold uppercase tracking-widest">S�©lection Premium</div>
                             <div class="mt-8 pt-8 border-t border-white/10 text-white/40 text-[10px] uppercase font-bold tracking-[0.3em]">Code: NEWKET50</div>
                         </div>
                     </div>
@@ -231,11 +231,11 @@
         </div>
     </section>
 
-    <!-- ========== 10 RÉCEMMENT PUBLIÉS ========== -->
+    <!-- ========== 10 R��CEMMENT PUBLI��S ========== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 mt-10 md:mt-12 mb-12 md:mb-16">
         <div class="flex items-center justify-between mb-8">
             <div>
-                <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Récemment publiés</h2>
+                <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">R�©cemment publi�©s</h2>
                 <div class="flex items-center gap-2 mt-1">
                     <span class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -244,7 +244,7 @@
                     <p class="text-sm text-gray-400 font-medium">Nouveaux arrivages</p>
                 </div>
             </div>
-            <a href="pages/catalog"
+            <a href="src/pages/catalog"
                 class="text-sm font-bold text-gray-900 hover:text-indigo-600 flex items-center gap-1 transition-all group">
                 Voir tout <iconify-icon icon="solar:arrow-right-linear" width="16" class="transition-transform group-hover:translate-x-1"></iconify-icon>
             </a>
@@ -272,7 +272,7 @@
                 </div>
                 <div>
                     <div class="text-sm font-medium text-gray-900">Livraison rapide</div>
-                    <div class="text-xs text-gray-500 mt-0.5">Dès 125 000 FC d'achat</div>
+                    <div class="text-xs text-gray-500 mt-0.5">D�¨s 125 000 FC d'achat</div>
                 </div>
             </div>
             <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
@@ -280,8 +280,8 @@
                     <iconify-icon icon="solar:shield-check-linear" width="20" class="text-gray-900"></iconify-icon>
                 </div>
                 <div>
-                    <div class="text-sm font-medium text-gray-900">Paiement sécurisé</div>
-                    <div class="text-xs text-gray-500 mt-0.5">Transactions 100% cryptées</div>
+                    <div class="text-sm font-medium text-gray-900">Paiement s�©curis�©</div>
+                    <div class="text-xs text-gray-500 mt-0.5">Transactions 100% crypt�©es</div>
                 </div>
             </div>
             <div class="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 flex-shrink-0 w-64">
@@ -296,7 +296,7 @@
         </div>
     </section>
 
-    <!-- Script pour dupliquer les éléments afin de garantir le scroll infini -->
+    <!-- Script pour dupliquer les �©l�©ments afin de garantir le scroll infini -->
     <script>
         (function() {
             const container = document.querySelector('.animate-scroll');
@@ -327,9 +327,9 @@
                 <div class="ml-2 flex items-center gap-1.5 border-l border-gray-200 pl-2">
                     <iconify-icon icon="solar:sort-by-time-linear" width="16" class="text-gray-500"></iconify-icon>
                     <select id="sortAllProducts" name="sortAllProducts" aria-label="Trier les produits par" onchange="sortAndRenderAll()" class="text-xs font-semibold text-gray-700 bg-transparent border-none outline-none cursor-pointer">
-                        <option value="recent">Plus récents</option>
+                        <option value="recent">Plus r�©cents</option>
                         <option value="price_asc">Prix croissant</option>
-                        <option value="price_desc">Prix décroissant</option>
+                        <option value="price_desc">Prix d�©croissant</option>
                     </select>
                 </div>
             </div>
@@ -350,7 +350,7 @@
                 <iconify-icon icon="solar:alt-arrow-down-linear" width="18" class="group-hover:translate-y-0.5 transition-transform"></iconify-icon>
             </button>
         </div>
-        <div id="noProductsMsg" class="hidden text-center py-12 text-gray-400 text-sm">Aucun produit trouvé.</div>
+        <div id="noProductsMsg" class="hidden text-center py-12 text-gray-400 text-sm">Aucun produit trouv�©.</div>
     </section>
 
     <!-- Recently Viewed -->
@@ -368,3 +368,4 @@
 </body>
 
 </html>
+

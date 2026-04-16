@@ -1,26 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="../../assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="../../assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Utilisateurs | NewKet Admin</title>
-    <link rel="stylesheet" href="../../assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
-    <script type="module" src="../../services/app.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/style.css">
-    <link rel="stylesheet" href="../../assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <style>
         .role-badge {
             padding: 0.35rem 0.85rem;
@@ -64,7 +64,7 @@
         }
     </style>
 
-    <link rel="stylesheet" href="../../assets/css/admin.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
 </head>
 
 <body class="text-gray-900 bg-[#f8fafc]">
@@ -78,7 +78,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
                     <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs</h1>
-                    <p class="text-gray-500 font-medium" id="pageSubtitle">Gérez l'ensemble des comptes et validez les nouveaux vendeurs.</p>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">G�©rez l'ensemble des comptes et validez les nouveaux vendeurs.</p>
                 </div>
             </div>
 
@@ -126,7 +126,7 @@
                     <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
                         <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
                     </div>
-                    <p class="text-gray-400 font-bold">Aucun utilisateur trouvé dans cette catégorie.</p>
+                    <p class="text-gray-400 font-bold">Aucun utilisateur trouv�© dans cette cat�©gorie.</p>
                 </div>
             </div>
             
@@ -161,7 +161,7 @@
                                     <h3 id="modalUserName" class="text-2xl font-black text-gray-900 tracking-tight leading-none mb-2">Chargement...</h3>
                                     <div class="flex items-center gap-3">
                                         <p id="modalUserEmail" class="text-sm text-gray-400 font-bold">email@example.com</p>
-                                        <div id="modalUserRole" class="role-badge">Rôle</div>
+                                        <div id="modalUserRole" class="role-badge">R�´le</div>
                                     </div>
                                 </div>
                             </div>
@@ -192,7 +192,7 @@
                         <!-- Main Display Area -->
                         <div class="space-y-6">
                             <div class="flex items-center gap-4 border-b border-gray-100">
-                                <button onclick="switchTab('orders')" id="tabBtn-orders" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-black transition-all">Activités & Commandes</button>
+                                <button onclick="switchTab('orders')" id="tabBtn-orders" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-black transition-all">Activit�©s & Commandes</button>
                                 <button onclick="switchTab('products')" id="tabBtn-products" class="hidden px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400 border-b-4 border-transparent hover:text-black transition-all">Catalogue Boutique</button>
                             </div>
 
@@ -209,7 +209,7 @@
                                         </thead>
                                         <tbody id="modalUserOrdersList"></tbody>
                                     </table>
-                                    <div id="modalUserOrdersEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Aucune interaction trouvée.</div>
+                                    <div id="modalUserOrdersEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Aucune interaction trouv�©e.</div>
                                 </div>
                             </div>
 
@@ -224,7 +224,7 @@
         </main>
     </div>
 
-    <script type="module" src="../../services/admin-layout.js"></script>
+    <script type="module" src="/src/services/admin-layout.js"></script>
     <script>
         let currentFilter = 'supplier';
         let searchQuery = '';
@@ -341,7 +341,7 @@
                         const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
                         const hasNoLogo = u.role === 'supplier' && !(u.avatar || u.cover_image);
 
-                        const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
+                        const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejet�©'));
                         const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
 
                         return `
@@ -418,7 +418,7 @@
                 if (window.LoaderManager) LoaderManager.show(`Activation de ${name}...`);
                 const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier' }).eq('id', id);
                 if (error) throw error;
-                if (window.showToast) showToast(`Vendeur activé !`, "success");
+                if (window.showToast) showToast(`Vendeur activ�© !`, "success");
                 UserManager.init().then(() => renderUsers());
                 if (window.LoaderManager) LoaderManager.hide();
             } catch (err) {
@@ -434,7 +434,7 @@
                 if (window.LoaderManager) LoaderManager.show(`Rejet...`);
                 const { error } = await window.supabaseClient.from('users').update({ status: 'rejected' }).eq('id', id);
                 if (error) throw error;
-                if (window.showToast) showToast(`Rejeté.`, "warning");
+                if (window.showToast) showToast(`Rejet�©.`, "warning");
                 UserManager.init().then(() => renderUsers());
                 if (window.LoaderManager) LoaderManager.hide();
             } catch (err) {
@@ -471,10 +471,10 @@
 
         async function confirmDelete(id, name) {
             if (window.showConfirm) {
-                showConfirm("Supprimer ?", `Voulez-vous supprimer définitivement ${name} ?`, async () => {
+                showConfirm("Supprimer ?", `Voulez-vous supprimer d�©finitivement ${name} ?`, async () => {
                     await UserManager.deleteUser(id);
                     renderUsers();
-                    showToast("Supprimé", "success");
+                    showToast("Supprim�©", "success");
                 });
             } else if (confirm(`Supprimer ${name} ?`)) {
                 await UserManager.deleteUser(id);
@@ -520,4 +520,5 @@
 </body>
 
 </html>
+
 
