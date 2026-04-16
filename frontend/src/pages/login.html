@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -18,8 +18,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Connexion â�� NewKet</title>
-    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <title>Connexion à NewKet</title>
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -165,10 +165,10 @@
             <!-- Animated floating particles/stars could go here -->
 
             <div class="relative z-20 text-white w-full max-w-lg mb-10" id="heroContent">
-                <h1 class="text-5xl font-black tracking-tighter mb-4 leading-tight text-white">D�©couvrez <br>l'exp�©rience
+                <h1 class="text-5xl font-black tracking-tighter mb-4 leading-tight text-white">Découvrez <br>l'expérience
                     ultime.</h1>
                 <p class="text-lg text-gray-300 font-medium mb-8 leading-relaxed">Rejoignez des milliers d'acheteurs et de
-                    vendeurs. Une plateforme pens�©e pour la performance et le raffinement.</p>
+                    vendeurs. Une plateforme pensée pour la performance et le raffinement.</p>
 
                 <div class="flex items-center gap-4">
                     <div class="flex -space-x-3">
@@ -312,7 +312,7 @@
                                     souvenir de moi</span>
                             </label>
                             <button type="button" onclick="handleForgotPassword()"
-                                class="text-[11px] font-black uppercase tracking-widest text-black hover:underline decoration-2 underline-offset-4 bg-transparent border-none p-0 cursor-pointer">Oubli�©
+                                class="text-[11px] font-black uppercase tracking-widest text-black hover:underline decoration-2 underline-offset-4 bg-transparent border-none p-0 cursor-pointer">Oublié
                                 ?</button>
                         </div>
 
@@ -352,10 +352,10 @@
                     </div>
 
                     <p class="text-[10px] font-medium text-gray-400 text-center mt-12 animate-item">
-                        En continuant, vous acceptez nos <br><a href="./terms"
+                        En continuant, vous acceptez nos <br><a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('pages/terms')"
                             class="text-black font-bold hover:underline">Conditions d'utilisation</a> et notre <a
-                            href="./privacy" class="text-black font-bold hover:underline">Politique de
-                            confidentialit�©</a>.
+                            href="#" onclick="event.preventDefault(); location.href=window.resolvePath('pages/privacy')" class="text-black font-bold hover:underline">Politique de
+                            confidentialité</a>.
                     </p>
 
                 </div>
@@ -380,7 +380,7 @@
             window.addEventListener('newketInitialized', () => {
                 if (window.AuthManager && window.AuthManager.user) {
                     console.log('[NewKet Login] Redirecting authenticated user...');
-                    window.location.href = '/';
+                    window.location.href = window.resolvePath('index');
                 }
             });
         });
@@ -417,7 +417,7 @@
 
             formTitle.textContent = "Nouveau mot de passe";
             formSubtitle.textContent = "Veuillez entrer votre nouveau mot de passe.";
-            submitBtnSpan.textContent = "Mettre �  jour";
+            submitBtnSpan.textContent = "Mettre à jour";
         }
 
         // --- 3. UI Interactions ---
@@ -460,8 +460,8 @@
                         tabLogin.classList.replace('text-black', 'text-gray-400');
                         tabLogin.classList.remove('active');
 
-                        formTitle.textContent = "Cr�©er un compte";
-                        formSubtitle.textContent = "Rejoignez la nouvelle �¨re du commerce.";
+                        formTitle.textContent = "Créer un compte";
+                        formSubtitle.textContent = "Rejoignez la nouvelle ère du commerce.";
                         submitBtnSpan.textContent = "S'inscrire";
 
                         roleContainer.classList.remove('hidden');
@@ -580,7 +580,7 @@
                     return;
                 }
                 if (password.length < 6) {
-                    showError("Le mot de passe doit contenir au moins 6 caract�¨res.");
+                    showError("Le mot de passe doit contenir au moins 6 caractères.");
                     return;
                 }
             }
@@ -593,7 +593,7 @@
                     const { error } = await supabaseClient.auth.updateUser({ password: password });
                     if (error) throw error;
 
-                    if (typeof showToast !== 'undefined') showToast("Mot de passe mis �  jour avec succ�¨s !", "success");
+                    if (typeof showToast !== 'undefined') showToast("Mot de passe mis à jour avec succès !", "success");
 
                     setTimeout(() => {
                         window.location.hash = ''; // Remove the hash
@@ -601,7 +601,7 @@
                     }, 1500);
 
                 } else if (isLogin) {
-                    // LOGIN Logic â�� All authentication via Supabase Auth
+                    // LOGIN Logic à All authentication via Supabase Auth
                     let loginEmail = email.toLowerCase().trim();
 
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email: loginEmail, password });
@@ -609,7 +609,7 @@
 
                     // AuthManager.handleSessionUpdate will handle the redirect via onAuthStateChange
                     // but we can also trigger it manually for speed if needed.
-                    if (typeof showToast !== 'undefined') showToast("Connexion r�©ussie...", "success");
+                    if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
                     return;
 
                 } else {
@@ -631,7 +631,7 @@
 
                     if (error) throw error;
 
-                    if (typeof showToast !== 'undefined') showToast("Inscription r�©ussie ! Bienvenue.", "success");
+                    if (typeof showToast !== 'undefined') showToast("Inscription réussie ! Bienvenue.", "success");
 
                     if (role === 'customer') {
                         localStorage.setItem('newketWelcomeBonus', 'true');
@@ -644,9 +644,9 @@
                         localStorage.setItem('newketUserEmail', email);
                         localStorage.setItem('newketUserStatus', 'pending');
                         // Suppliers must complete KYC form before accessing dashboard
-                        if (typeof showToast !== 'undefined') showToast("Compl�©tez votre profil vendeur pour continuer.", "info");
+                        if (typeof showToast !== 'undefined') showToast("Complétez votre profil vendeur pour continuer.", "info");
                         setTimeout(() => {
-                            window.location.href = '/pages/seller-onboarding';
+                            window.location.href = window.resolvePath('pages/seller-onboarding');
                         }, 1000);
                     } else {
                         finalizeAuth(data?.user || { user_metadata: { role } }, email);
@@ -656,7 +656,7 @@
                 console.error("Auth Error:", err);
                 let msg = err.message;
                 if (msg.includes("Invalid login credentials")) msg = "Email ou mot de passe incorrect.";
-                if (msg.includes("User already registered")) msg = "Cet utilisateur existe d�©j� .";
+                if (msg.includes("User already registered")) msg = "Cet utilisateur existe déjà.";
                 showError(msg);
                 setBtnLoading(false);
             }
@@ -664,7 +664,7 @@
 
         // Redirect based on role
         function finalizeAuth(user, email) {
-            if (typeof showToast !== 'undefined') showToast("Authentification r�©ussie", "success");
+            if (typeof showToast !== 'undefined') showToast("Authentification réussie", "success");
 
             let role = user?.user_metadata?.role || 'customer';
             const adminEmails = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
@@ -678,7 +678,7 @@
 
             setTimeout(async () => {
                 if (role === 'admin') {
-                    window.location.href = '/pages/admin/';
+                    window.location.href = window.resolvePath('pages/admin/index');
                 } else if (role === 'supplier') {
                     // Fetch real status from DB for accurate redirection
                     let status = userStatus;
@@ -690,16 +690,16 @@
                             localStorage.setItem('newketUserStatus', status);
                         } catch(e) { status = status || 'pending'; }
                     }
-                    // 'pending' = never filled the form �¢â� â�� go to onboarding
-                    // 'submitted' = form submitted, waiting for admin review �¢â� â�� show waiting screen
-                    // 'approved' = validated �¢â� â�� go to vendor dashboard
+                    // 'pending' = never filled the form �¢âàà go to onboarding
+                    // 'submitted' = form submitted, waiting for admin review �¢âàà show waiting screen
+                    // 'approved' = validated �¢âàà go to vendor dashboard
                     if (status === 'pending') {
-                        window.location.href = '/pages/seller-onboarding';
+                        window.location.href = window.resolvePath('pages/seller-onboarding');
                     } else {
-                        window.location.href = '/pages/vendor-dashboard';
+                        window.location.href = window.resolvePath('pages/vendor-dashboard');
                     }
                 } else {
-                    window.location.href = '/';
+                    window.location.href = window.resolvePath('index');
                 }
             }, 800);
         }
@@ -743,15 +743,15 @@
         function handleForgotPassword() {
             const email = document.getElementById('email').value.trim();
             if (!email) {
-                showError("Veuillez entrer votre email pour r�©initialiser le mot de passe.");
+                showError("Veuillez entrer votre email pour réinitialiser le mot de passe.");
                 return;
             }
             // Execute supabase reset (mock or real if configured)
             supabaseClient.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/pages/login',
+                redirectTo: window.location.origin + window.resolvePath('pages/login'),
             }).then(({ error }) => {
                 if (error) showError("Erreur. L'email est-il correct ?");
-                else if (typeof showToast !== 'undefined') showToast("Email de r�©initialisation envoy�©.", "success");
+                else if (typeof showToast !== 'undefined') showToast("Email de réinitialisation envoyé.", "success");
             });
         }
     </script>

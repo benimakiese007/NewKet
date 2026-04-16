@@ -1,4 +1,4 @@
-/* newket EMarket Product Manager — V2.1 (Paginated + Image Optimization) */
+﻿/* newket EMarket Product Manager — V2.1 (Paginated + Image Optimization) */
 
 const PRODUCTS_PAGE_SIZE = 20; // Load 20 at a time instead of 200
 

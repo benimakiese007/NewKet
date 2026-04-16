@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const replacements = {
-    'Ã©': 'é',
+    'é': 'é',
     'Ã¨': 'è',
     'Ãª': 'ê',
     'Ã«': 'ë',

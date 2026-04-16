@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+﻿import { createClient } from '@supabase/supabase-js';
 
 // Supabase Configuration — loaded from .env (never commit real keys!)
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;

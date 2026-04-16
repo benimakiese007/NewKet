@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewKet UI Handler — V2
  * Manages specialized rendering for Home page and common UI states.
  */

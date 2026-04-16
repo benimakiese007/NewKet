@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Forum Logic for NewKet
  * Handles categories, topics, and posts with Supabase integration.
  */

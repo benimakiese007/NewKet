@@ -1,4 +1,4 @@
-const CACHE_NAME = 'newket-cache-v5'; // Increment version
+﻿const CACHE_NAME = 'newket-cache-v5'; // Increment version
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',

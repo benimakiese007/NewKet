@@ -26,21 +26,19 @@ const AdminLayout = {
         // AuthManager.role may be null at parse time — always read from localStorage as fallback.
         const role = window.AuthManager?.role || localStorage.getItem('newketRole');
 
-        // If no role found at all, wait 800ms then re-check once (handles async auth init)
         if (!role) {
-            setTimeout(() => {
-                const retryRole = window.AuthManager?.role || localStorage.getItem('newketRole');
-                if (retryRole !== 'admin') {
-                    console.error('[NewKet] Unauthorized after retry. Role:', retryRole);
-                    window.location.href = '/pages/login';
-                }
-            }, 800);
+            // No role found. If we're here fromDOMContentLoaded without newketInitialized, we wait.
+            // If newketInitialized has already fired and we STILL have no role, redirect.
+            if (window.newketInitialized) {
+                console.error('[NewKet] No role found after initialization.');
+                window.location.href = '/src/pages/login.html';
+            }
             return;
         }
 
         if (role !== 'admin') {
             console.error('[NewKet] Unauthorized access to Admin CMS. Role:', role);
-            window.location.href = '/pages/login';
+            window.location.href = '/src/pages/login.html';
         }
     },
 
@@ -48,19 +46,27 @@ const AdminLayout = {
         if (!document.querySelector('link[href*="admin.css"]')) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = '/css/admin.css';
+            link.href = '/src/assets/css/admin.css';
             document.head.appendChild(link);
         }
     },
 
     getAdjustedPath(path) {
-        if (!path) return './';
-        // Local file protocol needs .html extension
-        if (window.location.protocol === 'file:') {
-            if (path === './') return 'index.html';
-            return path.endsWith('.html') ? path : `${path}.html`;
+        if (!path) return '/src/pages/admin/index.html';
+        
+        // Handle root-relative paths
+        if (path === './') return '/src/pages/admin/index.html';
+        
+        // Ensure path starts with / and ends with .html if it's a local page
+        let adjusted = path;
+        if (!adjusted.startsWith('/') && !adjusted.startsWith('http')) {
+            adjusted = '/src/pages/admin/' + adjusted;
         }
-        return path;
+        if (adjusted.includes('/src/pages/admin/') && !adjusted.endsWith('.html')) {
+            adjusted += '.html';
+        }
+        
+        return adjusted;
     },
 
     renderNavbar() {
@@ -68,35 +74,45 @@ const AdminLayout = {
         if (!navbarPlaceholder || navbarPlaceholder.dataset.rendered === 'true') return;
 
         navbarPlaceholder.innerHTML = `
-            <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-                <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <button id="adminMobileMenuBtn" class="md:hidden p-2 text-gray-500 hover:text-black focus:outline-none flex items-center justify-center">
-                            <iconify-icon icon="solar:hamburger-menu-bold" width="24"></iconify-icon>
+            <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
+                <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px]">
+                    <div class="flex items-center gap-6">
+                        <button id="adminMobileMenuBtn" class="md:hidden p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
+                            <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                         </button>
-                        <a href="${this.getAdjustedPath('./')}" class="flex items-center gap-2 group">
-                            <img src="../../assets/Images/logo-newket-v2.jpeg" alt="NewKet" class="h-7 w-auto invert transition-transform group-hover:scale-105">
-                            <span class="px-2 py-0.5 bg-black text-white text-[10px] font-bold rounded-full uppercase tracking-widest">Admin</span>
+                        <a href="${this.getAdjustedPath('./')}" class="flex items-center gap-3 group">
+                            <div class="relative">
+                                <div class="absolute -inset-1 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                                <div class="relative w-10 h-10 bg-black rounded-xl flex items-center justify-center overflow-hidden border border-white/10">
+                                    <img src="/src/assets/Images/logo-newket-v2.jpeg" alt="NewKet" class="w-full h-full object-contain">
+                                </div>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-lg font-black tracking-tight text-gray-900 leading-none">NEWKET</span>
+                                <span class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mt-1">Console Administration</span>
+                            </div>
                         </a>
                     </div>
 
-                    <div class="flex items-center gap-4">
-                        <div class="hidden md:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
-                            <div class="segmented-track">
-                                <div class="segmented-handle"></div>
-                                <span class="segmented-label" data-currency="USD">USD</span>
-                                <span class="segmented-label" data-currency="CDF">CDF</span>
-                            </div>
+                    <div class="flex items-center gap-2 sm:gap-6">
+                        <div class="hidden lg:flex items-center bg-gray-50/50 rounded-2xl p-1 border border-gray-100/50" id="currencyToggle" data-active="CDF">
+                             <button data-currency="USD" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-white hover:shadow-sm text-gray-400">USD</button>
+                             <button data-currency="CDF" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white shadow-sm text-black">CDF</button>
                         </div>
 
-                        <a href="${window.location.protocol === 'file:' ? '../../index.html' : '/'}" target="_blank" class="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-black transition-colors flex items-center gap-2">
-                            <iconify-icon icon="solar:globus-linear" width="18"></iconify-icon>
-                            <span class="hidden sm:inline">Voir la boutique</span>
-                        </a>
+                        <div class="h-8 w-px bg-gray-100 mx-1 hidden sm:block"></div>
 
-                        <div class="h-6 w-px bg-gray-200 mx-2"></div>
+                        <div class="flex items-center gap-3">
+                            <a href="/" target="_blank" class="hidden sm:flex h-10 px-4 items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-black bg-gray-50/50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50">
+                                 <iconify-icon icon="solar:globus-bold" width="16"></iconify-icon>
+                                 Boutique
+                            </a>
 
-                        <button onclick="AuthManager.logout()" class="text-xs font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Quitter</button>
+                            <button onclick="AuthManager.logout()" class="h-10 px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center gap-2">
+                                <iconify-icon icon="solar:logout-bold" width="16"></iconify-icon>
+                                <span class="hidden sm:inline">Quitter</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -123,23 +139,23 @@ const AdminLayout = {
         }
 
         const links = [
-            { href: './', icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
-            { href: 'user', icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
-            { href: 'products', icon: 'solar:box-bold', label: "Contrôle Catalogue" },
-            { href: 'orders', icon: 'solar:bag-bold', label: "Commandes & Retraits" },
-            { href: 'diagnostics', icon: 'solar:chart-square-bold', label: "Audit & Diagnostics" },
-            { href: 'reviews', icon: 'solar:star-bold', label: "Avis & Modération" },
-            { href: 'newsletter', icon: 'solar:letter-bold', label: "Newsletter" },
-            { href: 'notifications-admin', icon: 'solar:bell-bing-bold', label: "Notifications" },
-            { href: 'support', icon: 'solar:chat-round-dots-bold', label: "Support Platform" },
-            { href: 'security', icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins" },
-            { href: 'settings', icon: 'solar:settings-bold', label: "Paramètres", sub: true }
+            { href: '/src/pages/admin/index.html', icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
+            { href: '/src/pages/admin/user.html', icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
+            { href: '/src/pages/admin/products.html', icon: 'solar:box-bold', label: "Contrôle Catalogue" },
+            { href: '/src/pages/admin/orders.html', icon: 'solar:bag-bold', label: "Commandes & Retraits" },
+            { href: '/src/pages/admin/diagnostics.html', icon: 'solar:chart-square-bold', label: "Audit & Diagnostics" },
+            { href: '/src/pages/admin/reviews.html', icon: 'solar:star-bold', label: "Avis & Modération" },
+            { href: '/src/pages/admin/newsletter.html', icon: 'solar:letter-bold', label: "Newsletter" },
+            { href: '/src/pages/admin/notifications-admin.html', icon: 'solar:bell-bing-bold', label: "Notifications" },
+            { href: '/src/pages/admin/support.html', icon: 'solar:chat-round-dots-bold', label: "Support Platform" },
+            { href: '/src/pages/admin/security.html', icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins" },
+            { href: '/src/pages/admin/settings.html', icon: 'solar:settings-bold', label: "Paramètres", sub: true }
         ];
 
         let sidebarHTML = `
-            <div id="adminOverlay" class="fixed inset-0 bg-black/50 z-[55] hidden"></div>
-            <aside id="adminSidebar" class="fixed inset-y-0 left-0 w-64 bg-white z-[60] transform -translate-x-full md:translate-x-0 md:static md:w-64 transition-transform duration-300 ease-in-out h-screen md:h-auto overflow-y-auto border-r md:border-none border-gray-100 flex-shrink-0">
-                <div class="p-6 md:p-0 md:sticky md:top-[52px]">
+            <div id="adminOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
+            <aside id="adminSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full md:translate-x-0 md:static md:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen md:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
+                <div class="p-6 md:px-4 md:py-8 md:sticky md:top-[64px]">
                     <div class="md:glass-panel p-6 md:px-6 md:py-4">
                         <nav class="space-y-1">
         `;
@@ -147,13 +163,15 @@ const AdminLayout = {
         links.forEach(link => {
             if (link.sub) sidebarHTML += `<div class="py-4"><div class="h-px bg-gray-100 mb-4"></div>`;
 
-            const normalizedHref = link.href === './' ? 'index' : link.href;
-            const isActive = currentFile === normalizedHref ? 'active' : '';
+            const isActive = currentPath.includes(link.href) || (link.href === '/src/pages/admin/index.html' && (currentPath.endsWith('/admin/') || currentPath.endsWith('/admin/index.html'))) ? 'active' : '';
 
             sidebarHTML += `
-                <a href="${this.getAdjustedPath(link.href)}" class="sidebar-link ${isActive}">
-                    <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
-                    ${link.label}
+                <a href="${link.href}" class="sidebar-link ${isActive} group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50">
+                    <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-black text-white shadow-lg shadow-black/20' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
+                        <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
+                    </div>
+                    <span class="text-sm font-bold tracking-tight ${isActive ? 'text-black' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
+                    ${isActive ? '<div class="absolute right-3 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>' : ''}
                 </a>
             `;
 

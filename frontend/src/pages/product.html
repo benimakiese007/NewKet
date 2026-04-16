@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -8,14 +8,15 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
     <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
-    <title>Produit â�� NewKet</title>
-    <meta name="description" content="D�©couvrez cet article d'exception sur NewKet.">
+    <title>Chargement... — NewKet</title>
+    <meta name="description" content="Découvrez une sélection exclusive d'articles de luxe sur NewKet.">
     
     <!-- Open Graph -->
     <meta property="og:type" content="product">
-    <meta property="og:title" content="Produit - NewKet">
-    <meta property="og:description" content="D�©couvrez cet article d'exception sur NewKet.">
-    <meta property="og:image" content="https://newket.vercel.app/assets/Images/logo-newket-v2.jpeg">
+    <meta property="og:title" content="Produit d'exception — NewKet">
+    <meta property="og:description" content="Une pièce unique sélectionnée pour son excellence.">
+    <meta property="og:url" content="https://newket.vercel.app/src/pages/product.html">
+    <meta property="og:image" content="https://newket.vercel.app/src/assets/Images/logo-newket-v2.jpeg">
     <meta id="og-price-amount" property="product:price:amount" content="0">
     <meta id="og-price-currency" property="product:price:currency" content="CDF">
 
@@ -48,9 +49,9 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-6" id="main-content">
         <!-- Breadcrumbs -->
         <nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs">
-            <a href="/index" class="hover:text-gray-900 transition-colors">Accueil</a>
+            <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('index')" class="hover:text-gray-900 transition-colors">Accueil</a>
             <iconify-icon icon="solar:alt-arrow-right-linear" width="10"></iconify-icon>
-            <a href="catalog" class="hover:text-gray-900 transition-colors">Catalogue</a>
+            <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('catalog')" class="hover:text-gray-900 transition-colors">Catalogue</a>
             <iconify-icon icon="solar:alt-arrow-right-linear" width="10"></iconify-icon>
             <span class="text-gray-900" id="breadcrumb-current">Produit</span>
         </nav>
@@ -115,7 +116,7 @@
                 <div class="space-y-6">
                     <div>
                         <div class="flex items-center justify-between gap-4 mb-2">
-                            <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">Cat�©gorie</div>
+                            <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">Catégorie</div>
                             <button onclick="shareProduct()" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md">
                                 <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
                             </button>
@@ -134,7 +135,7 @@
                                  <a href="#" id="vendorLink" class="text-sm font-black text-gray-900 hover:text-blue-600 transition-colors uppercase tracking-tight">Chargement...</a>
                              </div>
                              <div class="text-right">
-                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Exp�©dition</div>
+                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Expédition</div>
                                  <div class="text-xs font-black text-gray-900 flex items-center justify-end gap-1">
                                      <iconify-icon icon="solar:delivery-bold" class="text-green-500"></iconify-icon>
                                      <span id="shippingValue">...</span>
@@ -174,7 +175,7 @@
 
         <div class="mt-8 pt-8 border-t border-gray-100">
             <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tighter mb-4">Avis Clients</h2>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-16" id="reviewCountText">0 avis v�©rifi�©s</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-16" id="reviewCountText">0 avis vérifiés</p>
             <div id="reviewsList" class="space-y-12"></div>
             <div id="reviewFormContainer" class="mt-10"></div>
         </div>
@@ -182,7 +183,7 @@
         <section class="mt-8 pb-8 border-t border-gray-100 pt-8">
             <div class="flex items-center justify-between mb-8">
                 <h2 class="text-3xl font-bold tracking-tight text-gray-900">Articles similaires</h2>
-                <a href="catalog" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
+                <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('catalog')" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
                     Voir tout <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
                 </a>
             </div>
@@ -218,7 +219,7 @@
         async function initPage() {
             showSkeleton();
             if (!productId) {
-                window.location.href = 'catalog';
+                window.location.href = window.resolvePath('catalog');
                 return;
             }
 
@@ -228,7 +229,7 @@
                     <div class="py-32 text-center">
                         <iconify-icon icon="solar:ghost-broken" width="80" class="text-gray-200 mb-8"></iconify-icon>
                         <h1 class="text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Article Introuvable</h1>
-                        <a href="catalog" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
+                        <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('catalog')" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
                     </div>
                 `;
                 return;
@@ -261,21 +262,21 @@
             const vendorLink = document.getElementById('vendorLink');
             if (vendorLink) {
                 vendorLink.textContent = shopName;
-                vendorLink.href = `shop?email=${p.supplier_email || ''}`;
+                vendorLink.href = `${window.resolvePath('shop')}?email=${p.supplier_email || ''}`;
                 const avatar = document.getElementById('vendorAvatarDetail');
-                if (vendor.avatar) avatar.innerHTML = `<img src="${vendor.avatar}" class="w-full h-full object-cover">`;
+                if (vendor.avatar) avatar.innerHTML = `<img src="${vendor.avatar}" class="w-full h-full object-cover" alt="${shopName}">`;
                 else avatar.textContent = shopName.charAt(0).toUpperCase();
                 document.getElementById('shippingValue').textContent = vendor.shipping_time || '24h';
             }
 
             const images = (p.image || '').split(',').map(img => img.trim()).filter(img => img);
-            const mainImgUrl = images[0] || '../assets/Images/default.png';
+            const mainImgUrl = images[0] || window.resolvePath('assets/Images/default.png');
             document.getElementById('mainImage').src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mainImgUrl) : mainImgUrl;
 
             const thumbs = document.getElementById('thumbnailGrid');
             thumbs.innerHTML = images.map((img, i) => `
                 <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900 shadow-sm' : 'border-transparent'} hover:border-gray-300 transition-all p-1 glass-card" onclick="window.changeImage('${img.replace(/'/g, "\\'")}', this)">
-                    <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200 }) : img}" class="w-full h-full object-contain mix-blend-multiply">
+                    <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200 }) : img}" class="w-full h-full object-contain mix-blend-multiply" alt="Vue produit ${i + 1}">
                 </div>
             `).join('');
 
@@ -286,9 +287,9 @@
             favBtn.classList.toggle('bg-red-50/50', isFav);
 
             // SEO Dynamic Updates
-            document.title = `${p.name} â�� NewKet`;
+            document.title = `${p.name} à NewKet`;
             const metaDesc = document.querySelector('meta[name="description"]');
-            if (metaDesc) metaDesc.content = p.description || `D�©couvrez ${p.name} sur NewKet.`;
+            if (metaDesc) metaDesc.content = p.description || `Découvrez ${p.name} sur NewKet.`;
             
             document.querySelector('meta[property="og:title"]').content = p.name;
             document.querySelector('meta[property="og:description"]').content = p.description || `Achetez ${p.name} sur NewKet.`;
@@ -337,8 +338,8 @@
                 const list = document.getElementById('reviewsList');
                 const countText = document.getElementById('reviewCountText');
                 if (!reviews || reviews.length === 0) {
-                    list.innerHTML = `<div class="text-center py-24 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100 text-gray-400 font-black uppercase tracking-widest text-[10px]">Soyez le premier �  donner votre avis</div>`;
-                    countText.textContent = "0 avis v�©rifi�©s";
+                    list.innerHTML = `<div class="text-center py-24 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100 text-gray-400 font-black uppercase tracking-widest text-[10px]">Soyez le premier à donner votre avis</div>`;
+                    countText.textContent = "0 avis vérifiés";
                     renderReviewForm(pid);
                     return;
                 }
@@ -347,7 +348,7 @@
                 document.getElementById('headerRating').classList.remove('invisible');
                 document.getElementById('headerStars').innerHTML = starsHTML;
                 document.getElementById('headerReviewCount').textContent = `${reviews.length} avis client${reviews.length > 1 ? 's' : ''}`;
-                countText.innerHTML = `<div class="flex items-center gap-3"><div class="flex gap-0.5">${starsHTML}</div><span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis v�©rifi�©s</span></div>`;
+                countText.innerHTML = `<div class="flex items-center gap-3"><div class="flex gap-0.5">${starsHTML}</div><span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis vérifiés</span></div>`;
                 list.innerHTML = reviews.map(r => `
                     <div class="glass-card p-10 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
                         <div class="flex items-start justify-between mb-8">
@@ -367,7 +368,7 @@
         function renderReviewForm(pid) {
             const cont = document.getElementById('reviewFormContainer');
             if (!AuthManager.user) {
-                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="login" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
+                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('login')" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
                 return;
             }
             cont.innerHTML = `
@@ -395,12 +396,12 @@
         };
 
         window.submitReview = async (pid) => {
-            if (!currentRating) return showToast('Veuillez s�©lectionner une note', 'warning');
+            if (!currentRating) return showToast('Veuillez sélectionner une note', 'warning');
             const txt = document.getElementById('reviewText').value.trim();
-            if (!txt) return showToast('Veuillez �©crire un commentaire', 'warning');
+            if (!txt) return showToast('Veuillez écrire un commentaire', 'warning');
             try {
                 const success = await SupabaseAdapter.insert('product_reviews', { product_id: pid, user_id: AuthManager.user.id, user_name: AuthManager.user.user_metadata?.name || 'Utilisateur', rating: currentRating, comment: txt });
-                if (success) { showToast('Avis publi�© !', 'success'); loadReviews(pid); }
+                if (success) { showToast('Avis publié !', 'success'); loadReviews(pid); }
             } catch (e) { showToast('Erreur', 'error'); }
         };
 
@@ -408,7 +409,7 @@
             const grid = document.getElementById('recommendedGrid');
             const pms = ProductManager.getProducts().filter(p => p.id !== productId && p.category === cat).slice(0, 4);
             grid.innerHTML = (pms.length ? pms : ProductManager.getProducts().slice(0, 4)).map(p => window.buildProductCardHTML(p)).join('');
-            // â�� Activer le lazy loading sur les images .lazy-img inject�©es
+            // à Activer le lazy loading sur les images .lazy-img injectées
             if (window.initLazyImages) window.initLazyImages(grid);
         }
 
@@ -416,7 +417,7 @@
         window.changeImage = (url, el) => { document.getElementById('mainImage').src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(url) : url; document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); };
         window.openZoom = () => { document.getElementById('zoomModalImg').src = document.getElementById('mainImage').src; document.getElementById('zoomModal').classList.remove('invisible', 'opacity-0'); document.body.style.overflow = 'hidden'; };
         window.closeZoom = () => { document.getElementById('zoomModal').classList.add('invisible', 'opacity-0'); document.body.style.overflow = ''; };
-        window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copi�© !', 'info'); } };
+        window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copié !', 'info'); } };
         function initRecentlyViewed(p) { let list = JSON.parse(localStorage.getItem('newketRecentlyViewed') || '[]'); list = [p, ...list.filter(item => item.id !== p.id)].slice(0, 10); localStorage.setItem('newketRecentlyViewed', JSON.stringify(list)); }
 
         document.addEventListener('DOMContentLoaded', () => { if (window.newketInitialized) initPage(); else window.addEventListener('newketInitialized', initPage); });

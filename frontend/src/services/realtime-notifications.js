@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewKet Realtime & PWA Notifications
  * Handles Toast UI, Supabase Realtime (Price drops for favorites, Order updates),
  * and PWA Add-To-Home-Screen prompt.

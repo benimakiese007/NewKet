@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -10,8 +10,9 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
     <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
     <meta name="theme-color" content="#111827">
-    <title>Finaliser votre profil vendeur â�� NewKet</title>
-    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <title>S'enregistrer comme Vendeur | NewKet Marketplace</title>
+    <meta name="description" content="Rejoignez NewKet et vendez vos créations et articles de luxe à une audience exclusive. Finalisez votre profil vendeur certifié dès aujourd'hui.">
+    <link rel="canonical" href="https://newket.cd/src/pages/seller-onboarding" />
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -35,115 +36,147 @@
             <div class="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
                 <iconify-icon icon="solar:shop-bold" width="40" class="text-white"></iconify-icon>
             </div>
-            <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-4">Devenez Vendeur Certifi�©</h1>
-            <p class="text-gray-500 text-lg">Compl�©tez votre dossier pour commencer �  vendre sur NewKet.</p>
+            <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-4">Devenez Vendeur Certifié</h1>
+            <p class="text-gray-500 text-lg">Complétez votre dossier pour commencer à vendre sur NewKet.</p>
         </div>
 
         <form id="onboardingForm" class="space-y-8">
             <!-- Business Info -->
-            <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm space-y-6">
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Nom de votre boutique / Entreprise</label>
-                    <input type="text" id="companyName" required placeholder="ex: Luxe & Co"
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all">
+            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
+                        <iconify-icon icon="solar:shop-2-bold-duotone" width="20"></iconify-icon>
+                    </div>
+                    <div>
+                        <h2 class="font-black text-gray-900 leading-tight">Identité Commerciale</h2>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Étape 01/02</p>
+                    </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Num�©ro de t�©l�©phone professionnel</label>
-                    <input type="tel" id="phone" required placeholder="+243..."
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all">
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Num�©ro WhatsApp (Optionnel)</label>
-                    <input type="tel" id="whatsapp" placeholder="+243..."
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all">
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-gray-700 ml-1">Description de la boutique</label>
-                    <textarea id="storeDescription" required placeholder="Que vendez-vous ? (ex: V�ªtements pour hommes, ��lectronique...)"
-                        class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all min-h-[100px]"></textarea>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 ml-1">Adresse ou Ville</label>
-                        <input type="text" id="storeAddress" required placeholder="ex: Kinshasa, Gombe"
-                            class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Nom de la Boutique</label>
+                        <input type="text" id="companyName" required placeholder="ex: Maison de Mode"
+                            class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-gray-700 ml-1">Moyen de retrait pr�©f�©r�©</label>
-                        <select id="payoutMethod" required
-                            class="w-full px-5 py-4 rounded-2xl border border-gray-200 outline-none focus:border-black transition-all appearance-none bg-white">
-                            <option value="" disabled selected>Choisir une m�©thode...</option>
-                            <option value="M-Pesa">M-Pesa</option>
-                            <option value="Orange Money">Orange Money</option>
-                            <option value="Airtel Money">Airtel Money</option>
-                            <option value="Bank Transfer">Virement Bancaire</option>
-                        </select>
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Téléphone Professionnel</label>
+                        <input type="tel" id="phone" required placeholder="+243..."
+                            class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Description & Spécialité</label>
+                    <textarea id="storeDescription" required placeholder="Décrivez l'univers de votre boutique..."
+                        class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300 min-h-[120px] resize-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Localisation</label>
+                        <input type="text" id="storeAddress" required placeholder="Ville, Quartier"
+                            class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Mode de Paiement Préféré</label>
+                        <div class="relative">
+                            <select id="payoutMethod" required
+                                class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium appearance-none">
+                                <option value="" disabled selected>Choisir...</option>
+                                <option value="Mobile Money">Mobile Money (M-Pesa, Orange...)</option>
+                                <option value="Bank">Virement Bancaire</option>
+                                <option value="Cash">Collecte en magasin</option>
+                            </select>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></iconify-icon>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Documents -->
-            <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm space-y-6">
-                <div>
-                    <h3 class="font-bold text-gray-900 mb-1">Documents requis (Identit�©)</h3>
-                    <p class="text-xs text-gray-400 mb-4">Veuillez uploader une pi�¨ce d'identit�© (ID) ou un registre de commerce.</p>
+            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
+                        <iconify-icon icon="solar:shield-user-bold-duotone" width="20"></iconify-icon>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-gray-900 leading-tight">Vérification KYC</h3>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Étape 02/02</p>
+                    </div>
                 </div>
 
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <div id="uploadZone" onclick="document.getElementById('docUpload').click()"
-                        class="border-2 border-dashed border-gray-200 rounded-3xl p-8 text-center hover:border-black hover:bg-gray-50 transition-all cursor-pointer group">
-                        <iconify-icon icon="solar:gallery-upload-linear" width="32" class="text-gray-400 group-hover:text-black mb-2"></iconify-icon>
-                        <p class="text-sm font-semibold text-gray-500">Cliquez pour ajouter vos documents</p>
+                        class="group relative overflow-hidden border-2 border-dashed border-gray-100 rounded-[2rem] p-10 text-center hover:border-black hover:bg-gray-50/50 transition-all cursor-pointer bg-gray-50/30">
+                        <div class="relative z-10">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <iconify-icon icon="solar:upload-minimalistic-bold-duotone" width="32" class="text-gray-400 group-hover:text-black transition-colors"></iconify-icon>
+                            </div>
+                            <p class="text-sm font-black text-gray-900 mb-1">Documents d'Identité / Registre</p>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest">PDF, JPG, PNG (Max 10MB)</p>
+                        </div>
                         <input type="file" id="docUpload" multiple accept="image/*,application/pdf" class="hidden">
+                        
+                        <!-- Decorative bg -->
+                        <div class="absolute inset-0 bg-gradient-to-tr from-gray-100/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
-                    <div id="fileList" class="flex flex-wrap gap-2"></div>
+                    <div id="fileList" class="flex flex-wrap gap-3"></div>
                 </div>
             </div>
 
             <!-- Photos Optionnelles -->
-            <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm space-y-6">
-                <div>
-                    <h3 class="font-bold text-gray-900 mb-1">Photos de la Boutique (Optionnel)</h3>
-                    <p class="text-xs text-gray-400 mb-4">Rendez votre boutique plus attrayante avec de belles photos.</p>
+            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
+                        <iconify-icon icon="solar:camera-bold-duotone" width="20"></iconify-icon>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-gray-900 leading-tight">Visuels Boutique</h3>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Facultatif</p>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-4">
-                        <label class="text-sm font-bold text-gray-700 ml-1">Photo / Logo</label>
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Logo / Avatar</label>
                         <div id="shopAvatarUploadZone" onclick="document.getElementById('shopAvatarUpload').click()"
-                            class="border-2 border-dashed border-gray-200 rounded-3xl p-6 text-center hover:border-black hover:bg-gray-50 transition-all cursor-pointer group">
-                            <iconify-icon icon="solar:camera-add-linear" width="24" class="text-gray-400 group-hover:text-black mb-2"></iconify-icon>
-                            <p class="text-xs font-semibold text-gray-500">Mettre un logo</p>
+                            class="group relative h-40 border-2 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center bg-gray-50/30 hover:bg-gray-50 hover:border-black transition-all cursor-pointer">
+                            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <iconify-icon icon="solar:user-circle-bold-duotone" width="24" class="text-gray-400 group-hover:text-black"></iconify-icon>
+                            </div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ajouter un logo</p>
                             <input type="file" id="shopAvatarUpload" accept="image/*" class="hidden">
                         </div>
-                        <div id="shopAvatarPreview" class="hidden flex items-center justify-between bg-gray-50 p-2 rounded-xl border border-gray-100">
-                             <div class="flex items-center gap-3">
-                                 <img src="" class="w-10 h-10 rounded-full object-cover shadow-sm bg-white">
-                                 <span class="text-xs text-gray-600 font-bold truncate max-w-[120px] name-preview"></span>
+                        <div id="shopAvatarPreview" class="hidden relative h-40 rounded-[2rem] overflow-hidden group">
+                             <img src="" class="w-full h-full object-cover">
+                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                 <button type="button" onclick="clearShopAvatar(event)" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl">
+                                     <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                                 </button>
                              </div>
-                             <iconify-icon icon="solar:close-circle-bold" class="cursor-pointer text-gray-400 hover:text-red-500 mx-2" onclick="clearShopAvatar(event)"></iconify-icon>
                         </div>
                     </div>
                     
                     <div class="space-y-4">
-                        <label class="text-sm font-bold text-gray-700 ml-1">Boutique physique</label>
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Photo de Vitrine</label>
                         <div id="physicalUploadZone" onclick="document.getElementById('physicalUpload').click()"
-                            class="border-2 border-dashed border-gray-200 rounded-3xl p-6 text-center hover:border-black hover:bg-gray-50 transition-all cursor-pointer group">
-                            <iconify-icon icon="solar:shop-2-linear" width="24" class="text-gray-400 group-hover:text-black mb-2"></iconify-icon>
-                            <p class="text-xs font-semibold text-gray-500">Photo de devanture</p>
+                            class="group relative h-40 border-2 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center bg-gray-50/30 hover:bg-gray-50 hover:border-black transition-all cursor-pointer">
+                            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <iconify-icon icon="solar:shop-2-bold-duotone" width="24" class="text-gray-400 group-hover:text-black"></iconify-icon>
+                            </div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ajouter une photo</p>
                             <input type="file" id="physicalUpload" accept="image/*" class="hidden">
                         </div>
-                        <div id="physicalPreview" class="hidden flex items-center justify-between bg-gray-50 p-2 rounded-xl border border-gray-100">
-                             <div class="flex items-center gap-3">
-                                 <img src="" class="w-10 h-10 rounded-xl object-cover shadow-sm bg-white">
-                                 <span class="text-xs text-gray-600 font-bold truncate max-w-[120px] name-preview"></span>
+                        <div id="physicalPreview" class="hidden relative h-40 rounded-[2rem] overflow-hidden group">
+                             <img src="" class="w-full h-full object-cover">
+                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                 <button type="button" onclick="clearPhysical(event)" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl">
+                                     <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                                 </button>
                              </div>
-                             <iconify-icon icon="solar:close-circle-bold" class="cursor-pointer text-gray-400 hover:text-red-500 mx-2" onclick="clearPhysical(event)"></iconify-icon>
                         </div>
                     </div>
                 </div>
@@ -158,16 +191,19 @@
     </main>
 
     <!-- Success Modal -->
-    <div id="successOverlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 opacity-0 invisible transition-all duration-300">
-        <div class="bg-white rounded-[2.5rem] w-full max-w-sm p-10 text-center shadow-2xl scale-90 transition-all">
-            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <iconify-icon icon="solar:clock-circle-bold" width="48"></iconify-icon>
+    <div id="successOverlay" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-500">
+        <div class="bg-white rounded-[3rem] w-full max-w-sm p-12 text-center shadow-2xl scale-90 transition-all duration-500">
+            <div class="relative w-24 h-24 mx-auto mb-8">
+                <div class="absolute inset-0 bg-green-500/20 rounded-full animate-ping"></div>
+                <div class="relative w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-green-200">
+                    <iconify-icon icon="solar:check-read-bold" width="48"></iconify-icon>
+                </div>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Dossier re�§u !</h2>
-            <p class="text-gray-500 mb-8">Votre demande est en cours d'examen. Vous recevrez une notification d�¨s que vous serez autoris�© �  publier.</p>
-            <button onclick="window.location.href='/'"
-                class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-xl hover:bg-black transition-all">
-                Retour �  l'accueil
+            <h2 class="text-3xl font-black text-gray-900 mb-3 tracking-tight">C'est envoyé !</h2>
+            <p class="text-sm text-gray-500 mb-10 leading-relaxed font-medium">Votre dossier est entre les mains de notre équipe. Nous reviendrons vers vous très vite par email.</p>
+            <button onclick="window.location.href=window.resolvePath('')"
+                class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                Explorer NewKet
             </button>
         </div>
     </div>
@@ -262,7 +298,7 @@
                 
                 const sessionRes = await window.supabaseClient.auth.getSession();
                 const user = sessionRes?.data?.session?.user;
-                if (!user) throw new Error("Vous n'�ªtes pas connect�©");
+                if (!user) throw new Error("Vous n'êtes pas connecté");
                 
                 const userId = user.id;
                 
@@ -280,7 +316,7 @@
                 }
 
                 if (docUrls.length === 0 && uploadedFiles.length > 0) {
-                    throw new Error("Aucun document n'a pu �ªtre envoy�©. V�©rifiez votre connexion.");
+                    throw new Error("Aucun document n'a pu être envoyé. Vérifiez votre connexion.");
                 }
 
                 // Upload Optional Shop Avatar
@@ -316,7 +352,7 @@
                 const updateRes = await window.SupabaseAdapter.update('users', userId, updateData);
 
                 if (!updateRes) {
-                    throw new Error("Erreur de sauvegarde: aucun profil mis �  jour.");
+                    throw new Error("Erreur de sauvegarde: aucun profil mis à jour.");
                 }
 
                 localStorage.setItem('newketUserStatus', 'submitted');
@@ -329,7 +365,7 @@
             } catch (err) {
                 console.error(err);
                 if (window.LoaderManager) LoaderManager.hide();
-                alert("Une erreur est survenue lors de l'envoi. Veuillez r�©essayer.");
+                alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
             }
         });
     </script>

@@ -1,4 +1,4 @@
-/* newket EMarket Auth Manager */
+﻿/* newket EMarket Auth Manager */
 /**
  * Rôle interne: 'supplier'. Label UI: 'Vendeur'.
  * Rôle interne: 'customer'. Label UI: 'Client'.

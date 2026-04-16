@@ -1,4 +1,4 @@
-/* newket EMarket Currency Manager */
+﻿/* newket EMarket Currency Manager */
 
 const CurrencyManager = {
     currentCurrency: localStorage.getItem('newketCurrency') || 'CDF',

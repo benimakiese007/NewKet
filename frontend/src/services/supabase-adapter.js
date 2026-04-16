@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Supabase Adapter for NewKet — V2 (Optimized for scale)
  * Features: In-memory cache with TTL, automatic retry, pagination,
  * centralized filters, and cache invalidation on mutations.

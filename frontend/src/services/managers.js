@@ -1,4 +1,4 @@
-/* newket EMarket Managed Utilities */
+﻿/* newket EMarket Managed Utilities */
 
 // ========== RECENTLY VIEWED MANAGER ==========
 const RecentlyViewedManager = {

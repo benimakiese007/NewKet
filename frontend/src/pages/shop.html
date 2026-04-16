@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -12,8 +12,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Boutique â�� NewKet</title>
-    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <title>Boutique à NewKet</title>
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -87,7 +87,7 @@
                     <div class="flex items-center gap-3 mb-2">
                         <span
                             class="px-3 py-1 bg-white/20  text-white text-[10px] font-black uppercase tracking-widest rounded-full">Partenaire
-                            Certifi�©</span>
+                            Certifié</span>
                     </div>
                     <h1 id="vendorName" class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase">
                         Chargement...</h1>
@@ -110,7 +110,7 @@
                         <div class="w-px h-8 bg-white/10"></div>
                         <div class="text-white">
                             <div class="text-xl font-black" id="vendor-shipping-value">24h</div>
-                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Exp�©dition</div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Expédition</div>
                         </div>
                     </div>
                 </div>
@@ -167,7 +167,7 @@
             const email = urlParams.get('email');
 
             if (!email) {
-                location.href = '/pages/shops';
+                location.href = window.resolvePath('shops');
                 return;
             }
 
@@ -186,7 +186,7 @@
                             <iconify-icon icon="solar:shop-broken" width="64" class="text-gray-300 mb-6"></iconify-icon>
                             <h1 class="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Boutique Introuvable</h1>
                             <p class="text-gray-500 mb-8 max-w-md mx-auto">La boutique que vous recherchez n'existe pas ou n'est plus disponible sur NewKet.</p>
-                            <a href="./shops" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-colors inline-block uppercase tracking-wider text-sm">Voir toutes les boutiques</a>
+                            <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('shops')" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-colors inline-block uppercase tracking-wider text-sm">Voir toutes les boutiques</a>
                         </div>
                     `;
                     document.querySelector('.vendor-hero').style.display = 'none';
@@ -197,9 +197,9 @@
                 document.getElementById('vendorName').textContent = shopName;
                 document.getElementById('vendorAvatar').src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=f3f4f6&color=000&bold=true`;
 
-                const joinDate = vendor.date_joined ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'r�©cemment';
+                const joinDate = vendor.date_joined ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
                 document.getElementById('vendorMeta').innerHTML = `<iconify-icon icon="solar:calendar-outline"></iconify-icon> Membre depuis ${joinDate}`;
-                document.title = `${shopName} â�� NewKet`;
+                document.title = `${shopName} à NewKet`;
 
                 // Apply custom cover photo if set
                 const heroEl = document.querySelector('.vendor-hero');
@@ -238,7 +238,7 @@
 
                 noProducts.classList.add('hidden');
                 grid.innerHTML = products.map((p, idx) => `
-                    <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50" onclick="location.href='product?id=${p.id}'">
+                    <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50" onclick="location.href=`${window.resolvePath('product')}?id=${p.id}`">
                         <div class="img-container aspect-[4/5] img-zoom">
                              <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : p.image}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700" alt="${p.name}">
                              <button onclick="event.stopPropagation(); orderProduct('${p.id}')" class="absolute bottom-4 right-4 w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-xl">
@@ -271,7 +271,7 @@
 
             } catch (err) {
                 console.error('Error loading shop:', err);
-                location.href = '/pages/shops';
+                location.href = window.resolvePath('shops');
             }
         }
 

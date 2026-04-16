@@ -1,4 +1,4 @@
-/* newket EMarket Search Manager */
+﻿/* newket EMarket Search Manager */
 import { escapeHTML } from './sanitize.js';
 
 const SearchManager = {

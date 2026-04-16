@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // NewKet – Vercel Serverless API
 // Expose toutes les routes Express via /api/* sur Vercel.
 // Les variables d'environnement SUPABASE_URL, SUPABASE_ANON_KEY

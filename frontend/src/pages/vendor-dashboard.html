@@ -1,12 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" class="auth-loading">
 
 <head>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace Vendeur | NewKet</title>
-    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <title>Tableau de Bord Vendeur | NewKet — Gérez votre boutique de luxe</title>
+    <meta name="description" content="Accédez à votre espace vendeur NewKet. Suivez vos ventes, gérez vos produits et communiquez avec vos clients en toute simplicité sur la marketplace de luxe de référence en RDC.">
+    <link rel="canonical" href="https://newket.cd/src/pages/vendor-dashboard.html">
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -54,7 +55,7 @@
                             <iconify-icon icon="solar:chart-square-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Tableau de bord</span>
                         </a>
-                        <a href="./publish" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
+                        <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/publish')" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
                             <iconify-icon icon="solar:add-circle-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Publier un article</span>
                         </a>
@@ -71,13 +72,13 @@
                             <span>Mes Achats</span>
                         </a>
                         <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
-                            <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link group btn-active-scale" aria-label="Param�¨tres">
+                            <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
                                 <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                                <span>Param�¨tres</span>
+                                <span>Paramètres</span>
                             </a>
                             <a href="#" onclick="if(window.AuthManager) AuthManager.logout(); return false;" class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2">
                                 <iconify-icon icon="solar:logout-2-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
-                                <span>Se d�©connecter</span>
+                                <span>Se déconnecter</span>
                             </a>
                         </div>
                     </nav>
@@ -98,9 +99,9 @@
                 <div class="flex justify-between items-end">
                     <div>
                         <h1 class="text-3xl font-bold tracking-tight">Bonjour, <span id="vendorDisplay">Vendeur</span></h1>
-                        <p class="text-gray-500 mt-1">Voici un aper�§u de l'activit�© de votre boutique aujourd'hui.</p>
+                        <p class="text-gray-500 mt-1">Voici un aperçu de l'activité de votre boutique aujourd'hui.</p>
                     </div>
-                    <a href="./publish"
+                    <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/publish')"
                         class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all btn-active-scale">Ajouter
                         un produit</a>
                 </div>
@@ -118,7 +119,7 @@
                 <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Prospects Uniques</p>
                     <div class="text-3xl font-black text-gray-900" id="vendorOrders">0</div>
-                    <p class="text-xs text-gray-400 mt-2 font-bold font-medium pt-1">Activit�© r�©cente</p>
+                    <p class="text-xs text-gray-400 mt-2 font-bold font-medium pt-1">Activité récente</p>
                 </div>
                 <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Produits en ligne</p>
@@ -146,7 +147,7 @@
                 <!-- Sales Chart -->
                 <div class="glass-panel p-8">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-bold text-gray-900">Int�©r�ªt pour vos produits</h3>
+                        <h3 class="font-bold text-gray-900">Intérêt pour vos produits</h3>
                         <div
                             class="text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md">
                             WhatsApp</div>
@@ -191,7 +192,7 @@
                 <!-- Recent Activity (New for Vendor) -->
                 <div class="glass-panel p-8 lg:col-span-2">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-bold text-gray-900">Activit�©s R�©centes de la Boutique</h3>
+                        <h3 class="font-bold text-gray-900">Activités Récentes de la Boutique</h3>
                         <iconify-icon icon="solar:history-bold" width="20" class="text-gray-300"></iconify-icon>
                     </div>
                     <div id="vendor-activity-feed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -235,7 +236,7 @@
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-xl font-bold">Mes Achats</h2>
                         <div class="bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
-                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total d�©pens�©</p>
+                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total dépensé</p>
                              <p class="font-black text-gray-900" id="vendorPurchasesTotal">0 FC</p>
                         </div>
                     </div>
@@ -252,7 +253,7 @@
                     <!-- Profile Photo Card -->
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-2">Photo de Profil (Logo)</h2>
-                        <p class="text-sm text-gray-400 mb-6">Cette image repr�©sentera votre boutique sur NewKet.</p>
+                        <p class="text-sm text-gray-400 mb-6">Cette image représentera votre boutique sur NewKet.</p>
 
                         <!-- Preview -->
                         <div class="flex items-center gap-8">
@@ -270,8 +271,8 @@
 
                             <div class="flex-1 space-y-4">
                                 <p class="text-xs text-gray-500 leading-relaxed">
-                                    <strong>Conseil :</strong> Utilisez une image carr�©e (proportion 1:1) pour un meilleur affichage. 
-                                    Le format PNG ou JPG est recommand�©.
+                                    <strong>Conseil :</strong> Utilisez une image carrée (proportion 1:1) pour un meilleur affichage. 
+                                    Le format PNG ou JPG est recommandé.
                                 </p>
                                 <button id="saveAvatarBtn" class="bg-black text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>
                                     Enregistrer le logo
@@ -291,7 +292,7 @@
                     <!-- Cover Photo Card -->
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-2">Photo de Couverture</h2>
-                        <p class="text-sm text-gray-400 mb-6">Cette image s'affiche en arri�¨re-plan de votre boutique publique.</p>
+                        <p class="text-sm text-gray-400 mb-6">Cette image s'affiche en arrière-plan de votre boutique publique.</p>
 
                         <!-- Preview -->
                         <div id="coverPreviewContainer" class="relative w-full h-48 rounded-2xl overflow-hidden bg-gray-100 mb-4 group cursor-pointer border-2 border-dashed border-gray-200 hover:border-black transition-all" onclick="document.getElementById('coverPhotoInput').click()">
@@ -299,7 +300,7 @@
                             <div id="coverPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-400">
                                 <iconify-icon icon="solar:camera-add-bold" width="40" class="text-gray-300"></iconify-icon>
                                 <p class="text-xs font-bold uppercase tracking-widest">Cliquer pour choisir une image</p>
-                                <p class="text-[10px] text-gray-300">JPG, PNG â�� Max 5 Mo</p>
+                                <p class="text-[10px] text-gray-300">JPG, PNG à Max 5 Mo</p>
                             </div>
                             <!-- Overlay on hover when image is set -->
                             <div id="coverOverlay" class="absolute inset-0 bg-black/50 hidden items-center justify-center gap-2 text-white group-hover:flex transition-all">
@@ -340,7 +341,7 @@
                                 <input id="vSetEmail" name="vSetEmail" type="email" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="votre@email.com">
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">D�©lai d'exp�©dition</label>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Délai d'expédition</label>
                                 <input id="vSetShipping" name="vSetShipping" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Sous 24h, 48h...">
                             </div>
                             <button type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all">Enregistrer les modifications</button>
@@ -356,12 +357,12 @@
                 <div class="glass-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                         <div>
-                            <h2 class="text-xl font-bold" id="vModalOrderId">D�©tails de la commande</h2>
+                            <h2 class="text-xl font-bold" id="vModalOrderId">Détails de la commande</h2>
                             <p class="text-xs text-gray-500 font-bold uppercase tracking-widest" id="vModalOrderDate"></p>
                         </div>
                         <button onclick="closeOrderDetailModal()"
                             class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"
-                            aria-label="Fermer les d�©tails de la commande">
+                            aria-label="Fermer les détails de la commande">
                             <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                         </button>
                     </div>
@@ -387,7 +388,7 @@
 
                         <!-- Items -->
                         <div>
-                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">Articles command�©s</p>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">Articles commandés</p>
                             <div id="vModalOrderItems" class="space-y-4">
                                 <!-- Items injected here -->
                             </div>
@@ -400,7 +401,7 @@
                                 <div class="text-2xl font-black text-gray-900" id="vModalOrderTotal">0 FC</div>
                             </div>
                             <div class="flex gap-2" id="vModalActions">
-                                <button id="btnMarkDelivered" class="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-gray-800 transition-all">Marquer comme livr�©
+                                <button id="btnMarkDelivered" class="px-4 py-2 bg-black text-white rounded-xl text-xs font-bold hover:bg-gray-800 transition-all">Marquer comme livré
                                 <button id="btnMarkCancelled" class="px-4 py-2 border border-red-100 text-red-500 rounded-xl text-xs font-bold hover:bg-red-50 transition-all">Annuler</button>
                             </div>
                         </div>
@@ -409,7 +410,7 @@
                         <div class="bg-blue-50 p-4 rounded-xl flex items-start gap-3">
                             <iconify-icon icon="solar:info-circle-bold" class="text-blue-500 shrink-0" width="20"></iconify-icon>
                             <p class="text-[10px] text-blue-700 leading-relaxed font-medium">
-                                <strong>Note :</strong> Les paiements s'effectuent directement entre vous et le client. NewKet ne pr�©l�¨ve aucune commission sur vos ventes.
+                                <strong>Note :</strong> Les paiements s'effectuent directement entre vous et le client. NewKet ne prélève aucune commission sur vos ventes.
                             </p>
                         </div>
                     </div>
@@ -445,7 +446,7 @@
                     const activeLink = document.querySelector('a[onclick*="' + tabId + '"]');
                     if (activeLink) activeLink.classList.add('active');
 
-                    // Charger les donn�©es de l'onglet
+                    // Charger les données de l'onglet
                     if (tabId === 'dashboard') renderVendorDashboard();
                     else if (tabId === 'products') renderVendorProducts();
                     else if (tabId === 'leads') renderVendorLeads();
@@ -556,7 +557,7 @@
 
                             try {
                                 const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
-                                if (!user) throw new Error('Non authentifi�©');
+                                if (!user) throw new Error('Non authentifié');
 
                                 const ext = _selectedAvatarFile.name.split('.').pop();
                                 const filePath = `avatars/${user.id}_${Date.now()}.${ext}`;
@@ -564,7 +565,7 @@
                                 if (progressBar) progressBar.style.width = '60%';
 
                                 const publicUrl = await window.SupabaseAdapter.uploadFile('user-assets', filePath, _selectedAvatarFile);
-                                if (!publicUrl) throw new Error('Upload �©chou�©');
+                                if (!publicUrl) throw new Error('Upload échoué');
 
                                 if (progressBar) progressBar.style.width = '85%';
 
@@ -581,7 +582,7 @@
 
                                 if (progressBar) progressBar.style.width = '100%';
                                 setTimeout(() => { if (progressDiv) progressDiv.classList.add('hidden'); }, 1500);
-                                if (window.showToast) showToast('Logo mis �  jour avec succ�¨s !', 'success');
+                                if (window.showToast) showToast('Logo mis à jour avec succès !', 'success');
                                 _selectedAvatarFile = null;
                                 updateVendorName(); // Refresh sidebar
 
@@ -661,11 +662,11 @@
                             saveCoverBtn.disabled = true;
                             if (progressDiv) progressDiv.classList.remove('hidden');
                             if (progressBar) progressBar.style.width = '30%';
-                            if (progressLabel) progressLabel.textContent = 'Pr�©paration...';
+                            if (progressLabel) progressLabel.textContent = 'Préparation...';
 
                             try {
                                 const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
-                                if (!user) throw new Error('Non authentifi�©');
+                                if (!user) throw new Error('Non authentifié');
 
                                 const ext = _selectedCoverFile.name.split('.').pop();
                                 const filePath = `covers/${user.id}.${ext}`;
@@ -676,7 +677,7 @@
                                 // Upload to Supabase Storage
                                 const publicUrl = await window.SupabaseAdapter.uploadFile('vendor-covers', filePath, _selectedCoverFile);
 
-                                if (!publicUrl) throw new Error('Upload �©chou�©');
+                                if (!publicUrl) throw new Error('Upload échoué');
 
                                 if (progressBar) progressBar.style.width = '85%';
                                 if (progressLabel) progressLabel.textContent = 'Sauvegarde...';
@@ -688,15 +689,15 @@
                                 ProfileManager.saveProfile({ ...ProfileManager.getProfile(), cover_image: publicUrl });
 
                                 if (progressBar) progressBar.style.width = '100%';
-                                if (progressLabel) progressLabel.textContent = 'Termin�© !';
+                                if (progressLabel) progressLabel.textContent = 'Terminé !';
 
                                 setTimeout(() => { if (progressDiv) progressDiv.classList.add('hidden'); }, 1500);
-                                if (window.showToast) showToast('Photo de couverture mise �  jour !', 'success');
+                                if (window.showToast) showToast('Photo de couverture mise à jour !', 'success');
                                 _selectedCoverFile = null;
 
                             } catch(err) {
                                 console.error('[Cover] Upload error:', err);
-                                if (window.showToast) showToast('Erreur lors de l\'upload. R�©essayez.', 'error');
+                                if (window.showToast) showToast('Erreur lors de l\'upload. Réessayez.', 'error');
                                 if (progressDiv) progressDiv.classList.add('hidden');
                             } finally {
                                 saveCoverBtn.disabled = false;
@@ -742,8 +743,8 @@
                                 console.error('[Settings] Error saving to Supabase:', err);
                             }
                             
-                            if (window.showToast) showToast('Param�¨tres de la boutique enregistr�©s !', 'success');
-                            else alert('Param�¨tres enregistr�©s !');
+                            if (window.showToast) showToast('Paramètres de la boutique enregistrés !', 'success');
+                            else alert('Paramètres enregistrés !');
 
                             // Refresh UI
                             if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.company_name;
@@ -774,28 +775,48 @@
                     let content = '';
                     if (status === 'pending') {
                         content = `
-                            <div class="bg-amber-50 border border-amber-100 p-6 rounded-[2rem] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
-                                    <iconify-icon icon="solar:info-circle-bold" width="24"></iconify-icon>
+                            <div class="relative overflow-hidden bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-700 shadow-sm">
+                                <div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-amber-500 shadow-xl shadow-amber-200/50 shrink-0">
+                                    <iconify-icon icon="solar:shield-warning-bold-duotone" width="32"></iconify-icon>
                                 </div>
-                                <div class="flex-1">
-                                    <h3 class="font-bold text-amber-900">Compl�©tez votre profil vendeur</h3>
-                                    <p class="text-sm text-amber-700">Vous devez soumettre vos informations pour commencer �  vendre sur NewKet.</p>
+                                <div class="flex-1 text-center md:text-left">
+                                    <div class="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                        <h3 class="font-black text-amber-900 text-lg">Finalisez votre installation</h3>
+                                        <span class="px-2 py-0.5 bg-amber-500 text-white text-[9px] font-black rounded-full uppercase tracking-tighter">Action Requise</span>
+                                    </div>
+                                    <p class="text-sm text-amber-700/80 leading-relaxed max-w-xl">Votre aventure NewKet commence ici. Soumettez vos informations pour que notre équipe puisse valider votre boutique exclusive.</p>
                                 </div>
-                                <a href="./seller-onboarding" class="bg-amber-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-amber-700 transition-all shadow-lg shadow-amber-200/50">Compl�©ter maintenant</a>
+                                <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/seller-onboarding')" class="bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs hover:bg-black transition-all shadow-xl shadow-gray-200 flex items-center gap-2 group">
+                                    Compléter mon profil
+                                    <iconify-icon icon="solar:arrow-right-linear" class="group-hover:translate-x-1 transition-transform"></iconify-icon>
+                                </a>
+                                <!-- Decorative element -->
+                                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-amber-200/20 rounded-full blur-3xl"></div>
                             </div>
                         `;
                     } else if (status === 'submitted') {
                         content = `
-                            <div class="bg-blue-50 border border-blue-100 p-6 rounded-[2rem] flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-                                <div class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-600 shrink-0">
-                                    <iconify-icon icon="solar:clock-circle-bold" width="24"></iconify-icon>
+                            <div class="relative overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-700 shadow-sm">
+                                <div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-blue-500 shadow-xl shadow-blue-200/50 shrink-0">
+                                    <iconify-icon icon="solar:reorder-bold-duotone" width="32" class="animate-pulse"></iconify-icon>
                                 </div>
-                                <div class="flex-1">
-                                    <h3 class="font-bold text-blue-900">Validation en cours</h3>
-                                    <p class="text-sm text-blue-700">Votre demande est en cours d'examen par notre �©quipe. Vous recevrez une notification d�¨s que vous pourrez publier.</p>
+                                <div class="flex-1 text-center md:text-left">
+                                    <div class="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                        <h3 class="font-black text-blue-900 text-lg">Validation en cours</h3>
+                                        <span class="px-2 py-0.5 bg-blue-500 text-white text-[9px] font-black rounded-full uppercase tracking-tighter">En cours</span>
+                                    </div>
+                                    <p class="text-sm text-blue-700/80 leading-relaxed max-w-xl">Votre demande est entre les mains de nos experts. Vous recevrez une notification d'approbation sous peu.</p>
                                 </div>
-                                <div class="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl font-bold text-[10px] uppercase tracking-widest">En attente</div>
+                                <div class="flex items-center gap-4">
+                                    <div class="flex -space-x-2">
+                                        <div class="w-8 h-8 rounded-full border-2 border-white bg-blue-100"></div>
+                                        <div class="w-8 h-8 rounded-full border-2 border-white bg-blue-200"></div>
+                                        <div class="w-8 h-8 rounded-full border-2 border-white bg-blue-300"></div>
+                                    </div>
+                                    <span class="text-[10px] font-black text-blue-900 uppercase tracking-widest">Team NewKet</span>
+                                </div>
+                                <!-- Decorative element -->
+                                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-200/20 rounded-full blur-3xl"></div>
                             </div>
                         `;
                     } else if (status === 'rejected') {
@@ -805,10 +826,10 @@
                                     <iconify-icon icon="solar:danger-bold" width="24"></iconify-icon>
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="font-bold text-red-900">Profil rejet�©</h3>
-                                    <p class="text-sm text-red-700">Votre profil n'a pas pu �ªtre valid�©. Veuillez v�©rifier vos informations et soumettre �  nouveau.</p>
+                                    <h3 class="font-bold text-red-900">Profil rejeté</h3>
+                                    <p class="text-sm text-red-700">Votre profil n'a pas pu être validé. Veuillez vérifier vos informations et soumettre à nouveau.</p>
                                 </div>
-                                <a href="./seller-onboarding" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-red-700 transition-all shadow-lg shadow-red-200/50">R�©essayer</a>
+                                <a href="./seller-onboarding" class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-xs hover:bg-red-700 transition-all shadow-lg shadow-red-200/50">Réessayer</a>
                             </div>
                         `;
                     }
@@ -902,15 +923,15 @@
                                     <p class="text-[10px] font-black text-gray-400 uppercase">${ActivityManager.formatTime(a.time)}</p>
                                 </div>
                             </div>
-                        `).join('') : '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activit�©.</p>';
+                        `).join('') : '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activité.</p>';
                     }
             updateStatusBanner();
             window.addEventListener('userStatusUpdated', updateStatusBanner);
                 }
 
                 function getStatusColor(status) {
-                    if (status === 'Livr�©') return 'bg-green-50 text-green-600';
-                    if (status === 'Annul�©') return 'bg-red-50 text-red-600';
+                    if (status === 'Livré') return 'bg-green-50 text-green-600';
+                    if (status === 'Annulé') return 'bg-red-50 text-red-600';
                     return 'bg-blue-50 text-blue-600';
                 }
 
@@ -1000,74 +1021,81 @@
                 }
 
                 async function deleteProduct(id) {
-                    if (confirm('Voulez-vous vraiment supprimer cet article ? Cette action est irr�©versible.')) {
+                    if (confirm('Voulez-vous vraiment supprimer cet article ? Cette action est irréversible.')) {
                         try {
                             const success = await ProductManager.deleteProduct(id);
                             if (success) {
-                                if (window.showToast) showToast('Produit supprim�© !', 'success');
+                                if (window.showToast) showToast('Produit supprimé !', 'success');
                                 renderVendorDashboard(); // Refresh total count
                                 renderVendorProducts(); // Refresh grid
-                                ActivityManager.log(`Produit supprim�© de votre catalogue`, 'stock');
+                                ActivityManager.log(`Produit supprimé de votre catalogue`, 'stock');
                             }
                         } catch (error) {
                             if (window.showToast) showToast('Erreur lors de la suppression.', 'error');
-                        }
-                    }
-                }
-
-                function renderVendorPurchases() {
+                     function renderVendorPurchases() {
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     
-                    // On r�©cup�¨re les stats via le service customer d�©di�©
                     const stats = OrderManager.getCustomerStats(email, userId);
                     const myPurchases = stats.orders || [];
                     
                     const purchasesList = document.getElementById('vendor-purchases-list');
                     if (!purchasesList) return;
 
-                    // Update Total Spent
                     if (document.getElementById('vendorPurchasesTotal')) {
                         document.getElementById('vendorPurchasesTotal').textContent = CurrencyManager.formatPrice(stats.totalSpent || 0);
                     }
 
                     if (myPurchases.length === 0) {
                         purchasesList.innerHTML = `
-                            <div class="text-center py-12">
-                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
-                                    <iconify-icon icon="solar:bag-heart-bold" width="32"></iconify-icon>
+                            <div class="flex flex-col items-center justify-center py-20 px-4 text-center animate-in fade-in zoom-in-95 duration-700">
+                                <div class="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 text-gray-200 shadow-inner">
+                                    <iconify-icon icon="solar:bag-heart-bold-duotone" width="48"></iconify-icon>
                                 </div>
-                                <p class="text-sm text-gray-400">Vous n'avez pas encore effectu�© d'achats.</p>
-                                <a href="../" class="inline-block mt-4 text-xs font-bold text-black border-b border-black">Commencer mes achats</a>
+                                <h4 class="font-black text-gray-900 mb-2">Aucun achat pour le moment</h4>
+                                <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">Vos coups de cœur NewKet apparaîtront ici dès votre première commande.</p>
+                                <a href="../" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
+                                    Découvrir la collection
+                                </a>
                             </div>
                         `;
                     } else {
-                        purchasesList.innerHTML = myPurchases.map(o => `
-                            <div class="glass-panel p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-lg transition-all group">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-600 border border-gray-100">
-                                        <iconify-icon icon="solar:bag-heart-bold" width="24"></iconify-icon>
+                        purchasesList.innerHTML = myPurchases.map((o, index) => `
+                            <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700" style="animation-delay: ${index * 100}ms">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-black group-hover:bg-gray-100 transition-colors shrink-0">
+                                        <iconify-icon icon="solar:cart-large-minimalistic-bold-duotone" width="28"></iconify-icon>
                                     </div>
                                     <div>
-                                        <h4 class="font-bold text-gray-900">${o.product_name || 'Commande multi-produits'}</h4>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">${new Date(o.date || o.timestamp).toLocaleDateString()}</span>
-                                            <span class="text-gray-300">â�¢</span>
-                                            <span class="px-2 py-0.5 rounded-md text-[9px] font-bold ${getPaymentStatusStyle(o.payment_status)}">${o.payment_status || 'N/A'}</span>
+                                        <h4 class="font-black text-gray-900 group-hover:translate-x-1 transition-transform duration-300">
+                                            ${o.product_name || 'Commande multi-produits'}
+                                        </h4>
+                                        <div class="flex items-center gap-3 mt-1.5">
+                                            <span class="text-[9px] font-black uppercase tracking-tighter text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
+                                                ${new Date(o.date || o.timestamp).toLocaleDateString()}
+                                            </span>
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter ${getPaymentStatusStyle(o.payment_status)}">
+                                                ${o.payment_status || 'N/A'}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-4 w-full sm:w-auto">
-                                    <div class="text-left sm:text-right flex-1 sm:flex-none">
-                                        <p class="font-black text-sm text-gray-900">${CurrencyManager.formatPrice(o.total)}</p>
-                                        <p class="text-[10px] text-gray-500 font-bold">Vendu par: ${o.supplier_name || o.supplier_email || 'Boutique'}</p>
+                                <div class="flex items-center gap-6 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-50">
+                                    <div class="flex flex-col items-start sm:items-end flex-1 sm:flex-none">
+                                        <p class="font-black text-lg text-gray-900 leading-none mb-1">${CurrencyManager.formatPrice(o.total)}</p>
+                                        <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest">
+                                            By: <span class="text-gray-600">${o.supplier_name || o.supplier_email || 'NewKet Boutique'}</span>
+                                        </p>
                                     </div>
-                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${o.status}</span>
-                                    <button onclick="openOrderDetailModal('${o.id}')" 
-                                        aria-label="Voir les d�©tails de l'achat"
-                                        class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                                        <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
-                                    </button>
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${getStatusColor(o.status)}">
+                                            ${o.status}
+                                        </span>
+                                        <button onclick="openOrderDetailModal('${o.id}')" 
+                                            class="w-12 h-12 rounded-2xl bg-gray-900 text-white flex items-center justify-center hover:bg-black transition-all shadow-lg shadow-gray-200 active:scale-95 group/btn">
+                                            <iconify-icon icon="solar:maximize-square-minimalistic-bold" width="20" class="group-hover/btn:scale-110 transition-transform"></iconify-icon>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         `).join('');
@@ -1110,7 +1138,7 @@
                                     </div>
                                     <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${o.status}</span>
                                     <button onclick="openOrderDetailModal('${o.id}')" 
-                                        aria-label="Voir les d�©tails du prospect"
+                                        aria-label="Voir les détails du prospect"
                                         class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                                         <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
                                     </button>
@@ -1131,7 +1159,7 @@
                     });
                     document.getElementById('vModalCustomerName').textContent = order.customer?.name || order.customer_name || 'Client';
                     document.getElementById('vModalCustomerEmail').textContent = order.customer?.email || 'Pas d\'email';
-                    document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de num�©ro';
+                    document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numéro';
                     document.getElementById('vModalOrderTotal').textContent = CurrencyManager.formatPrice(order.total);
 
                     const payStatusEl = document.getElementById('vModalPaymentStatus');
@@ -1158,7 +1186,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="font-bold text-sm">${CurrencyManager.formatPrice(item.price)}</p>
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Qt�©: ${item.quantity || 1}</p>
+                                <p class="text-[10px] font-black text-gray-400 uppercase">Qté: ${item.quantity || 1}</p>
                             </div>
                         </div>
                     `).join('');
@@ -1167,8 +1195,8 @@
                     const actions = document.getElementById('vModalActions');
                     if (order.status === 'En attente') {
                         actions.classList.remove('hidden');
-                        document.getElementById('btnMarkDelivered').onclick = () => updateVendorOrderStatus(order.id, 'Livr�©');
-                        document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'Annul�©');
+                        document.getElementById('btnMarkDelivered').onclick = () => updateVendorOrderStatus(order.id, 'Livré');
+                        document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'Annulé');
                     } else {
                         actions.classList.add('hidden');
                     }
@@ -1192,7 +1220,7 @@
                             
                             // Activity log
                             const order = OrderManager.getOrderById(orderId);
-                            ActivityManager.log(`Commande #${orderId.substring(0,6)} marqu�©e comme ${newStatus}`, 'order');
+                            ActivityManager.log(`Commande #${orderId.substring(0,6)} marquée comme ${newStatus}`, 'order');
                         }
                     } catch (error) {
                         showToast('Une erreur est survenue.', 'error');

@@ -1,4 +1,4 @@
-/* NewKet - Hero Background Slider Service */
+﻿/* NewKet - Hero Background Slider Service */
 
 const HeroSlider = {
     currentIndex: 0,

@@ -1,13 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" class="bg-[#f8fafc]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paiement Confirm�© â�� NewKet</title>
+    <title>Paiement Confirmé à NewKet</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="/src/services/app.js" type="module"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         .glass-premium {
@@ -42,39 +43,39 @@
                 </div>
             </div>
 
-            <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 mb-4">Paiement Confirm�© !</h1>
+            <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 mb-4">Paiement Confirmé !</h1>
             <p class="text-gray-500 font-medium mb-12 text-lg leading-relaxed">
-                Merci pour votre confiance. Votre commande est d�©sormais s�©curis�©e et le vendeur a �©t�© imm�©diatement alert�©.
+                Merci pour votre confiance. Votre commande est désormais sécurisée et le vendeur a été immédiatement alerté.
             </p>
 
             <!-- Order Card -->
             <div class="bg-gray-50/50 rounded-3xl p-6 mb-12 border border-gray-100/50 text-left space-y-4">
                 <div class="flex items-center justify-between border-b border-gray-100 pb-4">
-                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest">R�©f�©rence Transaction</span>
+                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Référence Transaction</span>
                     <span id="txRef" class="font-mono text-sm font-bold text-gray-900">...</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Statut</span>
                     <div class="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-widest">
                         <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        Succ�¨s
+                        Succès
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="../index.html" class="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-white border border-gray-200 text-gray-900 font-black text-sm uppercase tracking-widest hover:bg-gray-50 active:scale-[0.98] transition-all shadow-sm">
+                <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('')" class="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-white border border-gray-200 text-gray-900 font-black text-sm uppercase tracking-widest hover:bg-gray-50 active:scale-[0.98] transition-all shadow-sm">
                     <iconify-icon icon="solar:home-2-linear" width="20"></iconify-icon>
                     Accueil
                 </a>
-                <a href="./customer-dashboard" class="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl hero-gradient text-white font-black text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-black/20">
+                <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/customer-dashboard')" class="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl hero-gradient text-white font-black text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-black/20">
                     Mes Commandes
                     <iconify-icon icon="solar:alt-arrow-right-linear" width="20"></iconify-icon>
                 </a>
             </div>
 
             <p class="mt-12 text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">
-                S�©curis�© par Flutterwave & NewKet Escrow
+                Sécurisé par Flutterwave & NewKet Escrow
             </p>
         </div>
     </div>

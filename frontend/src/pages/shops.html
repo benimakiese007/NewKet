@@ -12,8 +12,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Boutiques â�� NewKet</title>
-    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <title>Boutiques à NewKet</title>
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -161,8 +161,8 @@
         <div class="mb-16 text-center">
             <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-gray-900 mb-6 uppercase">Nos Maisons de Luxe
             </h1>
-            <p class="text-gray-500 text-lg max-w-2xl mx-auto font-medium">L'�©l�©gance �  travers nos partenaires
-                d'exception. Chaque boutique est un univers de raffinement s�©lectionn�© pour vous.</p>
+            <p class="text-gray-500 text-lg max-w-2xl mx-auto font-medium">L'élégance à travers nos partenaires
+                d'exception. Chaque boutique est un univers de raffinement sélectionné pour vous.</p>
 
             <!-- Shop Search -->
             <div class="mt-10 max-w-xl mx-auto relative group">
@@ -186,9 +186,9 @@
         <div id="noShopsMsg"
             class="hidden text-center py-32 bg-gray-50 rounded-[3rem] border border-dashed border-gray-200">
             <iconify-icon icon="solar:shop-2-linear" width="64" class="text-gray-200 mb-4"></iconify-icon>
-            <p class="text-gray-400 font-bold uppercase tracking-widest">Aucune boutique n'a �©t�© trouv�©e</p>
+            <p class="text-gray-400 font-bold uppercase tracking-widest">Aucune boutique n'a été trouvée</p>
             <button onclick="document.getElementById('shopSearchInput').value=''; loadShops();"
-                class="mt-4 text-xs font-black border-b-2 border-black pb-1 uppercase tracking-tighter">R�©initialiser la
+                class="mt-4 text-xs font-black border-b-2 border-black pb-1 uppercase tracking-tighter">Réinitialiser la
                 vue</button>
         </div>
     </main>
@@ -260,7 +260,7 @@
                 noShops.classList.add('hidden');
                 grid.innerHTML = filteredSellers.map(seller => {
                     const avatar = seller.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(seller.company_name || seller.name || 'Vendor') + '&background=f3f4f6&color=000&bold=true');
-                    const dateJoined = seller.date_joined ? new Date(seller.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'r�©cemment';
+                    const dateJoined = seller.date_joined ? new Date(seller.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
                     const shopName = seller.company_name || seller.name || 'Boutique sans nom';
 
                     return `
@@ -275,7 +275,7 @@
 
                             <div class="space-y-2">
                                 <h3 class="text-xl font-black text-gray-900 group-hover:text-black transition-colors leading-tight">${shopName}</h3>
-                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">${seller.store_description ? seller.store_description.substring(0,30)+'...' : 'Partenaire Certifi�©'}</p>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">${seller.store_description ? seller.store_description.substring(0,30)+'...' : 'Partenaire Certifié'}</p>
                             </div>
 
                             <div class="pt-6 border-t border-gray-50 w-full flex items-center justify-between">

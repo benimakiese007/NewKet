@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewKet Profile Manager
  * Handles local user profile data and synchronization with Supabase.
  */

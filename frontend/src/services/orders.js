@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewKet Order Manager
  * Handles WhatsApp leads / orders data for admin, vendor, and customer dashboards.
  * Since NewKet is a lead-gen marketplace (WhatsApp clicks), "orders" = leads/prospects.

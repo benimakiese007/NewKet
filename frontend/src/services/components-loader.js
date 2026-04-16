@@ -31,7 +31,7 @@ const HEADER_HTML = `
                     title="Menu" aria-label="Ouvrir le menu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
-                <a href="{{ROOT}}index" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
+                <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center gap-1 sm:gap-3">
                     <span
                         class="text-lg sm:text-xl font-bold tracking-tighter text-gray-900 max-[360px]:hidden">NEWKET</span>
                 </a>
@@ -50,7 +50,7 @@ const HEADER_HTML = `
                         class="bg-slate-900 text-white px-6 py-2 m-1 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all uppercase tracking-wider hidden md:block btn-active-scale">RECHERCHE</button>
                 </div>
                 <!-- Publish Button (Desktop Only) -->
-                <a href="{{ROOT}}pages/publish"
+                <a href="{{ROOT}}src/pages/publish.html"
                     class="order-last shrink-0 bg-gray-900 text-white px-4 md:px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors hidden sm:flex items-center gap-2 publish-btn h-[40px] whitespace-nowrap btn-active-scale"
                     aria-label="Vendre un article">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
@@ -61,18 +61,9 @@ const HEADER_HTML = `
             </div>
 
             <!-- Right: Icons -->
-            <div class="order-2 sm:order-3 flex items-center gap-3 sm:gap-4 shrink-0">
-                <!-- Currency Switch -->
-                <div class="hidden sm:block currency-switch-segmented" id="currencyToggle" data-active="CDF">
-                    <div class="segmented-track">
-                        <div class="segmented-handle"></div>
-                        <span class="segmented-label" data-currency="USD">USD</span>
-                        <span class="segmented-label" data-currency="CDF">CDF</span>
-                    </div>
-                </div>
-
+            <div class="order-2 sm:order-3 flex items-center gap-4 shrink-0">
                 <!-- Notifications -->
-                <a href="{{ROOT}}pages/notifications"
+                <a href="{{ROOT}}src/pages/notifications.html"
                     class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Notifications" aria-label="Voir les notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
@@ -82,7 +73,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}pages/favorites" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                <a href="{{ROOT}}src/pages/favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Favoris" aria-label="Voir les favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
@@ -90,17 +81,11 @@ const HEADER_HTML = `
                         style="display:none; font-size:10px; width:18px; height:18px;">0</span>
                 </a>
 
-                <!-- Account (MODIFIED: removed hidden sm:block) -->
+                <!-- Account -->
                 <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Compte" id="accountLink" aria-label="Mon compte">
                     <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
                 </a>
-
-                <!-- Theme Toggle -->
-                <button class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors hidden sm:block btn-active-scale"
-                    data-theme-toggle onclick="ThemeManager.toggle()" title="Passer en mode sombre" aria-label="Passer en mode sombre">
-                    <iconify-icon data-theme-icon icon="solar:moon-bold" width="22" class="text-gray-600"></iconify-icon>
-                </button>
             </div>
         </div>
 
@@ -108,22 +93,22 @@ const HEADER_HTML = `
         <div class="border-t border-gray-50 bg-white hidden sm:block">
             <div class="w-full px-4 sm:px-8">
                 <nav class="flex items-center gap-2 overflow-x-auto py-2 -mx-2 scroll-affordance" style="scrollbar-width:none;">
-                    <a href="{{ROOT}}pages/catalog"
+                    <a href="{{ROOT}}src/pages/catalog.html"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Toutes les pièces</a>
-                    <a href="{{ROOT}}pages/shops"
+                    <a href="{{ROOT}}src/pages/shops.html"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Boutiques</a>
-                    <a href="{{ROOT}}pages/forum"
+                    <a href="{{ROOT}}src/pages/forum.html"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Forum</a>
-                    <a href="{{ROOT}}pages/catalog?category=Collections Femme"
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Collections Femme"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Collections Femme</a>
-                    <a href="{{ROOT}}pages/catalog?category=Style Homme"
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Style Homme"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Style Homme</a>
-                    <a href="{{ROOT}}pages/catalog?category=Tech & Gadgets"
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Tech & Gadgets</a>
-                    <a href="{{ROOT}}pages/catalog?category=Art de vivre"
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Art de vivre</a>
-                    <a href="{{ROOT}}pages/catalog?promo=true"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1 shrink-0">
+                    <a href="{{ROOT}}src/pages/catalog.html?promo=true"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-100 transition-colors flex items-center gap-1 shrink-0">
                         <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
                     </a>
                 </nav>
@@ -146,7 +131,7 @@ const HEADER_HTML = `
     <div class="flex-1 overflow-y-auto py-4">
         <!-- Guest Call to Action -->
         <div id="mobileGuestCTA" class="px-4 mb-6">
-            <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
+            <a href="/src/pages/login.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
                 <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                     <iconify-icon icon="solar:user-bold" width="24"></iconify-icon>
                 </div>
@@ -158,7 +143,7 @@ const HEADER_HTML = `
 
         <!-- Logged User Call to Action -->
         <div id="mobileLoggedCTA" class="px-4 mb-6" style="display: none;">
-            <a id="mobileLoggedLink" href="{{ROOT}}pages/customer-dashboard" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800 shadow-xl">
+            <a id="mobileLoggedLink" href="{{ROOT}}src/pages/customer-dashboard.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800 shadow-xl">
                 <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
                     <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden">
                     <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="30" class="text-white hidden"></iconify-icon>
@@ -172,19 +157,19 @@ const HEADER_HTML = `
         <div class="px-4 mb-6">
             <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Catégories</h3>
             <nav class="flex flex-col gap-1">
-                <a href="{{ROOT}}pages/catalog"
+                <a href="{{ROOT}}src/pages/catalog.html"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon> Toutes les pièces
                 </a>
-                <a href="{{ROOT}}pages/shops"
+                <a href="{{ROOT}}src/pages/shops.html"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon> Boutiques
                 </a>
-                <a href="{{ROOT}}pages/forum"
+                <a href="{{ROOT}}src/pages/forum.html"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum Communauté
                 </a>
-                <a href="{{ROOT}}pages/catalog?promo=true"
+                <a href="{{ROOT}}src/pages/catalog.html?promo=true"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-red-600 font-bold">
                     <iconify-icon icon="solar:fire-bold" width="20"></iconify-icon> Promos
                 </a>
@@ -194,14 +179,14 @@ const HEADER_HTML = `
         <div class="px-4 mb-6 border-t border-gray-50 pt-6">
             <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Personnel</h3>
             <nav class="flex flex-col gap-1">
-                <a href="{{ROOT}}pages/notifications"
+                <a href="{{ROOT}}src/pages/notifications.html"
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:bell-linear"
                             width="20"></iconify-icon> Notifications</span>
                     <span
                         class="notification-badge bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
-                <a href="{{ROOT}}pages/favorites"
+                <a href="{{ROOT}}src/pages/favorites.html"
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:heart-linear"
                             width="20"></iconify-icon> Favoris</span>
@@ -212,7 +197,7 @@ const HEADER_HTML = `
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium w-full text-left" title="Changer le thème">
                     <span class="flex items-center gap-3"><iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon> Mode Sombre</span>
                 </button>
-                <a href="{{ROOT}}pages/publish"
+                <a href="{{ROOT}}src/pages/publish.html"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900 text-white font-medium mt-2 publish-btn btn-active-scale">
                     <iconify-icon icon="solar:add-circle-linear" width="20"></iconify-icon> Vendre un article
                 </a>
@@ -266,8 +251,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                 <ul class="space-y-4">
                     <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
                     <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mes Activités</a></li>
-                    <li><a href="{{ROOT}}pages/about" class="text-gray-400 hover:text-white text-sm transition-colors">Aide & FAQ</a></li>
-                    <li><a href="{{ROOT}}pages/publish" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
+                    <li><a href="{{ROOT}}src/pages/about.html" class="text-gray-400 hover:text-white text-sm transition-colors">Aide & FAQ</a></li>
+                    <li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
                 </ul>
             </div>
             <div class="lg:col-span-4 space-y-6">
@@ -283,8 +268,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
         <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience Luxe</p>
             <div class="flex gap-8">
-                <a href="{{ROOT}}pages/privacy" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
-                <a href="{{ROOT}}pages/terms" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
+                <a href="{{ROOT}}src/pages/privacy.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
+                <a href="{{ROOT}}src/pages/terms.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-gray-500 text-[10px] uppercase tracking-widest font-semibold italic">Designed by</span>
@@ -298,7 +283,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm flex h-[60px] sm:h-[64px] items-center justify-center">
-    <a href="{{ROOT}}index" class="flex items-center group" title="Retour à l'accueil">
+    <a href="{{ROOT}}index.html" class="flex items-center group" title="Retour à l'accueil">
         <span class="text-xl sm:text-2xl font-black tracking-tighter text-gray-900 transition-transform group-hover:scale-105">NEWKET</span>
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-gray-300">
@@ -310,11 +295,13 @@ const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 const ComponentLoader = {
     async init() {
 
-        // Determine if we are on the home page (index.html or root)
+        // Determine current page status
         const currentPath = window.location.pathname;
-        const isHomePage = currentPath === '/' || currentPath === '' || currentPath.endsWith('index.html') || currentPath.endsWith('/index') || currentPath.endsWith('/');
-        // Pages that require focus/conversion
         const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish');
+
+        // Prevent double initialization
+        if (window.componentsLoading) return;
+        window.componentsLoading = true;
 
         const componentsToLoad = [];
 
@@ -355,96 +342,48 @@ const ComponentLoader = {
         // Load newsletter manager for footer form
         if (!window.NewsletterManager) {
             const script = document.createElement('script');
-            script.src = this.getAdjustedPath('js/newsletter.js');
+            script.src = this.getAdjustedPath('/js/newsletter.js');
             document.head.appendChild(script);
         }
 
-        // Setup dynamic spacing for fixed header to prevent overlap
-        this.setupHeaderSpacing();
+        setTimeout(() => this.setupHeaderSpacing(), 50);
     },
 
+    /**
+     * Ensures page content is not hidden behind the fixed header.
+     */
     setupHeaderSpacing() {
-        const adjustSpacing = () => {
+        const adjust = () => {
             const header = document.querySelector('.main-header');
-            if (!header) return;
-            
+            const placeholder = document.getElementById('header-placeholder');
+            if (!header || !placeholder) return;
+
             const height = header.offsetHeight;
             if (height === 0) return;
-            
+
+            // Set global CSS variable for other components to use
+            document.documentElement.style.setProperty('--header-height', `${height}px`);
+
+            // Use a stable spacer instead of dynamic insertion if possible, 
+            // but for existing pages we stick to the dynamic spacer for backward compatibility.
             let spacer = document.getElementById('dynamic-header-spacer');
             if (!spacer) {
                 spacer = document.createElement('div');
                 spacer.id = 'dynamic-header-spacer';
-                spacer.style.width = '100%';
-                spacer.style.display = 'block';
-                spacer.style.flexShrink = '0';
-                
-                // insert after header placeholder
-                const placeholder = document.getElementById('header-placeholder');
-                if (placeholder && placeholder.parentNode) {
-                    placeholder.parentNode.insertBefore(spacer, placeholder.nextSibling);
-
-                    // Find the first REAL content element (skip empty intermediate placeholders)
-                    let targetElement = spacer.nextElementSibling;
-                    while (
-                        targetElement &&
-                        targetElement.tagName === 'DIV' &&
-                        targetElement.children.length === 0 &&
-                        targetElement.textContent.trim() === ''
-                    ) {
-                        targetElement = targetElement.nextElementSibling;
-                    }
-
-                    if (targetElement && (targetElement.tagName === 'MAIN' || targetElement.tagName === 'SECTION' || targetElement.tagName === 'DIV')) {
-                        // Ensure consistent visual breathing room between the header and page content.
-                        // If it doesn't already have explicit top padding, we can ensure a baseline.
-                        if (!targetElement.className.includes('pt-') && !targetElement.className.includes('py-')) {
-                            targetElement.classList.add('pt-6', 'sm:pt-8');
-                        }
-                    }
-                } else {
-                    document.body.insertBefore(spacer, document.body.firstChild);
-                }
-
-                // Remove hardcoded spacer elements if any
-                const staticSpacers = document.querySelectorAll('.h-28, .h-24, .h-32');
-                staticSpacers.forEach(s => {
-                    if(s.innerHTML.trim() === '' && !s.children.length) s.remove();
-                });
+                placeholder.insertAdjacentElement('afterend', spacer);
             }
-            
-            // Set exact height
-            const finalHeight = height;
-            
-            spacer.style.height = height + 'px';
-            document.documentElement.style.setProperty('--header-height', height + 'px');
-            // Remove unnecessary min-height and focus on exact height
-            spacer.style.minHeight = '0'; 
-            
-            // Ensure body and html don't have legacy padding-top
-            document.body.style.paddingTop = '0';
-            document.documentElement.style.paddingTop = '0';
-            
-            // Adjust scroll-padding-top for anchors (#)
-            document.documentElement.style.scrollPaddingTop = (finalHeight + 20) + 'px';
+
+            spacer.style.height = `${height}px`;
+            document.documentElement.style.scrollPaddingTop = `${height + 20}px`;
         };
 
-        // Run initially completely after rendering
-        setTimeout(adjustSpacing, 50);
-        setTimeout(adjustSpacing, 500); // Fail-safe for slow rendering
-
-        // Re-calculate on resize
-        window.addEventListener('resize', () => {
-            requestAnimationFrame(adjustSpacing);
-        });
-
-        // Observer for dynamic changes inside the header (like promos expanding)
-        const headerNode = document.querySelector('.main-header');
-        if (headerNode) {
-            const resizeObserver = new ResizeObserver(() => {
-                requestAnimationFrame(adjustSpacing);
-            });
-            resizeObserver.observe(headerNode);
+        adjust();
+        window.addEventListener('resize', adjust);
+        
+        // Observer for dynamic header changes (e.g. banners)
+        const header = document.querySelector('.main-header');
+        if (header && window.ResizeObserver) {
+            new ResizeObserver(adjust).observe(header);
         }
     },
 
@@ -485,22 +424,16 @@ const ComponentLoader = {
         // --- NEW: Sync Account Path Resolution ---
         const role = localStorage.getItem('newketRole');
         const email = localStorage.getItem('newketUserEmail');
-        let accountPath = 'pages/login';
+        let accountPath = 'src/pages/login.html';
         
         if (role && email) {
-            if (role === 'admin') accountPath = 'pages/admin/';
-            else if (role === 'supplier') accountPath = 'pages/vendor-dashboard';
-            else accountPath = 'pages/customer-dashboard';
-        }
-        
-        // If file:// protocol, keep .html extensions
-        const isFileProtocol = window.location.protocol === 'file:';
-        if (isFileProtocol) {
-            accountPath += '.html';
+            if (role === 'admin') accountPath = 'src/pages/admin/index.html';
+            else if (role === 'supplier') accountPath = 'src/pages/vendor-dashboard.html';
+            else accountPath = 'src/pages/customer-dashboard.html';
         }
 
         let processedHTML = html
-            .replace(/{{ROOT}}/g, rootPrefix)
+            .replace(/{{ROOT}}/g, '/')
             .replace(/{{ACCOUNT_PATH}}/g, accountPath);
         
         element.innerHTML = processedHTML;
@@ -515,32 +448,28 @@ const ComponentLoader = {
     },
 
     getAdjustedPath(path) {
-        // Utilisation robuste des chemins absolus via le serveur (Vite/Prod)
-        if (window.location.protocol !== 'file:') {
-            return '/' + path;
+        // Standardize to root-relative paths for consistent behavior across all levels.
+        const root = '/';
+        
+        // If the path already starts with / or is an absolute URL, return it as is.
+        if (path.startsWith('/') || path.startsWith('http')) {
+            return path;
         }
 
-        // Sécurité de contournement (Fallback pour ouverture des fichiers au protocole file://)
-        const pathname = window.location.pathname;
-        const parts = pathname.split('/').filter(p => p !== '');
+        // Standardize path: remove redundant ./ or leading /
+        let cleanPath = path.replace(/^\.\//, '').replace(/^\/+/, '');
         
-        let depth = 0;
-        const rIndex = parts.lastIndexOf('pages');
-        if (rIndex !== -1) {
-            depth = parts.length - rIndex - 1;
-        } else {
-            const srcIndex = parts.lastIndexOf('src');
-            if (srcIndex !== -1 && !pathname.endsWith('index.html')) {
-                depth = parts.length - srcIndex - 1;
-            }
+        // Ensure index/404 are relative to root, everything else relative to src/
+        if (cleanPath === 'index' || cleanPath === '404' || cleanPath.startsWith('index.html') || cleanPath.startsWith('404.html')) {
+            return root + cleanPath;
         }
 
-        let prefix = '';
-        for(let i=0; i<depth; i++) {
-            prefix += '../';
+        // Check if we need to prefix with src/
+        if (!cleanPath.startsWith('src/') && !cleanPath.startsWith('assets/') && !cleanPath.startsWith('public/')) {
+            cleanPath = 'src/' + cleanPath;
         }
-        
-        return prefix + path;
+
+        return root + cleanPath;
     }
 };
 

@@ -1,4 +1,4 @@
-/* NewKet EMarket - Main Orchestrator */
+﻿/* NewKet EMarket - Main Orchestrator */
 
 window.newketConfig = {
     exchangeRate: 2500

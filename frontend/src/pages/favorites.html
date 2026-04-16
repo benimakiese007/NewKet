@@ -12,8 +12,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Favoris â�� NewKet</title>
-    <meta name="description" content="D�©couvrez NewKet, la marketplace de luxe de r�©f�©rence en RDC. Achetez et vendez vos articles en toute s�©curit�©.">
+    <title>Favoris à NewKet</title>
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -48,7 +48,7 @@
         <div class="flex items-center justify-between mb-10">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Mes Favoris</h1>
-                <p id="fav-status" class="text-gray-500 text-sm mt-1">R�©cup�©ration de vos coups de c��ur...</p>
+                <p id="fav-status" class="text-gray-500 text-sm mt-1">Récupération de vos coups de céur...</p>
             </div>
             <button id="clearAllBtn"
                 class="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-4 py-2 rounded-xl">
@@ -62,9 +62,9 @@
             <div class="w-24 h-24 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
                 <iconify-icon icon="solar:heart-break-linear" width="48"></iconify-icon>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre liste de d�©sirs est vide</h2>
-            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous s�©duire par nos pi�¨ces d'exception et
-                enregistrez vos coups de c��ur ici.</p>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</h2>
+            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et
+                enregistrez vos coups de céur ici.</p>
             <a href="./catalog"
                 class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                 Voir le catalogue
@@ -139,7 +139,7 @@
                 return;
             }
 
-            if (statusText) statusText.textContent = "G�©rez vos articles coups de c��ur";
+            if (statusText) statusText.textContent = "Gérez vos articles coups de céur";
             empty.classList.add('hidden');
             grid.classList.remove('hidden');
 
@@ -182,11 +182,11 @@
         document.getElementById('clearAllBtn').onclick = () => {
             showConfirm(
                 'Tout effacer ?',
-                '�Štes-vous s�»r de vouloir supprimer tous vos articles favoris ? Cette action est irr�©versible.',
+                '�Štes-vous sûr de vouloir supprimer tous vos articles favoris ? Cette action est irréversible.',
                 () => {
                     window.FavoritesManager.clearAll();
                     renderFavorites();
-                    showToast('Tous les favoris ont �©t�© effac�©s', 'info');
+                    showToast('Tous les favoris ont été effacés', 'info');
                 }
             );
         };

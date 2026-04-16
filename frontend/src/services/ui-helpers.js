@@ -102,7 +102,6 @@ async function _processToastQueue() {
     }, { passive: true });
 
     // Auto close after 3s
-    autoCloseTimer = setTimeout(dismiss, 3000);
 }
 
 function createToastContainer() {
@@ -116,31 +115,35 @@ function createToastContainer() {
 }
 
 /**
- * Returns the relative path to the project root.
- * Re-added because it was used in previous logic.
+ * Returns the adjusted path for a given page/asset.
+ * Falls back to absolute root-relative paths if ComponentLoader is not available.
  */
-function getRootPath() {
-    const pathname = window.location.pathname;
-    const parts = pathname.split('/').filter(p => p !== '');
-    let depth = 0;
+function resolvePath(path) {
+    if (window.ComponentLoader) {
+        return window.ComponentLoader.getAdjustedPath(path);
+    }
+    // Fallback logic for absolute paths
+    const root = '/';
+    let cleanPath = path.replace(/^\.\//, '').replace(/^\/+/, '');
     
-    const rIndex = parts.lastIndexOf('pages');
-    if (rIndex !== -1) {
-        depth = parts.length - rIndex - 1;
-    } else {
-        const srcIndex = parts.lastIndexOf('src');
-        if (srcIndex !== -1 && !pathname.includes('index')) {
-            depth = parts.length - srcIndex - 1;
-        }
+    // Ensure index/404 are relative to root
+    if (cleanPath === 'index' || cleanPath === '404' || cleanPath.startsWith('index.html') || cleanPath.startsWith('404.html')) {
+        const ext = cleanPath.includes('.') ? '' : '.html';
+        return root + cleanPath + ext;
     }
 
-    let prefix = '';
-    for(let i=0; i<depth; i++) {
-        prefix += '../';
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const prefix = (cleanPath.startsWith('src/') || cleanPath.startsWith('assets/')) ? '' : 'src/';
+        const ext = cleanPath.includes('.') ? '' : '.html';
+        // assets should be inside src/ usually, but check if user meant assets/
+        if (cleanPath.startsWith('assets/')) return root + 'src/' + cleanPath;
+        return root + prefix + cleanPath + ext;
     }
     
-    return prefix;
+    const prefix = cleanPath.startsWith('src/') ? '' : 'src/';
+    return root + prefix + cleanPath;
 }
+window.resolvePath = resolvePath;
 
 /**
  * Debounce function to limit execution frequency.
@@ -156,6 +159,7 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
+window.debounce = debounce;
 
 /**
  * Génère les étoiles de notation.
@@ -187,7 +191,7 @@ function buildProductCardHTML(p, options = {}) {
     const images = (p.image || '').split(',');
     const rawImg = images[0].trim() || 'Images/default.png';
     const mainImg = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(rawImg, { width: 400, quality: 80 }) : rawImg;
-    const fallbackImg = getRootPath() + 'assets/Images/default.png';
+    const fallbackImg = '/src/assets/Images/default.png';
 
     // Format price
     const priceDisplay = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : `${(p.price || 0).toLocaleString()} FC`;
@@ -222,7 +226,7 @@ function buildProductCardHTML(p, options = {}) {
                     title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
-                <a href="${getRootPath()}pages/product?id=${p.id}">
+                <a href="${resolvePath('pages/product')}?id=${p.id}">
                     <img
                         data-src="${mainImg}"
                         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
@@ -250,7 +254,7 @@ function buildProductCardHTML(p, options = {}) {
                     }</span>
                 </div>
                 <h3 class="product-title">
-                    <a href="${getRootPath()}pages/product?id=${p.id}">${p.name}</a>
+                    <a href="${resolvePath('pages/product')}?id=${p.id}">${p.name}</a>
                 </h3>
                 <div class="product-rating">
                     ${starsHTML}
@@ -270,7 +274,7 @@ function buildProductCardHTML(p, options = {}) {
                         <iconify-icon icon="solar:cart-large-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
                         <span class="truncate">Acheter</span>
                     </button>
-                    <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + '${getRootPath()}pages/product?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
+                    <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + resolvePath('pages/product') + '?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
                         style="width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280; background:white; cursor:pointer; flex-shrink:0; transition: all 0.2s ease;"
                         onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'"
                         aria-label="Partager ce produit"
@@ -385,14 +389,14 @@ function buildSkeletonNotificationHTML(count = 4) {
  * Also handles comma-separated image strings by taking the first one.
  */
 function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
-    if (!url) return getRootPath() + 'assets/Images/default.png';
+    if (!url) return '/src/assets/Images/default.png';
     
     // Handle comma-separated list of images
     const images = url.split(',');
     const firstImg = (images[0] || '').trim();
     
     if (!firstImg || firstImg === 'Images/default.png') {
-        return getRootPath() + 'assets/Images/default.png';
+        return '/src/assets/Images/default.png';
     }
 
     // If it's a local preview (Data URL) return it as is
@@ -402,7 +406,7 @@ function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
 
     // Handle relative local paths (Images/...)
     if (firstImg.startsWith('Images/')) {
-        return getRootPath() + 'assets/' + firstImg;
+        return '/src/assets/' + firstImg;
     }
 
     // Only transform Supabase storage URLs
@@ -483,27 +487,35 @@ function showCheckoutModal(productName, productPrice) {
                             
                             <div class="space-y-3">
                                 <div class="relative group">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:user-bold" width="18"></iconify-icon>
                                     </div>
                                     <input type="text" id="${modalId}-name" placeholder="Nom complet" required 
-                                        class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
+                                        class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
 
                                 <div class="relative group">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:phone-bold" width="18"></iconify-icon>
                                     </div>
                                     <input type="tel" id="${modalId}-phone" placeholder="Numéro de tél. (ex: 070707...)" required 
-                                        class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
+                                        class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
 
                                 <div class="relative group">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
+                                        <iconify-icon icon="solar:letter-bold" width="18"></iconify-icon>
+                                    </div>
+                                    <input type="email" id="${modalId}-email" value="${localStorage.getItem('newketUserEmail') || ''}" placeholder="Adresse Email" required 
+                                        class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
+                                </div>
+
+                                <div class="relative group">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:map-point-bold" width="18"></iconify-icon>
                                     </div>
                                     <input type="text" id="${modalId}-city" value="Kinshasa" placeholder="Ville" required 
-                                        class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
+                                        class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
                             </div>
                         </div>
@@ -550,14 +562,20 @@ function showCheckoutModal(productName, productPrice) {
             if (id !== modalId) return;
             const name = document.getElementById(`${id}-name`).value.trim();
             const phone = document.getElementById(`${id}-phone`).value.trim();
+            const email = document.getElementById(`${id}-email`).value.trim();
             const city = document.getElementById(`${id}-city`).value.trim();
 
             if (!phone) {
                 showToast("Le numéro de téléphone est obligatoire", "warning");
                 return;
             }
+            
+            if (!email) {
+                showToast("L'adresse email est obligatoire", "warning");
+                return;
+            }
 
-            window.closeCheckoutModal(id, { name: name || "Client Web", phone, city: city || "Kinshasa" });
+            window.closeCheckoutModal(id, { name: name || "Client Web", phone, email, city: city || "Kinshasa" });
         };
     });
 }
@@ -640,7 +658,6 @@ window.initCheckout = async (productId, btnElement) => {
  * ✅ LAZY LOADING via IntersectionObserver
  * 
  * À appeler après chaque inject de cartes HTML dans le DOM.
- * Cherche tous les éléments .lazy-img avec data-src et les charge
  * uniquement quand ils entrent dans le viewport (économise 60%+ de bande passante).
  * 
  * Utilise le native loading="lazy" + IntersectionObserver comme double filet:
