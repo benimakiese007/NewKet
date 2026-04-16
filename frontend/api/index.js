@@ -326,6 +326,92 @@ router.get('/notifications', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// ── PAIEMENTS ─────────────────────────────────────────────────
+const generateTxId = () => 'NK_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_' + Date.now();
+
+router.post('/payments/initiate', requireAuth, async (req, res) => {
+    try {
+        const { product_id, vendor_id, amount, customer_phone, customer_name, customer_city, customer_email } = req.body;
+        if (!product_id || !vendor_id) return res.status(400).json({ error: 'Informations incomplètes' });
+
+        const client = supabaseAdmin();
+
+        const { data: product, error: prodError } = await client
+            .from('products').select('price, name, supplier_email, custom_exchange_rate').eq('id', product_id).single();
+        if (prodError || !product) return res.status(404).json({ error: 'Produit introuvable' });
+
+        const { data: settings } = await client
+            .from('settings').select('exchangeRate').eq('id', 'global-settings').single();
+
+        const conversionRate = parseFloat(product.custom_exchange_rate) || parseFloat(settings?.exchangeRate) || 2800;
+        const verifiedAmount = product.price;
+        const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
+
+        const txId = generateTxId();
+
+        const { error: dbError } = await client.from('orders').insert({
+            id: txId,
+            user_id: req.user?.id || null,
+            items: [{
+                product_id, vendor_id, price: verifiedAmount, name: product.name,
+                quantity: 1, supplier_email: product.supplier_email
+            }],
+            total: verifiedAmount,
+            total_amount: verifiedAmount,
+            status: 'PENDING',
+            payment_status: 'PENDING',
+            transaction_id: txId,
+            phone_number: customer_phone || null,
+            customer_phone: customer_phone || null,
+            customer_name, customer_city, customer_email
+        });
+        if (dbError) throw dbError;
+
+        const flwPayload = {
+            tx_ref: txId,
+            amount: finalAmountUSD,
+            currency: 'USD',
+            redirect_url: process.env.FLW_REDIRECT_URL || `${req.headers.origin || 'http://localhost:5173'}/pages/payment-success.html`,
+            payment_options: 'mobilemoney,card,ussd',
+            customer: {
+                email: customer_email || 'client@newket.cd',
+                phonenumber: customer_phone || '',
+                name: customer_name || 'Client NewKet'
+            },
+            customizations: {
+                title: 'NewKet Marketplace',
+                description: `Achat : ${product.name}`,
+                logo: 'https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/newket-logo/logo.png'
+            },
+            meta: { transaction_id: txId, product_id, vendor_id }
+        };
+
+        const flwResponse = await fetch('https://api.flutterwave.com/v3/payments', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.FLW_SECRET_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(flwPayload)
+        });
+
+        const flwData = await flwResponse.json();
+        if (flwData.status !== 'success' || !flwData.data?.link) {
+            throw new Error(flwData.message || 'Erreur Flutterwave');
+        }
+
+        res.status(200).json({
+            success: true,
+            transaction_id: txId,
+            payment_url: flwData.data.link,
+            public_key: process.env.FLW_PUBLIC_KEY
+        });
+    } catch (err) {
+        console.error('Erreur initiatePayment:', err);
+        res.status(500).json({ success: false, error: "Impossible d'initialiser le paiement" });
+    }
+});
+
 router.patch('/notifications/:id/read', requireAuth, async (req, res) => {
     try {
         const sb = getSupabase(req.token);
