@@ -3,12 +3,121 @@
  * Common utilities for UI rendering and interactions.
  */
 
-// Global Notification Queue (One by one system)
+/// Global Notification Queue (One by one system)
 let _toastQueue = [];
 let _isShowingToast = false;
 
 /**
+ * Shows a toast message to the user using a central queue system.
+ */
+function showToast(message, type = 'info', title = null, iconOverride = null) {
+    _toastQueue.push({ message, type, title, iconOverride });
+    if (!_isShowingToast) {
+        _processToastQueue();
+    }
+}
+
+async function _processToastQueue() {
+    if (_toastQueue.length === 0) {
+        _isShowingToast = false;
+        return;
+    }
+
+    _isShowingToast = true;
+    const { message, type, title } = _toastQueue.shift();
+    
+    const container = createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `nk-toast nk-toast-${type}`;
+    
+    // Safety check for escapeHTML
+    const escape = (str) => (typeof window.escapeHTML === 'function') ? window.escapeHTML(str) : String(str).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    const safeMsg = escape(message);
+    const safeTitle = title ? escape(title) : null;
+    
+    toast.innerHTML = `
+        <div class="nk-toast-body">
+            ${safeTitle ? `<div class="nk-toast-title">${safeTitle}</div>` : ''}
+            <div class="nk-toast-content">${safeMsg}</div>
+        </div>
+        <button class="nk-toast-close" aria-label="Fermer">&times;</button>
+    `;
+
+    container.appendChild(toast);
+
+    // Manual Close
+    const closeBtn = toast.querySelector('.nk-toast-close');
+    let autoCloseTimer;
+
+    const dismiss = () => {
+        clearTimeout(autoCloseTimer);
+        toast.classList.add('exit');
+        toast.addEventListener('animationend', () => {
+            toast.remove();
+            _processToastQueue();
+        }, { once: true });
+    };
+
+    closeBtn.onclick = (e) => {
+        e.stopPropagation();
+        dismiss();
+    };
+
+    // Swipe to dismiss (Mobile - SWIPE UP)
+    let touchStartY = 0;
+    let isSwiping = false;
+
+    toast.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+        isSwiping = true;
+        toast.style.transition = 'none';
+    }, { passive: true });
+
+    toast.addEventListener('touchmove', (e) => {
+        if (!isSwiping) return;
+        const touchY = e.touches[0].clientY;
+        const diffY = touchY - touchStartY;
+        
+        if (diffY < 0) { // Moving upwards
+            toast.style.transform = `translateY(${diffY}px)`;
+            toast.style.opacity = 1 + (diffY / 150);
+        }
+    }, { passive: true });
+
+    toast.addEventListener('touchend', (e) => {
+        if (!isSwiping) return;
+        isSwiping = false;
+        const touchY = e.changedTouches[0].clientY;
+        const diffY = touchY - touchStartY;
+        
+        toast.style.transition = ''; // Restore transition
+        
+        if (diffY < -60) { // Threshold reached
+            dismiss();
+        } else {
+            toast.style.transform = '';
+            toast.style.opacity = '';
+        }
+    }, { passive: true });
+
+    // Auto close after 3s
+    autoCloseTimer = setTimeout(dismiss, 3000);
+}
+
+function createToastContainer() {
+    let container = document.getElementById('toast-container');
+    if (container) return container;
+    
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    document.body.appendChild(container);
+    return container;
+}
+
+/**
  * Returns the relative path to the project root.
+ * Re-added because it was used in previous logic.
  */
 function getRootPath() {
     const pathname = window.location.pathname;
@@ -30,92 +139,7 @@ function getRootPath() {
         prefix += '../';
     }
     
-    // Auto-rewrite to clean URLs in production (strip .html)
-    // Using MutationObserver or similar at runtime isn't efficient, 
-    // so we handle it in component generation logic instead.
-    
     return prefix;
-}
-
-/**
- * Shows a toast message to the user using a queue system (One by one).
- */
-function showToast(message, type = 'info', title = null, iconOverride = null) {
-    _toastQueue.push({ message, type, title, iconOverride });
-    _processToastQueue();
-}
-
-async function _processToastQueue() {
-    if (_isShowingToast || _toastQueue.length === 0) return;
-    _isShowingToast = true;
-
-    const { message, type, title, iconOverride } = _toastQueue.shift();
-    
-    // Ensure container exists
-    const toastContainer = document.getElementById('toast-container') || createToastContainer();
-
-    const toast = document.createElement('div');
-    // Centered classes
-    toast.className = 'flex items-start gap-4 px-6 py-5 rounded-3xl shadow-2xl transition-all duration-500 translate-y-[-20px] opacity-0 bg-white border border-gray-100 mb-3 max-w-sm w-full pointer-events-auto relative overflow-hidden';
-
-    const icons = {
-        success: { icon: 'solar:check-circle-bold', color: 'text-green-500' },
-        error: { icon: 'solar:danger-bold', color: 'text-red-500' },
-        warning: { icon: 'solar:shield-warning-bold', color: 'text-amber-500' },
-        info: { icon: 'solar:info-circle-bold', color: 'text-blue-500' }
-    };
-
-    const { icon, color } = icons[type] || icons.info;
-    const finalIcon = iconOverride || icon;
-
-    const safeMsg = (typeof window.escapeHTML === 'function') ? window.escapeHTML(message) : String(message).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const safeTitle = title ? ((typeof window.escapeHTML === 'function') ? window.escapeHTML(title) : String(title).replace(/</g, '&lt;').replace(/>/g, '&gt;')) : null;
-
-    toast.innerHTML = `
-        <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center flex-shrink-0">
-            <iconify-icon icon="${finalIcon}" width="28" class="${color}"></iconify-icon>
-        </div>
-        <div class="flex-1 min-w-0">
-            ${safeTitle ? `<h4 class="text-xs font-black text-gray-900 uppercase tracking-tighter mb-1">${safeTitle}</h4>` : ''}
-            <p class="text-[10px] font-bold text-gray-500 leading-relaxed uppercase tracking-widest">${safeMsg}</p>
-        </div>
-        <div class="absolute bottom-0 left-0 h-1 bg-gray-100/50 w-full overflow-hidden">
-            <div class="h-full ${color.replace('text', 'bg')} transition-all duration-[4000ms] ease-linear w-full" id="toast-progress-${Date.now()}"></div>
-        </div>
-    `;
-
-    toastContainer.appendChild(toast);
-
-    // Trigger animation in
-    await new Promise(r => setTimeout(r, 10));
-    toast.classList.remove('translate-y-[-20px]', 'opacity-0');
-    const progress = toast.querySelector('[id^="toast-progress-"]');
-    if (progress) progress.style.width = '0%';
-
-    // Wait for display duration (4s)
-    await new Promise(r => setTimeout(r, 4000));
-
-    // Trigger animation out
-    toast.classList.add('opacity-0', 'translate-y-[-10px]');
-    
-    await new Promise(r => setTimeout(r, 500));
-    toast.remove();
-    _isShowingToast = false;
-    
-    // Process next in queue
-    _processToastQueue();
-}
-
-function createToastContainer() {
-    let container = document.getElementById('toast-container');
-    if (container) return container;
-    
-    container = document.createElement('div');
-    container.id = 'toast-container';
-    // Top-Middle Centering logic
-    container.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center pointer-events-none w-[90%] sm:w-full sm:max-w-sm px-4 sm:px-0';
-    document.body.appendChild(container);
-    return container;
 }
 
 /**

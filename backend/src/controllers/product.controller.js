@@ -30,7 +30,7 @@ export const getProducts = async (req, res) => {
             .from('products')
             .select(
                 'id, name, price, old_price, image, category, description, ' +
-                'supplier_email, user_id, is_new, is_promo, stock, created_at',
+                'supplier_email, user_id, is_new, is_promo, stock, created_at, custom_exchange_rate',
                 { count: 'estimated' }
             )
             .order('created_at', { ascending: false })
@@ -60,7 +60,7 @@ export const getProductById = async (req, res) => {
             .from('products')
             .select(
                 'id, name, price, old_price, image, category, description, ' +
-                'supplier_email, user_id, is_new, is_promo, stock, created_at'
+                'supplier_email, user_id, is_new, is_promo, stock, created_at, custom_exchange_rate'
             )
             .eq('id', id)
             .single();

@@ -9,7 +9,6 @@ const AppNotifications = {
     deferredPrompt: null,
 
     init() {
-        this._setupToastContainer();
         this._setupPWA();
         
         // Wait for Supabase client
@@ -18,74 +17,17 @@ const AppNotifications = {
         });
     },
 
-    _setupToastContainer() {
-        let container = document.getElementById('toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'toast-container';
-            // Fixed top-center for mobile, top-right for desktop
-            container.className = 'fixed top-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-4 z-[100] flex flex-col gap-2 w-[90%] sm:w-96 pointer-events-none';
-            document.body.appendChild(container);
-        }
-        this.toastContainer = container;
-    },
-
     /**
-     * Show a modern Glassmorphism Toast notification
+     * Delegated to the global showToast in ui-helpers.js
      */
     showToast(title, message, type = 'info', icon = 'solar:bell-bold') {
-        if (!this.toastContainer) this._setupToastContainer();
-
-        const toast = document.createElement('div');
-        
-        // Colors based on type
-        const colors = {
-            info: 'bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-200 dark:border-gray-800',
-            success: 'bg-green-50 dark:bg-green-900 text-green-900 dark:text-green-100 border-green-200 dark:border-green-800',
-            warning: 'bg-yellow-50 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100 border-yellow-200 dark:border-yellow-800',
-            error: 'bg-red-50 dark:bg-red-900 text-red-900 dark:text-red-100 border-red-200 dark:border-red-800'
-        };
-
-        const iconColors = {
-            info: 'text-blue-500',
-            success: 'text-green-500',
-            warning: 'text-yellow-500',
-            error: 'text-red-500'
-        };
-
-        toast.className = `
-            pointer-events-auto flex items-start gap-3 p-4 rounded-2xl shadow-xl border border-solid
-            transform transition-all duration-300 translate-y-[-1rem] opacity-0
-            ${colors[type] || colors.info}
-        `;
-
-        toast.innerHTML = `
-            <div class="flex-shrink-0 mt-0.5">
-                <iconify-icon icon="${icon}" width="22" class="${iconColors[type] || iconColors.info}"></iconify-icon>
-            </div>
-            <div class="flex-1 min-w-0">
-                <h4 class="text-sm font-bold tracking-tight mb-1">${title}</h4>
-                <p class="text-xs opacity-90 leading-relaxed">${message}</p>
-            </div>
-            <button class="flex-shrink-0 p-1 opacity-50 hover:opacity-100 transition-opacity" onclick="this.closest('.pointer-events-auto').remove()">
-                <iconify-icon icon="solar:close-circle-linear" width="18"></iconify-icon>
-            </button>
-        `;
-
-        this.toastContainer.appendChild(toast);
-
-        // Animate in
-        requestAnimationFrame(() => {
-            toast.style.transform = 'translateY(0)';
-            toast.style.opacity = '1';
-        });
-
-        // Auto remove after 5s
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(-1rem)';
-            setTimeout(() => toast.remove(), 300);
-        }, 5000);
+        if (window.showToast) {
+            window.showToast(message, type, title, icon);
+        } else {
+            // Fallback if ui-helpers isn't loaded yet
+            console.warn('[NewKet] Global showToast not available, queuing or logging:', message);
+            // Optional: minimal fallback or queue
+        }
     },
 
     _setupRealtime() {

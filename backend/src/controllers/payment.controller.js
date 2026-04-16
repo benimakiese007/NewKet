@@ -66,7 +66,7 @@ export const initiatePayment = async (req, res) => {
         // Ne jamais faire confiance au 'amount' envoyé par le frontend.
         const { data: product, error: prodError } = await client
             .from('products')
-            .select('price, name, supplier_email')
+            .select('price, name, supplier_email, custom_exchange_rate')
             .eq('id', product_id)
             .single();
 
@@ -75,7 +75,21 @@ export const initiatePayment = async (req, res) => {
             return res.status(404).json({ error: 'Produit introuvable' });
         }
 
-        const verifiedAmount = product.price;
+        // ─── RÉCUPÉRATION DES PARAMÈTRES GLOBAUX (DEVISE, ETC.) ──────────────
+        const { data: settings } = await client
+            .from('settings')
+            .select('currencySymbol, exchangeRate')
+            .eq('id', 'global-settings')
+            .single();
+
+        // ─── CALCUL DU TAUX ET CONVERSION VERS USD ──────────────────────────
+        // On utilise la priorité : Taux Vendeur > Taux Global > 2800 (fallback)
+        // La plupart des passerelles préfèrent USD pour les paiements cartes globaux.
+        const conversionRate = parseFloat(product.custom_exchange_rate) || parseFloat(settings?.exchangeRate) || 2800;
+        const verifiedAmount = product.price; // Toujours le montant CDF original pour la BD
+        const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
+
+        console.log(`[Payment] Conversion : ${verifiedAmount} CDF -> ${finalAmountUSD} USD (Taux: ${conversionRate})`);
 
         // ─── TRANSACTION ID ──────────────────────────────────────────────────
         const txId = generateTxId();
@@ -84,13 +98,15 @@ export const initiatePayment = async (req, res) => {
         const { data: orderData, error: dbError } = await client
             .from('orders')
             .insert({
+                id: txId,
                 user_id: req.user?.id || null,
                 items: [{
                     product_id,
                     vendor_id,
                     price: verifiedAmount,
                     name: product.name,
-                    quantity: 1
+                    quantity: 1,
+                    supplier_email: product.supplier_email
                 }],
                 total: verifiedAmount,
                 total_amount: verifiedAmount,
@@ -100,19 +116,19 @@ export const initiatePayment = async (req, res) => {
                 phone_number: customer_phone || null,
                 customer_phone: customer_phone || null,
                 customer_name,
-                customer_city
+                customer_city,
+                customer_email
             })
             .select('*')
             .single();
 
         if (dbError) throw dbError;
 
-        // ─── CRÉATION DU LIEN DE PAIEMENT FLUTTERWAVE ───────────────────────
+        // ─── CRÉATION DU LIEN DE PAIEMENT FLUTTERWAVE (EN USD) ───────────────
         const flwPayload = {
             tx_ref: txId,
-            amount: verifiedAmount,
-            currency: 'USD',          // Flutterwave supporte USD, GBP, KES, NGN, etc.
-            // Remplacez par 'USD' ou 'CDF' selon disponibilité sur votre compte
+            amount: finalAmountUSD,
+            currency: 'USD',
             redirect_url: process.env.FLW_REDIRECT_URL || 'http://localhost:5173/pages/payment-success.html',
             payment_options: 'mobilemoney,card,ussd',
             customer: {

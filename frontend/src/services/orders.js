@@ -72,8 +72,18 @@ const OrderManager = {
             date: lead.created_at || new Date().toISOString(),
             total: product?.price || product?.priceCDF || 0,
             status: lead.status || 'Lead',
-            payment_method: 'WhatsApp',
+            payment_status: lead.payment_status || 'N/A',
+            transaction_id: lead.transaction_id || null,
+            payment_method: lead.payment_status && lead.payment_status !== 'N/A' ? 'Paiement Flutterwave' : 'WhatsApp Click',
             type: 'lead',
+            items: lead.items || [{
+                id: lead.product_id,
+                name: product?.name || 'Produit',
+                image: product?.image?.split(',')[0] || '',
+                price: product?.price || 0,
+                quantity: 1,
+                category: product?.category || ''
+            }],
             _raw: lead
         };
     },
@@ -156,9 +166,10 @@ const OrderManager = {
         };
     },
 
-    getCustomerStats(emailOrId) {
+    getCustomerStats(email, userId) {
         const customerOrders = this.data.filter(o =>
-            o.customer_email === emailOrId || o.user_id === emailOrId
+            (email && o.customer_email === email) || 
+            (userId && o.user_id === userId)
         );
         const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 

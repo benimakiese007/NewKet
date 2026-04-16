@@ -406,5 +406,10 @@ window.SupabaseAdapter = {
             console.error(`[NewKet] Error upserting into ${table}:`, err);
             return null;
         }
+    },
+
+    // Legacy support for simple fetch calls
+    async fetch(table, options = {}) {
+        return this.fetchWithFilters(table, options);
     }
 };

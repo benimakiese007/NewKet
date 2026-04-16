@@ -383,12 +383,17 @@
                 <!-- Status & Info -->
                 <div class="flex flex-wrap gap-4 justify-between items-start">
                     <div class="space-y-1">
-                        <div class="text-xs font-bold text-gray-400 uppercase">Statut</div>
+                        <div class="text-xs font-bold text-gray-400 uppercase">Statut Commande</div>
                         <div id="modalOrderStatus" class="px-3 py-1 rounded-full text-xs font-bold inline-block"></div>
+                    </div>
+                    <div class="space-y-1 text-center">
+                        <div class="text-xs font-bold text-gray-400 uppercase">Paiement</div>
+                        <div id="modalPaymentStatus" class="px-3 py-1 rounded-full text-xs font-bold inline-block"></div>
+                        <div id="modalTransactionId" class="text-[9px] font-black text-gray-400 uppercase tracking-tighter mt-1"></div>
                     </div>
                     <div class="space-y-1 text-right">
                         <div class="text-xs font-bold text-gray-400 uppercase">Mode de contact</div>
-                        <div class="text-sm font-medium">WhatsApp Direct</div>
+                        <div id="modalContactMethod" class="text-sm font-medium">WhatsApp Direct</div>
                     </div>
                 </div>
 
@@ -839,6 +844,21 @@
             }
         }
 
+        function getPaymentStatusColor(status) {
+            switch (status?.toUpperCase()) {
+                case 'SUCCESSFUL':
+                case 'SUCCESS':
+                case 'PAID':
+                    return 'bg-green-100 text-green-700';
+                case 'PENDING':
+                    return 'bg-amber-100 text-amber-700';
+                case 'FAILED':
+                    return 'bg-red-100 text-red-700';
+                default:
+                    return 'bg-gray-100 text-gray-700';
+            }
+        }
+
         function openOrderModal(id) {
             const order = OrderManager.getOrders().find(o => o.id === id);
             if (!order) return;
@@ -852,6 +872,22 @@
             const statusEl = document.getElementById('modalOrderStatus');
             statusEl.textContent = order.status;
             statusEl.className = `px-3 py-1 rounded-full text-xs font-bold inline-block ${getStatusColor(order.status)}`;
+
+            const payStatusEl = document.getElementById('modalPaymentStatus');
+            const transIdEl = document.getElementById('modalTransactionId');
+            const contactMethodEl = document.getElementById('modalContactMethod');
+
+            if (payStatusEl) {
+                const pStatus = order.payment_status || 'N/A';
+                payStatusEl.textContent = pStatus;
+                payStatusEl.className = `px-3 py-1 rounded-full text-xs font-bold inline-block ${getPaymentStatusColor(pStatus)}`;
+            }
+            if (transIdEl) {
+                transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id.substring(0, 16)}...` : '';
+            }
+            if (contactMethodEl) {
+                contactMethodEl.textContent = order.payment_status && order.payment_status !== 'N/A' ? 'Flutterwave Online' : 'WhatsApp Direct';
+            }
 
             const itemsList = document.getElementById('modalOrderItems');
             itemsList.innerHTML = order.items.map(item => `

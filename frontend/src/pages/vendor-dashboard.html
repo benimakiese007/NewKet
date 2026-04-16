@@ -66,6 +66,10 @@
                             <iconify-icon icon="solar:users-group-rounded-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Prospects WhatsApp</span>
                         </a>
+                        <a href="#" onclick="switchVendorTab('purchases')" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
+                            <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                            <span>Mes Achats</span>
+                        </a>
                         <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
                             <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
                                 <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
@@ -169,7 +173,9 @@
                                     <th class="pb-4">Client</th>
                                     <th class="pb-4">Contact</th>
                                     <th class="pb-4 text-right">Montant</th>
-                                    <th class="pb-4 text-center">Statut</th><th class="pb-4"></th>
+                                    <th class="pb-4 text-center">Paiement</th>
+                                    <th class="pb-4 text-center">Statut</th>
+                                    <th class="pb-4"></th>
                                 </tr>
                             </thead>
                             <tbody id="vendor-recent-orders" class="divide-y divide-gray-50">
@@ -219,6 +225,22 @@
                     </div>
                     <div id="vendor-leads-list" class="space-y-4">
                         <p class="text-center text-sm text-gray-400 py-12">Chargement des prospects...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Purchases Tab -->
+            <div id="tab-purchases" class="hidden">
+                <div class="glass-panel p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2 class="text-xl font-bold">Mes Achats</h2>
+                        <div class="bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
+                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total dépensé</p>
+                             <p class="font-black text-gray-900" id="vendorPurchasesTotal">0 FC</p>
+                        </div>
+                    </div>
+                    <div id="vendor-purchases-list" class="space-y-4">
+                        <p class="text-center text-sm text-gray-400 py-12">Chargement de vos achats...</p>
                     </div>
                 </div>
             </div>
@@ -346,7 +368,7 @@
 
                     <div class="p-6 space-y-8">
                         <!-- Client Info -->
-                        <div class="grid grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl">
+                        <div class="grid grid-cols-3 gap-6 bg-gray-50 p-6 rounded-2xl">
                             <div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Client</p>
                                 <p class="font-bold text-gray-900" id="vModalCustomerName"></p>
@@ -355,6 +377,11 @@
                             <div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Contact</p>
                                 <p class="font-bold text-gray-900" id="vModalCustomerPhone"></p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Paiement</p>
+                                <div id="vModalPaymentStatus" class="inline-block px-2 py-1 rounded-lg text-[10px] font-bold"></div>
+                                <p class="text-[8px] font-black text-gray-400 uppercase tracking-tighter mt-1" id="vModalTransactionId"></p>
                             </div>
                         </div>
 
@@ -402,7 +429,7 @@
 
                 function switchVendorTab(tabId) {
                     // Masquer tous les onglets (null-safe)
-                    ['tab-dashboard', 'tab-products', 'tab-leads', 'tab-settings'].forEach(id => {
+                    ['tab-dashboard', 'tab-products', 'tab-leads', 'tab-purchases', 'tab-settings'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.classList.add('hidden');
                     });
@@ -422,6 +449,7 @@
                     if (tabId === 'dashboard') renderVendorDashboard();
                     else if (tabId === 'products') renderVendorProducts();
                     else if (tabId === 'leads') renderVendorLeads();
+                    else if (tabId === 'purchases') renderVendorPurchases();
                 }
 
                 document.addEventListener('DOMContentLoaded', () => {
@@ -839,6 +867,12 @@
                             </td>
                             <td class="py-4 font-black text-right text-sm">${CurrencyManager.formatPrice(o.total)}</td>
                             <td class="py-4 text-center">
+                                <div class="flex flex-col items-center gap-1">
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${getPaymentStatusStyle(o.payment_status)}">${o.payment_status || 'N/A'}</span>
+                                    ${o.transaction_id ? `<span class="text-[7px] font-black text-gray-300 uppercase tracking-tighter">ID: ${o.transaction_id.substring(0, 8)}...</span>` : ''}
+                                </div>
+                            </td>
+                            <td class="py-4 text-center">
                                 <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${getStatusColor(o.status)}">${o.status}</span>
                             </td>
                             <td class="py-4 text-right pr-4">
@@ -878,6 +912,21 @@
                     if (status === 'Livré') return 'bg-green-50 text-green-600';
                     if (status === 'Annulé') return 'bg-red-50 text-red-600';
                     return 'bg-blue-50 text-blue-600';
+                }
+
+                function getPaymentStatusStyle(status) {
+                    switch (status?.toUpperCase()) {
+                        case 'SUCCESSFUL':
+                        case 'SUCCESS': 
+                        case 'PAID':
+                            return 'bg-green-50 text-green-600 border border-green-100';
+                        case 'PENDING': 
+                            return 'bg-amber-50 text-amber-600 border border-amber-100';
+                        case 'FAILED': 
+                            return 'bg-red-50 text-red-600 border border-red-100';
+                        default: 
+                            return 'bg-gray-50 text-gray-400 border border-transparent';
+                    }
                 }
 
                 function renderSalesChart(chartData) {
@@ -966,6 +1015,65 @@
                     }
                 }
 
+                function renderVendorPurchases() {
+                    const email = localStorage.getItem('newketUserEmail');
+                    const userId = localStorage.getItem('newketUserId');
+                    
+                    // On récupère les stats via le service customer dédié
+                    const stats = OrderManager.getCustomerStats(email, userId);
+                    const myPurchases = stats.orders || [];
+                    
+                    const purchasesList = document.getElementById('vendor-purchases-list');
+                    if (!purchasesList) return;
+
+                    // Update Total Spent
+                    if (document.getElementById('vendorPurchasesTotal')) {
+                        document.getElementById('vendorPurchasesTotal').textContent = CurrencyManager.formatPrice(stats.totalSpent || 0);
+                    }
+
+                    if (myPurchases.length === 0) {
+                        purchasesList.innerHTML = `
+                            <div class="text-center py-12">
+                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                                    <iconify-icon icon="solar:bag-heart-bold" width="32"></iconify-icon>
+                                </div>
+                                <p class="text-sm text-gray-400">Vous n'avez pas encore effectué d'achats.</p>
+                                <a href="../" class="inline-block mt-4 text-xs font-bold text-black border-b border-black">Commencer mes achats</a>
+                            </div>
+                        `;
+                    } else {
+                        purchasesList.innerHTML = myPurchases.map(o => `
+                            <div class="glass-panel p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-lg transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-600 border border-gray-100">
+                                        <iconify-icon icon="solar:bag-heart-bold" width="24"></iconify-icon>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-900">${o.product_name || 'Commande multi-produits'}</h4>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">${new Date(o.date || o.timestamp).toLocaleDateString()}</span>
+                                            <span class="text-gray-300">•</span>
+                                            <span class="px-2 py-0.5 rounded-md text-[9px] font-bold ${getPaymentStatusStyle(o.payment_status)}">${o.payment_status || 'N/A'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 w-full sm:w-auto">
+                                    <div class="text-left sm:text-right flex-1 sm:flex-none">
+                                        <p class="font-black text-sm text-gray-900">${CurrencyManager.formatPrice(o.total)}</p>
+                                        <p class="text-[10px] text-gray-500 font-bold">Vendu par: ${o.supplier_name || o.supplier_email || 'Boutique'}</p>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${o.status}</span>
+                                    <button onclick="openOrderDetailModal('${o.id}')" 
+                                        aria-label="Voir les détails de l'achat"
+                                        class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                                        <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+
                 // Order Detail Modal Functions
                 function renderVendorLeads() {
                     const email = localStorage.getItem('newketUserEmail');
@@ -1026,8 +1134,20 @@
                     document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numéro';
                     document.getElementById('vModalOrderTotal').textContent = CurrencyManager.formatPrice(order.total);
 
+                    const payStatusEl = document.getElementById('vModalPaymentStatus');
+                    const transIdEl = document.getElementById('vModalTransactionId');
+                    
+                    if (payStatusEl) {
+                        payStatusEl.textContent = order.payment_status || 'N/A';
+                        payStatusEl.className = `inline-block px-2 py-0.5 rounded-lg text-[10px] font-bold ${getPaymentStatusStyle(order.payment_status)}`;
+                    }
+                    if (transIdEl) {
+                        transIdEl.textContent = order.transaction_id ? `ID: ${order.transaction_id}` : '';
+                    }
+
                     const itemsContainer = document.getElementById('vModalOrderItems');
-                    itemsContainer.innerHTML = order.items.map(item => `
+                    const items = order.items || [];
+                    itemsContainer.innerHTML = items.map(item => `
                         <div class="flex items-center gap-4 p-4 border border-gray-50 rounded-2xl hover:bg-gray-50 transition-colors">
                             <div class="w-16 h-16 bg-white rounded-xl overflow-hidden p-2 border border-gray-100">
                                 <img src="${window.getOptimizedImageUrl(item.image)}" alt="${item.name}" loading="lazy" class="w-full h-full object-contain" onerror="this.src='../assets/Images/default.png'">

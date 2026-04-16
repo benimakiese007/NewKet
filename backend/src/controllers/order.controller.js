@@ -7,10 +7,10 @@ export const getOrders = async (req, res) => {
         const offset = (page - 1) * parseInt(limit);
         const client = supabaseAdmin || supabase;
 
-        // ✅ OPTIMISATION: Pagination + colonnes précises (fini limit:500 d'un coup)
+        // ✅ OPTIMISATION: Pagination + colonnes précises
         const { data, error } = await client
             .from('orders')
-            .select('id, status, created_at, total_amount, customer_name, customer_email, phone_number, payment_status, transaction_id')
+            .select('id, status, created_at, total, total_amount, customer_name, customer_email, phone_number, items, payment_status, transaction_id, user_id, vendor_id, customer_id')
             .order('created_at', { ascending: false })
             .range(offset, offset + parseInt(limit) - 1);
 
