@@ -10,6 +10,11 @@ import express from 'express';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
 
+// Helpers
+const generateTxId = () => {
+    return 'NK_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_' + Date.now();
+};
+
 const app = express();
 const router = express.Router();
 
@@ -327,51 +332,73 @@ router.get('/notifications', requireAuth, async (req, res) => {
 });
 
 // ── PAIEMENTS ─────────────────────────────────────────────────
-const generateTxId = () => 'NK_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_' + Date.now();
-
-router.post('/payments/initiate', requireAuth, async (req, res) => {
+router.post('/payments/initiate', async (req, res) => {
     try {
-        const { product_id, vendor_id, amount, customer_phone, customer_name, customer_city, customer_email } = req.body;
-        if (!product_id || !vendor_id) return res.status(400).json({ error: 'Informations incomplètes' });
+        const { product_id, vendor_id, customer_phone, customer_name, customer_city, customer_email } = req.body;
+
+        if (!product_id || !vendor_id) {
+            return res.status(400).json({ error: 'Informations incomplètes pour le paiement' });
+        }
 
         const client = supabaseAdmin();
 
+        // 1. Sécurité : Vérifier le prix en BD
         const { data: product, error: prodError } = await client
-            .from('products').select('price, name, supplier_email, custom_exchange_rate').eq('id', product_id).single();
-        if (prodError || !product) return res.status(404).json({ error: 'Produit introuvable' });
+            .from('products')
+            .select('price, name, supplier_email, custom_exchange_rate')
+            .eq('id', product_id)
+            .single();
 
+        if (prodError || !product) {
+            return res.status(404).json({ error: 'Produit introuvable' });
+        }
+
+        // 2. Taux de change (Conversion CDF -> USD)
         const { data: settings } = await client
-            .from('settings').select('exchangeRate').eq('id', 'global-settings').single();
+            .from('settings')
+            .select('exchangeRate')
+            .eq('id', 'global-settings')
+            .single();
 
-        const conversionRate = parseFloat(product.custom_exchange_rate) || parseFloat(settings?.exchangeRate) || 2800;
+        const rate = parseFloat(product.custom_exchange_rate) || parseFloat(settings?.exchangeRate) || 2800;
         const verifiedAmount = product.price;
-        const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
+        const finalAmountUSD = parseFloat((verifiedAmount / rate).toFixed(2));
 
         const txId = generateTxId();
 
-        const { error: dbError } = await client.from('orders').insert({
-            id: txId,
-            user_id: req.user?.id || null,
-            items: [{
-                product_id, vendor_id, price: verifiedAmount, name: product.name,
-                quantity: 1, supplier_email: product.supplier_email
-            }],
-            total: verifiedAmount,
-            total_amount: verifiedAmount,
-            status: 'PENDING',
-            payment_status: 'PENDING',
-            transaction_id: txId,
-            phone_number: customer_phone || null,
-            customer_phone: customer_phone || null,
-            customer_name, customer_city, customer_email
-        });
+        // 3. Sauvegarder la commande (PENDING)
+        const { error: dbError } = await client
+            .from('orders')
+            .insert({
+                id: txId,
+                items: [{
+                    product_id,
+                    vendor_id,
+                    price: verifiedAmount,
+                    name: product.name,
+                    quantity: 1,
+                    supplier_email: product.supplier_email
+                }],
+                total: verifiedAmount,
+                total_amount: verifiedAmount,
+                status: 'En attente',
+                payment_status: 'PENDING',
+                transaction_id: txId,
+                customer_phone: customer_phone || null,
+                phone_number: customer_phone || null,
+                customer_name: customer_name || 'Client NewKet',
+                customer_city: customer_city || null,
+                customer_email: customer_email || 'client@newket.cd'
+            });
+
         if (dbError) throw dbError;
 
+        // 4. Flutterwave Payload
         const flwPayload = {
             tx_ref: txId,
             amount: finalAmountUSD,
             currency: 'USD',
-            redirect_url: process.env.FLW_REDIRECT_URL || `${req.headers.origin || 'http://localhost:5173'}/pages/payment-success.html`,
+            redirect_url: process.env.FLW_REDIRECT_URL || `https://${req.headers.host}/pages/payment-success.html`,
             payment_options: 'mobilemoney,card,ussd',
             customer: {
                 email: customer_email || 'client@newket.cd',
@@ -408,7 +435,7 @@ router.post('/payments/initiate', requireAuth, async (req, res) => {
         });
     } catch (err) {
         console.error('Erreur initiatePayment:', err);
-        res.status(500).json({ success: false, error: "Impossible d'initialiser le paiement" });
+        res.status(500).json({ success: false, error: "Impossible d'initialiser le paiement", message: err.message });
     }
 });
 
