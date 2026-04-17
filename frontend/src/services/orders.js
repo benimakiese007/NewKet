@@ -1,7 +1,6 @@
-﻿/**
+/**
  * NewKet Order Manager
- * Handles WhatsApp leads / orders data for admin, vendor, and customer dashboards.
- * Since NewKet is a lead-gen marketplace (WhatsApp clicks), "orders" = leads/prospects.
+ * Handles orders data for admin, vendor, and customer dashboards.
  */
 const OrderManager = {
     data: [],
@@ -36,13 +35,13 @@ const OrderManager = {
         this._fetchPromise = (async () => {
             try {
                 // Fetch from Express Backend API
-                const leads = await ApiClient.get('/orders');
-                this.data = (leads || []).map(lead => this._normalizeLeadToOrder(lead));
+                const orders = await ApiClient.get('/orders');
+                this.data = (orders || []).map(order => this._normalizeOrder(order));
                 this._initialized = true;
                 localStorage.setItem('newket_orders_sync_time', now.toString());
-                console.log(`[OrderManager] Loaded ${this.data.length} leads/orders.`);
+                console.log(`[OrderManager] Loaded ${this.data.length} orders.`);
             } catch (error) {
-                console.warn('[OrderManager] Could not fetch leads, using empty data:', error.message);
+                console.warn('[OrderManager] Could not fetch orders, using empty data:', error.message);
                 if (!this._initialized) this.data = [];
                 this._initialized = true;
             }
@@ -53,38 +52,38 @@ const OrderManager = {
     },
 
     /**
-     * Normalize a whatsapp_click lead into an "order-like" object
+     * Normalize an order object
      * so all admin pages can consume it uniformly.
      */
-    _normalizeLeadToOrder(lead) {
-        const product = window.ProductManager ? ProductManager.getProduct(lead.product_id) : null;
+    _normalizeOrder(order) {
+        const product = window.ProductManager ? ProductManager.getProduct(order.product_id) : null;
         return {
-            id: lead.id,
-            product_id: lead.product_id,
+            id: order.id,
+            product_id: order.product_id,
             product_name: product?.name || 'Produit',
             product_image: product?.image || '',
-            customer_name: lead.user_name || lead.customer_name || 'Visiteur',
-            customer_email: lead.user_email || lead.customer_email || '',
-            user_id: lead.user_id,
-            vendor_id: lead.vendor_id,
-            vendor_email: lead.vendor_email || '',
-            phone_number: lead.phone_number || lead.vendor_phone || '',
-            date: lead.created_at || new Date().toISOString(),
-            total: product?.price || product?.priceCDF || 0,
-            status: lead.status || 'Lead',
-            payment_status: lead.payment_status || 'N/A',
-            transaction_id: lead.transaction_id || null,
-            payment_method: lead.payment_status && lead.payment_status !== 'N/A' ? 'Paiement Flutterwave' : 'WhatsApp Click',
-            type: 'lead',
-            items: lead.items || [{
-                id: lead.product_id,
+            customer_name: order.user_name || order.customer_name || 'Visiteur',
+            customer_email: order.user_email || order.customer_email || '',
+            user_id: order.user_id,
+            vendor_id: order.vendor_id,
+            vendor_email: order.vendor_email || '',
+            phone_number: order.phone_number || order.vendor_phone || '',
+            date: order.created_at || new Date().toISOString(),
+            total: order.total_amount || product?.price || product?.priceCDF || 0,
+            status: order.status || 'En attente',
+            payment_status: order.payment_status || 'N/A',
+            transaction_id: order.transaction_id || null,
+            payment_method: order.payment_status && order.payment_status !== 'N/A' ? 'Paiement en ligne' : 'N/A',
+            type: 'order',
+            items: order.items || [{
+                id: order.product_id,
                 name: product?.name || 'Produit',
                 image: product?.image?.split(',')[0] || '',
                 price: product?.price || 0,
                 quantity: 1,
                 category: product?.category || ''
             }],
-            _raw: lead
+            _raw: order
         };
     },
 
@@ -103,7 +102,7 @@ const OrderManager = {
     getStats() {
         const orders = this.data;
         const totalLeads = orders.length;
-        const totalEstimatedValue = orders.reduce((sum, o) => sum + (o.total || 0), 0); // Estimated from WhatsApp clicks
+        const totalEstimatedValue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
         const uniqueClients = [...new Set(orders.map(o => o.customer_email).filter(Boolean))].length;
 
         const revenueGrowth = this._calculateGrowth(orders, o => o.total || 0);
@@ -116,7 +115,7 @@ const OrderManager = {
         return {
             totalOrders: totalLeads,
             totalLeads,
-            totalRevenue: totalEstimatedValue, // Kept for UI compatibility
+            totalRevenue: totalEstimatedValue,
             estimatedValue: totalEstimatedValue,
             uniqueClients,
             averageOrderValue: totalLeads > 0 ? totalEstimatedValue / totalLeads : 0,
@@ -143,7 +142,7 @@ const OrderManager = {
             commissionPercent: 0,
             netGains: totalEstimatedValue,
             netRevenue: totalEstimatedValue,
-            pendingOrders: vendorOrders.filter(o => o.status === 'En attente' || o.status === 'Lead').length,
+            pendingOrders: vendorOrders.filter(o => o.status === 'En attente' || o.status === 'En cours').length,
             deliveredOrders: vendorOrders.filter(o => o.status === 'Livré').length,
             topProducts: this._getTopProducts(vendorOrders),
             orders: vendorOrders,

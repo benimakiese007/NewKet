@@ -281,7 +281,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
             <div class="lg:col-span-4 space-y-6">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
                 <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.</p>
-                <form id="newsletterForm" class="relative group" onsubmit="window.handleNewsletterSubmit ? window.handleNewsletterSubmit(event) : (event.preventDefault(), alert('Merci pour votre inscription !'))"> 
+                <form id="newsletterForm" class="relative group" onsubmit="event.preventDefault(); if (window.handleNewsletterSubmit) { window.handleNewsletterSubmit(event); } else if (window.showToast) { window.showToast('Merci pour votre inscription !', 'success', 'Newsletter'); }"> 
                     <input id="newsletterEmail" name="newsletterEmail" type="email" placeholder="Votre email" autocomplete="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
                     <button id="newsletterBtn" type="submit" class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">S'inscrire</button>
                     <div id="newsletterMsg" class="hidden text-xs absolute -bottom-6 left-0 w-full mt-2"></div>

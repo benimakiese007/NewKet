@@ -1,12 +1,28 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import compression from 'compression';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 // Charger les variables d'environnement
 dotenv.config({ path: '../.env' });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// ─── Sécurité et Performance ───────────────────────────────
+app.use(helmet()); // Sécurise les headers HTTP
+app.use(compression()); // Réduit la taille des réponses
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // Limite chaque IP à 200 requêtes par fenêtre de 15 minutes
+  message: { error: 'Trop de requêtes, veuillez réessayer plus tard.' },
+  standardHeaders: true, // Retourne le rate limit info dans les `RateLimit-*` headers
+  legacyHeaders: false, // Désactive les `X-RateLimit-*` headers
+});
+app.use('/api', limiter); // Applique le rate limiting sur toutes les API
 
 // ─── Middlewares Globaux ───────────────────────────────────
 app.use(cors({

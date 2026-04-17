@@ -743,8 +743,9 @@
                                 console.error('[Settings] Error saving to Supabase:', err);
                             }
                             
-                            if (window.showToast) showToast('Paramètres de la boutique enregistrés !', 'success');
-                            else alert('Paramètres enregistrés !');
+                            if (window.showToast) {
+                                window.showToast('Paramètres de la boutique enregistrés !', 'success', 'Profil');
+                            }
 
                             // Refresh UI
                             if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.company_name;

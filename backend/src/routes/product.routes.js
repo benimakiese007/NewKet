@@ -9,14 +9,16 @@ import {
     updateBulkCategory
 } from '../controllers/product.controller.js';
 import { optionalAuth, requireAuth } from '../middlewares/auth.js';
+import { cacheMiddleware } from '../middlewares/cache.js';
 import { body } from 'express-validator';
 import { validate } from '../middlewares/validation.js';
 
 const router = Router();
 
 // Routes publiques / optionnelles
-router.get('/', optionalAuth, getProducts);
-router.get('/:id', optionalAuth, getProductById);
+// Durée de cache: 30 secondes pour les produits, pour être assez réactif mais encaisser les pics
+router.get('/', optionalAuth, cacheMiddleware(30), getProducts);
+router.get('/:id', optionalAuth, cacheMiddleware(30), getProductById);
 
 // Routes sécurisées
 router.post('/', 

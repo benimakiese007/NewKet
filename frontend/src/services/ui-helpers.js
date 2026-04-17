@@ -448,33 +448,6 @@ function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
     return `${firstImg}${firstImg.includes('?') ? '&' : '?'}${params.toString()}`;
 }
 
-/**
- * Enregistre un clic WhatsApp (Lead) dans la base de données.
- */
-async function recordLead(productId, vendorId, productName) {
-    try {
-        const client = window.SupabaseAdapter.getClient();
-        if (!client) return;
-
-        const { data: userData } = await client.auth.getUser();
-        const user = userData?.user;
-
-        await client.from('whatsapp_clicks').insert({
-            product_id: productId,
-            vendor_id: vendorId,
-            user_id: user?.id || null,
-            metadata: {
-                product_name: productName,
-                timestamp: new Date().toISOString(),
-                userAgent: navigator.userAgent
-            }
-        });
-        
-        console.log('[NewKet] Click (Lead) recorded:', productId);
-    } catch (err) {
-        console.error('[NewKet] Failed to record lead:', err);
-    }
-}
 
 /**
  * Shows a checkout modal to collect customer details before payment.
@@ -605,6 +578,134 @@ function showCheckoutModal(productName, productPrice) {
         };
     });
 }
+
+/**
+ * High-visibility announcement modal for admin broadcasts.
+ * Anchored to the top-center, following the platform-wide notification pattern.
+ */
+window.showAnnouncementModal = (title, message, type = 'info') => {
+    // Check if showing one already
+    if (document.getElementById('nk-announcement-modal')) return;
+    
+    // Check if user has already dismissed this specific announcement in this session
+    if (sessionStorage.getItem(`dismissed_${title}`)) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'nk-announcement-modal';
+    // Positioned at the top center, full width on mobile, max-width on larger screens
+    modal.className = 'fixed top-0 left-0 right-0 z-[9999] flex justify-center p-4 sm:p-6 pointer-events-none animate-fade-in-down';
+    
+    // UI mapping
+    const configs = {
+        'info': { icon: 'solar:bell-bing-bold', color: 'text-blue-600', bg: 'bg-blue-50' },
+        'success': { icon: 'solar:check-circle-bold', color: 'text-green-600', bg: 'bg-green-50' },
+        'warning': { icon: 'solar:danger-triangle-bold', color: 'text-amber-600', bg: 'bg-amber-50' },
+        'danger': { icon: 'solar:fire-bold', color: 'text-red-600', bg: 'bg-red-50' }
+    };
+    const config = configs[type] || configs.info;
+
+    modal.innerHTML = `
+        <div class="bg-white/90 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-2xl max-w-lg w-full pointer-events-auto border border-white/20 transform transition-all duration-500 ease-out">
+            <!-- Premium Accent Top Gradient -->
+            <div class="h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+
+            <div class="p-8 sm:p-10">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 rounded-3xl ${config.bg} flex items-center justify-center mb-6 shadow-inner">
+                        <iconify-icon icon="${config.icon}" class="${config.color}" style="font-size: 48px;"></iconify-icon>
+                    </div>
+                    
+                    <h2 class="text-2xl sm:text-3xl font-black text-gray-900 mb-4 leading-tight">${title}</h2>
+                    
+                    <div class="text-gray-600 text-base sm:text-lg leading-relaxed mb-8 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                        ${message.replace(/\n/g, '<br>')}
+                    </div>
+
+                    <div class="w-full flex flex-col sm:flex-row gap-3">
+                        <button onclick="window.dismissAnnouncement('${title}')" class="flex-1 px-8 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95">
+                            Ne plus afficher
+                        </button>
+                        <button onclick="document.getElementById('nk-announcement-modal').remove()" class="flex-[2] px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            Compris
+                            <iconify-icon icon="solar:arrow-right-up-bold" width="18"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Close Icon (Top Corner) -->
+            <button onclick="document.getElementById('nk-announcement-modal').remove()" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-2xl bg-white/50 hover:bg-white text-gray-400 hover:text-gray-900 transition-all">
+                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    
+    window.dismissAnnouncement = (title) => {
+        sessionStorage.setItem(`dismissed_${title}`, 'true');
+        document.getElementById('nk-announcement-modal')?.remove();
+    };
+};
+window.showAnnouncementModal = showAnnouncementModal;
+
+/**
+ * Premium confirmation modal replacement for window.confirm()
+ * @param {string} title Modal title
+ * @param {string} message Modal body text
+ * @param {function} onConfirm Callback when confirmed
+ * @param {function} onCancel Optional callback when cancelled
+ */
+window.showConfirm = (title, message, onConfirm, onCancel = null) => {
+    const modalId = 'nk-confirm-modal-' + Date.now();
+    const modal = document.createElement('div');
+    modal.id = modalId;
+    modal.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300 pointer-events-none';
+    
+    modal.innerHTML = `
+        <div class="absolute inset-0 bg-gray-950/40 backdrop-blur-sm" onclick="window.closeConfirm('${modalId}', false)"></div>
+        <div class="relative bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl max-w-sm w-full border border-white/20 transform scale-95 transition-all duration-300 pointer-events-auto">
+            <div class="p-8 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto mb-6">
+                    <iconify-icon icon="solar:question-square-bold" class="text-orange-500 text-3xl"></iconify-icon>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 mb-2">${title}</h3>
+                <p class="text-sm text-gray-500 font-medium leading-relaxed mb-8">${message}</p>
+                
+                <div class="flex gap-3">
+                    <button onclick="window.closeConfirm('${modalId}', false)" class="flex-1 px-6 py-3.5 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95">
+                        Annuler
+                    </button>
+                    <button onclick="window.closeConfirm('${modalId}', true)" class="flex-1 px-6 py-3.5 bg-gray-900 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95">
+                        Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    
+    // Animate in
+    setTimeout(() => {
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.querySelector('.transform').classList.remove('scale-95');
+    }, 10);
+
+    window.closeConfirm = (id, result) => {
+        const modalEl = document.getElementById(id);
+        if (!modalEl) return;
+        
+        modalEl.classList.add('opacity-0');
+        modalEl.querySelector('.transform').classList.add('scale-95');
+        
+        setTimeout(() => {
+            modalEl.remove();
+            if (result && typeof onConfirm === 'function') onConfirm();
+            else if (!result && typeof onCancel === 'function') onCancel();
+        }, 300);
+    };
+};
 
 /**
  * Initiates the checkout process via Flutterwave
@@ -751,3 +852,4 @@ window.buildSkeletonNotificationHTML = buildSkeletonNotificationHTML;
 window.buildStarsHTML = buildStarsHTML;
 window.getOptimizedImageUrl = getOptimizedImageUrl;
 window.initLazyImages = initLazyImages;
+

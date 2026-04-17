@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -152,12 +152,12 @@
             const email = input.value.trim().toLowerCase();
 
             if (!email || !email.includes('@')) {
-                alert('Veuillez entrer une adresse e-mail valide.');
+                if (window.showToast) window.showToast('Veuillez entrer une adresse e-mail valide.', 'warning', 'Saisie invalide');
                 return;
             }
 
             if (adminEmails.includes(email)) {
-                alert('Cet e-mail est déjà dans la liste.');
+                if (window.showToast) window.showToast('Cet e-mail est déjà dans la liste.', 'info', 'Doublon');
                 return;
             }
 
@@ -167,10 +167,10 @@
         }
 
         async function removeAdmin(email) {
-            if (!confirm(`Voulez-vous vraiment retirer les accès admin pour ${email} ?`)) return;
-
-            const updatedList = adminEmails.filter(e => e !== email);
-            await saveAdmins(updatedList);
+            window.showConfirm("Retirer l'accès", `Voulez-vous vraiment retirer les accès admin pour ${email} ?`, async () => {
+                const updatedList = adminEmails.filter(e => e !== email);
+                await saveAdmins(updatedList);
+            });
         }
 
         async function saveAdmins(newList) {
@@ -188,11 +188,10 @@
                 adminEmails = newList;
                 renderAdmins();
                 
-                // Show success notification (if Toast manager exists, or simple alert)
-                console.log('[Security] Admins updated successfully');
+                if (window.showToast) window.showToast('Liste des administrateurs mise à jour.', 'success', 'Sauvegardé');
             } catch (err) {
                 console.error('[Security] Save failed:', err);
-                alert('échec de la sauvegarde. Vérifiez votre connexion.');
+                if (window.showToast) window.showToast('Échec de la sauvegarde. Vérifiez votre connexion.', 'danger', 'Erreur');
             }
         }
 

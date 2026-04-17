@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -413,34 +413,37 @@
         });
 
         async function approveVendor(id, name) {
-            if (!confirm(`Approuver le vendeur ${name} ?`)) return;
-            try {
-                if (window.LoaderManager) LoaderManager.show(`Activation de ${name}...`);
-                const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier' }).eq('id', id);
-                if (error) throw error;
-                if (window.showToast) showToast(`Vendeur activé !`, "success");
-                UserManager.init().then(() => renderUsers());
-                if (window.LoaderManager) LoaderManager.hide();
-            } catch (err) {
-                console.error(err);
-                if (window.LoaderManager) LoaderManager.hide();
-                alert("Erreur activation.");
-            }
+            window.showConfirm("Approuver", `Approuver le vendeur ${name} ?`, async () => {
+                try {
+                    if (window.LoaderManager) LoaderManager.show(`Activation de ${name}...`);
+                    const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier' }).eq('id', id);
+                    if (error) throw error;
+                    if (window.showToast) showToast(`Vendeur activé !`, "success");
+                    UserManager.init().then(() => renderUsers());
+                    if (window.LoaderManager) LoaderManager.hide();
+                } catch (err) {
+                    console.error(err);
+                    if (window.LoaderManager) LoaderManager.hide();
+                    if (window.showToast) showToast("Erreur activation.", "danger");
+                }
+            });
         }
 
         async function rejectVendor(id, name) {
-            if (!confirm(`Refuser le dossier de ${name} ?`)) return;
-            try {
-                if (window.LoaderManager) LoaderManager.show(`Rejet...`);
-                const { error } = await window.supabaseClient.from('users').update({ status: 'rejected' }).eq('id', id);
-                if (error) throw error;
-                if (window.showToast) showToast(`Rejeté.`, "warning");
-                UserManager.init().then(() => renderUsers());
-                if (window.LoaderManager) LoaderManager.hide();
-            } catch (err) {
-                console.error(err);
-                if (window.LoaderManager) LoaderManager.hide();
-            }
+            window.showConfirm("Rejeter", `Refuser le dossier de ${name} ?`, async () => {
+                try {
+                    if (window.LoaderManager) LoaderManager.show(`Rejet...`);
+                    const { error } = await window.supabaseClient.from('users').update({ status: 'rejected' }).eq('id', id);
+                    if (error) throw error;
+                    if (window.showToast) showToast(`Rejeté.`, "warning");
+                    UserManager.init().then(() => renderUsers());
+                    if (window.LoaderManager) LoaderManager.hide();
+                } catch (err) {
+                    console.error(err);
+                    if (window.LoaderManager) LoaderManager.hide();
+                    if (window.showToast) showToast("Erreur lors du rejet.", "danger");
+                }
+            });
         }
 
         function getRoleLabel(role) {
@@ -476,9 +479,12 @@
                     renderUsers();
                     showToast("Supprimé", "success");
                 });
-            } else if (confirm(`Supprimer ${name} ?`)) {
-                await UserManager.deleteUser(id);
-                renderUsers();
+            } else {
+                // Fallback for emergency
+                if (confirm(`Supprimer ${name} ?`)) {
+                    await UserManager.deleteUser(id);
+                    renderUsers();
+                }
             }
         }
 

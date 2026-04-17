@@ -1397,25 +1397,68 @@ html.dark .glass-panel {
 }
 
 /* ==========================================
-   51. TOASTS & NOTIFICATIONS — Mobile position
+   51. TOASTS & NOTIFICATIONS — Position universelle (haut centre)
    ========================================== */
 
+/* ── Desktop & Tablette : haut droite ─────────────────── */
+#newket-toast-container {
+    top: 80px !important;
+    right: 20px !important;
+    left: auto !important;
+    bottom: auto !important;
+    max-width: 400px !important;
+    transform: none !important;
+}
+
+/* ── Toast container principal : haut centre (tous écrans) ── */
+.toast-container,
+#toast-container,
+.notifications-toast-wrap {
+    position: fixed !important;
+    top: 5rem !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: auto !important;
+    right: auto !important;
+    width: 90% !important;
+    max-width: 420px !important;
+    z-index: 100000 !important;
+    pointer-events: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0 !important;
+}
+
+/* ── Mobile (< 640px) : ajuster la largeur & position ── */
 @media (max-width: 639px) {
     .toast-container,
     #toast-container,
     .notifications-toast-wrap {
-        bottom: calc(72px + env(safe-area-inset-bottom, 8px)) !important;
-        left: 0.75rem !important;
-        right: 0.75rem !important;
-        top: auto !important;
-        max-width: none !important;
+        top: 4rem !important;
+        width: calc(100% - 2rem) !important;
+        max-width: 100% !important;
+        left: 1rem !important;
+        transform: none !important;
+    }
+
+    #newket-toast-container {
+        top: 4rem !important;
+        right: 1rem !important;
+        left: 1rem !important;
+        max-width: calc(100% - 2rem) !important;
     }
 
     .toast,
-    .toast-msg {
+    .toast-msg,
+    .newket-toast,
+    .nk-toast {
         border-radius: 1rem !important;
         padding: 0.875rem 1rem !important;
         font-size: 0.85rem !important;
+        width: 100% !important;
+        pointer-events: auto !important;
     }
 }
 

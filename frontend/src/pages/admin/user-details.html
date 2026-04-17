@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -447,65 +447,67 @@
         }
 
         async function approveVendor(id, name) {
-            if (!confirm(`Confirmer l'approbation du vendeur ${name} ?`)) return;
-            if (window.LoaderManager) LoaderManager.show("Approbation...");
+            window.showConfirm("Approuver", `Confirmer l'approbation du vendeur ${name} ?`, async () => {
+                if (window.LoaderManager) LoaderManager.show("Approbation...");
 
-            try {
-                const res = await window.SupabaseAdapter.update('users', id, { status: 'verified', role: 'supplier' });
-                if (res) {
-                    try {
-                        const users = window.UserManager ? UserManager.getUsers() : [];
-                        const user = users.find(u => u.id === id);
-                        if (user && user.email) {
-                            await window.SupabaseAdapter.insert('notifications', {
-                                id: 'notif-' + Date.now(),
-                                title: "Boutique validée !",
-                                message: "Félicitations, votre demande pour devenir vendeur a été approuvée.",
-                                type: "success",
-                                date: new Date().toISOString(),
-                                read: false,
-                                user_email: user.email
-                            });
+                try {
+                    const res = await window.SupabaseAdapter.update('users', id, { status: 'verified', role: 'supplier' });
+                    if (res) {
+                        try {
+                            const users = window.UserManager ? UserManager.getUsers() : [];
+                            const user = users.find(u => u.id === id);
+                            if (user && user.email) {
+                                await window.SupabaseAdapter.insert('notifications', {
+                                    id: 'notif-' + Date.now(),
+                                    title: "Boutique validée !",
+                                    message: "Félicitations, votre demande pour devenir vendeur a été approuvée.",
+                                    type: "success",
+                                    date: new Date().toISOString(),
+                                    read: false,
+                                    user_email: user.email
+                                });
+                            }
+                        } catch (e) {
+                            console.error("Erreur notification:", e);
                         }
-                    } catch (e) {
-                        console.error("Erreur notification:", e);
-                    }
 
-                    alert(`Le vendeur ${name} a été approuvé.`);
-                    window.location.reload();
-                } else {
-                    throw new Error("Mise à jour échouée (aucun retour).");
+                        if (window.showToast) window.showToast(`Le vendeur ${name} a été approuvé.`, 'success', 'Approbation');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        throw new Error("Mise à jour échouée (aucun retour).");
+                    }
+                } catch (err) {
+                    console.error("Erreur approbation:", err);
+                    if (window.showToast) window.showToast("Erreur lors de l'approbation : " + err.message, 'danger', 'Erreur');
+                } finally {
+                    if (window.LoaderManager) LoaderManager.hide();
                 }
-            } catch (err) {
-                console.error("Erreur approbation:", err);
-                alert("Erreur lors de l'approbation : " + err.message);
-            } finally {
-                if (window.LoaderManager) LoaderManager.hide();
-            }
+            });
         }
 
         async function rejectVendor(id, name) {
-            if (!confirm(`Rejeter le vendeur ${name} ? Son compte repassera en client simple.`)) return;
-            if (window.LoaderManager) LoaderManager.show("Rejet...");
+            window.showConfirm("Rejeter", `Rejeter le vendeur ${name} ? Son compte repassera en client simple.`, async () => {
+                if (window.LoaderManager) LoaderManager.show("Rejet...");
 
-            try {
-                const res = await window.SupabaseAdapter.update('users', id, {
-                    status: 'rejected',
-                    documents_url: [],
-                    company_name: null
-                });
-                if (res) {
-                    alert(`Le vendeur ${name} a été rejeté.`);
-                    window.location.reload();
-                } else {
-                    throw new Error("Mise à jour échouée.");
+                try {
+                    const res = await window.SupabaseAdapter.update('users', id, {
+                        status: 'rejected',
+                        documents_url: [],
+                        company_name: null
+                    });
+                    if (res) {
+                        if (window.showToast) window.showToast(`Le vendeur ${name} a été rejeté.`, 'info', 'Rejet');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        throw new Error("Mise à jour échouée.");
+                    }
+                } catch (err) {
+                    console.error("Erreur rejet:", err);
+                    if (window.showToast) window.showToast("Erreur lors du rejet: " + err.message, 'danger', 'Erreur');
+                } finally {
+                    if (window.LoaderManager) LoaderManager.hide();
                 }
-            } catch (err) {
-                console.error("Erreur rejet:", err);
-                alert("Erreur lors du rejet: " + err.message);
-            } finally {
-                if (window.LoaderManager) LoaderManager.hide();
-            }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {

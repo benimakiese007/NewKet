@@ -1,4 +1,4 @@
-﻿import { defineConfig } from 'vite';
+import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
@@ -52,6 +52,16 @@ export default defineConfig({
         admin_user: resolve(__dirname, 'src/pages/admin/user.html'),
         admin_security: resolve(__dirname, 'src/pages/admin/security.html'),
         admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html')
+      },
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@supabase')) {
+              return 'vendor-supabase';
+            }
+            return 'vendor';
+          }
+        }
       }
     }
   }

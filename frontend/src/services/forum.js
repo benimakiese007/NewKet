@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const user = (await window.supabaseClient.auth.getUser()).data.user;
 
         if (!user) {
-            alert('Vous devez être connecté pour publier.');
+            if (window.showToast) window.showToast('Vous devez être connecté pour publier.', 'info', 'Connexion requise');
             return;
         }
 
@@ -324,14 +324,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (error) throw error;
 
-            alert('Discussion publiée avec succès !');
+            if (window.showToast) window.showToast('Discussion publiée avec succès !', 'success', 'Succès');
             newTopicModal.classList.add('hidden');
             newTopicModal.classList.remove('flex');
             newTopicForm.reset();
             loadTopics(currentCategoryId);
         } catch (err) {
             console.error('Error creating topic:', err);
-            alert('Erreur lors de la publication. Réessayez.');
+            if (window.showToast) window.showToast('Erreur lors de la publication. Réessayez.', 'danger', 'Erreur');
         }
     };
 

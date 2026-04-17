@@ -281,7 +281,7 @@
             e.preventDefault();
             
             if (uploadedFiles.length === 0) {
-                alert("Veuillez ajouter au moins un document justificatif.");
+                if (window.showToast) window.showToast("Veuillez ajouter au moins un document justificatif.", "info", "Documents");
                 return;
             }
 
@@ -365,7 +365,7 @@
             } catch (err) {
                 console.error(err);
                 if (window.LoaderManager) LoaderManager.hide();
-                alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
+                if (window.showToast) window.showToast("Une erreur est survenue lors de l'envoi. Veuillez réessayer.", "error", "Erreur");
             }
         });
     </script>

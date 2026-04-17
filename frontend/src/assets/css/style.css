@@ -2705,13 +2705,18 @@ body.search-focused .main-header {
 
 @media (max-width: 640px) {
   #newket-toast-container {
-    bottom: 20px;
-    padding: 0 15px;
+    top: 4rem;
+    right: 1rem;
+    left: 1rem;
+    bottom: auto;
+    max-width: calc(100% - 2rem);
+    padding: 0;
   }
 
   .newket-toast {
     padding: 0.85rem 1rem;
     font-size: 0.85rem;
+    width: 100%;
   }
 }
 
@@ -8295,8 +8300,44 @@ html.dark .skeleton {
 
 @media (max-width: 640px) {
     #toast-container {
-        top: 1rem;
-        padding: 0 1rem;
+        top: 4rem;
+        left: 1rem;
+        right: 1rem;
+        width: calc(100% - 2rem);
+        max-width: 100%;
+        transform: none;
+        padding: 0;
     }
 }
 
+
+/* Notification & Modal Drop-Down Animations */
+@keyframes drop-down {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in-down {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-drop-down {
+    animation: drop-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-down {
+    animation: fade-in-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

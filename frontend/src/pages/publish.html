@@ -647,10 +647,8 @@
                 const userStatus = localStorage.getItem('newketUserStatus') || 'pending';
                 const userRole = localStorage.getItem('newketRole');
                 if ((userStatus === 'submitted' || userStatus === 'pending') && userRole !== 'admin') {
-                    if (typeof showToast === 'function') {
-                        showToast("Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.", "warning");
-                    } else {
-                        alert("Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.");
+                    if (window.showToast) {
+                        window.showToast("Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.", "warning");
                     }
                     return;
                 }

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet Realtime & PWA Notifications
  * Handles Toast UI, Supabase Realtime (Price drops for favorites, Order updates),
  * and PWA Add-To-Home-Screen prompt.
@@ -92,7 +92,17 @@ const AppNotifications = {
                                             notif.user_email === userEmail;
 
                             if (isForMe) {
-                                this.showToast(notif.title, notif.message, notif.type, 'solar:bell-bold');
+                                // If message type is broadcast, show the premium modal instead of a simple toast
+                                if (notif.type === 'broadcast') {
+                                    if (window.showAnnouncementModal) {
+                                        window.showAnnouncementModal(notif.title, notif.message, 'info');
+                                    } else {
+                                        this.showToast(notif.title, notif.message, 'info', 'solar:bell-bold');
+                                    }
+                                } else {
+                                    this.showToast(notif.title, notif.message, notif.type, 'solar:bell-bold');
+                                }
+
                                 // Refresh NotificationManager quietly to update badges and list
                                 if (window.NotificationManager) {
                                     window.NotificationManager.init();
