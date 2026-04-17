@@ -122,26 +122,52 @@ function resolvePath(path) {
     if (window.ComponentLoader) {
         return window.ComponentLoader.getAdjustedPath(path);
     }
-    // Fallback logic for absolute paths
-    const root = '/';
-    let cleanPath = path.replace(/^\.\//, '').replace(/^\/+/, '');
     
-    // Ensure index/404 are relative to root
-    if (cleanPath === 'index' || cleanPath === '404' || cleanPath.startsWith('index.html') || cleanPath.startsWith('404.html')) {
-        const ext = cleanPath.includes('.') ? '' : '.html';
-        return root + cleanPath + ext;
+    // Fallback logic (must be consistent with ComponentLoader.getAdjustedPath)
+    const root = '/';
+    if (!path || path === '#' || path === './') {
+        return root + 'index.html';
     }
 
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        const prefix = (cleanPath.startsWith('src/') || cleanPath.startsWith('assets/')) ? '' : 'src/';
-        const ext = cleanPath.includes('.') ? '' : '.html';
-        // assets should be inside src/ usually, but check if user meant assets/
-        if (cleanPath.startsWith('assets/')) return root + 'src/' + cleanPath;
-        return root + prefix + cleanPath + ext;
+    if (path.startsWith('/') || path.startsWith('http') || path.startsWith('javascript:')) {
+        return path;
     }
+
+    let cleanPath = path.replace(/^\.\//, '').replace(/^\/+/, '');
     
-    const prefix = cleanPath.startsWith('src/') ? '' : 'src/';
-    return root + prefix + cleanPath;
+    if (cleanPath === 'admin' || cleanPath === 'admin/') {
+        cleanPath = 'pages/admin/index.html';
+    }
+
+    let query = '';
+    if (cleanPath.includes('?')) {
+        const parts = cleanPath.split('?');
+        cleanPath = parts[0];
+        query = '?' + parts[1];
+    }
+
+    if (cleanPath === 'index' || cleanPath === '404' || cleanPath === 'index.html' || cleanPath === '404.html') {
+        if (!cleanPath.endsWith('.html')) cleanPath += '.html';
+        return root + cleanPath + query;
+    }
+
+    if (cleanPath.startsWith('assets/')) {
+        return root + 'src/' + cleanPath + query;
+    }
+
+    if (!cleanPath.startsWith('src/') && !cleanPath.startsWith('pages/')) {
+        cleanPath = 'pages/' + cleanPath;
+    }
+
+    if (!cleanPath.startsWith('src/')) {
+        cleanPath = 'src/' + cleanPath;
+    }
+
+    if (!cleanPath.includes('.') && !cleanPath.endsWith('/')) {
+        cleanPath += '.html';
+    }
+
+    return root + cleanPath + query;
 }
 window.resolvePath = resolvePath;
 

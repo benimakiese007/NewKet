@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Forum Logic for NewKet
  * Handles categories, topics, and posts with Supabase integration.
  */
@@ -49,31 +49,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Render Categories in Sidebar
+    // Render Categories in Horizontal Layout
     const renderCategories = () => {
         const allDiscussionsHtml = `
-            <button class="group w-full text-left px-5 py-3.5 rounded-2xl text-[13px] font-black uppercase tracking-wider transition-all ${!currentCategoryId ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 hover:bg-gray-50 dark:hover:bg-zinc-800'}" 
+            <button class="group px-6 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all ${!currentCategoryId ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}" 
                 onclick="window.forumManager.filterByCategory(null)">
-                <div class="flex items-center justify-between">
-                    <span>Toutes les discussions</span>
+                <div class="flex items-center gap-2">
                     <iconify-icon icon="solar:globus-linear" class="${!currentCategoryId ? 'block' : 'hidden'}"></iconify-icon>
+                    <span>Toutes</span>
                 </div>
             </button>
         `;
-
+ 
         const categoriesHtml = categories.map(cat => {
             const isActive = currentCategoryId === cat.id;
             return `
-                <button class="group w-full text-left px-5 py-3.5 rounded-2xl text-[13px] font-black uppercase tracking-wider transition-all ${isActive ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 hover:bg-gray-50 dark:hover:bg-zinc-800'}" 
+                <button class="group px-6 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all ${isActive ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}" 
                     onclick="window.forumManager.filterByCategory('${escapeHTML(cat.id)}')">
-                    <div class="flex items-center gap-3">
-                        <iconify-icon icon="${escapeHTML(cat.icon || 'solar:chat-round-line-linear')}" width="20" class="${isActive ? 'text-white dark:text-black' : 'text-gray-400 group-hover:text-black dark:group-hover:text-white'}"></iconify-icon>
-                        <span class="flex-1">${escapeHTML(cat.name)}</span>
+                    <div class="flex items-center gap-2">
+                        <iconify-icon icon="${escapeHTML(cat.icon || 'solar:chat-round-line-linear')}" width="18" class="${isActive ? 'text-white dark:text-black' : 'text-gray-400 group-hover:text-white dark:group-hover:text-black'}"></iconify-icon>
+                        <span>${escapeHTML(cat.name)}</span>
                     </div>
                 </button>
             `;
         }).join('');
-
+ 
         categoriesList.innerHTML = allDiscussionsHtml + categoriesHtml;
     };
 
@@ -244,13 +244,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const mobileNewTopicBtn = document.getElementById('mobileNewTopicBtn');
         const openModal = () => {
             if (!window.AuthManager.getRole()) {
-                window.location.href = '/pages/login?redirect=forum';
+                window.location.href = window.resolvePath('login?redirect=forum');
                 return;
             }
             newTopicModal.classList.remove('hidden');
             newTopicModal.classList.add('flex');
             renderCategorySelect();
         };
+
+        // Filter Toggle Logic
+        const filterToggleBtn = document.getElementById('filterToggleBtn');
+        const filterPanel = document.getElementById('filterPanel');
+        if (filterToggleBtn && filterPanel) {
+            filterToggleBtn.addEventListener('click', () => {
+                const isHidden = filterPanel.classList.contains('hidden');
+                if (isHidden) {
+                    filterPanel.classList.remove('hidden');
+                } else {
+                    filterPanel.classList.add('hidden');
+                }
+            });
+        }
 
         newTopicBtn.addEventListener('click', openModal);
         if (mobileNewTopicBtn) mobileNewTopicBtn.addEventListener('click', openModal);

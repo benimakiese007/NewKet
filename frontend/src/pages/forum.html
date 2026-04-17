@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -168,59 +168,71 @@
             </div>
         </div>
 
-        <!-- Forum Search & Action Bar -->
-        <div class="flex flex-col lg:flex-row gap-6 mb-12 items-center">
-            <div class="flex-1 w-full">
-                <div class="relative group">
+        <div class="flex flex-col lg:flex-row gap-4 mb-12">
+            <!-- Search bar -->
+            <div class="flex-1">
+                <div class="relative group h-full">
                     <iconify-icon icon="solar:magnifer-linear" width="22"
-                        class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-900 dark:group-focus-within:text-white transition-colors"></iconify-icon>
-                    <input type="text" id="forumSearch" name="forumSearch" placeholder="Rechercher une discussion, un membre..."
-                        class="w-full pl-14 pr-6 py-5 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-3xl shadow-sm focus:outline-none focus:ring-4 focus:ring-black/5 dark:focus:ring-white/5 transition-all text-lg font-medium outline-none">
+                        class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-gray-900 dark:group-focus-within:text-white transition-colors"></iconify-icon>
+                    <input type="text" id="forumSearch" name="forumSearch" placeholder="Rechercher une discussion..."
+                        class="w-full pl-16 pr-6 py-5 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[28px] shadow-sm focus:outline-none focus:ring-4 focus:ring-black/5 dark:focus:ring-white/5 transition-all text-lg font-medium outline-none h-full">
                 </div>
             </div>
-            <div class="shrink-0 w-full lg:w-auto">
+
+            <!-- Action buttons -->
+            <div class="flex flex-row gap-4">
+                <button id="filterToggleBtn" 
+                    class="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 py-5 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-[28px] shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-800 transition-all font-black text-sm uppercase tracking-widest group whitespace-nowrap">
+                    <iconify-icon icon="solar:filter-linear" width="22"></iconify-icon>
+                    Filtres
+                </button>
                 <button id="newTopicBtn"
-                    class="w-full bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-3xl font-black hover:scale-105 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-black/10">
+                    class="flex-1 lg:flex-none bg-black dark:bg-white text-white dark:text-black px-10 py-5 rounded-[28px] font-black hover:scale-105 transition-all flex items-center justify-center gap-3 shadow-2xl shadow-black/10 whitespace-nowrap">
                     <iconify-icon icon="solar:pen-new-square-bold" width="22"></iconify-icon>
                     Nouveau Sujet
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
-            <!-- Sidebar / Categories -->
-            <aside class="space-y-8">
-                <div class="glass-card p-8 rounded-[32px] border border-gray-100 dark:border-zinc-800">
+        <!-- Filter Panel (Expanded) -->
+        <div id="filterPanel" class="hidden mb-16 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <div class="lg:col-span-3 glass-card p-10 rounded-[40px] border border-gray-100 dark:border-zinc-800">
                     <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-[0.2em]">Catégories</h3>
-                        <iconify-icon icon="solar:filter-linear" class="text-gray-300 dark:text-zinc-600" width="18"></iconify-icon>
+                        <h3 class="text-[10px] font-black text-gray-400 dark:text-zinc-500 uppercase tracking-[0.2em]">Séléctionner une catégorie</h3>
+                        <button onclick="document.getElementById('filterToggleBtn').click()" class="text-gray-400 hover:text-black dark:hover:text-white transition-colors">
+                            <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
+                        </button>
                     </div>
-                    <nav class="space-y-2" id="categoriesList">
+                    <div class="flex flex-wrap gap-3" id="categoriesList">
                         <!-- Loaded from JS -->
-                        <div class="animate-pulse space-y-3">
-                            <div class="h-12 bg-gray-50 dark:bg-zinc-800 rounded-2xl"></div>
-                            <div class="h-12 bg-gray-50 dark:bg-zinc-800 rounded-2xl"></div>
-                            <div class="h-12 bg-gray-50 dark:bg-zinc-800 rounded-2xl"></div>
+                        <div class="animate-pulse flex gap-3">
+                            <div class="h-12 w-32 bg-gray-50 dark:bg-zinc-800 rounded-2xl"></div>
+                            <div class="h-12 w-32 bg-gray-50 dark:bg-zinc-800 rounded-2xl"></div>
+                            <div class="h-12 w-32 bg-gray-50 dark:bg-zinc-800 rounded-2xl"></div>
                         </div>
-                    </nav>
+                    </div>
                 </div>
 
-                <div class="bg-black dark:bg-zinc-900 p-8 rounded-[32px] text-white relative overflow-hidden group">
+                <div class="bg-black dark:bg-zinc-900 p-10 rounded-[40px] text-white relative overflow-hidden group">
                     <div class="absolute -bottom-4 -right-4 bg-white/5 w-24 h-24 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
                     <h3 class="font-black text-lg mb-3 flex items-center gap-2">
                         <iconify-icon icon="solar:shield-check-bold" class="text-white"></iconify-icon>
-                        Règles du Forum
+                        Règles
                     </h3>
-                    <p class="text-sm text-zinc-400 leading-relaxed mb-6 font-medium font-body">Soyez respectueux, constructif et partagez votre expertise. L'excellence est notre standard.</p>
-                    <a href="./terms" class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest hover:gap-3 transition-all">
-                        Consulter les CGU
+                    <p class="text-xs text-zinc-400 leading-relaxed mb-6 font-medium">Soyez respectueux et constructif. L'excellence est notre standard.</p>
+                    <a href="./terms" class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:gap-3 transition-all">
+                        CGU
                         <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
                     </a>
                 </div>
-            </aside>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1">
 
             <!-- Topics List (Main View) -->
-            <div class="lg:col-span-3 space-y-6" id="topicsContainer">
+            <div class="space-y-6" id="topicsContainer">
                 <div id="categoryHeader" class="flex items-center justify-between mb-2 px-2">
                     <h2 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight" id="currentCategoryName">Toutes les discussions</h2>
                     <div class="flex items-center gap-2 text-sm font-bold text-gray-400">
@@ -234,7 +246,7 @@
             </div>
 
             <!-- Topic Detail View (Hidden by default) -->
-            <div class="lg:col-span-3 hidden space-y-10" id="topicDetailContainer">
+            <div class="hidden space-y-10" id="topicDetailContainer">
                 <button onclick="window.forumManager.backToTopics()"
                     class="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-gray-400 hover:text-black dark:hover:text-white transition-all mb-8 group">
                     <div class="w-10 h-10 rounded-full bg-white dark:bg-zinc-900 flex items-center justify-center border border-gray-100 dark:border-zinc-800 shadow-sm group-hover:-translate-x-1 transition-transform">

@@ -38,26 +38,46 @@ const HEADER_HTML = `
             </div>
 
             <!-- Center: Search & Publish -->
-            <div id="mobileSearchContainer"
+            <div id="mobileSearchContainer" 
                 class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:mx-auto relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
-                style="max-width: 580px;">
-                <div
-                    class="search-bar order-first flex-1 flex items-center bg-slate-100/50 border border-slate-200 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 focus-within:border-gray-200 transition-all duration-300 pr-2">
-                    <input type="text" id="searchInput" name="search" placeholder="Qu'est-ce qui vous ferait plaisir ?" aria-label="Rechercher des produits"
-                        class="w-full py-2.5 px-5 bg-transparent text-sm outline-none placeholder-slate-400 font-medium search-input">
-                    <iconify-icon icon="solar:magnifer-linear" width="20" class="text-slate-400 md:hidden"></iconify-icon>
+                style="max-width: 650px;">
+                <div class="search-bar">
+                    <!-- Category Selector -->
+                    <div id="searchCategoryBtn" class="search-category-btn" title="Choisir une catégorie">
+                        <span id="selectedCategoryName">TOUT</span>
+                        <iconify-icon icon="solar:alt-arrow-down-linear" width="14"></iconify-icon>
+                        
+                        <!-- Mini Dropdown for categories -->
+                        <div id="searchCategoryMenu" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 z-[100] overflow-hidden">
+                            <div class="py-2">
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="all">Tout</button>
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Collections Femme">Femme</button>
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Style Homme">Homme</button>
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Tech & Gadgets">Tech</button>
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Art de vivre">Maison</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="text" id="searchInput" name="search" placeholder="Rechercher sur NewKet..." aria-label="Rechercher des produits"
+                        class="search-input" autocomplete="off" spellcheck="false">
+                        
+                    <iconify-icon icon="solar:magnifer-linear" width="20" class="search-icon"></iconify-icon>
+                    
                     <button id="searchBtn"
-                        class="bg-slate-900 text-white px-6 py-2 m-1 rounded-xl text-xs font-bold hover:bg-slate-800 transition-all uppercase tracking-wider hidden md:block btn-active-scale">RECHERCHE</button>
+                        class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black hover:bg-slate-800 transition-all uppercase tracking-widest hidden md:block btn-active-scale">RECHERCHE</button>
                 </div>
+
                 <!-- Publish Button (Desktop Only) -->
                 <a href="{{ROOT}}src/pages/publish.html"
-                    class="order-last shrink-0 bg-gray-900 text-white px-4 md:px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors hidden sm:flex items-center gap-2 publish-btn h-[40px] whitespace-nowrap btn-active-scale"
+                    class="shrink-0 bg-gray-900 text-white px-4 md:px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors hidden sm:flex items-center gap-2 publish-btn h-[44px] whitespace-nowrap btn-active-scale"
                     aria-label="Vendre un article">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span class="hidden md:inline">Vendre</span>
                 </a>
+
                 <!-- Suggestions Dropdown -->
-                <div id="searchSuggestions" class="search-suggestions hidden"></div>
+                <div id="searchSuggestions" class="search-suggestions"></div>
             </div>
 
             <!-- Right: Icons -->
@@ -88,6 +108,9 @@ const HEADER_HTML = `
                 </a>
             </div>
         </div>
+
+        <!-- Global Search Overlay -->
+        <div id="searchOverlay" class="search-overlay"></div>
 
         <!-- Category Nav -->
         <div class="border-t border-gray-50 bg-white hidden sm:block">
@@ -424,12 +447,12 @@ const ComponentLoader = {
         // --- NEW: Sync Account Path Resolution ---
         const role = localStorage.getItem('newketRole');
         const email = localStorage.getItem('newketUserEmail');
-        let accountPath = 'src/pages/login.html';
+        let accountPath = '/src/pages/login.html';
         
         if (role && email) {
-            if (role === 'admin') accountPath = 'src/pages/admin/index.html';
-            else if (role === 'supplier') accountPath = 'src/pages/vendor-dashboard.html';
-            else accountPath = 'src/pages/customer-dashboard.html';
+            if (role === 'admin') accountPath = '/src/pages/admin/index.html';
+            else if (role === 'supplier') accountPath = '/src/pages/vendor-dashboard.html';
+            else accountPath = '/src/pages/customer-dashboard.html';
         }
 
         let processedHTML = html
@@ -451,25 +474,62 @@ const ComponentLoader = {
         // Standardize to root-relative paths for consistent behavior across all levels.
         const root = '/';
         
-        // If the path already starts with / or is an absolute URL, return it as is.
-        if (path.startsWith('/') || path.startsWith('http')) {
+        // If the path is empty, #, or root relative, handle accordingly
+        if (!path || path === '#' || path === './') {
+            return root + 'index.html';
+        }
+
+        // If it's an absolute URL or javascript:, return it as is.
+        if (path.startsWith('/') || path.startsWith('http') || path.startsWith('javascript:')) {
             return path;
         }
 
         // Standardize path: remove redundant ./ or leading /
         let cleanPath = path.replace(/^\.\//, '').replace(/^\/+/, '');
         
-        // Ensure index/404 are relative to root, everything else relative to src/
-        if (cleanPath === 'index' || cleanPath === '404' || cleanPath.startsWith('index.html') || cleanPath.startsWith('404.html')) {
-            return root + cleanPath;
+        // Handle special redirects / shortcuts
+        if (cleanPath === 'admin' || cleanPath === 'admin/') {
+            cleanPath = 'pages/admin/index.html';
         }
 
-        // Check if we need to prefix with src/
-        if (!cleanPath.startsWith('src/') && !cleanPath.startsWith('assets/') && !cleanPath.startsWith('public/')) {
+        // Separate query string if present
+        let query = '';
+        if (cleanPath.includes('?')) {
+            const parts = cleanPath.split('?');
+            cleanPath = parts[0];
+            query = '?' + parts[1];
+        }
+
+        // Ensure index/404 are relative to root
+        if (cleanPath === 'index' || cleanPath === '404' || cleanPath === 'index.html' || cleanPath === '404.html') {
+            if (!cleanPath.endsWith('.html')) cleanPath += '.html';
+            return root + cleanPath + query;
+        }
+
+        // If it starts with assets/ or public/, ensure it's in src/ (legacy check)
+        if (cleanPath.startsWith('assets/')) {
+            return root + 'src/' + cleanPath + query;
+        }
+        if (cleanPath.startsWith('public/')) {
+            return root + cleanPath + query; // public is usually root
+        }
+
+        // Everything else that doesn't start with src/ or pages/ is likely in pages/
+        if (!cleanPath.startsWith('src/') && !cleanPath.startsWith('pages/')) {
+            cleanPath = 'pages/' + cleanPath;
+        }
+
+        // Ensure src/ prefix
+        if (!cleanPath.startsWith('src/')) {
             cleanPath = 'src/' + cleanPath;
         }
 
-        return root + cleanPath;
+        // Add .html if missing (and it's not a folder or doesn't have an extension)
+        if (!cleanPath.includes('.') && !cleanPath.endsWith('/')) {
+            cleanPath += '.html';
+        }
+
+        return root + cleanPath + query;
     }
 };
 

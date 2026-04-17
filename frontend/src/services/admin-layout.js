@@ -31,14 +31,14 @@ const AdminLayout = {
             // If newketInitialized has already fired and we STILL have no role, redirect.
             if (window.newketInitialized) {
                 console.error('[NewKet] No role found after initialization.');
-                window.location.href = '/src/pages/login.html';
+                window.location.href = window.resolvePath('login');
             }
             return;
         }
 
         if (role !== 'admin') {
             console.error('[NewKet] Unauthorized access to Admin CMS. Role:', role);
-            window.location.href = '/src/pages/login.html';
+            window.location.href = window.resolvePath('login');
         }
     },
 
@@ -139,17 +139,17 @@ const AdminLayout = {
         }
 
         const links = [
-            { href: '/src/pages/admin/index.html', icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
-            { href: '/src/pages/admin/user.html', icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
-            { href: '/src/pages/admin/products.html', icon: 'solar:box-bold', label: "Contrôle Catalogue" },
-            { href: '/src/pages/admin/orders.html', icon: 'solar:bag-bold', label: "Commandes & Retraits" },
-            { href: '/src/pages/admin/diagnostics.html', icon: 'solar:chart-square-bold', label: "Audit & Diagnostics" },
-            { href: '/src/pages/admin/reviews.html', icon: 'solar:star-bold', label: "Avis & Modération" },
-            { href: '/src/pages/admin/newsletter.html', icon: 'solar:letter-bold', label: "Newsletter" },
-            { href: '/src/pages/admin/notifications-admin.html', icon: 'solar:bell-bing-bold', label: "Notifications" },
-            { href: '/src/pages/admin/support.html', icon: 'solar:chat-round-dots-bold', label: "Support Platform" },
-            { href: '/src/pages/admin/security.html', icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins" },
-            { href: '/src/pages/admin/settings.html', icon: 'solar:settings-bold', label: "Paramètres", sub: true }
+            { href: window.resolvePath('admin/index'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
+            { href: window.resolvePath('admin/user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
+            { href: window.resolvePath('admin/products'), icon: 'solar:box-bold', label: "Contrôle Catalogue" },
+            { href: window.resolvePath('admin/orders'), icon: 'solar:bag-bold', label: "Commandes & Retraits" },
+            { href: window.resolvePath('admin/diagnostics'), icon: 'solar:chart-square-bold', label: "Audit & Diagnostics" },
+            { href: window.resolvePath('admin/reviews'), icon: 'solar:star-bold', label: "Avis & Modération" },
+            { href: window.resolvePath('admin/newsletter'), icon: 'solar:letter-bold', label: "Newsletter" },
+            { href: window.resolvePath('admin/notifications-admin'), icon: 'solar:bell-bing-bold', label: "Notifications" },
+            { href: window.resolvePath('admin/support'), icon: 'solar:chat-round-dots-bold', label: "Support Platform" },
+            { href: window.resolvePath('admin/security'), icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins" },
+            { href: window.resolvePath('admin/settings'), icon: 'solar:settings-bold', label: "Paramètres", sub: true }
         ];
 
         let sidebarHTML = `
@@ -167,10 +167,10 @@ const AdminLayout = {
 
             sidebarHTML += `
                 <a href="${link.href}" class="sidebar-link ${isActive} group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50">
-                    <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-black text-white shadow-lg shadow-black/20' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
+                    <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-white/20 text-white shadow-lg backdrop-blur-md' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
                         <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
                     </div>
-                    <span class="text-sm font-bold tracking-tight ${isActive ? 'text-black' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
+                    <span class="text-sm font-bold tracking-tight ${isActive ? 'text-white' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
                     ${isActive ? '<div class="absolute right-3 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>' : ''}
                 </a>
             `;

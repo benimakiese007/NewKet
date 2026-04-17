@@ -1,4 +1,4 @@
-﻿/* newket EMarket Managed Utilities */
+/* newket EMarket Managed Utilities */
 
 // ========== RECENTLY VIEWED MANAGER ==========
 const RecentlyViewedManager = {
@@ -39,7 +39,7 @@ const RecentlyViewedManager = {
         if (container.parentElement) container.parentElement.style.display = 'block';
         container.innerHTML = items.map(p => `
             <div class="flex-shrink-0 w-40 group">
-                <a href="${window.location.pathname.includes('/pages/') ? '' : 'pages/'}product?id=${p.id}" class="block">
+                <a href="${window.resolvePath('product?id=' + p.id)}" class="block">
                     <div class="aspect-square bg-gray-50 rounded-2xl p-4 mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-gray-100 transition-colors">
                         <img src="${p.image}" loading="lazy" class="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110" alt="${p.name}">
                     </div>

@@ -470,28 +470,107 @@ h6 {
   color: var(--primary-color);
 }
 
+/* PREMIUM AMAZON-STYLE SEARCH BAR */
 .search-bar {
   flex: 1;
   min-width: 0;
   position: relative;
+  display: flex !important;
+  align-items: center;
+  background: var(--bg-light);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px !important;
+  overflow: visible !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 44px;
+  z-index: 2000; /* Above overlay */
+}
+
+/* Lights Out Effect: Elevate header when searching */
+body.search-focused .main-header {
+  z-index: 10000 !important;
+}
+
+/* Ensure other header elements stay below overlay */
+body.search-focused .header-content > *:not(#mobileSearchContainer) {
+  position: relative;
+  z-index: 1; /* Below overlay (level 1000) */
+}
+
+/* Lift the search container when focused */
+body.search-focused #mobileSearchContainer {
+  z-index: 10010 !important;
+}
+
+body.search-focused .main-header {
+  z-index: 10000 !important;
+}
+
+.search-bar:focus-within {
+  border-color: #000;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08), 0 10px 40px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+/* Category Toggle inside search bar */
+.search-category-btn {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 100%;
+  border-right: 1.5px solid var(--border-color);
+  color: var(--text-dark);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  /* Fix: needed for the absolute dropdown to position against this element */
+  position: relative;
+}
+
+/* Ensure dropdown is never clipped by sticky bars or header overflow */
+#searchCategoryMenu {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  z-index: 9999 !important;
+  margin-top: 8px;
+}
+
+.search-category-btn:hover {
+  background: rgba(0,0,0,0.02);
 }
 
 .search-input {
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 3rem;
-  border: 1px solid var(--border-color);
-  border-radius: 50px;
-  background-color: var(--bg-light);
-  font-size: 16px;
-  transition: all 0.2s;
+  flex: 1;
+  padding: 10px 16px !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--text-dark) !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  background-color: white;
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+.search-input::placeholder {
+  color: #94a3b8;
 }
+
+.search-bar .search-icon {
+    position: static !important;
+    transform: none !important;
+    margin-right: 12px;
+    color: #94a3b8;
+}
+
 
 .search-icon {
   position: absolute;
@@ -2887,24 +2966,147 @@ body.sidebar-resizing {
 
 /* ========== SEARCH SUGGESTIONS ========== */
 
+/* ========== PREMIUM SEARCH SUGGESTIONS ========== */
 .search-suggestions {
   position: absolute !important;
-  top: calc(100% + 6px) !important;
+  top: calc(100% + 8px) !important;
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
-  background: white !important;
-  border-radius: 1rem !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06) !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  z-index: 9999 !important;
-  max-height: 60vh !important;
-  /* Changed from 380px for better mobile handling */
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  display: none !important;
-  padding: 0.5rem 0 !important;
+  background: #ffffff !important; /* Solid white for maximum contrast */
+  border-radius: 20px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  z-index: 3000 !important; /* Above search bar */
+  overflow: hidden !important;
+  display: none;
+  max-height: 80vh !important;
+  animation: searchSuggestionsFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+.search-suggestions.active {
+  display: block !important;
+}
+
+/* SEARCH OVERLAY */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85); /* Strong darkening like Amazon */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000; /* Between header items and search container */
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@keyframes searchSuggestionsFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.search-suggestions.active {
+  display: block !important;
+}
+
+.suggestion-section {
+    padding: 12px 0;
+}
+
+.suggestion-section:not(:last-child) {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.suggestion-section-title {
+    padding: 0 16px 8px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.suggestion-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.suggestion-icon {
+    width: 32px;
+    height: 32px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+}
+
+.suggestion-text {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.recent-searches-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 16px 16px;
+}
+
+.recent-search-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.recent-search-chip:hover {
+    background: #e2e8f0;
+    color: black;
+}
+
+.recent-search-chip button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.recent-search-chip button:hover {
+    background: rgba(0,0,0,0.1);
+    color: #ef4444;
+}
+
 
 /* Make header allow overflow for dropdown */
 
