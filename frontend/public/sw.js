@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = 'newket-cache-v5'; // Increment version
+const CACHE_NAME = 'newket-cache-v5'; // Increment version
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -82,32 +82,59 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            const fetchPromise = fetch(event.request).then((networkResponse) => {
+    const isHTML = event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html');
+    const isImageOrStatic = url.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp|css|js|woff2?)$/i);
+
+    if (isHTML) {
+        // Network First (fallback to cache) for HTML pages
+        event.respondWith(
+            fetch(event.request).then((networkResponse) => {
                 if (networkResponse && networkResponse.ok) {
                     const responseClone = networkResponse.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseClone);
-                    });
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
                 }
                 return networkResponse;
-            }).catch((err) => {
-                console.warn('[Service Worker] Fetch failed:', event.request.url, err);
-                
-                // Smart fallback: Only serve index.html if the request is actually for the login or root
-                const acceptHeader = event.request.headers.get('accept') || '';
-                if (acceptHeader.includes('text/html')) {
+            }).catch(() => {
+                return caches.match(event.request).then(response => {
+                    if (response) return response;
+                    // Smart fallback
                     if (url.pathname === '/' || url.pathname.includes('index.html')) {
                         return caches.match('/index.html');
                     }
-                }
+                    return new Response('Offline: Page unavailable.', { status: 503, statusText: 'Service Unavailable' });
+                });
+            })
+        );
+    } else if (isImageOrStatic) {
+        // Stale-While-Revalidate for images, CSS, JS
+        event.respondWith(
+            caches.match(event.request).then((cachedResponse) => {
+                const fetchPromise = fetch(event.request).then((networkResponse) => {
+                    if (networkResponse && networkResponse.ok) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                    }
+                    return networkResponse;
+                }).catch(err => {
+                    console.warn('[Service Worker] background fetch failed', err);
+                });
                 
-                // Response with offline status instead of serving wrong page
-                return new Response('Offline: Resource not found in cache.', { status: 503, statusText: 'Service Unavailable' });
-            });
-
-            return cachedResponse || fetchPromise;
-        })
-    );
+                return cachedResponse || fetchPromise; // Return cached immediately, fetch updates in background
+            })
+        );
+    } else {
+        // Cache First for other assets
+        event.respondWith(
+            caches.match(event.request).then((cachedResponse) => {
+                if (cachedResponse) return cachedResponse;
+                return fetch(event.request).then((networkResponse) => {
+                    if (networkResponse && networkResponse.ok) {
+                        const responseClone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                    }
+                    return networkResponse;
+                });
+            })
+        );
+    }
 });

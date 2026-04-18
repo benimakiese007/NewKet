@@ -335,19 +335,41 @@ const AuthManager = {
 
     async logout(reason = 'Utilisateur/Système') {
         console.warn(`[NewKet Auth] Logout triggered. Reason: ${reason}`);
-        console.trace('[NewKet Auth] Logout Stack Trace');
-
-        if (window.supabaseClient) {
-            await window.supabaseClient.auth.signOut();
+        
+        // --- 1. Immediate UI Feedback ---
+        if (typeof showToast === 'function') {
+            showToast('Déconnexion en cours...', 'info');
         }
+
+        // --- 2. Clean Local Storage Immediately ---
+        // We do this first so that if the redirect fails or hangs, 
+        // the user is effectively "logged out" locally if they refresh.
+        this.clearSession();
         this.role = null;
         this.status = null;
         this.user = null;
-        this.clearSession();
         
         if (this._syncInterval) clearInterval(this._syncInterval);
-        
-        window.location.href = window.resolvePath('login');
+
+        // --- 3. Supabase SignOut with Fail-safe ---
+        try {
+            if (window.supabaseClient) {
+                // Set a timeout for Supabase signOut to avoid hanging forever
+                const signoutPromise = window.supabaseClient.auth.signOut();
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout')), 2000));
+                
+                await Promise.race([signoutPromise, timeoutPromise]).catch(err => {
+                    console.warn('[NewKet Auth] Supabase SignOut took too long or failed, forcing redirect.', err);
+                });
+            }
+        } catch (err) {
+            console.error('[NewKet Auth] Logout error (Supabase):', err);
+        } finally {
+            // --- 4. Final Redirection ---
+            const loginPath = window.resolvePath('login');
+            console.log('[NewKet Auth] Redirecting to:', loginPath);
+            window.location.href = loginPath;
+        }
     },
 
     // --- 🔐 PERIODIC SECURITY VALIDATION ---

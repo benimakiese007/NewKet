@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -103,9 +103,9 @@
                         Profil & Sécurité
                     </a>
                     <div class="h-px bg-gray-200 my-2 mx-4"></div>
-                    <button onclick="AuthManager.logout()"
-                        class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-all font-medium text-red-500 w-full text-left">
-                        <iconify-icon icon="solar:logout-linear" width="20"></iconify-icon>
+                    <button onclick="if(window.AuthManager) { this.disabled=true; this.innerHTML='...'; AuthManager.logout(); } else { window.location.reload(); }"
+                        class="px-5 py-3 rounded-2xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2 group">
+                        <iconify-icon icon="solar:logout-bold" width="18" class="group-hover:-translate-x-1 transition-transform"></iconify-icon>
                         Déconnexion
                     </button>
                 </div>

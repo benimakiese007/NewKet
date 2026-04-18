@@ -244,7 +244,7 @@ const HEADER_HTML = `
             </div>
             
             <!-- Logout Button (Authenticated Only) -->
-            <button id="mobileLogoutBtn" onclick="AuthManager.logout()" style="display: none;"
+            <button id="mobileLogoutBtn" onclick="if(window.AuthManager) { this.disabled=true; this.innerHTML='...'; AuthManager.logout(); } else { window.location.reload(); }" style="display: none;"
                 class="flex items-center justify-center gap-2 w-full px-3 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-colors">
                 <iconify-icon icon="solar:logout-3-bold" width="20"></iconify-icon> Se déconnecter
             </button>

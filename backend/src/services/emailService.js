@@ -85,6 +85,33 @@ const EmailService = {
             </div>
         `;
         return this.sendMail({ to: vendorEmail, subject: '🚀 Nouveau prospect WhatsApp pour : ' + productName, html });
+    },
+
+    /**
+     * Template: Newsletter
+     * Sent from the admin to multiple users
+     */
+    async sendNewsletter({ emails, subject, content }) {
+        const html = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="color: #000; margin: 0;">NewKet</h1>
+                    <p style="color: #666; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 2px;">News & Updates</p>
+                </div>
+                <div style="padding: 20px; background-color: #f9f9f9; border-radius: 15px;">
+                    <p style="color: #333; line-height: 1.6;">${content.replace(/\n/g, '<br>')}</p>
+                </div>
+                <p style="color: #999; font-size: 11px; text-align: center; margin-top: 20px;">© ${new Date().getFullYear()} NewKet EMarket. Tous droits réservés.</p>
+                <p style="color: #bbb; font-size: 10px; text-align: center;">Vous recevez cet email car vous êtes inscrit sur NewKet.</p>
+            </div>
+        `;
+        // Promise.all to send individually, or BCC. Using individual sending here for better deliverability
+        const promises = emails.map(email => this.sendMail({ to: email, subject, html }));
+        const results = await Promise.allSettled(promises);
+        
+        const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+        console.log(\`[EmailService] Newsletter sent to \${successCount}/\${emails.length} recipients.\`);
+        return { success: true, totalSent: successCount };
     }
 };
 

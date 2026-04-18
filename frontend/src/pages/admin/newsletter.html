@@ -122,29 +122,39 @@
                 </div>
             </div>
 
-            <!-- Send Campaign Panel -->
             <div class="glass-panel p-6">
                 <h2 class="font-black text-gray-900 mb-1">Envoyer une campagne</h2>
-                <p class="text-sm text-gray-400 mb-6">Le message sera préparé pour envoi via votre outil email (Mailchimp, Brevo, etc.)</p>
+                <p class="text-sm text-gray-400 mb-6">Le message sera envoyé directement à l'audience sélectionnée via le service email de la plateforme.</p>
 
                 <div class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Objet de l'email</label>
-                        <input type="text" id="campaignSubject" placeholder="Ex: Nouvelles arrivées exclusives 🛍️"
-                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Audience cible</label>
+                            <select id="campaignTarget" 
+                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors cursor-pointer bg-white">
+                                <option value="all">Tous les utilisateurs (Clients & Vendeurs)</option>
+                                <option value="customer">Clients uniquement</option>
+                                <option value="supplier">Vendeurs uniquement</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Objet de l'email</label>
+                            <input type="text" id="campaignSubject" placeholder="Ex: Nouvelles arrivées exclusives 🛍️"
+                                class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors">
+                        </div>
                     </div>
                     <div>
-                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Message (aperçu)</label>
-                        <textarea id="campaignBody" rows="4" placeholder="Bonjour chers abonnés, ..."
-                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors resize-none"></textarea>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Contenu du message (Texte brut ou HTML)</label>
+                        <textarea id="campaignBody" rows="6" placeholder="Bonjour chers abonnés, ..."
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors resize-none font-mono text-xs"></textarea>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button onclick="prepareCampaign()"
-                            class="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-gray-800 transition-all">
-                            <iconify-icon icon="solar:letter-send-bold" width="18"></iconify-icon>
-                            Préparer la campagne
+                        <button id="sendCampaignBtn" onclick="sendNewsletterCampaign()"
+                            class="bg-black text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            <iconify-icon id="sendIcon" icon="solar:letter-send-bold" width="18"></iconify-icon>
+                            <span id="sendText">Envoyer la campagne</span>
                         </button>
-                        <span class="text-xs text-gray-400" id="campaignStatus"></span>
+                        <span class="text-xs font-bold" id="campaignStatus"></span>
                     </div>
                 </div>
             </div>
@@ -319,21 +329,62 @@
             window.showToast && showToast('Export réussi !', 'success');
         }
 
-        function prepareCampaign() {
+        async function sendNewsletterCampaign() {
+            const target = document.getElementById('campaignTarget').value;
             const subject = document.getElementById('campaignSubject').value.trim();
-            const body = document.getElementById('campaignBody').value.trim();
-            if (!subject || !body) {
-                window.showToast && showToast('Veuillez remplir l\'objet et le message.', 'error');
+            const content = document.getElementById('campaignBody').value.trim();
+            
+            if (!subject || !content) {
+                window.showToast && showToast('Veuillez remplir l\'objet et le contenu.', 'error');
                 return;
             }
-            const active = allSubscribers.filter(s => s.status !== 'unsubscribed');
-            const emails = active.map(s => s.email).join('; ');
-            const mailtoLink = `mailto:?bcc=${encodeURIComponent(emails)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-            window.open(mailtoLink);
 
+            if (!confirm(`Confirmer l'envoi de cette campagne à l'audience "${target}" ? Cette action est irréversible.`)) {
+                return;
+            }
+
+            const btn = document.getElementById('sendCampaignBtn');
+            const icon = document.getElementById('sendIcon');
+            const text = document.getElementById('sendText');
             const statusEl = document.getElementById('campaignStatus');
-            statusEl.textContent = `✅ Campagne préparée pour ${active.length} abonnés.`;
-            setTimeout(() => statusEl.textContent = '', 5000);
+
+            try {
+                // UI State: Loading
+                btn.disabled = true;
+                text.textContent = 'Envoi en cours...';
+                icon.icon = 'svg-spinners:180-ring-with-bg';
+                statusEl.className = 'text-xs text-blue-500 animate-pulse';
+                statusEl.textContent = 'Dispersion de la newsletter...';
+
+                const response = await window.ApiClient.post('/emails/newsletter', {
+                    target,
+                    subject,
+                    content
+                });
+
+                if (response.success) {
+                    window.showToast && showToast(`Campagne envoyée avec succès ! (${response.totalSent} emails)`, 'success');
+                    statusEl.className = 'text-xs text-green-500 font-bold';
+                    statusEl.textContent = `✅ Envoyé avec succès à ${response.totalSent} utilisateurs.`;
+                    
+                    // Clear form
+                    document.getElementById('campaignSubject').value = '';
+                    document.getElementById('campaignBody').value = '';
+                } else {
+                    throw new Error(response.error || 'Erreur inconnue');
+                }
+
+            } catch (err) {
+                console.error('[Newsletter] Dispatch failed:', err);
+                window.showToast && showToast('Échec de l\'envoi : ' + err.message, 'error');
+                statusEl.className = 'text-xs text-red-500 font-bold';
+                statusEl.textContent = '❌ Échec de l\'envoi.';
+            } finally {
+                btn.disabled = false;
+                text.textContent = 'Envoyer la campagne';
+                icon.icon = 'solar:letter-send-bold';
+                setTimeout(() => statusEl.textContent = '', 8000);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

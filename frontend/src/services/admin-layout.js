@@ -108,7 +108,7 @@ const AdminLayout = {
                                  Boutique
                             </a>
 
-                            <button onclick="AuthManager.logout()" class="h-10 px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center gap-2">
+                            <button onclick="if(window.AuthManager) { this.disabled=true; this.innerHTML='...'; AuthManager.logout(); } else { window.location.reload(); }" class="h-10 px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center gap-2">
                                 <iconify-icon icon="solar:logout-bold" width="16"></iconify-icon>
                                 <span class="hidden sm:inline">Quitter</span>
                             </button>

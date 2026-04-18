@@ -23,6 +23,8 @@ router.post('/vendor-approval', requireAuth, requireAdmin, async (req, res) => {
     }
 });
 
+import { sendNewsletter } from '../controllers/newsletter.controller.js';
+
 /**
  * Endpoint to notify vendor of a new lead
  * POST /api/emails/lead-notification
@@ -48,5 +50,11 @@ router.post('/lead-notification', requireAuth, async (req, res) => {
         res.status(500).json({ error: 'Failed to send lead email.', details: result.error });
     }
 });
+
+/**
+ * Endpoint to send newsletter
+ * POST /api/emails/newsletter
+ */
+router.post('/newsletter', requireAuth, requireAdmin, sendNewsletter);
 
 export default router;
