@@ -13,13 +13,36 @@ const generateTxId = () => {
  * Vérifie la signature du webhook Flutterwave.
  * Flutterwave envoie un header "verif-hash" qu'on compare
  * à notre secret configuré en variable d'environnement.
+ * 
+ * SÉCURITÉ : On utilise crypto.timingSafeEqual() pour une comparaison
+ * en temps constant, résistante aux timing attacks.
  */
 const verifyFlutterwaveSignature = (req) => {
     const webhookSecret = process.env.FLW_WEBHOOK_SECRET;
     const incomingHash = req.headers['verif-hash'];
+
     if (!webhookSecret || !incomingHash) return false;
-    return incomingHash === webhookSecret;
+
+    try {
+        // Les deux buffers doivent avoir la même taille pour timingSafeEqual
+        const secretBuf  = Buffer.from(webhookSecret,  'utf8');
+        const incomingBuf = Buffer.from(incomingHash, 'utf8');
+
+        // Si les longueurs diffèrent, c'est forcément invalide.
+        // On compare quand même un buffer nul de la même taille pour maintenir
+        // le temps constant et ne pas révéler d'info via timing.
+        if (secretBuf.length !== incomingBuf.length) {
+            crypto.timingSafeEqual(secretBuf, Buffer.alloc(secretBuf.length));
+            return false;
+        }
+
+        return crypto.timingSafeEqual(secretBuf, incomingBuf);
+    } catch (err) {
+        console.error('❌ Erreur vérification signature webhook:', err);
+        return false;
+    }
 };
+
 
 /**
  * Vérifie un paiement auprès de l'API Flutterwave.

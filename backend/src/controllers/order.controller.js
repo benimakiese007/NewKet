@@ -1,5 +1,19 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 
+// ─── Statuts de commande autorisés ────────────────────────────────────────────
+// Whitelist stricte : seuls ces statuts peuvent être écrits en base via l'API.
+// N'importe quel autre valeur sera rejetée avec un 400.
+const ALLOWED_ORDER_STATUSES = [
+    'PENDING',
+    'PROCESSING',
+    'SHIPPED',
+    'DELIVERED',
+    'CANCELLED',
+    'ANNULÉ',
+    'COMPLETED',
+    'REFUNDED',
+];
+
 // Order is a term used for whatsapp_clicks in NewKet
 export const getOrders = async (req, res) => {
     try {
@@ -37,6 +51,14 @@ export const updateOrderStatus = async (req, res) => {
             return res.status(400).json({ error: 'Status is required' });
         }
 
+        // ─── SÉCURITÉ : Validation whitelist des statuts ──────────────────────
+        // On refuse tout statut non listé pour éviter les injections de données.
+        if (!ALLOWED_ORDER_STATUSES.includes(status)) {
+            return res.status(400).json({ 
+                error: `Statut invalide. Valeurs autorisées : ${ALLOWED_ORDER_STATUSES.join(', ')}`
+            });
+        }
+
         const client = supabaseAdmin || supabase;
 
         const { data, error } = await client
@@ -53,3 +75,4 @@ export const updateOrderStatus = async (req, res) => {
         return res.status(500).json({ error: 'Failed to update order status' });
     }
 };
+

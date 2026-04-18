@@ -1,21 +1,39 @@
 import { createClient } from '@supabase/supabase-js';
+import { flushCache } from '../middlewares/cache.js';
 
-// Fonction utilitaire pour créer un client Supabase avec le contexte de l'utilisateur courant
+// ─── Singleton Supabase client ─────────────────────────────────────────────
+// On réutilise une seule instance pour éviter la fuite de connexions WebSocket
+// internes à chaque requête sous charge. On mute uniquement le header Authorization.
+const _publicClient = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+);
+
+/**
+ * Retourne le client Supabase approprié selon le contexte de la requête.
+ * - Si req.token est présent : client avec JWT de l'utilisateur (RLS respecté)
+ * - Sinon : client public anonyme
+ * 
+ * IMPORTANT: On crée un client scopé uniquement lorsque le token existe,
+ * afin que les politiques RLS de Supabase soient correctement appliquées.
+ * Le client public est un singleton réutilisé pour toutes les req non authentifiées.
+ */
 const getScopedClient = (req) => {
-    // Si la requête est authentifiée, on crée un client qui embarque son JWT 
-    // pour que les politiques RLS (Row Level Security) de Supabase soient respectées.
     if (req.token) {
+        // Création d'un client léger avec le JWT de l'utilisateur pour RLS.
+        // Note: On ne peut pas muter le singleton public car cela créerait une
+        // race condition entre requêtes parallèles. On instancie uniquement
+        // pour les requêtes authentifiées (moins fréquentes que les GET publics).
         return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+            auth: { persistSession: false }, // Pas de gestion de session côté serveur
             global: {
-                headers: {
-                    Authorization: `Bearer ${req.token}`
-                }
+                headers: { Authorization: `Bearer ${req.token}` }
             }
         });
     }
-    // Sinon on retourne un client public
-    return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+    return _publicClient; // Singleton réutilisé pour toutes les requêtes publiques
 };
+
 
 export const getProducts = async (req, res) => {
     try {
@@ -90,6 +108,9 @@ export const createProduct = async (req, res) => {
 
         if (error) throw error;
 
+        // Invalider le cache après création
+        flushCache('/api/products');
+
         res.status(201).json(data);
     } catch (err) {
         console.error('❌ createProduct error:', err);
@@ -113,6 +134,9 @@ export const updateProduct = async (req, res) => {
 
         if (error) throw error;
 
+        // Invalider le cache après mise à jour
+        flushCache('/api/products');
+
         res.json(data);
     } catch (err) {
         console.error('❌ updateProduct error:', err);
@@ -131,6 +155,9 @@ export const deleteProduct = async (req, res) => {
             .eq('id', id);
 
         if (error) throw error;
+
+        // Invalider le cache après suppression
+        flushCache('/api/products');
 
         res.json({ success: true, message: 'Produit supprimé avec succès' });
     } catch (err) {
@@ -155,6 +182,9 @@ export const deleteBulkProducts = async (req, res) => {
 
         if (error) throw error;
 
+        // Invalider le cache après suppression groupée
+        flushCache('/api/products');
+
         res.json({ success: true, count: ids.length });
     } catch (err) {
         console.error('❌ deleteBulkProducts error:', err);
@@ -177,6 +207,9 @@ export const updateBulkCategory = async (req, res) => {
             .in('id', ids);
 
         if (error) throw error;
+
+        // Invalider le cache après mise à jour groupée
+        flushCache('/api/products');
 
         res.json({ success: true, count: ids.length });
     } catch (err) {
