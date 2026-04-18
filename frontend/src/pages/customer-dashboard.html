@@ -154,8 +154,8 @@
                 </div>
                 <nav class="space-y-1">
                     <a href="#" onclick="switchTab('orders')" class="sidebar-link active" id="link-orders">
-                        <iconify-icon icon="solar:chat-round-line-bold" width="20"></iconify-icon>
-                        Mes Demandes WhatsApp
+                        <iconify-icon icon="solar:bag-bold" width="20"></iconify-icon>
+                        Mes Commandes
                     </a>
                     <a href="#" onclick="switchTab('favorites')" class="sidebar-link" id="link-favorites">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
@@ -392,8 +392,8 @@
                         <div id="modalTransactionId" class="text-[9px] font-black text-gray-400 uppercase tracking-tighter mt-1"></div>
                     </div>
                     <div class="space-y-1 text-right">
-                        <div class="text-xs font-bold text-gray-400 uppercase">Mode de contact</div>
-                        <div id="modalContactMethod" class="text-sm font-medium">WhatsApp Direct</div>
+                        <div class="text-xs font-bold text-gray-400 uppercase">Mode de paiement</div>
+                        <div id="modalContactMethod" class="text-sm font-medium">Flutterwave</div>
                     </div>
                 </div>
 
@@ -886,7 +886,7 @@
                 transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id.substring(0, 16)}...` : '';
             }
             if (contactMethodEl) {
-                contactMethodEl.textContent = order.payment_status && order.payment_status !== 'N/A' ? 'Flutterwave Online' : 'WhatsApp Direct';
+                contactMethodEl.textContent = order.payment_status && order.payment_status !== 'N/A' ? 'Flutterwave Online' : 'Paiement en cours';
             }
 
             const itemsList = document.getElementById('modalOrderItems');

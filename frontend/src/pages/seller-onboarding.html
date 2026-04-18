@@ -290,7 +290,6 @@
             try {
                 const companyName = document.getElementById('companyName').value;
                 const phone = document.getElementById('phone').value;
-                const whatsapp = document.getElementById('whatsapp').value;
                 const storeDescription = document.getElementById('storeDescription').value;
                 const storeAddress = document.getElementById('storeAddress').value;
                 const pMethodElem = document.getElementById('payoutMethod');
@@ -336,7 +335,7 @@
                 // Update user profile
                 const updateData = {
                     company_name: companyName,
-                    store_phone_whatsapp: whatsapp,
+                    store_phone: phone,
                     store_description: storeDescription,
                     store_address: storeAddress,
                     preferred_payout_method: payoutMethod,

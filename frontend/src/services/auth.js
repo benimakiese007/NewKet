@@ -17,7 +17,6 @@ const AuthManager = {
     _syncInterval: null,
 
     async init() {
-        console.log('[NewKet Auth] Initializing AuthManager...');
         this._authChecking = true;
 
         // --- GLOBAL FAIL-SAFE ---
@@ -33,7 +32,6 @@ const AuthManager = {
         try {
             if (window.supabaseClient) {
                 window.supabaseClient.auth.onAuthStateChange((event, session) => {
-                    console.log(`[NewKet Auth] Auth Event: ${event}`);
                     if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                         if (session) {
                             const user = session.user;
@@ -51,22 +49,13 @@ const AuthManager = {
                     }
                 });
 
-                console.log('[NewKet Auth] Verifying persistent session...');
-                
-                // --- SAFETY TIMEOUT ---
-                // We use SupabaseAdapter.getSession() which has a built-in timeout 
-                // to prevent white screens if Supabase auth-locking hangs.
                 const session = await window.SupabaseAdapter.getSession(3000);
                 
                 if (session) {
                     const user = session.user;
                         this.user = user; 
-                        console.log('[NewKet Auth] Session valid for:', user.email);
-                        
-                        // We now let handleSessionUpdate manage profile creation/validation
                         await this.handleSessionUpdate(user);
                     } else {
-                        console.log('[NewKet Auth] No active session found.');
                         this.handleLogoutCleanup();
                         
                         // Redirect if on protected page
@@ -150,8 +139,6 @@ const AuthManager = {
             const success = await window.SupabaseAdapter.upsert('users', newProfile);
             if (!success) {
                 console.error('[NewKet Auth] Failed to create profile. User might have limited access.');
-            } else {
-                 console.log('[NewKet Auth] Database profile created successfully.');
             }
         }
 
@@ -429,14 +416,12 @@ const AuthManager = {
 
     enforcePermissions() {
         if (this._authChecking) return;
-        console.log(`[NewKet Auth] Enforcing permissions for role: ${this.role}, status: ${this.status}`);
 
         const path = window.location.pathname;
         const isLoginPage = path.includes('login');
 
         // --- NEW: Bounce logic for users already logged in ---
         if (this.role && isLoginPage) {
-            console.log('[NewKet Auth] User already logged in, redirecting from login page...');
             // Zero-flash: Hide body until redirect starts
             document.body.style.opacity = '0';
             document.body.style.pointerEvents = 'none';
@@ -517,7 +502,6 @@ const AuthManager = {
                 const isPublish = path.includes('publish');
 
                 if (isDashboard || isPublish) {
-                    console.log('[NewKet Auth] Redirecting pending vendor to onboarding.');
                     window.location.href = window.resolvePath('seller-onboarding');
                     return;
                 }
@@ -549,7 +533,6 @@ const AuthManager = {
 
         // If still initializing, don't enforce yet to avoid race conditions
         if (!this._initialized) {
-            console.log('[NewKet Auth] Skipping enforcement: Initialization in progress.');
             return;
         }
 

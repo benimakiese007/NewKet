@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet Profile Manager
  * Handles local user profile data and synchronization with Supabase.
  */
@@ -70,7 +70,7 @@ const ProfileManager = {
                     name: profile.name || this._profile.name,
                     company_name: profile.company_name || this._profile.company_name,
                     email: user.email || this._profile.email,
-                    phone: profile.phone || profile.store_phone_whatsapp || this._profile.phone,
+                    phone: profile.phone || profile.store_phone || this._profile.phone,
                     avatar: profile.avatar || profile.avatar_url || this._profile.avatar,
                     role: profile.role || user.role,
                     shipping_time: profile.shipping_time || this._profile.shipping_time

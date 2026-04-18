@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Supabase Adapter for NewKet — V2 (Optimized for scale)
  * Features: In-memory cache with TTL, automatic retry, pagination,
  * centralized filters, and cache invalidation on mutations.
@@ -272,13 +272,11 @@ window.SupabaseAdapter = {
                         query = query.single();
                     }
 
-                    console.log(`[NewKet] Fetching from ${table} with options:`, options);
                     const { data, error } = await query;
                     if (error) {
                         console.error(`[NewKet] Supabase Error in ${table}:`, error);
                         throw error;
                     }
-                    console.log(`[NewKet] Fetched ${data?.length || 0} rows from ${table}.`);
                     return data;
                 }),
                 options.timeout || 7000,

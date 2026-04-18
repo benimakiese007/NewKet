@@ -1,12 +1,16 @@
+// ─── Sentry DOIT être initialisé EN PREMIER ───────────────────────────────
+import { initSentry, sentryErrorHandler } from './middlewares/sentry.js';
+import dotenv from 'dotenv';
+dotenv.config({ path: '../.env' });
+initSentry(); // ← Avant tout le reste
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import compression from 'compression';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
-// Charger les variables d'environnement
-dotenv.config({ path: '../.env' });
+// Variables d'environnement déjà chargées en haut (avant initSentry)
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -81,11 +85,19 @@ app.get('/api/health', (req, res) => {
 });
 
 // ─── Gestion des erreurs ───────────────────────────────────
+// Sentry doit intercepter les erreurs AVANT notre handler custom
+app.use(sentryErrorHandler);
+
+// Handler d'erreur maison (après Sentry)
 app.use((err, req, res, next) => {
+  const eventId = res.sentry; // ID Sentry attaché par sentryErrorHandler
   console.error('❌ Erreur serveur:', err.stack);
-  res.status(500).json({ 
+  if (eventId) console.error(`   🔍 Sentry Event ID: ${eventId}`);
+  
+  res.status(err.status || 500).json({ 
     error: 'Erreur interne du serveur',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
+    ...(eventId && { sentryEventId: eventId }) // Retourner l'ID en dev pour faciliter le debug
   });
 });
 

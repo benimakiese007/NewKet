@@ -1,4 +1,6 @@
-﻿// En production (Vercel), les appels /api/* sont servis par la Serverless Function sur le même domaine.
+import { captureError } from './sentry.js';
+
+// En production (Vercel), les appels /api/* sont servis par la Serverless Function sur le même domaine.
 // En développement local, on pointe vers le serveur Express sur :3001.
 const API_BASE_URL = import.meta.env.VITE_API_URL
     || (location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? 'http://127.0.0.1:3001/api' : '/api');
@@ -60,6 +62,8 @@ export const ApiClient = {
             return data;
         } catch (error) {
             console.error(`[ApiClient] Error on ${endpoint}:`, error);
+            // Capturer toutes les erreurs d'API (délai, 500, etc) avec le contexte
+            captureError(error, { endpoint, method: options.method || 'GET' });
             throw error;
         }
     },

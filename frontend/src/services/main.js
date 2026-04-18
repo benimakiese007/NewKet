@@ -1,4 +1,5 @@
-﻿/* NewKet EMarket - Main Orchestrator */
+/* NewKet EMarket - Main Orchestrator */
+import { initSentry, setSentryUser } from './sentry.js';
 
 window.newketConfig = {
     exchangeRate: 2500
@@ -10,6 +11,9 @@ window.newketConfig = {
 
 const App = {
     async init() {
+        // --- INITIALISATION SENTRY (Monitoring) ---
+        initSentry();
+
         // --- GLOBAL APP FAIL-SAFE ---
         // Ensure the white loading screen is REMOVED after 6 seconds, even if something hangs deep in a manager.
         setTimeout(() => {
@@ -31,9 +35,15 @@ const App = {
         if (window.ProductManager) initPromises.push(ProductManager.init());
         
         const currentRole = window.AuthManager?.role;
+        const currentUser = window.AuthManager?.user;
         const isLoggedIn = !!currentRole;
         const isAdmin = currentRole === 'admin';
         const isSupplier = currentRole === 'supplier';
+
+        // Set Sentry user for context if logged in
+        if (isLoggedIn && currentUser) {
+            setSentryUser({ id: currentUser.id, email: currentUser.email, role: currentRole });
+        }
 
         // Check Maintenance Mode
         if (window.newketConfig && window.newketConfig.maintenanceMode === true && !isAdmin) {

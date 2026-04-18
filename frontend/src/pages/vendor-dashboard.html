@@ -63,9 +63,9 @@
                             <iconify-icon icon="solar:box-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Mes Produits</span>
                         </a>
-                        <a href="#" onclick="switchVendorTab('leads')" class="sidebar-link group btn-active-scale" aria-label="Prospects WhatsApp">
-                            <iconify-icon icon="solar:users-group-rounded-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                            <span>Prospects WhatsApp</span>
+                        <a href="#" onclick="switchVendorTab('leads')" class="sidebar-link group btn-active-scale" aria-label="Demandes de Paiement">
+                            <iconify-icon icon="solar:card-send-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                            <span>Demandes de Paiement</span>
                         </a>
                         <a href="#" onclick="switchVendorTab('purchases')" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
                             <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
@@ -112,7 +112,7 @@
                 <!-- Stats Grid -->
                 <div class="vendor-stats-grid">
                 <div class="glass-panel p-8">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Clics WhatsApp</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Paiements Initiés</p>
                     <div class="text-3xl font-black text-gray-900" id="vendorTotalSales">0</div>
                     <p class="text-xs text-green-500 mt-2 font-bold">+0 ce mois</p>
                 </div>
@@ -130,7 +130,7 @@
                         <div class="text-3xl font-black text-gray-900" id="vendorConversionRate">0%</div>
                         <iconify-icon icon="solar:graph-up-bold" class="text-blue-500 text-2xl"></iconify-icon>
                     </div>
-                    <p class="text-xs text-gray-400 mt-2 font-bold">Vues vs WhatsApp</p>
+                    <p class="text-xs text-gray-400 mt-2 font-bold">Vues vs Paiements</p>
                 </div>
                 <div class="glass-panel p-8">
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Note Vendeur</p>
@@ -150,7 +150,7 @@
                         <h3 class="font-bold text-gray-900">Intérêt pour vos produits</h3>
                         <div
                             class="text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md">
-                            WhatsApp</div>
+                            Flutterwave</div>
                     </div>
                     <div class="aspect-[16/9]">
                         <canvas id="salesChart"></canvas>
@@ -160,7 +160,7 @@
                 <!-- Recent Orders Table -->
                 <div class="glass-panel p-8">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="font-bold text-gray-900">Derniers Prospects</h3>
+                        <h3 class="font-bold text-gray-900">Dernières Commandes</h3>
                         <a href="#"
                             class="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Voir
                             tout</a>
@@ -222,7 +222,7 @@
             <div id="tab-leads" class="hidden">
                 <div class="glass-panel p-8">
                     <div class="flex items-center justify-between mb-8">
-                        <h2 class="text-xl font-bold">Prospects WhatsApp</h2>
+                        <h2 class="text-xl font-bold">Demandes de Paiement</h2>
                     </div>
                     <div id="vendor-leads-list" class="space-y-4">
                         <p class="text-center text-sm text-gray-400 py-12">Chargement des prospects...</p>
@@ -410,7 +410,7 @@
                         <div class="bg-blue-50 p-4 rounded-xl flex items-start gap-3">
                             <iconify-icon icon="solar:info-circle-bold" class="text-blue-500 shrink-0" width="20"></iconify-icon>
                             <p class="text-[10px] text-blue-700 leading-relaxed font-medium">
-                                <strong>Note :</strong> Les paiements s'effectuent directement entre vous et le client. NewKet ne prélève aucune commission sur vos ventes.
+                                <strong>Note :</strong> Les transactions sont sécurisées par Flutterwave. Le statut de chaque commande est mis à jour automatiquement après confirmation du paiement.
                             </p>
                         </div>
                     </div>
@@ -873,7 +873,7 @@
                     const recentOrders = stats.orders || [];
                     const ordersTable = document.getElementById('vendor-recent-orders');
                     if (recentOrders.length === 0) {
-                        ordersTable.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-sm text-gray-400">Aucun prospect pour le moment</td></tr>`;
+                        ordersTable.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-sm text-gray-400">Aucune commande pour le moment</td></tr>`;
                     } else {
                         ordersTable.innerHTML = recentOrders.map(o => `
                         <tr class="hover:bg-gray-50 transition-all cursor-pointer group" onclick="openOrderDetailModal('${o.id}')">
@@ -1112,7 +1112,7 @@
                     if (!leadsList) return;
 
                     if (recentOrders.length === 0) {
-                        leadsList.innerHTML = `<p class="col-span-full py-12 text-center text-sm text-gray-400">Aucun prospect pour le moment.</p>`;
+                        leadsList.innerHTML = `<p class="col-span-full py-12 text-center text-sm text-gray-400">Aucun paiement initié pour le moment.</p>`;
                     } else {
                         leadsList.innerHTML = recentOrders.map(o => `
                             <div class="glass-panel p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-lg transition-all group">
@@ -1139,7 +1139,7 @@
                                     </div>
                                     <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${o.status}</span>
                                     <button onclick="openOrderDetailModal('${o.id}')" 
-                                        aria-label="Voir les détails du prospect"
+                                        aria-label="Voir les détails du paiement"
                                         class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                                         <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
                                     </button>
