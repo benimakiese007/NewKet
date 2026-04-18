@@ -18,8 +18,9 @@ const HEADER_HTML = `
                     <span class="px-4">Marketplace de Luxe — Boutique NewKet Officielle</span>
                 </div>
                 <div class="hidden sm:flex items-center gap-6">
-                    <a href="#" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Support</a>
-                    <a href="#" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">FAQ</a>
+                    <a href="{{ROOT}}src/pages/support.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Support</a>
+                    <a href="{{ROOT}}src/pages/faq.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">FAQ</a>
+                    <a href="{{ROOT}}src/pages/forum.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Forum</a>
                 </div>
             </div>
         </div>
@@ -273,8 +274,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
                 <ul class="space-y-4">
                     <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
-                    <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mes Activités</a></li>
-                    <li><a href="{{ROOT}}src/pages/about.html" class="text-gray-400 hover:text-white text-sm transition-colors">Aide & FAQ</a></li>
+                    <li><a href="{{ROOT}}src/pages/support.html" class="text-gray-400 hover:text-white text-sm transition-colors">Support Technique</a></li>
+                    <li><a href="{{ROOT}}src/pages/faq.html" class="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a></li>
                     <li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
                 </ul>
             </div>

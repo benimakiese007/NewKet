@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support NewKet — Assistance & Contact</title>
+    <meta name="description" content="Contacter l'équipe Support NewKet. Nous sommes là pour vous aider avec vos commandes, votre compte ou tout autre besoin.">
+    
+    <!-- NewKet Brand Identity -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet V2.jpeg">
+    <link rel="icon" type="image/png" href="/Images/Logo NewKet V2.jpeg">
+    <meta name="theme-color" content="#111827">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconify -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js" defer></script>
+    <!-- Inter & Outfit Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #10b981;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        
+        .contact-method {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .contact-method:hover {
+            transform: translateY(-4px);
+            border-color: rgba(16, 185, 129, 0.2);
+            background: #fff;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-900">
+
+    <!-- Header Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-32 pb-20 px-4 sm:px-8 max-w-6xl mx-auto">
+        <!-- Hero Section -->
+        <div class="flex flex-col md:flex-row items-center gap-12 mb-20">
+            <div class="flex-1 text-center md:text-left">
+                <span class="inline-block px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-4">Besoin d'aide ?</span>
+                <h1 class="text-5xl sm:text-6xl font-outfit font-black tracking-tight text-gray-950 mb-6 italic leading-none">
+                    Le Support <br class="hidden sm:block"> à Votre Écoute.
+                </h1>
+                <p class="text-gray-500 text-lg max-w-md">
+                    Une question sur une commande ou un problème technique ? Notre équipe vous répond en moins de 24h.
+                </p>
+            </div>
+            <div class="flex-1 w-full">
+                <!-- Contact Form Card -->
+                <div class="bg-white p-8 sm:p-10 rounded-[3rem] border border-gray-100 shadow-2xl shadow-emerald-900/5">
+                    <form id="supportForm" class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Nom complet</label>
+                                <input type="text" placeholder="Ex: Jean Mukendi" required class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Email</label>
+                                <input type="email" placeholder="votre@email.com" required class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Sujet</label>
+                            <select class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none">
+                                <option>Commandes & Paiement</option>
+                                <option>Devenir Vendeur</option>
+                                <option>Problème Technique</option>
+                                <option>Autre</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Message</label>
+                            <textarea rows="4" placeholder="Comment pouvons-nous vous aider ?" required class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-gray-950 text-white py-5 rounded-[1.5rem] font-bold hover:bg-black transition-all transform active:scale-[0.98] shadow-xl shadow-gray-950/20 flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:letter-bold" width="20"></iconify-icon>
+                            Envoyer le message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Methods Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="contact-method p-8 bg-gray-50 rounded-[2.5rem] border border-transparent">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm mb-6">
+                    <iconify-icon icon="solar:chat-dots-bold" width="24"></iconify-icon>
+                </div>
+                <h3 class="font-outfit text-lg font-bold mb-2">Live Chat</h3>
+                <p class="text-gray-500 text-xs mb-4">Disponible du lundi au samedi, 9h-18h.</p>
+                <button class="text-emerald-600 text-[10px] font-black uppercase tracking-widest">Démarrer</button>
+            </div>
+
+            <div class="contact-method p-8 bg-gray-50 rounded-[2.5rem] border border-transparent">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-blue-600 shadow-sm mb-6">
+                    <iconify-icon icon="solar:phone-bold" width="24"></iconify-icon>
+                </div>
+                <h3 class="font-outfit text-lg font-bold mb-2">Téléphone</h3>
+                <p class="text-gray-500 text-xs mb-4">Appelez-nous directement pour vos urgences.</p>
+                <span class="text-blue-600 text-[10px] font-black uppercase tracking-widest">+243 000 000 000</span>
+            </div>
+
+            <div class="contact-method p-8 bg-gray-50 rounded-[2.5rem] border border-transparent">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-purple-600 shadow-sm mb-6">
+                    <iconify-icon icon="solar:mailbox-bold" width="24"></iconify-icon>
+                </div>
+                <h3 class="font-outfit text-lg font-bold mb-2">Email</h3>
+                <p class="text-gray-500 text-xs mb-4">Pour les demandes administratives et partenariats.</p>
+                <span class="text-purple-600 text-[10px] font-black uppercase tracking-widest">contact@newket.com</span>
+            </div>
+
+            <div class="contact-method p-8 bg-gray-50 rounded-[2.5rem] border border-transparent">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-orange-600 shadow-sm mb-6">
+                    <iconify-icon icon="solar:help-bold" width="24"></iconify-icon>
+                </div>
+                <h3 class="font-outfit text-lg font-bold mb-2">Centre d'aide</h3>
+                <p class="text-gray-500 text-xs mb-4">Consultez notre FAQ pour des réponses immédiates.</p>
+                <a href="faq.html" class="text-orange-600 text-[10px] font-black uppercase tracking-widest">Consulter</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="/src/services/components-loader.js"></script>
+    <script>
+        document.getElementById('supportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            // Simulation de chargement
+            btn.disabled = true;
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi en cours...';
+            btn.classList.add('opacity-80');
+
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            if (window.showToast) {
+                window.showToast('Message envoyé ! Nous vous répondrons très bientôt.', 'success', 'Support');
+            } else {
+                alert('Message envoyé !');
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            btn.classList.remove('opacity-80');
+            e.target.reset();
+        });
+    </script>
+</body>
+</html>

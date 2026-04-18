@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ — Aide & Questions Fréquentes — NewKet</title>
+    <meta name="description" content="Toutes les réponses à vos questions sur NewKet : paiements, livraisons, retours et compte.">
+    
+    <!-- NewKet Brand Identity -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet V2.jpeg">
+    <link rel="icon" type="image/png" href="/Images/Logo NewKet V2.jpeg">
+    <meta name="theme-color" content="#111827">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconify -->
+    <script src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js" defer></script>
+    <!-- Inter & Outfit Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #10b981;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-outfit { font-family: 'Outfit', sans-serif; }
+        
+        .faq-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .faq-card:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+    <!-- Structured Data (FAQ Schema) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Quels modes de paiement sont acceptés ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nous acceptons les cartes de crédit/débit (Visa, Mastercard), le Mobile Money (M-Pesa, Airtel Money, Orange Money) et les virements bancaires sécurisés via notre partenaire Flutterwave."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mes informations de paiement sont-elles sécurisées ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolument. NewKet ne stocke jamais vos données bancaires. Toutes les transactions sont cryptées et traitées par des passerelles de paiement certifiées PCI-DSS."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Combien de temps prend la livraison ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Le délai dépend de la localisation du vendeur et de votre adresse. En général, comptez 24 à 48h pour une livraison locale et 3 à 5 jours pour une livraison nationale."
+          }
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-900 scroll-smooth">
+
+    <!-- Header Placeholder -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-32 pb-20 px-4 sm:px-8 max-w-5xl mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-16">
+            <span class="inline-block px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-4">Support NewKet</span>
+            <h1 class="text-4xl sm:text-5xl font-outfit font-black tracking-tight text-gray-950 mb-6 italic">
+                Questions Fréquentes
+            </h1>
+            <p class="text-gray-500 text-lg max-w-2xl mx-auto">
+                Tout ce que vous devez savoir pour profiter pleinement de l'expérience NewKet.
+            </p>
+        </div>
+
+        <!-- Categories & Search -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div class="faq-card bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-6">
+                    <iconify-icon icon="solar:card-2-bold" width="24"></iconify-icon>
+                </div>
+                <h3 class="font-outfit text-xl font-bold mb-3">Paiements</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-4">Sécurité des transactions, méthodes acceptées et facturation.</p>
+                <a href="#payments" class="text-emerald-600 text-xs font-black uppercase tracking-widest hover:underline">Consulter</a>
+            </div>
+            
+            <div class="faq-card bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 mb-6">
+                    <iconify-icon icon="solar:box-bold" width="24"></iconify-icon>
+                </div>
+                <h3 class="font-outfit text-xl font-bold mb-3">Livraisons</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-4">Délais de livraison, suivi de commande et zones desservies.</p>
+                <a href="#shipping" class="text-blue-600 text-xs font-black uppercase tracking-widest hover:underline">Consulter</a>
+            </div>
+
+            <div class="faq-card bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+                <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-6">
+                    <iconify-icon icon="solar:user-bold" width="24"></iconify-icon>
+                </div>
+                <h3 class="font-outfit text-xl font-bold mb-3">Vendeurs</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-4">Comment ouvrir une boutique et gérer vos ventes sur NewKet.</p>
+                <a href="#vendors" class="text-purple-600 text-xs font-black uppercase tracking-widest hover:underline">Consulter</a>
+            </div>
+        </div>
+
+        <!-- FAQ Content -->
+        <div class="space-y-12">
+            <section id="payments">
+                <h2 class="text-2xl font-outfit font-black mb-8 flex items-center gap-3">
+                    <span class="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center text-sm italic">01</span>
+                    Paiements & Sécurité
+                </h2>
+                <div class="space-y-4">
+                    <details class="group bg-white rounded-[1.5rem] border border-gray-100 overflow-hidden transition-all hover:border-emerald-200">
+                        <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                            <span class="font-bold text-gray-900">Quels modes de paiement sont acceptés ?</span>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" class="transition-transform group-open:rotate-180"></iconify-icon>
+                        </summary>
+                        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed">
+                            Nous acceptons les cartes de crédit/débit (Visa, Mastercard), le Mobile Money (M-Pesa, Airtel Money, Orange Money) et les virements bancaires sécurisés via notre partenaire Flutterwave.
+                        </div>
+                    </details>
+                    
+                    <details class="group bg-white rounded-[1.5rem] border border-gray-100 overflow-hidden transition-all hover:border-emerald-200">
+                        <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                            <span class="font-bold text-gray-900">Mes informations de paiement sont-elles sécurisées ?</span>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" class="transition-transform group-open:rotate-180"></iconify-icon>
+                        </summary>
+                        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed">
+                            Absolument. NewKet ne stocke jamais vos données bancaires. Toutes les transactions sont cryptées et traitées par des passerelles de paiement certifiées PCI-DSS.
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <section id="shipping">
+                <h2 class="text-2xl font-outfit font-black mb-8 flex items-center gap-3">
+                    <span class="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center text-sm italic">02</span>
+                    Livraisons & Retours
+                </h2>
+                <div class="space-y-4">
+                    <details class="group bg-white rounded-[1.5rem] border border-gray-100 overflow-hidden transition-all hover:border-emerald-200">
+                        <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                            <span class="font-bold text-gray-900">Combien de temps prend la livraison ?</span>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" class="transition-transform group-open:rotate-180"></iconify-icon>
+                        </summary>
+                        <div class="px-6 pb-6 text-gray-500 text-sm leading-relaxed">
+                            Le délai dépend de la localisation du vendeur et de votre adresse. En général, comptez 24 à 48h pour une livraison locale et 3 à 5 jours pour une livraison nationale.
+                        </div>
+                    </details>
+                </div>
+            </section>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="mt-20 p-10 bg-gray-950 rounded-[3rem] text-center text-white relative overflow-hidden">
+            <div class="relative z-10">
+                <h3 class="text-2xl font-outfit font-black mb-4 italic">Encore des questions ?</h3>
+                <p class="text-white/60 mb-8 max-w-sm mx-auto">Notre équipe est là pour vous accompagner 7j/7.</p>
+                <a href="support.html" class="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-2xl font-bold hover:bg-emerald-600 transition-all">
+                    Contactez le Support
+                </a>
+            </div>
+            <!-- Decorative circle -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
+        </div>
+    </main>
+
+    <!-- Footer Placeholder -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="/src/services/components-loader.js"></script>
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
