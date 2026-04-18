@@ -117,8 +117,29 @@ const AuthManager = {
         localStorage.setItem('newketUserEmail', email);
         localStorage.setItem('newketUserId', user.id);
 
-        const avatarUrl = user.user_metadata.avatar_url || user.user_metadata.picture || null;
-        if (avatarUrl) localStorage.setItem('newketUserAvatar', avatarUrl);
+        // --- 🖼️ AVATAR RESOLUTION (Priority: DB > OAuth metadata) ---
+        // Fetch the user's avatar from DB first (custom uploads), fall back to OAuth provider picture.
+        const oauthAvatar = user.user_metadata.avatar_url || user.user_metadata.picture || null;
+        try {
+            if (window.supabaseClient) {
+                const { data: profile } = await window.supabaseClient
+                    .from('users')
+                    .select('avatar')
+                    .eq('id', user.id)
+                    .maybeSingle();
+                const dbAvatar = profile?.avatar || null;
+                const resolvedAvatar = dbAvatar || oauthAvatar;
+                if (resolvedAvatar) {
+                    localStorage.setItem('newketUserAvatar', resolvedAvatar);
+                } else {
+                    localStorage.removeItem('newketUserAvatar');
+                }
+            } else if (oauthAvatar) {
+                localStorage.setItem('newketUserAvatar', oauthAvatar);
+            }
+        } catch (_) {
+            if (oauthAvatar) localStorage.setItem('newketUserAvatar', oauthAvatar);
+        }
 
         // --- 🛡️ AUTO-PROFILE CREATION (Skill 5 & 6) ---
         // Verify if user exists in the 'users' table, if not, create it.
@@ -126,6 +147,7 @@ const AuthManager = {
         if (!profileExists) {
             console.log('[NewKet Auth] New user detected, creating database profile...');
             const fullName = user.user_metadata.full_name || user.user_metadata.name || email.split('@')[0];
+            const avatarUrl = localStorage.getItem('newketUserAvatar');
             
             const newProfile = {
                 id: user.id,
@@ -147,6 +169,8 @@ const AuthManager = {
 
         this.setupRealtimeSync(user.id);
         this.enforcePermissions();
+        // Refresh avatar in the header now that DB data is loaded
+        this.updateAccountLink();
 
         if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
         if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
@@ -156,6 +180,7 @@ const AuthManager = {
         this._initialized = true;
         document.documentElement.classList.remove('auth-loading');
     },
+
 
     handleLogoutCleanup() {
         if (this._realtimeChannel) {
@@ -591,6 +616,14 @@ const AuthManager = {
                     img.className = 'nav-user-avatar w-7 h-7 object-cover rounded-full';
                     accountLink.appendChild(img);
                 }
+                img.alt = 'Photo de profil';
+                img.onerror = () => {
+                    // URL cassée : masquer l'image et afficher l'icône
+                    img.style.display = 'none';
+                    if (icon) icon.style.display = 'block';
+                    // Nettoyer le cache pour éviter la boucle
+                    localStorage.removeItem('newketUserAvatar');
+                };
                 img.src = avatarUrl;
                 img.style.display = 'block';
             } else {
@@ -721,6 +754,11 @@ const AuthManager = {
             }
 
             if (avatarUrl && loggedAvatar) {
+                loggedAvatar.onerror = () => {
+                    loggedAvatar.classList.add('hidden');
+                    if (loggedIcon) loggedIcon.classList.remove('hidden');
+                    localStorage.removeItem('newketUserAvatar');
+                };
                 loggedAvatar.src = avatarUrl;
                 loggedAvatar.classList.remove('hidden');
                 if (loggedIcon) loggedIcon.classList.add('hidden');
