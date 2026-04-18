@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -55,28 +55,28 @@
                         <iconify-icon icon="solar:letter-bold" width="20"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total abonnés</p>
-                    <div class="text-2xl font-black text-gray-900" id="statTotal">à</div>
+                    <div class="text-2xl font-black text-gray-900" id="statTotal">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="w-9 h-9 rounded-xl bg-green-50 text-green-500 flex items-center justify-center mb-3">
                         <iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Actifs</p>
-                    <div class="text-2xl font-black text-gray-900" id="statActive">à</div>
+                    <div class="text-2xl font-black text-gray-900" id="statActive">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mb-3">
                         <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Désabonnés</p>
-                    <div class="text-2xl font-black text-gray-900" id="statUnsubscribed">à</div>
+                    <div class="text-2xl font-black text-gray-900" id="statUnsubscribed">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="w-9 h-9 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center mb-3">
                         <iconify-icon icon="solar:calendar-bold" width="20"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Ce mois-ci</p>
-                    <div class="text-2xl font-black text-gray-900" id="statThisMonth">à</div>
+                    <div class="text-2xl font-black text-gray-900" id="statThisMonth">0</div>
                 </div>
             </div>
 
@@ -130,7 +130,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-1.5">Objet de l'email</label>
-                        <input type="text" id="campaignSubject" placeholder="Ex: Nouvelles arrivées exclusives �°�¸à�¥"
+                        <input type="text" id="campaignSubject" placeholder="Ex: Nouvelles arrivées exclusives 🛍️"
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors">
                     </div>
                     <div>
@@ -332,7 +332,7 @@
             window.open(mailtoLink);
 
             const statusEl = document.getElementById('campaignStatus');
-            statusEl.textContent = `�¢éâ�¦ Campagne préparée pour ${active.length} abonnés.`;
+            statusEl.textContent = `✅ Campagne préparée pour ${active.length} abonnés.`;
             setTimeout(() => statusEl.textContent = '', 5000);
         }
 

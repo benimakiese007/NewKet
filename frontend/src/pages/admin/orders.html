@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -37,7 +37,19 @@
                     <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Suivi des Prospects</h1>
                     <p class="text-gray-500 font-medium" id="pageSubtitle">Suivez les interactions et intentions d'achat générées par la plateforme.</p>
                 </div>
-                <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <select id="filterStatus" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
+                        <option value="">Tous les statuts</option>
+                        <option value="En attente">En attente</option>
+                        <option value="En livraison">En cours (Livraison)</option>
+                        <option value="Livré">Conclu (Livré)</option>
+                    </select>
+                    <select id="filterPayment" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
+                        <option value="">Paiements</option>
+                        <option value="SUCCESSFUL">Payé</option>
+                        <option value="PENDING">Attente</option>
+                        <option value="FAILED">Échoué</option>
+                    </select>
                     <div class="relative flex-1 sm:w-64">
                         <iconify-icon icon="solar:magnifer-linear" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
                         <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Rechercher par ID, Nom..." 
@@ -51,7 +63,27 @@
                 </div>
             </div>
 
-            <div class="glass-panel overflow-hidden animate-premium stagger-1">
+            <!-- Mini-Stats -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-premium stagger-1">
+                <div class="glass-panel p-5">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Prospects</p>
+                    <p class="text-3xl font-black text-gray-900 mt-1 tracking-tight" id="statLeadsTotal">0</p>
+                </div>
+                <div class="glass-panel p-5">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">En cours</p>
+                    <p class="text-3xl font-black text-amber-600 mt-1 tracking-tight" id="statLeadsPending">0</p>
+                </div>
+                <div class="glass-panel p-5">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Conclus</p>
+                    <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsSuccess">0</p>
+                </div>
+                <div class="glass-panel p-5 border-b-4 border-green-500">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Valeur Estimée ($)</p>
+                    <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsValue">$0</p>
+                </div>
+            </div>
+
+            <div class="glass-panel overflow-hidden animate-premium stagger-2">
                 <div class="overflow-x-auto">
                     <table class="premium-table w-full">
                         <thead>
@@ -94,6 +126,8 @@
             const tbody = document.getElementById('ordersBody');
             const emptyState = document.getElementById('emptyState');
             const query = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+            const statusFilter = document.getElementById('filterStatus')?.value || '';
+            const paymentFilter = document.getElementById('filterPayment')?.value || '';
             const allOrders = OrderManager.getOrders();
 
             filteredOrders = allOrders.filter(o => {
@@ -101,8 +135,31 @@
                 const nameMatch = (o.customer?.name || o.customer_name || '').toLowerCase().includes(query);
                 const txMatch = (o.transaction_id || '').toLowerCase().includes(query);
                 const phoneMatch = (o.phone_number || '').toLowerCase().includes(query);
-                return idMatch || nameMatch || txMatch || phoneMatch;
+                const matchQuery = idMatch || nameMatch || txMatch || phoneMatch;
+
+                const matchStatus = statusFilter ? o.status === statusFilter || (statusFilter === 'Livré' && o.status === 'Conclu') : true;
+                
+                let oPayment = (o.payment_status || '').toUpperCase();
+                if(oPayment === 'SUCCESS' || oPayment === 'PAID') oPayment = 'SUCCESSFUL';
+                const matchPayment = paymentFilter ? oPayment === paymentFilter : true;
+
+                return matchQuery && matchStatus && matchPayment;
             });
+
+            // Calculate & Update Stats
+            const totalLeads = filteredOrders.length;
+            const pendingLeads = filteredOrders.filter(o => o.status === 'En attente' || o.status === 'En livraison').length;
+            const successLeads = filteredOrders.filter(o => o.status === 'Livré' || o.status === 'Conclu').length;
+            const totalFC = filteredOrders.reduce((sum, o) => sum + parseInt(o.total || 0), 0);
+            
+            document.getElementById('statLeadsTotal').textContent = totalLeads;
+            document.getElementById('statLeadsPending').textContent = pendingLeads;
+            document.getElementById('statLeadsSuccess').textContent = successLeads;
+            if(window.CurrencyManager) {
+                document.getElementById('statLeadsValue').textContent = '$' + window.CurrencyManager.convert(totalFC, true).toFixed(2);
+            } else {
+                document.getElementById('statLeadsValue').textContent = '$' + (totalFC / 2500).toFixed(2);
+            }
 
             if (filteredOrders.length === 0) {
                 tbody.innerHTML = '';

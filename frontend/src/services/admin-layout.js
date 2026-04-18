@@ -143,6 +143,7 @@ const AdminLayout = {
             { href: window.resolvePath('admin/user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
             { href: window.resolvePath('admin/products'), icon: 'solar:box-bold', label: "Contrôle Catalogue" },
             { href: window.resolvePath('admin/orders'), icon: 'solar:bag-bold', label: "Commandes & Retraits" },
+            { href: window.resolvePath('admin/activities'), icon: 'solar:history-bold', label: "Journal d'Activités" },
             { href: window.resolvePath('admin/diagnostics'), icon: 'solar:chart-square-bold', label: "Audit & Diagnostics" },
             { href: window.resolvePath('admin/reviews'), icon: 'solar:star-bold', label: "Avis & Modération" },
             { href: window.resolvePath('admin/newsletter'), icon: 'solar:letter-bold', label: "Newsletter" },

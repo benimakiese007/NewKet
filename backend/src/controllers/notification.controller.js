@@ -46,21 +46,28 @@ export const addNotification = async (req, res) => {
         if (!userEmail) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
         if (!title || !message) return res.status(400).json({ error: 'Titre et message requis.' });
 
-        const mappedTargetRole = target || 'all';
+        const isBroadcast = type === 'broadcast';
+        const mappedTargetRole = isBroadcast ? 'all' : (target || 'all');
+
+        const insertPayload = {
+            id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            title,
+            message,
+            type: type || 'info',
+            target_role: mappedTargetRole,
+            read: false,
+            date: new Date().toISOString()
+        };
+
+        // For broadcasts, don't bind to a specific user so all users receive it
+        if (!isBroadcast) {
+            if (userId) insertPayload.user_id = userId;
+            insertPayload.user_email = userEmail;
+        }
 
         const { data, error } = await supabaseAdmin
             .from('notifications')
-            .insert({
-                id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                ...(userId ? { user_id: userId } : {}),
-                user_email: userEmail,
-                title,
-                message,
-                type: type || 'info',
-                target_role: mappedTargetRole,
-                read: false,
-                date: new Date().toISOString()
-            })
+            .insert(insertPayload)
             .select()
             .single();
 
@@ -71,6 +78,7 @@ export const addNotification = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la création de la notification.' });
     }
 };
+
 
 
 export const markAsRead = async (req, res) => {

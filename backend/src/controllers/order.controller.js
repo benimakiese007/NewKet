@@ -10,7 +10,7 @@ export const getOrders = async (req, res) => {
         let result = [];
         const { data: ordersData, error: ordersError } = await client
             .from('orders')
-            .select('id, status, created_at, total, total_amount, customer_name, customer_email, phone_number, items, payment_status, transaction_id, user_id, vendor_id, customer_id')
+            .select('id, status, created_at, total, total_amount, customer_name, customer_email, phone_number, items, payment_status, transaction_id, user_id')
             .order('created_at', { ascending: false })
             .range(offset, offset + parseInt(limit) - 1);
 

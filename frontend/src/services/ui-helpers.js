@@ -583,12 +583,14 @@ function showCheckoutModal(productName, productPrice) {
  * High-visibility announcement modal for admin broadcasts.
  * Anchored to the top-center, following the platform-wide notification pattern.
  */
-window.showAnnouncementModal = (title, message, type = 'info') => {
+window.showAnnouncementModal = (title, message, type = 'info', force = false) => {
     // Check if showing one already
     if (document.getElementById('nk-announcement-modal')) return;
     
     // Check if user has already dismissed this specific announcement in this session
-    if (sessionStorage.getItem(`dismissed_${title}`)) return;
+    // (only applies to non-forced calls — broadcasts always shown)
+    if (!force && sessionStorage.getItem(`dismissed_${title}`)) return;
+
 
     const modal = document.createElement('div');
     modal.id = 'nk-announcement-modal';

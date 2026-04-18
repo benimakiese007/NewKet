@@ -77,7 +77,8 @@ const AppNotifications = {
                         .subscribe();
 
                     // Listen for real-time notifications from admin
-                    client.channel(`public:notifications:${userId}`)
+                    // Use a single global channel so broadcasts (no user_id) are received
+                    client.channel('admin-notifications-broadcast')
                         .on('postgres_changes', {
                             event: 'INSERT',
                             schema: 'public',
@@ -92,20 +93,20 @@ const AppNotifications = {
                                             notif.user_email === userEmail;
 
                             if (isForMe) {
-                                // If message type is broadcast, show the premium modal instead of a simple toast
+                                // If type is broadcast → premium modal popup
                                 if (notif.type === 'broadcast') {
                                     if (window.showAnnouncementModal) {
-                                        window.showAnnouncementModal(notif.title, notif.message, 'info');
+                                        window.showAnnouncementModal(notif.title, notif.message, 'info', true);
                                     } else {
                                         this.showToast(notif.title, notif.message, 'info', 'solar:bell-bold');
                                     }
                                 } else {
-                                    this.showToast(notif.title, notif.message, notif.type, 'solar:bell-bold');
+                                    this.showToast(notif.title, notif.message, notif.type || 'info', 'solar:bell-bold');
                                 }
 
-                                // Refresh NotificationManager quietly to update badges and list
+                                // Refresh NotificationManager to update badge count
                                 if (window.NotificationManager) {
-                                    window.NotificationManager.init();
+                                    window.NotificationManager.init(true);
                                 }
                             }
                         })

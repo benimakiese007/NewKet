@@ -1033,7 +1033,11 @@
                             }
                         } catch (error) {
                             if (window.showToast) showToast('Erreur lors de la suppression.', 'error');
-                     function renderVendorPurchases() {
+                        }
+                    }
+                }
+
+                function renderVendorPurchases() {
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     
