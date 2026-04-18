@@ -110,7 +110,7 @@ const EmailService = {
         const results = await Promise.allSettled(promises);
         
         const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
-        console.log(\`[EmailService] Newsletter sent to \${successCount}/\${emails.length} recipients.\`);
+        console.log(`[EmailService] Newsletter sent to ${successCount}/${emails.length} recipients.`);
         return { success: true, totalSent: successCount };
     }
 };

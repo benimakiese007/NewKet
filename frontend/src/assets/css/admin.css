@@ -84,6 +84,7 @@ body {
 .premium-gradient-orange { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
 .premium-gradient-purple { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); }
 .premium-gradient-dark { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); }
+.glass-panel.premium-gradient-dark:hover { background: linear-gradient(135deg, #1f2937 0%, #374151 100%); }
 
 /* Stats Widgets */
 .stat-card-label {
