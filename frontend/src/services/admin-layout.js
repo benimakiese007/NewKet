@@ -84,7 +84,7 @@ const AdminLayout = {
                             <div class="relative">
                                 <div class="absolute -inset-1 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
                                 <div class="relative w-10 h-10 bg-black rounded-xl flex items-center justify-center overflow-hidden border border-white/10">
-                                    <img src="/src/assets/Images/logo-newket-v2.jpeg" alt="NewKet" class="w-full h-full object-contain">
+                                    <img src="/src/assets/Images/logo-newket.png" alt="NewKet" class="w-full h-full object-contain">
                                 </div>
                             </div>
                             <div class="flex flex-col">
