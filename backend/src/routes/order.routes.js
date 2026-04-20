@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getOrders, updateOrderStatus } from '../controllers/order.controller.js';
+import { getOrders, updateOrderStatus, verifyDelivery, releaseEscrow } from '../controllers/order.controller.js';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
 import { body } from 'express-validator';
 import { validate } from '../middlewares/validation.js';
@@ -16,5 +16,8 @@ router.put('/:id/status',
     validate, 
     updateOrderStatus
 );
+
+router.post('/:id/verify-delivery', requireAuth, verifyDelivery);
+router.post('/:id/release-escrow', requireAuth, requireAdmin, releaseEscrow);
 
 export default router;

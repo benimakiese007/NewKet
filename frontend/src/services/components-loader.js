@@ -33,8 +33,8 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
                 <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1">
-                    <img src="{{ROOT}}src/assets/Images/logo-newket.png" alt="NewKet" 
-                        class="h-12 sm:h-16 w-auto object-contain transform scale-150 origin-left">
+                    <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" 
+                        class="h-16 sm:h-20 w-auto object-contain transform scale-[2.5] origin-left">
                 </a>
             </div>
 
@@ -146,7 +146,7 @@ const HEADER_HTML = `
 </div>
 <div id="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
     <div class="p-3 border-b border-gray-100 flex items-center justify-between overflow-hidden">
-        <img src="{{ROOT}}src/assets/Images/logo-newket.png" alt="NewKet" class="h-16 w-auto object-contain transform scale-150 origin-left">
+        <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-20 w-auto object-contain transform scale-[2.5] origin-left pl-4">
         <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100 btn-active-scale" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
         </button>
@@ -258,8 +258,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-10 mb-12">
             <div class="lg:col-span-4 space-y-6">
-                <div class="flex items-center -ml-4">
-                    <img src="{{ROOT}}src/assets/Images/logo-newket.png" alt="NewKet" class="h-20 w-auto object-contain grayscale invert opacity-90">
+                <div class="flex items-center ml-2">
+                    <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-28 w-auto object-contain transform scale-[2] grayscale invert opacity-90 origin-left">
                 </div>
                 <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
                     L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
@@ -307,8 +307,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm flex h-[70px] sm:h-[80px] items-center justify-center">
-    <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
-        <img src="{{ROOT}}src/assets/Images/logo-newket.png" alt="NewKet" class="h-20 sm:h-24 w-auto object-contain transition-transform group-hover:scale-110">
+    <a href="{{ROOT}}index.html" class="flex items-center group py-2 pl-6" title="Retour à l'accueil">
+        <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-24 sm:h-32 w-auto object-contain transform scale-[2] origin-left transition-transform group-hover:scale-[2.1]">
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-gray-300">
         <iconify-icon icon="solar:lock-password-bold" width="18"></iconify-icon>

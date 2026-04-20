@@ -12,6 +12,10 @@ const ALLOWED_ORDER_STATUSES = [
     'ANNULÉ',
     'COMPLETED',
     'REFUNDED',
+    'PAID_HELD',
+    'RELEASED',
+    'DISPUTED',
+    'FROZEN'
 ];
 
 // Order is a term used for whatsapp_clicks in NewKet
@@ -73,6 +77,99 @@ export const updateOrderStatus = async (req, res) => {
     } catch (err) {
         console.error('❌ Erreur updateOrderStatus:', err.message);
         return res.status(500).json({ error: 'Failed to update order status' });
+    }
+};
+
+export const verifyDelivery = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { otp } = req.body;
+
+        if (!otp) {
+            return res.status(400).json({ error: 'Le code OTP est requis' });
+        }
+
+        const client = supabaseAdmin || supabase;
+
+        // Récupérer la commande
+        const { data: order, error: fetchError } = await client
+            .from('orders')
+            .select('id, status, otp_code')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !order) {
+            return res.status(404).json({ error: 'Commande introuvable' });
+        }
+
+        if (order.status !== 'PAID_HELD') {
+            return res.status(400).json({ error: 'La commande n\\'est pas en attente de livraison (PAID_HELD)' });
+        }
+
+        if (order.otp_code !== otp) {
+            return res.status(400).json({ error: 'Code OTP invalide' });
+        }
+
+        // Mettre à jour le statut
+        const { data: updatedOrder, error: updateError } = await client
+            .from('orders')
+            .update({
+                status: 'DELIVERED',
+                delivered_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (updateError) throw updateError;
+
+        return res.status(200).json({ success: true, message: 'Livraison validée avec succès', order: updatedOrder });
+    } catch (err) {
+        console.error('❌ Erreur verifyDelivery:', err.message);
+        return res.status(500).json({ error: 'Failed to verify delivery' });
+    }
+};
+
+export const releaseEscrow = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const client = supabaseAdmin || supabase;
+
+        // Récupérer la commande
+        const { data: order, error: fetchError } = await client
+            .from('orders')
+            .select('id, status, vendor_id, total_amount')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !order) {
+            return res.status(404).json({ error: 'Commande introuvable' });
+        }
+
+        if (order.status !== 'DELIVERED') {
+            return res.status(400).json({ error: 'Les fonds ne peuvent être libérés que pour une commande livrée (DELIVERED)' });
+        }
+
+        // Mettre à jour le statut et la date de libération
+        const { data: updatedOrder, error: updateError } = await client
+            .from('orders')
+            .update({
+                status: 'RELEASED',
+                released_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (updateError) throw updateError;
+
+        // Ici, il faudrait idéalement déclencher un transfert vers le wallet du vendeur (ex: flutterwave transfers)
+        console.log(`[Escrow] Fonds libérés pour la commande ${id} au vendeur ${order.vendor_id}`);
+
+        return res.status(200).json({ success: true, message: 'Fonds libérés avec succès', order: updatedOrder });
+    } catch (err) {
+        console.error('❌ Erreur releaseEscrow:', err.message);
+        return res.status(500).json({ error: 'Failed to release escrow' });
     }
 };
 

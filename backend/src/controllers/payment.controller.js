@@ -263,15 +263,19 @@ export const flutterwaveWebhook = async (req, res) => {
 
             console.log(`✅ [FLW Webhook] Commande ${ourTxId} validée (stock décrémenté)`);
 
-            // Notification au vendeur
+            // Notification au vendeur et au client (OTP)
             const { data: orderInfo } = await client
                 .from('orders')
-                .select('id')
+                .select('id, otp_code, customer_email, customer_name, transaction_id')
                 .eq('transaction_id', ourTxId)
                 .single();
 
             if (orderInfo) {
                 NotificationService.notifyOrderSuccess(orderInfo.id);
+                
+                if (orderInfo.customer_email && orderInfo.otp_code) {
+                    NotificationService.notifyCustomerOTP(orderInfo);
+                }
             }
 
         } else {

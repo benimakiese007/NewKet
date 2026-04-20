@@ -103,6 +103,53 @@ const NotificationService = {
         } catch (error) {
             console.error('[NotificationService] Global error:', error);
         }
+    },
+
+    /**
+     * Notifie le client avec son code OTP de livraison.
+     * @param {Object} order - Objet contenant id, otp_code, customer_email, customer_name, transaction_id
+     */
+    async notifyCustomerOTP(order) {
+        if (!order || !order.customer_email || !order.otp_code) return;
+
+        try {
+            console.log(`[NotificationService] Sending OTP to customer ${order.customer_email} for order ${order.transaction_id}`);
+            
+            const customerName = order.customer_name || 'Client';
+
+            EmailService.sendMail({
+                to: order.customer_email,
+                subject: '🔐 Votre Code Secret de Livraison - NewKet',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                        <h2 style="color: #000;">Votre commande est en route !</h2>
+                        <p>Bonjour <b>${customerName}</b>,</p>
+                        <p>Le paiement de votre commande <b>#${order.transaction_id}</b> a été sécurisé sur notre compte séquestre (Escrow).</p>
+                        <p>Le vendeur a été notifié et prépare votre livraison.</p>
+                        
+                        <div style="background: #fff8eb; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; border: 2px dashed #f59e0b;">
+                            <p style="margin: 0; color: #b45309; font-size: 14px;">CODE DE LIVRAISON SÉCURISÉ (OTP)</p>
+                            <h1 style="font-size: 36px; margin: 10px 0; letter-spacing: 5px; color: #000;">${order.otp_code}</h1>
+                        </div>
+
+                        <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin: 20px 0; color: #991b1b; font-size: 14px;">
+                            <strong>⚠️ ATTENTION TRÈS IMPORTANT :</strong>
+                            <ul style="margin-top: 5px; padding-left: 20px;">
+                                <li>Ne donnez ce code au livreur <b>QU'APRÈS avoir reçu et vérifié</b> votre produit.</li>
+                                <li>Donner ce code libère l'argent au vendeur.</li>
+                                <li>Si le produit n'est pas conforme, <b>ne donnez pas le code</b> et ouvrez un litige sur la plateforme.</li>
+                            </ul>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="${process.env.FRONTEND_URL}/pages/customer-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Suivre ma commande</a>
+                        </div>
+                    </div>
+                `
+            }).catch(err => console.error('[NotificationService] Error sending OTP email:', err));
+        } catch (error) {
+            console.error('[NotificationService] OTP sending error:', error);
+        }
     }
 };
 
