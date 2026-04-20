@@ -72,6 +72,7 @@ import analyticsRoutes from './routes/analyticsRoutes.js';
 import reviewRoutes from './routes/review.routes.js';
 import supportRoutes from './routes/support.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
+import disputeRoutes from './routes/dispute.routes.js';
 
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -87,6 +88,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/disputes', disputeRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {

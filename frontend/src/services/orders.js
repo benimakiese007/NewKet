@@ -274,6 +274,37 @@ const OrderManager = {
         return { success: true, message: 'Demande enregistrée.' };
     },
 
+    async validateDelivery(orderId, otpCode) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/orders/verify-delivery`, { order_id: orderId, otp_code: otpCode });
+            this._initialized = false; // Forcer la mise à jour des stats et listes
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur validateDelivery:', error);
+            throw error;
+        }
+    },
+
+    async openDispute(orderId, reasonCategory, description, proofUrls) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/disputes`, {
+                order_id: orderId,
+                reason_category: reasonCategory,
+                description,
+                proof_urls: proofUrls
+            });
+            this._initialized = false; // Rafraîchissement
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur openDispute:', error);
+            throw error;
+        }
+    },
+
     // ========== HELPERS ==========
 
     _calculateGrowth(orders, valueExtractor) {

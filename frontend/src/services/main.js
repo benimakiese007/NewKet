@@ -145,6 +145,24 @@ const App = {
 
 
         });
+        // Scroll Direction Detection for Category Nav
+        let lastScrollTop = 0;
+        const categoryNav = document.getElementById('categoryNav');
+        const scrollThreshold = 100; // Only hide after scrolling down 100px
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+                // Scrolling Down
+                categoryNav?.classList.add('nav-hidden');
+            } else if (scrollTop < lastScrollTop) {
+                // Scrolling Up
+                categoryNav?.classList.remove('nav-hidden');
+            }
+            
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For mobile or negative scrolling
+        }, { passive: true });
     },
 
     shakeFavoritesIcon() {

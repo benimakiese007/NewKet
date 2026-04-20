@@ -421,8 +421,37 @@
                     </div>
                 </div>
 
+                <!-- Escrow Actions (Dynamic) -->
+                <div id="modalEscrowSection" class="hidden space-y-4 pt-4 border-t border-gray-100">
+                    <!-- OTP Display for PAID_HELD -->
+                    <div id="otpDisplaySection" class="hidden p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
+                        <div class="text-xs font-bold text-purple-600 uppercase mb-2">Code de validation (OTP)</div>
+                        <div id="otpValue" class="text-3xl font-black tracking-[0.5em] text-purple-900">------</div>
+                        <p class="text-[10px] text-purple-500 mt-2">Donnez ce code au livreur uniquement APRÈS avoir reçu et vérifié votre colis.</p>
+                    </div>
+
+                    <!-- Actions Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button id="btnValidateDelivery" onclick="handleValidateDelivery()" 
+                            class="hidden flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
+                            Valider la réception
+                        </button>
+                        <button id="btnOpenDispute" onclick="handleOpenDispute()" 
+                            class="hidden flex-1 py-3 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon>
+                            Signaler un litige
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Actions -->
                 <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button onclick="downloadInvoice()"
+                        class="flex-1 py-3 bg-gray-100 text-black rounded-xl font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                        <iconify-icon icon="solar:download-minimalistic-linear" width="20"></iconify-icon>
+                        Facture PDF
+                    </button>
                     <button onclick="closeOrderModal()"
                         class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors">
                         Fermer
@@ -839,7 +868,13 @@
             switch (status) {
                 case 'En attente': return 'bg-yellow-100 text-yellow-700';
                 case 'En livraison': return 'bg-blue-100 text-blue-700';
+                case 'SHIPPED': return 'bg-blue-100 text-blue-700';
                 case 'Livré': return 'bg-green-100 text-green-700';
+                case 'DELIVERED': return 'bg-teal-100 text-teal-700';
+                case 'PAID_HELD': return 'bg-purple-100 text-purple-700';
+                case 'RELEASED': return 'bg-green-100 text-green-700';
+                case 'DISPUTED': return 'bg-orange-100 text-orange-700';
+                case 'FROZEN': return 'bg-red-100 text-red-700';
                 default: return 'bg-gray-100 text-gray-700';
             }
         }
@@ -906,8 +941,82 @@
             document.getElementById('modalOrderSubtotal').textContent = CurrencyManager.formatPrice(order.total);
             document.getElementById('modalOrderTotal').textContent = CurrencyManager.formatPrice(order.total);
 
+            // Escrow Logic UI
+            const escrowSection = document.getElementById('modalEscrowSection');
+            const otpSection = document.getElementById('otpDisplaySection');
+            const btnValidate = document.getElementById('btnValidateDelivery');
+            const btnDispute = document.getElementById('btnOpenDispute');
+
+            escrowSection.classList.add('hidden');
+            otpSection.classList.add('hidden');
+            btnValidate.classList.add('hidden');
+            btnDispute.classList.add('hidden');
+
+            if (order.status === 'PAID_HELD') {
+                escrowSection.classList.remove('hidden');
+                otpSection.classList.remove('hidden');
+                document.getElementById('otpValue').textContent = order.otp_code || '------';
+                btnDispute.classList.remove('hidden');
+            } else if (order.status === 'DELIVERED') {
+                escrowSection.classList.remove('hidden');
+                btnValidate.classList.remove('hidden');
+                btnDispute.classList.remove('hidden');
+            } else if (order.status === 'SHIPPED') {
+                escrowSection.classList.remove('hidden');
+                btnDispute.classList.remove('hidden');
+            }
+
             document.getElementById('orderModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+        }
+
+        async function handleValidateDelivery() {
+            if (!currentSelectedOrder) return;
+            
+            const confirmed = confirm("Voulez-vous confirmer la réception de votre commande ? Cela libérera les fonds pour le vendeur.");
+            if (!confirmed) return;
+
+            try {
+                const btn = document.getElementById('btnValidateDelivery');
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+
+                await OrderManager.validateDelivery(currentSelectedOrder.id);
+                showToast('Réception confirmée ! Merci de votre confiance.', 'success');
+                closeOrderModal();
+                await loadDashboardData();
+            } catch (error) {
+                showToast(error.message || 'Erreur lors de la validation', 'error');
+                console.error(error);
+            } finally {
+                const btn = document.getElementById('btnValidateDelivery');
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Valider la réception';
+            }
+        }
+
+        async function handleOpenDispute() {
+            if (!currentSelectedOrder) return;
+
+            const reason = prompt("Veuillez indiquer la raison de votre litige (obligatoire) :");
+            if (!reason) return;
+
+            try {
+                const btn = document.getElementById('btnOpenDispute');
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Signalement...';
+
+                await OrderManager.openDispute(currentSelectedOrder.id, reason);
+                showToast('Litige ouvert. Notre service client va analyser votre demande.', 'warning');
+                closeOrderModal();
+                await loadDashboardData();
+            } catch (error) {
+                showToast(error.message || 'Erreur lors de l\'ouverture du litige', 'error');
+            } finally {
+                const btn = document.getElementById('btnOpenDispute');
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Signaler un litige';
+            }
         }
 
         function closeOrderModal() {

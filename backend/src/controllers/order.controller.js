@@ -103,7 +103,7 @@ export const verifyDelivery = async (req, res) => {
         }
 
         if (order.status !== 'PAID_HELD') {
-            return res.status(400).json({ error: 'La commande n\\'est pas en attente de livraison (PAID_HELD)' });
+            return res.status(400).json({ error: "La commande n'est pas en attente de livraison (PAID_HELD)" });
         }
 
         if (order.otp_code !== otp) {

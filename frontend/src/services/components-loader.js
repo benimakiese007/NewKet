@@ -114,7 +114,7 @@ const HEADER_HTML = `
         <div id="searchOverlay" class="search-overlay"></div>
 
         <!-- Category Nav -->
-        <div class="border-t border-gray-50 bg-white hidden sm:block">
+        <div id="categoryNav" class="category-nav border-t border-gray-50 bg-white hidden sm:block transition-all duration-300 ease-in-out transform origin-top">
             <div class="w-full px-4 sm:px-8">
                 <nav class="flex items-center gap-2 overflow-x-auto py-2 -mx-2 scroll-affordance" style="scrollbar-width:none;">
                     <a href="{{ROOT}}src/pages/catalog.html"

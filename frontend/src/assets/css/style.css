@@ -609,6 +609,201 @@ body.search-focused .main-header {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.badge-popular {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #333333 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Header & Nav */
+
+.main-header {
+  padding: 0;
+  /* Default spacing managed by Tailwind classes inside */
+  background-color: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease-in-out;
+  width: 100%;
+  position: fixed;
+  left: 0;
+  right: 0;
+}
+
+.main-header.scrolled {
+  padding: 0;
+  /* Reduced padding on scroll */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-md);
+  /* Add internal padding */
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--secondary-color);
+  letter-spacing: -0.5px;
+  transition: all 0.3s ease;
+}
+
+.main-header.scrolled .logo {
+  font-size: 1.5rem;
+}
+
+.logo span {
+  color: var(--primary-color);
+}
+
+/* PREMIUM AMAZON-STYLE SEARCH BAR */
+.search-bar {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  background: var(--bg-light);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px !important;
+  overflow: visible !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 44px;
+  z-index: 2000; /* Above overlay */
+}
+
+/* Lights Out Effect: Elevate header when searching */
+body.search-focused .main-header {
+  z-index: 10000 !important;
+}
+
+/* Ensure other header elements stay below overlay */
+body.search-focused .header-content > *:not(#mobileSearchContainer) {
+  position: relative;
+  z-index: 1; /* Below overlay (level 1000) */
+}
+
+/* Lift the search container when focused */
+body.search-focused #mobileSearchContainer {
+  z-index: 10010 !important;
+}
+
+body.search-focused .main-header {
+  z-index: 10000 !important;
+}
+
+.search-bar:focus-within {
+  border-color: #000;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.08), 0 10px 40px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+/* Category Toggle inside search bar */
+.search-category-btn {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 100%;
+  border-right: 1.5px solid var(--border-color);
+  color: var(--text-dark);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+  /* Fix: needed for the absolute dropdown to position against this element */
+  position: relative;
+}
+
+/* Ensure dropdown is never clipped by sticky bars or header overflow */
+#searchCategoryMenu {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  z-index: 9999 !important;
+  margin-top: 8px;
+}
+
+.search-category-btn:hover {
+  background: rgba(0,0,0,0.02);
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 16px !important;
+  border: none !important;
+  background: transparent !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--text-dark) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.search-input::placeholder {
+  color: #94a3b8;
+}
+
+.search-bar .search-icon {
+    position: static !important;
+    transform: none !important;
+    margin-right: 12px;
+    color: #94a3b8;
+}
+
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+}
+
+.nav-icons {
+  display: flex;
+  gap: var(--space-xl);
+  /* Increased gap */
+}
+
+.icon-btn {
+  font-size: 1.25rem;
+  color: var(--secondary-color);
+  position: relative;
+}
+
+.icon-btn:hover {
+  color: var(--primary-color);
+}
+
+.cart-count {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 0.7rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
 }
 
@@ -617,9 +812,22 @@ body.search-focused .main-header {
 .category-nav {
   background-color: var(--bg-white);
   border-bottom: 1px solid var(--border-color);
-  padding: var(--space-xs) 0;
-  overflow-x: auto;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 100px;
+  opacity: 1;
 }
+
+.category-nav.nav-hidden {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  border-top-width: 0;
+  border-bottom-width: 0;
+  pointer-events: none;
+}
+
 
 .category-list {
   display: flex;
