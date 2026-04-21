@@ -370,6 +370,23 @@
                 
                 <hr class="border-gray-100">
 
+                <!-- Chat (Messagerie tripartite) -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-black text-gray-900 uppercase tracking-wide">Messagerie du Litige</h3>
+                    <div id="adminDisputeChat" class="bg-gray-50 border border-gray-100 rounded-xl h-60 overflow-y-auto p-4 space-y-4 flex flex-col">
+                        <!-- Messages are rendered here dynamically -->
+                        <div class="text-center text-xs text-gray-400 italic mt-6">Chargement des messages...</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="adminDisputeMessageInput" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all" placeholder="Envoyer un message (en tant qu'Admin)..." onkeydown="if(event.key === 'Enter') sendAdminDisputeMessage()">
+                        <button onclick="sendAdminDisputeMessage()" class="px-5 py-3 rounded-xl bg-gray-900 hover:bg-black text-white font-medium transition-colors flex items-center justify-center shrink-0 disabled:opacity-50">
+                            <iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100">
+
                 <!-- Formulaire de Résolution -->
                 <div class="space-y-4">
                     <h3 class="text-sm font-black text-gray-900 uppercase tracking-wide">Saisie de la décision</h3>
@@ -386,6 +403,7 @@
                                 <option value="REFUNDED">Rembourser (REFUNDED) - Argent restitué</option>
                                 <option value="RELEASED">Rejeter le litige (RELEASED) - Payer le vendeur</option>
                                 <option value="CANCELLED">Annuler (CANCELLED) - Retour au stock</option>
+                                <option value="PARTIAL_REFUND">Remboursement Partiel (PARTIAL_REFUND)</option>
                             </select>
                         </div>
                         <div>
@@ -446,6 +464,9 @@
 
                 document.getElementById('adminDisputeLoading').classList.add('hidden');
                 document.getElementById('adminDisputeDetails').classList.remove('hidden');
+                
+                // Load messages
+                loadAdminDisputeMessages(currentDispute.id);
             } catch (error) {
                 console.error("Erreur fetch dispute:", error);
                 alert("Impossible de charger les détails du litige.");
@@ -457,6 +478,96 @@
             document.getElementById('adminDisputeModal').classList.add('hidden');
             document.body.style.overflow = '';
             currentDispute = null;
+        }
+
+        async function loadAdminDisputeMessages(disputeId) {
+            const chatContainer = document.getElementById('adminDisputeChat');
+            try {
+                chatContainer.innerHTML = '<div class="text-center text-xs text-gray-400 italic mt-6"><iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon><br>Chargement des messages...</div>';
+                const messages = await OrderManager.getDisputeMessages(disputeId);
+                
+                if (!messages || messages.length === 0) {
+                    chatContainer.innerHTML = '<div class="text-center text-xs text-gray-400 italic mt-6">Aucun message pour le moment.</div>';
+                    return;
+                }
+
+                chatContainer.innerHTML = messages.map(msg => {
+                    const isAdmin = msg.sender_role === 'ADMIN';
+                    const isClient = msg.sender_role === 'CUSTOMER';
+                    const isVendor = msg.sender_role === 'VENDOR';
+
+                    let roleBadge = '';
+                    let bgColor = 'bg-gray-100';
+                    let align = 'text-left';
+                    let flexAlign = 'items-start';
+
+                    if (isAdmin) {
+                        roleBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-black text-white font-bold uppercase">Admin</span>';
+                        bgColor = 'bg-indigo-50 border border-indigo-100';
+                        align = 'text-right';
+                        flexAlign = 'items-end flex-row-reverse';
+                    } else if (isVendor) {
+                        roleBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold uppercase">Vendeur</span>';
+                        bgColor = 'bg-white border border-gray-200';
+                    } else {
+                        roleBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-green-100 text-green-800 font-bold uppercase">Client</span>';
+                        bgColor = 'bg-white border border-gray-200';
+                    }
+
+                    return `
+                        <div class="flex gap-3 w-full ${flexAlign}">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center font-bold text-gray-500 text-xs">
+                                ${isAdmin ? 'A' : (isVendor ? 'V' : 'C')}
+                            </div>
+                            <div class="flex flex-col gap-1 max-w-[80%]">
+                                <div class="flex items-center gap-2 ${isAdmin ? 'flex-row-reverse' : ''}">
+                                    ${roleBadge}
+                                    <span class="text-[10px] text-gray-400 font-medium">${new Date(msg.created_at).toLocaleString('fr-FR', {
+                                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                                    })}</span>
+                                </div>
+                                <div class="${bgColor} p-3 rounded-2xl text-sm text-gray-800 break-words whitespace-pre-wrap ${isAdmin ? 'rounded-tr-none' : 'rounded-tl-none'} shadow-sm">
+                                    ${msg.message}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Scroll to bottom
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (error) {
+                console.error("Erreur chargement messages:", error);
+                chatContainer.innerHTML = '<div class="text-center text-xs text-red-500 italic mt-6">Erreur lors du chargement des messages.</div>';
+            }
+        }
+
+        async function sendAdminDisputeMessage() {
+            if (!currentDispute) return;
+            const input = document.getElementById('adminDisputeMessageInput');
+            const btn = input.nextElementSibling;
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            try {
+                input.disabled = true;
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>';
+
+                await OrderManager.addDisputeMessage(currentDispute.id, message);
+                
+                input.value = '';
+                await loadAdminDisputeMessages(currentDispute.id);
+            } catch (error) {
+                console.error("Erreur envoi message admin:", error);
+                alert("Erreur lors de l'envoi du message.");
+            } finally {
+                input.disabled = false;
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>';
+                input.focus();
+            }
         }
 
         async function submitAdminDisputeResolution() {

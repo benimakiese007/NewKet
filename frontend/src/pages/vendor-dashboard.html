@@ -450,13 +450,35 @@
                                 </div>
 
                                 <!-- Disputed Section -->
-                                <div id="vDisputedSection" class="hidden w-full space-y-3 p-5 bg-red-50 rounded-3xl border border-red-100">
+                                <div id="vDisputedSection" class="hidden w-full space-y-4 p-5 bg-red-50 rounded-3xl border border-red-100">
                                     <div class="text-center flex flex-col items-center gap-2">
                                         <div class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center">
                                             <iconify-icon icon="solar:danger-triangle-bold-duotone" width="24"></iconify-icon>
                                         </div>
                                         <h5 class="text-xs font-black text-red-900 uppercase">Commande en litige</h5>
                                         <p class="text-[10px] text-red-600 leading-tight">Un litige a été ouvert par le client. Notre équipe est en train d'évaluer le dossier. Les fonds sont bloqués jusqu'à la résolution.</p>
+                                    </div>
+                                    <!-- Accord Amiable (Auto-resolution) -->
+                                    <button id="btnAmiableResolve" onclick="handleVendorAmiableResolve()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/30">
+                                        <iconify-icon icon="solar:hand-shake-bold" width="16"></iconify-icon>
+                                        Accepter d'Amiable et Rembourser
+                                    </button>
+                                    
+                                    <!-- Chat pour le vendeur -->
+                                    <div class="mt-4 border-t border-red-100/50 pt-4">
+                                        <h5 class="text-[10px] font-black text-red-900 uppercase mb-3 flex items-center gap-2">
+                                            <iconify-icon icon="solar:chat-round-dots-bold"></iconify-icon>
+                                            Messagerie du litige
+                                        </h5>
+                                        <div id="vDisputeChat" class="bg-white border border-red-100 rounded-xl h-48 overflow-y-auto p-4 space-y-3 flex flex-col snap-y mb-3 custom-scrollbar">
+                                            <div class="text-center text-[10px] text-gray-400 italic mt-4">Chargement...</div>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <input type="text" id="vDisputeMessageInput" class="flex-1 bg-white border border-red-200 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-red-500 outline-none placeholder-gray-400 font-medium" placeholder="Votre message..." onkeydown="if(event.key === 'Enter') window.sendVendorDisputeMessage()">
+                                            <button onclick="window.sendVendorDisputeMessage()" class="px-5 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-md shadow-red-600/20 active:scale-95 group">
+                                                <iconify-icon icon="solar:plain-bold" width="16" class="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></iconify-icon>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1293,6 +1315,8 @@
                     } else if (order.status === 'DISPUTED') {
                         actions.classList.remove('hidden');
                         disputedSection.classList.remove('hidden');
+                        window.currentDisputeOrderIdForVendor = order.id;
+                        window.loadVendorDisputeChat(order.id);
                     }
                     
                     document.getElementById('orderDetailModal').classList.remove('hidden');
@@ -1347,6 +1371,126 @@
                         showToast('Une erreur est survenue.', 'error');
                     }
                 }
+
+                window.currentDisputeOrderIdForVendor = null;
+
+                window.loadVendorDisputeChat = async function(orderId) {
+                    const chatContainer = document.getElementById('vDisputeChat');
+                    if (!chatContainer) return;
+                    
+                    chatContainer.innerHTML = '<div class="text-center text-[10px] text-gray-400 italic mt-4"><iconify-icon icon="line-md:loading-loop" width="20"></iconify-icon><br>Chargement...</div>';
+                    
+                    try {
+                        const messages = await OrderManager.getDisputeMessages(orderId);
+                        chatContainer.innerHTML = '';
+                        
+                        if (!messages || messages.length === 0) {
+                            chatContainer.innerHTML = '<div class="text-center text-[10px] text-gray-400 italic mt-4">Aucun message pour ce litige.</div>';
+                            return;
+                        }
+                        
+                        messages.forEach(msg => {
+                            const isMe = msg.sender_role === 'VENDOR';
+                            // Roles: ADMIN, CUSTOMER, VENDOR
+                            let roleBadge = '';
+                            let bubbleColor = '';
+                            let textColor = '';
+                            let align = isMe ? 'self-end items-end' : 'self-start items-start';
+                            
+                            if (msg.sender_role === 'ADMIN') {
+                                roleBadge = '<span class="text-[8px] font-black uppercase bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2">ADMIN</span>';
+                                bubbleColor = 'bg-red-50 border border-red-100';
+                                textColor = 'text-red-900';
+                            } else if (msg.sender_role === 'CUSTOMER') {
+                                roleBadge = '<span class="text-[8px] font-black uppercase bg-gray-100 text-gray-600 px-1 py-0.5 rounded ml-2">CLIENT</span>';
+                                bubbleColor = 'bg-gray-50 border border-gray-100';
+                                textColor = 'text-gray-900';
+                            } else {
+                                roleBadge = '<span class="text-[8px] font-black uppercase text-gray-400 ml-2">Vous</span>';
+                                bubbleColor = 'bg-gray-900 border border-gray-900';
+                                textColor = 'text-white';
+                            }
+                            
+                            const timeStr = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            const dateStr = new Date(msg.created_at).toLocaleDateString([], {day:'2-digit', month:'2-digit'});
+                            
+                            chatContainer.innerHTML += `
+                                <div class="flex flex-col ${align} max-w-[85%] snap-end">
+                                    <div class="flex items-center mb-1">
+                                        <span class="text-[9px] font-bold text-gray-500">${timeStr} ${dateStr}</span>
+                                        ${roleBadge}
+                                    </div>
+                                    <div class="px-3 py-2 rounded-2xl ${bubbleColor} ${textColor} text-xs shadow-sm">
+                                        ${msg.message}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    } catch (error) {
+                        console.error("Chat load error:", error);
+                        chatContainer.innerHTML = '<div class="text-center text-[10px] text-red-400 italic mt-4">Erreur lors du chargement des messages.</div>';
+                    }
+                };
+
+                window.sendVendorDisputeMessage = async function() {
+                    const input = document.getElementById('vDisputeMessageInput');
+                    const message = input.value.trim();
+                    const orderId = window.currentDisputeOrderIdForVendor;
+                    
+                    if (!message || !orderId) return;
+                    
+                    const btn = input.nextElementSibling;
+                    const originalHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<iconify-icon icon="line-md:loading-loop"></iconify-icon>';
+                    
+                    try {
+                        let senderId = null;
+                        const session = await window.SupabaseAdapter.getClient().auth.getSession();
+                        if (session?.data?.session?.user) {
+                            senderId = session.data.session.user.id;
+                        } else {
+                            senderId = 'VENDOR_ID'; // fallback
+                        }
+                        
+                        await OrderManager.addDisputeMessage(orderId, senderId, 'VENDOR', message);
+                        input.value = '';
+                        await window.loadVendorDisputeChat(orderId);
+                    } catch (error) {
+                        if(window.showToast) showToast('Erreur lors de l\\'envoi.', 'error');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                };
+
+                window.handleVendorAmiableResolve = async function() {
+                    const orderId = window.currentDisputeOrderIdForVendor;
+                    if (!orderId) return;
+                    
+                    if(!confirm("Ceci procédera au remboursement du client depuis vos fonds sur ce litige, et clôturera le litige. Étês-vous sûr ?")) {
+                        return;
+                    }
+                    
+                    const btn = document.getElementById('btnAmiableResolve');
+                    const originalHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<iconify-icon icon="line-md:loading-loop"></iconify-icon> Traitement...';
+                    
+                    try {
+                        await OrderManager.vendorResolveAmiable(orderId);
+                        if(window.showToast) showToast('Litige résolu à l\\'amiable et client remboursé !', 'success');
+                        window.closeOrderDetailModal();
+                        renderVendorDashboard();
+                    } catch (error) {
+                        if(window.showToast) showToast(error.message || 'Erreur lors de la résolution amiable.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                };
+
     </script>
 
     <!-- Custom Confirmation Modal -->

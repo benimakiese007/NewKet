@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../config/supabase.js';
+import EmailService from '../services/emailService.js';
 
 export const createDispute = async (req, res) => {
     try {
@@ -72,9 +73,27 @@ export const createDispute = async (req, res) => {
             .update({ status: 'FROZEN' })
             .eq('id', order.id);
 
+        // Envoi d'Alerte Email
+        const adminEmail = process.env.ADMIN_EMAIL || process.env.GMAIL_USER;
+        if (adminEmail) {
+            try {
+                // Obtenir le nom du client si possible (optionnel)
+                const { data: customer } = await supabaseAdmin.from('users').select('name').eq('id', customer_id).single();
+                const cName = customer?.name || 'Un Client';
+                await EmailService.sendDisputeOpenedAlert({
+                    adminEmail,
+                    orderId: order.id,
+                    customerName: cName,
+                    reason: reason_category
+                });
+            } catch (err) {
+                console.error('Erreur envoi email litige:', err.message);
+            }
+        }
+
         return res.status(201).json({
             success: true,
-            message: 'Litige ouvert avec succès, la commande a été gelée.',
+            message: 'Litige ouvert avec succès, la commande a été gelée. L\'administrateur a été notifié.',
             data: dispute
         });
     } catch (error) {
@@ -182,7 +201,7 @@ export const resolveDispute = async (req, res) => {
         }
 
         // SÉCURITÉ : Whitelist des actions autorisées sur la commande après résolution
-        const ALLOWED_RESOLUTION_ACTIONS = ['REFUNDED', 'RELEASED', 'CANCELLED'];
+        const ALLOWED_RESOLUTION_ACTIONS = ['REFUNDED', 'RELEASED', 'CANCELLED', 'PARTIAL_REFUND'];
         if (action_for_order && !ALLOWED_RESOLUTION_ACTIONS.includes(action_for_order)) {
             return res.status(400).json({ 
                 success: false, 
@@ -249,6 +268,137 @@ export const resolveDispute = async (req, res) => {
         });
     } catch (error) {
         console.error('Erreur resolveDispute:', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+/**
+ * MESSAGERIE DE LITIGE
+ */
+export const addDisputeMessage = async (req, res) => {
+    try {
+        const { id } = req.params; // dispute id
+        const { message } = req.body;
+        const user_id = req.user.id;
+        const role = req.user.role; // 'admin', 'vendor', or 'customer'
+
+        if (!message || message.trim() === '') {
+            return res.status(400).json({ success: false, message: 'Message vide.' });
+        }
+
+        // Vérifier l'accès
+        const { data: dispute, error: fetchErr } = await supabaseAdmin.from('disputes').select('*').eq('id', id).single();
+        if (fetchErr || !dispute) return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+
+        if (role !== 'admin' && dispute.customer_id !== user_id && dispute.vendor_id !== user_id) {
+            return res.status(403).json({ success: false, message: 'Accès non autorisé à ce litige.' });
+        }
+
+        const { data: msgInfo, error: msgErr } = await supabaseAdmin.from('dispute_messages').insert({
+            dispute_id: id,
+            sender_id: user_id,
+            sender_role: role,
+            message: message.trim()
+        }).select().single();
+
+        if (msgErr) throw msgErr;
+
+        return res.status(201).json({ success: true, data: msgInfo });
+    } catch (error) {
+        console.error('Erreur addDisputeMessage:', error);
+        return res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi du message.' });
+    }
+};
+
+export const getDisputeMessages = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user_id = req.user.id;
+        const role = req.user.role;
+
+        const { data: dispute, error: fetchErr } = await supabaseAdmin.from('disputes').select('*').eq('id', id).single();
+        if (fetchErr || !dispute) return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+
+        if (role !== 'admin' && dispute.customer_id !== user_id && dispute.vendor_id !== user_id) {
+            return res.status(403).json({ success: false, message: 'Accès non autorisé.' });
+        }
+
+        // Récupérer les messages (et un peu d'info sur l'utilisateur si possible)
+        const { data: messages, error: err } = await supabaseAdmin.from('dispute_messages')
+            .select('*, users (name, avatar_url)')
+            .eq('dispute_id', id)
+            .order('created_at', { ascending: true });
+
+        if (err) throw err;
+
+        return res.status(200).json({ success: true, data: messages || [] });
+    } catch (error) {
+        console.error('Erreur getDisputeMessages:', error);
+        return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des messages.' });
+    }
+};
+
+/**
+ * AUTO-RÉSOLUTION PAR LE VENDEUR (Amiable)
+ */
+export const vendorResolveAmiable = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user_id = req.user.id;
+
+        const { data: dispute, error: fetchError } = await supabaseAdmin.from('disputes').select('*').eq('id', id).single();
+        if (fetchError || !dispute) {
+            return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+        }
+
+        // Seul le vendeur concerné peut faire ça
+        if (dispute.vendor_id !== user_id && req.user.role !== 'vendor') {
+            return res.status(403).json({ success: false, message: 'Action réservée au vendeur de cette commande.' });
+        }
+
+        if (dispute.status === 'RESOLVED') {
+            return res.status(400).json({ success: false, message: 'Litige déjà résolu.' });
+        }
+
+        // Mise à jour du litige
+        await supabaseAdmin.from('disputes').update({
+            status: 'RESOLVED',
+            resolution_decision: 'Auto-résolution (Amiable - Remboursé par le vendeur)'
+        }).eq('id', id);
+
+        // Mise à jour de la commande vers REFUNDED
+        const { data: orderArr } = await supabaseAdmin.from('orders').update({ status: 'REFUNDED' }).eq('id', dispute.order_id).select();
+        const updatedOrder = orderArr?.[0];
+
+        // Restauration de stock (idem que résolution admin)
+        if (updatedOrder) {
+            const items = updatedOrder.items || [];
+            for (const item of items) {
+                if (item.product_id) {
+                    try {
+                        const { data: p } = await supabaseAdmin.from('products').select('stock').eq('id', item.product_id).single();
+                        if (p && p.stock !== undefined) {
+                            await supabaseAdmin.from('products').update({ stock: p.stock + (item.quantity || 1) }).eq('id', item.product_id);
+                        }
+                    } catch(e) {}
+                }
+            }
+            // Historique
+            await supabaseAdmin.from('order_status_history').insert({
+                order_id: dispute.order_id,
+                previous_status: 'DISPUTED',
+                new_status: 'REFUNDED',
+                changed_by: user_id,
+                notes: 'Amiable via vendeur'
+            }).catch(()=>{});
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Vous avez accepté le litige et remboursé le client à l\'amiable.'
+        });
+    } catch (err) {
+        console.error('Erreur vendorResolveAmiable:', err);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
     }
 };

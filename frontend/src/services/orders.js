@@ -358,6 +358,41 @@ const OrderManager = {
         }
     },
 
+    async getDisputeMessages(disputeId) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.get(`/disputes/${disputeId}/messages`);
+            return data.data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur getDisputeMessages:', error);
+            throw error;
+        }
+    },
+
+    async addDisputeMessage(disputeId, message) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/disputes/${disputeId}/messages`, { message });
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur addDisputeMessage:', error);
+            throw error;
+        }
+    },
+
+    async vendorResolveAmiable(disputeId) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/disputes/${disputeId}/vendor-resolve`);
+            this._initialized = false;
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur vendorResolveAmiable:', error);
+            throw error;
+        }
+    },
+
     // ========== HELPERS ==========
 
     _calculateGrowth(orders, valueExtractor) {
