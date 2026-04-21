@@ -193,18 +193,35 @@ const AuthManager = {
 
 
     handleLogoutCleanup() {
-        if (this._realtimeChannel) {
-            window.supabaseClient.removeChannel(this._realtimeChannel);
-            this._realtimeChannel = null;
-        }
+        console.warn('[NewKet Auth] Running handleLogoutCleanup...');
+
+        // Stop background sync
         if (this._syncInterval) {
             clearInterval(this._syncInterval);
             this._syncInterval = null;
         }
+
+        // Remove realtime channels
+        if (this._realtimeChannel) {
+            try {
+                if (window.supabaseClient) {
+                    window.supabaseClient.removeChannel(this._realtimeChannel);
+                }
+            } catch (err) {
+                console.error('[NewKet Auth] Error removing realtime channel during cleanup:', err);
+            }
+            this._realtimeChannel = null;
+        }
+
+        // Reset local state
         this.role = null;
         this.status = null;
         this.user = null;
+
+        // Wipe storage
         this.clearSession();
+
+        // Re-enforce guest UI
         this.enforcePermissions();
         
         this._authChecking = false;
@@ -291,12 +308,19 @@ const AuthManager = {
     },
 
     clearSession() {
-        localStorage.removeItem('newketRole');
-        localStorage.removeItem('newketUserEmail');
-        localStorage.removeItem('newketUserId');
-        localStorage.removeItem('newketUserAvatar');
-        localStorage.removeItem('newketUserStatus');
+        // Broad clear of all newket-related storage keys
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('newket')) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+        
+        // Clear specific non-prefixed session keys
         sessionStorage.removeItem('adminAuth');
+        localStorage.removeItem('supabase.auth.token'); // Fallback for old tokens if any
     },
 
     checkWelcomeBonus() {
@@ -368,42 +392,76 @@ const AuthManager = {
         window.dispatchEvent(new CustomEvent('roleChanged', { detail: { role } }));
     },
 
-    async logout(reason = 'Utilisateur/Système') {
+    /**
+     * Helper to handle logout button clicks with loading state.
+     */
+    async handleLogoutClick(btnEl, confirmFirst = true) {
+        if (!btnEl) return this.logout(confirmFirst);
+        
+        const originalHTML = btnEl.innerHTML;
+        const originalDisabled = btnEl.disabled;
+
+        try {
+            // Confirmation before disabling button to avoid "stuck" disabled state if user cancels
+            if (confirmFirst) {
+                const confirmed = confirm('Êtes-vous sûr de vouloir vous déconnecter ?');
+                if (!confirmed) return;
+            }
+
+            btnEl.disabled = true;
+            btnEl.innerHTML = `
+                <iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>
+                <span>Déconnexion...</span>
+            `;
+
+            await this.logout(false); // We already confirmed
+        } catch (err) {
+            console.error('[NewKet Auth] Logout click handler error:', err);
+            // Revert button if something catastrophic happened before redirect
+            btnEl.disabled = originalDisabled;
+            btnEl.innerHTML = originalHTML;
+        }
+    },
+
+    async logout(confirmFirst = false, reason = 'Utilisateur/Système') {
+        if (confirmFirst) {
+            const confirmed = confirm('Êtes-vous sûr de vouloir vous déconnecter ?');
+            if (!confirmed) return;
+        }
+
         console.warn(`[NewKet Auth] Logout triggered. Reason: ${reason}`);
         
         // --- 1. Immediate UI Feedback ---
         if (typeof showToast === 'function') {
-            showToast('Déconnexion en cours...', 'info');
+            showToast('Déconnexion réussie. À bientôt !', 'success');
         }
 
-        // --- 2. Clean Local Storage Immediately ---
-        // We do this first so that if the redirect fails or hangs, 
-        // the user is effectively "logged out" locally if they refresh.
-        this.clearSession();
-        this.role = null;
-        this.status = null;
-        this.user = null;
-        
-        if (this._syncInterval) clearInterval(this._syncInterval);
+        // --- 2. Clean Up Internal State & Storage ---
+        // Do this immediately so even if redirect fails, the user is locally logged out.
+        this.handleLogoutCleanup();
 
         // --- 3. Supabase SignOut with Fail-safe ---
         try {
             if (window.supabaseClient) {
-                // Set a timeout for Supabase signOut to avoid hanging forever
+                // Set a short timeout for Supabase signOut to avoid hanging
                 const signoutPromise = window.supabaseClient.auth.signOut();
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout')), 2000));
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signout Timeout')), 1500));
                 
                 await Promise.race([signoutPromise, timeoutPromise]).catch(err => {
-                    console.warn('[NewKet Auth] Supabase SignOut took too long or failed, forcing redirect.', err);
+                    console.warn('[NewKet Auth] Supabase SignOut took too long or failed, forcing UI cleanup.', err);
                 });
             }
         } catch (err) {
             console.error('[NewKet Auth] Logout error (Supabase):', err);
         } finally {
-            // --- 4. Final Redirection ---
+            // --- 4. Final Redirection (Snappy) ---
             const loginPath = window.resolvePath('login');
             console.log('[NewKet Auth] Redirecting to:', loginPath);
-            window.location.href = loginPath;
+            
+            // Minimal delay to let the user see the "..." state change on the button
+            setTimeout(() => {
+                window.location.href = loginPath;
+            }, 300);
         }
     },
 

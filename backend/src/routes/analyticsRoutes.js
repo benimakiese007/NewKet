@@ -14,7 +14,6 @@ const analyticsLimiter = rateLimit({
     message: { error: 'Trop de requêtes analytics. Réessayez plus tard.' },
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: (req) => req.ip, // Par IP
 });
 
 // Initialize Supabase Admin client for backend operations

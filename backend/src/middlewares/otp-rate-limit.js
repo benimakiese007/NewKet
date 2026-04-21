@@ -20,6 +20,7 @@ export const otpRateLimit = rateLimit({
     },
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { default: false },
     // Clé = IP + orderId pour ne pas bloquer d'autres commandes
     keyGenerator: (req) => {
         const orderId = req.params?.id || 'unknown';

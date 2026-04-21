@@ -82,7 +82,7 @@ const AdminLayout = {
             <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
                 <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px]">
                     <div class="flex items-center gap-6">
-                        <button id="adminMobileMenuBtn" class="md:hidden p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
+                        <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                         </button>
                         <a href="${this.getAdjustedPath('./')}" class="flex items-center gap-3 group">
@@ -113,7 +113,7 @@ const AdminLayout = {
                                  Boutique
                             </a>
 
-                            <button onclick="if(window.AuthManager) { this.disabled=true; this.innerHTML='...'; AuthManager.logout(); } else { window.location.reload(); }" class="h-10 px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center gap-2">
+                            <button onclick="AuthManager.handleLogoutClick(this)" class="h-10 px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center gap-2">
                                 <iconify-icon icon="solar:logout-bold" width="16"></iconify-icon>
                                 <span class="hidden sm:inline">Quitter</span>
                             </button>
@@ -201,19 +201,10 @@ const AdminLayout = {
     },
 
     bindEvents() {
-        const menuBtn = document.getElementById('adminMobileMenuBtn');
-        const sidebar = document.getElementById('adminSidebar');
+        // Events are now handled via inline onclick="SidebarManager.toggle()" for simplicity and reliability
         const overlay = document.getElementById('adminOverlay');
-
-        if (menuBtn && sidebar && overlay) {
-            const toggleMenu = () => {
-                sidebar.classList.toggle('-translate-x-full');
-                overlay.classList.toggle('hidden');
-                document.body.classList.toggle('overflow-hidden');
-            };
-
-            menuBtn.addEventListener('click', toggleMenu);
-            overlay.addEventListener('click', toggleMenu);
+        if (overlay) {
+            overlay.addEventListener('click', () => SidebarManager.toggle());
         }
     }
 };
@@ -241,6 +232,10 @@ function _adminRenderLayout() {
 
 function _adminCheckAuth() {
     AdminLayout.checkAccess();
+    // Init SidebarManager after auth is ready (SidebarManager is guaranteed available at this point)
+    if (window.SidebarManager) {
+        window.SidebarManager.init('adminSidebar', 'admin-content', 'adminOverlay');
+    }
 }
 
 // Passe 1 : rendu immédiat

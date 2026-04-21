@@ -8,14 +8,14 @@ body {
 }
 
 #adminSidebar, #customerSidebar, #vendorSidebar {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: width, transform;
 }
 
 /* Sidebar Collapsed State (Desktop) */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     .sidebar-collapsed {
-        width: 88px !important;
+        width: 80px !important;
     }
 
     .sidebar-collapsed .sidebar-link span,
@@ -23,13 +23,15 @@ body {
     .sidebar-collapsed #userDisplayName,
     .sidebar-collapsed #userStatusBadge,
     .sidebar-collapsed .sidebar-reminder-box,
-    .sidebar-collapsed .sidebar-footer {
+    .sidebar-collapsed .sidebar-footer-info,
+    .sidebar-collapsed .sidebar-header-text {
         display: none !important;
+        opacity: 0;
     }
 
     .sidebar-collapsed .sidebar-link {
         justify-content: center;
-        padding: var(--space-md);
+        padding: var(--space-md) !important;
         gap: 0;
     }
     
@@ -38,13 +40,14 @@ body {
         height: 24px;
     }
 
-    .sidebar-collapsed .glass-panel {
+    .sidebar-collapsed .sidebar-header-card {
         padding: var(--space-sm) !important;
+        justify-content: center;
     }
 
-    .sidebar-collapsed .sidebar-header-card {
-        padding: 0 !important;
-        justify-content: center;
+    /* Shift main content when sidebar is collapsed */
+    .sidebar-is-collapsed .admin-main-content {
+        margin-left: 80px !important;
     }
 }
 

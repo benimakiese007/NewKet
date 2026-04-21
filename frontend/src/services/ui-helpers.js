@@ -190,24 +190,30 @@ window.debounce = debounce;
 /**
  * SidebarManager
  * Handles sidebar collapse/expand states across all dashboards.
+ * Supports both Desktop (Collapse) and Mobile (Drawer) modes.
  */
 const SidebarManager = {
     state: {
         isCollapsed: localStorage.getItem('newketSidebarCollapsed') === 'true',
-        isMobile: window.innerWidth < 768
+        isMobile: window.innerWidth < 1024,
+        isDrawerOpen: false
     },
 
-    init(sidebarId, mainContentClass) {
+    init(sidebarId, mainContentClass, overlayId = null) {
         this.sidebarId = sidebarId;
         this.mainContentClass = mainContentClass;
+        // Auto-detect overlay if not provided
+        this.overlayId = overlayId || (sidebarId.includes('admin') ? 'adminOverlay' : (sidebarId.includes('vendor') ? 'vendorSidebarOverlay' : 'sidebarOverlay'));
+        
         this.applyState();
 
         // Handle window resize
         const handleResize = debounce(() => {
             const wasMobile = this.state.isMobile;
-            this.state.isMobile = window.innerWidth < 768;
+            this.state.isMobile = window.innerWidth < 1024;
             
             if (wasMobile !== this.state.isMobile) {
+                if (!this.state.isMobile) this.state.isDrawerOpen = false; // Reset drawer on resize to desktop
                 this.applyState();
             }
         }, 150);
@@ -216,19 +222,47 @@ const SidebarManager = {
     },
 
     toggle() {
-        this.state.isCollapsed = !this.state.isCollapsed;
-        localStorage.setItem('newketSidebarCollapsed', this.state.isCollapsed);
+        if (this.state.isMobile) {
+            this.state.isDrawerOpen = !this.state.isDrawerOpen;
+        } else {
+            this.state.isCollapsed = !this.state.isCollapsed;
+            localStorage.setItem('newketSidebarCollapsed', this.state.isCollapsed);
+        }
         this.applyState();
+    },
+
+    closeMobile() {
+        if (this.state.isMobile && this.state.isDrawerOpen) {
+            this.state.isDrawerOpen = false;
+            this.applyState();
+        }
     },
 
     applyState() {
         const sidebar = document.getElementById(this.sidebarId);
+        const overlay = document.getElementById(this.overlayId);
         if (!sidebar) return;
 
         if (this.state.isMobile) {
+            // Mobile Drawer Logic
+            if (this.state.isDrawerOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                if (overlay) overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                if (overlay) overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+            // Ensure no collapse state on mobile
             sidebar.classList.remove('sidebar-collapsed');
             document.body.classList.remove('sidebar-is-collapsed');
         } else {
+            // Desktop Collapse Logic
+            sidebar.classList.remove('-translate-x-full');
+            if (overlay) overlay.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+
             if (this.state.isCollapsed) {
                 sidebar.classList.add('sidebar-collapsed');
                 document.body.classList.add('sidebar-is-collapsed');

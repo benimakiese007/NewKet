@@ -134,16 +134,39 @@
         }
     </style>
 </head>
-<body>
+<body>    <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
+        <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px]">
+            <div class="flex items-center gap-6">
+                <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+                    <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
+                </button>
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="relative">
+                        <div class="absolute -inset-1 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                        <div class="relative w-10 w-10 bg-white rounded-xl flex items-center justify-center border border-gray-100 shadow-sm overflow-hidden">
+                            <img src="/Images/logo-newket.png" alt="NewKet Logo" class="w-full h-full object-contain scale-[1.7]">
+                        </div>
+                    </div>
+                    <div class="hidden sm:flex flex-col">
+                        <span class="text-base font-black tracking-tight text-gray-900 leading-none">NEWKET</span>
+                        <span class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mt-1">Mon Compte</span>
+                    </div>
+                </a>
+            </div>
 
-
-    <div id="header-placeholder"></div>
-
+            <div class="flex items-center gap-4">
+                <button onclick="AuthManager.handleLogoutClick(this)" class="h-10 w-10 sm:w-auto sm:px-4 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
+                    <iconify-icon icon="solar:logout-bold" width="20"></iconify-icon>
+                    <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Déconnexion</span>
+                </button>
+            </div>
+        </div>
+    </nav>
 
     <!-- Overlay pour Mobile -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
+    <div id="customerSidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300" onclick="SidebarManager.toggle()"></div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 flex flex-col md:flex-row gap-8 relative">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 flex flex-col md:flex-row gap-8 relative">
         <!-- Sidebar -->
         <aside id="customerSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full md:translate-x-0 md:static md:w-64 transition-all duration-300 ease-in-out h-screen md:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
             <div class="sidebar-toggle-container hidden md:flex absolute -right-4 top-20 z-[121]">
@@ -191,7 +214,7 @@
                 </nav>
                 <!-- Logout -->
                 <div class="mt-4 pt-4 border-t border-gray-100">
-                    <button class="sidebar-logout" onclick="logoutUser()">
+                    <button class="sidebar-logout" onclick="AuthManager.handleLogoutClick(this)">
                         <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
                         <span>Se déconnecter</span>
                     </button>
@@ -200,19 +223,8 @@
         </aside>
 
         <!-- Content -->
-        <main class="flex-1 min-w-0">
-            <!-- Mobile Dashboard Toggle -->
-            <div class="md:hidden flex items-center justify-between mb-6 bg-white p-4 rounded-2xl border border-gray-100/50 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <button id="mobileSidebarBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
-                        <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
-                    </button>
-                    <span class="font-bold text-sm">Dashboard Menu</span>
-                </div>
-                <div class="flex items-center gap-2">
-                     <img src="/Images/logo-newket.png" alt="NewKet" class="h-6 w-auto opacity-50">
-                </div>
-            </div>
+        <main class="flex-1 min-w-0 customer-main-content">
+            <!-- Dashboard Navbar is now global at the top -->
 
             <!-- Orders Tab -->
             <div id="tab-orders" class="space-y-6 tab-content">
@@ -615,9 +627,9 @@
             if (!badge) return;
             let cls, icon, label;
             if (points >= 500) {
-                cls = 'status-vip'; icon = 'â­�'; label = 'VIP';
+                cls = 'status-vip'; icon = 'â­'; label = 'VIP';
             } else if (points >= 100) {
-                cls = 'status-premium'; icon = 'ðŸ�Ž'; label = 'Premium';
+                cls = 'status-premium'; icon = 'ðŸŽ'; label = 'Premium';
             } else {
                 cls = 'status-standard'; icon = ''; label = 'Standard';
             }
@@ -625,13 +637,6 @@
             badge.textContent = (icon ? icon + ' ' : '') + label;
         }
 
-        // ààà Logout ààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààà
-        function logoutUser() {
-            if (!confirm('Se déconnecter de NewKet ?')) return;
-            const keys = ['newketUserEmail', 'newketRole', 'newketUser', 'newketToken'];
-            keys.forEach(k => localStorage.removeItem(k));
-            window.location.href = window.resolvePath('pages/login');
-        }
 
         document.addEventListener('DOMContentLoaded', () => {
             // --- INITIALIZE SKELETONS ---
@@ -1303,36 +1308,19 @@
     </script>
 
     <script>
-        // Logic for Mobile Sidebar Toggle
+        // Logic for Mobile Sidebar Toggle — Guaranteed Init
         (function() {
-            const menuBtn = document.getElementById('mobileSidebarBtn');
-            const sidebar = document.getElementById('customerSidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            if (menuBtn && sidebar && overlay) {
-                const toggleMenu = () => {
-                    sidebar.classList.toggle('-translate-x-full');
-                    overlay.classList.toggle('hidden');
-                    document.body.classList.toggle('overflow-hidden');
-                };
-                
-                menuBtn.addEventListener('click', toggleMenu);
-                overlay.addEventListener('click', toggleMenu);
-                
-                // Close sidebar when clicking links on mobile
-                const sidebarLinks = sidebar.querySelectorAll('a, button.sidebar-logout');
-                sidebarLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        if (!sidebar.classList.contains('-translate-x-full')) {
-                            toggleMenu();
-                        }
-                    });
-                });
+            function initCustomerSidebar() {
+                if (window.SidebarManager) {
+                    window.SidebarManager.init('customerSidebar', 'customer-main-content', 'customerSidebarOverlay');
+                }
             }
-
-            // Initialize SidebarManager for desktop collapse
+            // If SidebarManager is already loaded, init immediately
             if (window.SidebarManager) {
-                window.SidebarManager.init('customerSidebar');
+                initCustomerSidebar();
+            } else {
+                // Otherwise wait for app initialization
+                window.addEventListener('newketInitialized', initCustomerSidebar, { once: true });
             }
         })();
     </script>
