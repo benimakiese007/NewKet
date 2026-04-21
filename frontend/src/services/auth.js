@@ -118,7 +118,7 @@ const AuthManager = {
         localStorage.setItem('newketUserId', user.id);
 
         // --- 🖼️ AVATAR RESOLUTION (Priority: DB > OAuth metadata) ---
-        // Fetch the user's avatar from DB first (custom uploads), fall back to OAuth provider picture.
+        // Always refresh the OAuth avatar URL from user metadata (Google may rotate URLs).
         const oauthAvatar = user.user_metadata.avatar_url || user.user_metadata.picture || null;
         try {
             if (window.supabaseClient) {
@@ -128,11 +128,21 @@ const AuthManager = {
                     .eq('id', user.id)
                     .maybeSingle();
                 const dbAvatar = profile?.avatar || null;
+                // If user has a custom DB avatar, use that. Otherwise always use fresh OAuth URL.
                 const resolvedAvatar = dbAvatar || oauthAvatar;
                 if (resolvedAvatar) {
                     localStorage.setItem('newketUserAvatar', resolvedAvatar);
                 } else {
                     localStorage.removeItem('newketUserAvatar');
+                }
+                // Keep the DB avatar in sync with the latest OAuth picture (if no custom upload)
+                if (!dbAvatar && oauthAvatar && profile) {
+                    window.supabaseClient
+                        .from('users')
+                        .update({ avatar: oauthAvatar })
+                        .eq('id', user.id)
+                        .then(() => {})
+                        .catch(() => {});
                 }
             } else if (oauthAvatar) {
                 localStorage.setItem('newketUserAvatar', oauthAvatar);
@@ -600,7 +610,7 @@ const AuthManager = {
     },
 
     updateAccountLink() {
-        const accountLinks = document.querySelectorAll('#accountLink, #mobileBottomAccountCustomer, #mobileBottomAccountVendor');
+        const accountLinks = document.querySelectorAll('#accountLink, #accountLinkMobile, #accountLinkFooter, #mobileBottomAccountCustomer, #mobileBottomAccountVendor');
         if (accountLinks.length === 0) return;
 
         const avatarUrl = localStorage.getItem('newketUserAvatar');
@@ -614,6 +624,8 @@ const AuthManager = {
                 if (!img) {
                     img = document.createElement('img');
                     img.className = 'nav-user-avatar w-7 h-7 object-cover rounded-full';
+                    img.crossOrigin = 'anonymous';
+                    img.referrerPolicy = 'no-referrer';
                     accountLink.appendChild(img);
                 }
                 img.alt = 'Photo de profil';
@@ -624,7 +636,10 @@ const AuthManager = {
                     // Nettoyer le cache pour éviter la boucle
                     localStorage.removeItem('newketUserAvatar');
                 };
-                img.src = avatarUrl;
+                // Avoid re-setting src if unchanged (prevents flicker)
+                if (img.src !== avatarUrl) {
+                    img.src = avatarUrl;
+                }
                 img.style.display = 'block';
             } else {
                 if (icon) icon.style.display = 'block';
@@ -637,10 +652,10 @@ const AuthManager = {
                 accountLink.title = 'Dashboard Admin';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
-                    icon.className = 'text-white';
+                    icon.className = 'text-gray-900';
                 }
-                accountLink.classList.add('bg-gray-900', 'text-white');
-                accountLink.classList.remove('hover:bg-gray-50');
+                // Removed bg-gray-900 for a cleaner look with avatars
+                accountLink.classList.remove('text-white');
 
                 let badge = accountLink.querySelector('.role-badge');
                 if (!badge) {
@@ -754,12 +769,16 @@ const AuthManager = {
             }
 
             if (avatarUrl && loggedAvatar) {
+                loggedAvatar.crossOrigin = 'anonymous';
+                loggedAvatar.referrerPolicy = 'no-referrer';
                 loggedAvatar.onerror = () => {
                     loggedAvatar.classList.add('hidden');
                     if (loggedIcon) loggedIcon.classList.remove('hidden');
                     localStorage.removeItem('newketUserAvatar');
                 };
-                loggedAvatar.src = avatarUrl;
+                if (loggedAvatar.src !== avatarUrl) {
+                    loggedAvatar.src = avatarUrl;
+                }
                 loggedAvatar.classList.remove('hidden');
                 if (loggedIcon) loggedIcon.classList.add('hidden');
             } else if (loggedAvatar) {

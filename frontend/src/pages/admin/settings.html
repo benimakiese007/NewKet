@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -82,15 +82,7 @@
                                     placeholder="+243 ...">
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">URL du Logo Officiel</label>
-                            <div class="relative">
-                                <iconify-icon icon="solar:gallery-bold" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" width="18"></iconify-icon>
-                                <input type="text" id="logoUrl"
-                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
-                                    placeholder="https://...">
-                            </div>
-                        </div>
+
                     </form>
                 </div>
 
@@ -243,7 +235,7 @@
                 document.getElementById('shopName').value = config.shopName || '';
                 document.getElementById('shopEmail').value = config.email || '';
                 document.getElementById('supportPhone').value = config.supportPhone || '';
-                document.getElementById('logoUrl').value = config.logoUrl || '';
+
 
                 document.getElementById('shopCurrency').value = config.currencySymbol || 'CDF';
                 document.getElementById('exchangeRate').value = config.exchangeRate || 2500;
@@ -267,7 +259,7 @@
                 shopName: document.getElementById('shopName').value,
                 email: document.getElementById('shopEmail').value,
                 supportPhone: document.getElementById('supportPhone').value,
-                logoUrl: document.getElementById('logoUrl').value,
+
                 sellerCommission: 0,
                 currencySymbol: document.getElementById('shopCurrency').value,
                 socialLinks: {

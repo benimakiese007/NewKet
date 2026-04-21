@@ -450,11 +450,48 @@ function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
 
 
 /**
+ * Load Leaflet dynamically
+ */
+async function loadLeaflet() {
+    if (window.L) return;
+    
+    return new Promise((resolve, reject) => {
+        if (!document.getElementById('leaflet-css')) {
+            const link = document.createElement('link');
+            link.id = 'leaflet-css';
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(link);
+        }
+        
+        const existingScript = document.getElementById('leaflet-js');
+        if (!existingScript) {
+            const script = document.createElement('script');
+            script.id = 'leaflet-js';
+            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        } else {
+            existingScript.addEventListener('load', resolve);
+            existingScript.addEventListener('error', reject);
+        }
+    });
+}
+
+/**
  * Shows a checkout modal to collect customer details before payment.
- * Returns a Promise that resolves to { phone, name, city } or null if cancelled.
+ * Returns a Promise that resolves to { phone, name, city, lat, lng } or null if cancelled.
  */
 function showCheckoutModal(productName, productPrice) {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
+        // Ensure Leaflet is loaded
+        try {
+            await loadLeaflet();
+        } catch (err) {
+            console.error("Erreur chargement Leaflet", err);
+        }
+
         const modalId = 'checkout-modal-' + Date.now();
         const priceStr = window.CurrencyManager ? window.CurrencyManager.formatPrice(productPrice) : `${productPrice.toLocaleString()} FC`;
         
@@ -517,6 +554,33 @@ function showCheckoutModal(productName, productPrice) {
                                         class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
                             </div>
+                            
+                            <!-- Leaflet Map Setup -->
+                            <div class="mt-4">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Votre position de livraison</label>
+                                <p class="text-[10px] text-gray-500 mb-2 leading-tight">Cliquez sur le bouton ci-dessous pour vous localiser automatiquement, ou déplacez le repère manuellement.</p>
+                                
+                                <!-- Locate Me Button -->
+                                <button type="button" id="${modalId}-locate-btn" onclick="window._locateMe && window._locateMe('${modalId}')"
+                                    class="w-full mb-3 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl text-sm hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2.5 active:scale-[0.98]">
+                                    <iconify-icon icon="solar:map-arrow-right-bold" width="20"></iconify-icon>
+                                    <span id="${modalId}-locate-text">Me localiser automatiquement</span>
+                                </button>
+                                
+                                <div id="${modalId}-map" class="w-full h-40 rounded-xl border border-gray-200 overflow-hidden z-10 shadow-inner block relative">
+                                    <!-- Locate overlay on map corner -->
+                                    <button type="button" id="${modalId}-map-locate-btn" onclick="window._locateMe && window._locateMe('${modalId}')"
+                                        style="position:absolute; top:8px; right:8px; z-index:1000; width:36px; height:36px; background:white; border:2px solid rgba(0,0,0,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.12); transition: all 0.2s ease;"
+                                        onmouseover="this.style.background='#f0f0ff'; this.style.borderColor='#6366f1'"
+                                        onmouseout="this.style.background='white'; this.style.borderColor='rgba(0,0,0,0.15)'"
+                                        title="Me localiser">
+                                        <iconify-icon icon="solar:map-arrow-right-bold" width="18" style="color:#6366f1"></iconify-icon>
+                                    </button>
+                                </div>
+                                
+                                <!-- Location status text -->
+                                <p id="${modalId}-loc-status" class="text-[10px] text-gray-400 mt-1.5 leading-tight flex items-center gap-1 min-h-[16px]"></p>
+                            </div>
                         </div>
                     </div>
 
@@ -538,11 +602,141 @@ function showCheckoutModal(productName, productPrice) {
         
         const modalEl = document.getElementById(modalId);
         
-        // Trigger animation
+        // Init Leaflet map if loaded
+        let marker = null;
+        let selectedLat = null;
+        let selectedLng = null;
+        
         requestAnimationFrame(() => {
             modalEl.classList.remove('opacity-0');
             modalEl.querySelector('.transform').classList.remove('scale-95');
+            
+            // Allow modal transition to finish before init map (fixes grey boxes issue in Leaflet)
+            setTimeout(() => {
+                const mapContainer = document.getElementById(`${modalId}-map`);
+                if (window.L && mapContainer) {
+                    // Kinshasa default center: -4.4419, 15.2663
+                    const map = L.map(mapContainer).setView([-4.4419, 15.2663], 12);
+                    
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '© OpenStreetMap'
+                    }).addTo(map);
+
+                    marker = L.marker([-4.4419, 15.2663], { draggable: true }).addTo(map);
+
+                    // Realign map after render
+                    map.invalidateSize();
+
+                    marker.on('dragend', function(e) {
+                        const position = marker.getLatLng();
+                        selectedLat = position.lat;
+                        selectedLng = position.lng;
+                        // Update status text
+                        const statusEl = document.getElementById(`${modalId}-loc-status`);
+                        if (statusEl) {
+                            statusEl.innerHTML = `<iconify-icon icon="solar:map-point-bold" width="12" style="color:#22c55e"></iconify-icon> <span style="color:#22c55e; font-weight:700;">Position ajustée manuellement</span>`;
+                        }
+                    });
+
+                    // Store map reference for _locateMe
+                    window._checkoutMapRef = map;
+                    window._checkoutMarkerRef = marker;
+                }
+            }, 300);
+
+            // ===== GEOLOCATION: "Me localiser" button logic =====
+            window._locateMe = (id) => {
+                if (id !== modalId) return;
+                
+                const locateBtn = document.getElementById(`${id}-locate-btn`);
+                const locateText = document.getElementById(`${id}-locate-text`);
+                const mapLocateBtn = document.getElementById(`${id}-map-locate-btn`);
+                const statusEl = document.getElementById(`${id}-loc-status`);
+
+                // Check browser support
+                if (!navigator.geolocation) {
+                    if (statusEl) statusEl.innerHTML = `<iconify-icon icon="solar:danger-triangle-bold" width="12" style="color:#ef4444"></iconify-icon> <span style="color:#ef4444; font-weight:600;">Géolocalisation non supportée par votre navigateur</span>`;
+                    showToast('Votre navigateur ne supporte pas la géolocalisation', 'warning');
+                    return;
+                }
+
+                // Show loading state
+                if (locateBtn) {
+                    locateBtn.disabled = true;
+                    locateBtn.classList.add('opacity-70');
+                }
+                if (locateText) locateText.textContent = 'Localisation en cours...';
+                if (mapLocateBtn) mapLocateBtn.style.opacity = '0.5';
+                if (statusEl) statusEl.innerHTML = `<iconify-icon icon="line-md:loading-twotone-loop" width="12" style="color:#6366f1"></iconify-icon> <span style="color:#6366f1; font-weight:600;">Recherche de votre position GPS...</span>`;
+
+                navigator.geolocation.getCurrentPosition(
+                    // ✅ SUCCESS
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const accuracy = Math.round(position.coords.accuracy);
+
+                        selectedLat = lat;
+                        selectedLng = lng;
+
+                        // Move map & marker
+                        if (window._checkoutMapRef && window._checkoutMarkerRef) {
+                            window._checkoutMapRef.setView([lat, lng], 16, { animate: true });
+                            window._checkoutMarkerRef.setLatLng([lat, lng]);
+                            window._checkoutMapRef.invalidateSize();
+                        }
+
+                        // Success UI feedback
+                        if (locateBtn) {
+                            locateBtn.disabled = false;
+                            locateBtn.classList.remove('opacity-70');
+                            locateBtn.classList.remove('from-indigo-500', 'to-purple-600');
+                            locateBtn.classList.add('from-green-500', 'to-emerald-600');
+                        }
+                        if (locateText) locateText.textContent = 'Position trouvée ! Cliquer pour relocaliser';
+                        if (mapLocateBtn) mapLocateBtn.style.opacity = '1';
+                        if (statusEl) {
+                            statusEl.innerHTML = `<iconify-icon icon="solar:check-circle-bold" width="12" style="color:#22c55e"></iconify-icon> <span style="color:#22c55e; font-weight:700;">Localisé</span> <span style="color:#9ca3af;">(précision ~${accuracy}m) — Glissez le repère pour ajuster</span>`;
+                        }
+
+                        showToast('Position GPS détectée ! Vous pouvez ajuster le repère si besoin.', 'success');
+                    },
+                    // ❌ ERROR
+                    (error) => {
+                        let errorMsg = 'Erreur inconnue';
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg = 'Vous avez refusé l\'accès à votre position. Activez la localisation dans les paramètres de votre navigateur.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = 'Position indisponible. Vérifiez que le GPS est activé.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = 'Délai dépassé. Réessayez ou placez le repère manuellement.';
+                                break;
+                        }
+
+                        // Reset UI
+                        if (locateBtn) {
+                            locateBtn.disabled = false;
+                            locateBtn.classList.remove('opacity-70');
+                        }
+                        if (locateText) locateText.textContent = 'Réessayer la localisation';
+                        if (mapLocateBtn) mapLocateBtn.style.opacity = '1';
+                        if (statusEl) statusEl.innerHTML = `<iconify-icon icon="solar:danger-triangle-bold" width="12" style="color:#ef4444"></iconify-icon> <span style="color:#ef4444; font-weight:600;">${errorMsg}</span>`;
+
+                        showToast(errorMsg, 'warning');
+                    },
+                    // ⚙️ OPTIONS
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 60000
+                    }
+                );
+            };
         });
+
 
         // Global handlers for this specific modal instance
         window.closeCheckoutModal = (id, result) => {
@@ -553,6 +747,9 @@ function showCheckoutModal(productName, productPrice) {
                 modalEl.remove();
                 delete window.closeCheckoutModal;
                 delete window.submitCheckoutModal;
+                delete window._locateMe;
+                delete window._checkoutMapRef;
+                delete window._checkoutMarkerRef;
                 resolve(result);
             }, 300);
         };
@@ -574,7 +771,14 @@ function showCheckoutModal(productName, productPrice) {
                 return;
             }
 
-            window.closeCheckoutModal(id, { name: name || "Client Web", phone, email, city: city || "Kinshasa" });
+            window.closeCheckoutModal(id, { 
+                name: name || "Client Web", 
+                phone, 
+                email, 
+                city: city || "Kinshasa",
+                lat: selectedLat,
+                lng: selectedLng
+            });
         };
     });
 }
@@ -735,7 +939,7 @@ window.initCheckout = async (productId, btnElement) => {
             return; // Cancelled
         }
 
-        const { name: customerName, phone: customerPhone, city: customerCity, email: customerEmail } = customerInfo;
+        const { name: customerName, phone: customerPhone, city: customerCity, email: customerEmail, lat: customerLat, lng: customerLng } = customerInfo;
 
         // Vérifier que l'utilisateur est connecté avant de payer
         if (window.SupabaseAdapter) {
@@ -756,7 +960,9 @@ window.initCheckout = async (productId, btnElement) => {
             customer_phone: customerPhone,
             customer_name: customerName,
             customer_city: customerCity,
-            customer_email: customerEmail || 'client@newket.cd'
+            customer_email: customerEmail || 'client@newket.cd',
+            customer_lat: customerLat,
+            customer_lng: customerLng
         });
         
         if (!data.success) {

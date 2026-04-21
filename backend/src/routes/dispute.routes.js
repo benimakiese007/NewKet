@@ -1,6 +1,6 @@
 import express from 'express';
 import { createDispute, updateDispute, resolveDispute } from '../controllers/dispute.controller.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = express.Router();
 

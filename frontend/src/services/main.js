@@ -147,21 +147,55 @@ const App = {
         });
         // Scroll Direction Detection for Category Nav
         let lastScrollTop = 0;
+        let accumulatedDelta = 0;
+        const deltaThreshold = 15; // Minimum scroll distance before menu state changes
         const categoryNav = document.getElementById('categoryNav');
-        const scrollThreshold = 100; // Only hide after scrolling down 100px
+        const scrollThreshold = 100; // Menu only hiding after this scroll point
 
         window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const isMobile = window.innerWidth < 640;
+            const mobileSearch = document.getElementById('mobileSearchContainer');
+            const mainHeader = document.querySelector('.main-header');
             
-            if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
-                // Scrolling Down
-                categoryNav?.classList.add('nav-hidden');
-            } else if (scrollTop < lastScrollTop) {
-                // Scrolling Up
+            const diff = scrollTop - lastScrollTop;
+            
+            // Track accumulated direction
+            if ((diff > 0 && accumulatedDelta < 0) || (diff < 0 && accumulatedDelta > 0)) {
+                accumulatedDelta = 0;
+            }
+            accumulatedDelta += diff;
+
+            // Decision logic based on threshold
+            if (scrollTop > scrollThreshold) {
+                if (accumulatedDelta > deltaThreshold) {
+                    // Downward movement detected
+                    categoryNav?.classList.add('nav-hidden');
+                    if (isMobile && mobileSearch) {
+                        mobileSearch.classList.add('search-bar-hidden');
+                        mainHeader?.classList.add('header-compact');
+                    }
+                    accumulatedDelta = 0;
+                } else if (accumulatedDelta < -deltaThreshold) {
+                    // Upward movement detected
+                    categoryNav?.classList.remove('nav-hidden');
+                    if (isMobile && mobileSearch) {
+                        mobileSearch.classList.remove('search-bar-hidden');
+                        mainHeader?.classList.remove('header-compact');
+                    }
+                    accumulatedDelta = 0;
+                }
+            } else if (scrollTop <= 30) {
+                // Force show when near the top to avoid getting stuck
                 categoryNav?.classList.remove('nav-hidden');
+                if (isMobile && mobileSearch) {
+                    mobileSearch.classList.remove('search-bar-hidden');
+                    mainHeader?.classList.remove('header-compact');
+                }
+                accumulatedDelta = 0;
             }
             
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For mobile or negative scrolling
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         }, { passive: true });
     },
 

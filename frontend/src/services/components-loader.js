@@ -25,22 +25,34 @@ const HEADER_HTML = `
             </div>
         </div>
         <!-- Main header content (Logo, Search, Icons) -->
-        <div class="header-content w-full max-w-[1440px] mx-auto px-2 sm:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between sm:gap-x-8">
-            <!-- Left: Hamburger (Mobile) & Logo -->
-            <div class="flex items-center gap-3 sm:gap-6">
-                <button id="mobileMenuBtn" class="p-1 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
+        <div class="header-content relative w-full max-w-[1440px] mx-auto px-4 sm:px-8 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-8">
+            <!-- Top section for mobile: Menu, Centered Logo, Account -->
+            <div class="flex items-center justify-between w-full sm:w-auto h-12 sm:h-auto relative px-1 sm:px-0">
+                <!-- Hamburger Menu (Mobile) -->
+                <button id="mobileMenuBtn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
                     title="Menu" aria-label="Ouvrir le menu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
-                <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1">
-                    <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" 
-                        class="h-16 sm:h-20 w-auto object-contain transform scale-[2.5] origin-left">
+
+                <!-- Logo Section -->
+                <div class="flex items-center sm:min-w-[160px]">
+                    <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
+                        <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" 
+                            class="h-10 sm:h-16 w-auto object-contain"
+                            onerror="this.src='/Images/logo-newket.png'; this.onerror=null;">
+                    </a>
+                </div>
+
+                <!-- Account Icon (Mobile) -->
+                <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale sm:hidden"
+                    title="Compte" aria-label="Mon compte">
+                    <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
                 </a>
             </div>
 
-            <!-- Center: Search & Publish -->
+            <!-- Search Bar (Full width on mobile, centered on desktop) -->
             <div id="mobileSearchContainer" 
-                class="order-3 sm:order-2 flex-none w-full sm:flex-1 sm:mx-auto relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
+                class="flex-none w-full sm:flex-1 sm:mx-auto relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
                 style="max-width: 650px;">
                 <div class="search-bar">
                     <!-- Category Selector -->
@@ -81,29 +93,36 @@ const HEADER_HTML = `
                 <div id="searchSuggestions" class="search-suggestions"></div>
             </div>
 
-            <!-- Right: Icons -->
-            <div class="order-2 sm:order-3 flex items-center gap-4 shrink-0">
+            <!-- Desktop Icons (Notifications, Favorites, Account, Theme) -->
+            <div class="hidden sm:flex items-center gap-4 shrink-0">
+                <!-- Theme Toggle -->
+                <button data-theme-toggle onclick="ThemeManager.toggle()"
+                    class="p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale" 
+                    title="Changer le thème">
+                    <iconify-icon data-theme-icon icon="solar:moon-bold" width="22" class="text-gray-600"></iconify-icon>
+                </button>
+
                 <!-- Notifications -->
                 <a href="{{ROOT}}src/pages/notifications.html"
-                    class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                    class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Notifications" aria-label="Voir les notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
-                        class="notification-badge absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}src/pages/favorites.html" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                <a href="{{ROOT}}src/pages/favorites.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Favoris" aria-label="Voir les favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
-                        class="favorites-badge absolute top-0.5 right-0.5 sm:-top-0.5 sm:-right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="display:none; font-size:10px; width:18px; height:18px;">0</span>
                 </a>
 
                 <!-- Account -->
-                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="relative p-1 sm:p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Compte" id="accountLink" aria-label="Mon compte">
                     <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
                 </a>
@@ -145,8 +164,8 @@ const HEADER_HTML = `
     class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden">
 </div>
 <div id="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
-    <div class="p-3 border-b border-gray-100 flex items-center justify-between overflow-hidden">
-        <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-20 w-auto object-contain transform scale-[2.5] origin-left pl-4">
+    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+        <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-10 w-auto object-contain pl-1">
         <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100 btn-active-scale" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
         </button>
@@ -169,7 +188,7 @@ const HEADER_HTML = `
         <div id="mobileLoggedCTA" class="px-4 mb-6" style="display: none;">
             <a id="mobileLoggedLink" href="{{ROOT}}src/pages/customer-dashboard.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800 shadow-xl">
                 <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
-                    <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden">
+                    <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
                     <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="30" class="text-white hidden"></iconify-icon>
                 </div>
                 <div id="mobileLoggedName" class="text-base font-bold leading-tight mt-1">Mon Compte</div>
@@ -273,7 +292,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
             <div class="lg:col-span-2 space-y-6">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
                 <ul class="space-y-4">
-                    <li><a href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
+                    <li><a id="accountLinkFooter" href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
                     <li><a href="{{ROOT}}src/pages/support.html" class="text-gray-400 hover:text-white text-sm transition-colors">Support Technique</a></li>
                     <li><a href="{{ROOT}}src/pages/faq.html" class="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a></li>
                     <li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
@@ -448,12 +467,12 @@ const ComponentLoader = {
         // --- NEW: Sync Account Path Resolution ---
         const role = localStorage.getItem('newketRole');
         const email = localStorage.getItem('newketUserEmail');
-        let accountPath = '/src/pages/login.html';
+        let accountPath = 'src/pages/login.html';
         
         if (role && email) {
-            if (role === 'admin') accountPath = '/src/pages/admin/index.html';
-            else if (role === 'supplier') accountPath = '/src/pages/vendor-dashboard.html';
-            else accountPath = '/src/pages/customer-dashboard.html';
+            if (role === 'admin') accountPath = 'src/pages/admin/index.html';
+            else if (role === 'supplier') accountPath = 'src/pages/vendor-dashboard.html';
+            else accountPath = 'src/pages/customer-dashboard.html';
         }
 
         let processedHTML = html
@@ -469,6 +488,11 @@ const ComponentLoader = {
             newScript.appendChild(document.createTextNode(oldScript.innerHTML));
             oldScript.parentNode.replaceChild(newScript, oldScript);
         });
+
+        // Sync theme toggle UI state if ThemeManager is available
+        if (window.ThemeManager) {
+            ThemeManager._syncToggleUI();
+        }
     },
 
     getAdjustedPath(path) {

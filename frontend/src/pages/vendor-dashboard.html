@@ -40,7 +40,7 @@
                     <!-- Brand Section -->
                     <div class="flex items-center gap-4 px-2 pb-6 border-b border-gray-100/50">
                     <div class="w-12 h-12 rounded-2xl bg-black flex items-center justify-center text-white shadow-xl shadow-black/20 shrink-0 overflow-hidden">
-                        <img id="vendorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden">
+                        <img id="vendorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
                         <iconify-icon id="vendorAvatarPlaceholder" icon="solar:shop-bold" width="24"></iconify-icon>
                     </div>
                         <div class="min-w-0">
@@ -499,6 +499,12 @@
                         const avatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar');
 
                         if (avatarUrl && sidebarAvatarImg) {
+                            sidebarAvatarImg.referrerPolicy = 'no-referrer';
+                            sidebarAvatarImg.crossOrigin = 'anonymous';
+                            sidebarAvatarImg.onerror = () => {
+                                sidebarAvatarImg.classList.add('hidden');
+                                if (sidebarPlaceholder) sidebarPlaceholder.classList.remove('hidden');
+                            };
                             sidebarAvatarImg.src = avatarUrl;
                             sidebarAvatarImg.classList.remove('hidden');
                             if (sidebarPlaceholder) sidebarPlaceholder.classList.add('hidden');

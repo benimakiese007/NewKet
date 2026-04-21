@@ -77,7 +77,7 @@ const verifyFlutterwavePayment = async (transactionId) => {
  */
 export const initiatePayment = async (req, res) => {
     try {
-        const { product_id, vendor_id, amount, customer_phone, customer_name, customer_city, customer_email } = req.body;
+        const { product_id, vendor_id, amount, customer_phone, customer_name, customer_city, customer_email, customer_lat, customer_lng } = req.body;
 
         if (!product_id || !vendor_id) {
             return res.status(400).json({ error: 'Informations incomplètes pour le paiement' });
@@ -140,7 +140,9 @@ export const initiatePayment = async (req, res) => {
                 customer_phone: customer_phone || null,
                 customer_name,
                 customer_city,
-                customer_email
+                customer_email,
+                customer_lat: customer_lat || null,
+                customer_lng: customer_lng || null
             })
             .select('*')
             .single();
