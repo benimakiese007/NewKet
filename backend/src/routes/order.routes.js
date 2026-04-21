@@ -3,6 +3,7 @@ import { getOrders, updateOrderStatus, verifyDelivery, releaseEscrow } from '../
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
 import { body } from 'express-validator';
 import { validate } from '../middlewares/validation.js';
+import { otpRateLimit } from '../middlewares/otp-rate-limit.js';
 
 const router = Router();
 
@@ -17,7 +18,8 @@ router.put('/:id/status',
     updateOrderStatus
 );
 
-router.post('/:id/verify-delivery', requireAuth, verifyDelivery);
+// SÉCURITÉ : Rate limit strict sur la vérification OTP (5 tentatives / 15 min par IP + commande)
+router.post('/:id/verify-delivery', requireAuth, otpRateLimit, verifyDelivery);
 router.post('/:id/release-escrow', requireAuth, requireAdmin, releaseEscrow);
 
 export default router;

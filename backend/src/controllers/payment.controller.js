@@ -77,11 +77,14 @@ const verifyFlutterwavePayment = async (transactionId) => {
  */
 export const initiatePayment = async (req, res) => {
     try {
-        const { product_id, vendor_id, amount, customer_phone, customer_name, customer_city, customer_email, customer_lat, customer_lng } = req.body;
+        const { product_id, vendor_id, amount, quantity: reqQuantity, customer_phone, customer_name, customer_city, customer_email, customer_lat, customer_lng } = req.body;
 
         if (!product_id || !vendor_id) {
             return res.status(400).json({ error: 'Informations incomplètes pour le paiement' });
         }
+
+        // SÉCURITÉ : Validation de la quantité
+        const quantity = Math.max(1, Math.min(100, parseInt(reqQuantity) || 1));
 
         const client = supabaseAdmin || supabase;
 
@@ -109,10 +112,12 @@ export const initiatePayment = async (req, res) => {
         // On utilise la priorité : Taux Vendeur > Taux Global > 2800 (fallback)
         // La plupart des passerelles préfèrent USD pour les paiements cartes globaux.
         const conversionRate = parseFloat(product.custom_exchange_rate) || parseFloat(settings?.exchangeRate) || 2800;
-        const verifiedAmount = product.price; // Toujours le montant CDF original pour la BD
+        
+        // SÉCURITÉ : Calculer le montant total en CDF en fonction de la quantité validée
+        const verifiedAmount = product.price * quantity; 
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
 
-        console.log(`[Payment] Conversion : ${verifiedAmount} CDF -> ${finalAmountUSD} USD (Taux: ${conversionRate})`);
+        console.log(`[Payment] Conversion : ${verifiedAmount} CDF (${quantity}x) -> ${finalAmountUSD} USD (Taux: ${conversionRate})`);
 
         // ─── TRANSACTION ID ──────────────────────────────────────────────────
         const txId = generateTxId();
@@ -126,9 +131,9 @@ export const initiatePayment = async (req, res) => {
                 items: [{
                     product_id,
                     vendor_id,
-                    price: verifiedAmount,
+                    price: product.price, // Prix unitaire
                     name: product.name,
-                    quantity: 1,
+                    quantity: quantity,
                     supplier_email: product.supplier_email
                 }],
                 total: verifiedAmount,
@@ -286,7 +291,7 @@ export const flutterwaveWebhook = async (req, res) => {
                 .from('orders')
                 .update({
                     payment_status: 'FAILED',
-                    status: 'ANNULÉ'
+                    status: 'CANCELLED'
                 })
                 .eq('transaction_id', ourTxId);
 
@@ -295,7 +300,7 @@ export const flutterwaveWebhook = async (req, res) => {
                 return res.status(500).send('Erreur DB');
             }
 
-            console.log(`[FLW Webhook] Commande ${ourTxId} marquée comme ANNULÉE`);
+            console.log(`[FLW Webhook] Commande ${ourTxId} marquée comme CANCELLED`);
         }
 
         // Répondre 200 pour que Flutterwave arrête de renvoyer la notification

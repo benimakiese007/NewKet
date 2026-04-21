@@ -150,8 +150,8 @@
 
             // Calculate & Update Stats
             const totalLeads = filteredOrders.length;
-            const pendingLeads = filteredOrders.filter(o => o.status === 'En attente' || o.status === 'En livraison').length;
-            const successLeads = filteredOrders.filter(o => o.status === 'Livré' || o.status === 'Conclu').length;
+            const pendingLeads = filteredOrders.filter(o => o.status === 'PENDING' || o.status === 'PROCESSING' || o.status === 'PAID_HELD').length;
+            const successLeads = filteredOrders.filter(o => o.status === 'DELIVERED' || o.status === 'RELEASED' || o.status === 'COMPLETED').length;
             const totalFC = filteredOrders.reduce((sum, o) => sum + parseInt(o.total || 0), 0);
             
             document.getElementById('statLeadsTotal').textContent = totalLeads;
@@ -206,18 +206,26 @@
                     </td>
                     <td class="p-4">
                         <div class="badge-premium ${getStatusStyle(o.status)}">
-                            ${o.status}
+                            ${window.OrderManager ? OrderManager.getStatusLabel(o.status) : o.status}
                         </div>
                     </td>
                     <td class="p-4 text-right">
-                        <select onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-black transition-all cursor-pointer">
-                            <option value="En attente" ${o.status === 'En attente' ? 'selected' : ''}>Attente</option>
-                            <option value="PAID_HELD" ${o.status === 'PAID_HELD' ? 'selected' : ''}>Séquestre</option>
-                            <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>Livré</option>
-                            <option value="RELEASED" ${o.status === 'RELEASED' ? 'selected' : ''}>Confirmé</option>
-                            <option value="DISPUTED" ${o.status === 'DISPUTED' ? 'selected' : ''}>Litige</option>
-                            <option value="FROZEN" ${o.status === 'FROZEN' ? 'selected' : ''}>Gelé</option>
-                        </select>
+                        <div class="flex flex-col items-end gap-2">
+                            <select onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-black transition-all cursor-pointer">
+                                <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>Attente</option>
+                                <option value="PAID_HELD" ${o.status === 'PAID_HELD' ? 'selected' : ''}>Séquestre</option>
+                                <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>Livré</option>
+                                <option value="RELEASED" ${o.status === 'RELEASED' ? 'selected' : ''}>Confirmé</option>
+                                <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Annulé</option>
+                                <option value="DISPUTED" ${o.status === 'DISPUTED' ? 'selected' : ''}>Litige</option>
+                                <option value="FROZEN" ${o.status === 'FROZEN' ? 'selected' : ''}>Gelé</option>
+                            </select>
+                            ${o.status === 'DISPUTED' || o.status === 'FROZEN' ? `
+                                <button onclick="openAdminDisputeModal('${o.id}')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors">
+                                    Juger le Litige
+                                </button>
+                            ` : ''}
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -227,14 +235,17 @@
 
         function getStatusStyle(status) {
             switch (status) {
-                case 'En attente': return 'bg-yellow-50 text-yellow-600';
+                case 'PENDING': return 'bg-yellow-50 text-yellow-600';
+                case 'PROCESSING': return 'bg-amber-50 text-amber-600';
                 case 'PAID_HELD': return 'bg-indigo-50 text-indigo-600';
+                case 'SHIPPED': return 'bg-cyan-50 text-cyan-600';
                 case 'DELIVERED': return 'bg-blue-50 text-blue-600';
-                case 'RELEASED': return 'bg-green-50 text-green-600';
+                case 'RELEASED': 
+                case 'COMPLETED': return 'bg-green-50 text-green-600';
+                case 'CANCELLED': return 'bg-gray-100 text-gray-500';
+                case 'REFUNDED': return 'bg-orange-50 text-orange-600';
                 case 'DISPUTED': return 'bg-red-50 text-red-600';
                 case 'FROZEN': return 'bg-black text-white';
-                case 'Livré': return 'bg-green-50 text-green-600';
-                case 'Conclu': return 'bg-green-50 text-green-600';
                 default: return 'bg-gray-50 text-gray-500';
             }
         }
@@ -310,6 +321,181 @@
                 window.addEventListener('newketInitialized', initializeOrders);
             }
         });
+    </script>
+
+    <!-- Admin Dispute Modal -->
+    <div id="adminDisputeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
+                        <iconify-icon icon="solar:hammer-bold" width="24"></iconify-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold font-heading text-gray-900">Jugement du Litige</h2>
+                        <p class="text-sm text-gray-500 font-medium">Commande <span id="adminDisputeOrderId" class="text-indigo-600 font-bold"></span></p>
+                    </div>
+                </div>
+                <button onclick="closeAdminDisputeModal()" class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors shadow-sm">
+                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-6">
+                <!-- Détails du litige (chargés dynamiquement) -->
+                <div id="adminDisputeDetails" class="hidden space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Motif invoqué</p>
+                            <p id="adminDisputeReason" class="text-sm font-bold text-gray-900"></p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Montant initial</p>
+                            <p id="adminDisputeTotal" class="text-sm font-black text-indigo-600"></p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Description du client</p>
+                        <p id="adminDisputeDesc" class="text-sm text-gray-700 whitespace-pre-wrap"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Preuves fournies</p>
+                        <div id="adminDisputeProofs" class="flex flex-col gap-2"></div>
+                    </div>
+                </div>
+                <div id="adminDisputeLoading" class="p-10 text-center">
+                    <iconify-icon icon="line-md:loading-twotone-loop" width="32" class="text-gray-400"></iconify-icon>
+                    <p class="text-sm text-gray-500 mt-2">Chargement du dossier...</p>
+                </div>
+                
+                <hr class="border-gray-100">
+
+                <!-- Formulaire de Résolution -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-black text-gray-900 uppercase tracking-wide">Saisie de la décision</h3>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Explication de la décision (visible client/vendeur)</label>
+                        <textarea id="adminResolutionDesc" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="Le remboursement a été approuvé car..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Action sur la Commande</label>
+                            <select id="adminResolutionAction" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50">
+                                <option value="REFUNDED">Rembourser (REFUNDED) - Argent restitué</option>
+                                <option value="RELEASED">Rejeter le litige (RELEASED) - Payer le vendeur</option>
+                                <option value="CANCELLED">Annuler (CANCELLED) - Retour au stock</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Montant à rembourser ($)</label>
+                            <input type="number" id="adminRefundAmount" min="0" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50" placeholder="0.00">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+                <button onclick="closeAdminDisputeModal()" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
+                    Annuler
+                </button>
+                <button id="btnResolveDispute" onclick="submitAdminDisputeResolution()" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-2 transition-colors">
+                    <iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon> Clôturer et Appliquer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDispute = null;
+
+        async function openAdminDisputeModal(orderId) {
+            document.getElementById('adminDisputeOrderId').textContent = orderId;
+            document.getElementById('adminDisputeModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            document.getElementById('adminDisputeLoading').classList.remove('hidden');
+            document.getElementById('adminDisputeDetails').classList.add('hidden');
+            
+            try {
+                // Fetch all disputes (MVP way since backend doesn't have a specific GET /by-order endpoint)
+                const disputes = await OrderManager.getDisputes();
+                currentDispute = disputes.find(d => d.order_id === orderId && d.status === 'OPEN');
+                
+                if (!currentDispute) {
+                    alert('Ce litige est déjà résolu ou introuvable.');
+                    closeAdminDisputeModal();
+                    return;
+                }
+
+                document.getElementById('adminDisputeReason').textContent = currentDispute.reason_category;
+                document.getElementById('adminDisputeDesc').textContent = currentDispute.description;
+                document.getElementById('adminDisputeTotal').textContent = currentDispute.orders ? window.CurrencyManager.formatPrice(currentDispute.orders.total) : 'N/A';
+                
+                const proofsDiv = document.getElementById('adminDisputeProofs');
+                if (currentDispute.proof_urls && currentDispute.proof_urls.length > 0) {
+                    proofsDiv.innerHTML = currentDispute.proof_urls.map(url => `
+                        <a href="${url}" target="_blank" class="text-sm font-medium text-blue-600 hover:underline inline-flex items-center gap-1">
+                            <iconify-icon icon="solar:link-circle-linear" width="16"></iconify-icon> Voir la preuve jointe
+                        </a>
+                    `).join('');
+                } else {
+                    proofsDiv.innerHTML = `<span class="text-xs text-gray-400 italic">Aucune preuve fournie.</span>`;
+                }
+
+                document.getElementById('adminDisputeLoading').classList.add('hidden');
+                document.getElementById('adminDisputeDetails').classList.remove('hidden');
+            } catch (error) {
+                console.error("Erreur fetch dispute:", error);
+                alert("Impossible de charger les détails du litige.");
+                closeAdminDisputeModal();
+            }
+        }
+
+        function closeAdminDisputeModal() {
+            document.getElementById('adminDisputeModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            currentDispute = null;
+        }
+
+        async function submitAdminDisputeResolution() {
+            if (!currentDispute) return;
+            
+            const resolution_decision = document.getElementById('adminResolutionDesc').value.trim();
+            const action_for_order = document.getElementById('adminResolutionAction').value;
+            const refund_amount = parseFloat(document.getElementById('adminRefundAmount').value) || 0;
+
+            if (!resolution_decision) {
+                alert("Vous devez fournir une explication textuelle (décision).");
+                return;
+            }
+
+            try {
+                const btn = document.getElementById('btnResolveDispute');
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Application...';
+
+                await OrderManager.resolveDispute(currentDispute.id, {
+                    resolution_decision,
+                    action_for_order,
+                    refund_amount
+                });
+
+                alert("Litige résolu et commande mise à jour avec succès.");
+                closeAdminDisputeModal();
+                localStorage.removeItem('newket_orders_sync_time');
+                await OrderManager.init();
+                handleSearch(); // Refresh admin orders table
+            } catch (error) {
+                console.error("Erreur update litige:", error);
+                alert("Erreur: " + error.message);
+            } finally {
+                const btn = document.getElementById('btnResolveDispute');
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon> Clôturer et Appliquer';
+            }
+        }
     </script>
 </body>
 

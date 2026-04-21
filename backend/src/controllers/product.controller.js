@@ -95,9 +95,25 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
     try {
-        const productData = req.body;
+        // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
+        const allowedFields = [
+            'name', 'price', 'old_price', 'image', 'category', 
+            'description', 'is_new', 'is_promo', 'stock', 'custom_exchange_rate'
+        ];
+        
+        const productData = {};
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                productData[field] = req.body[field];
+            }
+        }
+        
         // On s'assure d'assigner l'ID de l'utilisateur authentifié
         productData.user_id = req.user.id;
+        // On force l'émail fournisseur s'il est dispo
+        if (req.user.email) {
+            productData.supplier_email = req.user.email;
+        }
 
         const supabase = getScopedClient(req);
         const { data, error } = await supabase
@@ -121,7 +137,24 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const updateData = req.body;
+        
+        // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
+        const allowedFields = [
+            'name', 'price', 'old_price', 'image', 'category', 
+            'description', 'is_new', 'is_promo', 'stock', 'custom_exchange_rate'
+        ];
+        
+        const updateData = {};
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                updateData[field] = req.body[field];
+            }
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({ error: 'Aucune donnée valide à mettre à jour.' });
+        }
+
         const supabase = getScopedClient(req);
 
         // La logique RLS de Supabase empêchera la mise à jour si ce n'est pas le propriétaire

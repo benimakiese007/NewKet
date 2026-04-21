@@ -7,9 +7,45 @@ body {
     padding-top: 0 !important;
 }
 
-#adminSidebar {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+#adminSidebar, #customerSidebar, #vendorSidebar {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width, transform;
+}
+
+/* Sidebar Collapsed State (Desktop) */
+@media (min-width: 768px) {
+    .sidebar-collapsed {
+        width: 88px !important;
+    }
+
+    .sidebar-collapsed .sidebar-link span,
+    .sidebar-collapsed .sidebar-logout span,
+    .sidebar-collapsed #userDisplayName,
+    .sidebar-collapsed #userStatusBadge,
+    .sidebar-collapsed .sidebar-reminder-box,
+    .sidebar-collapsed .sidebar-footer {
+        display: none !important;
+    }
+
+    .sidebar-collapsed .sidebar-link {
+        justify-content: center;
+        padding: var(--space-md);
+        gap: 0;
+    }
+    
+    .sidebar-collapsed .sidebar-link iconify-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .sidebar-collapsed .glass-panel {
+        padding: var(--space-sm) !important;
+    }
+
+    .sidebar-collapsed .sidebar-header-card {
+        padding: 0 !important;
+        justify-content: center;
+    }
 }
 
 .premium-container {
@@ -72,10 +108,43 @@ body {
 }
 
 .sidebar-link.active {
-    background: linear-gradient(135deg, #050505 0%, #1A1A1A 100%);
-    color: white;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
     transform: scale(1.02);
+}
+
+/* Toggle Button Styling */
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: -14px;
+    width: 28px;
+    height: 28px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    display: none; /* Desktop only */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 130;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    color: var(--text-light);
+}
+
+.sidebar-toggle-btn:hover {
+    color: black;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 1024px) {
+    .sidebar-toggle-btn {
+        display: flex;
+    }
+}
+
+.sidebar-collapsed .sidebar-toggle-btn iconify-icon {
+    transform: rotate(180deg);
 }
 
 /* Gradients */

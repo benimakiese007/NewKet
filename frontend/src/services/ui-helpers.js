@@ -188,6 +188,60 @@ function debounce(func, wait) {
 window.debounce = debounce;
 
 /**
+ * SidebarManager
+ * Handles sidebar collapse/expand states across all dashboards.
+ */
+const SidebarManager = {
+    state: {
+        isCollapsed: localStorage.getItem('newketSidebarCollapsed') === 'true',
+        isMobile: window.innerWidth < 768
+    },
+
+    init(sidebarId, mainContentClass) {
+        this.sidebarId = sidebarId;
+        this.mainContentClass = mainContentClass;
+        this.applyState();
+
+        // Handle window resize
+        const handleResize = debounce(() => {
+            const wasMobile = this.state.isMobile;
+            this.state.isMobile = window.innerWidth < 768;
+            
+            if (wasMobile !== this.state.isMobile) {
+                this.applyState();
+            }
+        }, 150);
+
+        window.addEventListener('resize', handleResize);
+    },
+
+    toggle() {
+        this.state.isCollapsed = !this.state.isCollapsed;
+        localStorage.setItem('newketSidebarCollapsed', this.state.isCollapsed);
+        this.applyState();
+    },
+
+    applyState() {
+        const sidebar = document.getElementById(this.sidebarId);
+        if (!sidebar) return;
+
+        if (this.state.isMobile) {
+            sidebar.classList.remove('sidebar-collapsed');
+            document.body.classList.remove('sidebar-is-collapsed');
+        } else {
+            if (this.state.isCollapsed) {
+                sidebar.classList.add('sidebar-collapsed');
+                document.body.classList.add('sidebar-is-collapsed');
+            } else {
+                sidebar.classList.remove('sidebar-collapsed');
+                document.body.classList.remove('sidebar-is-collapsed');
+            }
+        }
+    }
+};
+window.SidebarManager = SidebarManager;
+
+/**
  * Génère les étoiles de notation.
  */
 function buildStarsHTML(rating) {
@@ -499,20 +553,20 @@ function showCheckoutModal(productName, productPrice) {
             <div id="${modalId}" class="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
                 <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeCheckoutModal('${modalId}', null)"></div>
                 
-                <div class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
+                <div class="relative w-full max-w-md max-h-[95vh] sm:max-h-[90vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
                     <!-- Header -->
-                    <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-gray-50 to-white">
+                    <div class="px-5 py-3.5 sm:px-6 sm:py-5 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
                         <div class="pr-4">
-                            <h3 class="text-lg font-bold text-gray-900">Finaliser la commande</h3>
-                            <p class="text-sm text-gray-500 mt-1 truncate max-w-[200px] sm:max-w-[250px]">${productName}</p>
+                            <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">Finaliser la commande</h3>
+                            <p class="text-[11px] sm:text-sm text-gray-500 mt-0.5 truncate max-w-[180px] sm:max-w-[250px] font-medium">${productName}</p>
                         </div>
-                        <button onclick="closeCheckoutModal('${modalId}', null)" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900 transition-colors flex-shrink-0">
-                            <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
+                        <button onclick="closeCheckoutModal('${modalId}', null)" class="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all flex-shrink-0 group">
+                            <iconify-icon icon="solar:close-circle-bold" width="22" class="group-hover:rotate-90 transition-transform duration-300"></iconify-icon>
                         </button>
                     </div>
 
                     <!-- Body -->
-                    <div class="px-6 py-5 space-y-4">
+                    <div class="px-5 py-4 sm:px-6 sm:py-5 space-y-4 overflow-y-auto flex-1">
                         <div class="bg-indigo-50/50 p-4 rounded-2xl flex items-center justify-between mb-2 border border-indigo-100/50">
                             <span class="text-sm font-semibold text-indigo-900">Total à payer</span>
                             <span class="text-xl font-black text-indigo-600">${priceStr}</span>
@@ -556,36 +610,42 @@ function showCheckoutModal(productName, productPrice) {
                             </div>
                             
                             <!-- Leaflet Map Setup -->
-                            <div class="mt-4">
-                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Votre position de livraison</label>
-                                <p class="text-[10px] text-gray-500 mb-2 leading-tight">Cliquez sur le bouton ci-dessous pour vous localiser automatiquement, ou déplacez le repère manuellement.</p>
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <div class="flex items-center justify-between mb-2.5">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Position de livraison</label>
+                                    <div id="${modalId}-loc-badge" class="hidden px-2 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full uppercase tracking-tighter animate-pulse">Position capturée</div>
+                                </div>
+                                <p class="text-[10px] text-gray-400 mb-3 leading-snug">Touchez le bouton ou l'icône sur la carte pour une détection GPS précise.</p>
                                 
                                 <!-- Locate Me Button -->
                                 <button type="button" id="${modalId}-locate-btn" onclick="window._locateMe && window._locateMe('${modalId}')"
-                                    class="w-full mb-3 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl text-sm hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2.5 active:scale-[0.98]">
-                                    <iconify-icon icon="solar:map-arrow-right-bold" width="20"></iconify-icon>
-                                    <span id="${modalId}-locate-text">Me localiser automatiquement</span>
+                                    class="w-full mb-3 px-4 py-3 bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 text-white font-bold rounded-2xl text-sm hover:shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center justify-center gap-3 active:scale-[0.97] border border-white/10 ring-1 ring-indigo-400/20">
+                                    <iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon>
+                                    <span id="${modalId}-locate-text">Me localiser maintenant</span>
                                 </button>
                                 
-                                <div id="${modalId}-map" class="w-full h-40 rounded-xl border border-gray-200 overflow-hidden z-10 shadow-inner block relative">
+                                <div id="${modalId}-map" class="w-full h-36 sm:h-44 rounded-2xl border border-gray-100 overflow-hidden z-10 shadow-sm block relative">
                                     <!-- Locate overlay on map corner -->
                                     <button type="button" id="${modalId}-map-locate-btn" onclick="window._locateMe && window._locateMe('${modalId}')"
-                                        style="position:absolute; top:8px; right:8px; z-index:1000; width:36px; height:36px; background:white; border:2px solid rgba(0,0,0,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.12); transition: all 0.2s ease;"
-                                        onmouseover="this.style.background='#f0f0ff'; this.style.borderColor='#6366f1'"
-                                        onmouseout="this.style.background='white'; this.style.borderColor='rgba(0,0,0,0.15)'"
-                                        title="Me localiser">
-                                        <iconify-icon icon="solar:map-arrow-right-bold" width="18" style="color:#6366f1"></iconify-icon>
+                                        style="position:absolute; top:10px; right:10px; z-index:1000; width:40px; height:40px; background:white; border:none; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
+                                        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 16px rgba(99, 102, 241, 0.25)';"
+                                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';"
+                                        title="Position GPS">
+                                        <iconify-icon icon="solar:map-arrow-square-bold" width="22" style="color:#6366f1"></iconify-icon>
                                     </button>
                                 </div>
                                 
                                 <!-- Location status text -->
-                                <p id="${modalId}-loc-status" class="text-[10px] text-gray-400 mt-1.5 leading-tight flex items-center gap-1 min-h-[16px]"></p>
+                                <div id="${modalId}-loc-status" class="text-[10px] text-gray-500 mt-2.5 px-3 py-2 bg-gray-50 rounded-xl leading-tight flex items-center gap-2 min-h-[16px] break-words border border-gray-100">
+                                    <iconify-icon icon="solar:info-circle-bold" width="14" class="text-gray-400"></iconify-icon>
+                                    <span>Prêt pour la localisation</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Footer -->
-                    <div class="px-6 py-5 border-t border-gray-50 bg-gray-50 flex gap-3">
+                    <div class="px-5 py-4 sm:px-6 sm:py-5 border-t border-gray-50 bg-gray-50 flex gap-3 flex-shrink-0">
                         <button onclick="closeCheckoutModal('${modalId}', null)" class="flex-1 px-4 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
                             Annuler
                         </button>
@@ -650,88 +710,91 @@ function showCheckoutModal(productName, productPrice) {
                 if (id !== modalId) return;
                 
                 const locateBtn = document.getElementById(`${id}-locate-btn`);
-                const locateText = document.getElementById(`${id}-locate-text`);
                 const mapLocateBtn = document.getElementById(`${id}-map-locate-btn`);
                 const statusEl = document.getElementById(`${id}-loc-status`);
+                const badgeEl = document.getElementById(`${id}-loc-badge`);
 
                 // Check browser support
                 if (!navigator.geolocation) {
-                    if (statusEl) statusEl.innerHTML = `<iconify-icon icon="solar:danger-triangle-bold" width="12" style="color:#ef4444"></iconify-icon> <span style="color:#ef4444; font-weight:600;">Géolocalisation non supportée par votre navigateur</span>`;
+                    if (statusEl) {
+                        statusEl.innerHTML = `
+                            <iconify-icon icon="solar:danger-triangle-bold" width="14" class="text-red-500"></iconify-icon>
+                            <span class="text-red-600 font-medium">Géolocalisation non supportée par votre navigateur</span>
+                        `;
+                    }
                     showToast('Votre navigateur ne supporte pas la géolocalisation', 'warning');
                     return;
                 }
 
+                // Helper to update status UI
+                const updateStatusUI = (msg, isError = false) => {
+                    if (statusEl) {
+                        statusEl.innerHTML = `
+                            <iconify-icon icon="${isError ? 'solar:danger-circle-bold' : 'solar:info-circle-bold'}" width="14" class="${isError ? 'text-red-500' : 'text-indigo-500'}"></iconify-icon>
+                            <span class="${isError ? 'text-red-600' : 'text-gray-700'} font-medium">${msg}</span>
+                        `;
+                        statusEl.classList.toggle('bg-red-50', isError);
+                        statusEl.classList.toggle('border-red-100', isError);
+                    }
+                };
+
                 // Show loading state
+                updateStatusUI("Recherche de votre position GPS...");
                 if (locateBtn) {
                     locateBtn.disabled = true;
-                    locateBtn.classList.add('opacity-70');
+                    locateBtn.innerHTML = `<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> <span>Localisation...</span>`;
                 }
-                if (locateText) locateText.textContent = 'Localisation en cours...';
-                if (mapLocateBtn) mapLocateBtn.style.opacity = '0.5';
-                if (statusEl) statusEl.innerHTML = `<iconify-icon icon="line-md:loading-twotone-loop" width="12" style="color:#6366f1"></iconify-icon> <span style="color:#6366f1; font-weight:600;">Recherche de votre position GPS...</span>`;
+                if (badgeEl) badgeEl.classList.add('hidden');
 
                 navigator.geolocation.getCurrentPosition(
-                    // ✅ SUCCESS
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const accuracy = Math.round(position.coords.accuracy);
-
-                        selectedLat = lat;
-                        selectedLng = lng;
+                        const { latitude, longitude, accuracy } = position.coords;
+                        selectedLat = latitude;
+                        selectedLng = longitude;
 
                         // Move map & marker
                         if (window._checkoutMapRef && window._checkoutMarkerRef) {
-                            window._checkoutMapRef.setView([lat, lng], 16, { animate: true });
-                            window._checkoutMarkerRef.setLatLng([lat, lng]);
+                            const newPos = [latitude, longitude];
+                            window._checkoutMarkerRef.setLatLng(newPos);
+                            window._checkoutMapRef.setView(newPos, 16, { animate: true });
                             window._checkoutMapRef.invalidateSize();
                         }
 
                         // Success UI feedback
+                        updateStatusUI(`Position détectée (Précision: ±${Math.round(accuracy)}m).`);
+                        if (badgeEl) badgeEl.classList.remove('hidden');
+
                         if (locateBtn) {
                             locateBtn.disabled = false;
-                            locateBtn.classList.remove('opacity-70');
-                            locateBtn.classList.remove('from-indigo-500', 'to-purple-600');
-                            locateBtn.classList.add('from-green-500', 'to-emerald-600');
-                        }
-                        if (locateText) locateText.textContent = 'Position trouvée ! Cliquer pour relocaliser';
-                        if (mapLocateBtn) mapLocateBtn.style.opacity = '1';
-                        if (statusEl) {
-                            statusEl.innerHTML = `<iconify-icon icon="solar:check-circle-bold" width="12" style="color:#22c55e"></iconify-icon> <span style="color:#22c55e; font-weight:700;">Localisé</span> <span style="color:#9ca3af;">(précision ~${accuracy}m) — Glissez le repère pour ajuster</span>`;
+                            locateBtn.innerHTML = `<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> <span>Position trouvée !</span>`;
+                            locateBtn.classList.replace('from-indigo-600', 'from-green-600');
+                            
+                            setTimeout(() => {
+                                locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Mettre à jour la position</span>`;
+                                locateBtn.classList.replace('from-green-600', 'from-indigo-600');
+                            }, 3000);
                         }
 
-                        showToast('Position GPS détectée ! Vous pouvez ajuster le repère si besoin.', 'success');
+                        showToast('Position GPS détectée !', 'success');
                     },
-                    // ❌ ERROR
                     (error) => {
-                        let errorMsg = 'Erreur inconnue';
-                        switch (error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMsg = 'Vous avez refusé l\'accès à votre position. Activez la localisation dans les paramètres de votre navigateur.';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMsg = 'Position indisponible. Vérifiez que le GPS est activé.';
-                                break;
-                            case error.TIMEOUT:
-                                errorMsg = 'Délai dépassé. Réessayez ou placez le repère manuellement.';
-                                break;
-                        }
-
-                        // Reset UI
+                        console.error("Geolocation error:", error);
+                        let errorMsg = 'Impossible de vous localiser.';
+                        if (error.code === 1) errorMsg = 'Permission refusée. Veuillez activer le GPS.';
+                        else if (error.code === 2) errorMsg = 'Position non disponible.';
+                        
+                        updateStatusUI(errorMsg, true);
+                        
                         if (locateBtn) {
                             locateBtn.disabled = false;
-                            locateBtn.classList.remove('opacity-70');
+                            locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Réessayer</span>`;
                         }
-                        if (locateText) locateText.textContent = 'Réessayer la localisation';
-                        if (mapLocateBtn) mapLocateBtn.style.opacity = '1';
-                        if (statusEl) statusEl.innerHTML = `<iconify-icon icon="solar:danger-triangle-bold" width="12" style="color:#ef4444"></iconify-icon> <span style="color:#ef4444; font-weight:600;">${errorMsg}</span>`;
-
                         showToast(errorMsg, 'warning');
                     },
-                    // ⚙️ OPTIONS
                     {
                         enableHighAccuracy: true,
-                        maximumAge: 60000
+                        // No timeout per user request
+                        maximumAge: 10000
                     }
                 );
             };

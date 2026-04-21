@@ -1,12 +1,16 @@
 import express from 'express';
 import * as supportController from '../controllers/support.controller.js';
+import { requireAuth, requireAdmin } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-// Routes pour le support
-router.get('/', supportController.getTickets);
-router.post('/', supportController.createTicket);
-router.patch('/:id/status', supportController.updateTicketStatus);
-router.delete('/:id', supportController.deleteTicket);
+// SÉCURITÉ : Toutes les routes sont protégées.
+// - POST / : requireAuth (les clients authentifiés peuvent créer des tickets)
+// - GET / : requireAuth + requireAdmin (seul l'admin voit tous les tickets)
+// - PATCH/DELETE : requireAuth + requireAdmin (seul l'admin gère les tickets)
+router.get('/', requireAuth, requireAdmin, supportController.getTickets);
+router.post('/', requireAuth, supportController.createTicket);
+router.patch('/:id/status', requireAuth, requireAdmin, supportController.updateTicketStatus);
+router.delete('/:id', requireAuth, requireAdmin, supportController.deleteTicket);
 
 export default router;

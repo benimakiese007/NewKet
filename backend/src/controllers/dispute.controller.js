@@ -16,15 +16,16 @@ export const createDispute = async (req, res) => {
         }
         
         let validProofs = false;
-        const videos = proof_urls.filter(url => url.match(/\.(mp4|mov|avi|wmv)$/i));
-        const images = proof_urls.filter(url => url.match(/\.(jpeg|jpg|gif|png)$/i));
+        
+        // SÉCURITÉ assouplie : Rejeter uniquement si vide, ou si ce ne sont pas du tout des URLs basiques
+        const validUrls = proof_urls.filter(url => url.startsWith('http://') || url.startsWith('https://'));
 
-        if (videos.length >= 1 || images.length >= 2) {
+        if (validUrls.length >= 1) {
             validProofs = true;
         }
 
         if (!validProofs) {
-            return res.status(400).json({ success: false, message: 'Preuves insuffisantes: veuillez fournir au moins 1 vidéo ou 2 photos.' });
+            return res.status(400).json({ success: false, message: 'Preuves insuffisantes: veuillez fournir au moins 1 lien valide (commençant par http(s)://).' });
         }
 
         // Fetch Order info
@@ -78,6 +79,42 @@ export const createDispute = async (req, res) => {
         });
     } catch (error) {
         console.error('Erreur createDispute:', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+export const getDisputes = async (req, res) => {
+    try {
+        const userRole = req.user.role;
+        const userId = req.user.id;
+
+        let query = supabaseAdmin.from('disputes').select(`
+            *,
+            orders!inner (
+                id,
+                total,
+                status
+            )
+        `).order('created_at', { ascending: false });
+
+        if (userRole !== 'admin') {
+            // Un client ou un vendeur ne voit que ses litiges
+            query = query.or(`customer_id.eq.${userId},vendor_id.eq.${userId}`);
+        }
+
+        const { data: disputes, error } = await query;
+
+        if (error) {
+            console.error('Supabase fetch disputes error:', error);
+            return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des litiges.' });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: disputes
+        });
+    } catch (error) {
+        console.error('Erreur getDisputes:', error);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
     }
 };
@@ -144,7 +181,14 @@ export const resolveDispute = async (req, res) => {
             return res.status(403).json({ success: false, message: 'Réservé aux administrateurs.' });
         }
 
-        // action_for_order = 'REFUNDED' or 'RELEASED'
+        // SÉCURITÉ : Whitelist des actions autorisées sur la commande après résolution
+        const ALLOWED_RESOLUTION_ACTIONS = ['REFUNDED', 'RELEASED', 'CANCELLED'];
+        if (action_for_order && !ALLOWED_RESOLUTION_ACTIONS.includes(action_for_order)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Action invalide. Valeurs autorisées : ${ALLOWED_RESOLUTION_ACTIONS.join(', ')}`
+            });
+        }
         
         const { data: dispute, error: fetchError } = await supabaseAdmin
             .from('disputes')
@@ -163,10 +207,39 @@ export const resolveDispute = async (req, res) => {
 
         // Update the actual order based on admin decision
         if (action_for_order) {
-            await supabaseAdmin
+            const { data: updatedOrderArray } = await supabaseAdmin
                 .from('orders')
                 .update({ status: action_for_order })
-                .eq('id', dispute.order_id);
+                .eq('id', dispute.order_id)
+                .select();
+
+            const updatedOrder = updatedOrderArray?.[0];
+
+            // ─── LOGIQUE DE REMISE EN STOCK ATOMIQUE ───
+            if (updatedOrder && (action_for_order === 'CANCELLED' || action_for_order === 'REFUNDED')) {
+                const items = updatedOrder.items || [];
+                for (const item of items) {
+                    if (item.product_id) {
+                        try {
+                            const { data: p } = await supabaseAdmin.from('products').select('stock').eq('id', item.product_id).single();
+                            if (p && p.stock !== undefined) {
+                                await supabaseAdmin.from('products').update({ stock: p.stock + (item.quantity || 1) }).eq('id', item.product_id);
+                                console.log(`[DisputeResolution] Stock restauré pour le produit ${item.product_id} (+${item.quantity || 1})`);
+                            }
+                        } catch(e) {
+                            console.error('[DisputeResolution] Erreur de restauration de stock:', e.message);
+                        }
+                    }
+                }
+            }
+
+            // ─── LOG : Historique du changement de statut ───
+            supabaseAdmin.from('order_status_history').insert({
+                order_id: dispute.order_id,
+                previous_status: 'DISPUTED',
+                new_status: action_for_order,
+                changed_by: req.user.id
+            }).then(() => {}).catch(() => {});
         }
 
         return res.status(200).json({

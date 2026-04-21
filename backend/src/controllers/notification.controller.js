@@ -114,17 +114,35 @@ export const markAsRead = async (req, res) => {
 export const deleteNotification = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.user?.id;
         const userEmail = req.user?.email;
 
         if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
-        // Admin can delete any notification
-        // For standard users, we might want to restrict to their own email, but current logic handles by ID only
-        // Re-matching user_email for non-admins if needed, but for now we assume admin API usage
-        const { error } = await supabaseAdmin
+        // Vérifier si l'utilisateur est admin
+        const { data: userData } = await supabaseAdmin
+            .from('users')
+            .select('role')
+            .eq('email', userEmail)
+            .single();
+
+        const isAdmin = userData && userData.role === 'admin';
+
+        let query = supabaseAdmin
             .from('notifications')
             .delete()
             .eq('id', id);
+
+        // SÉCURITÉ : Les non-admins ne peuvent supprimer que leurs propres notifications
+        if (!isAdmin) {
+            if (userId) {
+                query = query.eq('user_id', userId);
+            } else {
+                query = query.eq('user_email', userEmail);
+            }
+        }
+
+        const { error } = await query;
 
         if (error) throw error;
         res.json({ success: true, message: 'Notification supprimée.' });

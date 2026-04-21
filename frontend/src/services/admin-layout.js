@@ -16,6 +16,11 @@ const AdminLayout = {
         this.renderNavbar();
         this.renderSidebar();
 
+        // 3.5 Initialize Sidebar State
+        if (window.SidebarManager) {
+            window.SidebarManager.init('adminSidebar', 'admin-content');
+        }
+
         // 4. Global Event Listeners (Mobile menu etc)
         this.bindEvents();
 
@@ -156,6 +161,11 @@ const AdminLayout = {
         let sidebarHTML = `
             <div id="adminOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
             <aside id="adminSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full md:translate-x-0 md:static md:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen md:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
+                <div class="sidebar-toggle-container hidden md:flex absolute -right-4 top-20 z-[121]">
+                    <button id="sidebarToggleBtn" class="w-8 h-8 bg-white border border-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:text-black shadow-sm transition-all hover:scale-110" onclick="SidebarManager.toggle()">
+                        <iconify-icon icon="solar:alt-arrow-left-bold" width="16" class="toggle-icon transition-transform"></iconify-icon>
+                    </button>
+                </div>
                 <div class="p-6 md:px-4 md:py-8 md:sticky md:top-[64px]">
                     <div class="md:glass-panel p-6 md:px-6 md:py-4">
                         <nav class="space-y-1">

@@ -22,6 +22,7 @@
     
     <link rel="stylesheet" href="/src/assets/css/style.css">
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
     <style>
         :root {
             --glass: rgba(255, 255, 255, 0.7);
@@ -139,10 +140,18 @@
     <div id="header-placeholder"></div>
 
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 flex flex-col md:flex-row gap-8">
+    <!-- Overlay pour Mobile -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 flex flex-col md:flex-row gap-8 relative">
         <!-- Sidebar -->
-        <aside class="w-full md:w-64 flex-shrink-0">
-            <div class="glass-panel p-6 sticky top-24">
+        <aside id="customerSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full md:translate-x-0 md:static md:w-64 transition-all duration-300 ease-in-out h-screen md:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
+            <div class="sidebar-toggle-container hidden md:flex absolute -right-4 top-20 z-[121]">
+                <button id="sidebarToggleBtn" class="w-8 h-8 bg-white border border-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:text-black shadow-sm transition-all hover:scale-110" onclick="SidebarManager.toggle()">
+                    <iconify-icon icon="solar:alt-arrow-left-bold" width="16" class="toggle-icon transition-transform"></iconify-icon>
+                </button>
+            </div>
+            <div class="glass-panel p-6 md:sticky md:top-24">
                 <div class="flex items-center gap-4 mb-8">
                     <div id="userAvatarDisplay"
                         class="user-avatar-display w-12 h-12 rounded-full flex items-center justify-center text-white flex-shrink-0">
@@ -155,28 +164,28 @@
                 <nav class="space-y-1">
                     <a href="#" onclick="switchTab('orders')" class="sidebar-link active" id="link-orders">
                         <iconify-icon icon="solar:bag-bold" width="20"></iconify-icon>
-                        Mes Commandes
+                        <span>Mes Commandes</span>
                     </a>
                     <a href="#" onclick="switchTab('favorites')" class="sidebar-link" id="link-favorites">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
-                        Mes Favoris
+                        <span>Mes Favoris</span>
                     </a>
                     <a href="#" onclick="switchTab('notifications')" class="sidebar-link" id="link-notifications">
                         <iconify-icon icon="solar:bell-bold" width="20"></iconify-icon>
-                        Notifications
+                        <span>Notifications</span>
                         <span
                             class="notification-badge ml-auto bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                     </a>
                     <a href="#" onclick="switchTab('settings')" class="sidebar-link" id="link-settings">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
-                        Paramètres
+                        <span>Paramètres</span>
                     </a>
                     <!-- Admin Link for Suppliers -->
                     <div id="supplier-link-container" class="hidden">
                         <div class="h-px bg-gray-100 my-4 mx-2"></div>
                         <a href="#" onclick="window.location.href=window.resolvePath('admin/')" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
                             <iconify-icon icon="solar:shield-user-bold" width="20"></iconify-icon>
-                            Espace Vendeur
+                            <span>Espace Vendeur</span>
                         </a>
                     </div>
                 </nav>
@@ -184,7 +193,7 @@
                 <div class="mt-4 pt-4 border-t border-gray-100">
                     <button class="sidebar-logout" onclick="logoutUser()">
                         <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
-                        Se déconnecter
+                        <span>Se déconnecter</span>
                     </button>
                 </div>
             </div>
@@ -192,9 +201,22 @@
 
         <!-- Content -->
         <main class="flex-1 min-w-0">
+            <!-- Mobile Dashboard Toggle -->
+            <div class="md:hidden flex items-center justify-between mb-6 bg-white p-4 rounded-2xl border border-gray-100/50 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button id="mobileSidebarBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
+                        <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
+                    </button>
+                    <span class="font-bold text-sm">Dashboard Menu</span>
+                </div>
+                <div class="flex items-center gap-2">
+                     <img src="/Images/logo-newket.png" alt="NewKet" class="h-6 w-auto opacity-50">
+                </div>
+            </div>
+
             <!-- Orders Tab -->
             <div id="tab-orders" class="space-y-6 tab-content">
-                <h1 class="text-2xl font-bold tracking-tight">Historique de mes demandes</h1>
+                <h1 class="text-fluid-h1 font-bold tracking-tight">Historique de mes demandes</h1>
                 <div id="orders-list" class="space-y-4">
                     <!-- Orders/Leads injected here -->
                 </div>
@@ -694,17 +716,26 @@
         });
 
         // Password Form Submit
-        document.getElementById('passwordForm').addEventListener('submit', (e) => {
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const np = document.getElementById('newPassword').value;
             const cp = document.getElementById('confirmPassword').value;
-            if (np.length < 8) { showToast('Le mot de passe doit faire au moins 8 caractères.', 'error'); return; }
+            if (np.length < 6) { showToast('Le mot de passe doit faire au moins 6 caractères.', 'error'); return; }
             if (np !== cp) { showToast('Les mots de passe ne correspondent pas.', 'error'); return; }
-            // Persisted locally (Supabase update would go here)
-            localStorage.setItem('newketPwdHash', btoa(np));
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-            showToast('Mot de passe mis à jour !', 'success');
+            
+            try {
+                // SÉCURITÉ : Appel direct à Supabase pour hacher et mettre à jour le MP côté serveur
+                const { error } = await AuthManager.supabase.auth.updateUser({ password: np });
+                
+                if (error) throw error;
+
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                showToast('Mot de passe mis à jour avec succès !', 'success');
+            } catch (err) {
+                console.error('Erreur password:', err);
+                showToast('Erreur lors de la mise à jour : ' + err.message, 'error');
+            }
         });
 
         function renderDashboardNotifications() {
@@ -814,7 +845,7 @@
                             </div>
                             <div class="flex items-center gap-3">
                                 <div class="px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}">
-                                    ${order.status}
+                                    ${window.OrderManager ? OrderManager.getStatusLabel(order.status) : order.status}
                                 </div>
                                 <iconify-icon icon="solar:alt-arrow-right-linear" width="20" class="text-gray-300 group-hover:text-black transition-colors"></iconify-icon>
                             </div>
@@ -866,13 +897,15 @@
 
         function getStatusColor(status) {
             switch (status) {
-                case 'En attente': return 'bg-yellow-100 text-yellow-700';
-                case 'En livraison': return 'bg-blue-100 text-blue-700';
+                case 'PENDING': return 'bg-yellow-100 text-yellow-700';
+                case 'PROCESSING': return 'bg-amber-100 text-amber-700';
                 case 'SHIPPED': return 'bg-blue-100 text-blue-700';
-                case 'Livré': return 'bg-green-100 text-green-700';
                 case 'DELIVERED': return 'bg-teal-100 text-teal-700';
-                case 'PAID_HELD': return 'bg-purple-100 text-purple-700';
+                case 'COMPLETED':
                 case 'RELEASED': return 'bg-green-100 text-green-700';
+                case 'CANCELLED': return 'bg-gray-100 text-gray-500';
+                case 'REFUNDED': return 'bg-orange-100 text-orange-700';
+                case 'PAID_HELD': return 'bg-purple-100 text-purple-700';
                 case 'DISPUTED': return 'bg-orange-100 text-orange-700';
                 case 'FROZEN': return 'bg-red-100 text-red-700';
                 default: return 'bg-gray-100 text-gray-700';
@@ -905,7 +938,7 @@
             });
 
             const statusEl = document.getElementById('modalOrderStatus');
-            statusEl.textContent = order.status;
+            statusEl.textContent = window.OrderManager ? OrderManager.getStatusLabel(order.status) : order.status;
             statusEl.className = `px-3 py-1 rounded-full text-xs font-bold inline-block ${getStatusColor(order.status)}`;
 
             const payStatusEl = document.getElementById('modalPaymentStatus');
@@ -995,29 +1028,60 @@
             }
         }
 
-        async function handleOpenDispute() {
+        // ========================== GESTION DES LITIGES ==========================
+        function showDisputeModal() {
+            if (!currentSelectedOrder) return;
+            document.getElementById('disputeOrderId').textContent = currentSelectedOrder.id;
+            document.getElementById('disputeReason').value = '';
+            document.getElementById('disputeDescription').value = '';
+            document.getElementById('disputeProof1').value = '';
+            document.getElementById('disputeProof2').value = '';
+            document.getElementById('disputeModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            closeOrderModal();
+        }
+
+        function closeDisputeModal() {
+            document.getElementById('disputeModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        async function submitDispute() {
             if (!currentSelectedOrder) return;
 
-            const reason = prompt("Veuillez indiquer la raison de votre litige (obligatoire) :");
-            if (!reason) return;
+            const category = document.getElementById('disputeReason').value;
+            const description = document.getElementById('disputeDescription').value.trim();
+            const proof1 = document.getElementById('disputeProof1').value.trim();
+            const proof2 = document.getElementById('disputeProof2').value.trim();
+
+            if (!category || !description) {
+                showToast('Raison et description sont obligatoires.', 'error');
+                return;
+            }
+
+            const proofs = [];
+            if (proof1) proofs.push(proof1);
+            if (proof2) proofs.push(proof2);
 
             try {
-                const btn = document.getElementById('btnOpenDispute');
+                const btn = document.getElementById('btnSubmitDispute');
                 btn.disabled = true;
-                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Signalement...';
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi...';
 
-                await OrderManager.openDispute(currentSelectedOrder.id, reason);
+                await OrderManager.openDispute(currentSelectedOrder.id, category, description, proofs);
+                
                 showToast('Litige ouvert. Notre service client va analyser votre demande.', 'warning');
-                closeOrderModal();
+                closeDisputeModal();
                 await loadDashboardData();
             } catch (error) {
                 showToast(error.message || 'Erreur lors de l\'ouverture du litige', 'error');
             } finally {
-                const btn = document.getElementById('btnOpenDispute');
+                const btn = document.getElementById('btnSubmitDispute');
                 btn.disabled = false;
-                btn.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Signaler un litige';
+                btn.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Soumettre le litige';
             }
         }
+        // ========================================================================
 
         function closeOrderModal() {
             document.getElementById('orderModal').classList.add('hidden');
@@ -1130,6 +1194,102 @@
         });
     </script>
 
+    <script>
+        // Logic for Mobile Sidebar Toggle
+        (function() {
+            const menuBtn = document.getElementById('mobileSidebarBtn');
+            const sidebar = document.getElementById('customerSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (menuBtn && sidebar && overlay) {
+                const toggleMenu = () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                    overlay.classList.toggle('hidden');
+                    document.body.classList.toggle('overflow-hidden');
+                };
+                
+                menuBtn.addEventListener('click', toggleMenu);
+                overlay.addEventListener('click', toggleMenu);
+                
+                // Close sidebar when clicking links on mobile
+                const sidebarLinks = sidebar.querySelectorAll('a, button.sidebar-logout');
+                sidebarLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        if (!sidebar.classList.contains('-translate-x-full')) {
+                            toggleMenu();
+                        }
+                    });
+                });
+            }
+
+            // Initialize SidebarManager for desktop collapse
+            if (window.SidebarManager) {
+                window.SidebarManager.init('customerSidebar');
+            }
+        })();
+    </script>
+    
+    <!-- Modal d'Ouverture de Litige (Dispute Modal) -->
+    <div id="disputeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                        <iconify-icon icon="solar:danger-triangle-bold" width="24"></iconify-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold font-heading text-gray-900">Signaler un litige</h2>
+                        <p class="text-sm text-gray-500 font-medium">Commande <span id="disputeOrderId" class="text-indigo-600 font-bold"></span></p>
+                    </div>
+                </div>
+                <button onclick="closeDisputeModal()" class="w-8 h-8 rounded-full bg-white hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors shadow-sm">
+                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-5">
+                <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3 text-sm text-orange-800">
+                    <iconify-icon icon="solar:info-circle-linear" class="text-xl shrink-0"></iconify-icon>
+                    <p>En ouvrant ce litige, les fonds de votre commande seront partiellement ou totalement gelés en attendant l'évaluation de notre pôle litige.</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Catégorie du problème</label>
+                        <select id="disputeReason" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50">
+                            <option value="">-- Sélectionnez une catégorie --</option>
+                            <option value="PRODUIT_NON_RECU">Produit non reçu</option>
+                            <option value="PRODUIT_ENDOMMAGE">Produit endommagé ou cassé</option>
+                            <option value="PRODUIT_NON_CONFORME">Produit non conforme à la description</option>
+                            <option value="CONTREFACON">Suspicion de contrefaçon</option>
+                            <option value="AUTRE">Autre raison</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Description détaillée</label>
+                        <textarea id="disputeDescription" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="Décrivez précisément votre problème avec cette commande..."></textarea>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Preuves (Liens Web / Drive / Imgur)</label>
+                        <p class="text-xs text-gray-500 mb-2">Veuillez fournir au moins 1 lien menant vers une URL contenant vos photos ou vidéo de preuve.</p>
+                        <input type="url" id="disputeProof1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50" placeholder="https://lien-preuve-1.com/img">
+                        <input type="url" id="disputeProof2" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50" placeholder="https://lien-preuve-2.com/img (Optionnel)">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+                <button onclick="closeDisputeModal()" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
+                    Annuler
+                </button>
+                <button id="btnSubmitDispute" onclick="submitDispute()" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-medium flex items-center gap-2 transition-colors">
+                    <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Soumettre le litige
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

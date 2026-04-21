@@ -1,5 +1,8 @@
 import { supabaseAdmin } from '../config/supabase.js';
 
+// ─── Statuts de tickets support autorisés ────────────────────────────────────
+const ALLOWED_TICKET_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+
 export const getTickets = async (req, res) => {
     try {
         const { data, error } = await supabaseAdmin
@@ -21,6 +24,13 @@ export const updateTicketStatus = async (req, res) => {
         const { status } = req.body;
 
         if (!id || !status) return res.status(400).json({ error: 'ID et statut requis.' });
+
+        // Validation whitelist des statuts
+        if (!ALLOWED_TICKET_STATUSES.includes(status)) {
+            return res.status(400).json({ 
+                error: `Statut invalide. Valeurs autorisées : ${ALLOWED_TICKET_STATUSES.join(', ')}`
+            });
+        }
 
         const { data, error } = await supabaseAdmin
             .from('support_tickets')
@@ -74,7 +84,7 @@ export const createTicket = async (req, res) => {
                 customer_name,
                 customer_email,
                 message,
-                status: 'ouvert'
+                status: 'OPEN'
             })
             .select()
             .single();

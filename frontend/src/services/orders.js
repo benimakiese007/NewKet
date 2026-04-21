@@ -6,6 +6,34 @@ const OrderManager = {
     data: [],
     _initialized: false,
 
+    /**
+     * Mapping centralisé : Statut Backend (EN) → Label UI (FR).
+     * Le backend stocke TOUJOURS en anglais majuscules.
+     * La traduction se fait uniquement ici pour l'affichage.
+     */
+    STATUS_LABELS: {
+        'PENDING':    'En attente',
+        'PROCESSING': 'En cours',
+        'SHIPPED':    'Expédié',
+        'DELIVERED':  'Livré',
+        'CANCELLED':  'Annulé',
+        'COMPLETED':  'Terminé',
+        'REFUNDED':   'Remboursé',
+        'PAID_HELD':  'Séquestre',
+        'RELEASED':   'Confirmé',
+        'DISPUTED':   'En litige',
+        'FROZEN':     'Gelé',
+        // Legacy fallback pour les anciennes données en base
+        'ANNULÉ':     'Annulé'
+    },
+
+    /**
+     * Traduit un statut backend en label français pour l'UI.
+     */
+    getStatusLabel(backendStatus) {
+        return this.STATUS_LABELS[backendStatus] || backendStatus || 'Inconnu';
+    },
+
     async init() {
         if (!window.ApiClient) {
             console.error('[OrderManager] ApiClient introuvable.');
@@ -70,7 +98,7 @@ const OrderManager = {
             phone_number: order.phone_number || order.vendor_phone || '',
             date: order.created_at || new Date().toISOString(),
             total: order.total_amount || product?.price || product?.priceCDF || 0,
-            status: order.status || 'En attente',
+            status: order.status || 'PENDING',
             payment_status: order.payment_status || 'N/A',
             transaction_id: order.transaction_id || null,
             payment_method: order.payment_status && order.payment_status !== 'N/A' ? 'Paiement en ligne' : 'N/A',
@@ -142,8 +170,8 @@ const OrderManager = {
             commissionPercent: 0,
             netGains: totalEstimatedValue,
             netRevenue: totalEstimatedValue,
-            pendingOrders: vendorOrders.filter(o => o.status === 'En attente' || o.status === 'En cours').length,
-            deliveredOrders: vendorOrders.filter(o => o.status === 'Livré').length,
+            pendingOrders: vendorOrders.filter(o => o.status === 'PENDING' || o.status === 'PROCESSING' || o.status === 'PAID_HELD').length,
+            deliveredOrders: vendorOrders.filter(o => o.status === 'DELIVERED' || o.status === 'RELEASED').length,
             topProducts: this._getTopProducts(vendorOrders),
             orders: vendorOrders,
             availableBalance: totalEstimatedValue,
@@ -287,6 +315,17 @@ const OrderManager = {
         }
     },
 
+    async getDisputes() {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.get(`/disputes`);
+            return data.data; // renvoie le array de disputes
+        } catch (error) {
+            console.error('[OrderManager] Erreur getDisputes:', error);
+            throw error;
+        }
+    },
+
     async openDispute(orderId, reasonCategory, description, proofUrls) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
@@ -301,6 +340,20 @@ const OrderManager = {
             return data;
         } catch (error) {
             console.error('[OrderManager] Erreur openDispute:', error);
+            throw error;
+        }
+    },
+
+    async resolveDispute(disputeId, payload) {
+        // payload = { resolution_decision, refund_amount, action_for_order }
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.patch(`/disputes/${disputeId}/resolve`, payload);
+            this._initialized = false;
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur resolveDispute:', error);
             throw error;
         }
     },
