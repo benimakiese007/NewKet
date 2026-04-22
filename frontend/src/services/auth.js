@@ -15,6 +15,7 @@ const AuthManager = {
     _initialized: false,
     _realtimeChannel: null,
     _syncInterval: null,
+    _sessionUpdatePromise: null,
 
     async init() {
         this._authChecking = true;
@@ -98,6 +99,9 @@ const AuthManager = {
 
     async handleSessionUpdate(user) {
         if (!user) return;
+        if (this._sessionUpdatePromise) return this._sessionUpdatePromise;
+
+        this._sessionUpdatePromise = (async () => {
         const email = user.email;
         
         // --- 🛡️ SECURE ROLE RESOLUTION ---
@@ -174,21 +178,28 @@ const AuthManager = {
             }
         }
 
-        this.status = await this.fetchUserStatus(email);
-        localStorage.setItem('newketUserStatus', this.status);
+            this.status = await this.fetchUserStatus(email);
+            localStorage.setItem('newketUserStatus', this.status);
 
-        this.setupRealtimeSync(user.id);
-        this.enforcePermissions();
-        // Refresh avatar in the header now that DB data is loaded
-        this.updateAccountLink();
+            this.setupRealtimeSync(user.id);
+            this.enforcePermissions();
+            // Refresh avatar in the header now that DB data is loaded
+            this.updateAccountLink();
 
-        if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
-        if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
-        
-        // Finalize initialization
-        this._authChecking = false;
-        this._initialized = true;
-        document.documentElement.classList.remove('auth-loading');
+            if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
+            if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
+            
+            // Finalize initialization
+            this._authChecking = false;
+            this._initialized = true;
+            document.documentElement.classList.remove('auth-loading');
+        })();
+
+        try {
+            await this._sessionUpdatePromise;
+        } finally {
+            this._sessionUpdatePromise = null;
+        }
     },
 
 

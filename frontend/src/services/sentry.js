@@ -7,21 +7,35 @@
 
 import * as Sentry from '@sentry/browser';
 
+function isSentryEnabled() {
+    const dsn = import.meta.env.VITE_SENTRY_DSN;
+    const env = import.meta.env.VITE_APP_ENV || 'development';
+    const allowInDev = import.meta.env.VITE_ENABLE_SENTRY_DEV === 'true';
+
+    return Boolean(dsn) && (env !== 'development' || allowInDev);
+}
+
 /**
  * Initialise Sentry pour le frontend.
  */
 export function initSentry() {
     const dsn = import.meta.env.VITE_SENTRY_DSN;
+    const env = import.meta.env.VITE_APP_ENV || 'development';
     
     if (!dsn) {
         console.warn('[Sentry] ⚠️ VITE_SENTRY_DSN non configuré — tracking désactivé.');
         return;
     }
 
+    if (!isSentryEnabled()) {
+        console.info(`[Sentry] Monitoring disabled in ${env}. Set VITE_ENABLE_SENTRY_DEV=true to enable it locally.`);
+        return;
+    }
+
     try {
         Sentry.init({
             dsn,
-            environment: import.meta.env.VITE_APP_ENV || 'development',
+            environment: env,
             
             // On capture 100% des erreurs non gérées
             integrations: [
@@ -56,7 +70,7 @@ export function initSentry() {
  * @param {object} user - Infos de l'utilisateur (id, email, etc.)
  */
 export function setSentryUser(user) {
-    if (!import.meta.env.VITE_SENTRY_DSN || !user) return;
+    if (!isSentryEnabled() || !user) return;
     
     Sentry.setUser({
         id: user.id || user.user_id,
@@ -69,7 +83,7 @@ export function setSentryUser(user) {
  * Efface les infos utilisateur du scope Sentry (ex: à la déconnexion).
  */
 export function clearSentryUser() {
-    if (!import.meta.env.VITE_SENTRY_DSN) return;
+    if (!isSentryEnabled()) return;
     Sentry.setUser(null);
 }
 
@@ -81,7 +95,7 @@ export function clearSentryUser() {
  * @param {object} context - Informations additionnelles pour aider au debug
  */
 export function captureError(error, context = {}) {
-    if (!import.meta.env.VITE_SENTRY_DSN) return;
+    if (!isSentryEnabled()) return;
 
     Sentry.withScope((scope) => {
         // Ajouter le contexte sous forme de "tags" ou "extras"

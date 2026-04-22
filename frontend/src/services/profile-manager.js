@@ -5,6 +5,24 @@
 const ProfileManager = {
     _profile: null,
 
+    async _getCurrentUser() {
+        if (window.AuthManager?.user?.id) return window.AuthManager.user;
+
+        if (window.SupabaseAdapter) {
+            const session = await window.SupabaseAdapter.getSession(1000);
+            if (session?.user) return session.user;
+        }
+
+        if (!window.supabaseClient) return null;
+
+        try {
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            return user || null;
+        } catch {
+            return null;
+        }
+    },
+
     init() {
         this.loadLocalProfile();
     },
@@ -51,11 +69,7 @@ const ProfileManager = {
     async syncWithSupabase() {
         if (!window.SupabaseAdapter) return;
         
-        let user;
-        try {
-            const { data } = await window.SupabaseAdapter.getClient().auth.getUser();
-            user = data?.user;
-        } catch(e) {}
+        const user = await this._getCurrentUser();
         if (!user || !user.id) return;
 
         try {

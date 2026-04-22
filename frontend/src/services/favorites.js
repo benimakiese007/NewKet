@@ -1,6 +1,24 @@
 ﻿/* newket EMarket Favorites Manager */
 
 const FavoritesManager = {
+    async _getCurrentUser() {
+        if (window.AuthManager?.user?.id) return window.AuthManager.user;
+
+        if (window.SupabaseAdapter) {
+            const session = await window.SupabaseAdapter.getSession(1000);
+            if (session?.user) return session.user;
+        }
+
+        if (!window.supabaseClient) return null;
+
+        try {
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            return user || null;
+        } catch {
+            return null;
+        }
+    },
+
     // Get favorites from localStorage
     getFavorites() {
         const favorites = localStorage.getItem('newketFavorites');
@@ -21,7 +39,7 @@ const FavoritesManager = {
     async _syncToSupabase(favorites) {
         try {
             if (!window.ApiClient || !window.supabaseClient) return;
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            const user = await this._getCurrentUser();
             if (!user) return;
 
             await ApiClient.post('/favorites', { favorites });
@@ -34,7 +52,7 @@ const FavoritesManager = {
     async syncFromSupabase() {
         try {
             if (!window.ApiClient || !window.supabaseClient) return;
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            const user = await this._getCurrentUser();
             if (!user) return;
             
             // Wait for existing fetch

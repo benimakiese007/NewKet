@@ -613,9 +613,16 @@
 
     <script>
         function initializeCatalog() {
+            if (window.__newketCatalogInitialized) {
+                renderCatalog();
+                return;
+            }
+
+            window.__newketCatalogInitialized = true;
             const urlParams = new URLSearchParams(window.location.search);
             console.log('Catalog Initialization Started');
             console.log('Current URL Search:', window.location.search);
+            const sortSelect = document.getElementById('sortSelect');
             
             const prefillSearchInput = () => {
                 const qp = urlParams.get('q');
@@ -637,7 +644,7 @@
 
             document.getElementById('minPrice')?.addEventListener('input', debounce(() => renderCatalog(), 500));
             document.getElementById('maxPrice')?.addEventListener('input', debounce(() => renderCatalog(), 500));
-            document.getElementById('sortSelect')?.addEventListener('change', () => renderCatalog());
+            sortSelect?.addEventListener('change', () => renderCatalog());
 
             // Handle category parameter
             const categoryParam = urlParams.get('category');
@@ -676,8 +683,6 @@
 
             initializePriceSlider();
 
-            document.getElementById('sortSelect').addEventListener('change', () => renderCatalog());
-
             // Re-render when currency changes
             window.addEventListener('currencyChanged', () => renderCatalog());
 
@@ -706,8 +711,8 @@
             const maxInput = document.getElementById('maxPrice');
             const track = document.getElementById('price-range-track');
 
-            if (!minSlider || !maxSlider) {
-                console.warn('[NewKet Catalog] Price sliders missing from DOM');
+            if (!minSlider || !maxSlider || !minInput || !maxInput || !track) {
+                console.warn('[NewKet Catalog] Price controls missing from DOM');
                 return;
             }
 
