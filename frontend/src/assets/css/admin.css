@@ -158,6 +158,33 @@ body {
 .premium-gradient-dark { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); }
 .glass-panel.premium-gradient-dark:hover { background: linear-gradient(135deg, #1f2937 0%, #374151 100%); }
 
+/* Grids & Layouts */
+.vendor-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.vendor-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 1024px) {
+    .vendor-charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .vendor-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Stats Widgets */
 .stat-card-label {
     font-size: 0.65rem;

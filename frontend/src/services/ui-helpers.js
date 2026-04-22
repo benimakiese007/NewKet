@@ -196,7 +196,8 @@ const SidebarManager = {
     state: {
         isCollapsed: localStorage.getItem('newketSidebarCollapsed') === 'true',
         isMobile: window.innerWidth < 1024,
-        isDrawerOpen: false
+        isDrawerOpen: false,
+        initialized: false
     },
 
     init(sidebarId, mainContentClass, overlayId = null) {
@@ -207,18 +208,79 @@ const SidebarManager = {
         
         this.applyState();
 
+        if (this.state.initialized) return;
+        this.state.initialized = true;
+
         // Handle window resize
         const handleResize = debounce(() => {
             const wasMobile = this.state.isMobile;
             this.state.isMobile = window.innerWidth < 1024;
             
             if (wasMobile !== this.state.isMobile) {
-                if (!this.state.isMobile) this.state.isDrawerOpen = false; // Reset drawer on resize to desktop
+                if (!this.state.isMobile) this.state.isDrawerOpen = false;
                 this.applyState();
             }
         }, 150);
 
         window.addEventListener('resize', handleResize);
+
+        // Click outside and keyboard listeners
+        this.setupKeyboardListeners();
+        this.setupGlobalClickHandlers();
+    },
+
+    setupKeyboardListeners() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.state.isDrawerOpen) {
+                this.close();
+            }
+        });
+    },
+
+    setupGlobalClickHandlers() {
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById(this.sidebarId);
+            if (!sidebar) return;
+
+            // 1. Handle clicks on the Overlay
+            if (e.target && e.target.id === this.overlayId) {
+                if (e.target.onclick || e.target.getAttribute('onclick')) return;
+                this.close();
+                return;
+            }
+
+            // Ensure e.target is an Element to safely use .closest()
+            if (!e.target || typeof e.target.closest !== 'function') return;
+
+            // 2. Handle Toggle Button clicks (Hamburger/Burger/Collapse)
+            const toggleBtn = e.target.closest('button');
+            if (toggleBtn) {
+                const hasToggleInOnclick = toggleBtn.onclick?.toString().includes('SidebarManager.toggle') || 
+                                         toggleBtn.getAttribute('onclick')?.includes('SidebarManager.toggle');
+                
+                if (toggleBtn.id === this.toggleBtnId || hasToggleInOnclick) {
+                    if (toggleBtn.onclick || toggleBtn.getAttribute('onclick')) return;
+                    this.toggle();
+                    return;
+                }
+            }
+
+            // 3. Handle Link Clicks & Outside Clicks (Mobile Only)
+            if (this.state.isMobile && this.state.isDrawerOpen) {
+                const link = e.target.closest('a') || e.target.closest('button');
+                
+                // If we clicked a link inside the sidebar, close it
+                if (link && sidebar.contains(link) && !link.hasAttribute('data-no-close')) {
+                    this.close();
+                    return; // Return so we don't prevent the default link action or bubble phase
+                }
+
+                // If we clicked OUTSIDE the sidebar
+                if (!sidebar.contains(e.target)) {
+                    this.close();
+                }
+            }
+        }, true);
     },
 
     toggle() {
@@ -229,6 +291,13 @@ const SidebarManager = {
             localStorage.setItem('newketSidebarCollapsed', this.state.isCollapsed);
         }
         this.applyState();
+    },
+
+    close() {
+        if (this.state.isMobile && this.state.isDrawerOpen) {
+            this.state.isDrawerOpen = false;
+            this.applyState();
+        }
     },
 
     closeMobile() {
@@ -247,9 +316,11 @@ const SidebarManager = {
             // Mobile Drawer Logic
             if (this.state.isDrawerOpen) {
                 sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0'); // Ensure it is shown
                 if (overlay) overlay.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
             } else {
+                sidebar.classList.remove('translate-x-0'); // Ensure we don't have conflicting translate classes
                 sidebar.classList.add('-translate-x-full');
                 if (overlay) overlay.classList.add('hidden');
                 document.body.classList.remove('overflow-hidden');
@@ -260,6 +331,7 @@ const SidebarManager = {
         } else {
             // Desktop Collapse Logic
             sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
             if (overlay) overlay.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
 
@@ -1147,6 +1219,156 @@ function initLazyImages(root = document) {
     }
 }
 
+/**
+ * Gets a consistent color based on a string (for avatars).
+ */
+function getAvatarColor(name) {
+    if (!name) return '#6366f1';
+    const palette = [
+        '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b',
+        '#10b981', '#3b82f6', '#f97316', '#14b8a6',
+        '#64748b', '#0ea5e9'
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return palette[Math.abs(hash) % palette.length];
+}
+
+/**
+ * Gets initials from a full name.
+ */
+function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+/**
+ * Renders an avatar with image fallback to initials.
+ * Supports both complex (img + placeholder) and simple (single div) displays.
+ */
+function renderAvatar(name, url, imgId, placeholderId) {
+    const img = document.getElementById(imgId);
+    const placeholder = document.getElementById(placeholderId);
+    
+    // If we have a dedicated placeholder element (like in Vendor/Admin dashboards)
+    if (img && placeholder) {
+        // Sanitize URL
+        const isValidUrl = url && url !== 'null' && url !== 'undefined' && url !== '' && typeof url === 'string';
+        
+        if (isValidUrl) {
+            img.src = url;
+            img.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+            
+            img.onerror = () => {
+                img.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                // Ensure placeholder parent has a color if img fails
+                const parent = placeholder.parentElement;
+                if (parent) {
+                    parent.style.backgroundColor = getAvatarColor(name);
+                    parent.classList.remove('bg-black'); // Remove default black if present
+                }
+            };
+        } else {
+            img.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            const parent = placeholder.parentElement;
+            if (parent) {
+                parent.style.backgroundColor = getAvatarColor(name);
+                parent.classList.remove('bg-black');
+            }
+        }
+    }
+    
+    // If we have a simple display element (like in Customer dashboard or Mini-profile)
+    const simpleDisplay = document.getElementById('userAvatarDisplay');
+    if (simpleDisplay) {
+        simpleDisplay.textContent = getInitials(name);
+        simpleDisplay.style.background = getAvatarColor(name);
+        // If it contains an image inside it, handle it too
+        const innerImg = simpleDisplay.querySelector('img');
+        if (innerImg && url && url !== 'null' && url !== 'undefined' && url !== '') {
+            innerImg.src = url;
+            innerImg.classList.remove('hidden');
+            innerImg.onerror = () => innerImg.classList.add('hidden');
+        } else if (innerImg) {
+            innerImg.classList.add('hidden');
+        }
+    }
+}
+
+/**
+ * ThemeManager
+ * Gère le mode clair/sombre de l'application via TailwindCSS (class 'dark' sur html)
+ * et sauvegarde la préférence dans le localStorage.
+ */
+const ThemeManager = {
+    init() {
+        // Au chargement, on vérifie le localStorage ou la préférence système
+        const storedTheme = localStorage.getItem('newket_theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Écouter les changements de préférence système
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('newket_theme')) {
+                if (e.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                this.updateUI();
+            }
+        });
+        
+        // Mettre à jour l'UI des boutons une fois le DOM chargé
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.updateUI());
+        } else {
+            this.updateUI();
+        }
+    },
+    
+    toggle() {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('newket_theme', isDark ? 'dark' : 'light');
+        this.updateUI();
+    },
+    
+    updateUI() {
+        const isDark = document.documentElement.classList.contains('dark');
+        // Mettre à jour tous les boutons avec l'attribut data-theme-toggle OU la classe .theme-toggle
+        document.querySelectorAll('[data-theme-toggle], .theme-toggle').forEach(btn => {
+            const icon = btn.querySelector('iconify-icon, [data-theme-icon]');
+            if (icon) {
+                icon.setAttribute('icon', isDark ? 'solar:sun-bold' : 'solar:moon-bold');
+            }
+        });
+        // Aussi mettre à jour les icônes standalone avec data-theme-icon
+        document.querySelectorAll('[data-theme-icon]').forEach(icon => {
+            icon.setAttribute('icon', isDark ? 'solar:sun-bold' : 'solar:moon-bold');
+        });
+    },
+
+    // Alias pour components-loader.js
+    _syncToggleUI() {
+        this.updateUI();
+    }
+};
+
+// Initialisation immédiate pour éviter le FOUC au maximum
+ThemeManager.init();
+
 window.showToast = showToast;
 window.debounce = debounce;
 window.buildProductCardHTML = buildProductCardHTML;
@@ -1157,4 +1379,8 @@ window.buildSkeletonNotificationHTML = buildSkeletonNotificationHTML;
 window.buildStarsHTML = buildStarsHTML;
 window.getOptimizedImageUrl = getOptimizedImageUrl;
 window.initLazyImages = initLazyImages;
-
+window.getAvatarColor = getAvatarColor;
+window.getInitials = getInitials;
+window.renderAvatar = renderAvatar;
+window.SidebarManager = SidebarManager;
+window.ThemeManager = ThemeManager;

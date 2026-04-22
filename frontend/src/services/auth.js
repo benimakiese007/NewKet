@@ -609,10 +609,12 @@ const AuthManager = {
             const isApproved = this.status === 'approved';
             const isSubmitted = this.status === 'submitted'; // Form filled, waiting for admin
             const isPending = this.status === 'pending' || !this.status; // Never filled the form
+            
+            const path = window.location.pathname;
+            const isOnboardingPage = path.includes('seller-onboarding');
 
             if (isPending) {
                 // Determine if we are on a protected vendor-only page
-                const path = window.location.pathname;
                 const isDashboard = path.includes('vendor-dashboard');
                 const isPublish = path.includes('publish');
 
@@ -620,14 +622,22 @@ const AuthManager = {
                     window.location.href = window.resolvePath('seller-onboarding');
                     return;
                 }
+            } else if (isApproved && isOnboardingPage) {
+                // Redirect verified vendors away from onboarding to their dashboard
+                window.location.href = window.resolvePath('vendor-dashboard');
+                return;
             } else if (isSubmitted) {
+                if (isOnboardingPage) {
+                    window.location.href = window.resolvePath('vendor-dashboard');
+                    return;
+                }
                 // Form submitted, waiting for admin to review — show notice
                 this.showPendingNotice();
             } else if (this.status === 'rejected') {
                 this.showRejectedNotice();
             }
 
-            if (window.location.pathname.includes('/admin/')) {
+            if (path.includes('/admin/')) {
                 window.location.href = window.resolvePath('vendor-dashboard');
             }
         }

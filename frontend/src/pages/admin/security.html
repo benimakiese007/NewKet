@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -7,6 +7,9 @@
     <title>Sécurité & Accès | NewKet Admin</title>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <script>
+        (function(){var t=localStorage.getItem('newket_theme');var s=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||((!t)&&s)){document.documentElement.classList.add('dark')}})();
+    </script>
     <script type="module" src="/src/services/app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/assets/css/style.css">
@@ -36,7 +39,7 @@
 <body class="bg-gray-50">
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-[52px] pb-12 flex flex-col md:flex-row gap-6">
+    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-[52px] pb-12 flex flex-col lg:flex-row gap-6">
         <div id="adminSidebarPlaceholder"></div>
 
         <main class="flex-1 min-w-0 space-y-8 animate-premium">

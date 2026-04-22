@@ -24,6 +24,9 @@ const AdminLayout = {
         // 4. Global Event Listeners (Mobile menu etc)
         this.bindEvents();
 
+        // 5. Update Profile Info
+        this.updateAdminProfile();
+
     },
 
     checkAccess() {
@@ -80,20 +83,24 @@ const AdminLayout = {
 
         navbarPlaceholder.innerHTML = `
             <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
-                <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px]">
+                <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] relative">
                     <div class="flex items-center gap-6">
-                        <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+                        <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                         </button>
+                    </div>
+
+                    <!-- Center Logo -->
+                    <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <a href="${this.getAdjustedPath('./')}" class="flex items-center gap-3 group">
                             <div class="relative">
                                 <div class="absolute -inset-1 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                                <div class="relative w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-gray-100 shadow-sm overflow-hidden">
+                                <div class="relative w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-gray-100 shadow-sm overflow-hidden">
                                     <img src="/Images/logo-newket.png" alt="NewKet Logo" class="w-full h-full object-contain scale-[1.7]">
                                 </div>
                             </div>
-                            <div class="flex flex-col">
-                                <span class="text-lg font-black tracking-tight text-gray-900 leading-none">NEWKET</span>
+                            <div class="hidden sm:flex flex-col">
+                                <span class="text-base font-black tracking-tight text-gray-900 leading-none">NEWKET</span>
                                 <span class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mt-1">Console Administration</span>
                             </div>
                         </a>
@@ -160,13 +167,26 @@ const AdminLayout = {
 
         let sidebarHTML = `
             <div id="adminOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
-            <aside id="adminSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full md:translate-x-0 md:static md:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen md:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
-                <div class="sidebar-toggle-container hidden md:flex absolute -right-4 top-20 z-[121]">
-                    <button id="sidebarToggleBtn" class="w-8 h-8 bg-white border border-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:text-black shadow-sm transition-all hover:scale-110" onclick="SidebarManager.toggle()">
-                        <iconify-icon icon="solar:alt-arrow-left-bold" width="16" class="toggle-icon transition-transform"></iconify-icon>
-                    </button>
-                </div>
-                <div class="p-6 md:px-4 md:py-8 md:sticky md:top-[64px]">
+            <aside id="adminSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
+
+                <div class="p-6 lg:px-4 lg:py-8 lg:sticky lg:top-[64px]">
+                    <!-- Admin Profile Header -->
+                    <div class="px-4 mb-6 hidden lg:block">
+                        <div class="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
+                            <div class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center font-bold shadow-sm border border-white/20 overflow-hidden">
+                                <img id="adminAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
+                                <span id="adminAvatarPlaceholder" class="text-xs">A</span>
+                            </div>
+                            <div class="flex flex-col min-w-0">
+                                <span id="adminDisplayName" class="text-sm font-bold text-gray-900 truncate">Admin</span>
+                                <span class="text-[9px] font-bold text-green-600 flex items-center gap-1 mt-0.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                    Système Actif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="md:glass-panel p-6 md:px-6 md:py-4">
                         <nav class="space-y-1">
         `;
@@ -201,10 +221,19 @@ const AdminLayout = {
     },
 
     bindEvents() {
-        // Events are now handled via inline onclick="SidebarManager.toggle()" for simplicity and reliability
-        const overlay = document.getElementById('adminOverlay');
-        if (overlay) {
-            overlay.addEventListener('click', () => SidebarManager.toggle());
+        // Overlay clicks are now handled globally by SidebarManager
+    },
+
+    updateAdminProfile() {
+        const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
+        const name = profile.name || localStorage.getItem('newketUserName') || 'Admin';
+        const avatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar');
+
+        const nameEl = document.getElementById('adminDisplayName');
+        if (nameEl) nameEl.textContent = name;
+
+        if (window.renderAvatar) {
+            window.renderAvatar(name, avatarUrl, 'adminAvatarImg', 'adminAvatarPlaceholder');
         }
     }
 };

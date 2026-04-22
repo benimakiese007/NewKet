@@ -8632,3 +8632,403 @@ html.dark .skeleton {
 .animate-fade-in-down {
     animation: fade-in-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* ==========================================================
+   DARK MODE — COMPREHENSIVE GLOBAL OVERRIDES
+   Covers: Dashboards, Homepage, Forms, Cards, Sidebar, Footer
+   ========================================================== */
+
+/* ---- Base Background & Text ---- */
+html.dark body { background-color: #0a0f1a !important; color: #f1f5f9 !important; }
+html.dark .bg-white { background-color: #0f172a !important; }
+html.dark .bg-gray-50, html.dark .bg-slate-50 { background-color: #0a0f1a !important; }
+html.dark .bg-gray-100, html.dark .bg-slate-100 { background-color: #1e293b !important; }
+html.dark .bg-gray-200, html.dark .bg-slate-200 { background-color: #334155 !important; }
+html.dark .text-gray-900, html.dark .text-slate-900 { color: #f1f5f9 !important; }
+html.dark .text-gray-800, html.dark .text-slate-800 { color: #e2e8f0 !important; }
+html.dark .text-gray-700, html.dark .text-slate-700 { color: #cbd5e1 !important; }
+html.dark .text-gray-600, html.dark .text-slate-600 { color: #94a3b8 !important; }
+html.dark .text-gray-500, html.dark .text-slate-500 { color: #64748b !important; }
+html.dark .text-gray-400, html.dark .text-slate-400 { color: #475569 !important; }
+html.dark .text-black { color: #f8fafc !important; }
+
+/* ---- Borders ---- */
+html.dark .border-gray-100 { border-color: #1e293b !important; }
+html.dark .border-gray-200 { border-color: #334155 !important; }
+html.dark .border-gray-50 { border-color: #1e293b !important; }
+html.dark .border-white { border-color: #1e293b !important; }
+
+/* ---- Dashboard Sidebar ---- */
+html.dark .sidebar,
+html.dark aside[class*="sidebar"],
+html.dark #vendorSidebar,
+html.dark #customerSidebar,
+html.dark #adminSidebar {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+}
+
+html.dark .sidebar-link {
+    color: #94a3b8 !important;
+}
+
+html.dark .sidebar-link:hover,
+html.dark .sidebar-link.active {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+    color: #e2e8f0 !important;
+}
+
+html.dark .sidebar-link.active {
+    color: #818cf8 !important;
+}
+
+/* ---- Dashboard Top Nav Bar ---- */
+html.dark nav[class*="fixed"][class*="bg-white"],
+html.dark nav.bg-white\/70 {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+    border-color: #1e293b !important;
+    backdrop-filter: blur(16px);
+}
+
+/* ---- Glass Panels & Cards ---- */
+html.dark .glass-panel,
+html.dark .glass-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ---- Stat Cards ---- */
+html.dark .skeleton-stat-card {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+/* ---- Form Controls ---- */
+html.dark input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: #475569 !important;
+}
+
+html.dark input:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+}
+
+/* ---- Dropdown Menus ---- */
+html.dark .dropdown-menu,
+html.dark [class*="dropdown"],
+html.dark #searchCategoryMenu {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html.dark .dropdown-menu a:hover,
+html.dark .category-option:hover {
+    background-color: #334155 !important;
+}
+
+/* ---- Homepage Sections ---- */
+html.dark section {
+    color: #e2e8f0;
+}
+
+html.dark .bg-gray-50,
+html.dark section.bg-white {
+    background-color: #0a0f1a !important;
+}
+
+/* Filter Buttons */
+html.dark .filter-btn {
+    background-color: #1e293b !important;
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
+
+html.dark .filter-btn:hover {
+    background-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+html.dark .filter-btn.active {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Features Ticker Section */
+html.dark .features-gradient-edge .bg-gray-50 {
+    background-color: #1e293b !important;
+}
+
+html.dark .animate-scroll > div {
+    background-color: #1e293b !important;
+}
+
+html.dark .animate-scroll .text-gray-900 {
+    color: #e2e8f0 !important;
+}
+
+html.dark .animate-scroll .text-gray-500 {
+    color: #64748b !important;
+}
+
+/* Category Nav Bar */
+html.dark .category-nav,
+html.dark #categoryNav {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+}
+
+html.dark .category-nav a,
+html.dark #categoryNav a {
+    color: #94a3b8 !important;
+}
+
+html.dark .category-nav a:hover,
+html.dark #categoryNav a:hover {
+    color: #e2e8f0 !important;
+    background-color: #1e293b !important;
+}
+
+/* ---- Product Title & Price in Dark ---- */
+html.dark .product-title a,
+html.dark .product-title {
+    color: #e2e8f0 !important;
+}
+
+html.dark .product-cat {
+    color: #64748b !important;
+}
+
+html.dark .product-vendor span {
+    color: #64748b !important;
+}
+
+html.dark .current-price {
+    color: #f1f5f9 !important;
+}
+
+html.dark .old-price {
+    color: #475569 !important;
+}
+
+html.dark .product-rating span {
+    color: #64748b !important;
+}
+
+/* ---- Wishlist & Share Buttons ---- */
+html.dark .wishlist-btn {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border-color: #334155 !important;
+}
+
+html.dark .product-card button[aria-label="Partager ce produit"] {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #94a3b8 !important;
+}
+
+html.dark .product-card button[aria-label="Partager ce produit"]:hover {
+    background-color: #334155 !important;
+}
+
+/* ---- Sort Select ---- */
+html.dark #sortAllProducts,
+html.dark select.bg-transparent {
+    color: #94a3b8 !important;
+}
+
+/* ---- Recently Viewed Section ---- */
+html.dark #recently-viewed-section {
+    background-color: #0a0f1a !important;
+    border-color: #1e293b !important;
+}
+
+/* ---- Scrollbar Dark Mode ---- */
+html.dark ::-webkit-scrollbar-thumb {
+    background: #334155 !important;
+}
+
+html.dark ::-webkit-scrollbar-track {
+    background: #0f172a !important;
+}
+
+/* ---- Hover Effects ---- */
+html.dark .hover\:bg-gray-50:hover {
+    background-color: #1e293b !important;
+}
+
+html.dark .hover\:bg-gray-100:hover {
+    background-color: #334155 !important;
+}
+
+/* ---- Badge / Tags in Dark Mode ---- */
+html.dark .badge-new {
+    background-color: #1e293b !important;
+    color: #818cf8 !important;
+}
+
+html.dark .badge-sale {
+    background-color: #7f1d1d !important;
+    color: #fca5a5 !important;
+}
+
+/* ---- Footer (Already dark, but fine-tune) ---- */
+html.dark footer {
+    background-color: #020617 !important;
+    border-color: #1e293b !important;
+}
+
+/* ---- Voir Plus Button ---- */
+html.dark #voirPlusBtn {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+html.dark #voirPlusBtn:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* ---- Dashboard Tabs ---- */
+html.dark .dashboard-tabs button,
+html.dark .dashboard-tabs a {
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
+
+html.dark .dashboard-tabs button:hover,
+html.dark .dashboard-tabs a:hover,
+html.dark .dashboard-tabs button.active,
+html.dark .dashboard-tabs a.active {
+    color: #e2e8f0 !important;
+    background-color: #1e293b !important;
+}
+
+/* ---- Tables in Dark Mode ---- */
+html.dark table {
+    color: #e2e8f0;
+}
+
+html.dark th {
+    background-color: #1e293b !important;
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
+
+html.dark td {
+    border-color: #1e293b !important;
+}
+
+html.dark tr:hover td {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+/* ---- Modals in Dark Mode ---- */
+html.dark .modal-box,
+html.dark [class*="modal"] .bg-white {
+    background-color: #1e293b !important;
+}
+
+html.dark [class*="modal"] .border-gray-100 {
+    border-color: #334155 !important;
+}
+
+/* ---- Search Suggestions ---- */
+html.dark .search-suggestions {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+html.dark .search-suggestions a:hover,
+html.dark .search-suggestions .suggestion-item:hover {
+    background-color: #334155 !important;
+}
+
+/* ---- Dashboard Stat Icon Containers ---- */
+html.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.15) !important; }
+html.dark .bg-green-50 { background-color: rgba(16, 185, 129, 0.15) !important; }
+html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15) !important; }
+html.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.15) !important; }
+html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.15) !important; }
+html.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.15) !important; }
+html.dark .bg-purple-50 { background-color: rgba(139, 92, 246, 0.15) !important; }
+html.dark .bg-pink-50 { background-color: rgba(236, 72, 153, 0.15) !important; }
+
+/* ---- Logo Box in Dashboard ---- */
+html.dark .bg-white.rounded-xl,
+html.dark div[class*="bg-white"][class*="rounded"] {
+    background-color: #1e293b !important;
+}
+
+/* ---- Currency Switch in Dark Mode ---- */
+html.dark .currency-switch-segmented {
+    background-color: #1e293b !important;
+}
+
+html.dark .segmented-track {
+    background-color: #0f172a !important;
+}
+
+html.dark .segmented-handle {
+    background-color: #334155 !important;
+}
+
+html.dark .segmented-label {
+    color: #94a3b8 !important;
+}
+
+/* ---- Announcement Modal Dark ---- */
+html.dark #nk-announcement-modal .bg-white\/90 {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+html.dark #nk-announcement-modal h2 {
+    color: #f1f5f9 !important;
+}
+
+html.dark #nk-announcement-modal .text-gray-600 {
+    color: #94a3b8 !important;
+}
+
+/* ---- Body level dashboard pages ---- */
+html.dark body.bg-gray-50,
+html.dark body[style*="background-color: #f8fafc"],
+html.dark body[style*="background-color: #f9fafb"] {
+    background-color: #0a0f1a !important;
+}
+
+/* ---- Smooth transition on theme change ---- */
+html.dark *,
+html.dark *::before,
+html.dark *::after {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Disable transition on theme icons to avoid flicker */
+html.dark .theme-toggle iconify-icon,
+html.dark [data-theme-toggle] iconify-icon {
+    transition: none !important;
+}
+
+/* ---- Admin CSS overrides for dark ---- */
+html.dark .admin-header {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+    border-color: #1e293b !important;
+}
+
+html.dark .admin-sidebar {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+}

@@ -2,6 +2,9 @@
 <html lang="fr">
 
 <head>
+    <script>
+        (function(){var t=localStorage.getItem('newket_theme');var s=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||((!t)&&s)){document.documentElement.classList.add('dark')}})();
+    </script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -132,18 +135,68 @@
             border: none;
             text-align: left;
         }
+        .sidebar-logout:hover {
+            background: #fef2f2;
+        }
+
+        /* ---- Dark Mode Overrides ---- */
+        html.dark body {
+            background-color: #0a0f1a !important;
+        }
+
+        html.dark .glass-panel {
+            background: #1e293b !important;
+            border-color: #334155 !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        html.dark .sidebar-link {
+            color: #94a3b8;
+        }
+
+        html.dark .sidebar-link:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: #e2e8f0;
+        }
+
+        html.dark .sidebar-link.active {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        html.dark .sidebar-logout {
+            color: #f87171;
+        }
+
+        html.dark .sidebar-logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        html.dark .status-standard {
+            background: #1e293b;
+            color: #94a3b8;
+        }
+
+        html.dark .status-premium {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
     </style>
 </head>
 <body>    <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
-        <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px]">
+        <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] relative">
             <div class="flex items-center gap-6">
-                <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+                <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                     <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                 </button>
+            </div>
+
+            <!-- Center Logo -->
+            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <a href="/" class="flex items-center gap-3 group">
                     <div class="relative">
                         <div class="absolute -inset-1 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                        <div class="relative w-10 w-10 bg-white rounded-xl flex items-center justify-center border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="relative w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-gray-100 shadow-sm overflow-hidden">
                             <img src="/Images/logo-newket.png" alt="NewKet Logo" class="w-full h-full object-contain scale-[1.7]">
                         </div>
                     </div>
@@ -155,6 +208,10 @@
             </div>
 
             <div class="flex items-center gap-4">
+                <!-- Theme Toggle Desktop -->
+                <button data-theme-toggle onclick="ThemeManager.toggle()" class="theme-toggle hidden sm:flex h-10 w-10 text-gray-500 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50 items-center justify-center" aria-label="Basculer le thème">
+                    <iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon>
+                </button>
                 <button onclick="AuthManager.handleLogoutClick(this)" class="h-10 w-10 sm:w-auto sm:px-4 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
                     <iconify-icon icon="solar:logout-bold" width="20"></iconify-icon>
                     <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Déconnexion</span>
@@ -164,24 +221,27 @@
     </nav>
 
     <!-- Overlay pour Mobile -->
-    <div id="customerSidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300" onclick="SidebarManager.toggle()"></div>
+    <div id="customerSidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 flex flex-col md:flex-row gap-8 relative">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 flex flex-col lg:flex-row gap-8 relative">
         <!-- Sidebar -->
-        <aside id="customerSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full md:translate-x-0 md:static md:w-64 transition-all duration-300 ease-in-out h-screen md:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
-            <div class="sidebar-toggle-container hidden md:flex absolute -right-4 top-20 z-[121]">
-                <button id="sidebarToggleBtn" class="w-8 h-8 bg-white border border-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:text-black shadow-sm transition-all hover:scale-110" onclick="SidebarManager.toggle()">
-                    <iconify-icon icon="solar:alt-arrow-left-bold" width="16" class="toggle-icon transition-transform"></iconify-icon>
-                </button>
-            </div>
-            <div class="glass-panel p-6 md:sticky md:top-24">
-                <div class="flex items-center gap-4 mb-8">
-                    <div id="userAvatarDisplay"
-                        class="user-avatar-display w-12 h-12 rounded-full flex items-center justify-center text-white flex-shrink-0">
+        <aside id="customerSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:w-64 transition-all duration-300 ease-in-out h-screen lg:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
+
+            <div class="glass-panel p-6 lg:sticky lg:top-24">
+                <div class="flex items-center gap-4 mb-8 p-3 rounded-2xl bg-gray-50/80 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
+                    <div class="relative flex-shrink-0">
+                        <div id="userAvatarDisplay" class="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center font-bold text-lg shadow-sm border border-white/20 overflow-hidden">
+                            <img id="userAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
+                            <span id="userAvatarPlaceholder">?</span>
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
                     </div>
-                    <div>
-                        <h2 class="font-bold text-gray-900" id="userDisplayName">Mon Compte</h2>
-                        <span id="userStatusBadge" class="status-badge status-standard">Standard</span>
+                    <div class="flex flex-col min-w-0">
+                        <h2 id="userDisplayName" class="font-bold text-gray-900 truncate text-sm">Mon Compte</h2>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <span id="userStatusBadge" class="status-badge status-standard">Standard</span>
+                            <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">En ligne</span>
+                        </div>
                     </div>
                 </div>
                 <nav class="space-y-1">
@@ -203,6 +263,11 @@
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
                         <span>Paramètres</span>
                     </a>
+                    <!-- Theme Toggle Mobile -->
+                    <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle lg:hidden w-full">
+                        <iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon>
+                        <span class="theme-toggle-text">Mode Sombre</span>
+                    </button>
                     <!-- Admin Link for Suppliers -->
                     <div id="supplier-link-container" class="hidden">
                         <div class="h-px bg-gray-100 my-4 mx-2"></div>
@@ -596,30 +661,7 @@
             if (tabId === 'notifications') renderDashboardNotifications();
         }
 
-        // ààà Avatar helpers àààààààààààààààààààààààààààààààààààààààààààààààààààààà
-        function getAvatarColor(name) {
-            const palette = [
-                '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b',
-                '#10b981', '#3b82f6', '#f97316', '#14b8a6'
-            ];
-            let hash = 0;
-            for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-            return palette[Math.abs(hash) % palette.length];
-        }
-
-        function getInitials(name) {
-            if (!name) return '?';
-            const parts = name.trim().split(' ');
-            if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-        }
-
-        function renderAvatar(name) {
-            const el = document.getElementById('userAvatarDisplay');
-            if (!el) return;
-            el.textContent = getInitials(name);
-            el.style.background = getAvatarColor(name || 'User');
-        }
+        // Avatar rendering is now handled by global renderAvatar from ui-helpers.js
 
         // ààà Status badge ààààààààààààààààààààààààààààààààààààààààààààààààààààààààà
         function renderStatusBadge(points) {
@@ -689,9 +731,17 @@
             if (document.getElementById('addrPhone')) document.getElementById('addrPhone').value = addr.phone || '';
 
             // Avatar & name
-            const displayName = profile.name || localStorage.getItem('newketUserEmail') || 'Utilisateur';
-            document.getElementById('userDisplayName').textContent = profile.name || 'Mon Compte';
-            renderAvatar(displayName);
+            const userName = profile.name || localStorage.getItem('newketUserName');
+            const userEmail = localStorage.getItem('newketUserEmail');
+            const displayName = userName || (userEmail ? userEmail.split('@')[0] : 'Utilisateur');
+            const avatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar');
+
+            const nameEl = document.getElementById('userDisplayName');
+            if (nameEl) nameEl.textContent = displayName;
+
+            if (window.renderAvatar) {
+                renderAvatar(displayName, avatarUrl, 'userAvatarImg', 'userAvatarPlaceholder');
+            }
 
             // Status badge (after stats load)
             setTimeout(() => {

@@ -45,7 +45,10 @@
     </script>
 
     <link rel="stylesheet" href="/src/assets/css/input.css">
-    <!-- Theme FOUC prevention (must be first, inline) -->
+    <!-- Theme FOUC prevention — synchronous, blocks rendering -->
+    <script>
+        (function(){var t=localStorage.getItem('newket_theme');var s=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||((!t)&&s)){document.documentElement.classList.add('dark')}})();
+    </script>
     <script type="module" src="/src/services/app.js"></script>
     <script type="module" src="/src/services/HeroSlider.js"></script>
     <script>
