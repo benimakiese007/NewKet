@@ -7,6 +7,24 @@ body {
     padding-top: 0 !important;
 }
 
+/* ── CRITICAL: Desktop sidebar layout fixes ──────────────────────────────── */
+/* The compiled tailwind.css is missing lg:static, lg:translate-x-0, etc.    */
+/* These rules ensure the sidebar participates in the flex flow on desktop.  */
+@media (min-width: 1024px) {
+    #adminSidebar, #customerSidebar, #vendorSidebar {
+        position: static !important;
+        transform: none !important;
+        height: auto !important;
+        z-index: auto;
+    }
+    #customerSidebar {
+        width: 16rem !important; /* w-64 = 256px */
+    }
+    #adminSidebar, #vendorSidebar {
+        width: 18rem !important; /* w-72 = 288px */
+    }
+}
+
 #adminSidebar, #customerSidebar, #vendorSidebar {
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: width, transform;
@@ -53,6 +71,24 @@ body {
 
 .premium-container {
     padding-top: 52px;
+}
+
+/* ── Missing Tailwind JIT classes (not in compiled CSS) ──── */
+.pt-\[52px\] {
+    padding-top: 52px;
+}
+
+@media (min-width: 1024px) {
+    .lg\:py-24 {
+        padding-top: 6rem;
+        padding-bottom: 6rem;
+    }
+    .lg\:h-auto {
+        height: auto;
+    }
+    .lg\:hidden {
+        display: none;
+    }
 }
 
 :root {

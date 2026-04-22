@@ -404,7 +404,7 @@ const AuthManager = {
         try {
             // Confirmation before disabling button to avoid "stuck" disabled state if user cancels
             if (confirmFirst) {
-                const confirmed = confirm('Êtes-vous sûr de vouloir vous déconnecter ?');
+                const confirmed = await window.showLogoutConfirm();
                 if (!confirmed) return;
             }
 
@@ -425,7 +425,7 @@ const AuthManager = {
 
     async logout(confirmFirst = false, reason = 'Utilisateur/Système') {
         if (confirmFirst) {
-            const confirmed = confirm('Êtes-vous sûr de vouloir vous déconnecter ?');
+            const confirmed = await window.showLogoutConfirm();
             if (!confirmed) return;
         }
 

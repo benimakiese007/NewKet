@@ -79,7 +79,7 @@
     <div id="vendorSidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24">
-        <div class="vendor-dashboard-layout">
+        <div class="vendor-dashboard-layout flex flex-col lg:flex-row gap-8">
             <!-- Sidebar -->
             <aside id="vendorSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:w-72 transition-all duration-300 ease-in-out h-screen lg:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
 
@@ -130,7 +130,7 @@
                                 <span>Paramètres</span>
                             </a>
                             <!-- Theme Toggle Mobile -->
-                            <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle lg:hidden group btn-active-scale w-full">
+                            <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle lg:hidden group btn-active-scale w-full text-left">
                                 <iconify-icon data-theme-icon icon="solar:moon-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
                                 <span class="theme-toggle-text">Mode Sombre</span>
                             </button>
@@ -153,7 +153,7 @@
             </aside>
 
             <!-- Main Content -->
-            <div class="vendor-main-content">
+            <div class="vendor-main-content flex-1 min-w-0">
                 <!-- Dashboard Navbar is now global at the top -->
 
                 <!-- Dashboard Tab Container -->

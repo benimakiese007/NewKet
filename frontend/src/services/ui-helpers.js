@@ -1384,3 +1384,65 @@ window.getInitials = getInitials;
 window.renderAvatar = renderAvatar;
 window.SidebarManager = SidebarManager;
 window.ThemeManager = ThemeManager;
+
+/**
+ * Logout-specific confirmation notification.
+ * Appears from the top, like an announcement but with actions.
+ */
+window.showLogoutConfirm = () => {
+    return new Promise((resolve) => {
+        const modalId = 'logout-confirm-' + Date.now();
+        const modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'fixed top-0 left-0 right-0 z-[10000] flex justify-center p-4 sm:p-6 pointer-events-none transition-all duration-500';
+        
+        modal.innerHTML = `
+            <div class="absolute inset-0 bg-gray-950/20 backdrop-blur-[2px] pointer-events-auto" onclick="window._closeLogoutConfirm('${modalId}', false)"></div>
+            <div class="relative bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-2xl max-w-sm w-full pointer-events-auto border border-white/20 transform -translate-y-full transition-all duration-500 ease-out">
+                <div class="h-1.5 bg-gradient-to-r from-red-500 to-orange-500 rounded-t-[2rem]"></div>
+                <div class="p-6 sm:p-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center shrink-0">
+                            <iconify-icon icon="solar:logout-3-bold" class="text-red-500 text-2xl"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-gray-900 leading-tight">Déconnexion</h3>
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Session NewKet</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 font-medium leading-relaxed mb-8">Êtes-vous sûr de vouloir fermer votre session ?</p>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="window._closeLogoutConfirm('${modalId}', false)" class="flex-1 px-4 py-3.5 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-all active:scale-95 text-sm">
+                            Rester
+                        </button>
+                        <button onclick="window._closeLogoutConfirm('${modalId}', true)" class="flex-1 px-4 py-3.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all active:scale-95 text-sm flex items-center justify-center gap-2">
+                            Quitter
+                            <iconify-icon icon="solar:arrow-right-up-bold" width="16"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Slide down
+        requestAnimationFrame(() => {
+            modal.querySelector('.transform').classList.remove('-translate-y-full');
+        });
+
+        window._closeLogoutConfirm = (id, result) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.querySelector('.transform').classList.add('-translate-y-full');
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.remove();
+                delete window._closeLogoutConfirm;
+                resolve(result);
+            }, 500);
+        };
+    });
+};
