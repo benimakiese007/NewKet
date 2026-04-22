@@ -1152,6 +1152,10 @@ html.dark .search-input::placeholder {
     color: #6b7280;
 }
 
+html.dark .header-brand-image {
+    filter: brightness(1.55) saturate(1.2) contrast(1.1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.18));
+}
+
 /* ==========================================
    38. HEADER — Compact mobile height fix
    ========================================== */
@@ -1272,16 +1276,15 @@ html.dark .search-input::placeholder {
    ========================================== */
 
 @media (max-width: 639px) {
-    /* Only add bottom padding when mobile nav is present */
     body:has(#mobileBottomNav) {
-        padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+        padding-bottom: 0;
     }
 }
 
 /* Fallback for browsers that don't support :has() */
 @media (max-width: 639px) {
     .page-content-wrapper {
-        padding-bottom: 80px;
+        padding-bottom: 0;
     }
 }
 
@@ -1509,4 +1512,4 @@ html.dark .glass-panel {
     .segmented-track {
         height: 34px;
     }
-}
+}

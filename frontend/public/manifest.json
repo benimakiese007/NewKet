@@ -14,14 +14,16 @@
   ],
   "icons": [
     {
-      "src": "Images/logo-newket.png",
+      "src": "Images/Logo NewKet PNG.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "Images/logo-newket.png",
+      "src": "Images/Logo NewKet PNG-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

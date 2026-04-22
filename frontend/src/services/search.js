@@ -86,9 +86,9 @@ const SearchManager = {
             if (!menu) return;
             if (menu.dataset.ported === '1') return; // already done
             menu.dataset.ported = '1';
-            menu.style.position = 'fixed';
-            menu.style.zIndex   = '99999';
-            menu.style.margin   = '0';
+            menu.style.setProperty('position', 'fixed', 'important');
+            menu.style.setProperty('z-index', '99999', 'important');
+            menu.style.setProperty('margin', '0', 'important');
             document.body.appendChild(menu);
         };
 
@@ -97,9 +97,15 @@ const SearchManager = {
             const menu = getMenu();
             if (!btn || !menu) return;
             const r = btn.getBoundingClientRect();
-            menu.style.top      = (r.bottom + 6) + 'px';
-            menu.style.left     = r.left + 'px';
-            menu.style.minWidth = Math.max(r.width, 180) + 'px';
+            const menuWidth = Math.max(r.width, 180);
+            const gutter = 8;
+            const maxLeft = Math.max(gutter, window.innerWidth - menuWidth - gutter);
+            const left = Math.min(Math.max(gutter, r.left), maxLeft);
+
+            menu.style.setProperty('top', `${r.bottom + 6}px`, 'important');
+            menu.style.setProperty('left', `${left}px`, 'important');
+            menu.style.setProperty('right', 'auto', 'important');
+            menu.style.setProperty('min-width', `${menuWidth}px`, 'important');
         };
 
         const openMenu = () => {

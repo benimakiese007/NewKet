@@ -234,9 +234,37 @@ button {
   min-height: 0; /* Height is set dynamically after footer loads */
 }
 
+.h-30 {
+  height: 7.5rem;
+}
+
 @media (max-width: 640px) {
   #header-placeholder {
     min-height: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .sm\:h-30 {
+    height: 7.5rem;
+  }
+}
+
+/* Ensure the injected header logo stays visible across pages with aggressive global img resets. */
+.header-brand-image {
+  display: block !important;
+  height: 3rem !important;
+  width: auto !important;
+  max-width: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+@media (min-width: 640px) {
+  .header-brand-image {
+    height: 7.5rem !important;
   }
 }
 
@@ -3667,12 +3695,6 @@ body.sidebar-resizing {
 @media (max-width: 767px) {
   #mobileBottomNav {
     display: block;
-  }
-
-  /* Add padding to page body so content isn't hidden behind bottom nav */
-
-  body {
-    padding-bottom: calc(62px + env(safe-area-inset-bottom, 0px));
   }
 }
 

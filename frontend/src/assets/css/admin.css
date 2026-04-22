@@ -308,4 +308,98 @@ body {
     .glass-panel {
         border-radius: 1rem;
     }
+
+    #vendorSidebar {
+        width: min(90vw, 20rem) !important;
+    }
+
+    #vendorSidebar .glass-panel {
+        padding: 1rem !important;
+    }
+
+    #tab-dashboard {
+        gap: 1.25rem !important;
+    }
+
+    #tab-dashboard .vendor-stats-grid,
+    #tab-dashboard .vendor-charts-grid {
+        gap: 0.875rem !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    #tab-dashboard .glass-panel.p-8 {
+        padding: 1rem !important;
+    }
+
+    #tab-dashboard .vendor-dashboard-hero {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.75rem !important;
+    }
+
+    #tab-dashboard .vendor-dashboard-hero > a {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    #tab-dashboard .vendor-card-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+
+    #tab-dashboard .vendor-card-header > a,
+    #tab-dashboard .vendor-card-header > div {
+        width: 100%;
+    }
+
+    #tab-dashboard .vendor-table-shell {
+        margin-inline: -1rem;
+        padding-inline: 1rem;
+    }
+
+    #tab-dashboard .vendor-orders-table {
+        min-width: 760px;
+    }
+
+    #tab-dashboard .vendor-activity-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    #tab-settings .flex.items-center.gap-8 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    #tab-settings .w-32.h-32 {
+        width: 7rem !important;
+        height: 7rem !important;
+    }
+
+    #tab-settings #coverPreviewContainer {
+        height: 11rem !important;
+    }
+
+    #tab-settings button[type="submit"],
+    #tab-settings #saveAvatarBtn,
+    #tab-settings #saveCoverBtn {
+        width: 100% !important;
+    }
+
+    #tab-products .flex.items-center.justify-between,
+    #tab-leads .flex.items-center.justify-between,
+    #tab-purchases .flex.items-center.justify-between {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    #tab-products input[type="text"] {
+        width: 100% !important;
+    }
+
+    #tab-purchases .bg-gray-50.px-4.py-2.rounded-xl.border.border-gray-100 {
+        width: 100% !important;
+    }
 }

@@ -685,8 +685,9 @@ const AuthManager = {
 
         accountLinks.forEach(accountLink => {
             const icon = accountLink.querySelector('iconify-icon');
+            const isFooterLink = accountLink.id === 'accountLinkFooter';
 
-            if (avatarUrl) {
+            if (avatarUrl && !isFooterLink) {
                 if (icon) icon.style.display = 'none';
                 let img = accountLink.querySelector('.nav-user-avatar');
                 if (!img) {

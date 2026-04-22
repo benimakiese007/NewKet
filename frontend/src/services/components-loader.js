@@ -1,4 +1,4 @@
-/* NewKet EMarket Component Loader */
+﻿/* NewKet EMarket Component Loader */
 
 /**
  * Header HTML inlined to avoid CORS issues with file:// protocol.
@@ -15,7 +15,7 @@ const HEADER_HTML = `
                     <span class="flex items-center gap-1.5 opacity-60"><iconify-icon icon="solar:shield-check-bold" width="12" aria-hidden="true"></iconify-icon> Paiement Sécurisé</span>
                 </div>
                 <div class="flex-1 flex justify-center text-center">
-                    <span class="px-4">Marketplace de Luxe — Boutique NewKet Officielle</span>
+                    <span class="px-4">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
                 </div>
                 <div class="hidden sm:flex items-center gap-6">
                     <a href="{{ROOT}}src/pages/support.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Support</a>
@@ -35,11 +35,11 @@ const HEADER_HTML = `
                 </button>
 
                 <!-- Logo Section -->
-                <div class="flex items-center sm:min-w-[160px]">
+                <div class="flex items-center sm:min-w-[320px]">
                     <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
-                        <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" 
-                            class="h-10 sm:h-16 w-auto object-contain"
-                            onerror="this.src='/Images/logo-newket.png'; this.onerror=null;">
+                        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" 
+                            class="header-brand-image h-12 sm:h-30 w-auto object-contain"
+                            onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                     </a>
                 </div>
 
@@ -165,7 +165,7 @@ const HEADER_HTML = `
 </div>
 <div id="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
     <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-        <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-10 w-auto object-contain pl-1">
+        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="h-10 w-auto object-contain pl-1">
         <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100 btn-active-scale" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
         </button>
@@ -273,7 +273,7 @@ const HEADER_HTML = `
 </div>`;;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5">
+<footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5" style="padding-bottom: calc(2rem + env(safe-area-inset-bottom));">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-10 mb-12">
             <div class="lg:col-span-4 space-y-6">
@@ -325,13 +325,20 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
-<header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm flex h-[60px] sm:h-[80px] items-center justify-center">
+<header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+    <div class="bg-gray-950 text-white py-1.5 px-4 border-b border-white/5">
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-center text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-center">
+            <span class="px-4">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
+        </div>
+    </div>
+    <div class="relative flex h-[72px] sm:h-[176px] items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
-        <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-10 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105">
+        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="header-brand-image h-12 sm:h-30 w-auto object-contain transition-transform group-hover:scale-105">
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-gray-300">
         <iconify-icon icon="solar:lock-password-bold" width="18"></iconify-icon>
         <span class="text-[10px] uppercase font-bold tracking-widest ml-1">Sécurisé</span>
+    </div>
     </div>
 </header>`;
 

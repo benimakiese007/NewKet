@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render Categories in Horizontal Layout
     const renderCategories = () => {
         const allDiscussionsHtml = `
-            <button class="group px-6 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all ${!currentCategoryId ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}" 
+            <button class="group w-full px-6 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all text-left ${!currentCategoryId ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}" 
                 onclick="window.forumManager.filterByCategory(null)">
                 <div class="flex items-center gap-2">
                     <iconify-icon icon="solar:globus-linear" class="${!currentCategoryId ? 'block' : 'hidden'}"></iconify-icon>
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const categoriesHtml = categories.map(cat => {
             const isActive = currentCategoryId === cat.id;
             return `
-                <button class="group px-6 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all ${isActive ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}" 
+                <button class="group w-full px-6 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all text-left ${isActive ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}" 
                     onclick="window.forumManager.filterByCategory('${escapeHTML(cat.id)}')">
                     <div class="flex items-center gap-2">
                         <iconify-icon icon="${escapeHTML(cat.icon || 'solar:chat-round-line-linear')}" width="18" class="${isActive ? 'text-white dark:text-black' : 'text-gray-400 group-hover:text-white dark:group-hover:text-black'}"></iconify-icon>
@@ -166,31 +166,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const postCount = topic.forum_posts?.[0]?.count || 0;
 
             return `
-                <div class="forum-card group bg-white dark:bg-zinc-900 p-8 rounded-[32px] border border-gray-100 dark:border-zinc-800 cursor-pointer shadow-sm hover:shadow-xl transition-all animate-fade-in-up" 
+                <div class="forum-card group bg-white/92 dark:bg-zinc-900/92 border border-gray-100 dark:border-zinc-800 cursor-pointer shadow-sm hover:shadow-xl transition-all animate-fade-in-up" 
                     style="animation-delay: ${index * 80}ms"
                     onclick="window.forumManager.viewTopic('${escapeHTML(topic.id)}')">
-                    <div class="flex flex-col sm:flex-row gap-6">
+                    <div class="topic-body flex flex-col sm:flex-row gap-5 sm:gap-6">
                         <div class="shrink-0">
                             <div class="relative">
                                 <img src="${avatarSrc}" 
-                                    class="w-14 h-14 rounded-full border-4 border-gray-50 dark:border-zinc-800 shadow-sm object-cover group-hover:scale-110 transition-transform duration-500">
+                                    class="w-16 h-16 rounded-full border-4 border-gray-50 dark:border-zinc-800 shadow-sm object-cover group-hover:scale-105 transition-transform duration-500">
                                 <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white dark:border-zinc-900 rounded-full"></div>
                             </div>
                         </div>
-                        <div class="flex-1">
-                            <div class="flex items-start justify-between mb-2">
-                                <h3 class="text-xl font-black text-gray-900 dark:text-white group-hover:text-black dark:group-hover:text-zinc-200 transition-colors leading-tight tracking-tight">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-4 mb-3">
+                                <h3 class="forum-topic-title font-black text-gray-900 dark:text-white group-hover:text-black dark:group-hover:text-zinc-200 transition-colors tracking-tight">
                                     ${escapeHTML(topic.title)}
                                 </h3>
-                                <div class="hidden sm:flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-zinc-800 rounded-2xl text-gray-400 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-all">
+                                <div class="forum-topic-metrics hidden sm:inline-flex group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black transition-all">
                                     <iconify-icon icon="solar:chat-round-dots-bold" width="18"></iconify-icon>
-                                    <span class="text-sm font-black">${escapeHTML(postCount)}</span>
+                                    <span>${escapeHTML(postCount)} msgs</span>
                                 </div>
                             </div>
-                            <p class="text-gray-500 dark:text-zinc-400 text-base line-clamp-2 mb-6 font-medium leading-relaxed">
+                            <p class="text-gray-500 dark:text-zinc-400 text-[15px] sm:text-base line-clamp-2 mb-5 font-medium leading-relaxed">
                                 ${escapeHTML(topic.content)}
                             </p>
-                            <div class="flex flex-wrap items-center gap-6 text-[11px] font-black uppercase tracking-[0.15em]">
+                            <div class="flex flex-wrap items-center gap-4 sm:gap-6 text-[11px] font-black uppercase tracking-[0.15em]">
                                 <div class="flex items-center gap-2">
                                     <span class="text-gray-900 dark:text-white">${escapeHTML(topic.users?.company_name || topic.users?.name || 'Utilisateur')}</span>
                                 </div>
@@ -496,6 +496,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitBtn = replyForm.querySelector('button[type="submit"]');
 
             if (!content || !currentTopicId) return;
+            if (!window.AuthManager?.getUserId()) {
+                window.location.href = window.resolvePath('login?redirect=forum');
+                return;
+            }
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>';

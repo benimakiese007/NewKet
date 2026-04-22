@@ -1,221 +1,550 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="auth-loading">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forum NewKet — Communauté & Mode</title>
-    <meta name="description" content="Rejoignez la communauté NewKet. Discutez mode, luxe, tendances et partagez vos meilleures trouvailles.">
-    
-    <!-- NewKet Brand Identity -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet V2.jpeg">
-    <link rel="icon" type="image/png" href="/Images/Logo NewKet V2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Forum NewKet - Communaute & Discussions</title>
+    <meta name="description" content="Consultez les vraies discussions NewKet: tendances, authentification, bons plans et conseils entre membres.">
+    <link rel="canonical" href="https://newket.vercel.app/src/pages/forum.html">
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Iconify -->
-    <script src="https://code.iconify.design/iconify-icon/1.0.8/iconify-icon.min.js" defer></script>
-    <!-- Inter & Outfit Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <meta property="og:title" content="Forum NewKet">
+    <meta property="og:description" content="Lisez les vraies discussions de la communaute NewKet, meme sans connexion.">
+    <meta property="og:image" content="https://newket.vercel.app/Images/Logo NewKet PNG.png">
+
+    <script>
+        (function(){var t=localStorage.getItem('newket_theme');var s=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||((!t)&&s)){document.documentElement.classList.add('dark')}})();
+    </script>
+    <script type="module" src="/src/services/app.js"></script>
+    <script type="module" src="/src/services/forum.js"></script>
+
+    <link rel="preconnect" href="https://code.iconify.design" crossorigin>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
 
     <style>
-        :root {
-            --primary: #10b981;
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top, rgba(59, 130, 246, 0.06), transparent 35%),
+                linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
         }
-        body { font-family: 'Inter', sans-serif; }
-        .font-outfit { font-family: 'Outfit', sans-serif; }
-        
-        .forum-topic {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .dark body {
+            background:
+                radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 30%),
+                linear-gradient(180deg, #09090b 0%, #0f172a 100%);
         }
-        .forum-topic:hover {
-            background-color: #fff;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08);
+
+        .forum-shell {
+            max-width: 1360px;
+        }
+
+        .forum-hero {
+            background:
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.76) 42%, rgba(255, 255, 255, 0.64) 100%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.05), rgba(59, 130, 246, 0.04));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark .forum-hero {
+            background:
+                radial-gradient(circle at top left, rgba(24, 24, 27, 0.96), rgba(17, 24, 39, 0.92) 42%, rgba(9, 9, 11, 0.92) 100%),
+                linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(16, 185, 129, 0.08));
+        }
+
+        .forum-hero::after {
+            content: '';
+            position: absolute;
+            inset: auto -12% -35% auto;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.14), transparent 68%);
+            pointer-events: none;
+        }
+
+        .dark .forum-hero::after {
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.14), transparent 68%);
+        }
+
+        .forum-panel {
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 2rem;
+            overflow: hidden;
+        }
+
+        .forum-search-wrap {
+            position: relative;
+        }
+
+        .forum-search-wrap iconify-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .forum-search-input {
+            width: 100%;
+            min-height: 56px;
+            padding: 0 1rem 0 3rem;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255, 255, 255, 0.86);
+            color: #0f172a;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+        }
+
+        .forum-search-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .forum-search-input:focus {
+            outline: none;
+            border-color: rgba(15, 23, 42, 0.24);
+            box-shadow: 0 22px 44px rgba(15, 23, 42, 0.1);
+        }
+
+        .dark .forum-search-input {
+            background: rgba(24, 24, 27, 0.86);
+            border-color: rgba(63, 63, 70, 0.85);
+            color: #f8fafc;
+            box-shadow: none;
+        }
+
+        .dark .forum-search-input::placeholder {
+            color: #71717a;
+        }
+
+        .forum-floating-btn {
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.14);
+        }
+
+        .dark .forum-floating-btn {
+            box-shadow: none;
+        }
+
+        .forum-compact-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        @media (min-width: 1024px) {
+            .forum-compact-meta {
+                justify-content: flex-end;
+            }
+        }
+
+        .forum-hero-overline {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border-radius: 999px;
+            padding: 0.45rem 0.8rem;
+            background: rgba(255, 255, 255, 0.78);
+            color: #64748b;
+            font-size: 0.64rem;
+            font-weight: 900;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+        }
+
+        .dark .forum-hero-overline {
+            background: rgba(24, 24, 27, 0.8);
+            color: #94a3b8;
+        }
+
+        .forum-hero-title {
+            max-width: 18ch;
+            font-size: clamp(1.9rem, 4vw, 3.25rem);
+            line-height: 0.95;
+            letter-spacing: -0.05em;
+        }
+
+        .forum-hero-copy {
+            max-width: 44ch;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .forum-hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            align-items: center;
+        }
+
+        .forum-hero-search-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) auto;
+            gap: 0.9rem;
+            align-items: end;
+        }
+
+        .forum-filter-btn {
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            background: rgba(255, 255, 255, 0.88);
+            color: #0f172a;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .forum-filter-btn:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .dark .forum-filter-btn {
+            border-color: rgba(100, 116, 139, 0.7);
+            background: rgba(30, 41, 59, 0.95);
+            color: #f8fafc;
+            box-shadow: none;
+        }
+
+        .dark .forum-filter-btn:hover {
+            background: rgba(51, 65, 85, 0.95);
+        }
+
+        .forum-compact-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            min-height: 34px;
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255, 255, 255, 0.8);
+            color: #64748b;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .forum-compact-pill strong {
+            color: #0f172a;
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: normal;
+            text-transform: none;
+        }
+
+        .dark .forum-compact-pill {
+            background: rgba(24, 24, 27, 0.8);
+            border-color: rgba(63, 63, 70, 0.8);
+            color: #71717a;
+        }
+
+        .dark .forum-compact-pill strong {
+            color: #fafafa;
+        }
+
+        .forum-card {
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .forum-card:hover {
             transform: translateY(-2px);
-            border-color: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.08);
         }
-        .category-link {
-            transition: all 0.2s ease;
+
+        .dark .forum-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.24);
         }
-        .category-link:hover {
-            background-color: #fff;
-            transform: translateX(4px);
-            color: #10b981;
+
+        .forum-card {
+            border-radius: 28px;
+            padding: 1.5rem;
+        }
+
+        .forum-card .topic-body {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .forum-topic-metrics {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.55rem 0.8rem;
+            border-radius: 1rem;
+            background: rgba(248, 250, 252, 0.9);
+            color: #64748b;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .dark .forum-topic-metrics {
+            background: rgba(15, 23, 42, 0.9);
+            color: #94a3b8;
+        }
+
+        .forum-topic-title {
+            font-size: 1.55rem;
+            line-height: 1.12;
+        }
+
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fade-in-up 0.45s ease both;
+        }
+
+        @media (max-width: 639px) {
+            .forum-page {
+                padding-top: 0.5rem;
+            }
+
+            .forum-hero {
+                border-radius: 1.5rem;
+            }
+
+            .forum-hero::after {
+                width: 220px;
+                height: 220px;
+                inset: auto -18% -24% auto;
+            }
+
+            .forum-search-input {
+                min-height: 46px;
+                padding-left: 2.8rem;
+                font-size: 0.88rem;
+            }
+
+            .forum-hero-title {
+                max-width: none;
+                font-size: 1.95rem;
+            }
+
+            .forum-hero-copy {
+                font-size: 0.86rem;
+            }
+
+            .forum-hero-search-row {
+                grid-template-columns: 1fr;
+            }
+
+            .forum-hero-actions {
+                gap: 0.5rem;
+            }
+
+            .forum-hero-actions button {
+                width: 100%;
+            }
+
+            .forum-card {
+                padding: 1.25rem;
+                border-radius: 24px;
+            }
+
+            .forum-topic-title {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen text-gray-900">
 
-    <!-- Header Placeholder -->
+<body class="min-h-screen text-slate-900 dark:bg-zinc-950 dark:text-white">
     <div id="header-placeholder"></div>
 
-    <main class="pt-32 pb-20 px-4 sm:px-8 max-w-6xl mx-auto">
-        <!-- Hero Section -->
-        <div class="mb-16">
-            <span class="inline-block px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-4">Communauté Privée</span>
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                    <h1 class="text-5xl sm:text-6xl font-outfit font-black tracking-tight text-gray-950 mb-4 italic leading-none">
-                        Le Forum NewKet.
-                    </h1>
-                    <p class="text-gray-500 text-lg max-w-xl">
-                        Partagez vos inspirations, discutez des dernières tendances et trouvez des conseils d'experts.
+    <main class="forum-page pb-20">
+        <div class="forum-shell mx-auto px-4 sm:px-6 pt-4 md:pt-6">
+            <section class="forum-hero forum-panel rounded-[1.75rem] sm:rounded-[2rem] border border-white/60 dark:border-white/5 p-5 sm:p-6 lg:p-7 shadow-[0_30px_80px_rgba(15,23,42,0.08)] dark:shadow-none">
+                <div class="relative z-10 flex flex-col gap-4 sm:gap-5">
+                    <div class="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:gap-6">
+                        <div class="max-w-2xl">
+                            <span class="forum-hero-overline">
+                                <iconify-icon icon="solar:chat-round-line-linear" width="16"></iconify-icon>
+                                Forum ouvert
+                            </span>
+                            <h1 class="forum-hero-title mt-3 font-black text-slate-950 dark:text-white">
+                                Les vraies discussions NewKet
+                            </h1>
+                            <p class="forum-hero-copy mt-2 font-medium text-slate-500 dark:text-zinc-400">
+                                Tout le monde peut lire les sujets et les reponses. La connexion reste necessaire uniquement pour publier un sujet ou repondre.
+                            </p>
+                        </div>
+
+                        <div class="forum-hero-actions lg:justify-end">
+                            <button id="newTopicBtn" type="button" class="forum-floating-btn inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 text-[12px] font-black uppercase tracking-[0.15em] text-white transition hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200">
+                                <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
+                                Nouveau sujet
+                            </button>
+                            <button id="filterToggleBtn" type="button" class="forum-filter-btn inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-[12px] font-black uppercase tracking-[0.15em] transition lg:hidden">
+                                <iconify-icon icon="solar:filter-linear" width="18"></iconify-icon>
+                                Filtres
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="forum-hero-search-row">
+                        <div class="forum-search-wrap">
+                            <iconify-icon icon="solar:magnifer-linear" width="20"></iconify-icon>
+                            <input id="forumSearch" type="search" class="forum-search-input" placeholder="Rechercher dans les discussions, mots-cles, conseils..." autocomplete="off" spellcheck="false">
+                        </div>
+
+                        <div class="forum-compact-meta">
+                            <div class="forum-compact-pill">
+                                <span>Categorie</span>
+                                <strong id="currentCategoryName">Toutes les discussions</strong>
+                            </div>
+                            <div class="forum-compact-pill">
+                                <span>Sujets</span>
+                                <strong><span id="topicCount">0</span> resultats</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+                <aside id="filterPanel" class="forum-panel rounded-[1.5rem] border border-slate-200/70 bg-white/82 p-4 sm:p-5 shadow-[0_20px_60px_rgba(15,23,42,0.06)] dark:border-zinc-800 dark:bg-zinc-900/82 dark:shadow-none lg:sticky lg:top-28">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400 dark:text-zinc-500">Explorer</p>
+                            <h2 class="mt-1 text-lg font-black tracking-tight text-slate-950 dark:text-white">Categories</h2>
+                        </div>
+                        <div class="hidden lg:flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white dark:bg-white dark:text-black">
+                            <iconify-icon icon="solar:layers-minimalistic-linear" width="18"></iconify-icon>
+                        </div>
+                    </div>
+
+                    <p class="mt-2 text-xs font-medium leading-relaxed text-slate-500 dark:text-zinc-400">
+                        Les messages sont publics. Ouvrez une discussion pour lire tout le fil.
                     </p>
-                </div>
-                <button class="bg-emerald-500 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 btn-active-scale">
-                    <iconify-icon icon="solar:chat-round-line-bold" width="20"></iconify-icon>
-                    Nouveau Sujet
-                </button>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-10">
-            <!-- Sidebar: Categories -->
-            <div class="lg:col-span-1 space-y-8">
-                <div>
-                    <h3 class="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-6 underline decoration-emerald-500 decoration-2 underline-offset-8">Catégories</h3>
-                    <nav class="space-y-2">
-                        <a href="javascript:void(0)" class="category-link flex items-center justify-between p-4 bg-white rounded-2xl font-bold text-sm text-gray-950 shadow-sm border border-gray-100">
-                            <span>Toutes les discussions</span>
-                            <span class="bg-gray-100 text-gray-500 text-[9px] px-2 py-0.5 rounded-full">124</span>
-                        </a>
-                        <a href="javascript:void(0)" class="category-link flex items-center justify-between p-4 hover:bg-white rounded-2xl font-semibold text-sm text-gray-500 transition-all hover:shadow-sm">
-                            <span>Tendances Luxe</span>
-                            <span class="bg-gray-100 text-gray-500 text-[9px] px-2 py-0.5 rounded-full">42</span>
-                        </a>
-                        <a href="javascript:void(0)" class="category-link flex items-center justify-between p-4 hover:bg-white rounded-2xl font-semibold text-sm text-gray-500 transition-all hover:shadow-sm">
-                            <span>Authentification</span>
-                            <span class="bg-gray-100 text-gray-500 text-[9px] px-2 py-0.5 rounded-full">18</span>
-                        </a>
-                        <a href="javascript:void(0)" class="category-link flex items-center justify-between p-4 hover:bg-white rounded-2xl font-semibold text-sm text-gray-500 transition-all hover:shadow-sm">
-                            <span>Bons Plans</span>
-                            <span class="bg-gray-100 text-gray-500 text-[9px] px-2 py-0.5 rounded-full">64</span>
-                        </a>
-                    </nav>
-                </div>
+                    <div id="categoriesList" class="mt-3 flex flex-wrap gap-2 lg:flex-col lg:gap-3"></div>
+                </aside>
 
-                <div class="p-8 bg-gray-950 rounded-[2.5rem] text-white relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl"></div>
-                    <h4 class="text-sm font-bold mb-6 flex items-center gap-2">
-                        <iconify-icon icon="solar:star-bold" class="text-emerald-500" width="16"></iconify-icon>
-                        Top Contributeurs
-                    </h4>
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-emerald-500 rounded-lg shrink-0 flex items-center justify-center font-black text-[10px]">SM</div>
-                                <span class="text-xs font-bold text-gray-300">@Sarah_Mode</span>
-                            </div>
-                            <span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black uppercase italic">Elite</span>
+                <section class="min-w-0">
+                    <div id="topicsContainer" class="space-y-6">
+                        <div id="topicsGrid" class="space-y-5"></div>
+                    </div>
+
+                    <div id="topicDetailContainer" class="hidden space-y-6">
+                        <button type="button" onclick="window.forumManager.backToTopics()" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-slate-700 transition hover:bg-slate-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                            <iconify-icon icon="solar:arrow-left-linear" width="18"></iconify-icon>
+                            Retour aux sujets
+                        </button>
+
+                        <div class="forum-panel rounded-[2rem] border border-slate-200/70 bg-white/90 p-6 sm:p-8 shadow-[0_20px_60px_rgba(15,23,42,0.06)] dark:border-zinc-800 dark:bg-zinc-900/88 dark:shadow-none">
+                            <div id="topicHeaderSection"></div>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 bg-blue-500 rounded-lg shrink-0 flex items-center justify-center font-black text-[10px]">JT</div>
-                                <span class="text-xs font-bold text-gray-300">@Jordan_Tech</span>
+
+                        <div class="forum-panel rounded-[2rem] border border-slate-200/70 bg-white/90 p-6 sm:p-8 shadow-[0_20px_60px_rgba(15,23,42,0.06)] dark:border-zinc-800 dark:bg-zinc-900/88 dark:shadow-none">
+                            <div class="flex items-center justify-between gap-4 mb-6">
+                                <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-950 dark:text-white">Reponses</h2>
+                                <span class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400 dark:text-zinc-500">Messages publics</span>
                             </div>
-                            <span class="text-[8px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-black uppercase italic">Pro</span>
+                            <div id="postsList" class="space-y-5"></div>
+                        </div>
+
+                        <div class="forum-panel rounded-[2rem] border border-slate-200/70 bg-white/90 p-6 sm:p-8 shadow-[0_20px_60px_rgba(15,23,42,0.06)] dark:border-zinc-800 dark:bg-zinc-900/88 dark:shadow-none">
+                            <div class="flex items-start justify-between gap-4 mb-5">
+                                <div>
+                                    <h3 class="text-xl font-black tracking-tight text-slate-950 dark:text-white">Ajouter une reponse</h3>
+                                    <p class="mt-2 text-sm font-medium text-slate-500 dark:text-zinc-400">La lecture est libre. La reponse demande une connexion.</p>
+                                </div>
+                            </div>
+
+                            <form id="replyForm" class="space-y-4">
+                                <textarea id="replyContent" rows="6" class="w-full rounded-[1.5rem] border border-slate-200 bg-slate-50 px-5 py-4 text-sm font-medium text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-zinc-600" placeholder="Ecrivez votre reponse ici..."></textarea>
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <p class="text-[11px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-zinc-500">Reponse visible publiquement apres envoi</p>
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-slate-950 px-6 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-white transition hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200">
+                                        Repondre
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                </div>
+                </section>
             </div>
 
-            <!-- Main: Topics List -->
-            <div class="lg:col-span-3 space-y-4">
-                <!-- Topic Card -->
-                <div class="forum-topic bg-white/50 p-6 sm:p-8 rounded-[2rem] border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 cursor-pointer">
-                    <div class="flex items-start gap-4 flex-1">
-                        <div class="w-12 h-12 bg-gray-200 rounded-2xl shrink-0 overflow-hidden border-2 border-white">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User">
-                        </div>
-                        <div>
-                            <h3 class="font-outfit text-lg font-bold text-gray-950 mb-1">Comment vérifier l'authenticité d'un sac Vuitton ?</h3>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                                <span class="text-emerald-600">Authentification</span>
-                                <span>•</span>
-                                <span>Par @LouisGuidez</span>
-                                <span>•</span>
-                                <span>Il y a 2 heures</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-6 shrink-0">
-                        <div class="text-center">
-                            <div class="text-lg font-bold text-gray-900">24</div>
-                            <div class="text-[9px] uppercase font-black tracking-widest text-gray-400">Réponses</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-lg font-bold text-gray-900">1.2k</div>
-                            <div class="text-[9px] uppercase font-black tracking-widest text-gray-400">Vues</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Topic Card -->
-                <div class="forum-topic bg-white/50 p-6 sm:p-8 rounded-[2rem] border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 cursor-pointer">
-                    <div class="flex items-start gap-4 flex-1">
-                        <div class="w-12 h-12 bg-gray-200 rounded-2xl shrink-0 overflow-hidden border-2 border-white">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sofia" alt="User">
-                        </div>
-                        <div>
-                            <h3 class="font-outfit text-lg font-bold text-gray-950 mb-1">Les tendances Sneaker à Kinshasa pour 2026</h3>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                                <span class="text-blue-600">Tendances</span>
-                                <span>•</span>
-                                <span>Par @Sofia_Kicks</span>
-                                <span>•</span>
-                                <span>Il y a 5 heures</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-6 shrink-0">
-                        <div class="text-center">
-                            <div class="text-lg font-bold text-gray-900">56</div>
-                            <div class="text-[9px] uppercase font-black tracking-widest text-gray-400">Réponses</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-lg font-bold text-gray-900">3.8k</div>
-                            <div class="text-[9px] uppercase font-black tracking-widest text-gray-400">Vues</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Topic Card -->
-                <div class="forum-topic bg-white/50 p-6 sm:p-8 rounded-[2rem] border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 cursor-pointer">
-                    <div class="flex items-start gap-4 flex-1">
-                        <div class="w-12 h-12 bg-gray-200 rounded-2xl shrink-0 overflow-hidden border-2 border-white">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Marco" alt="User">
-                        </div>
-                        <div>
-                            <h3 class="font-outfit text-lg font-bold text-gray-950 mb-1">Quelles sont les meilleures boutiques de seconde main ?</h3>
-                            <div class="flex flex-wrap items-center gap-3 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                                <span class="text-orange-600">Bons Plans</span>
-                                <span>•</span>
-                                <span>Par @Marco_Luxe</span>
-                                <span>•</span>
-                                <span>Il y a 1 jour</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-6 shrink-0">
-                        <div class="text-center">
-                            <div class="text-lg font-bold text-gray-900">12</div>
-                            <div class="text-[9px] uppercase font-black tracking-widest text-gray-400">Réponses</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-lg font-bold text-gray-900">850</div>
-                            <div class="text-[9px] uppercase font-black tracking-widest text-gray-400">Vues</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </main>
 
-    <!-- Footer Placeholder -->
-    <div id="footer-placeholder"></div>
+    <div id="newTopicModal" class="fixed inset-0 z-[90] hidden items-center justify-center">
+        <div id="closeModalOverlay" class="absolute inset-0 bg-slate-950/65 backdrop-blur-sm"></div>
+        <div class="relative z-10 mx-4 w-full max-w-2xl rounded-[2rem] border border-white/50 bg-white p-6 sm:p-8 shadow-[0_30px_80px_rgba(15,23,42,0.18)] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400 dark:text-zinc-500">Publication</p>
+                    <h2 class="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-slate-950 dark:text-white">Nouveau sujet</h2>
+                    <p class="mt-2 text-sm font-medium text-slate-500 dark:text-zinc-400">Connectez-vous pour lancer une discussion sur le forum.</p>
+                </div>
+                <button id="closeModalBtn" type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 text-slate-500 transition hover:bg-slate-50 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800">
+                    <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
+                </button>
+            </div>
 
-    <!-- Scripts -->
-    <script type="module" src="/src/services/components-loader.js"></script>
+            <form id="newTopicForm" class="mt-8 space-y-5">
+                <div>
+                    <label for="topicTitle" class="block text-[11px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-zinc-500">Titre</label>
+                    <input id="topicTitle" name="topicTitle" type="text" required class="mt-2 w-full rounded-[1.25rem] border border-slate-200 bg-slate-50 px-5 py-4 text-sm font-medium text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-zinc-600" placeholder="Ex: Comment verifier l'authenticite d'un article ?">
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between gap-4">
+                        <label for="topicCategory" class="block text-[11px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-zinc-500">Categorie</label>
+                        <span class="text-[10px] font-black uppercase tracking-[0.18em] text-slate-300 dark:text-zinc-600">Choix obligatoire</span>
+                    </div>
+                    <input id="topicCategory" name="topicCategory" type="hidden" required>
+                    <div id="categoryChips" class="mt-3 flex flex-wrap gap-3"></div>
+                </div>
+
+                <div>
+                    <label for="topicContent" class="block text-[11px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-zinc-500">Message</label>
+                    <textarea id="topicContent" name="topicContent" rows="7" required class="mt-2 w-full rounded-[1.5rem] border border-slate-200 bg-slate-50 px-5 py-4 text-sm font-medium text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white dark:border-zinc-800 dark:bg-zinc-950 dark:text-white dark:focus:border-zinc-600" placeholder="Decrivez votre sujet, vos questions, votre contexte et les details utiles."></textarea>
+                </div>
+
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <button id="cancelBtn" type="button" class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-slate-700 transition hover:bg-slate-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                        Annuler
+                    </button>
+                    <button type="submit" class="inline-flex items-center justify-center rounded-2xl bg-slate-950 px-6 py-3.5 text-sm font-black uppercase tracking-[0.16em] text-white transition hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200">
+                        Publier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <button id="mobileNewTopicBtn" type="button" class="forum-floating-btn fixed bottom-6 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-950 text-white shadow-lg sm:hidden dark:bg-white dark:text-black" aria-label="Nouveau sujet">
+        <iconify-icon icon="solar:add-circle-bold" width="24"></iconify-icon>
+    </button>
+
+    <div id="footer-placeholder"></div>
 </body>
+
 </html>
+

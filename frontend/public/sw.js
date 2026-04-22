@@ -1,4 +1,4 @@
-const CACHE_NAME = 'newket-cache-v5'; // Increment version
+const CACHE_NAME = 'newket-cache-v9'; // Increment version
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -15,7 +15,12 @@ const ASSETS_TO_CACHE = [
     '/src/services/main.js',
     '/src/services/components-loader.js',
     '/manifest.json',
-    '/Images/Logo NewKet V2.jpeg'
+    '/Images/Logo NewKet PNG.png',
+    '/Images/Logo NewKet PNG-192.png',
+    '/favicon-16x16.png',
+    '/favicon-32x32.png',
+    '/favicon.ico',
+    '/Images/Logo_Header_Officiel_PNG.png'
 ];
 
 // Install Event

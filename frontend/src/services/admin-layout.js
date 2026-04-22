@@ -83,7 +83,7 @@ const AdminLayout = {
 
         navbarPlaceholder.innerHTML = `
             <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
-                <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] relative">
+                <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[144px] relative">
                     <div class="flex items-center gap-6">
                         <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
@@ -92,17 +92,8 @@ const AdminLayout = {
 
                     <!-- Center Logo -->
                     <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <a href="/" class="flex items-center gap-3 group">
-                            <div class="relative">
-                                <div class="absolute -inset-1 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                                <div class="relative w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-gray-100 shadow-sm overflow-hidden">
-                                    <img src="/Images/logo-newket.png" alt="NewKet Logo" class="w-full h-full object-contain scale-[1.7]">
-                                </div>
-                            </div>
-                            <div class="hidden sm:flex flex-col">
-                                <span class="text-base font-black tracking-tight text-gray-900 leading-none">NEWKET</span>
-                                <span class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 mt-1">Console Administration</span>
-                            </div>
+                        <a href="/" class="flex items-center justify-center group">
+                            <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-12 sm:h-[7.5rem] w-auto object-contain">
                         </a>
                     </div>
 

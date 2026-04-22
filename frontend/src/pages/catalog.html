@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="/src/assets/Images/logo-newket-v2.jpeg">
-    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <meta name="theme-color" content="#111827">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,7 +19,7 @@
     <!-- Open Graph -->
     <meta property="og:title" content="Catalogue Luxe — NewKet">
     <meta property="og:description" content="Trouvez votre prochain coup de cœur parmi notre sélection d'articles de luxe.">
-    <meta property="og:image" content="https://newket.vercel.app/src/assets/Images/logo-newket-v2.jpeg">
+    <meta property="og:image" content="https://newket.vercel.app/Images/Logo NewKet PNG.png">
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -172,6 +173,11 @@
             border-bottom: 1px solid rgba(241, 245, 249, 1);
         }
 
+        html.dark .sticky-filter-bar {
+            background: transparent;
+            border-bottom-color: transparent;
+        }
+
         .filter-dropdown {
             position: relative;
         }
@@ -200,6 +206,31 @@
             transform: translateY(0);
         }
 
+        /* Mobile specific inline dropdowns */
+        @media (max-width: 639px) {
+            .filter-dropdown-content.mobile-inline {
+                position: relative;
+                top: 0;
+                left: 0;
+                width: 100%;
+                min-width: 100%;
+                opacity: 1;
+                visibility: visible;
+                display: none;
+                transform: none;
+                box-shadow: none;
+                border: none;
+                padding: 1rem 0;
+                background: transparent;
+            }
+            .filter-dropdown-content.mobile-inline.active {
+                display: block;
+            }
+            .dropdown-arrow.active {
+                transform: rotate(180deg);
+            }
+        }
+
         .category-chip {
             white-space: nowrap;
             cursor: pointer;
@@ -216,68 +247,6 @@
             color: #fff;
             border-color: #000;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
-
-        /* Hide vertical sidebar on desktop */
-        @media (min-width: 1024px) {
-            .catalog-sidebar-aside {
-                display: none;
-            }
-        }
-
-        /* Premium Filter Sidebar Styles */
-        .filter-card {
-            background: white;
-            border: 1px solid #f1f5f9;
-            border-radius: 1.25rem;
-            padding: 1rem;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .filter-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
-            border-color: #e2e8f0;
-            transform: translateY(-2px);
-        }
-
-        .filter-title-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 1.5rem;
-        }
-
-        .filter-icon-box {
-            width: 32px;
-            height: 32px;
-            background: #f8fafc;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            transition: all 0.3s ease;
-        }
-
-        .filter-card:hover .filter-icon-box {
-            background: var(--primary);
-            color: white;
-        }
-
-        .filter-title {
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
-        }
-
-        .filter-card:hover .filter-title {
-            color: #1e293b;
         }
 
         /* Price Range Premium UI - Compact & Elegant */
@@ -338,6 +307,48 @@
             margin-top: 1rem;
         }
 
+        .price-range-field {
+            position: relative;
+        }
+
+        .price-range-label {
+            position: absolute;
+            left: 0.625rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .price-range-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #0f172a;
+            border-radius: 0.75rem;
+            padding: 0.7rem 0.75rem 0.7rem 2.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+
+        .price-range-input::placeholder {
+            color: #94a3b8;
+            opacity: 1;
+        }
+
+        .price-range-input:focus {
+            border-color: #0f172a;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+        }
+
         /* Custom Checkbox Animation */
         .filter-checkbox {
             cursor: pointer;
@@ -356,24 +367,6 @@
         }
 
         /* Dark Mode Support */
-        html.dark .filter-card {
-            background: #1e293b;
-            border-color: #334155;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-        }
-
-        html.dark .filter-icon-box {
-            background: #334155;
-        }
-
-        html.dark .filter-title {
-            color: #94a3b8;
-        }
-
-        html.dark .filter-card:hover {
-            border-color: #475569;
-        }
-
         html.dark .range-slider {
             background: #334155;
         }
@@ -383,179 +376,195 @@
             border-color: #334155;
             color: white;
         }
+
+        html.dark .price-range-label {
+            color: #cbd5e1;
+        }
+
+        html.dark .price-range-input {
+            background: #0f172a;
+            border-color: #334155;
+            color: #f8fafc;
+        }
+
+        html.dark .price-range-input::placeholder {
+            color: #64748b;
+        }
+
+        html.dark .price-range-input:focus {
+            border-color: #cbd5e1;
+            background: #111827;
+            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.14);
+        }
     </style>
 </head>
 
 <body class="text-slate-900 antialiased">
     <div id="header-placeholder"></div>
     <div id="mobile-nav-placeholder"></div>
-    <!-- Catalog Filter Overlay (mobile) -->
-    <div id="catalogFilterOverlay"></div>
-
-    <main class="max-w-7xl mx-auto px-6 pt-0 sm:pt-4 pb-20">
-        <div class="flex flex-col gap-0">
-            <!-- Sidebar - Kept only for Mobile Logic -->
-            <aside class="catalog-sidebar-aside w-full lg:hidden flex-shrink-0 animate-fade-in">
-                <!-- Mobile content kept for sync -->
-                <div class="hidden">
-                    <input type="checkbox" value="Femme" class="category-filter">
-                    <input type="checkbox" value="Homme" class="category-filter">
-                    <input type="checkbox" value="Tech & Gadgets" class="category-filter">
-                    <input type="checkbox" value="Art de vivre" class="category-filter">
-                    <input type="checkbox" value="Autres" class="category-filter">
-                </div>
-            </aside>
 
             <!-- Main content -->
-            <div class="flex-1 animate-fade-in" style="animation-delay: 0.1s;">
+            <main class="flex-1 animate-fade-in max-w-7xl mx-auto w-full px-4 sm:px-6 pt-6 md:pt-8" style="animation-delay: 0.1s;">
                 <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Explorez l'Exceptionnel</h1>
-                    <p class="text-[13px] font-bold text-slate-400 uppercase tracking-widest"><span id="productCount">0</span> trésors trouvés</p>
                 </div>
 
                 <!-- New Horizontal Action Bar -->
-                <div class="sticky-filter-bar px-2 py-4 flex flex-wrap items-center gap-4">
-                    <!-- Category Dropdown -->
-                    <div class="filter-dropdown">
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold hover:border-black transition-all">
-                            <iconify-icon icon="solar:folder-with-files-linear" width="16"></iconify-icon>
-                            Catégorie
-                            <iconify-icon icon="solar:alt-arrow-down-linear" width="14" class="text-slate-400"></iconify-icon>
-                        </button>
-                        <div class="filter-dropdown-content">
-                            <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">Rayons</h4>
-                            <div class="space-y-3" id="categoryFilters">
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" value="Femme" class="filter-checkbox category-filter">
-                                    <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Femme</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" value="Homme" class="filter-checkbox category-filter">
-                                    <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Homme</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" value="Tech & Gadgets" class="filter-checkbox category-filter">
-                                    <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">High Tech</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
-                                    <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Art de vivre</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" value="Autres" class="filter-checkbox category-filter">
-                                    <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Autres</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Price Dropdown -->
-                    <div class="filter-dropdown">
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold hover:border-black transition-all">
-                            <iconify-icon icon="solar:wad-of-money-linear" width="16"></iconify-icon>
-                            Prix
-                            <iconify-icon icon="solar:alt-arrow-down-linear" width="14" class="text-slate-400"></iconify-icon>
-                        </button>
-                        <div class="filter-dropdown-content">
-                            <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">Gamme de Prix</h4>
-                            <div class="grid grid-cols-2 gap-3 items-center">
-                                <div class="relative">
-                                    <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">MIN</span>
-                                    <input type="number" id="minPrice" placeholder="0" class="w-full bg-slate-50 border border-slate-100 rounded-lg pl-8 pr-2 py-2 text-[11px] font-bold outline-none focus:border-black">
-                                </div>
-                                <div class="relative">
-                                    <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">MAX</span>
-                                    <input type="number" id="maxPrice" placeholder="250M" class="w-full bg-slate-50 border border-slate-100 rounded-lg pl-9 pr-2 py-2 text-[11px] font-bold outline-none focus:border-black">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Condition Dropdown -->
-                    <div class="filter-dropdown">
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold hover:border-black transition-all">
-                            <iconify-icon icon="solar:checklist-minimalistic-linear" width="16"></iconify-icon>
-                            État
-                            <iconify-icon icon="solar:alt-arrow-down-linear" width="14" class="text-slate-400"></iconify-icon>
-                        </button>
-                        <div class="filter-dropdown-content">
-                            <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">État de l'objet</h4>
-                            <div class="space-y-4">
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" value="true" class="filter-checkbox condition-filter">
-                                    <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Neuf</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" value="false" class="filter-checkbox condition-filter">
-                                    <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Occasion</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Rating Dropdown -->
-                    <div class="filter-dropdown">
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold hover:border-black transition-all">
-                            <iconify-icon icon="solar:star-ring-linear" width="16"></iconify-icon>
-                            Note
-                            <iconify-icon icon="solar:alt-arrow-down-linear" width="14" class="text-slate-400"></iconify-icon>
-                        </button>
-                        <div class="filter-dropdown-content">
-                            <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">Notation</h4>
-                            <div class="space-y-3" id="ratingFilters">
-                                <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="radio" name="rating-filter" value="4" class="filter-radio rating-filter">
-                                    <div class="flex text-yellow-400 gap-0.5"><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon></div>
-                                    <span class="text-[11px] font-bold text-slate-500 mt-0.5">4+</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="radio" name="rating-filter" value="3" class="filter-radio rating-filter">
-                                    <div class="flex text-yellow-400 gap-0.5"><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon></div>
-                                    <span class="text-[11px] font-bold text-slate-500 mt-0.5">3+</span>
-                                </label>
-                                <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="radio" name="rating-filter" value="0" class="filter-radio rating-filter" checked>
-                                    <span class="text-[12px] font-medium text-slate-600">Tous</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Promo Toggle -->
-                    <label class="contents">
-                        <input type="checkbox" value="true" class="hidden promo-filter peer">
-                        <span class="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold cursor-pointer peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-600 transition-all hover:border-red-200">
-                            <iconify-icon icon="solar:fire-bold" width="16"></iconify-icon>
-                            En Promo
-                        </span>
-                    </label>
-
-                    <div class="h-6 w-px bg-slate-100 mx-2 hidden sm:block"></div>
-
-                    <!-- Sort -->
-                    <div class="relative ml-auto">
-                        <select id="sortSelect" class="appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold outline-none cursor-pointer pr-8 hover:border-black transition-colors">
-                            <option value="default">Pertinence</option>
-                            <option value="price-asc">Prix Croissant</option>
-                            <option value="price-desc">Prix Décroissant</option>
-                            <option value="newest">Nouveautés</option>
-                        </select>
-                        <iconify-icon icon="solar:alt-arrow-down-linear" width="14" class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"></iconify-icon>
-                    </div>
-
-                    <!-- Reset -->
-                    <button onclick="resetFilters()" class="p-2 ml-2 text-slate-400 hover:text-black transition-colors" title="Réinitialiser">
-                        <iconify-icon icon="solar:restart-linear" width="20"></iconify-icon>
-                    </button>
+                <div class="sticky-filter-bar px-2 py-4">
                     
-                    <!-- Mobile filter trigger -->
-                    <button id="mobileFilterToggle" class="lg:hidden ml-2 p-2 bg-black text-white rounded-lg">
-                        <iconify-icon icon="solar:tuning-square-2-bold" width="20"></iconify-icon>
-                    </button>
+                    <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3">
+                        
+                        <!-- Mobile Top Row: Filter Toggle & Sort -->
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <!-- Mobile filter trigger -->
+                            <button id="mobileFilterToggle" onclick="document.getElementById('mobileFiltersContainer').classList.toggle('hidden')" class="sm:hidden flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold">
+                                <iconify-icon icon="solar:tuning-square-2-bold" width="16"></iconify-icon>
+                                Filtres
+                            </button>
+                            
+                            <!-- Sort -->
+                            <div class="relative flex-1 sm:flex-none">
+                                <select id="sortSelect" class="w-full sm:w-auto appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-[11px] font-bold outline-none cursor-pointer pr-8 hover:border-black transition-colors">
+                                    <option value="default">Pertinence</option>
+                                    <option value="price-asc">Prix Croissant</option>
+                                    <option value="price-desc">Prix Décroissant</option>
+                                    <option value="newest">Nouveautés</option>
+                                </select>
+                                <iconify-icon icon="solar:alt-arrow-down-linear" width="14" class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"></iconify-icon>
+                            </div>
+                        </div>
+
+                        <!-- Filters Container (Hidden on mobile by default) -->
+                        <div id="mobileFiltersContainer" class="hidden sm:flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 w-full sm:w-auto animate-fade-in">
+                            
+                            <!-- Main Filters Grid -->
+                            <div class="grid grid-cols-2 gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-3 sm:w-auto">
+                                <!-- Category Dropdown -->
+                                <div class="filter-dropdown w-full sm:w-auto">
+                                    <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
+                                        <span class="flex items-center gap-2"><iconify-icon icon="solar:folder-with-files-linear" width="14"></iconify-icon> Catégorie</span>
+                                        <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
+                                    </button>
+                                    <div class="filter-dropdown-content mobile-inline sm:absolute">
+                                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4">Rayons</h4>
+                                        <div class="space-y-3" id="categoryFilters">
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" value="Femme" class="filter-checkbox category-filter">
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Femme</span>
+                                            </label>
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" value="Homme" class="filter-checkbox category-filter">
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Homme</span>
+                                            </label>
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" value="Tech & Gadgets" class="filter-checkbox category-filter">
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">High Tech</span>
+                                            </label>
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Art de vivre</span>
+                                            </label>
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" value="Autres" class="filter-checkbox category-filter">
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Autres</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Price Dropdown -->
+                                <div class="filter-dropdown w-full sm:w-auto">
+                                    <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
+                                        <span class="flex items-center gap-2"><iconify-icon icon="solar:wad-of-money-linear" width="14"></iconify-icon> Prix</span>
+                                        <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
+                                    </button>
+                                    <div class="filter-dropdown-content mobile-inline sm:absolute">
+                                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4">Gamme de Prix</h4>
+                                        <div class="grid grid-cols-2 gap-3 items-center">
+                                            <div class="price-range-field">
+                                                <span class="price-range-label">MIN</span>
+                                                <input type="number" id="minPrice" placeholder="" class="price-range-input" aria-label="Prix minimum">
+                                            </div>
+                                            <div class="price-range-field">
+                                                <span class="price-range-label">MAX</span>
+                                                <input type="number" id="maxPrice" placeholder="" class="price-range-input" aria-label="Prix maximum">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Condition Dropdown -->
+                                <div class="filter-dropdown w-full sm:w-auto">
+                                    <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
+                                        <span class="flex items-center gap-2"><iconify-icon icon="solar:checklist-minimalistic-linear" width="14"></iconify-icon> État</span>
+                                        <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
+                                    </button>
+                                    <div class="filter-dropdown-content mobile-inline sm:absolute">
+                                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4">État de l'objet</h4>
+                                        <div class="space-y-4">
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" value="true" class="filter-checkbox condition-filter">
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Neuf</span>
+                                            </label>
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" value="false" class="filter-checkbox condition-filter">
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Occasion</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Rating Dropdown -->
+                                <div class="filter-dropdown w-full sm:w-auto">
+                                    <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
+                                        <span class="flex items-center gap-2"><iconify-icon icon="solar:star-ring-linear" width="14"></iconify-icon> Note</span>
+                                        <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
+                                    </button>
+                                    <div class="filter-dropdown-content mobile-inline sm:absolute">
+                                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4">Notation</h4>
+                                        <div class="space-y-3" id="ratingFilters">
+                                            <label class="flex items-center gap-3 cursor-pointer">
+                                                <input type="radio" name="rating-filter" value="4" class="filter-radio rating-filter">
+                                                <div class="flex text-yellow-400 gap-0.5"><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon></div>
+                                                <span class="text-[11px] font-bold text-slate-500 mt-0.5">4+</span>
+                                            </label>
+                                            <label class="flex items-center gap-3 cursor-pointer">
+                                                <input type="radio" name="rating-filter" value="3" class="filter-radio rating-filter">
+                                                <div class="flex text-yellow-400 gap-0.5"><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon><iconify-icon icon="solar:star-bold" width="12"></iconify-icon></div>
+                                                <span class="text-[11px] font-bold text-slate-500 mt-0.5">3+</span>
+                                            </label>
+                                            <label class="flex items-center gap-3 cursor-pointer">
+                                                <input type="radio" name="rating-filter" value="0" class="filter-radio rating-filter" checked>
+                                                <span class="text-[12px] font-medium text-slate-600">Tous</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Controls -->
+                            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                <!-- Promo Toggle -->
+                                <label class="w-full sm:w-auto">
+                                    <input type="checkbox" value="true" class="hidden promo-filter peer">
+                                    <span class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold cursor-pointer peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-600 transition-all hover:border-red-200">
+                                        <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>
+                                        En Promo
+                                    </span>
+                                </label>
+
+                                <!-- Reset -->
+                                <button onclick="resetFilters()" class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 text-slate-500 bg-slate-200 sm:bg-transparent rounded-xl sm:rounded-none hover:text-black transition-colors" title="Réinitialiser">
+                                    <iconify-icon icon="solar:restart-linear" width="18"></iconify-icon>
+                                    <span class="sm:hidden text-[11px] font-bold">Réinitialiser</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Product grid -->
-                <div class="product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" id="catalog-grid">
+                <div class="product-grid grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4" id="catalog-grid">
                     <!-- Skeletons Premium (Hardcoded) -->
                     <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
                         <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
@@ -598,8 +607,6 @@
                         <div class="skeleton skeleton-price h-6 w-1/2"></div>
                     </div>
                 </div>
-            </div>
-        </div>
     </main>
 
     <div id="footer-placeholder"></div>
@@ -919,10 +926,6 @@
                 catalogHasMore = allProducts.length > to + 1;
             }
 
-            document.getElementById('productCount').textContent = append
-                ? parseInt(document.getElementById('productCount').textContent) + products.length
-                : products.length + (catalogHasMore ? '+' : '');
-
             // Show skeletons if not initialized and no products yet
             if (!window.newketInitialized && products.length === 0 && !append) {
                 grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
@@ -1066,39 +1069,25 @@
         }
 
         // ==========================================
-        // Mobile Filter Drawer Logic
+        // Mobile Dropdown Toggle
         // ==========================================
-        (function initFilterDrawer() {
-            const openBtn = document.getElementById('mobileFilterToggle');
-            const closeBtn = document.getElementById('closeFilterDrawer');
-            const sidebar = document.querySelector('.catalog-sidebar-aside');
-            const overlay = document.getElementById('catalogFilterOverlay');
-
-            function openDrawer() {
-                if (!sidebar || !overlay) return;
-                sidebar.classList.add('open');
-                overlay.classList.add('open');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeDrawer() {
-                if (!sidebar || !overlay) return;
-                sidebar.classList.remove('open');
-                overlay.classList.remove('open');
-                document.body.style.overflow = '';
-            }
-
-            if (openBtn) openBtn.addEventListener('click', openDrawer);
-            if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-            if (overlay) overlay.addEventListener('click', closeDrawer);
-
-            // Close drawer when a filter is applied on mobile
-            document.querySelectorAll('.category-filter, .condition-filter, .rating-filter').forEach(el => {
-                el.addEventListener('change', () => {
-                    if (window.innerWidth < 1024) closeDrawer();
-                });
+        function toggleMobileDropdown(btn) {
+            if (window.innerWidth >= 640) return;
+            const dropdown = btn.nextElementSibling;
+            const arrow = btn.querySelector('.dropdown-arrow');
+            
+            // Close all other mobile dropdowns
+            document.querySelectorAll('.filter-dropdown-content.mobile-inline').forEach(d => {
+                if (d !== dropdown) d.classList.remove('active');
             });
-        })();
+            document.querySelectorAll('.dropdown-arrow').forEach(a => {
+                if (a !== arrow) a.classList.remove('active');
+            });
+
+            dropdown.classList.toggle('active');
+            arrow.classList.toggle('active');
+        }
+
 
         // ==========================================
         // Active mobile nav highlight
@@ -1111,6 +1100,7 @@
 </body>
 
 </html>
+
 
 
 
