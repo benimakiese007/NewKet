@@ -79,6 +79,42 @@ const SearchManager = {
         let menuOpen = false;
 
         const getMenu = () => document.getElementById('searchCategoryMenu');
+        const mobileSelect = document.getElementById('mobileSearchCategorySelect');
+        const nativeShell = document.getElementById('mobileSearchCategoryNativeShell');
+        const customBtn = document.getElementById('searchCategoryBtn');
+        const isAppleMobile = () => {
+            const ua = navigator.userAgent || '';
+            const touchMac = ua.includes('Macintosh') && navigator.maxTouchPoints > 1;
+            return /iPhone|iPad|iPod/.test(ua) || touchMac;
+        };
+        const applyCategoryMode = () => {
+            const useNativeMobile = isAppleMobile() && window.innerWidth < 640;
+            document.documentElement.classList.toggle('ios-native-category', useNativeMobile);
+
+            if (nativeShell) {
+                nativeShell.style.display = useNativeMobile ? 'flex' : 'none';
+            }
+
+            if (customBtn) {
+                customBtn.style.display = useNativeMobile ? 'none' : 'flex';
+            }
+
+            if (useNativeMobile && menuOpen) {
+                closeMenu();
+            }
+        };
+        const syncCategoryUI = () => {
+            const nameDisplay = document.getElementById('selectedCategoryName');
+            const activeOption = document.querySelector(`.category-option[data-value="${CSS.escape(this.selectedCategory)}"]`);
+
+            if (nameDisplay && activeOption) {
+                nameDisplay.textContent = activeOption.textContent.trim();
+            }
+
+            if (mobileSelect) {
+                mobileSelect.value = this.selectedCategory;
+            }
+        };
 
         // ONE-TIME teleport: move menu to <body> to escape header stacking context
         const ensurePortal = () => {
@@ -133,8 +169,7 @@ const SearchManager = {
             const option = e.target.closest('.category-option');
             if (option) {
                 this.selectedCategory = option.dataset.value;
-                const nameDisplay = document.getElementById('selectedCategoryName');
-                if (nameDisplay) nameDisplay.textContent = option.textContent.trim();
+                syncCategoryUI();
                 closeMenu();
                 return;
             }
@@ -146,6 +181,18 @@ const SearchManager = {
         // Keep positioned while open
         window.addEventListener('scroll', () => { if (menuOpen) positionMenu(); }, { passive: true });
         window.addEventListener('resize', () => { if (menuOpen) positionMenu(); }, { passive: true });
+        window.addEventListener('resize', applyCategoryMode, { passive: true });
+
+        if (mobileSelect && mobileSelect.dataset.bound !== 'true') {
+            mobileSelect.addEventListener('change', () => {
+                this.selectedCategory = mobileSelect.value || 'all';
+                syncCategoryUI();
+            });
+            mobileSelect.dataset.bound = 'true';
+        }
+
+        applyCategoryMode();
+        syncCategoryUI();
     },
 
     getRecentSearches() {
@@ -244,16 +291,16 @@ const SearchManager = {
         
         if (category) {
             this.selectedCategory = category;
-            const nameDisplay = document.getElementById('selectedCategoryName');
-            if (nameDisplay) {
-                // Find matching category button text
-                const options = document.querySelectorAll('.category-option');
-                options.forEach(opt => {
-                    if (opt.dataset.value === category) {
-                        nameDisplay.textContent = opt.textContent;
-                    }
-                });
-            }
+        }
+
+        const nameDisplay = document.getElementById('selectedCategoryName');
+        const mobileSelect = document.getElementById('mobileSearchCategorySelect');
+        const activeOption = document.querySelector(`.category-option[data-value="${CSS.escape(this.selectedCategory)}"]`);
+        if (nameDisplay && activeOption) {
+            nameDisplay.textContent = activeOption.textContent.trim();
+        }
+        if (mobileSelect) {
+            mobileSelect.value = this.selectedCategory;
         }
     },
 

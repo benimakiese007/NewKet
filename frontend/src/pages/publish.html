@@ -741,7 +741,6 @@
                         if (typeof showToast === 'function') showToast("Article mis à jour avec succès !", "success");
                     } else {
                         const newProduct = {
-                            id: 'prod-' + Date.now(),
                             ...productData,
                             stock: 10,
                             reviews: 0,

@@ -437,8 +437,35 @@
                         <!-- Filters Container (Hidden on mobile by default) -->
                         <div id="mobileFiltersContainer" class="hidden sm:flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 w-full sm:w-auto animate-fade-in">
                             
+                            <div class="grid grid-cols-2 gap-2 w-full sm:hidden">
+                                <select id="mobileCategorySelect" class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-[11px] font-bold outline-none cursor-pointer">
+                                    <option value="">CatÃ©gorie</option>
+                                    <option value="Femme">Femme</option>
+                                    <option value="Homme">Homme</option>
+                                    <option value="Tech & Gadgets">High Tech</option>
+                                    <option value="Art de vivre">Art de vivre</option>
+                                    <option value="Autres">Autres</option>
+                                </select>
+                                <select id="mobileConditionSelect" class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-[11px] font-bold outline-none cursor-pointer">
+                                    <option value="">Ã‰tat</option>
+                                    <option value="true">Neuf</option>
+                                    <option value="false">Occasion</option>
+                                </select>
+                                <select id="mobileRatingSelect" class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-[11px] font-bold outline-none cursor-pointer">
+                                    <option value="0">Note</option>
+                                    <option value="4">4+</option>
+                                    <option value="3">3+</option>
+                                </select>
+                                <select id="mobilePromoSelect" class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-[11px] font-bold outline-none cursor-pointer">
+                                    <option value="">En Promo</option>
+                                    <option value="true">Oui</option>
+                                </select>
+                                <input type="number" id="mobileMinPrice" placeholder="Prix min" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-[11px] font-bold outline-none">
+                                <input type="number" id="mobileMaxPrice" placeholder="Prix max" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-[11px] font-bold outline-none">
+                            </div>
+
                             <!-- Main Filters Grid -->
-                            <div class="grid grid-cols-2 gap-2 w-full sm:flex sm:flex-row sm:items-center sm:gap-3 sm:w-auto">
+                            <div class="grid grid-cols-2 gap-2 w-full hidden sm:flex sm:flex-row sm:items-center sm:gap-3 sm:w-auto">
                                 <!-- Category Dropdown -->
                                 <div class="filter-dropdown w-full sm:w-auto">
                                     <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
@@ -543,7 +570,7 @@
                             </div>
 
                             <!-- Bottom Controls -->
-                            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <div class="hidden sm:flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                                 <!-- Promo Toggle -->
                                 <label class="w-full sm:w-auto">
                                     <input type="checkbox" value="true" class="hidden promo-filter peer">
@@ -680,6 +707,9 @@
             document.querySelectorAll('.promo-filter').forEach(cb => {
                 cb.addEventListener('change', () => renderCatalog());
             });
+
+            initializeMobileNativeFilters();
+            syncMobileNativeFilters();
 
             initializePriceSlider();
 
@@ -1020,6 +1050,7 @@
             });
 
             document.getElementById('sortSelect').value = 'default';
+            syncMobileNativeFilters();
 
             if (window.initializePriceSlider) initializePriceSlider();
             renderCatalog();
@@ -1071,6 +1102,190 @@
                 clearTimeout(timeout)
                 timeout = setTimeout(later, wait);
             };
+        }
+
+        function syncMobileNativeFilters() {
+            const mobileCategorySelect = document.getElementById('mobileCategorySelect');
+            const mobileConditionSelect = document.getElementById('mobileConditionSelect');
+            const mobileRatingSelect = document.getElementById('mobileRatingSelect');
+            const mobilePromoSelect = document.getElementById('mobilePromoSelect');
+            const mobileMinPrice = document.getElementById('mobileMinPrice');
+            const mobileMaxPrice = document.getElementById('mobileMaxPrice');
+            const minPrice = document.getElementById('minPrice');
+            const maxPrice = document.getElementById('maxPrice');
+
+            if (mobileCategorySelect) {
+                const checkedCategory = document.querySelector('.category-filter:checked');
+                mobileCategorySelect.value = checkedCategory ? checkedCategory.value : '';
+            }
+
+            if (mobileConditionSelect) {
+                const checkedCondition = document.querySelector('.condition-filter:checked');
+                mobileConditionSelect.value = checkedCondition ? checkedCondition.value : '';
+            }
+
+            if (mobileRatingSelect) {
+                mobileRatingSelect.value = document.querySelector('.rating-filter:checked')?.value || '0';
+            }
+
+            if (mobilePromoSelect) {
+                mobilePromoSelect.value = document.querySelector('.promo-filter:checked') ? 'true' : '';
+            }
+
+            if (mobileMinPrice && minPrice) {
+                mobileMinPrice.value = minPrice.value;
+            }
+
+            if (mobileMaxPrice && maxPrice) {
+                mobileMaxPrice.value = maxPrice.value;
+            }
+        }
+
+        function initializeMobileNativeFilters() {
+            const mobileCategorySelect = document.getElementById('mobileCategorySelect');
+            const mobileConditionSelect = document.getElementById('mobileConditionSelect');
+            const mobileRatingSelect = document.getElementById('mobileRatingSelect');
+            const mobilePromoSelect = document.getElementById('mobilePromoSelect');
+            const mobileMinPrice = document.getElementById('mobileMinPrice');
+            const mobileMaxPrice = document.getElementById('mobileMaxPrice');
+            const minPrice = document.getElementById('minPrice');
+            const maxPrice = document.getElementById('maxPrice');
+
+            if (mobileCategorySelect && mobileCategorySelect.dataset.bound !== 'true') {
+                mobileCategorySelect.addEventListener('change', () => {
+                    document.querySelectorAll('.category-filter').forEach(cb => {
+                        cb.checked = cb.value === mobileCategorySelect.value && mobileCategorySelect.value !== '';
+                    });
+                    renderCatalog();
+                });
+                mobileCategorySelect.dataset.bound = 'true';
+            }
+
+            if (mobileConditionSelect && mobileConditionSelect.dataset.bound !== 'true') {
+                mobileConditionSelect.addEventListener('change', () => {
+                    document.querySelectorAll('.condition-filter').forEach(cb => {
+                        cb.checked = cb.value === mobileConditionSelect.value && mobileConditionSelect.value !== '';
+                    });
+                    renderCatalog();
+                });
+                mobileConditionSelect.dataset.bound = 'true';
+            }
+
+            if (mobileRatingSelect && mobileRatingSelect.dataset.bound !== 'true') {
+                mobileRatingSelect.addEventListener('change', () => {
+                    document.querySelectorAll('.rating-filter').forEach(rb => {
+                        rb.checked = rb.value === mobileRatingSelect.value;
+                    });
+                    renderCatalog();
+                });
+                mobileRatingSelect.dataset.bound = 'true';
+            }
+
+            if (mobilePromoSelect && mobilePromoSelect.dataset.bound !== 'true') {
+                mobilePromoSelect.addEventListener('change', () => {
+                    const isPromoOnly = mobilePromoSelect.value === 'true';
+                    document.querySelectorAll('.promo-filter').forEach(cb => {
+                        cb.checked = isPromoOnly;
+                    });
+                    renderCatalog();
+                });
+                mobilePromoSelect.dataset.bound = 'true';
+            }
+
+            if (mobileMinPrice && minPrice && mobileMinPrice.dataset.bound !== 'true') {
+                mobileMinPrice.addEventListener('input', debounce(() => {
+                    minPrice.value = mobileMinPrice.value;
+                    renderCatalog();
+                }, 500));
+                mobileMinPrice.dataset.bound = 'true';
+            }
+
+            if (mobileMaxPrice && maxPrice && mobileMaxPrice.dataset.bound !== 'true') {
+                mobileMaxPrice.addEventListener('input', debounce(() => {
+                    maxPrice.value = mobileMaxPrice.value;
+                    renderCatalog();
+                }, 500));
+                mobileMaxPrice.dataset.bound = 'true';
+            }
+        }
+
+        function getSortLabel(value) {
+            const labels = {
+                'default': 'Pertinence',
+                'price-asc': 'Prix Croissant',
+                'price-desc': 'Prix DÃ©croissant',
+                'newest': 'NouveautÃ©s'
+            };
+            return labels[value] || 'Pertinence';
+        }
+
+        function syncSortDropdownUI() {
+            const sortSelect = document.getElementById('sortSelect');
+            const sortLabel = document.getElementById('sortDropdownLabel');
+            if (!sortSelect) return;
+
+            const activeValue = sortSelect.value || 'default';
+            if (sortLabel) {
+                sortLabel.innerHTML = '<iconify-icon icon="solar:sort-from-top-to-bottom-linear" width="14"></iconify-icon> ' + getSortLabel(activeValue);
+            }
+
+            document.querySelectorAll('.sort-filter').forEach(input => {
+                input.checked = input.value === activeValue;
+            });
+        }
+
+        function enhanceSortDropdown() {
+            const sortSelect = document.getElementById('sortSelect');
+            if (!sortSelect || sortSelect.dataset.enhanced === 'true') return;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'filter-dropdown flex-1 sm:flex-none';
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all';
+            button.setAttribute('onclick', 'toggleMobileDropdown(this)');
+            button.innerHTML = `
+                <span id="sortDropdownLabel" class="flex items-center gap-2">
+                    <iconify-icon icon="solar:sort-from-top-to-bottom-linear" width="14"></iconify-icon>
+                    Pertinence
+                </span>
+                <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
+            `;
+
+            const dropdown = document.createElement('div');
+            dropdown.className = 'filter-dropdown-content mobile-inline sm:absolute';
+            dropdown.innerHTML = `
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4">Pertinence</h4>
+                <div class="space-y-3">
+                    ${Array.from(sortSelect.options).map(option => `
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="radio" name="sort-filter" value="${option.value}" class="filter-radio sort-filter">
+                            <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">${option.text}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+
+            sortSelect.parentNode.insertBefore(wrapper, sortSelect);
+            wrapper.appendChild(button);
+            wrapper.appendChild(dropdown);
+            wrapper.appendChild(sortSelect);
+
+            sortSelect.classList.add('sort-select-native-hidden');
+            sortSelect.dataset.enhanced = 'true';
+
+            dropdown.querySelectorAll('.sort-filter').forEach(input => {
+                input.addEventListener('change', () => {
+                    sortSelect.value = input.value;
+                    sortSelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    if (window.innerWidth < 640) {
+                        dropdown.classList.remove('active');
+                        button.querySelector('.dropdown-arrow')?.classList.remove('active');
+                    }
+                });
+            });
         }
 
         // ==========================================

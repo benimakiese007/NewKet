@@ -238,12 +238,18 @@ const ProductManager = {
         return this.products.find(p => p.id === id);
     },
 
+    _isUuid(value) {
+        return typeof value === 'string'
+            && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+    },
+
     /**
      * Increment the view counter for a product in the backend.
      */
     async recordView(id) {
         if (!id) return;
         if (!window.ApiClient) return;
+        if (!this._isUuid(id)) return;
         
         try {
             // Send to Express Backend (which increments Supabase)

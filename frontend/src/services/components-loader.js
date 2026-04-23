@@ -56,6 +56,15 @@ const HEADER_HTML = `
                 style="max-width: 650px;">
                 <div class="search-bar">
                     <!-- Category Selector -->
+                    <div id="mobileSearchCategoryNativeShell" class="mobile-search-category-shell">
+                        <select id="mobileSearchCategorySelect" class="mobile-search-category-native" aria-label="Choisir une catégorie">
+                            <option value="all">Tout</option>
+                            <option value="Collections Femme">Femme</option>
+                            <option value="Style Homme">Homme</option>
+                            <option value="Tech & Gadgets">Tech</option>
+                            <option value="Art de vivre">Maison</option>
+                        </select>
+                    </div>
                     <div id="searchCategoryBtn" class="search-category-btn" title="Choisir une catégorie">
                         <span id="selectedCategoryName">TOUT</span>
                         <iconify-icon icon="solar:alt-arrow-down-linear" width="14"></iconify-icon>
