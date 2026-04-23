@@ -99,25 +99,6 @@
             transition: transform 0.5s ease;
         }
 
-        .nav-link {
-            position: relative;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #000000;
-            transition: width 0.3s;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
         @keyframes scroll {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
@@ -133,25 +114,6 @@
             mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
 
-        /* Mobile Menu sidebar */
-        #mobileMenu {
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(-100%);
-        }
-
-        #mobileMenu.active {
-            transform: translateX(0);
-        }
-
-        #mobileOverlay {
-            transition: opacity 0.3s ease-in-out;
-            pointer-events: none;
-        }
-
-        #mobileOverlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
     </style>
 </head>
 

@@ -412,7 +412,13 @@
         function renderRecommended(cat) {
             const grid = document.getElementById('recommendedGrid');
             const pms = ProductManager.getProducts().filter(p => p.id !== productId && p.category === cat).slice(0, 4);
-            grid.innerHTML = (pms.length ? pms : ProductManager.getProducts().slice(0, 4)).map(p => window.buildProductCardHTML(p)).join('');
+            grid.innerHTML = (pms.length ? pms : ProductManager.getProducts().slice(0, 4)).map((p, idx) =>
+                window.buildProductCardHTML(p, {
+                    imageLoading: idx < 2 ? 'eager' : 'lazy',
+                    prioritizeImage: idx < 2,
+                    prioritizeAvatar: idx === 0
+                })
+            ).join('');
             // à Activer le lazy loading sur les images .lazy-img injectées
             if (window.initLazyImages) window.initLazyImages(grid);
         }

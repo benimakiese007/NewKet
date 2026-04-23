@@ -8,7 +8,7 @@ const HEADER_HTML = `
     <!-- Main header container -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <!-- Top Info Bar -->
-        <div class="bg-gray-950 text-white py-1.5 px-4 sm:px-8 border-b border-white/5">
+        <div class="bg-slate-900 text-white py-1.5 px-4 sm:px-8 border-b border-gray-900">
             <div class="max-w-7xl mx-auto w-full flex items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-4">
                 <div class="hidden md:flex items-center gap-6">
                     <span class="flex items-center gap-1.5"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-400" aria-hidden="true"></iconify-icon> Livraison Offerte</span>
@@ -25,9 +25,9 @@ const HEADER_HTML = `
             </div>
         </div>
         <!-- Main header content (Logo, Search, Icons) -->
-        <div class="header-content relative w-full max-w-[1440px] mx-auto px-4 sm:px-8 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-8">
+        <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
-            <div class="flex items-center justify-between w-full sm:w-auto h-12 sm:h-auto relative px-1 sm:px-0">
+            <div class="flex items-center justify-between w-full sm:w-auto sm:flex-none h-12 sm:h-auto relative px-1 sm:px-0">
                 <!-- Hamburger Menu (Mobile) -->
                 <button id="mobileMenuBtn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
                     title="Menu" aria-label="Ouvrir le menu">
@@ -35,7 +35,7 @@ const HEADER_HTML = `
                 </button>
 
                 <!-- Logo Section -->
-                <div class="flex items-center sm:min-w-[320px]">
+                <div class="flex items-center sm:min-w-0">
                     <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
                         <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" 
                             class="header-brand-image h-12 sm:h-30 w-auto object-contain"
@@ -52,8 +52,8 @@ const HEADER_HTML = `
 
             <!-- Search Bar (Full width on mobile, centered on desktop) -->
             <div id="mobileSearchContainer" 
-                class="flex-none w-full sm:flex-1 sm:mx-auto relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
-                style="max-width: 650px;">
+                class="flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
+                style="max-width: 720px;">
                 <div class="search-bar">
                     <!-- Category Selector -->
                     <div id="mobileSearchCategoryNativeShell" class="mobile-search-category-shell">

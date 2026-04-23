@@ -983,7 +983,10 @@
             const newHTML = products.map((p, idx) =>
                 window.buildProductCardHTML(p, {
                     animationClass: 'animate-fade-in',
-                    delay: `${idx * 0.05}s`
+                    delay: `${idx * 0.05}s`,
+                    imageLoading: !append && idx < 6 ? 'eager' : 'lazy',
+                    prioritizeImage: !append && idx < 6,
+                    prioritizeAvatar: !append && idx < 3
                 })
             ).join('');
 

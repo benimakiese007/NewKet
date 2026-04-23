@@ -70,25 +70,6 @@
             transition: transform 0.5s ease;
         }
 
-        .nav-link {
-            position: relative;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #000000;
-            transition: width 0.3s;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
         @keyframes pulse {
 
             0%,
@@ -172,7 +153,7 @@
 
 
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 pt-2">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 pt-6 md:pt-8">
         <div class="mb-16 text-center">
             <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-gray-900 mb-6 uppercase">Nos Maisons de Luxe
             </h1>
@@ -210,6 +191,7 @@
 
 
 
+    <div id="footer-placeholder"></div>
     <div id="mobile-nav-placeholder"></div>
 
 

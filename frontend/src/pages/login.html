@@ -694,9 +694,9 @@
                             localStorage.setItem('newketUserStatus', status);
                         } catch(e) { status = status || 'pending'; }
                     }
-                    // 'pending' = never filled the form �¢âàà go to onboarding
-                    // 'submitted' = form submitted, waiting for admin review �¢âàà show waiting screen
-                    // 'approved' = validated �¢âàà go to vendor dashboard
+                    // 'pending' = never filled the form -> go to onboarding
+                    // 'submitted' = form submitted, waiting for admin review -> show waiting screen
+                    // 'approved' = validated -> go to vendor dashboard
                     if (status === 'pending') {
                         window.location.href = window.resolvePath('pages/seller-onboarding');
                     } else {

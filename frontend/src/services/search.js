@@ -348,8 +348,7 @@ const SearchManager = {
                 
                 html += filtered.map(p => {
                     const firstImg = (p.image || '').split(',')[0];
-                    const optImg = firstImg.includes('supabase.co') && !firstImg.includes('?') 
-                        ? `${firstImg}?width=100&quality=70` : firstImg;
+                    const optImg = firstImg;
                         
                     return `
                     <a href="${window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html'}?id=${p.id}" class="suggestion-item">

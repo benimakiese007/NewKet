@@ -115,6 +115,89 @@ window.SupabaseAdapter = {
         ]).finally(() => clearTimeout(timeoutId));
     },
 
+    _shouldOptimizeImage(file) {
+        return !!file
+            && typeof window !== 'undefined'
+            && typeof document !== 'undefined'
+            && typeof FileReader !== 'undefined'
+            && typeof Image !== 'undefined'
+            && file.type?.startsWith('image/')
+            && file.type !== 'image/gif';
+    },
+
+    _getImageUploadProfile(bucket, file) {
+        if (!this._shouldOptimizeImage(file)) return null;
+
+        const bucketProfiles = {
+            'product-images': { maxWidth: 1600, maxHeight: 1600, quality: 0.78, mimeType: 'image/webp' },
+            'vendor-covers': { maxWidth: 1800, maxHeight: 900, quality: 0.8, mimeType: 'image/webp' },
+            'user-assets': { maxWidth: 1200, maxHeight: 1200, quality: 0.82, mimeType: 'image/webp' },
+            'vendor-docs': { maxWidth: 1600, maxHeight: 1600, quality: 0.8, mimeType: 'image/jpeg' }
+        };
+
+        return bucketProfiles[bucket] || { maxWidth: 1600, maxHeight: 1600, quality: 0.8, mimeType: 'image/webp' };
+    },
+
+    async _optimizeImageForUpload(bucket, file) {
+        const profile = this._getImageUploadProfile(bucket, file);
+        if (!profile) return file;
+
+        try {
+            const dataUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error || new Error('Failed to read image'));
+                reader.readAsDataURL(file);
+            });
+
+            const image = await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error('Failed to decode image'));
+                img.src = dataUrl;
+            });
+
+            const widthRatio = profile.maxWidth / image.width;
+            const heightRatio = profile.maxHeight / image.height;
+            const scale = Math.min(widthRatio, heightRatio, 1);
+            const targetWidth = Math.max(1, Math.round(image.width * scale));
+            const targetHeight = Math.max(1, Math.round(image.height * scale));
+
+            const canvas = document.createElement('canvas');
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+
+            const ctx = canvas.getContext('2d', { alpha: false });
+            if (!ctx) return file;
+
+            ctx.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+            const optimizedBlob = await new Promise(resolve => {
+                canvas.toBlob(resolve, profile.mimeType, profile.quality);
+            });
+
+            if (!optimizedBlob || optimizedBlob.size >= file.size) {
+                return file;
+            }
+
+            const extensionMap = {
+                'image/jpeg': 'jpg',
+                'image/png': 'png',
+                'image/webp': 'webp'
+            };
+            const extension = extensionMap[profile.mimeType] || file.name.split('.').pop() || 'bin';
+            const baseName = file.name.replace(/\.[^.]+$/, '');
+
+            return new File([optimizedBlob], `${baseName}.${extension}`, {
+                type: profile.mimeType,
+                lastModified: Date.now()
+            });
+        } catch (err) {
+            console.warn('[NewKet] Image optimization skipped:', err);
+            return file;
+        }
+    },
+
     // ========== AUTH SESSION CACHE & LOCK ==========
     _cachedSession: null,
     _lastSessionFetch: 0,
@@ -314,9 +397,10 @@ window.SupabaseAdapter = {
 
         try {
             return await this._retry(async () => {
+                const uploadFile = await this._optimizeImageForUpload(bucket, file);
                 const { data, error } = await client.storage
                     .from(bucket)
-                    .upload(filePath, file, {
+                    .upload(filePath, uploadFile, {
                         cacheControl: '3600',
                         upsert: true
                     });

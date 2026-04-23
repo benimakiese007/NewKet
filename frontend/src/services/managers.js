@@ -41,7 +41,7 @@ const RecentlyViewedManager = {
             <div class="flex-shrink-0 w-40 group">
                 <a href="${window.resolvePath('product?id=' + p.id)}" class="block">
                     <div class="aspect-square bg-gray-50 rounded-2xl p-4 mb-3 flex items-center justify-center relative overflow-hidden group-hover:bg-gray-100 transition-colors">
-                        <img src="${p.image}" loading="lazy" class="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110" alt="${p.name}">
+                        <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image, { width: 320, quality: 80 }) : p.image}" loading="lazy" class="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110" alt="${p.name}">
                     </div>
                     <h4 class="text-xs font-bold text-gray-900 truncate mb-1">${p.name}</h4>
                     <div class="text-xs font-black text-gray-900">${window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC'}</div>

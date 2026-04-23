@@ -370,7 +370,13 @@ function buildStarsHTML(rating) {
  * @param {object} options - UI options (animationClass, delay).
  */
 function buildProductCardHTML(p, options = {}) {
-    const { animationClass = '', delay = '0s' } = options;
+    const {
+        animationClass = '',
+        delay = '0s',
+        imageLoading = 'lazy',
+        prioritizeImage = false,
+        prioritizeAvatar = false
+    } = options;
     const isFavorite = window.FavoritesManager ? FavoritesManager.isInFavorites(p.id) : false;
 
     // Handle image (could be comma separated) — optimize first image for thumbnails
@@ -399,9 +405,18 @@ function buildProductCardHTML(p, options = {}) {
     const starsHTML = buildStarsHTML(p.rating || 4.5);
     const reviewCount = p.reviews || 0;
 
-    // ✅ LAZY LOADING: On utilise data-src + une couleur de fond en attendant
-    //    L'IntersectionObserver (initLazyImages) switche data-src vers src
-    //    uniquement quand la carte entre dans le viewport.
+    const productImgAttrs = prioritizeImage
+        ? `src="${mainImg}" loading="${imageLoading}" fetchpriority="high"`
+        : `data-src="${mainImg}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" loading="${imageLoading}"`;
+    const productImgClass = prioritizeImage ? '' : 'lazy-img';
+    const avatar = (Array.isArray(p.users) ? p.users[0] : p.users)?.avatar;
+    const avatarImgAttrs = prioritizeAvatar && avatar
+        ? `src="${avatar}" loading="eager" fetchpriority="high"`
+        : avatar
+            ? `data-src="${avatar}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" loading="lazy"`
+            : '';
+    const avatarImgClass = prioritizeAvatar ? '' : 'lazy-img';
+
     return `
         <div class="product-card card-active-scale ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}">
             <div class="product-image">
@@ -414,11 +429,10 @@ function buildProductCardHTML(p, options = {}) {
                 </button>
                 <a href="${resolvePath('pages/product')}?id=${p.id}">
                     <img
-                        data-src="${mainImg}"
-                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E"
+                        ${productImgAttrs}
                         alt="${p.name}"
-                        loading="lazy"
-                        class="lazy-img"
+                        decoding="async"
+                        class="${productImgClass}"
                         style="background:#f3f4f6; transition: opacity 0.3s ease;"
                         onerror="this.src='${fallbackImg}'"
                     >
@@ -428,8 +442,8 @@ function buildProductCardHTML(p, options = {}) {
                 <div class="product-cat">${p.category || ''}</div>
                 <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
-                        ${(Array.isArray(p.users) ? p.users[0] : p.users)?.avatar 
-                            ? `<img data-src="${(Array.isArray(p.users) ? p.users[0] : p.users).avatar}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" alt="Avatar Vendeur" class="lazy-img" style="width: 100%; height: 100%; object-cover">` 
+                        ${avatar
+                            ? `<img ${avatarImgAttrs} alt="Avatar Vendeur" decoding="async" class="${avatarImgClass}" style="width: 100%; height: 100%; object-fit: cover;">` 
                             : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
                         }
                     </div>
@@ -568,11 +582,8 @@ function buildSkeletonNotificationHTML(count = 4) {
 }
 
 /**
- * Optimizes an image URL from Supabase storage (or passes it through).
- */
-/**
- * Optimizes an image URL from Supabase storage (or passes it through).
- * Also handles comma-separated image strings by taking the first one.
+ * Normalizes an image URL and returns the first entry when multiple are provided.
+ * Supabase runtime transformations are disabled for this project, so URLs are left untouched.
  */
 function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
     if (!url) return '/src/assets/Images/default.png';
@@ -595,17 +606,7 @@ function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
         return '/src/assets/' + firstImg;
     }
 
-    // Only transform Supabase storage URLs
-    if (!firstImg.includes('supabase.co/storage')) return firstImg;
-    
-    const params = new URLSearchParams();
-    if (opts.width) params.set('width', opts.width);
-    if (opts.quality) params.set('quality', opts.quality);
-    
-    // Avoid duplicating params if already present
-    if (firstImg.includes('width=') || firstImg.includes('quality=')) return firstImg;
-    
-    return `${firstImg}${firstImg.includes('?') ? '&' : '?'}${params.toString()}`;
+    return firstImg;
 }
 
 
@@ -1308,12 +1309,17 @@ function renderAvatar(name, url, imgId, placeholderId) {
  * et sauvegarde la préférence dans le localStorage.
  */
 const ThemeManager = {
+    getPageThemeDefault() {
+        return document.documentElement.dataset.themeDefault || document.body?.dataset.themeDefault || 'system';
+    },
+
     init() {
         // Au chargement, on vérifie le localStorage ou la préférence système
         const storedTheme = localStorage.getItem('newket_theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const pageThemeDefault = this.getPageThemeDefault();
         
-        if (storedTheme === 'dark' || (!storedTheme && systemPrefersDark)) {
+        if (storedTheme === 'dark' || (!storedTheme && pageThemeDefault !== 'light' && systemPrefersDark)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -1321,7 +1327,7 @@ const ThemeManager = {
 
         // Écouter les changements de préférence système
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (!localStorage.getItem('newket_theme')) {
+            if (!localStorage.getItem('newket_theme') && this.getPageThemeDefault() !== 'light') {
                 if (e.matches) {
                     document.documentElement.classList.add('dark');
                 } else {

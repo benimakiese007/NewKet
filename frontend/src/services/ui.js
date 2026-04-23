@@ -57,7 +57,13 @@ const UI = {
         const displayList = pinned.length > 0 ? pinned : [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
 
         grid.innerHTML = displayList.map((p, idx) =>
-            window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.05}s` })
+            window.buildProductCardHTML(p, {
+                animationClass: 'animate-fade-in',
+                delay: `${idx * 0.05}s`,
+                imageLoading: 'eager',
+                prioritizeImage: true,
+                prioritizeAvatar: true
+            })
         ).join('');
         // ✅ Activer le lazy loading sur les nouvelles images
         if (window.initLazyImages) window.initLazyImages(grid);
@@ -76,7 +82,13 @@ const UI = {
         const recent = products.slice(0, 10);
 
         grid.innerHTML = recent.map((p, idx) =>
-            window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.05}s` })
+            window.buildProductCardHTML(p, {
+                animationClass: 'animate-fade-in',
+                delay: `${idx * 0.05}s`,
+                imageLoading: idx < 4 ? 'eager' : 'lazy',
+                prioritizeImage: idx < 4,
+                prioritizeAvatar: idx < 2
+            })
         ).join('');
         // ✅ Activer le lazy loading sur les nouvelles images
         if (window.initLazyImages) window.initLazyImages(grid);
@@ -129,7 +141,13 @@ const UI = {
         }
 
         const html = displayList.map((p, idx) =>
-            window.buildProductCardHTML(p, { animationClass: 'animate-fade-in', delay: `${idx * 0.05}s` })
+            window.buildProductCardHTML(p, {
+                animationClass: 'animate-fade-in',
+                delay: `${idx * 0.05}s`,
+                imageLoading: !append && idx < 4 ? 'eager' : 'lazy',
+                prioritizeImage: !append && idx < 4,
+                prioritizeAvatar: !append && idx < 2
+            })
         ).join('');
 
         if (append) {

@@ -40,7 +40,7 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Analyses M�dicales du
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Analyses Médicales du
                         Shop</h1>
                     <p class="text-gray-500" id="pageSubtitle">Diagnostic complet de vos performances et de votre
                         catalogue.</p>
@@ -54,7 +54,7 @@
                     <button onclick="updateTimeframe('month', this)"
                         class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Mois</button>
                     <button onclick="updateTimeframe('year', this)"
-                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Ann�e</button>
+                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Année</button>
                     <button onclick="updateTimeframe('all', this)"
                         class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all bg-black text-white">Tout</button>
                 </div>
@@ -75,7 +75,7 @@
                         class="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center mb-4">
                         <iconify-icon icon="solar:ranking-bold" width="24"></iconify-icon>
                     </div>
-                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Top Cat�gorie</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Top Catégorie</p>
                     <div class="text-xl font-black text-gray-900" id="topCategoryDisplay">Chargement...</div>
                 </div>
                 <div class="glass-panel p-6 flex flex-col gap-1 bg-red-50 border-red-100">
@@ -89,7 +89,7 @@
                     <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
                         <iconify-icon icon="solar:user-heart-bold" width="24"></iconify-icon>
                     </div>
-                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Taux Fid�lit�</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Taux Fidélité</p>
                     <div class="text-2xl font-black text-gray-900" id="loyaltyRate">85%</div>
                 </div>
             </div>
@@ -97,7 +97,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Detailed Revenue Chart -->
                 <div class="glass-panel p-6">
-                    <h3 class="font-bold text-gray-900 mb-6">R�partition des revenus par cat�gorie</h3>
+                    <h3 class="font-bold text-gray-900 mb-6">Répartition des revenus par catégorie</h3>
                     <div class="h-[300px]">
                         <canvas id="categoryRevenueChart"></canvas>
                     </div>
@@ -105,7 +105,7 @@
 
                 <!-- Stock Health -->
                 <div class="glass-panel p-6">
-                    <h3 class="font-bold text-gray-900 mb-6">Sant� du catalogue</h3>
+                    <h3 class="font-bold text-gray-900 mb-6">Santé du catalogue</h3>
                     <div id="stockHealthList" class="space-y-4">
                         <!-- Stock health items injected here -->
                     </div>
@@ -126,7 +126,7 @@
             <!-- Activity Logs / Diagnostics -->
             <div class="glass-panel overflow-hidden">
                 <div class="p-6 border-b border-gray-100">
-                    <h3 class="font-bold text-gray-900">Journal d'audit syst�me</h3>
+                    <h3 class="font-bold text-gray-900">Journal d'audit système</h3>
                 </div>
                 <div class="divide-y divide-gray-50 max-h-[400px] overflow-y-auto" id="auditLog">
                     <!-- Logs injected here -->
@@ -180,7 +180,7 @@
             // Dynamic Labels based on role
             const role = localStorage.getItem('newketRole');
             if (role === 'admin') {
-                document.getElementById('pageTitle').textContent = 'Analyses M�dicales Plateforme';
+                document.getElementById('pageTitle').textContent = 'Analyses Médicales Plateforme';
                 document.getElementById('pageSubtitle').textContent = 'Diagnostic complet des performances globales et du catalogue mondial.';
             }
         }
@@ -276,7 +276,7 @@
             const list = document.getElementById('diagnosticsTopProducts');
 
             if (stats.topProducts.length === 0) {
-                list.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">Pas de ventes � analyser.</div>';
+                list.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">Pas de ventes à analyser.</div>';
                 return;
             }
 
@@ -285,8 +285,8 @@
                     <img loading="lazy" src="../${p.image}" class="w-16 h-16 rounded-xl object-contain bg-gray-50 p-2">
                     <div class="flex-1 min-w-0">
                         <h4 class="font-bold text-gray-900 truncate">${p.name}</h4>
-                        <div class="text-[10px] font-black text-gray-400 uppercase">${p.salesCount} ventes r�guli�res</div>
-                        <div class="mt-2 text-sm font-black text-black">${CurrencyManager.formatPrice(p.price * p.salesCount)} de revenus g�n�r�s</div>
+                        <div class="text-[10px] font-black text-gray-400 uppercase">${p.salesCount} ventes régulières</div>
+                        <div class="mt-2 text-sm font-black text-black">${CurrencyManager.formatPrice(p.price * p.salesCount)} de revenus générés</div>
                     </div>
                 </div>
             `).join('');
