@@ -6,18 +6,18 @@
  */
 const HEADER_HTML = `
     <!-- Main header container -->
-    <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+    <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="main">
         <!-- Top Info Bar -->
-        <div class="bg-slate-900 text-white py-1.5 px-4 sm:px-8 border-b border-gray-900">
-            <div class="max-w-7xl mx-auto w-full flex items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-4">
-                <div class="hidden md:flex items-center gap-6">
+        <div class="header-topbar bg-slate-900 text-white py-1.5 px-4 sm:px-8 border-b border-gray-900">
+            <div class="max-w-7xl mx-auto w-full flex min-h-9 items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-3 md:gap-4">
+                <div class="hidden md:flex shrink-0 items-center gap-4 lg:gap-6">
                     <span class="flex items-center gap-1.5"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-400" aria-hidden="true"></iconify-icon> Livraison Offerte</span>
                     <span class="flex items-center gap-1.5 opacity-60"><iconify-icon icon="solar:shield-check-bold" width="12" aria-hidden="true"></iconify-icon> Paiement Sécurisé</span>
                 </div>
-                <div class="flex-1 flex justify-center text-center">
-                    <span class="px-4">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
+                <div class="flex min-w-0 flex-1 items-center justify-center text-center">
+                    <span class="block max-w-full truncate px-2 sm:px-4 leading-none whitespace-nowrap">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
                 </div>
-                <div class="hidden sm:flex items-center gap-6">
+                <div class="hidden sm:flex shrink-0 items-center gap-4 md:gap-6">
                     <a href="{{ROOT}}src/pages/support.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Support</a>
                     <a href="{{ROOT}}src/pages/faq.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">FAQ</a>
                     <a href="{{ROOT}}src/pages/forum.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Forum</a>
@@ -25,12 +25,12 @@ const HEADER_HTML = `
             </div>
         </div>
         <!-- Main header content (Logo, Search, Icons) -->
-        <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-3 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
+            <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
             <div class="flex items-center justify-between w-full sm:w-auto sm:flex-none h-12 sm:h-auto relative px-1 sm:px-0">
                 <!-- Hamburger Menu (Mobile) -->
                 <button id="mobileMenuBtn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
-                    title="Menu" aria-label="Ouvrir le menu">
+                    title="Menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
 
@@ -38,7 +38,7 @@ const HEADER_HTML = `
                 <div class="flex items-center sm:min-w-0">
                     <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
                         <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" 
-                            class="header-brand-image h-12 sm:h-30 w-auto object-contain"
+                            class="header-brand-image h-10 sm:h-20 w-auto object-contain"
                             onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                     </a>
                 </div>
@@ -52,7 +52,7 @@ const HEADER_HTML = `
 
             <!-- Search Bar (Full width on mobile, centered on desktop) -->
             <div id="mobileSearchContainer" 
-                class="flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
+                class="header-search-row flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
                 style="max-width: 720px;">
                 <div class="search-bar">
                     <!-- Category Selector -->
@@ -103,9 +103,9 @@ const HEADER_HTML = `
             </div>
 
             <!-- Desktop Icons (Notifications, Favorites, Account, Theme) -->
-            <div class="hidden sm:flex items-center gap-4 shrink-0">
+            <div class="header-actions hidden sm:flex items-center gap-4 shrink-0">
                 <!-- Theme Toggle -->
-                <button data-theme-toggle onclick="ThemeManager.toggle()"
+                <button data-theme-toggle
                     class="p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale" 
                     title="Changer le thème">
                     <iconify-icon data-theme-icon icon="solar:moon-bold" width="22" class="text-gray-600"></iconify-icon>
@@ -170,9 +170,9 @@ const HEADER_HTML = `
 
 <!-- Mobile Menu Sidebar -->
 <div id="mobileOverlay"
-    class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden">
+    class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" aria-hidden="true">
 </div>
-<div id="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col">
+<div id="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
     <div class="p-4 border-b border-gray-100 flex items-center justify-between">
         <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="h-10 w-auto object-contain pl-1">
         <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100 btn-active-scale" aria-label="Fermer le menu">
@@ -228,6 +228,24 @@ const HEADER_HTML = `
             </nav>
         </div>
 
+        <div class="header-quick-links px-4 mb-6 border-t border-gray-50 pt-6">
+            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Liens utiles</h3>
+            <nav class="flex flex-col gap-1">
+                <a href="{{ROOT}}src/pages/support.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    <iconify-icon icon="solar:help-bold" width="20"></iconify-icon> Support
+                </a>
+                <a href="{{ROOT}}src/pages/faq.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    <iconify-icon icon="solar:question-circle-bold" width="20"></iconify-icon> FAQ
+                </a>
+                <a href="{{ROOT}}src/pages/forum.html"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum
+                </a>
+            </nav>
+        </div>
+
         <div class="px-4 mb-6 border-t border-gray-50 pt-6">
             <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Personnel</h3>
             <nav class="flex flex-col gap-1">
@@ -245,7 +263,7 @@ const HEADER_HTML = `
                     <span id="mobileFavoritesBadge"
                         class="bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
                 </a>
-                <button onclick="ThemeManager.toggle()"
+                <button data-theme-toggle
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium w-full text-left" title="Changer le thème">
                     <span class="flex items-center gap-3"><iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon> Mode Sombre</span>
                 </button>
@@ -253,7 +271,7 @@ const HEADER_HTML = `
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900 text-white font-medium mt-2 publish-btn btn-active-scale">
                     <iconify-icon icon="solar:add-circle-linear" width="20"></iconify-icon> Vendre un article
                 </a>
-                <button onclick="window.AppNotifications && AppNotifications.promptInstall()" id="pwa-install-btn"
+                <button data-action="install-app" id="pwa-install-btn"
                     class="hidden flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium mt-2 transition-all">
                     <iconify-icon icon="solar:download-square-bold" width="20"></iconify-icon> Installer l'Application
                 </button>
@@ -273,7 +291,7 @@ const HEADER_HTML = `
             </div>
             
             <!-- Logout Button (Authenticated Only) -->
-            <button id="mobileLogoutBtn" onclick="AuthManager.handleLogoutClick(this)" style="display: none;"
+            <button id="mobileLogoutBtn" data-action="logout" style="display: none;"
                 class="flex items-center justify-center gap-2 w-full px-3 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-colors">
                 <iconify-icon icon="solar:logout-3-bold" width="20"></iconify-icon> Se déconnecter
             </button>
@@ -331,18 +349,16 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
     </div>
 </footer>`;
 
-
-
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
-<header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-    <div class="bg-gray-950 text-white py-1.5 px-4 border-b border-white/5">
-        <div class="max-w-7xl mx-auto w-full flex items-center justify-center text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-center">
-            <span class="px-4">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
+<header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="minimal">
+    <div class="header-topbar bg-gray-950 text-white py-1.5 px-4 border-b border-white/5">
+        <div class="max-w-7xl mx-auto w-full flex min-h-9 items-center justify-center text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-center">
+            <span class="block max-w-full truncate px-2 sm:px-4 leading-none whitespace-nowrap">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
         </div>
     </div>
-    <div class="relative flex h-[72px] sm:h-[176px] items-center justify-center">
+    <div class="relative flex h-[64px] sm:h-[112px] items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
-        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="header-brand-image h-12 sm:h-30 w-auto object-contain transition-transform group-hover:scale-105">
+        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="header-brand-image h-10 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105">
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-gray-300">
         <iconify-icon icon="solar:lock-password-bold" width="18"></iconify-icon>
@@ -383,6 +399,7 @@ const ComponentLoader = {
         }
 
         await Promise.all(componentsToLoad);
+        this.bindGlobalActions();
 
         // Set global flag to avoid race conditions
         window.componentsLoaded = true;
@@ -406,6 +423,28 @@ const ComponentLoader = {
         }
 
         setTimeout(() => this.setupHeaderSpacing(), 50);
+    },
+
+    bindGlobalActions() {
+        if (this.globalActionsBound) return;
+        this.globalActionsBound = true;
+
+        document.addEventListener('click', (event) => {
+            const trigger = event.target.closest('[data-action]');
+            if (!trigger) return;
+
+            const action = trigger.dataset.action;
+            if (action === 'logout') {
+                event.preventDefault();
+                if (window.AuthManager) AuthManager.handleLogoutClick(trigger);
+                return;
+            }
+
+            if (action === 'install-app') {
+                event.preventDefault();
+                if (window.AppNotifications) AppNotifications.promptInstall();
+            }
+        });
     },
 
     /**
@@ -433,6 +472,7 @@ const ComponentLoader = {
             }
 
             spacer.style.height = `${height}px`;
+            spacer.style.pointerEvents = 'none';
             document.documentElement.style.scrollPaddingTop = `${height + 20}px`;
         };
 
@@ -441,8 +481,9 @@ const ComponentLoader = {
         
         // Observer for dynamic header changes (e.g. banners)
         const header = document.querySelector('.main-header');
-        if (header && window.ResizeObserver) {
-            new ResizeObserver(adjust).observe(header);
+        if (header && window.ResizeObserver && !this.headerResizeObserver) {
+            this.headerResizeObserver = new ResizeObserver(adjust);
+            this.headerResizeObserver.observe(header);
         }
     },
 

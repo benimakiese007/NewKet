@@ -123,7 +123,17 @@ const AuthManager = {
 
         // --- 🖼️ AVATAR RESOLUTION (Priority: DB > OAuth metadata) ---
         // Always refresh the OAuth avatar URL from user metadata (Google may rotate URLs).
-        const oauthAvatar = user.user_metadata.avatar_url || user.user_metadata.picture || null;
+        const oauthAvatar =
+            user.user_metadata.avatar_url ||
+            user.user_metadata.avatarUrl ||
+            user.user_metadata.picture ||
+            user.user_metadata.picture_url ||
+            user.user_metadata.photo_url ||
+            user.user_metadata.photoURL ||
+            user.user_metadata.avatar ||
+            user.identities?.[0]?.identity_data?.picture ||
+            user.identities?.[0]?.identity_data?.avatar_url ||
+            null;
         try {
             if (window.supabaseClient) {
                 const { data: profile } = await window.supabaseClient
@@ -693,12 +703,34 @@ const AuthManager = {
         if (accountLinks.length === 0) return;
 
         const avatarUrl = localStorage.getItem('newketUserAvatar');
+        const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
+        const displayName = profile.name || localStorage.getItem('newketUserName') || 'Mon Compte';
+        const initials = typeof window.getInitials === 'function' ? window.getInitials(displayName) : (displayName?.trim()?.charAt(0)?.toUpperCase() || '?');
+        const renderInitials = (accountLink, icon, text) => {
+            if (icon) icon.style.display = 'none';
+
+            const img = accountLink.querySelector('.nav-user-avatar');
+            if (img) img.style.display = 'none';
+
+            let initialsBadge = accountLink.querySelector('.nav-user-initials');
+            if (!initialsBadge) {
+                initialsBadge = document.createElement('span');
+                initialsBadge.className = 'nav-user-initials';
+                accountLink.appendChild(initialsBadge);
+            }
+
+            initialsBadge.textContent = text;
+            initialsBadge.style.display = 'flex';
+            return initialsBadge;
+        };
 
         accountLinks.forEach(accountLink => {
             const icon = accountLink.querySelector('iconify-icon');
             const isFooterLink = accountLink.id === 'accountLinkFooter';
+            let initialsBadge = accountLink.querySelector('.nav-user-initials');
 
             if (avatarUrl && !isFooterLink) {
+                if (initialsBadge) initialsBadge.remove();
                 if (icon) icon.style.display = 'none';
                 let img = accountLink.querySelector('.nav-user-avatar');
                 if (!img) {
@@ -710,10 +742,8 @@ const AuthManager = {
                 }
                 img.alt = 'Photo de profil';
                 img.onerror = () => {
-                    // URL cassée : masquer l'image et afficher l'icône
                     img.style.display = 'none';
-                    if (icon) icon.style.display = 'block';
-                    // Nettoyer le cache pour éviter la boucle
+                    renderInitials(accountLink, icon, initials);
                     localStorage.removeItem('newketUserAvatar');
                 };
                 // Avoid re-setting src if unchanged (prevents flicker)
@@ -721,10 +751,8 @@ const AuthManager = {
                     img.src = avatarUrl;
                 }
                 img.style.display = 'block';
-            } else {
-                if (icon) icon.style.display = 'block';
-                const img = accountLink.querySelector('.nav-user-avatar');
-                if (img) img.style.display = 'none';
+            } else if (!isFooterLink) {
+                initialsBadge = renderInitials(accountLink, icon, initials);
             }
 
             if (this.role === 'admin') {
@@ -802,11 +830,13 @@ const AuthManager = {
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-linear');
                     icon.className = 'text-gray-600';
+                    icon.style.display = 'block';
                 }
                 accountLink.classList.remove('bg-gray-900', 'bg-gray-100', 'text-white', 'bg-white');
                 accountLink.classList.add('hover:bg-gray-50');
                 const badge = accountLink.querySelector('.role-badge');
                 if (badge) badge.style.display = 'none';
+                if (initialsBadge) initialsBadge.remove();
 
                 // Ensure mobile cta reflects guest status if needed
                 const guestCTA = document.getElementById('mobileGuestCTA');
@@ -912,3 +942,4 @@ const AuthManager = {
 };
 
 window.AuthManager = AuthManager;
+

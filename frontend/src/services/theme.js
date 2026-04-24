@@ -92,4 +92,12 @@ if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
         ThemeManager.init();
     });
+
+    document.addEventListener('click', (event) => {
+        const toggle = event.target.closest('[data-theme-toggle]');
+        if (!toggle) return;
+
+        event.preventDefault();
+        ThemeManager.toggle();
+    });
 }

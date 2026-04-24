@@ -59,6 +59,8 @@ const ProfileManager = {
         // Also update individual keys for compatibility
         if (data.name) localStorage.setItem('newketUserName', data.name);
         if (data.email) localStorage.setItem('newketUserEmail', data.email);
+        const avatar = data.avatar || data.avatar_url || data.picture || data.photo_url || data.picture_url;
+        if (avatar) localStorage.setItem('newketUserAvatar', avatar);
         
         // Trigger event for UI updates
         window.dispatchEvent(new CustomEvent('profileUpdated', { detail: this._profile }));
@@ -85,7 +87,7 @@ const ProfileManager = {
                     company_name: profile.company_name || this._profile.company_name,
                     email: user.email || this._profile.email,
                     phone: profile.phone || profile.store_phone || this._profile.phone,
-                    avatar: profile.avatar || profile.avatar_url || this._profile.avatar,
+                    avatar: profile.avatar || profile.avatar_url || profile.photo_url || profile.picture || this._profile.avatar,
                     role: profile.role || user.role,
                     shipping_time: profile.shipping_time || this._profile.shipping_time
                 });

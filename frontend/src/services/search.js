@@ -6,10 +6,14 @@ const SearchManager = {
     selectedCategory: 'all',
     maxRecentSearches: 5,
     initialized: false,
+    overlayPortaled: false,
+    searchActive: false,
 
     init() {
         if (this.initialized) return;
         this.initialized = true;
+
+        this.ensureOverlayPortal();
 
         // Initialize Category Selector
         this.initCategorySelector();
@@ -33,7 +37,7 @@ const SearchManager = {
                 const query = e.target.value.trim();
                 const container = document.getElementById('searchSuggestions');
                 if (container) {
-                    this.toggleOverlay(true);
+                    this.openSearchOverlay();
                     if (query.length < 2) {
                         this.showRecentAndPopular(container);
                     } else {
@@ -46,10 +50,18 @@ const SearchManager = {
         // Hide suggestions on click outside
         document.addEventListener('click', (e) => {
             const container = document.getElementById('searchSuggestions');
-            const searchBar = e.target.closest('.search-bar');
-            if (container && !searchBar) {
+            if (!container) return;
+
+            const isInsideSearchSurface =
+                !!e.target.closest('.search-bar') ||
+                !!e.target.closest('#searchSuggestions');
+
+            const clickedOverlay = !!e.target.closest('#searchOverlay');
+            const searchInputFocused = !!document.activeElement?.matches?.('.search-input, #searchInput, #mobileSearchInput');
+
+            if (clickedOverlay || (!isInsideSearchSurface && !searchInputFocused)) {
                 container.classList.remove('active');
-                this.toggleOverlay(false);
+                this.closeSearchOverlay();
             }
         });
 
@@ -193,6 +205,33 @@ const SearchManager = {
 
         applyCategoryMode();
         syncCategoryUI();
+    },
+
+    ensureOverlayPortal() {
+        const overlay = document.getElementById('searchOverlay');
+        if (!overlay || this.overlayPortaled) return;
+
+        document.body.appendChild(overlay);
+        this.overlayPortaled = true;
+    },
+
+    openSearchOverlay() {
+        this.ensureOverlayPortal();
+        this.searchActive = true;
+        const overlay = document.getElementById('searchOverlay');
+        if (overlay) {
+            overlay.classList.add('active');
+            document.body.classList.add('search-focused');
+        }
+    },
+
+    closeSearchOverlay() {
+        this.searchActive = false;
+        const overlay = document.getElementById('searchOverlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            document.body.classList.remove('search-focused');
+        }
     },
 
     getRecentSearches() {
@@ -387,16 +426,8 @@ const SearchManager = {
         }
     },
     toggleOverlay(show) {
-        const overlay = document.getElementById('searchOverlay');
-        if (overlay) {
-            if (show) {
-                overlay.classList.add('active');
-                document.body.classList.add('search-focused');
-            } else {
-                overlay.classList.remove('active');
-                document.body.classList.remove('search-focused');
-            }
-        }
+        if (show) this.openSearchOverlay();
+        else this.closeSearchOverlay();
     }
 };
 

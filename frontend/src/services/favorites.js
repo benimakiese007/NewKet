@@ -42,7 +42,7 @@ const FavoritesManager = {
             const user = await this._getCurrentUser();
             if (!user) return;
 
-            await ApiClient.post('/favorites', { favorites });
+            await ApiClient.post('/favorites', { favorites }, { suppressNetworkError: true });
         } catch (err) {
             console.warn('[NewKet] Favorites API sync failed (non-blocking):', err.message);
         }
@@ -70,7 +70,7 @@ const FavoritesManager = {
             }
 
             this._syncPromise = (async () => {
-                const data = await ApiClient.get('/favorites');
+                const data = await ApiClient.get('/favorites', { suppressNetworkError: true });
 
                 if (!data || !data.favorites) return;
 

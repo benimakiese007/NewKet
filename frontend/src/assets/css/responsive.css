@@ -88,19 +88,20 @@ canvas {
     /* Removing static header spacers override to use dynamic JS spacing */
 
     .main-header .w-full {
-        padding-top: var(--space-sm) !important;
-        padding-bottom: 0px !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
 
     .header-content {
-        row-gap: 0 !important;
-        /* Proper CSS property fix for vertical gap */
+        row-gap: 0.625rem !important;
+        padding: 0.625rem 1rem 0.875rem !important;
+        align-items: stretch !important;
     }
 
     .search-bar {
-        margin: 0 var(--space-sm) var(--space-sm) !important;
+        margin: 0 !important;
         background-color: #f3f4f6 !important;
-        border-radius: 10px !important;
+        border-radius: 14px !important;
         width: 100% !important;
     }
 
@@ -110,8 +111,8 @@ canvas {
         width: 100% !important;
         order: 3 !important;
         padding-top: 0 !important;
-        margin-top: -2px !important;
-        /* Pull row 2 closer to row 1 */
+        margin-top: 0 !important;
+        gap: 0.625rem !important;
     }
 
     .search-input {
@@ -142,6 +143,7 @@ canvas {
     /* Row Row 1 components */
     .header-content>div:first-child {
         order: 1 !important;
+        min-height: 3.25rem !important;
     }
 
     .order-2.sm\:order-3 {
@@ -158,6 +160,62 @@ canvas {
     /* Reduire l'ecart entre le logo et le hamburger */
     .header-content>div:first-child {
         gap: var(--space-sm) !important;
+    }
+
+    .header-topbar .max-w-7xl {
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .header-topbar .max-w-7xl > div:first-child,
+    .header-topbar .max-w-7xl > div:last-child {
+        display: none !important;
+    }
+
+    #mobileMenu {
+        width: min(90vw, 22rem) !important;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+    .header-content {
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        row-gap: 0.875rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.875rem !important;
+    }
+
+    .header-content > div:first-child {
+        order: 1 !important;
+        width: auto !important;
+        flex: 0 0 auto !important;
+    }
+
+    .header-actions {
+        order: 2 !important;
+        margin-left: auto !important;
+    }
+
+    #mobileSearchContainer {
+        order: 3 !important;
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .search-bar {
+        width: 100% !important;
+    }
+
+    .category-nav nav {
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    .category-nav,
+    #categoryNav {
+        display: none !important;
     }
 }
 
@@ -817,135 +875,7 @@ canvas {
 }
 
 /* ==========================================
-   32. MOBILE BOTTOM NAVIGATION BAR — Styles principaux
-   ========================================== */
-
-#mobileBottomNav {
-    display: none; /* hidden on desktop by default */
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 200;
-    background: rgba(255, 255, 255, 0.97);
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
-@media (max-width: 639px) {
-    #mobileBottomNav {
-        display: block;
-    }
-}
-
-#mobileBottomNav .nav-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    padding: 0.4rem 0 0.5rem;
-    height: 64px;
-}
-
-#mobileBottomNav .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    flex: 1;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0.2rem 0.3rem;
-    border-radius: 12px;
-    text-decoration: none;
-    color: #6b7280;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    border: none;
-    background: none;
-    font-family: inherit;
-    transition: color 0.18s ease, background-color 0.18s ease;
-    -webkit-tap-highlight-color: transparent;
-}
-
-#mobileBottomNav .nav-item:hover,
-#mobileBottomNav .nav-item.active {
-    color: #111827;
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-#mobileBottomNav .nav-item span {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    line-height: 1;
-}
-
-#mobileBottomNav .nav-icon-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-}
-
-#mobileBottomNav .nav-badge {
-    position: absolute;
-    top: -4px;
-    right: -6px;
-    background: #111827;
-    color: #fff;
-    font-size: 9px;
-    font-weight: 700;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 3px;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    border: 1.5px solid rgba(255, 255, 255, 0.97);
-}
-
-/* Dark mode mobile nav */
-html.dark #mobileBottomNav {
-    background: rgba(17, 24, 39, 0.97);
-    border-top-color: rgba(255, 255, 255, 0.06);
-}
-
-html.dark #mobileBottomNav .nav-item {
-    color: #9ca3af;
-}
-
-html.dark #mobileBottomNav .nav-item:hover,
-html.dark #mobileBottomNav .nav-item.active {
-    color: #f9fafb;
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-/* ==========================================
-   33. ACTIVE NAV ITEM (highlighting current page)
-   ========================================== */
-
-#mobileBottomNav .nav-item.active .nav-icon-wrap iconify-icon,
-#mobileBottomNav .nav-item.active iconify-icon {
-    color: #111827;
-}
-
-html.dark #mobileBottomNav .nav-item.active .nav-icon-wrap iconify-icon,
-html.dark #mobileBottomNav .nav-item.active iconify-icon {
-    color: #f9fafb;
-}
-
-/* ==========================================
-   34. CATALOG — Mobile Filter Panel (Drawer)
+   32. CATALOG — Mobile Filter Panel (Drawer)
    ========================================== */
 
 /* Mobile filter toggle button — shows only on mobile */
@@ -1108,7 +1038,7 @@ html.dark #mobileBottomNav .nav-item.active iconify-icon {
     /* Catalog main padding */
     .catalog-main-padding {
         padding-top: 1.5rem !important;
-        padding-bottom: 5rem !important; /* account for mobile nav */
+        padding-bottom: 1.5rem !important;
     }
 
     /* Filter toolbar: ensure it's scrollable */
@@ -1155,7 +1085,15 @@ html.dark #mobileMenu a {
     color: #d1d5db;
 }
 
+html.dark #mobileMenu button {
+    color: #d1d5db;
+}
+
 html.dark #mobileMenu a:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark #mobileMenu button:hover {
     background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
@@ -1292,24 +1230,7 @@ html.dark .header-brand-image {
 }
 
 /* ==========================================
-   44. GLOBAL — Body padding bottom (mobile nav)
-   ========================================== */
-
-@media (max-width: 639px) {
-    body:has(#mobileBottomNav) {
-        padding-bottom: 0;
-    }
-}
-
-/* Fallback for browsers that don't support :has() */
-@media (max-width: 639px) {
-    .page-content-wrapper {
-        padding-bottom: 0;
-    }
-}
-
-/* ==========================================
-   45. FORM INPUTS — Minimum 16px to avoid iOS zoom
+   44. FORM INPUTS — Minimum 16px to avoid iOS zoom
    ========================================== */
 
 @media (max-width: 768px) {
@@ -1531,5 +1452,138 @@ html.dark .glass-panel {
 
     .segmented-track {
         height: 34px;
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1324px) {
+    .header-content {
+        gap: 1rem !important;
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+
+    .header-content > div:first-child {
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+    }
+
+    .header-brand-image {
+        height: 5.25rem !important;
+    }
+
+    #mobileSearchContainer {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: min(100%, 34rem) !important;
+        margin-left: 0.75rem !important;
+        margin-right: 0.75rem !important;
+    }
+
+    .search-bar {
+        min-width: 0 !important;
+    }
+
+    .search-category-btn {
+        min-width: 84px !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.6rem !important;
+    }
+
+    .search-input {
+        padding-left: 2.5rem !important;
+        padding-right: 0.9rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    #searchBtn {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        font-size: 0.6rem !important;
+    }
+
+    .publish-btn {
+        padding-left: 0.9rem !important;
+        padding-right: 0.9rem !important;
+    }
+
+    .header-actions {
+        gap: 0.35rem !important;
+    }
+
+    .header-actions a,
+    .header-actions button {
+        min-width: 40px !important;
+        min-height: 40px !important;
+    }
+
+    .category-nav .w-full {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .category-nav nav {
+        gap: 0.25rem !important;
+    }
+
+    .category-nav .nav-link {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        font-size: 0.88rem !important;
+    }
+}
+
+/* ==========================================
+   54. PAGE-SPECIFIC MOBILE HARDENING
+   ========================================== */
+
+@media (max-width: 639px) {
+    /* FAQ + Support cards */
+    .faq-card,
+    .contact-method {
+        padding: 1.25rem !important;
+        border-radius: 1.75rem !important;
+    }
+
+    /* Payment success screen */
+    .glass-premium {
+        border-radius: 2rem !important;
+        padding: 1.5rem !important;
+    }
+
+    #txRef {
+        display: block;
+        max-width: 10rem;
+        overflow-wrap: anywhere;
+        text-align: right;
+    }
+
+    /* Promo hero */
+    .promo-banner {
+        padding: 1.5rem !important;
+        border-radius: 1.5rem !important;
+        margin-bottom: 1.75rem !important;
+    }
+
+    .promo-banner::before {
+        width: 240px !important;
+        height: 240px !important;
+        top: -30% !important;
+        right: -28% !important;
+    }
+
+    /* Forum cards */
+    .forum-card .topic-body {
+        flex-direction: column !important;
+    }
+
+    .forum-topic-metrics,
+    .forum-compact-pill {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    .forum-compact-pill {
+        gap: 0.75rem !important;
+        letter-spacing: 0.12em !important;
     }
 }

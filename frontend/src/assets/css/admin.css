@@ -7,6 +7,39 @@ body {
     padding-top: 0 !important;
 }
 
+:root {
+    --admin-navbar-offset: 5.5rem;
+    --dashboard-topbar-height: 4.5rem;
+}
+
+@media (min-width: 640px) {
+    :root {
+        --admin-navbar-offset: 7.5rem;
+        --dashboard-topbar-height: 6.5rem;
+    }
+}
+
+.admin-shell {
+    padding-top: var(--admin-navbar-offset);
+}
+
+.dashboard-topbar {
+    overflow: visible;
+}
+
+.dashboard-topbar-inner {
+    min-height: var(--dashboard-topbar-height);
+}
+
+.dashboard-main-offset {
+    padding-top: calc(var(--dashboard-topbar-height) + 1.75rem) !important;
+}
+
+/* Lift the sidebar: remove the extra visual gap under the fixed navbar */
+#adminSidebar > div {
+    padding-top: 0.75rem !important;
+}
+
 /* ── CRITICAL: Desktop sidebar layout fixes ──────────────────────────────── */
 /* The compiled tailwind.css is missing lg:static, lg:translate-x-0, etc.    */
 /* These rules ensure the sidebar participates in the flex flow on desktop.  */
@@ -148,6 +181,24 @@ body {
 
 .sidebar-link.active {
     transform: scale(1.02);
+}
+
+html:not(.dark) #adminSidebar .sidebar-link.active {
+    background: linear-gradient(135deg, #eef4ff 0%, #dbeafe 100%) !important;
+    color: #0f172a !important;
+    border: 1px solid #bfdbfe;
+    box-shadow: 0 16px 32px -22px rgba(37, 99, 235, 0.55);
+    transform: translateX(6px) scale(1.01);
+}
+
+html:not(.dark) #adminSidebar .sidebar-link.active .sidebar-icon-container {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 24px -18px rgba(15, 23, 42, 0.9);
+}
+
+html:not(.dark) #adminSidebar .sidebar-link.active span {
+    color: #0f172a !important;
 }
 
 /* Toggle Button Styling */
@@ -310,10 +361,16 @@ body {
     }
 
     #vendorSidebar {
-        width: min(90vw, 20rem) !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        max-width: none !important;
+        border-right: none !important;
     }
 
     #vendorSidebar .glass-panel {
+        min-height: 100dvh;
         padding: 1rem !important;
     }
 
@@ -401,5 +458,13 @@ body {
 
     #tab-purchases .bg-gray-50.px-4.py-2.rounded-xl.border.border-gray-100 {
         width: 100% !important;
+    }
+}
+
+@media (max-width: 1023px) {
+    #adminSidebar > div,
+    #customerSidebar .glass-panel,
+    #vendorSidebar .glass-panel {
+        padding-top: calc(var(--dashboard-topbar-height) + 1.25rem) !important;
     }
 }

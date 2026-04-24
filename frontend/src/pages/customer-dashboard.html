@@ -184,8 +184,8 @@
         }
     </style>
 </head>
-<body>    <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
-        <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[144px] relative">
+<body>    <nav class="dashboard-topbar fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
+        <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
             <div class="flex items-center gap-6">
                 <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                     <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
@@ -195,7 +195,7 @@
             <!-- Center Logo -->
             <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <a href="/" class="flex items-center justify-center group">
-                    <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-12 sm:h-[7.5rem] w-auto object-contain">
+                    <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain">
                 </a>
             </div>
 
@@ -215,14 +215,14 @@
     <!-- Overlay pour Mobile -->
     <div id="customerSidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-24 flex flex-col lg:flex-row gap-8 relative">
+    <main class="dashboard-main-offset max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row gap-8 relative">
         <!-- Sidebar -->
-        <aside id="customerSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:w-64 transition-all duration-300 ease-in-out h-screen lg:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
+        <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-64 transition-all duration-300 ease-in-out h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
-            <div class="glass-panel p-6 lg:sticky lg:top-24">
+            <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 lg:min-h-0 lg:sticky lg:top-24 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
                 <div class="flex items-center gap-4 mb-8 p-3 rounded-2xl bg-gray-50/80 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
                     <div class="relative flex-shrink-0">
-                        <div id="userAvatarDisplay" class="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center font-bold text-lg shadow-sm border border-white/20 overflow-hidden">
+                        <div id="userAvatarDisplay" class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center font-black text-[11px] uppercase tracking-widest shadow-sm border border-white/15 overflow-hidden shrink-0">
                             <img id="userAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
                             <span id="userAvatarPlaceholder">?</span>
                         </div>
@@ -330,7 +330,7 @@
                     </div>
                     <div class="bg-black text-white p-6 rounded-3xl shadow-xl shadow-black/10 flex flex-col gap-1">
                         <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center mb-2">
-                            <iconify-icon icon="solar:star-square-bold" width="24"></iconify-icon>
+                            <iconify-icon icon="solar:medal-ribbons-star-bold" width="24"></iconify-icon>
                         </div>
                         <p class="text-[10px] font-black uppercase tracking-widest text-white/40">Points NewKet</p>
                         <div class="text-2xl font-black" id="customer-newket-points">0 PTS</div>
@@ -375,6 +375,20 @@
                     <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Informations
                         personnelles</h2>
                     <form class="space-y-5" id="profileForm">
+                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-200">
+                            <div id="profileAvatarPreview" class="w-16 h-16 rounded-full overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center text-sm font-black text-gray-700 shrink-0">
+                                <img id="profileAvatarPreviewImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
+                                <span id="profileAvatarPreviewPlaceholder">?</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-gray-900">Photo de profil</p>
+                                <p class="text-xs text-gray-500 mt-1">PNG, JPG ou WEBP. Maximum 2 Mo.</p>
+                            </div>
+                            <button type="button" id="changeProfileAvatarBtn"
+                                class="px-4 py-2 rounded-xl bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-gray-800 transition-colors">
+                                Modifier
+                            </button>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
                             <input type="text" id="profName"
@@ -628,7 +642,6 @@
         </div>
     </div>
 
-    <div id="mobile-nav-placeholder"></div>
 
 
 
@@ -653,6 +666,69 @@
             if (tabId === 'notifications') renderDashboardNotifications();
         }
 
+        let customerAvatarUploadInFlight = false;
+
+        function renderCustomerProfileAvatarPreview(name, avatarUrl) {
+            if (!window.renderAvatar) return;
+            window.renderAvatar(name, avatarUrl, 'profileAvatarPreviewImg', 'profileAvatarPreviewPlaceholder');
+            const preview = document.getElementById('profileAvatarPreview');
+            if (preview) {
+                preview.style.backgroundColor = '#f3f4f6';
+                preview.style.color = '#111827';
+            }
+        }
+
+        async function handleCustomerAvatarUpload(file) {
+            if (!file || customerAvatarUploadInFlight) return;
+
+            if (!file.type || !file.type.startsWith('image/')) {
+                showToast('Choisissez une image valide.', 'error');
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Image trop lourde. Maximum 2 Mo.', 'error');
+                return;
+            }
+
+            customerAvatarUploadInFlight = true;
+            if (window.LoaderManager) LoaderManager.show('Mise à jour de la photo...');
+
+            try {
+                const client = window.SupabaseAdapter?.getClient?.();
+                if (!client) throw new Error('Client Supabase indisponible');
+
+                const { data: { user } } = await client.auth.getUser();
+                if (!user?.id) throw new Error('Utilisateur non authentifié');
+
+                const imageData = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(reader.error || new Error('Lecture image échouée'));
+                    reader.readAsDataURL(file);
+                });
+
+                const response = await window.ApiClient.post('/profile/me/avatar', { imageData });
+                const publicUrl = response?.avatar;
+                if (!publicUrl) throw new Error('Upload échoué');
+
+                const currentProfile = ProfileManager.getProfile();
+                ProfileManager.saveProfile({ ...currentProfile, avatar: publicUrl });
+
+                const currentName = currentProfile.name || localStorage.getItem('newketUserName') || user.email || 'Utilisateur';
+                renderCustomerProfileAvatarPreview(currentName, publicUrl);
+                showToast('Photo de profil mise à jour.', 'success');
+            } catch (error) {
+                console.error('[Customer Avatar] Upload error:', error);
+                showToast(error.message || 'Erreur lors de la mise à jour de la photo.', 'error');
+            } finally {
+                customerAvatarUploadInFlight = false;
+                const input = document.getElementById('customerAvatarUploadInput');
+                if (input) input.value = '';
+                if (window.LoaderManager) LoaderManager.hide();
+            }
+        }
+
         // Avatar rendering is now handled by global renderAvatar from ui-helpers.js
 
         // ààà Status badge ààààààààààààààààààààààààààààààààààààààààààààààààààààààààà
@@ -673,28 +749,6 @@
 
 
         document.addEventListener('DOMContentLoaded', () => {
-            // --- INITIALIZE SKELETONS ---
-            const statsGrid = document.querySelector('#view-dashboard .grid');
-            if (statsGrid && typeof window.buildSkeletonDashboardStatsHTML === 'function') {
-                statsGrid.innerHTML = window.buildSkeletonDashboardStatsHTML(4);
-            }
-
-            const activityFeed = document.getElementById('customer-activity-feed');
-            if (activityFeed && typeof window.buildSkeletonActivityHTML === 'function') {
-                activityFeed.innerHTML = window.buildSkeletonActivityHTML(3);
-            }
-
-            const ordersList = document.getElementById('orders-list');
-            if (ordersList && typeof window.buildSkeletonActivityHTML === 'function') {
-                // Using activity skeleton as a decent proxy for order list items
-                ordersList.innerHTML = window.buildSkeletonActivityHTML(4);
-            }
-
-            const favoritesGrid = document.getElementById('favorites-grid');
-            if (favoritesGrid && typeof window.buildSkeletonCardHTML === 'function') {
-                favoritesGrid.innerHTML = window.buildSkeletonCardHTML(3);
-            }
-
             renderOrders();
             renderFavorites();
             renderDashboardNotifications();
@@ -714,6 +768,21 @@
             document.getElementById('profName').value = profile.name || '';
             document.getElementById('profEmail').value = profile.email || '';
             document.getElementById('profPhone').value = profile.phone || '';
+            const avatarUploadBtn = document.getElementById('changeProfileAvatarBtn');
+            const avatarUploadInput = document.getElementById('customerAvatarUploadInput');
+            const initialAvatarName = profile.name || localStorage.getItem('newketUserName') || localStorage.getItem('newketUserEmail') || 'Utilisateur';
+            const initialAvatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar') || '';
+            renderCustomerProfileAvatarPreview(initialAvatarName, initialAvatarUrl);
+
+            if (avatarUploadBtn && avatarUploadInput) {
+                avatarUploadBtn.addEventListener('click', () => avatarUploadInput.click());
+                avatarUploadInput.addEventListener('change', (event) => {
+                    const selectedFile = event.target.files?.[0];
+                    if (selectedFile) {
+                        handleCustomerAvatarUpload(selectedFile);
+                    }
+                });
+            }
 
             // Load Address
             const addr = JSON.parse(localStorage.getItem('newketAddress') || '{}');
@@ -731,9 +800,50 @@
             const nameEl = document.getElementById('userDisplayName');
             if (nameEl) nameEl.textContent = displayName;
 
-            if (window.renderAvatar) {
-                renderAvatar(displayName, avatarUrl, 'userAvatarImg', 'userAvatarPlaceholder');
-            }
+            const refreshCustomerSidebarAvatar = async () => {
+                const currentProfile = ProfileManager.getProfile();
+                const currentName = currentProfile.name || localStorage.getItem('newketUserName') || displayName;
+                let currentAvatar = currentProfile.avatar || localStorage.getItem('newketUserAvatar') || avatarUrl;
+
+                if (!currentAvatar && window.SupabaseAdapter?.getClient) {
+                    try {
+                        const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                        currentAvatar =
+                            user?.user_metadata?.avatar_url ||
+                            user?.user_metadata?.avatarUrl ||
+                            user?.user_metadata?.picture ||
+                            user?.user_metadata?.picture_url ||
+                            user?.user_metadata?.photo_url ||
+                            user?.user_metadata?.photoURL ||
+                            user?.user_metadata?.avatar ||
+                            user?.identities?.[0]?.identity_data?.picture ||
+                            user?.identities?.[0]?.identity_data?.avatar_url ||
+                            currentAvatar;
+                        if (!currentAvatar && user?.id && window.SupabaseAdapter.fetchWithFilters) {
+                            const dbProfile = await window.SupabaseAdapter.fetchWithFilters('users', {
+                                eq: [['id', user.id]],
+                                single: true,
+                                skipCache: true
+                            });
+                            currentAvatar = dbProfile?.avatar || dbProfile?.avatar_url || dbProfile?.picture || dbProfile?.photo_url || currentAvatar;
+                        }
+                    } catch (_) {}
+                }
+
+                if (window.renderAvatar) {
+                    renderAvatar(currentName, currentAvatar, 'userAvatarImg', 'userAvatarPlaceholder');
+                }
+            };
+
+            refreshCustomerSidebarAvatar();
+            window.addEventListener('profileUpdated', refreshCustomerSidebarAvatar);
+            window.addEventListener('profileUpdated', () => {
+                const updatedProfile = ProfileManager.getProfile();
+                renderCustomerProfileAvatarPreview(
+                    updatedProfile.name || localStorage.getItem('newketUserName') || displayName,
+                    updatedProfile.avatar || localStorage.getItem('newketUserAvatar') || ''
+                );
+            });
 
             // Status badge (after stats load)
             setTimeout(() => {
@@ -769,7 +879,7 @@
             };
             ProfileManager.saveProfile(profile);
             document.getElementById('userDisplayName').textContent = name || 'Mon Compte';
-            renderAvatar(name);
+            renderAvatar(name, profile.avatar || localStorage.getItem('newketUserAvatar'), 'userAvatarImg', 'userAvatarPlaceholder');
             showToast('Profil mis à jour avec succès !', 'success');
         });
 
@@ -852,14 +962,24 @@
 
         function renderCustomerDashboardStats() {
             const email = localStorage.getItem('newketUserEmail');
-            if (!email) return;
-
-            const stats = OrderManager.getCustomerStats(email);
-
             const spentEl = document.getElementById('customer-total-spent');
             const countEl = document.getElementById('customer-order-count');
             const avgEl = document.getElementById('customer-avg-order');
             const pointsEl = document.getElementById('customer-newket-points');
+            const feed = document.getElementById('customer-activity-feed');
+
+            if (!email) {
+                if (spentEl) spentEl.textContent = '0';
+                if (countEl) countEl.textContent = '0';
+                if (avgEl) avgEl.textContent = 'Aujourd\'hui';
+                if (pointsEl) pointsEl.textContent = '0 PTS';
+                if (feed) {
+                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activité pour le moment.</p>';
+                }
+                return;
+            }
+
+            const stats = OrderManager.getCustomerStats(email);
 
             if (spentEl) spentEl.textContent = CurrencyManager.formatPrice(stats.totalSpent);
             if (countEl) countEl.textContent = stats.totalOrders;
@@ -867,7 +987,6 @@
             if (pointsEl) pointsEl.textContent = stats.newketPoints + ' PTS';
 
             // Render Activity Feed
-            const feed = document.getElementById('customer-activity-feed');
             if (feed) {
                 const activities = ActivityManager.getRecentActivity(4);
                 if (activities.length === 0) {
@@ -1428,6 +1547,8 @@
             </div>
         </div>
     </div>
+
+    <input type="file" id="customerAvatarUploadInput" accept="image/png,image/jpeg,image/webp,image/jpg" class="hidden">
 </body>
 
 </html>

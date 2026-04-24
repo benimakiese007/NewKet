@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paiement Confirmé à NewKet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#111827">
+    <title>Paiement confirme | NewKet</title>
+    <meta name="description" content="Confirmation de paiement NewKet. Retrouvez votre reference de transaction et accedez a vos commandes en toute securite.">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="/src/services/app.js" type="module"></script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .glass-premium {
@@ -17,78 +25,72 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        .animate-check {
-            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-        }
-        @keyframes stroke {
-            100% { stroke-dashoffset: 0; }
-        }
         .hero-gradient {
             background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6 sm:p-8">
-    
+<body class="min-h-screen bg-[#f8fafc] text-gray-900 antialiased">
+    <div id="header-placeholder"></div>
     <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-green-50 via-transparent to-transparent opacity-70"></div>
 
-    <div class="w-full max-w-xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <div class="glass-premium rounded-[3rem] p-8 sm:p-12 text-center shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] relative overflow-hidden">
-            
-            <!-- Success Icon -->
-            <div class="relative w-24 h-24 mx-auto mb-8">
-                <div class="absolute inset-0 bg-emerald-500/10 rounded-full animate-ping duration-[2000ms]"></div>
-                <div class="relative w-full h-full bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
-                    <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
-                </div>
-            </div>
-
-            <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 mb-4">Paiement Confirmé !</h1>
-            <p class="text-gray-500 font-medium mb-12 text-lg leading-relaxed">
-                Merci pour votre confiance. Votre commande est désormais sécurisée et le vendeur a été immédiatement alerté.
-            </p>
-
-            <!-- Order Card -->
-            <div class="bg-gray-50/50 rounded-3xl p-6 mb-12 border border-gray-100/50 text-left space-y-4">
-                <div class="flex items-center justify-between border-b border-gray-100 pb-4">
-                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Référence Transaction</span>
-                    <span id="txRef" class="font-mono text-sm font-bold text-gray-900">...</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-black text-gray-400 uppercase tracking-widest">Statut</span>
-                    <div class="flex items-center gap-2 text-emerald-600 font-black text-xs uppercase tracking-widest">
-                        <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        Succès
+    <main class="flex min-h-[70vh] items-center justify-center px-4 py-10 sm:px-6 sm:py-16">
+        <div class="w-full max-w-xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <div class="glass-premium relative overflow-hidden rounded-[3rem] p-8 text-center shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] sm:p-12">
+                <div class="relative mx-auto mb-8 h-24 w-24">
+                    <div class="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping duration-[2000ms]"></div>
+                    <div class="relative flex h-full w-full items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl shadow-emerald-500/20">
+                        <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
                     </div>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('')" class="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-white border border-gray-200 text-gray-900 font-black text-sm uppercase tracking-widest hover:bg-gray-50 active:scale-[0.98] transition-all shadow-sm">
-                    <iconify-icon icon="solar:home-2-linear" width="20"></iconify-icon>
-                    Accueil
-                </a>
-                <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/customer-dashboard')" class="flex items-center justify-center gap-3 px-8 py-5 rounded-2xl hero-gradient text-white font-black text-sm uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-black/20">
-                    Mes Commandes
-                    <iconify-icon icon="solar:alt-arrow-right-linear" width="20"></iconify-icon>
-                </a>
-            </div>
+                <h1 class="mb-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Paiement confirme !</h1>
+                <p class="mb-12 text-lg font-medium leading-relaxed text-gray-500">
+                    Merci pour votre confiance. Votre commande est maintenant securisee et le vendeur a ete alerte.
+                </p>
 
-            <p class="mt-12 text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">
-                Sécurisé par Flutterwave & NewKet Escrow
-            </p>
+                <div class="mb-12 space-y-4 rounded-3xl border border-gray-100/50 bg-gray-50/50 p-6 text-left">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                        <span class="text-xs font-black uppercase tracking-widest text-gray-400">Reference transaction</span>
+                        <span id="txRef" class="font-mono text-sm font-bold text-gray-900">...</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black uppercase tracking-widest text-gray-400">Statut</span>
+                        <div class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-600">
+                            <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            Succes
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <a href="/index.html" class="flex items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white px-8 py-5 text-sm font-black uppercase tracking-widest text-gray-900 shadow-sm transition-all hover:bg-gray-50 active:scale-[0.98]">
+                        <iconify-icon icon="solar:home-2-linear" width="20"></iconify-icon>
+                        Accueil
+                    </a>
+                    <a href="/src/pages/customer-dashboard.html" class="hero-gradient flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-sm font-black uppercase tracking-widest text-white shadow-2xl shadow-black/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                        Mes commandes
+                        <iconify-icon icon="solar:alt-arrow-right-linear" width="20"></iconify-icon>
+                    </a>
+                </div>
+
+                <p class="mt-12 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                    Securise par Flutterwave et NewKet Escrow
+                </p>
+            </div>
         </div>
-    </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const tx_ref = urlParams.get('tx_ref') || urlParams.get('transaction_id') || 'NK-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-            
-            const txRefEl = document.getElementById('txRef');
-            if (txRefEl) txRefEl.textContent = tx_ref;
+            const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || 'NK-' + Math.random().toString(36).slice(2, 11).toUpperCase();
 
-            // Celebrate!
+            const txRefEl = document.getElementById('txRef');
+            if (txRefEl) txRefEl.textContent = txRef;
+
             const count = 200;
             const defaults = {
                 origin: { y: 0.7 },
@@ -112,4 +114,3 @@
     </script>
 </body>
 </html>
-

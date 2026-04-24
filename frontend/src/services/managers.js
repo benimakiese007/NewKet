@@ -78,22 +78,24 @@ const PromoManager = {
 
         this._fetchPromise = (async () => {
             try {
-                const data = await window.ApiClient.get('/promos');
-        if (data && data.length > 0) {
-            const promoMap = {};
-            data.forEach(p => {
-                promoMap[p.code] = {
-                    type: p.type,
-                    value: p.value,
-                    maxUses: p.max_uses,
-                    expiryDate: p.expiry_date,
-                    currentUses: p.current_uses,
-                    usedBy: p.used_by || []
-                };
-            });
-            this.promos = promoMap;
-        }
-            localStorage.setItem('newket_promos_sync_time', now.toString());
+                const data = await window.ApiClient.get('/promos', { suppressNetworkError: true });
+                if (!data) return;
+
+                if (data && data.length > 0) {
+                    const promoMap = {};
+                    data.forEach(p => {
+                        promoMap[p.code] = {
+                            type: p.type,
+                            value: p.value,
+                            maxUses: p.max_uses,
+                            expiryDate: p.expiry_date,
+                            currentUses: p.current_uses,
+                            usedBy: p.used_by || []
+                        };
+                    });
+                    this.promos = promoMap;
+                }
+                localStorage.setItem('newket_promos_sync_time', now.toString());
         } catch (e) {
             console.error('[PromoManager] Init error:', e);
         }
@@ -160,7 +162,8 @@ const ActivityManager = {
 
         this._fetchPromise = (async () => {
             try {
-                const data = await window.ApiClient.get('/activities');
+                const data = await window.ApiClient.get('/activities', { suppressNetworkError: true });
+                if (!data) return;
                 if (Array.isArray(data)) {
                     this.activities = data;
                 }
@@ -227,7 +230,11 @@ const NotificationManager = {
 
         this._fetchPromise = (async () => {
             try {
-                const data = await window.ApiClient.get('/notifications');
+                const data = await window.ApiClient.get('/notifications', { suppressNetworkError: true });
+                if (!data) {
+                    this.notifications = [];
+                    return;
+                }
                 this.notifications = Array.isArray(data) ? data : [];
                 localStorage.setItem('newket_notifications_sync_time', now.toString());
             } catch (e) {
@@ -327,7 +334,8 @@ const ReviewManager = {
     async init() {
         if (!window.ApiClient) return;
         try {
-            const data = await window.ApiClient.get('/reviews');
+            const data = await window.ApiClient.get('/reviews', { suppressNetworkError: true });
+            if (!data) return;
             this.reviews = Array.isArray(data) ? data : [];
             window.dispatchEvent(new CustomEvent('reviewsUpdated'));
         } catch (e) {
@@ -357,7 +365,8 @@ const SupportManager = {
     async init() {
         if (!window.ApiClient) return;
         try {
-            const data = await window.ApiClient.get('/support');
+            const data = await window.ApiClient.get('/support', { suppressNetworkError: true });
+            if (!data) return;
             this.tickets = Array.isArray(data) ? data : [];
             window.dispatchEvent(new CustomEvent('ticketsUpdated'));
         } catch (e) {

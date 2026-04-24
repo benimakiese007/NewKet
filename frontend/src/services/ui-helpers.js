@@ -1289,16 +1289,34 @@ function renderAvatar(name, url, imgId, placeholderId) {
     // If we have a simple display element (like in Customer dashboard or Mini-profile)
     const simpleDisplay = document.getElementById('userAvatarDisplay');
     if (simpleDisplay) {
-        simpleDisplay.textContent = getInitials(name);
-        simpleDisplay.style.background = getAvatarColor(name);
-        // If it contains an image inside it, handle it too
         const innerImg = simpleDisplay.querySelector('img');
-        if (innerImg && url && url !== 'null' && url !== 'undefined' && url !== '') {
-            innerImg.src = url;
-            innerImg.classList.remove('hidden');
-            innerImg.onerror = () => innerImg.classList.add('hidden');
-        } else if (innerImg) {
-            innerImg.classList.add('hidden');
+        const innerPlaceholder = simpleDisplay.querySelector('span');
+        const initials = getInitials(name);
+        const hasDedicatedAvatar = Boolean(innerImg && innerPlaceholder);
+        const isValidUrl = url && url !== 'null' && url !== 'undefined' && url !== '' && typeof url === 'string';
+
+        // Keep the customer dashboard avatar visually aligned with the index header:
+        // neutral circular badge instead of role-colored backgrounds.
+        simpleDisplay.style.background = 'rgba(15, 23, 42, 0.92)';
+        simpleDisplay.style.color = '#fff';
+
+        if (hasDedicatedAvatar) {
+            innerPlaceholder.textContent = initials;
+
+            if (isValidUrl) {
+                innerImg.src = url;
+                innerImg.classList.remove('hidden');
+                innerPlaceholder.classList.add('hidden');
+                innerImg.onerror = () => {
+                    innerImg.classList.add('hidden');
+                    innerPlaceholder.classList.remove('hidden');
+                };
+            } else {
+                innerImg.classList.add('hidden');
+                innerPlaceholder.classList.remove('hidden');
+            }
+        } else {
+            simpleDisplay.textContent = initials;
         }
     }
 }
@@ -1309,6 +1327,7 @@ function renderAvatar(name, url, imgId, placeholderId) {
  * et sauvegarde la préférence dans le localStorage.
  */
 const ThemeManager = {
+    _boundToggleHandler: false,
     getPageThemeDefault() {
         return document.documentElement.dataset.themeDefault || document.body?.dataset.themeDefault || 'system';
     },
@@ -1343,6 +1362,8 @@ const ThemeManager = {
         } else {
             this.updateUI();
         }
+
+        this.bindToggleEvents();
     },
     
     toggle() {
@@ -1359,10 +1380,32 @@ const ThemeManager = {
             if (icon) {
                 icon.setAttribute('icon', isDark ? 'solar:sun-bold' : 'solar:moon-bold');
             }
+
+            const textLabel = btn.querySelector('[data-theme-label], .theme-toggle-text');
+            if (textLabel) {
+                textLabel.textContent = isDark ? 'Mode clair' : 'Mode sombre';
+            }
+
+            const toggleTitle = isDark ? 'Passer en mode clair' : 'Passer en mode sombre';
+            btn.setAttribute('title', toggleTitle);
+            btn.setAttribute('aria-label', toggleTitle);
         });
         // Aussi mettre à jour les icônes standalone avec data-theme-icon
         document.querySelectorAll('[data-theme-icon]').forEach(icon => {
             icon.setAttribute('icon', isDark ? 'solar:sun-bold' : 'solar:moon-bold');
+        });
+    },
+
+    bindToggleEvents() {
+        if (this._boundToggleHandler) return;
+        this._boundToggleHandler = true;
+
+        document.addEventListener('click', (event) => {
+            const toggle = event.target.closest('[data-theme-toggle]');
+            if (!toggle) return;
+
+            event.preventDefault();
+            this.toggle();
         });
     },
 

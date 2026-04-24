@@ -26,6 +26,8 @@ const AdminLayout = {
 
         // 5. Update Profile Info
         this.updateAdminProfile();
+        window.addEventListener('profileUpdated', () => this.updateAdminProfile());
+        window.addEventListener('componentsLoaded', () => this.updateAdminProfile());
 
     },
 
@@ -39,14 +41,14 @@ const AdminLayout = {
             // If newketInitialized has already fired and we STILL have no role, redirect.
             if (window.newketInitialized) {
                 console.error('[NewKet] No role found after initialization.');
-                window.location.href = window.resolvePath('login');
+                window.location.href = this.resolveAppPath('login');
             }
             return;
         }
 
         if (role !== 'admin') {
             console.error('[NewKet] Unauthorized access to Admin CMS. Role:', role);
-            window.location.href = window.resolvePath('login');
+            window.location.href = this.resolveAppPath('login');
         }
     },
 
@@ -77,13 +79,29 @@ const AdminLayout = {
         return adjusted;
     },
 
+    resolveAppPath(path) {
+        if (typeof window.resolvePath === 'function') {
+            return window.resolvePath(path);
+        }
+
+        if (!path) return '/';
+        if (path === 'login') return '/src/pages/login.html';
+
+        if (path.startsWith('admin/')) {
+            const adminPath = path.replace(/^admin\//, '');
+            return this.getAdjustedPath(adminPath);
+        }
+
+        return path.startsWith('/') ? path : `/${path}`;
+    },
+
     renderNavbar() {
         const navbarPlaceholder = document.getElementById('adminNavbarPlaceholder');
         if (!navbarPlaceholder || navbarPlaceholder.dataset.rendered === 'true') return;
 
         navbarPlaceholder.innerHTML = `
-            <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
-                <div class="max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[144px] relative">
+            <nav class="dashboard-topbar fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
+                <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
                     <div class="flex items-center gap-6">
                         <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
@@ -93,7 +111,7 @@ const AdminLayout = {
                     <!-- Center Logo -->
                     <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <a href="/" class="flex items-center justify-center group">
-                            <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-12 sm:h-[7.5rem] w-auto object-contain">
+                            <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain">
                         </a>
                     </div>
 
@@ -146,6 +164,17 @@ const AdminLayout = {
             return;
         }
 
+        if (typeof window.resolvePath !== 'function') {
+            window.resolvePath = (path) => {
+                if (!path) return '/';
+                if (path === 'login') return '/src/pages/login.html';
+                if (path.startsWith('admin/')) {
+                    return this.getAdjustedPath(path.replace(/^admin\//, ''));
+                }
+                return path.startsWith('/') ? path : `/${path}`;
+            };
+        }
+
         const links = [
             { href: window.resolvePath('admin/index'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
             { href: window.resolvePath('admin/user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
@@ -163,15 +192,15 @@ const AdminLayout = {
 
         let sidebarHTML = `
             <div id="adminOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
-            <aside id="adminSidebar" class="fixed inset-y-0 left-0 w-72 bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-r border-gray-100 flex-shrink-0">
+            <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
-                <div class="p-6 lg:px-4 lg:py-8 lg:sticky lg:top-[64px]">
+                <div class="min-h-screen p-6 pt-24 lg:min-h-0 lg:px-4 lg:py-8 lg:sticky lg:top-[64px]">
                     <!-- Admin Profile Header -->
                     <div class="px-4 mb-6 hidden lg:block">
                         <div class="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
-                            <div class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center font-bold shadow-sm border border-white/20 overflow-hidden">
+                            <div class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center font-black text-[11px] uppercase tracking-widest shadow-sm border border-white/15 overflow-hidden shrink-0">
                                 <img id="adminAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
-                                <span id="adminAvatarPlaceholder" class="text-xs">A</span>
+                                <span id="adminAvatarPlaceholder">A</span>
                             </div>
                             <div class="flex flex-col min-w-0">
                                 <span id="adminDisplayName" class="text-sm font-bold text-gray-900 truncate">Admin</span>
@@ -183,7 +212,7 @@ const AdminLayout = {
                         </div>
                     </div>
 
-                    <div class="md:glass-panel p-6 md:px-6 md:py-4">
+                    <div class="md:glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
                         <nav class="space-y-1">
         `;
 
@@ -227,10 +256,36 @@ const AdminLayout = {
         // Overlay clicks are now handled globally by SidebarManager
     },
 
-    updateAdminProfile() {
+    async updateAdminProfile() {
         const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
         const name = profile.name || localStorage.getItem('newketUserName') || 'Admin';
-        const avatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar');
+        let avatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar');
+
+        if (!avatarUrl && window.SupabaseAdapter?.getClient) {
+            try {
+                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                avatarUrl =
+                    user?.user_metadata?.avatar_url ||
+                    user?.user_metadata?.avatarUrl ||
+                    user?.user_metadata?.picture ||
+                    user?.user_metadata?.picture_url ||
+                    user?.user_metadata?.photo_url ||
+                    user?.user_metadata?.photoURL ||
+                    user?.user_metadata?.avatar ||
+                    user?.identities?.[0]?.identity_data?.picture ||
+                    user?.identities?.[0]?.identity_data?.avatar_url ||
+                    avatarUrl;
+
+                if (!avatarUrl && user?.id && window.SupabaseAdapter.fetchWithFilters) {
+                    const dbProfile = await window.SupabaseAdapter.fetchWithFilters('users', {
+                        eq: [['id', user.id]],
+                        single: true,
+                        skipCache: true
+                    });
+                    avatarUrl = dbProfile?.avatar || dbProfile?.avatar_url || dbProfile?.picture || dbProfile?.photo_url || avatarUrl;
+                }
+            } catch (_) {}
+        }
 
         const nameEl = document.getElementById('adminDisplayName');
         if (nameEl) nameEl.textContent = name;
@@ -264,14 +319,24 @@ function _adminRenderLayout() {
 
 function _adminCheckAuth() {
     AdminLayout.checkAccess();
+    AdminLayout.updateAdminProfile();
     // Init SidebarManager after auth is ready (SidebarManager is guaranteed available at this point)
     if (window.SidebarManager) {
         window.SidebarManager.init('adminSidebar', 'admin-content', 'adminOverlay');
     }
 }
 
+function _hasAdminLayoutPlaceholders() {
+    return Boolean(
+        document.getElementById('adminNavbarPlaceholder') &&
+        document.getElementById('adminSidebarPlaceholder')
+    );
+}
+
 // Passe 1 : rendu immédiat
-if (document.readyState === 'loading') {
+if (_hasAdminLayoutPlaceholders()) {
+    _adminRenderLayout();
+} else if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', _adminRenderLayout);
 } else {
     _adminRenderLayout();

@@ -948,8 +948,111 @@ body.search-focused .main-header {
   pointer-events: none;
 }
 
-/* Mobile Search Hide on Scroll Extension */
-@media (max-width: 639px) {
+.header-topbar {
+  overflow: hidden;
+  max-height: 40px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: max-height 0.28s ease, opacity 0.22s ease, transform 0.28s ease;
+}
+
+.main-header {
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  transform: none;
+  will-change: transform, box-shadow, background-color;
+}
+
+.main-header.scrolled .header-topbar {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  border-bottom-width: 0;
+}
+
+.main-header.header-retracted {
+  transform: translateY(calc(-1 * var(--header-height, 0px) + 5rem));
+}
+
+body.search-focused .main-header {
+  transform: none !important;
+}
+
+.header-content {
+  min-height: 72px;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.header-search-row {
+  min-width: 0;
+}
+
+.header-actions a,
+.header-actions button,
+#mobileMenuBtn,
+#accountLinkMobile,
+#closeMobileMenu {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.header-actions a,
+.header-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-user-initials {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #111827;
+  color: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+html.dark .nav-user-initials {
+  background: #f8fafc;
+  color: #111827;
+  border-color: rgba(248, 250, 252, 0.12);
+}
+
+body.mobile-menu-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+#mobileMenu {
+  width: min(92vw, 340px);
+  max-width: 340px;
+  will-change: transform;
+}
+
+#mobileOverlay {
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+.header-quick-links a,
+#mobileMenu nav a,
+#mobileMenu nav button,
+#mobileMenu [data-action="logout"] {
+  min-height: 48px;
+  touch-action: manipulation;
+}
+
+/* Search Row Hide on Scroll when the header wraps to two rows */
+@media (max-width: 1023px) {
     #mobileSearchContainer {
         transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         max-height: 100px;
@@ -3357,10 +3460,10 @@ body.sidebar-resizing {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85); /* Strong darkening like Amazon */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 1000; /* Between header items and search container */
+  background: rgba(15, 23, 42, 0.22);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9000;
   opacity: 0;
   pointer-events: none;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -9091,4 +9194,65 @@ html.dark .admin-header {
 html.dark .admin-sidebar {
     background-color: #0f172a !important;
     border-color: #1e293b !important;
+}
+
+/* ---- Dark Mode Atmosphere ---- */
+html.dark body {
+    background:
+        radial-gradient(circle at top, rgba(30, 41, 59, 0.45), transparent 36%),
+        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08), transparent 28%),
+        linear-gradient(180deg, #030712 0%, #0a0f1a 38%, #020617 100%) !important;
+    background-attachment: fixed !important;
+}
+
+html.dark .main-header,
+html.dark #categoryNav,
+html.dark .search-bar,
+html.dark .search-suggestions,
+html.dark #searchCategoryMenu,
+html.dark .product-card,
+html.dark .card,
+html.dark .product-info,
+html.dark .glass-panel,
+html.dark .glass-card,
+html.dark .skeleton-card,
+html.dark section > div[class*="bg-white"],
+html.dark section > div[class*="bg-gray-50"],
+html.dark section > div[class*="bg-slate-50"] {
+    background: rgba(15, 23, 42, 0.72) !important;
+    border-color: rgba(148, 163, 184, 0.14) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+    box-shadow: 0 20px 60px rgba(2, 6, 23, 0.42) !important;
+}
+
+html.dark section,
+html.dark #recently-viewed-section {
+    background: rgba(9, 14, 28, 0.78) !important;
+}
+
+html.dark .product-card:hover,
+html.dark .card:hover,
+html.dark .glass-panel:hover,
+html.dark .glass-card:hover {
+    background: rgba(15, 23, 42, 0.82) !important;
+    box-shadow: 0 24px 72px rgba(2, 6, 23, 0.55) !important;
+}
+
+html.dark .search-overlay {
+    background: rgba(2, 6, 23, 0.28) !important;
+    -webkit-backdrop-filter: blur(5px) saturate(1.02);
+    backdrop-filter: blur(5px) saturate(1.02);
+}
+
+/* ---- Search Focus Layering Fix ---- */
+body.search-focused .main-header {
+    z-index: 8990 !important;
+}
+
+body.search-focused #mobileSearchContainer,
+body.search-focused .search-suggestions,
+body.search-focused .search-suggestions.active,
+body.search-focused #searchCategoryMenu {
+    z-index: 10010 !important;
 }

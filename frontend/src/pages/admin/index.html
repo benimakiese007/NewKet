@@ -34,8 +34,9 @@
 
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="max-w-[1800px] mx-auto px-4 sm:px-8 pt-[100px] pb-12 flex flex-col lg:flex-row gap-6">
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 pb-12 flex flex-col lg:flex-row gap-6">
         <div id="adminSidebarPlaceholder"></div>
+        <script src="/src/services/admin-layout.js"></script>
 
         <!-- Main Content -->
         <main class="flex-1 min-w-0 space-y-8">
@@ -270,7 +271,6 @@
         </main>
     </div>
 
-    <script type="module" src="/src/services/admin-layout.js"></script>
     <script>
         let currentTimeframe = 'all';
         const currentCharts = {};
@@ -765,7 +765,6 @@
             });
         }
     </script>
-    <div id="mobile-nav-placeholder"></div>
 </body>
 
 </html>

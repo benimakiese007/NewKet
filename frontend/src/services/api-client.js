@@ -11,6 +11,12 @@ const API_BASE_URL = import.meta.env.VITE_API_URL
             : '/api')
     );
 
+function isNetworkFailure(error) {
+    const message = error?.message || '';
+    return error instanceof TypeError
+        || /Failed to fetch|NetworkError|ERR_CONNECTION_REFUSED|Load failed/i.test(message);
+}
+
 /**
  * Fetch wrapper for connecting to the Express Backend.
  * Automatically injects the Supabase user session token into the 'Authorization' header.
@@ -67,6 +73,10 @@ export const ApiClient = {
 
             return data;
         } catch (error) {
+            if (options.suppressNetworkError && isNetworkFailure(error)) {
+                return null;
+            }
+
             console.error(`[ApiClient] Error on ${endpoint}:`, error);
             // Capturer toutes les erreurs d'API (délai, 500, etc) avec le contexte
             captureError(error, { endpoint, method: options.method || 'GET' });
