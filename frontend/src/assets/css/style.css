@@ -556,7 +556,7 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
   position: relative;
   display: flex !important;
   align-items: center;
-  background: var(--bg-light);
+  background: #ffffff;
   border: 1.5px solid var(--border-color);
   border-radius: 16px !important;
   overflow: visible !important;
@@ -599,6 +599,7 @@ body.search-focused .main-header {
   gap: 6px;
   padding: 0 16px;
   height: 100%;
+  background: #ffffff;
   border-right: 1.5px solid var(--border-color);
   color: var(--text-dark);
   font-size: 11px;
@@ -678,7 +679,7 @@ html.ios-native-category #searchCategoryBtn {
 }
 
 .search-input::placeholder {
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .search-bar .search-icon {
@@ -789,7 +790,7 @@ html.ios-native-category #searchCategoryBtn {
   position: relative;
   display: flex !important;
   align-items: center;
-  background: var(--bg-light);
+  background: #ffffff;
   border: 1.5px solid var(--border-color);
   border-radius: 16px !important;
   overflow: visible !important;
@@ -832,6 +833,7 @@ body.search-focused .main-header {
   gap: 6px;
   padding: 0 16px;
   height: 100%;
+  background: #ffffff;
   border-right: 1.5px solid var(--border-color);
   color: var(--text-dark);
   font-size: 11px;
@@ -873,7 +875,7 @@ body.search-focused .main-header {
 }
 
 .search-input::placeholder {
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .search-bar .search-icon {
@@ -957,8 +959,8 @@ body.search-focused .main-header {
 }
 
 .main-header {
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   transform: none;
   will-change: transform, box-shadow, background-color;
 }
@@ -3467,6 +3469,11 @@ body.sidebar-resizing {
   opacity: 0;
   pointer-events: none;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#selectedCategoryName {
+  color: #0f172a;
+  opacity: 1;
 }
 
 .search-overlay.active {
@@ -9110,13 +9117,32 @@ html.dark [class*="modal"] .border-gray-100 {
 
 /* ---- Search Suggestions ---- */
 html.dark .search-suggestions {
-    background-color: #1e293b !important;
+    background-color: #0f172a !important;
     border-color: #334155 !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
 }
 
 html.dark .search-suggestions a:hover,
 html.dark .search-suggestions .suggestion-item:hover {
     background-color: #334155 !important;
+}
+
+html.dark #searchCategoryMenu {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: 0 20px 48px rgba(2, 6, 23, 0.5) !important;
+}
+
+html.dark #searchCategoryMenu .category-option {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+html.dark #searchCategoryMenu .category-option:hover {
+    background: #1e293b !important;
 }
 
 /* ---- Dashboard Stat Icon Containers ---- */
@@ -9207,9 +9233,6 @@ html.dark body {
 
 html.dark .main-header,
 html.dark #categoryNav,
-html.dark .search-bar,
-html.dark .search-suggestions,
-html.dark #searchCategoryMenu,
 html.dark .product-card,
 html.dark .card,
 html.dark .product-info,
@@ -9241,13 +9264,13 @@ html.dark .glass-card:hover {
 
 html.dark .search-overlay {
     background: rgba(2, 6, 23, 0.28) !important;
-    -webkit-backdrop-filter: blur(5px) saturate(1.02);
-    backdrop-filter: blur(5px) saturate(1.02);
+    -webkit-backdrop-filter: blur(5px) saturate(1.02) !important;
+    backdrop-filter: blur(5px) saturate(1.02) !important;
 }
 
 /* ---- Search Focus Layering Fix ---- */
 body.search-focused .main-header {
-    z-index: 8990 !important;
+    z-index: 10000 !important;
 }
 
 body.search-focused #mobileSearchContainer,
@@ -9255,4 +9278,13 @@ body.search-focused .search-suggestions,
 body.search-focused .search-suggestions.active,
 body.search-focused #searchCategoryMenu {
     z-index: 10010 !important;
+}
+
+html.dark .search-suggestions,
+html.dark #searchCategoryMenu {
+    background: #0f172a !important;
+    background-color: #0f172a !important;
+    opacity: 1 !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
 }

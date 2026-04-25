@@ -46,7 +46,7 @@ export const addNotification = async (req, res) => {
         if (!userEmail) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
         if (!title || !message) return res.status(400).json({ error: 'Titre et message requis.' });
 
-        const isBroadcast = type === 'broadcast';
+        const isBroadcast = type === 'broadcast' || String(type || '').startsWith('broadcast:');
         const mappedTargetRole = isBroadcast ? 'all' : (target || 'all');
 
         const insertPayload = {
@@ -195,4 +195,3 @@ export const clearNotifications = async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la suppression groupée.', details: err.message });
     }
 };
-

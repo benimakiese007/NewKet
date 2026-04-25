@@ -179,7 +179,10 @@
             if (currentFilter === 'unread') {
                 filteredNotifications = allNotifications.filter(n => !n.read);
             } else if (currentFilter === 'alerts') {
-                filteredNotifications = allNotifications.filter(n => n.type === 'error' || n.type === 'warning');
+                filteredNotifications = allNotifications.filter(n => {
+                    const type = window.normalizeNotificationType ? window.normalizeNotificationType(n.type) : n.type;
+                    return type === 'error' || type === 'danger' || type === 'warning';
+                });
             }
 
             unreadText.textContent = `Vous avez ${unreadCount} notification${unreadCount > 1 ? 's' : ''} non lue${unreadCount > 1 ? 's' : ''}`;
@@ -204,19 +207,20 @@
             } else {
                 empty.classList.add('hidden');
                 list.innerHTML = filteredNotifications.map((n, index) => {
+                    const type = window.normalizeNotificationType ? window.normalizeNotificationType(n.type) : n.type;
                     let icon = 'solar:bell-linear';
                     let iconColor = 'text-gray-900 bg-gray-100';
 
-                    if (n.type === 'success') {
+                    if (type === 'success') {
                         icon = 'solar:check-circle-bold';
                         iconColor = 'text-green-600 bg-green-50';
-                    } else if (n.type === 'error') {
+                    } else if (type === 'error' || type === 'danger') {
                         icon = 'solar:danger-circle-bold';
                         iconColor = 'text-red-600 bg-red-50';
-                    } else if (n.type === 'warning') {
+                    } else if (type === 'warning') {
                         icon = 'solar:bell-bing-bold';
                         iconColor = 'text-orange-600 bg-orange-50';
-                    } else if (n.type === 'info') {
+                    } else if (type === 'info') {
                         icon = 'solar:info-circle-bold';
                         iconColor = 'text-blue-600 bg-blue-50';
                     }

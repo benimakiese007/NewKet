@@ -17,6 +17,18 @@ function showToast(message, type = 'info', title = null, iconOverride = null) {
     }
 }
 
+function normalizeNotificationType(rawType) {
+    if (!rawType) return 'info';
+    if (rawType === 'broadcast') return 'info';
+    if (rawType.startsWith('broadcast:')) return rawType.split(':')[1] || 'info';
+    if (rawType === 'error') return 'danger';
+    return rawType;
+}
+
+function isPopupNotification(rawType) {
+    return rawType === 'broadcast' || String(rawType || '').startsWith('broadcast:');
+}
+
 async function _processToastQueue() {
     if (_toastQueue.length === 0) {
         _isShowingToast = false;
@@ -41,7 +53,7 @@ async function _processToastQueue() {
             ${safeTitle ? `<div class="nk-toast-title">${safeTitle}</div>` : ''}
             <div class="nk-toast-content">${safeMsg}</div>
         </div>
-        <button class="nk-toast-close" aria-label="Fermer">&times;</button>
+        <button type="button" class="nk-toast-close" aria-label="Fermer">&times;</button>
     `;
 
     container.appendChild(toast);
@@ -49,20 +61,30 @@ async function _processToastQueue() {
     // Manual Close
     const closeBtn = toast.querySelector('.nk-toast-close');
     let autoCloseTimer;
+    let isDismissing = false;
+    let isDismissed = false;
 
     const dismiss = () => {
+        if (isDismissing) return;
+        isDismissing = true;
         clearTimeout(autoCloseTimer);
         toast.classList.add('exit');
-        toast.addEventListener('animationend', () => {
+
+        const finalizeDismiss = () => {
+            if (isDismissed) return;
+            isDismissed = true;
             toast.remove();
             _processToastQueue();
-        }, { once: true });
+        };
+
+        toast.addEventListener('animationend', finalizeDismiss, { once: true });
+        window.setTimeout(finalizeDismiss, 450);
     };
 
-    closeBtn.onclick = (e) => {
+    closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         dismiss();
-    };
+    });
 
     // Swipe to dismiss (Mobile - SWIPE UP)
     let touchStartY = 0;
@@ -102,6 +124,7 @@ async function _processToastQueue() {
     }, { passive: true });
 
     // Auto close after 3s
+    autoCloseTimer = window.setTimeout(dismiss, 3000);
 }
 
 function createToastContainer() {
@@ -1419,6 +1442,8 @@ const ThemeManager = {
 ThemeManager.init();
 
 window.showToast = showToast;
+window.normalizeNotificationType = normalizeNotificationType;
+window.isPopupNotification = isPopupNotification;
 window.debounce = debounce;
 window.buildProductCardHTML = buildProductCardHTML;
 window.buildSkeletonCardHTML = buildSkeletonCardHTML;

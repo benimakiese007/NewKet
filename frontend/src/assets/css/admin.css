@@ -23,6 +23,26 @@ body {
     padding-top: var(--admin-navbar-offset);
 }
 
+@media (min-width: 768px) {
+    .admin-shell {
+        flex-direction: row !important;
+        align-items: flex-start;
+    }
+
+    #adminSidebar {
+        position: static !important;
+        transform: none !important;
+        height: auto !important;
+        width: 18rem !important;
+        z-index: auto !important;
+    }
+
+    #adminMobileMenuBtn,
+    #adminOverlay {
+        display: none !important;
+    }
+}
+
 .dashboard-topbar {
     overflow: visible;
 }

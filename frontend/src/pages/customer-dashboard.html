@@ -934,12 +934,13 @@
                 `;
             } else {
                 list.innerHTML = notifications.map(n => {
+                    const type = window.normalizeNotificationType ? window.normalizeNotificationType(n.type) : n.type;
                     let icon = 'solar:bell-linear';
                     let iconColor = 'bg-gray-50 text-gray-400';
-                    if (n.type === 'success') { icon = 'solar:check-circle-bold'; iconColor = 'bg-green-50 text-green-500'; }
-                    else if (n.type === 'error') { icon = 'solar:danger-circle-bold'; iconColor = 'bg-red-50 text-red-500'; }
-                    else if (n.type === 'warning') { icon = 'solar:bell-bing-bold'; iconColor = 'bg-orange-50 text-orange-500'; }
-                    else if (n.type === 'info') { icon = 'solar:info-circle-bold'; iconColor = 'bg-blue-50 text-blue-500'; }
+                    if (type === 'success') { icon = 'solar:check-circle-bold'; iconColor = 'bg-green-50 text-green-500'; }
+                    else if (type === 'error' || type === 'danger') { icon = 'solar:danger-circle-bold'; iconColor = 'bg-red-50 text-red-500'; }
+                    else if (type === 'warning') { icon = 'solar:bell-bing-bold'; iconColor = 'bg-orange-50 text-orange-500'; }
+                    else if (type === 'info') { icon = 'solar:info-circle-bold'; iconColor = 'bg-blue-50 text-blue-500'; }
 
                     return `
                         <div class="glass-panel p-4 flex gap-4 items-center ${!n.read ? 'bg-black/[0.02] border-black/10' : ''} cursor-pointer hover:border-black/20 transition-all" onclick="NotificationManager.markAsRead('${n.id}'); renderDashboardNotifications();">

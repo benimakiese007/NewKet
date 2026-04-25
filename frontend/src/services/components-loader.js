@@ -310,10 +310,20 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                 <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
                     L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
                 </p>
+                <div class="space-y-2 text-sm text-gray-400">
+                    <a href="tel:+243990924254" class="flex items-center gap-2 hover:text-white transition-colors">
+                        <iconify-icon icon="solar:phone-calling-linear" width="18"></iconify-icon>
+                        <span>+243990924254</span>
+                    </a>
+                    <a href="mailto:benimakiese1234@gmail.com" class="flex items-center gap-2 hover:text-white transition-colors break-all">
+                        <iconify-icon icon="solar:letter-linear" width="18"></iconify-icon>
+                        <span>benimakiese1234@gmail.com</span>
+                    </a>
+                </div>
                 <div class="flex items-center gap-4">
-                    <a href="https://www.instagram.com/newket.shop" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur Instagram" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:instagram" width="20"></iconify-icon></a>
-                    <a href="https://www.facebook.com/newket.shop" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur Facebook" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:facebook" width="20"></iconify-icon></a>
-                    <a href="https://www.x.com/newket_shop" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur X" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon></a>
+                    <a href="https://www.instagram.com/benimakiese007" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur Instagram" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:instagram" width="20"></iconify-icon></a>
+                    <a href="https://www.facebook.com/benimakiese1234@gmail.com" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur Facebook" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:facebook" width="20"></iconify-icon></a>
+                    <a href="https://x.com/lephoenixman" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur X" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon></a>
                 </div>
             </div>
             <div class="lg:col-span-2 space-y-6">

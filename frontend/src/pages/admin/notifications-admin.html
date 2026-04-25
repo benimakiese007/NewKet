@@ -280,7 +280,8 @@
         function sendNotification() {
             const title = document.getElementById('notifTitle').value.trim();
             const message = document.getElementById('notifMessage').value.trim();
-            const type = document.getElementById('broadcastToggle').checked ? 'broadcast' : document.getElementById('notifType').value;
+            const baseType = document.getElementById('notifType').value;
+            const type = document.getElementById('broadcastToggle').checked ? `broadcast:${baseType}` : baseType;
             const target = document.getElementById('notifTarget').value;
 
             if (!title || !message) {
@@ -312,16 +313,31 @@
             if (window.ActivityManager) ActivityManager.log(`Notification envoyée : "${title}"`, 'system');
         }
 
+        function getDisplayType(type) {
+            if (window.normalizeNotificationType) return window.normalizeNotificationType(type);
+            if (!type) return 'info';
+            if (type === 'broadcast') return 'info';
+            return type.startsWith('broadcast:') ? (type.split(':')[1] || 'info') : type;
+        }
+
+        function isPopupType(type) {
+            if (window.isPopupNotification) return window.isPopupNotification(type);
+            return type === 'broadcast' || String(type || '').startsWith('broadcast:');
+        }
+
         function getTypeBadge(type) {
+            const displayType = getDisplayType(type);
             const badges = {
                 'info': '<span class="badge badge-info">Info</span>',
                 'success': '<span class="badge badge-success">Succès</span>',
                 'warning': '<span class="badge badge-warning">Avertiss.</span>',
                 'danger': '<span class="badge badge-danger">Alerte</span>',
-                'promo': '<span class="badge badge-promo">Promo</span>',
-                'broadcast': '<span class="badge" style="background:#312e81;color:white;">Broadcast</span>'
+                'promo': '<span class="badge badge-promo">Promo</span>'
             };
-            return badges[type] || '<span class="badge badge-info">Info</span>';
+            const popupBadge = isPopupType(type)
+                ? '<span class="badge" style="background:#312e81;color:white;">Pop-up</span>'
+                : '';
+            return (badges[displayType] || '<span class="badge badge-info">Info</span>') + popupBadge;
         }
 
         function getTargetLabel(target) {
@@ -346,7 +362,7 @@
                 }
             });
 
-            if (filterType !== 'all') notifs = notifs.filter(n => n.type === filterType);
+            if (filterType !== 'all') notifs = notifs.filter(n => getDisplayType(n.type) === filterType);
 
             if (notifs.length === 0) {
                 list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucune notification trouvée.</div>`;
@@ -388,8 +404,8 @@
             let notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
             document.getElementById('statTotal').textContent = notifs.length;
             document.getElementById('statUnread').textContent = notifs.filter(n => !n.read).length;
-            document.getElementById('statPromos').textContent = notifs.filter(n => n.type === 'promo').length;
-            document.getElementById('statAlerts').textContent = notifs.filter(n => n.type === 'danger').length;
+            document.getElementById('statPromos').textContent = notifs.filter(n => getDisplayType(n.type) === 'promo').length;
+            document.getElementById('statAlerts').textContent = notifs.filter(n => getDisplayType(n.type) === 'danger').length;
         }
 
         async function deleteNotification(id) {

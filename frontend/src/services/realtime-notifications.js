@@ -86,6 +86,12 @@ const AppNotifications = {
                         }, payload => {
                             const notif = payload.new;
                             const role = localStorage.getItem('newketRole') === 'supplier' ? 'suppliers' : 'customers';
+                            const resolvedType = typeof window.normalizeNotificationType === 'function'
+                                ? window.normalizeNotificationType(notif.type)
+                                : (notif.type === 'broadcast' ? 'info' : notif.type);
+                            const shouldOpenPopup = typeof window.isPopupNotification === 'function'
+                                ? window.isPopupNotification(notif.type)
+                                : notif.type === 'broadcast';
                             
                             const isForMe = notif.target_role === 'all' || 
                                             notif.target_role === role || 
@@ -94,14 +100,14 @@ const AppNotifications = {
 
                             if (isForMe) {
                                 // If type is broadcast → premium modal popup
-                                if (notif.type === 'broadcast') {
+                                if (shouldOpenPopup) {
                                     if (window.showAnnouncementModal) {
-                                        window.showAnnouncementModal(notif.title, notif.message, 'info', true);
+                                        window.showAnnouncementModal(notif.title, notif.message, resolvedType, true);
                                     } else {
-                                        this.showToast(notif.title, notif.message, 'info', 'solar:bell-bold');
+                                        this.showToast(notif.title, notif.message, resolvedType, 'solar:bell-bold');
                                     }
                                 } else {
-                                    this.showToast(notif.title, notif.message, notif.type || 'info', 'solar:bell-bold');
+                                    this.showToast(notif.title, notif.message, resolvedType || 'info', 'solar:bell-bold');
                                 }
 
                                 // Refresh NotificationManager to update badge count
