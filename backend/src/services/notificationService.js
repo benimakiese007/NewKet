@@ -124,8 +124,8 @@ const NotificationService = {
                     <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
                         <h2 style="color: #000;">Votre commande est en route !</h2>
                         <p>Bonjour <b>${customerName}</b>,</p>
-                        <p>Le paiement de votre commande <b>#${order.transaction_id}</b> a été sécurisé sur notre compte séquestre (Escrow).</p>
-                        <p>Le vendeur a été notifié et prépare votre livraison.</p>
+                        <p>Le paiement de votre commande <b>#${order.transaction_id}</b> est sécurisé sur notre compte séquestre (escrow).</p>
+                        <p>Le vendeur a été notifié et peut démarrer la livraison.</p>
                         
                         <div style="background: #fff8eb; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; border: 2px dashed #f59e0b;">
                             <p style="margin: 0; color: #b45309; font-size: 14px;">CODE DE LIVRAISON SÉCURISÉ (OTP)</p>
@@ -135,8 +135,9 @@ const NotificationService = {
                         <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin: 20px 0; color: #991b1b; font-size: 14px;">
                             <strong>⚠️ ATTENTION TRÈS IMPORTANT :</strong>
                             <ul style="margin-top: 5px; padding-left: 20px;">
-                                <li>Ne donnez ce code au livreur <b>QU'APRÈS avoir reçu et vérifié</b> votre produit.</li>
-                                <li>Donner ce code libère l'argent au vendeur.</li>
+                                <li>Ne donnez ce code au vendeur ou à son livreur <b>qu'après avoir reçu et vérifié</b> votre produit.</li>
+                                <li>Ce code valide la livraison et déclenche le suivi post-livraison.</li>
+                                <li>Les fonds restent en séquestre jusqu'à votre confirmation ou la fin du délai prévu.</li>
                                 <li>Si le produit n'est pas conforme, <b>ne donnez pas le code</b> et ouvrez un litige sur la plateforme.</li>
                             </ul>
                         </div>

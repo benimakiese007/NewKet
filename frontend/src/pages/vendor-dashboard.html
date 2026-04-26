@@ -3,7 +3,7 @@
 
 <head>
     <script>
-        (function(){var t=localStorage.getItem('newket_theme');var s=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||((!t)&&s)){document.documentElement.classList.add('dark')}})();
+        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
     </script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
@@ -1078,17 +1078,19 @@
                         case 'PENDING': return 'bg-amber-50 text-amber-600';
                         case 'PROCESSING': return 'bg-yellow-50 text-yellow-600';
                         case 'PAID_HELD': return 'bg-purple-50 text-purple-600';
-                        case 'SHIPPED': return 'bg-blue-50 text-blue-600';
-                        case 'DELIVERED': return 'bg-teal-50 text-teal-600';
-                        case 'RELEASED': 
-                        case 'COMPLETED': return 'bg-green-50 text-green-600';
-                        case 'CANCELLED': return 'bg-gray-100 text-gray-500';
-                        case 'REFUNDED': return 'bg-orange-50 text-orange-600';
-                        case 'DISPUTED': return 'bg-orange-50 text-orange-600';
-                        case 'FROZEN': return 'bg-red-50 text-red-600';
-                        default: return 'bg-gray-50 text-gray-400';
-                    }
-                }
+                          case 'IN_DELIVERY':
+                          case 'SHIPPED': return 'bg-blue-50 text-blue-600';
+                          case 'DELIVERED': return 'bg-teal-50 text-teal-600';
+                          case 'RELEASED': 
+                          case 'COMPLETED': return 'bg-green-50 text-green-600';
+                          case 'CANCELLED': return 'bg-gray-100 text-gray-500';
+                          case 'REFUNDED': return 'bg-orange-50 text-orange-600';
+                          case 'DISPUTE_OPEN':
+                          case 'DISPUTED': return 'bg-orange-50 text-orange-600';
+                          case 'FROZEN': return 'bg-red-50 text-red-600';
+                          default: return 'bg-gray-50 text-gray-400';
+                      }
+                  }
 
                 function getPaymentStatusStyle(status) {
                     switch (status?.toUpperCase()) {
@@ -1371,12 +1373,12 @@
                         otpSection.classList.remove('hidden');
                         document.getElementById('vOtpInput').value = '';
                         currentOrderIdForOtp = order.id;
-                    } else if (order.status === 'DISPUTED') {
-                        actions.classList.remove('hidden');
-                        disputedSection.classList.remove('hidden');
-                        window.currentDisputeOrderIdForVendor = order.id;
-                        window.loadVendorDisputeChat(order.id);
-                    }
+                      } else if (order.status === 'DISPUTE_OPEN' || order.status === 'DISPUTED' || order.status === 'FROZEN') {
+                          actions.classList.remove('hidden');
+                          disputedSection.classList.remove('hidden');
+                          window.currentDisputeOrderIdForVendor = order.id;
+                          window.loadVendorDisputeChat(order.id);
+                      }
                     
                     document.getElementById('orderDetailModal').classList.remove('hidden');
                 };

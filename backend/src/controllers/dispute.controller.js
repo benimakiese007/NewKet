@@ -1,103 +1,120 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import EmailService from '../services/emailService.js';
+import {
+    ORDER_STATUSES,
+    ESCROW_EVENT_TYPES,
+    ESCROW_STATUSES,
+    createEscrowEvent,
+    getOrderCustomerId,
+    getOrderVendorId,
+    logOrderStatusHistory,
+    releaseOrderEscrow,
+    mapLegacyOrderStatus
+} from '../services/order-workflow.js';
 
 export const createDispute = async (req, res) => {
     try {
         const { order_id, reason_category, description, proof_urls } = req.body;
-        const customer_id = req.user.id;
+        const customerId = req.user.id;
 
-        // Validation basique
         if (!order_id || !reason_category || !description) {
-            return res.status(400).json({ success: false, message: 'Veuillez fournir order_id, reason_category, et description.' });
+            return res.status(400).json({ success: false, message: 'Veuillez fournir order_id, reason_category et description.' });
         }
 
-        // Vérification des preuves: min 1 vidéo ou 2 photos
-        if (!proof_urls || !Array.isArray(proof_urls)) {
-            return res.status(400).json({ success: false, message: 'Vous devez fournir des preuves (2 photos ou 1 vidéo).' });
-        }
-        
-        let validProofs = false;
-        
-        // SÉCURITÉ assouplie : Rejeter uniquement si vide, ou si ce ne sont pas du tout des URLs basiques
-        const validUrls = proof_urls.filter(url => url.startsWith('http://') || url.startsWith('https://'));
-
-        if (validUrls.length >= 1) {
-            validProofs = true;
+        if (!Array.isArray(proof_urls) || proof_urls.length === 0) {
+            return res.status(400).json({ success: false, message: 'Vous devez fournir au moins une preuve.' });
         }
 
-        if (!validProofs) {
-            return res.status(400).json({ success: false, message: 'Preuves insuffisantes: veuillez fournir au moins 1 lien valide (commençant par http(s)://).' });
+        const validUrls = proof_urls.filter((url) => typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://')));
+        if (validUrls.length === 0) {
+            return res.status(400).json({ success: false, message: 'Les preuves doivent être des URLs http(s) valides.' });
         }
 
-        // Fetch Order info
         const { data: order, error: orderError } = await supabaseAdmin
             .from('orders')
-            .select('id, store_id, status')
+            .select('*')
             .eq('id', order_id)
-            .eq('customer_id', customer_id)
             .single();
 
-        if (orderError || !order) {
+        if (orderError || !order || getOrderCustomerId(order) !== customerId) {
             return res.status(404).json({ success: false, message: 'Commande introuvable ou accès refusé.' });
         }
 
-        // Seules les commandes PAID_HELD ou DELIVERED ou SHIPPED peuvent être disputées
-        const allowedStatuses = ['PAID_HELD', 'DELIVERED', 'SHIPPED'];
-        if (!allowedStatuses.includes(order.status)) {
-            return res.status(400).json({ success: false, message: 'Vous ne pouvez pas ouvrir de litige pour une commande avec le statut : ' + order.status });
+        const allowedStatuses = [ORDER_STATUSES.PAID_HELD, ORDER_STATUSES.IN_DELIVERY, ORDER_STATUSES.DELIVERED];
+        const normalizedStatus = mapLegacyOrderStatus(order.status);
+        if (!allowedStatuses.includes(normalizedStatus)) {
+            return res.status(400).json({ success: false, message: `Vous ne pouvez pas ouvrir de litige depuis le statut ${normalizedStatus}.` });
         }
 
-        // Créer l'entrée dispute
         const { data: dispute, error: disputeError } = await supabaseAdmin
             .from('disputes')
             .insert({
                 order_id: order.id,
-                customer_id: customer_id,
-                vendor_id: order.store_id, // assuming store_id maps to vendor_id
+                customer_id: customerId,
+                vendor_id: getOrderVendorId(order),
                 reason_category,
                 description,
-                proof_urls,
-                status: 'OPEN'
+                proof_urls: validUrls,
+                status: 'OPEN',
+                order_status_snapshot: normalizedStatus,
+                escrow_frozen_at: new Date().toISOString()
             })
             .select()
             .single();
 
         if (disputeError) {
-            console.error('Erreur Supabase création litige:', disputeError);
+            console.error('Dispute creation failed:', disputeError);
             return res.status(500).json({ success: false, message: 'Erreur lors de la création du litige.' });
         }
 
-        // Mettre à jour la commande en FROZEN
+        // Litige ouvert -> état de commande dédié, et escrow gelé (statut d'escrow séparé)
         await supabaseAdmin
             .from('orders')
-            .update({ status: 'FROZEN' })
+            .update({
+                status: ORDER_STATUSES.DISPUTE_OPEN,
+                escrow_status: ESCROW_STATUSES.FROZEN,
+                updated_at: new Date().toISOString()
+            })
             .eq('id', order.id);
 
-        // Envoi d'Alerte Email
+        await createEscrowEvent(supabaseAdmin, {
+            orderId: order.id,
+            eventType: ESCROW_EVENT_TYPES.FROZEN,
+            amount: order.total_amount,
+            metadata: { dispute_id: dispute.id, reason_category },
+            processedAt: new Date().toISOString()
+        });
+
+        await logOrderStatusHistory(supabaseAdmin, {
+            orderId: order.id,
+            previousStatus: normalizedStatus,
+            newStatus: ORDER_STATUSES.DISPUTE_OPEN,
+            changedBy: req.user.id,
+            notes: 'Dispute opened'
+        });
+
         const adminEmail = process.env.ADMIN_EMAIL || process.env.GMAIL_USER;
         if (adminEmail) {
             try {
-                // Obtenir le nom du client si possible (optionnel)
-                const { data: customer } = await supabaseAdmin.from('users').select('name').eq('id', customer_id).single();
-                const cName = customer?.name || 'Un Client';
+                const { data: customer } = await supabaseAdmin.from('users').select('name').eq('id', customerId).single();
                 await EmailService.sendDisputeOpenedAlert({
                     adminEmail,
                     orderId: order.id,
-                    customerName: cName,
+                    customerName: customer?.name || 'Un client',
                     reason: reason_category
                 });
-            } catch (err) {
-                console.error('Erreur envoi email litige:', err.message);
+            } catch (emailError) {
+                console.error('Dispute email alert failed:', emailError.message);
             }
         }
 
         return res.status(201).json({
             success: true,
-            message: 'Litige ouvert avec succès, la commande a été gelée. L\'administrateur a été notifié.',
+            message: 'Litige ouvert avec succès. La commande a été gelée.',
             data: dispute
         });
     } catch (error) {
-        console.error('Erreur createDispute:', error);
+        console.error('createDispute error:', error);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
     }
 };
@@ -107,33 +124,32 @@ export const getDisputes = async (req, res) => {
         const userRole = req.user.role;
         const userId = req.user.id;
 
-        let query = supabaseAdmin.from('disputes').select(`
-            *,
-            orders!inner (
-                id,
-                total,
-                status
-            )
-        `).order('created_at', { ascending: false });
+        let query = supabaseAdmin
+            .from('disputes')
+            .select(`
+                *,
+                orders!inner (
+                    id,
+                    total,
+                    total_amount,
+                    status
+                )
+            `)
+            .order('created_at', { ascending: false });
 
         if (userRole !== 'admin') {
-            // Un client ou un vendeur ne voit que ses litiges
             query = query.or(`customer_id.eq.${userId},vendor_id.eq.${userId}`);
         }
 
-        const { data: disputes, error } = await query;
-
+        const { data, error } = await query;
         if (error) {
-            console.error('Supabase fetch disputes error:', error);
+            console.error('getDisputes error:', error);
             return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des litiges.' });
         }
 
-        return res.status(200).json({
-            success: true,
-            data: disputes
-        });
+        return res.status(200).json({ success: true, data });
     } catch (error) {
-        console.error('Erreur getDisputes:', error);
+        console.error('getDisputes error:', error);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
     }
 };
@@ -142,7 +158,7 @@ export const updateDispute = async (req, res) => {
     try {
         const { id } = req.params;
         const { description_update, new_proof_urls } = req.body;
-        const user_id = req.user.id; // Customer or Vendor
+        const userId = req.user.id;
 
         const { data: dispute, error: fetchError } = await supabaseAdmin
             .from('disputes')
@@ -154,7 +170,7 @@ export const updateDispute = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Litige introuvable.' });
         }
 
-        if (dispute.customer_id !== user_id && dispute.vendor_id !== user_id) {
+        if (dispute.customer_id !== userId && dispute.vendor_id !== userId) {
             return res.status(403).json({ success: false, message: 'Accès non autorisé.' });
         }
 
@@ -162,30 +178,29 @@ export const updateDispute = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Ce litige est déjà résolu.' });
         }
 
-        let updatedProofs = dispute.proof_urls || [];
-        if (new_proof_urls && Array.isArray(new_proof_urls)) {
-            updatedProofs = [...updatedProofs, ...new_proof_urls];
-        }
+        const extraProofs = Array.isArray(new_proof_urls) ? new_proof_urls.filter((url) => typeof url === 'string') : [];
+        const updatedProofs = [...(dispute.proof_urls || []), ...extraProofs];
+        const updatedDescription = description_update
+            ? `${dispute.description}\n\nMAJ: ${description_update}`
+            : dispute.description;
 
-        const updatedDesc = description_update ? dispute.description + '\n\nMAJ: ' + description_update : dispute.description;
-
-        const { data: updatedDispute, error: updateError } = await supabaseAdmin
+        const { data: updatedDispute, error } = await supabaseAdmin
             .from('disputes')
-            .update({ description: updatedDesc, proof_urls: updatedProofs })
+            .update({
+                description: updatedDescription,
+                proof_urls: updatedProofs
+            })
             .eq('id', id)
             .select()
             .single();
 
-        if (updateError) {
+        if (error) {
             return res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour.' });
         }
 
-        return res.status(200).json({
-            success: true,
-            data: updatedDispute
-        });
+        return res.status(200).json({ success: true, data: updatedDispute });
     } catch (error) {
-        console.error('Erreur updateDispute:', error);
+        console.error('updateDispute error:', error);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
     }
 };
@@ -194,22 +209,17 @@ export const resolveDispute = async (req, res) => {
     try {
         const { id } = req.params;
         const { resolution_decision, refund_amount, action_for_order } = req.body;
-        
-        // Ensure admin
+
         if (req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: 'Réservé aux administrateurs.' });
         }
 
-        // SÉCURITÉ : Whitelist des actions autorisées sur la commande après résolution
-        const ALLOWED_RESOLUTION_ACTIONS = ['REFUNDED', 'RELEASED', 'CANCELLED', 'PARTIAL_REFUND'];
-        if (action_for_order && !ALLOWED_RESOLUTION_ACTIONS.includes(action_for_order)) {
-            return res.status(400).json({ 
-                success: false, 
-                message: `Action invalide. Valeurs autorisées : ${ALLOWED_RESOLUTION_ACTIONS.join(', ')}`
-            });
+        const allowedActions = [ORDER_STATUSES.REFUNDED, ORDER_STATUSES.COMPLETED, ORDER_STATUSES.CANCELLED, 'PARTIAL_REFUND'];
+        if (action_for_order && !allowedActions.includes(action_for_order)) {
+            return res.status(400).json({ success: false, message: `Action invalide. Valeurs autorisées : ${allowedActions.join(', ')}` });
         }
-        
-        const { data: dispute, error: fetchError } = await supabaseAdmin
+
+        const { data: dispute, error: disputeError } = await supabaseAdmin
             .from('disputes')
             .update({
                 status: 'RESOLVED',
@@ -220,45 +230,59 @@ export const resolveDispute = async (req, res) => {
             .select()
             .single();
 
-        if (fetchError || !dispute) {
+        if (disputeError || !dispute) {
             return res.status(500).json({ success: false, message: 'Erreur lors de la résolution du litige.' });
         }
 
-        // Update the actual order based on admin decision
-        if (action_for_order) {
-            const { data: updatedOrderArray } = await supabaseAdmin
+        const { data: order } = await supabaseAdmin
+            .from('orders')
+            .select('*')
+            .eq('id', dispute.order_id)
+            .single();
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Commande liée introuvable.' });
+        }
+
+        const previousStatus = mapLegacyOrderStatus(order.status);
+
+        if (action_for_order === ORDER_STATUSES.COMPLETED) {
+            await releaseOrderEscrow({
+                client: supabaseAdmin,
+                order,
+                initiatedBy: req.user.id,
+                autoRelease: false,
+                force: true
+            });
+        } else if (action_for_order === ORDER_STATUSES.CANCELLED || action_for_order === ORDER_STATUSES.REFUNDED) {
+            await supabaseAdmin
                 .from('orders')
-                .update({ status: action_for_order })
-                .eq('id', dispute.order_id)
-                .select();
+                .update({
+                    status: action_for_order,
+                    escrow_status: action_for_order === ORDER_STATUSES.REFUNDED ? ESCROW_STATUSES.REFUNDED : order.escrow_status,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', dispute.order_id);
 
-            const updatedOrder = updatedOrderArray?.[0];
-
-            // ─── LOGIQUE DE REMISE EN STOCK ATOMIQUE ───
-            if (updatedOrder && (action_for_order === 'CANCELLED' || action_for_order === 'REFUNDED')) {
-                const items = updatedOrder.items || [];
-                for (const item of items) {
-                    if (item.product_id) {
-                        try {
-                            const { data: p } = await supabaseAdmin.from('products').select('stock').eq('id', item.product_id).single();
-                            if (p && p.stock !== undefined) {
-                                await supabaseAdmin.from('products').update({ stock: p.stock + (item.quantity || 1) }).eq('id', item.product_id);
-                                console.log(`[DisputeResolution] Stock restauré pour le produit ${item.product_id} (+${item.quantity || 1})`);
-                            }
-                        } catch(e) {
-                            console.error('[DisputeResolution] Erreur de restauration de stock:', e.message);
-                        }
-                    }
-                }
+            if (action_for_order === ORDER_STATUSES.REFUNDED) {
+                await createEscrowEvent(supabaseAdmin, {
+                    orderId: dispute.order_id,
+                    eventType: ESCROW_EVENT_TYPES.REFUNDED,
+                    amount: order.total_amount,
+                    metadata: { dispute_id: dispute.id, refund_amount: refund_amount || order.total_amount },
+                    processedAt: new Date().toISOString()
+                });
             }
+        }
 
-            // ─── LOG : Historique du changement de statut ───
-            supabaseAdmin.from('order_status_history').insert({
-                order_id: dispute.order_id,
-                previous_status: 'DISPUTED',
-                new_status: action_for_order,
-                changed_by: req.user.id
-            }).then(() => {}).catch(() => {});
+        if (action_for_order && action_for_order !== 'PARTIAL_REFUND') {
+            await logOrderStatusHistory(supabaseAdmin, {
+                orderId: dispute.order_id,
+                previousStatus,
+                newStatus: action_for_order,
+                changedBy: req.user.id,
+                notes: 'Dispute resolved'
+            });
         }
 
         return res.status(200).json({
@@ -267,45 +291,46 @@ export const resolveDispute = async (req, res) => {
             data: dispute
         });
     } catch (error) {
-        console.error('Erreur resolveDispute:', error);
+        console.error('resolveDispute error:', error);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
     }
 };
 
-/**
- * MESSAGERIE DE LITIGE
- */
 export const addDisputeMessage = async (req, res) => {
     try {
-        const { id } = req.params; // dispute id
+        const { id } = req.params;
         const { message } = req.body;
-        const user_id = req.user.id;
-        const role = req.user.role; // 'admin', 'vendor', or 'customer'
+        const userId = req.user.id;
+        const role = req.user.role;
 
         if (!message || message.trim() === '') {
             return res.status(400).json({ success: false, message: 'Message vide.' });
         }
 
-        // Vérifier l'accès
-        const { data: dispute, error: fetchErr } = await supabaseAdmin.from('disputes').select('*').eq('id', id).single();
-        if (fetchErr || !dispute) return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+        const { data: dispute, error: fetchError } = await supabaseAdmin.from('disputes').select('*').eq('id', id).single();
+        if (fetchError || !dispute) {
+            return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+        }
 
-        if (role !== 'admin' && dispute.customer_id !== user_id && dispute.vendor_id !== user_id) {
+        if (role !== 'admin' && dispute.customer_id !== userId && dispute.vendor_id !== userId) {
             return res.status(403).json({ success: false, message: 'Accès non autorisé à ce litige.' });
         }
 
-        const { data: msgInfo, error: msgErr } = await supabaseAdmin.from('dispute_messages').insert({
-            dispute_id: id,
-            sender_id: user_id,
-            sender_role: role,
-            message: message.trim()
-        }).select().single();
+        const { data, error } = await supabaseAdmin
+            .from('dispute_messages')
+            .insert({
+                dispute_id: id,
+                sender_id: userId,
+                sender_role: role,
+                message: message.trim()
+            })
+            .select()
+            .single();
 
-        if (msgErr) throw msgErr;
-
-        return res.status(201).json({ success: true, data: msgInfo });
+        if (error) throw error;
+        return res.status(201).json({ success: true, data });
     } catch (error) {
-        console.error('Erreur addDisputeMessage:', error);
+        console.error('addDisputeMessage error:', error);
         return res.status(500).json({ success: false, message: 'Erreur lors de l\'envoi du message.' });
     }
 };
@@ -313,46 +338,43 @@ export const addDisputeMessage = async (req, res) => {
 export const getDisputeMessages = async (req, res) => {
     try {
         const { id } = req.params;
-        const user_id = req.user.id;
+        const userId = req.user.id;
         const role = req.user.role;
-
-        const { data: dispute, error: fetchErr } = await supabaseAdmin.from('disputes').select('*').eq('id', id).single();
-        if (fetchErr || !dispute) return res.status(404).json({ success: false, message: 'Litige introuvable.' });
-
-        if (role !== 'admin' && dispute.customer_id !== user_id && dispute.vendor_id !== user_id) {
-            return res.status(403).json({ success: false, message: 'Accès non autorisé.' });
-        }
-
-        // Récupérer les messages (et un peu d'info sur l'utilisateur si possible)
-        const { data: messages, error: err } = await supabaseAdmin.from('dispute_messages')
-            .select('*, users (name, avatar_url)')
-            .eq('dispute_id', id)
-            .order('created_at', { ascending: true });
-
-        if (err) throw err;
-
-        return res.status(200).json({ success: true, data: messages || [] });
-    } catch (error) {
-        console.error('Erreur getDisputeMessages:', error);
-        return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des messages.' });
-    }
-};
-
-/**
- * AUTO-RÉSOLUTION PAR LE VENDEUR (Amiable)
- */
-export const vendorResolveAmiable = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const user_id = req.user.id;
 
         const { data: dispute, error: fetchError } = await supabaseAdmin.from('disputes').select('*').eq('id', id).single();
         if (fetchError || !dispute) {
             return res.status(404).json({ success: false, message: 'Litige introuvable.' });
         }
 
-        // Seul le vendeur concerné peut faire ça
-        if (dispute.vendor_id !== user_id && req.user.role !== 'vendor') {
+        if (role !== 'admin' && dispute.customer_id !== userId && dispute.vendor_id !== userId) {
+            return res.status(403).json({ success: false, message: 'Accès non autorisé.' });
+        }
+
+        const { data, error } = await supabaseAdmin
+            .from('dispute_messages')
+            .select('*, users (name, avatar_url)')
+            .eq('dispute_id', id)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        return res.status(200).json({ success: true, data: data || [] });
+    } catch (error) {
+        console.error('getDisputeMessages error:', error);
+        return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des messages.' });
+    }
+};
+
+export const vendorResolveAmiable = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const { data: dispute, error: fetchError } = await supabaseAdmin.from('disputes').select('*').eq('id', id).single();
+        if (fetchError || !dispute) {
+            return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+        }
+
+        if (dispute.vendor_id !== userId) {
             return res.status(403).json({ success: false, message: 'Action réservée au vendeur de cette commande.' });
         }
 
@@ -360,45 +382,44 @@ export const vendorResolveAmiable = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Litige déjà résolu.' });
         }
 
-        // Mise à jour du litige
-        await supabaseAdmin.from('disputes').update({
-            status: 'RESOLVED',
-            resolution_decision: 'Auto-résolution (Amiable - Remboursé par le vendeur)'
-        }).eq('id', id);
+        await supabaseAdmin
+            .from('disputes')
+            .update({
+                status: 'RESOLVED',
+                resolution_decision: 'Auto-résolution vendeur'
+            })
+            .eq('id', id);
 
-        // Mise à jour de la commande vers REFUNDED
-        const { data: orderArr } = await supabaseAdmin.from('orders').update({ status: 'REFUNDED' }).eq('id', dispute.order_id).select();
-        const updatedOrder = orderArr?.[0];
+        await supabaseAdmin
+            .from('orders')
+            .update({
+                status: ORDER_STATUSES.REFUNDED,
+                escrow_status: ESCROW_STATUSES.REFUNDED,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', dispute.order_id);
 
-        // Restauration de stock (idem que résolution admin)
-        if (updatedOrder) {
-            const items = updatedOrder.items || [];
-            for (const item of items) {
-                if (item.product_id) {
-                    try {
-                        const { data: p } = await supabaseAdmin.from('products').select('stock').eq('id', item.product_id).single();
-                        if (p && p.stock !== undefined) {
-                            await supabaseAdmin.from('products').update({ stock: p.stock + (item.quantity || 1) }).eq('id', item.product_id);
-                        }
-                    } catch(e) {}
-                }
-            }
-            // Historique
-            await supabaseAdmin.from('order_status_history').insert({
-                order_id: dispute.order_id,
-                previous_status: 'DISPUTED',
-                new_status: 'REFUNDED',
-                changed_by: user_id,
-                notes: 'Amiable via vendeur'
-            }).catch(()=>{});
-        }
+        await createEscrowEvent(supabaseAdmin, {
+            orderId: dispute.order_id,
+            eventType: ESCROW_EVENT_TYPES.REFUNDED,
+            metadata: { dispute_id: id, by: 'vendor' },
+            processedAt: new Date().toISOString()
+        });
+
+        await logOrderStatusHistory(supabaseAdmin, {
+            orderId: dispute.order_id,
+            previousStatus: ORDER_STATUSES.DISPUTE_OPEN,
+            newStatus: ORDER_STATUSES.REFUNDED,
+            changedBy: userId,
+            notes: 'Vendor amicable resolution'
+        });
 
         return res.status(200).json({
             success: true,
-            message: 'Vous avez accepté le litige et remboursé le client à l\'amiable.'
+            message: 'Vous avez accepté le litige et remboursé le client.'
         });
-    } catch (err) {
-        console.error('Erreur vendorResolveAmiable:', err);
+    } catch (error) {
+        console.error('vendorResolveAmiable error:', error);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
     }
 };

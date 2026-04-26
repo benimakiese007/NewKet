@@ -9,7 +9,7 @@
     </script>
     <script type="module" src="/src/services/admin-config.js" defer></script>
     <script>
-        (function(){var t=localStorage.getItem('newket_theme');var s=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||((!t)&&s)){document.documentElement.classList.add('dark')}})();
+        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
     </script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">

@@ -3882,6 +3882,13 @@ html.dark .product-card:hover {
 
 /* Dark mode toggle button */
 
+/* Theme UI is temporarily disabled until fully optimized. */
+[data-theme-toggle],
+[data-theme-toggle-mobile],
+.theme-toggle {
+  display: none !important;
+}
+
 [data-theme-toggle] {
   transition: background 0.2s ease, transform 0.15s ease;
 }

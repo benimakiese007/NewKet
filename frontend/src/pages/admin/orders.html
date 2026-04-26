@@ -18,7 +18,7 @@
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <script>
-        (function(){var t=localStorage.getItem('newket_theme');var s=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||((!t)&&s)){document.documentElement.classList.add('dark')}})();
+        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
     </script>
     
     <script type="module" src="/src/services/app.js"></script>
@@ -48,8 +48,8 @@
                         <option value="">Tous les statuts</option>
                         <option value="PAID_HELD">Paiement Séquestre</option>
                         <option value="DELIVERED">Livré (Attente confirmation)</option>
-                        <option value="RELEASED">Conclu (Fonds libérés)</option>
-                        <option value="DISPUTED">En Litige</option>
+                        <option value="COMPLETED">Conclu (Fonds libérés)</option>
+                        <option value="DISPUTE_OPEN">Litige ouvert</option>
                         <option value="FROZEN">Gelé (Admin)</option>
                     </select>
                     <select id="filterPayment" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
@@ -155,8 +155,11 @@
 
             // Calculate & Update Stats
             const totalLeads = filteredOrders.length;
-            const pendingLeads = filteredOrders.filter(o => o.status === 'PENDING' || o.status === 'PROCESSING' || o.status === 'PAID_HELD').length;
-            const successLeads = filteredOrders.filter(o => o.status === 'DELIVERED' || o.status === 'RELEASED' || o.status === 'COMPLETED').length;
+            const pendingLeads = filteredOrders.filter(o =>
+                o.status === 'PENDING' || o.status === 'QUOTE' || o.status === 'READY_FOR_PAYMENT' ||
+                o.status === 'PROCESSING' || o.status === 'PAID_HELD' || o.status === 'IN_DELIVERY'
+            ).length;
+            const successLeads = filteredOrders.filter(o => o.status === 'DELIVERED' || o.status === 'COMPLETED').length;
             const totalFC = filteredOrders.reduce((sum, o) => sum + parseInt(o.total || 0), 0);
             
             document.getElementById('statLeadsTotal').textContent = totalLeads;
@@ -220,14 +223,16 @@
                                 <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>Attente</option>
                                 <option value="PAID_HELD" ${o.status === 'PAID_HELD' ? 'selected' : ''}>Séquestre</option>
                                 <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>Livré</option>
-                                <option value="RELEASED" ${o.status === 'RELEASED' ? 'selected' : ''}>Confirmé</option>
+                                <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>Conclu</option>
+                                <option value="RELEASED" ${o.status === 'RELEASED' ? 'selected' : ''}>Confirmé (legacy)</option>
                                 <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Annulé</option>
-                                <option value="DISPUTED" ${o.status === 'DISPUTED' ? 'selected' : ''}>Litige</option>
+                                <option value="DISPUTE_OPEN" ${o.status === 'DISPUTE_OPEN' ? 'selected' : ''}>Litige</option>
+                                <option value="DISPUTED" ${o.status === 'DISPUTED' ? 'selected' : ''}>Litige (legacy)</option>
                                 <option value="FROZEN" ${o.status === 'FROZEN' ? 'selected' : ''}>Gelé</option>
                             </select>
-                            ${o.status === 'DISPUTED' || o.status === 'FROZEN' ? `
-                                <button onclick="openAdminDisputeModal('${o.id}')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors">
-                                    Juger le Litige
+                            ${o.status === 'DISPUTE_OPEN' || o.status === 'DISPUTED' || o.status === 'FROZEN' ? `
+                                  <button onclick="openAdminDisputeModal('${o.id}')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors">
+                                      Juger le Litige
                                 </button>
                             ` : ''}
                         </div>
@@ -238,22 +243,26 @@
             if (window.CurrencyManager) CurrencyManager.updateAllPrices();
         }
 
-        function getStatusStyle(status) {
-            switch (status) {
-                case 'PENDING': return 'bg-yellow-50 text-yellow-600';
-                case 'PROCESSING': return 'bg-amber-50 text-amber-600';
-                case 'PAID_HELD': return 'bg-indigo-50 text-indigo-600';
-                case 'SHIPPED': return 'bg-cyan-50 text-cyan-600';
-                case 'DELIVERED': return 'bg-blue-50 text-blue-600';
-                case 'RELEASED': 
-                case 'COMPLETED': return 'bg-green-50 text-green-600';
-                case 'CANCELLED': return 'bg-gray-100 text-gray-500';
-                case 'REFUNDED': return 'bg-orange-50 text-orange-600';
-                case 'DISPUTED': return 'bg-red-50 text-red-600';
-                case 'FROZEN': return 'bg-black text-white';
-                default: return 'bg-gray-50 text-gray-500';
-            }
-        }
+          function getStatusStyle(status) {
+              switch (status) {
+                  case 'PENDING': return 'bg-yellow-50 text-yellow-600';
+                  case 'QUOTE': return 'bg-orange-50 text-orange-600';
+                  case 'READY_FOR_PAYMENT': return 'bg-yellow-50 text-yellow-700';
+                  case 'PROCESSING': return 'bg-amber-50 text-amber-600';
+                  case 'PAID_HELD': return 'bg-indigo-50 text-indigo-600';
+                  case 'IN_DELIVERY':
+                  case 'SHIPPED': return 'bg-cyan-50 text-cyan-600';
+                  case 'DELIVERED': return 'bg-blue-50 text-blue-600';
+                  case 'COMPLETED':
+                  case 'RELEASED': return 'bg-green-50 text-green-600';
+                  case 'CANCELLED': return 'bg-gray-100 text-gray-500';
+                  case 'REFUNDED': return 'bg-orange-50 text-orange-600';
+                  case 'DISPUTE_OPEN':
+                  case 'DISPUTED': return 'bg-red-50 text-red-600';
+                  case 'FROZEN': return 'bg-black text-white';
+                  default: return 'bg-gray-50 text-gray-500';
+              }
+          }
 
         function getPaymentStatusStyle(status) {
             switch (status?.toUpperCase()) {
@@ -406,7 +415,7 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Action sur la Commande</label>
                             <select id="adminResolutionAction" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50">
                                 <option value="REFUNDED">Rembourser (REFUNDED) - Argent restitué</option>
-                                <option value="RELEASED">Rejeter le litige (RELEASED) - Payer le vendeur</option>
+                                <option value="COMPLETED">Rejeter le litige (COMPLETED) - Payer le vendeur</option>
                                 <option value="CANCELLED">Annuler (CANCELLED) - Retour au stock</option>
                                 <option value="PARTIAL_REFUND">Remboursement Partiel (PARTIAL_REFUND)</option>
                             </select>

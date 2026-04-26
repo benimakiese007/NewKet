@@ -3,7 +3,7 @@
 
 <head>
     <script>
-        (function(){var t=localStorage.getItem('newket_theme');if(t==='dark'){document.documentElement.classList.add('dark')}})();
+        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
     </script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">

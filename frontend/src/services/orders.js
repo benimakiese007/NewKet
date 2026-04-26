@@ -13,8 +13,11 @@ const OrderManager = {
      */
     STATUS_LABELS: {
         'PENDING':    'En attente',
+        'QUOTE':      'Devis livraison',
+        'READY_FOR_PAYMENT': 'Prêt pour paiement',
         'PROCESSING': 'En cours',
         'SHIPPED':    'Expédié',
+        'IN_DELIVERY': 'En livraison',
         'DELIVERED':  'Livré',
         'CANCELLED':  'Annulé',
         'COMPLETED':  'Terminé',
@@ -22,6 +25,7 @@ const OrderManager = {
         'PAID_HELD':  'Séquestre',
         'RELEASED':   'Confirmé',
         'DISPUTED':   'En litige',
+        'DISPUTE_OPEN': 'Litige ouvert',
         'FROZEN':     'Gelé',
         // Legacy fallback pour les anciennes données en base
         'ANNULÉ':     'Annulé'
@@ -170,8 +174,8 @@ const OrderManager = {
             commissionPercent: 0,
             netGains: totalEstimatedValue,
             netRevenue: totalEstimatedValue,
-            pendingOrders: vendorOrders.filter(o => o.status === 'PENDING' || o.status === 'PROCESSING' || o.status === 'PAID_HELD').length,
-            deliveredOrders: vendorOrders.filter(o => o.status === 'DELIVERED' || o.status === 'RELEASED').length,
+            pendingOrders: vendorOrders.filter(o => ['PENDING', 'QUOTE', 'READY_FOR_PAYMENT', 'PROCESSING', 'PAID_HELD', 'IN_DELIVERY'].includes(o.status)).length,
+            deliveredOrders: vendorOrders.filter(o => ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(o.status)).length,
             topProducts: this._getTopProducts(vendorOrders),
             orders: vendorOrders,
             availableBalance: totalEstimatedValue,
@@ -279,7 +283,8 @@ const OrderManager = {
         // Update in backend API if possible
         if (window.ApiClient) {
             try {
-                await ApiClient.put(`/orders/${id}/status`, { status: newStatus });
+                const isAdmin = window.AuthManager?.role === 'admin';
+                await ApiClient.put(`/orders/${id}/status`, { status: newStatus, ...(isAdmin ? { force: true } : {}) });
             } catch (err) {
                 console.warn('[OrderManager] Could not update status in DB:', err.message);
             }
@@ -305,7 +310,7 @@ const OrderManager = {
     async validateDelivery(orderId, otpCode) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
-            const data = await ApiClient.post(`/orders/verify-delivery`, { order_id: orderId, otp_code: otpCode });
+            const data = await ApiClient.post(`/orders/${orderId}/verify-delivery`, { otp: otpCode });
             this._initialized = false; // Forcer la mise à jour des stats et listes
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
             return data;

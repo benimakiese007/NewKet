@@ -77,6 +77,7 @@ import reviewRoutes from './routes/review.routes.js';
 import supportRoutes from './routes/support.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import disputeRoutes from './routes/dispute.routes.js';
+import { releaseDueEscrowsJob } from './services/order-workflow.js';
 
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -125,5 +126,19 @@ app.listen(PORT, () => {
   console.log(`🚀 Serveur NewKet démarré sur http://localhost:${PORT}`);
   console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
 });
+
+const ESCROW_JOB_INTERVAL_MS = 15 * 60 * 1000;
+
+setTimeout(() => {
+  releaseDueEscrowsJob().catch((error) => {
+    console.error('[EscrowJob] Startup run failed:', error.message);
+  });
+}, 10000);
+
+setInterval(() => {
+  releaseDueEscrowsJob().catch((error) => {
+    console.error('[EscrowJob] Scheduled run failed:', error.message);
+  });
+}, ESCROW_JOB_INTERVAL_MS);
 
 export default app;

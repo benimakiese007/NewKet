@@ -1106,10 +1106,11 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
     };
 };
 
-/**
- * Initiates the checkout process via Flutterwave
- */
-window.initCheckout = async (productId, btnElement) => {
+  /**
+   * Initiates the order creation flow.
+   * Payment now happens only after the vendor sends a delivery quote and the client accepts it.
+   */
+  window.initCheckout = async (productId, btnElement) => {
     let originalHtml = '';
     try {
         originalHtml = btnElement.innerHTML;
@@ -1145,42 +1146,36 @@ window.initCheckout = async (productId, btnElement) => {
             }
         }
 
-        // Appeler le backend via ApiClient (injecte automatiquement le token JWT)
-        const data = await window.ApiClient.post('/payments/initiate', {
-            product_id: p.id,
-            vendor_id: p.user_id,
-            amount: p.price,
-            customer_phone: customerPhone,
-            customer_name: customerName,
-            customer_city: customerCity,
-            customer_email: customerEmail || 'client@newket.cd',
-            customer_lat: customerLat,
-            customer_lng: customerLng
-        });
-        
-        if (!data.success) {
-            showToast(data.error || "Erreur lors de l'initialisation du paiement", "error");
-            btnElement.innerHTML = originalHtml;
-            btnElement.disabled = false;
-            return;
-        }
+          const data = await window.ApiClient.post('/orders', {
+              product_id: p.id,
+              vendor_id: p.user_id,
+              quantity: 1,
+              customer_phone: customerPhone,
+              customer_name: customerName,
+              customer_city: customerCity,
+              customer_email: customerEmail || 'client@newket.cd',
+              customer_lat: customerLat,
+              customer_lng: customerLng
+          });
 
-        // Rediriger vers le lien de paiement Flutterwave généré par le backend
-        if (data.payment_url) {
-            window.location.href = data.payment_url;
-        } else {
-             showToast("Lien de paiement non reçu", "error");
-             btnElement.innerHTML = originalHtml;
-             btnElement.disabled = false;
-        }
+          if (!data.success) {
+              showToast(data.error || "Erreur lors de la création de la commande", "error");
+              btnElement.innerHTML = originalHtml;
+              btnElement.disabled = false;
+              return;
+          }
 
-    } catch (err) {
-        console.error('[NewKet] Checkout error:', err);
-        showToast("Erreur lors de l'ouverture du paiement.", "error");
-        btnElement.innerHTML = originalHtml;
-        btnElement.disabled = false;
-    }
-};
+          showToast("Commande créée. Le vendeur doit maintenant proposer le devis de livraison.", "success");
+          btnElement.innerHTML = originalHtml;
+          btnElement.disabled = false;
+
+      } catch (err) {
+          console.error('[NewKet] Checkout error:', err);
+        showToast("Erreur lors de la création de la commande.", "error");
+          btnElement.innerHTML = originalHtml;
+          btnElement.disabled = false;
+      }
+  };
 
 /**
  * ✅ LAZY LOADING via IntersectionObserver

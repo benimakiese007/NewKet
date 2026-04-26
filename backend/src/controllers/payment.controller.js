@@ -1,22 +1,15 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import NotificationService from '../services/notificationService.js';
 import crypto from 'crypto';
+import {
+    ORDER_STATUSES,
+    generateTransactionId,
+    getOrderCustomerId,
+    mapLegacyOrderStatus
+} from '../services/order-workflow.js';
 
-/**
- * Génère un ID de transaction unique NewKet
- */
-const generateTxId = () => {
-    return 'NK_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_' + Date.now();
-};
+const generateTxId = () => generateTransactionId();
 
-/**
- * Vérifie la signature du webhook Flutterwave.
- * Flutterwave envoie un header "verif-hash" qu'on compare
- * à notre secret configuré en variable d'environnement.
- * 
- * SÉCURITÉ : On utilise crypto.timingSafeEqual() pour une comparaison
- * en temps constant, résistante aux timing attacks.
- */
 const verifyFlutterwaveSignature = (req) => {
     const webhookSecret = process.env.FLW_WEBHOOK_SECRET;
     const incomingHash = req.headers['verif-hash'];
@@ -24,137 +17,105 @@ const verifyFlutterwaveSignature = (req) => {
     if (!webhookSecret || !incomingHash) return false;
 
     try {
-        // Les deux buffers doivent avoir la même taille pour timingSafeEqual
-        const secretBuf  = Buffer.from(webhookSecret,  'utf8');
+        const secretBuf = Buffer.from(webhookSecret, 'utf8');
         const incomingBuf = Buffer.from(incomingHash, 'utf8');
 
-        // Si les longueurs diffèrent, c'est forcément invalide.
-        // On compare quand même un buffer nul de la même taille pour maintenir
-        // le temps constant et ne pas révéler d'info via timing.
         if (secretBuf.length !== incomingBuf.length) {
             crypto.timingSafeEqual(secretBuf, Buffer.alloc(secretBuf.length));
             return false;
         }
 
         return crypto.timingSafeEqual(secretBuf, incomingBuf);
-    } catch (err) {
-        console.error('❌ Erreur vérification signature webhook:', err);
+    } catch (error) {
+        console.error('Flutterwave signature verification failed:', error);
         return false;
     }
 };
 
-
-/**
- * Vérifie un paiement auprès de l'API Flutterwave.
- * Retourne les données du paiement si valide, null sinon.
- */
 const verifyFlutterwavePayment = async (transactionId) => {
     try {
-        const response = await fetch(
-            `https://api.flutterwave.com/v3/transactions/${transactionId}/verify`,
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${process.env.FLW_SECRET_KEY}`,
-                    'Content-Type': 'application/json'
-                }
+        const response = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/verify`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
+                'Content-Type': 'application/json'
             }
-        );
+        });
+
         const data = await response.json();
         if (data.status === 'success' && data.data) {
             return data.data;
         }
         return null;
-    } catch (err) {
-        console.error('❌ Erreur vérification Flutterwave:', err);
+    } catch (error) {
+        console.error('Flutterwave payment verification failed:', error);
         return null;
     }
 };
 
-/**
- * Initialise un paiement Flutterwave et renvoie le payment_link au Frontend.
- * La commande est enregistrée en BD avec le statut "PENDING".
- */
 export const initiatePayment = async (req, res) => {
     try {
-        const { product_id, vendor_id, amount, quantity: reqQuantity, customer_phone, customer_name, customer_city, customer_email, customer_lat, customer_lng } = req.body;
-
-        if (!product_id || !vendor_id) {
-            return res.status(400).json({ error: 'Informations incomplètes pour le paiement' });
+        const { order_id } = req.body;
+        if (!order_id) {
+            return res.status(400).json({ error: 'order_id requis pour initier le paiement.' });
         }
 
-        // SÉCURITÉ : Validation de la quantité
-        const quantity = Math.max(1, Math.min(100, parseInt(reqQuantity) || 1));
-
         const client = supabaseAdmin || supabase;
-
-        // ─── SÉCURITÉ : Vérification du prix en base de données ────────────────
-        // Ne jamais faire confiance au 'amount' envoyé par le frontend.
-        const { data: product, error: prodError } = await client
-            .from('products')
-            .select('price, name, supplier_email, custom_exchange_rate')
-            .eq('id', product_id)
+        const { data: order, error: orderError } = await client
+            .from('orders')
+            .select('*')
+            .eq('id', order_id)
             .single();
 
-        if (prodError || !product) {
-            console.error('❌ Produit non trouvé pour paiement:', product_id);
+        if (orderError || !order) {
+            return res.status(404).json({ error: 'Commande introuvable' });
+        }
+
+        if (getOrderCustomerId(order) !== req.user?.id) {
+            return res.status(403).json({ error: 'Accès refusé à cette commande.' });
+        }
+
+        if (mapLegacyOrderStatus(order.status) !== ORDER_STATUSES.READY_FOR_PAYMENT) {
+            return res.status(400).json({ error: `Paiement impossible depuis le statut ${order.status}.` });
+        }
+
+        const firstItem = Array.isArray(order.items) ? order.items[0] : null;
+        if (!firstItem?.product_id) {
+            return res.status(400).json({ error: 'Commande invalide: produit introuvable.' });
+        }
+
+        const { data: product, error: productError } = await client
+            .from('products')
+            .select('price, name, custom_exchange_rate')
+            .eq('id', firstItem.product_id)
+            .single();
+
+        if (productError || !product) {
             return res.status(404).json({ error: 'Produit introuvable' });
         }
 
-        // ─── RÉCUPÉRATION DES PARAMÈTRES GLOBAUX (DEVISE, ETC.) ──────────────
         const { data: settings } = await client
             .from('settings')
-            .select('currencySymbol, exchangeRate')
+            .select('exchangeRate')
             .eq('id', 'global-settings')
             .single();
 
-        // ─── CALCUL DU TAUX ET CONVERSION VERS USD ──────────────────────────
-        // On utilise la priorité : Taux Vendeur > Taux Global > 2800 (fallback)
-        // La plupart des passerelles préfèrent USD pour les paiements cartes globaux.
         const conversionRate = parseFloat(product.custom_exchange_rate) || parseFloat(settings?.exchangeRate) || 2800;
-        
-        // SÉCURITÉ : Calculer le montant total en CDF en fonction de la quantité validée
-        const verifiedAmount = product.price * quantity; 
+        const verifiedAmount = Number(order.total_amount || order.total || 0);
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
-
-        console.log(`[Payment] Conversion : ${verifiedAmount} CDF (${quantity}x) -> ${finalAmountUSD} USD (Taux: ${conversionRate})`);
-
-        // ─── TRANSACTION ID ──────────────────────────────────────────────────
         const txId = generateTxId();
 
-        // ─── SAUVEGARDE DE LA COMMANDE EN ATTENTE ───────────────────────────
-        const { data: orderData, error: dbError } = await client
+        const { error: dbError } = await client
             .from('orders')
-            .insert({
-                id: txId,
-                user_id: req.user?.id || null,
-                items: [{
-                    product_id,
-                    vendor_id,
-                    price: product.price, // Prix unitaire
-                    name: product.name,
-                    quantity: quantity,
-                    supplier_email: product.supplier_email
-                }],
-                total: verifiedAmount,
-                total_amount: verifiedAmount,
-                status: 'PENDING',
-                payment_status: 'PENDING',
+            .update({
                 transaction_id: txId,
-                phone_number: customer_phone || null,
-                customer_phone: customer_phone || null,
-                customer_name,
-                customer_city,
-                customer_email,
-                customer_lat: customer_lat || null,
-                customer_lng: customer_lng || null
+                payment_status: 'PENDING',
+                updated_at: new Date().toISOString()
             })
-            .select('*')
-            .single();
+            .eq('id', order_id);
 
         if (dbError) throw dbError;
 
-        // ─── CRÉATION DU LIEN DE PAIEMENT FLUTTERWAVE (EN USD) ───────────────
         const flwPayload = {
             tx_ref: txId,
             amount: finalAmountUSD,
@@ -162,9 +123,9 @@ export const initiatePayment = async (req, res) => {
             redirect_url: process.env.FLW_REDIRECT_URL || 'http://localhost:5173/pages/payment-success.html',
             payment_options: 'mobilemoney,card,ussd',
             customer: {
-                email: customer_email || 'client@newket.cd',
-                phonenumber: customer_phone || '',
-                name: customer_name || 'Client NewKet'
+                email: order.customer_email || req.user?.email || 'client@newket.cd',
+                phonenumber: order.customer_phone || order.phone_number || '',
+                name: order.customer_name || 'Client NewKet'
             },
             customizations: {
                 title: 'NewKet Marketplace',
@@ -172,16 +133,17 @@ export const initiatePayment = async (req, res) => {
                 logo: 'https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/newket-logo/logo.png'
             },
             meta: {
+                order_id,
                 transaction_id: txId,
-                product_id,
-                vendor_id
+                product_id: firstItem.product_id,
+                vendor_id: order.vendor_id || firstItem.vendor_id || null
             }
         };
 
         const flwResponse = await fetch('https://api.flutterwave.com/v3/payments', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${process.env.FLW_SECRET_KEY}`,
+                Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(flwPayload)
@@ -190,87 +152,66 @@ export const initiatePayment = async (req, res) => {
         const flwData = await flwResponse.json();
 
         if (flwData.status !== 'success' || !flwData.data?.link) {
-            console.error('❌ Erreur Flutterwave initiatePayment:', flwData);
-            throw new Error(flwData.message || 'Erreur Flutterwave : impossible de créer le lien de paiement');
+            console.error('Flutterwave initiatePayment failed:', flwData);
+            throw new Error(flwData.message || 'Impossible de créer le lien de paiement');
         }
-
-        console.log(`✅ Paiement Flutterwave initié : ${txId} → ${flwData.data.link}`);
 
         return res.status(200).json({
             success: true,
+            order_id,
             transaction_id: txId,
             payment_url: flwData.data.link,
             public_key: process.env.FLW_PUBLIC_KEY
         });
-
-    } catch (err) {
-        console.error('❌ Erreur critique initiatePayment:', {
-            message: err.message,
-            stack: err.stack,
-            details: err.details || 'Pas de détails Supabase',
-            hint: err.hint,
-            code: err.code
+    } catch (error) {
+        console.error('Critical initiatePayment error:', {
+            message: error.message,
+            stack: error.stack,
+            details: error.details || null,
+            hint: error.hint || null,
+            code: error.code || null
         });
-        
-        return res.status(500).json({ 
+
+        return res.status(500).json({
             success: false,
             error: 'Impossible d\'initialiser le paiement',
-            message: process.env.NODE_ENV === 'development' ? err.message : undefined
+            message: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
 
-/**
- * Webhook Flutterwave.
- * Appelé par Flutterwave après chaque transaction (succès ou échec).
- * Sécurisé via le header "verif-hash".
- */
 export const flutterwaveWebhook = async (req, res) => {
     try {
-        // 1. Vérification de la signature du webhook
         if (!verifyFlutterwaveSignature(req)) {
-            console.warn('[FLW Webhook] Signature invalide — requête rejetée');
+            console.warn('[FLW Webhook] Signature invalide');
             return res.status(401).send('Unauthorized');
         }
 
         const payload = req.body;
-        const event = payload.event;
-
-        // On ne traite que les événements de paiement
-        if (event !== 'charge.completed') {
+        if (payload.event !== 'charge.completed') {
             return res.status(200).send('Event ignoré');
         }
 
-        const flwTxId = payload.data?.id;           // ID Flutterwave de la transaction
-        const ourTxId = payload.data?.tx_ref;        // Notre tx_ref (= txId NewKet)
-        const status  = payload.data?.status;         // 'successful', 'failed', 'pending'
-
-        console.log(`[FLW Webhook] Événement: ${event} | TX: ${ourTxId} | Statut: ${status}`);
-
-        // 2. Double vérification auprès de l'API Flutterwave (sécurité)
+        const flwTxId = payload.data?.id;
+        const ourTxId = payload.data?.tx_ref;
         const verifiedPayment = await verifyFlutterwavePayment(flwTxId);
 
         if (!verifiedPayment) {
-            console.error('[FLW Webhook] Paiement non vérifiable via API Flutterwave');
             return res.status(400).send('Paiement non vérifiable');
         }
 
         const client = supabaseAdmin || supabase;
 
         if (verifiedPayment.status === 'successful') {
-            // ─── VALIDATION ATOMIQUE : Stock + Statut commande ────────────────
             const { data: rpcData, error: rpcError } = await client.rpc('process_order_payment', {
                 p_transaction_id: ourTxId
             });
 
             if (rpcError || (rpcData && !rpcData.success)) {
-                console.error('[FLW Webhook] Erreur RPC process_order_payment:', rpcError || rpcData?.message);
+                console.error('[FLW Webhook] process_order_payment failed:', rpcError || rpcData?.message);
                 return res.status(500).send('Erreur lors de la validation atomique');
             }
 
-            console.log(`✅ [FLW Webhook] Commande ${ourTxId} validée (stock décrémenté)`);
-
-            // Notification au vendeur et au client (OTP)
             const { data: orderInfo } = await client
                 .from('orders')
                 .select('id, otp_code, customer_email, customer_name, transaction_id')
@@ -279,35 +220,29 @@ export const flutterwaveWebhook = async (req, res) => {
 
             if (orderInfo) {
                 NotificationService.notifyOrderSuccess(orderInfo.id);
-                
                 if (orderInfo.customer_email && orderInfo.otp_code) {
                     NotificationService.notifyCustomerOTP(orderInfo);
                 }
             }
-
         } else {
-            // Paiement échoué ou annulé
             const { error: dbUpdateError } = await client
                 .from('orders')
                 .update({
                     payment_status: 'FAILED',
-                    status: 'CANCELLED'
+                    status: 'CANCELLED',
+                    updated_at: new Date().toISOString()
                 })
                 .eq('transaction_id', ourTxId);
 
             if (dbUpdateError) {
-                console.error('[FLW Webhook] Erreur mise à jour DB (Échec):', dbUpdateError);
+                console.error('[FLW Webhook] Failed to mark order as cancelled:', dbUpdateError);
                 return res.status(500).send('Erreur DB');
             }
-
-            console.log(`[FLW Webhook] Commande ${ourTxId} marquée comme CANCELLED`);
         }
 
-        // Répondre 200 pour que Flutterwave arrête de renvoyer la notification
         return res.status(200).send('OK');
-
-    } catch (err) {
-        console.error('❌ Erreur flutterwaveWebhook:', err);
+    } catch (error) {
+        console.error('flutterwaveWebhook error:', error);
         return res.status(500).send('Erreur interne');
     }
 };
