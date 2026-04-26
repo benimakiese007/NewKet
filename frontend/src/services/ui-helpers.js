@@ -947,11 +947,11 @@ function showCheckoutModal(productName, productPrice) {
             }, 300);
         };
 
-        window.submitCheckoutModal = (id) => {
+        window.submitCheckoutModal = async (id) => {
             if (id !== modalId) return;
             const name = document.getElementById(`${id}-name`).value.trim();
             const phone = document.getElementById(`${id}-phone`).value.trim();
-            const email = document.getElementById(`${id}-email`).value.trim();
+            let email = document.getElementById(`${id}-email`).value.trim();
             const city = document.getElementById(`${id}-city`).value.trim();
 
             if (!phone) {
@@ -960,8 +960,21 @@ function showCheckoutModal(productName, productPrice) {
             }
             
             if (!email) {
-                showToast("L'adresse email est obligatoire", "warning");
-                return;
+                // Best-effort fallback to authenticated email
+                email = localStorage.getItem('newketUserEmail') || '';
+                if (!email && window.SupabaseAdapter?.getClient) {
+                    try {
+                        const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                        email = user?.email || email;
+                        if (email) localStorage.setItem('newketUserEmail', email);
+                        if (user?.id) localStorage.setItem('newketUserId', user.id);
+                    } catch (_) {}
+                }
+
+                if (!email) {
+                    showToast("L'adresse email est obligatoire", "warning");
+                    return;
+                }
             }
 
             window.closeCheckoutModal(id, { 
@@ -1106,6 +1119,171 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
     };
 };
 
+/**
+ * Premium prompt replacement for window.prompt().
+ * Returns a Promise<string|null>.
+ */
+window.showPromptModal = ({
+    title = 'Saisie requise',
+    message = '',
+    label = 'Valeur',
+    value = '',
+    placeholder = '',
+    type = 'text',
+    inputMode = null,
+    required = false,
+    min = null,
+    max = null,
+    step = null,
+    multiline = false,
+    confirmText = 'Continuer',
+    cancelText = 'Annuler'
+} = {}) => {
+    return new Promise((resolve) => {
+        const modalId = 'nk-prompt-modal-' + Date.now();
+        const modal = document.createElement('div');
+        modal.id = modalId;
+        modal.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300 pointer-events-none';
+
+        const safeTitle = String(title || 'Saisie requise');
+        const safeMessage = String(message || '');
+        const safeLabel = String(label || 'Valeur');
+        const safePlaceholder = String(placeholder || '');
+        const initialValue = value === null || value === undefined ? '' : String(value);
+
+        const fieldId = `${modalId}-field`;
+        const isTextarea = Boolean(multiline);
+
+        const fieldAttrs = [
+            `id="${fieldId}"`,
+            `placeholder="${safePlaceholder.replace(/"/g, '&quot;')}"`,
+            required ? 'required' : '',
+            !isTextarea ? `type="${String(type || 'text').replace(/"/g, '&quot;')}"` : '',
+            inputMode ? `inputmode="${String(inputMode).replace(/"/g, '&quot;')}"` : '',
+            min !== null && min !== undefined ? `min="${min}"` : '',
+            max !== null && max !== undefined ? `max="${max}"` : '',
+            step !== null && step !== undefined ? `step="${step}"` : '',
+            'class="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900 outline-none focus:ring-4 focus:ring-gray-900/10 focus:border-gray-900 transition-all"'
+        ].filter(Boolean).join(' ');
+
+        modal.innerHTML = `
+            <div class="absolute inset-0 bg-gray-950/40 backdrop-blur-sm" data-overlay="1"></div>
+            <div class="relative bg-white/95 backdrop-blur-xl rounded-[2.5rem] shadow-2xl max-w-lg w-full border border-white/20 transform scale-95 transition-all duration-300 pointer-events-auto">
+                <div class="p-8 sm:p-9">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-black uppercase tracking-[0.18em] text-gray-400">NewKet</p>
+                            <h3 class="text-xl sm:text-2xl font-black text-gray-900 leading-tight">${safeTitle}</h3>
+                        </div>
+                        <button class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-all flex items-center justify-center" data-close="1" aria-label="Fermer">
+                            <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
+                        </button>
+                    </div>
+
+                    ${safeMessage ? `<p class="text-sm text-gray-500 font-medium leading-relaxed mb-5">${safeMessage}</p>` : ''}
+
+                    <label class="block text-[11px] font-black uppercase tracking-widest text-gray-400">${safeLabel}</label>
+                    ${isTextarea
+                        ? `<textarea ${fieldAttrs} rows="4">${initialValue.replace(/</g, '&lt;')}</textarea>`
+                        : `<input ${fieldAttrs} value="${initialValue.replace(/"/g, '&quot;')}">`
+                    }
+                    <p class="mt-2 text-[11px] font-bold text-red-600 hidden" id="${modalId}-error"></p>
+
+                    <div class="mt-7 flex flex-col sm:flex-row gap-3">
+                        <button class="flex-1 px-6 py-3.5 bg-gray-100 text-gray-700 font-black rounded-2xl hover:bg-gray-200 transition-all active:scale-95" data-cancel="1">
+                            ${cancelText}
+                        </button>
+                        <button class="flex-[1.3] px-6 py-3.5 bg-gray-900 text-white font-black rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95 flex items-center justify-center gap-2" data-confirm="1">
+                            <span>${confirmText}</span>
+                            <iconify-icon icon="solar:arrow-right-up-bold" width="18"></iconify-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const close = (result) => {
+            const el = document.getElementById(modalId);
+            if (!el) return;
+            el.classList.add('opacity-0');
+            const card = el.querySelector('.transform');
+            if (card) card.classList.add('scale-95');
+            setTimeout(() => {
+                el.remove();
+                resolve(result);
+            }, 220);
+        };
+
+        document.body.appendChild(modal);
+
+        // Animate in
+        setTimeout(() => {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            const card = modal.querySelector('.transform');
+            if (card) card.classList.remove('scale-95');
+        }, 10);
+
+        const field = modal.querySelector(`#${fieldId}`);
+        const errorEl = modal.querySelector(`#${modalId}-error`);
+        const confirmBtn = modal.querySelector('[data-confirm="1"]');
+
+        const validate = () => {
+            if (!required) return true;
+            const val = String(field?.value || '').trim();
+            if (val) return true;
+            if (errorEl) {
+                errorEl.textContent = 'Veuillez renseigner ce champ.';
+                errorEl.classList.remove('hidden');
+            }
+            return false;
+        };
+
+        const onConfirm = () => {
+            if (!field) return close(null);
+            if (!validate()) return;
+            const raw = String(field.value ?? '');
+            close(raw.trim());
+        };
+
+        modal.addEventListener('click', (e) => {
+            const t = e.target;
+            if (!(t instanceof Element)) return;
+            if (t.matches('[data-overlay="1"]') || t.closest('[data-close="1"]') || t.closest('[data-cancel="1"]')) {
+                close(null);
+                return;
+            }
+            if (t.closest('[data-confirm="1"]')) {
+                onConfirm();
+            }
+        });
+
+        modal.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                close(null);
+            }
+            if (e.key === 'Enter' && !isTextarea) {
+                // Submit on enter for single-line fields
+                e.preventDefault();
+                onConfirm();
+            }
+        });
+
+        if (field) {
+            // Reset error on input
+            field.addEventListener('input', () => {
+                if (errorEl) errorEl.classList.add('hidden');
+            });
+            setTimeout(() => {
+                field.focus();
+                try { field.select?.(); } catch (_) {}
+            }, 30);
+        } else if (confirmBtn) {
+            confirmBtn.focus();
+        }
+    });
+};
+
   /**
    * Initiates the order creation flow.
    * Payment now happens only after the vendor sends a delivery quote and the client accepts it.
@@ -1133,7 +1311,14 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
             return; // Cancelled
         }
 
-        const { name: customerName, phone: customerPhone, city: customerCity, email: customerEmail, lat: customerLat, lng: customerLng } = customerInfo;
+        const {
+            name: customerName,
+            phone: customerPhone,
+            city: customerCity,
+            email: customerEmail,
+            lat: customerLat,
+            lng: customerLng
+        } = customerInfo;
 
         // Vérifier que l'utilisateur est connecté avant de payer
         if (window.SupabaseAdapter) {
@@ -1153,25 +1338,26 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
               customer_phone: customerPhone,
               customer_name: customerName,
               customer_city: customerCity,
-              customer_email: customerEmail || 'client@newket.cd',
+              // Let backend default to authenticated email when empty.
+              customer_email: customerEmail || null,
               customer_lat: customerLat,
               customer_lng: customerLng
           });
 
-          if (!data.success) {
-              showToast(data.error || "Erreur lors de la création de la commande", "error");
+          if (!data?.success) {
+              showToast(data.error || "Erreur lors de l'envoi de la demande", "error");
               btnElement.innerHTML = originalHtml;
               btnElement.disabled = false;
               return;
           }
 
-          showToast("Commande créée. Le vendeur doit maintenant proposer le devis de livraison.", "success");
+          showToast("Demande envoyée au vendeur. Il doit maintenant proposer le devis de livraison.", "success");
           btnElement.innerHTML = originalHtml;
           btnElement.disabled = false;
 
       } catch (err) {
           console.error('[NewKet] Checkout error:', err);
-        showToast("Erreur lors de la création de la commande.", "error");
+        showToast("Erreur lors de l'envoi de la demande.", "error");
           btnElement.innerHTML = originalHtml;
           btnElement.disabled = false;
       }

@@ -43,8 +43,8 @@ const OrderManager = {
             console.error('[OrderManager] ApiClient introuvable.');
             return;
         }
-        if (!window.AuthManager || !['admin', 'supplier'].includes(window.AuthManager.role)) {
-            console.warn('[OrderManager] Check skipped: non-admin/supplier role');
+        if (!window.AuthManager || !window.AuthManager.role) {
+            console.warn('[OrderManager] Check skipped: no authenticated role');
             this._initialized = true;
             return;
         }
@@ -72,10 +72,13 @@ const OrderManager = {
                 this._initialized = true;
                 localStorage.setItem('newket_orders_sync_time', now.toString());
                 console.log(`[OrderManager] Loaded ${this.data.length} orders.`);
+                // Dashboards listen to this event to rerender their lists/stats.
+                window.dispatchEvent(new CustomEvent('ordersUpdated'));
             } catch (error) {
                 console.warn('[OrderManager] Could not fetch orders, using empty data:', error.message);
                 if (!this._initialized) this.data = [];
                 this._initialized = true;
+                window.dispatchEvent(new CustomEvent('ordersUpdated'));
             }
         })();
         
@@ -97,14 +100,23 @@ const OrderManager = {
             customer_name: order.user_name || order.customer_name || 'Visiteur',
             customer_email: order.user_email || order.customer_email || '',
             user_id: order.user_id,
+            customer_id: order.customer_id || order.user_id || null,
             vendor_id: order.vendor_id,
             vendor_email: order.vendor_email || '',
             phone_number: order.phone_number || order.vendor_phone || '',
+            customer_phone: order.customer_phone || order.phone_number || '',
+            customer_city: order.customer_city || '',
+            customer_lat: order.customer_lat || null,
+            customer_lng: order.customer_lng || null,
             date: order.created_at || new Date().toISOString(),
             total: order.total_amount || product?.price || product?.priceCDF || 0,
             status: order.status || 'PENDING',
             payment_status: order.payment_status || 'N/A',
             transaction_id: order.transaction_id || null,
+            otp_code: order.otp_code || null,
+            delivery_fee_amount: order.delivery_fee_amount || 0,
+            merchandise_amount: order.merchandise_amount || order.total_amount || order.total || 0,
+            latest_delivery_quote: order.latest_delivery_quote || null,
             payment_method: order.payment_status && order.payment_status !== 'N/A' ? 'Paiement en ligne' : 'N/A',
             type: 'order',
             items: order.items || [{
@@ -160,8 +172,9 @@ const OrderManager = {
     },
 
     getVendorStats(emailOrId) {
+        const fallbackVendorId = localStorage.getItem('newketUserId');
         const vendorOrders = this.data.filter(o =>
-            o.vendor_email === emailOrId || o.vendor_id === emailOrId
+            o.vendor_email === emailOrId || o.vendor_id === emailOrId || o.vendor_id === fallbackVendorId
         );
         const totalEstimatedValue = vendorOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
@@ -198,9 +211,12 @@ const OrderManager = {
     },
 
     getCustomerStats(email, userId) {
+        const fallbackUserId = localStorage.getItem('newketUserId');
         const customerOrders = this.data.filter(o =>
             (email && o.customer_email === email) || 
-            (userId && o.user_id === userId)
+            (userId && o.user_id === userId) ||
+            o.customer_id === userId ||
+            o.customer_id === fallbackUserId
         );
         const totalSpent = customerOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
@@ -305,6 +321,44 @@ const OrderManager = {
             ActivityManager.log(`Demande de retrait de ${details.amount || 0} FC`, 'withdrawal');
         }
         return { success: true, message: 'Demande enregistrée.' };
+    },
+
+    async createDeliveryQuote(orderId, payload) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/orders/${orderId}/quote`, payload);
+            this._initialized = false;
+            await this.init();
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur createDeliveryQuote:', error);
+            throw error;
+        }
+    },
+
+    async respondToDeliveryQuote(orderId, payload) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/orders/${orderId}/quote/respond`, payload);
+            this._initialized = false;
+            await this.init();
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur respondToDeliveryQuote:', error);
+            throw error;
+        }
+    },
+
+    async initiatePayment(orderId) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            return await ApiClient.post('/payments/initiate', { order_id: orderId });
+        } catch (error) {
+            console.error('[OrderManager] Erreur initiatePayment:', error);
+            throw error;
+        }
     },
 
     async validateDelivery(orderId, otpCode) {

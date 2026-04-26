@@ -64,8 +64,8 @@ const App = {
             }
         }
 
-        // The backend /orders route is admin-only, so avoid booting the manager for suppliers.
-        if (window.OrderManager && isAdmin) initPromises.push(OrderManager.init());
+        // Orders are needed for customer + vendor dashboards too.
+        if (window.OrderManager && isLoggedIn) initPromises.push(OrderManager.init());
         if (window.UserManager && isAdmin) initPromises.push(UserManager.init());
         
         // Managed Utilities

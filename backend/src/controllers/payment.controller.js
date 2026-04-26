@@ -2,7 +2,9 @@ import { supabaseAdmin, supabase } from '../config/supabase.js';
 import NotificationService from '../services/notificationService.js';
 import crypto from 'crypto';
 import {
+    ESCROW_STATUSES,
     ORDER_STATUSES,
+    generateOrderId,
     generateTransactionId,
     getOrderCustomerId,
     mapLegacyOrderStatus
@@ -53,74 +55,167 @@ const verifyFlutterwavePayment = async (transactionId) => {
     }
 };
 
+function getRedirectUrl(req) {
+    if (process.env.FLW_REDIRECT_URL) return process.env.FLW_REDIRECT_URL;
+    const host = req.headers.host || 'localhost:3001';
+    const frontendHost = host.includes('localhost') ? host.replace(':3001', ':5173') : host;
+    return `http://${frontendHost}/src/pages/payment-success.html`;
+}
+
+function getPaymentLogoUrl() {
+    const frontendUrl = process.env.FRONTEND_URL || 'https://newket.vercel.app';
+    return `${frontendUrl.replace(/\/$/, '')}/Images/Logo_Header_Officiel_PNG.png`;
+}
+
+async function loadProductForPayment(client, productId) {
+    const { data: product, error } = await client
+        .from('products')
+        .select('id, price, name, supplier_email, custom_exchange_rate, user_id')
+        .eq('id', productId)
+        .single();
+
+    if (error || !product) return null;
+    return product;
+}
+
+async function loadExchangeRate(client) {
+    const { data: settings } = await client
+        .from('settings')
+        .select('exchangeRate')
+        .eq('id', 'global-settings')
+        .single();
+
+    return parseFloat(settings?.exchangeRate) || 2800;
+}
+
 export const initiatePayment = async (req, res) => {
     try {
-        const { order_id } = req.body;
-        if (!order_id) {
-            return res.status(400).json({ error: 'order_id requis pour initier le paiement.' });
-        }
-
         const client = supabaseAdmin || supabase;
-        const { data: order, error: orderError } = await client
-            .from('orders')
-            .select('*')
-            .eq('id', order_id)
-            .single();
+        const {
+            order_id,
+            product_id,
+            vendor_id,
+            customer_phone,
+            customer_name,
+            customer_city,
+            customer_email
+        } = req.body;
 
-        if (orderError || !order) {
-            return res.status(404).json({ error: 'Commande introuvable' });
+        let order = null;
+        let orderId = order_id || null;
+        let firstItem = null;
+
+        if (orderId) {
+            const { data: existingOrder, error: orderError } = await client
+                .from('orders')
+                .select('*')
+                .eq('id', orderId)
+                .single();
+
+            if (orderError || !existingOrder) {
+                return res.status(404).json({ error: 'Commande introuvable' });
+            }
+
+            if (getOrderCustomerId(existingOrder) !== req.user?.id) {
+                return res.status(403).json({ error: 'Accès refusé à cette commande.' });
+            }
+
+            if (mapLegacyOrderStatus(existingOrder.status) !== ORDER_STATUSES.READY_FOR_PAYMENT) {
+                return res.status(400).json({ error: `Paiement impossible depuis le statut ${existingOrder.status}.` });
+            }
+
+            order = existingOrder;
+            firstItem = Array.isArray(existingOrder.items) ? existingOrder.items[0] : null;
+            if (!firstItem?.product_id) {
+                return res.status(400).json({ error: 'Commande invalide: produit introuvable.' });
+            }
+        } else {
+            if (!product_id || !vendor_id) {
+                return res.status(400).json({ error: 'order_id ou bien product_id et vendor_id sont requis.' });
+            }
+
+            firstItem = {
+                product_id,
+                vendor_id,
+                quantity: 1
+            };
         }
 
-        if (getOrderCustomerId(order) !== req.user?.id) {
-            return res.status(403).json({ error: 'Accès refusé à cette commande.' });
-        }
-
-        if (mapLegacyOrderStatus(order.status) !== ORDER_STATUSES.READY_FOR_PAYMENT) {
-            return res.status(400).json({ error: `Paiement impossible depuis le statut ${order.status}.` });
-        }
-
-        const firstItem = Array.isArray(order.items) ? order.items[0] : null;
-        if (!firstItem?.product_id) {
-            return res.status(400).json({ error: 'Commande invalide: produit introuvable.' });
-        }
-
-        const { data: product, error: productError } = await client
-            .from('products')
-            .select('price, name, custom_exchange_rate')
-            .eq('id', firstItem.product_id)
-            .single();
-
-        if (productError || !product) {
+        const product = await loadProductForPayment(client, firstItem.product_id);
+        if (!product) {
             return res.status(404).json({ error: 'Produit introuvable' });
         }
 
-        const { data: settings } = await client
-            .from('settings')
-            .select('exchangeRate')
-            .eq('id', 'global-settings')
-            .single();
-
-        const conversionRate = parseFloat(product.custom_exchange_rate) || parseFloat(settings?.exchangeRate) || 2800;
-        const verifiedAmount = Number(order.total_amount || order.total || 0);
+        const conversionRate = parseFloat(product.custom_exchange_rate) || await loadExchangeRate(client);
+        const verifiedAmount = orderId
+            ? Number(order.total_amount || order.total || 0)
+            : Number(product.price || 0) * Number(firstItem.quantity || 1);
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
         const txId = generateTxId();
 
-        const { error: dbError } = await client
-            .from('orders')
-            .update({
-                transaction_id: txId,
+        if (!orderId) {
+            const resolvedVendorId = vendor_id || product.user_id || null;
+            const newOrder = {
+                id: generateOrderId(),
+                user_id: req.user?.id || null,
+                customer_id: req.user?.id || null,
+                vendor_id: resolvedVendorId,
+                items: [{
+                    product_id: product.id,
+                    vendor_id: resolvedVendorId,
+                    price: Number(product.price || 0),
+                    name: product.name,
+                    quantity: 1,
+                    supplier_email: product.supplier_email || null
+                }],
+                total: verifiedAmount,
+                merchandise_amount: verifiedAmount,
+                delivery_fee_amount: 0,
+                total_amount: verifiedAmount,
+                status: ORDER_STATUSES.READY_FOR_PAYMENT,
                 payment_status: 'PENDING',
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', order_id);
+                transaction_id: txId,
+                phone_number: customer_phone || null,
+                customer_phone: customer_phone || null,
+                customer_name: customer_name || req.user?.user_metadata?.full_name || 'Client NewKet',
+                customer_city: customer_city || null,
+                customer_email: customer_email || req.user?.email || 'client@newket.cd',
+                escrow_status: ESCROW_STATUSES.NONE,
+                proof_status: 'PENDING'
+            };
 
-        if (dbError) throw dbError;
+            const { data: createdOrder, error: insertError } = await client
+                .from('orders')
+                .insert(newOrder)
+                .select('*')
+                .single();
+
+            if (insertError) throw insertError;
+            order = createdOrder;
+            orderId = createdOrder.id;
+        } else {
+            const { error: dbError } = await client
+                .from('orders')
+                .update({
+                    transaction_id: txId,
+                    payment_status: 'PENDING',
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', orderId);
+
+            if (dbError) throw dbError;
+            order = {
+                ...order,
+                transaction_id: txId,
+                payment_status: 'PENDING'
+            };
+        }
 
         const flwPayload = {
             tx_ref: txId,
             amount: finalAmountUSD,
             currency: 'USD',
-            redirect_url: process.env.FLW_REDIRECT_URL || 'http://localhost:5173/pages/payment-success.html',
+            redirect_url: getRedirectUrl(req),
             payment_options: 'mobilemoney,card,ussd',
             customer: {
                 email: order.customer_email || req.user?.email || 'client@newket.cd',
@@ -130,10 +225,10 @@ export const initiatePayment = async (req, res) => {
             customizations: {
                 title: 'NewKet Marketplace',
                 description: `Achat : ${product.name}`,
-                logo: 'https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/newket-logo/logo.png'
+                logo: getPaymentLogoUrl()
             },
             meta: {
-                order_id,
+                order_id: orderId,
                 transaction_id: txId,
                 product_id: firstItem.product_id,
                 vendor_id: order.vendor_id || firstItem.vendor_id || null
@@ -158,7 +253,7 @@ export const initiatePayment = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            order_id,
+            order_id: orderId,
             transaction_id: txId,
             payment_url: flwData.data.link,
             public_key: process.env.FLW_PUBLIC_KEY

@@ -38,14 +38,14 @@
         <div class="w-full max-w-xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
             <div class="glass-premium relative overflow-hidden rounded-[3rem] p-8 text-center shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] sm:p-12">
                 <div class="relative mx-auto mb-8 h-24 w-24">
-                    <div class="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping duration-[2000ms]"></div>
-                    <div class="relative flex h-full w-full items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl shadow-emerald-500/20">
-                        <iconify-icon icon="solar:check-circle-bold" width="48"></iconify-icon>
+                    <div id="statusGlow" class="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping duration-[2000ms]"></div>
+                    <div id="statusIconShell" class="relative flex h-full w-full items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl shadow-emerald-500/20">
+                        <iconify-icon id="statusIcon" icon="solar:check-circle-bold" width="48"></iconify-icon>
                     </div>
                 </div>
 
-                <h1 class="mb-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Paiement confirme !</h1>
-                <p class="mb-12 text-lg font-medium leading-relaxed text-gray-500">
+                <h1 id="statusTitle" class="mb-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Paiement confirme !</h1>
+                <p id="statusDescription" class="mb-12 text-lg font-medium leading-relaxed text-gray-500">
                     Merci pour votre confiance. Votre commande est maintenant securisee et le vendeur a ete alerte.
                 </p>
 
@@ -56,9 +56,9 @@
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-black uppercase tracking-widest text-gray-400">Statut</span>
-                        <div class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-600">
-                            <div class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            Succes
+                        <div id="statusBadge" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-600">
+                            <div id="statusDot" class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span id="statusLabel">Succes</span>
                         </div>
                     </div>
                 </div>
@@ -87,9 +87,36 @@
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || 'NK-' + Math.random().toString(36).slice(2, 11).toUpperCase();
+            const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'successful').toLowerCase();
+            const isSuccess = ['successful', 'success', 'completed', 'paid'].includes(rawStatus);
 
             const txRefEl = document.getElementById('txRef');
             if (txRefEl) txRefEl.textContent = txRef;
+
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDescription = document.getElementById('statusDescription');
+            const statusLabel = document.getElementById('statusLabel');
+            const statusBadge = document.getElementById('statusBadge');
+            const statusDot = document.getElementById('statusDot');
+            const statusGlow = document.getElementById('statusGlow');
+            const statusIconShell = document.getElementById('statusIconShell');
+            const statusIcon = document.getElementById('statusIcon');
+            const pageTitle = document.querySelector('title');
+
+            if (!isSuccess) {
+                if (pageTitle) pageTitle.textContent = 'Paiement annule | NewKet';
+                if (statusTitle) statusTitle.textContent = 'Paiement non confirme';
+                if (statusDescription) {
+                    statusDescription.textContent = "Le paiement n'a pas ete confirme, donc la fiche n'a pas encore ete envoyee au vendeur. Vous pouvez relancer le paiement quand vous voulez.";
+                }
+                if (statusLabel) statusLabel.textContent = rawStatus === 'cancelled' ? 'Annule' : 'En attente';
+                if (statusBadge) statusBadge.className = 'flex items-center gap-2 text-xs font-black uppercase tracking-widest text-amber-600';
+                if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-amber-500 animate-pulse';
+                if (statusGlow) statusGlow.className = 'absolute inset-0 rounded-full bg-amber-500/10 animate-ping duration-[2000ms]';
+                if (statusIconShell) statusIconShell.className = 'relative flex h-full w-full items-center justify-center rounded-full bg-amber-500 text-white shadow-xl shadow-amber-500/20';
+                if (statusIcon) statusIcon.setAttribute('icon', 'solar:danger-triangle-bold');
+                return;
+            }
 
             const count = 200;
             const defaults = {

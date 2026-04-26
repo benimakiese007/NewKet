@@ -22,6 +22,12 @@ import {
 
 const client = supabaseAdmin || supabase;
 
+function isAdminActor(user) {
+    const email = String(user?.email || '').toLowerCase();
+    const role = user?.app_metadata?.role || user?.user_metadata?.role || '';
+    return role === 'admin' || email === 'benimakiese1234@gmail.com';
+}
+
 async function restoreStockIfNeeded(order) {
     const items = order?.items || [];
     for (const item of items) {
@@ -172,6 +178,8 @@ export const createOrder = async (req, res) => {
             changedBy: customerId
         });
 
+        NotificationService.notifyVendorOrderRequest(order);
+
         return res.status(201).json({ success: true, order });
     } catch (error) {
         console.error('❌ Erreur createOrder:', error.message);
@@ -183,21 +191,54 @@ export const getOrders = async (req, res) => {
     try {
         const { page = 1, limit = 50 } = req.query;
         const offset = (page - 1) * parseInt(limit, 10);
+        const userId = req.user?.id || null;
 
-        const { data, error } = await client
+        let query = client
             .from('orders')
-            .select('id, status, created_at, total, total_amount, merchandise_amount, delivery_fee_amount, customer_name, customer_email, phone_number, items, payment_status, transaction_id, user_id, customer_id, vendor_id, escrow_status, escrow_release_at, proof_status')
+            .select('id, status, created_at, total, total_amount, merchandise_amount, delivery_fee_amount, customer_name, customer_email, customer_phone, customer_city, customer_lat, customer_lng, phone_number, items, payment_status, transaction_id, user_id, customer_id, vendor_id, escrow_status, escrow_release_at, proof_status, otp_code, accepted_delivery_quote_id')
             .order('created_at', { ascending: false })
             .range(offset, offset + parseInt(limit, 10) - 1);
+
+        if (!isAdminActor(req.user)) {
+            const role = req.user?.app_metadata?.role || req.user?.user_metadata?.role || 'customer';
+            if (role === 'supplier') {
+                // A vendor can also buy: return both vendor-side and customer-side orders.
+                query = query.or(
+                    `vendor_id.eq.${userId},customer_id.eq.${userId},user_id.eq.${userId},customer_email.eq.${req.user?.email || ''}`
+                );
+            } else {
+                query = query.or(`customer_id.eq.${userId},user_id.eq.${userId},customer_email.eq.${req.user?.email || ''}`);
+            }
+        }
+
+        const { data, error } = await query;
 
         if (error) {
             console.warn('⚠️ orders table query failed:', error.message);
             return res.status(200).json([]);
         }
 
+        const orderIds = (data || []).map((order) => order.id);
+        let quotesByOrderId = new Map();
+
+        if (orderIds.length > 0) {
+            const { data: quotes } = await client
+                .from('delivery_quotes')
+                .select('*')
+                .in('order_id', orderIds)
+                .order('created_at', { ascending: false });
+
+            for (const quote of quotes || []) {
+                if (!quotesByOrderId.has(quote.order_id)) {
+                    quotesByOrderId.set(quote.order_id, quote);
+                }
+            }
+        }
+
         return res.status(200).json((data || []).map((order) => ({
             ...order,
-            status: mapLegacyOrderStatus(order.status)
+            status: mapLegacyOrderStatus(order.status),
+            latest_delivery_quote: quotesByOrderId.get(order.id) || null
         })));
     } catch (error) {
         console.error('❌ Erreur getOrders:', error.message);
@@ -269,6 +310,8 @@ export const createDeliveryQuote = async (req, res) => {
             changedBy: req.user.id,
             notes: 'Delivery quote proposed'
         });
+
+        NotificationService.notifyCustomerQuoteAvailable(updatedOrder, quote);
 
         return res.status(201).json({ success: true, order: updatedOrder, quote });
     } catch (error) {
@@ -379,6 +422,19 @@ export const updateOrderStatus = async (req, res) => {
         if (!order) return;
 
         const previousStatus = order.status;
+        const adminActor = isAdminActor(req.user);
+        const vendorActor = isVendorActor(order, req.user);
+
+        if (!adminActor) {
+            const vendorCanCancel = vendorActor
+                && status === ORDER_STATUSES.CANCELLED
+                && [ORDER_STATUSES.PENDING, ORDER_STATUSES.QUOTE, ORDER_STATUSES.READY_FOR_PAYMENT].includes(previousStatus);
+
+            if (!vendorCanCancel) {
+                return res.status(403).json({ error: 'Action non autorisée sur cette commande.' });
+            }
+        }
+
         if (!force && !canTransitionOrder(previousStatus, status)) {
             return res.status(400).json({ error: `Transition interdite: ${previousStatus} -> ${status}` });
         }
@@ -402,7 +458,7 @@ export const updateOrderStatus = async (req, res) => {
             previousStatus,
             newStatus: status,
             changedBy: req.user?.id || 'system',
-            notes: force ? 'Forced admin transition' : null
+            notes: force ? 'Forced admin transition' : adminActor ? null : 'Vendor initiated transition'
         });
 
         return res.status(200).json({ success: true, order: updatedOrder });

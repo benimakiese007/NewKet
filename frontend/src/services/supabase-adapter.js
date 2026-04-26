@@ -6,6 +6,7 @@
 window.SupabaseAdapter = {
     // ========== CACHE SYSTEM ==========
     _cache: {},
+    _lastUploadError: null,
     _cacheTTL: {
         products: 60000,      // 60s — products change infrequently
         users: 60000,         // 60s
@@ -396,6 +397,7 @@ window.SupabaseAdapter = {
         if (!client) return null;
 
         try {
+            this._lastUploadError = null;
             return await this._retry(async () => {
                 const uploadFile = await this._optimizeImageForUpload(bucket, file);
                 const { data, error } = await client.storage
@@ -414,9 +416,34 @@ window.SupabaseAdapter = {
                 return publicUrlData.publicUrl;
             });
         } catch (err) {
+            this._lastUploadError = err;
             console.error(`[NewKet] Error uploading file to ${bucket}:`, err);
             return null;
         }
+    },
+
+    getLastUploadError() {
+        return this._lastUploadError;
+    },
+
+    getReadableUploadError(err) {
+        const message = (err?.message || '').toLowerCase();
+        const details = (err?.details || '').toLowerCase();
+        const combined = `${message} ${details}`;
+
+        if (combined.includes('row-level security')) {
+            return 'Upload refusé par la sécurité Supabase (RLS).';
+        }
+
+        if (combined.includes('mime type')) {
+            return 'Type de fichier non autorisé.';
+        }
+
+        if (combined.includes('duplicate')) {
+            return 'Un fichier avec ce nom existe déjà.';
+        }
+
+        return 'Erreur lors de l\'upload.';
     },
 
     // ========== MUTATIONS (with cache invalidation) ==========

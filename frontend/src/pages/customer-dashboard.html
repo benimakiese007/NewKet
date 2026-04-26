@@ -239,7 +239,8 @@
                 <nav class="space-y-1">
                     <a href="#" onclick="switchTab('orders')" class="sidebar-link active" id="link-orders">
                         <iconify-icon icon="solar:bag-bold" width="20"></iconify-icon>
-                        <span>Mes Commandes</span>
+                        <span>Mes demandes et devis</span>
+                        <span id="customerOrdersBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
                     </a>
                     <a href="#" onclick="switchTab('favorites')" class="sidebar-link" id="link-favorites">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
@@ -285,7 +286,7 @@
 
             <!-- Orders Tab -->
             <div id="tab-orders" class="space-y-6 tab-content">
-                <h1 class="text-fluid-h1 font-bold tracking-tight">Historique de mes demandes</h1>
+                <h1 class="text-fluid-h1 font-bold tracking-tight">Mes demandes, devis et paiements</h1>
                 <div id="orders-list" class="space-y-4">
                     <!-- Orders/Leads injected here -->
                 </div>
@@ -528,6 +529,21 @@
 
                 <!-- Escrow Actions (Dynamic) -->
                 <div id="modalEscrowSection" class="hidden space-y-4 pt-4 border-t border-gray-100">
+                    <div id="quoteSummarySection" class="hidden p-4 bg-amber-50 rounded-xl border border-amber-100 text-left">
+                        <div class="text-xs font-bold text-amber-700 uppercase mb-2">Devis de livraison</div>
+                        <div class="space-y-1 text-sm text-amber-950">
+                            <div class="flex items-center justify-between gap-3">
+                                <span>Montant livraison</span>
+                                <span id="quoteAmount" class="font-black">-</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                                <span>Délai estimé</span>
+                                <span id="quoteDelay" class="font-bold">-</span>
+                            </div>
+                            <p id="quoteNote" class="text-xs text-amber-700 mt-2"></p>
+                        </div>
+                    </div>
+
                     <!-- OTP Display for PAID_HELD -->
                     <div id="otpDisplaySection" class="hidden p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
                         <div class="text-xs font-bold text-purple-600 uppercase mb-2">Code de validation (OTP)</div>
@@ -537,6 +553,21 @@
 
                     <!-- Actions Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3">
+                        <button id="btnAcceptQuote" onclick="handleAcceptQuote()"
+                            class="hidden flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
+                            Accepter le devis
+                        </button>
+                        <button id="btnRejectQuote" onclick="handleRejectQuote()"
+                            class="hidden flex-1 py-3 bg-white text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
+                            Refuser le devis
+                        </button>
+                        <button id="btnPayOrder" onclick="handlePayOrder()"
+                            class="hidden flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:card-send-linear" width="20"></iconify-icon>
+                            Passer au paiement
+                        </button>
                         <button id="btnValidateDelivery" onclick="handleValidateDelivery()" 
                             class="hidden flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
@@ -753,7 +784,23 @@
         }
 
 
-        document.addEventListener('DOMContentLoaded', () => {
+        async function ensureCustomerIdentity() {
+            const existingEmail = localStorage.getItem('newketUserEmail');
+            const existingId = localStorage.getItem('newketUserId');
+            if (existingEmail && existingId) return;
+            if (!window.SupabaseAdapter?.getClient) return;
+
+            try {
+                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                if (user?.email) localStorage.setItem('newketUserEmail', user.email);
+                if (user?.id) localStorage.setItem('newketUserId', user.id);
+                const name = user?.user_metadata?.full_name || user?.user_metadata?.name || '';
+                if (name) localStorage.setItem('newketUserName', name);
+            } catch (_) {}
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await ensureCustomerIdentity();
             renderOrders();
             renderFavorites();
             renderDashboardNotifications();
@@ -968,13 +1015,14 @@
 
         function renderCustomerDashboardStats() {
             const email = localStorage.getItem('newketUserEmail');
+            const userId = localStorage.getItem('newketUserId');
             const spentEl = document.getElementById('customer-total-spent');
             const countEl = document.getElementById('customer-order-count');
             const avgEl = document.getElementById('customer-avg-order');
             const pointsEl = document.getElementById('customer-newket-points');
             const feed = document.getElementById('customer-activity-feed');
 
-            if (!email) {
+            if (!email && !userId) {
                 if (spentEl) spentEl.textContent = '0';
                 if (countEl) countEl.textContent = '0';
                 if (avgEl) avgEl.textContent = 'Aujourd\'hui';
@@ -985,7 +1033,7 @@
                 return;
             }
 
-            const stats = OrderManager.getCustomerStats(email);
+            const stats = OrderManager.getCustomerStats(email, userId);
 
             if (spentEl) spentEl.textContent = CurrencyManager.formatPrice(stats.totalSpent);
             if (countEl) countEl.textContent = stats.totalOrders;
@@ -1015,19 +1063,32 @@
 
         function renderOrders() {
             const email = localStorage.getItem('newketUserEmail');
+            const userId = localStorage.getItem('newketUserId');
             let orders = [];
 
-            if (email) {
-                orders = OrderManager.getOrders().filter(o => o.customer_email === email);
+            if (email || userId) {
+                orders = OrderManager.getOrders().filter(o =>
+                    (email && o.customer_email === email) ||
+                    (userId && (o.user_id === userId || o.customer_id === userId))
+                );
             }
 
             const ordersList = document.getElementById('orders-list');
+            const ordersBadge = document.getElementById('customerOrdersBadge');
+            if (ordersBadge) {
+                if (orders.length > 0) {
+                    ordersBadge.textContent = String(orders.length);
+                    ordersBadge.classList.remove('hidden');
+                } else {
+                    ordersBadge.classList.add('hidden');
+                }
+            }
 
             if (orders.length === 0) {
                 ordersList.innerHTML = `
                     <div class="glass-panel p-12 text-center text-gray-500">
                         <iconify-icon icon="solar:chat-round-line-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
-                        <p>Vous n'avez pas encore envoyé de demande. L'exceptionnel vous attend.</p>
+                        <p>Vous n'avez pas encore envoyé de demande ni reçu de devis. L'exceptionnel vous attend.</p>
                         <a href="#" onclick="window.location.href=window.resolvePath('catalog')" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Voir les articles</a>
                     </div>
                 `;
@@ -1094,6 +1155,8 @@
         function getStatusColor(status) {
             switch (status) {
                 case 'PENDING': return 'bg-yellow-100 text-yellow-700';
+                case 'QUOTE': return 'bg-orange-100 text-orange-700';
+                case 'READY_FOR_PAYMENT': return 'bg-indigo-100 text-indigo-700';
                 case 'PROCESSING': return 'bg-amber-100 text-amber-700';
                 case 'IN_DELIVERY':
                 case 'SHIPPED': return 'bg-blue-100 text-blue-700';
@@ -1175,17 +1238,48 @@
             // Escrow Logic UI
             const escrowSection = document.getElementById('modalEscrowSection');
             const otpSection = document.getElementById('otpDisplaySection');
+            const quoteSummarySection = document.getElementById('quoteSummarySection');
             const btnValidate = document.getElementById('btnValidateDelivery');
             const btnDispute = document.getElementById('btnOpenDispute');
+            const btnAcceptQuote = document.getElementById('btnAcceptQuote');
+            const btnRejectQuote = document.getElementById('btnRejectQuote');
+            const btnPayOrder = document.getElementById('btnPayOrder');
 
             escrowSection.classList.add('hidden');
             otpSection.classList.add('hidden');
+            quoteSummarySection.classList.add('hidden');
             btnValidate.classList.add('hidden');
             btnDispute.classList.add('hidden');
+            btnAcceptQuote.classList.add('hidden');
+            btnRejectQuote.classList.add('hidden');
+            btnPayOrder.classList.add('hidden');
 
             currentSelectedDispute = null;
 
-            if (order.status === 'PAID_HELD') {
+            if (order.status === 'QUOTE' && order.latest_delivery_quote) {
+                const quote = order.latest_delivery_quote;
+                escrowSection.classList.remove('hidden');
+                quoteSummarySection.classList.remove('hidden');
+                document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0));
+                document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
+                document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposé un devis de livraison.';
+                btnAcceptQuote.classList.remove('hidden');
+                btnRejectQuote.classList.remove('hidden');
+            } else if (order.status === 'READY_FOR_PAYMENT') {
+                escrowSection.classList.remove('hidden');
+                quoteSummarySection.classList.remove('hidden');
+                if (order.latest_delivery_quote) {
+                    const quote = order.latest_delivery_quote;
+                    document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0));
+                    document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
+                    document.getElementById('quoteNote').textContent = quote.note || 'Devis accepté. Vous pouvez maintenant payer.';
+                } else {
+                    document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(order.delivery_fee_amount || 0));
+                    document.getElementById('quoteDelay').textContent = 'Confirmé';
+                    document.getElementById('quoteNote').textContent = 'Le devis a été accepté. Le paiement passe maintenant en séquestre.';
+                }
+                btnPayOrder.classList.remove('hidden');
+            } else if (order.status === 'PAID_HELD') {
                 escrowSection.classList.remove('hidden');
                 otpSection.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
@@ -1212,25 +1306,103 @@
         async function handleValidateDelivery() {
             if (!currentSelectedOrder) return;
             
+            const run = async () => {
+                try {
+                    const btn = document.getElementById('btnValidateDelivery');
+                    btn.disabled = true;
+                    btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+
+                    await OrderManager.validateDelivery(currentSelectedOrder.id);
+                    showToast('Réception confirmée ! Merci de votre confiance.', 'success');
+                    closeOrderModal();
+                    await loadDashboardData();
+                } catch (error) {
+                    showToast(error.message || 'Erreur lors de la validation', 'error');
+                    console.error(error);
+                } finally {
+                    const btn = document.getElementById('btnValidateDelivery');
+                    btn.disabled = false;
+                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Valider la réception';
+                }
+            };
+
+            if (typeof window.showConfirm === 'function') {
+                window.showConfirm(
+                    'Confirmer la réception',
+                    "En confirmant, vous libérez les fonds séquestrés au vendeur. Continuer ?",
+                    run
+                );
+                return;
+            }
+
             const confirmed = confirm("Voulez-vous confirmer la réception de votre commande ? Cela libérera les fonds pour le vendeur.");
             if (!confirmed) return;
 
+            await run();
+          }
+
+        async function handleAcceptQuote() {
+            if (!currentSelectedOrder) return;
             try {
-                const btn = document.getElementById('btnValidateDelivery');
+                const btn = document.getElementById('btnAcceptQuote');
                 btn.disabled = true;
                 btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
-
-                await OrderManager.validateDelivery(currentSelectedOrder.id);
-                showToast('Réception confirmée ! Merci de votre confiance.', 'success');
+                await OrderManager.respondToDeliveryQuote(currentSelectedOrder.id, {
+                    action: 'ACCEPT',
+                    quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
+                });
+                showToast('Devis accepté. Vous pouvez maintenant passer au paiement.', 'success');
                 closeOrderModal();
                 await loadDashboardData();
             } catch (error) {
-                showToast(error.message || 'Erreur lors de la validation', 'error');
-                console.error(error);
+                showToast(error.message || 'Erreur lors de l’acceptation du devis', 'error');
             } finally {
-                const btn = document.getElementById('btnValidateDelivery');
+                const btn = document.getElementById('btnAcceptQuote');
                 btn.disabled = false;
-                btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Valider la réception';
+                btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Accepter le devis';
+            }
+        }
+
+        async function handleRejectQuote() {
+            if (!currentSelectedOrder) return;
+            try {
+                const btn = document.getElementById('btnRejectQuote');
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+                await OrderManager.respondToDeliveryQuote(currentSelectedOrder.id, {
+                    action: 'REJECT',
+                    quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
+                });
+                showToast('Devis refusé. La demande a été clôturée.', 'warning');
+                closeOrderModal();
+                await loadDashboardData();
+            } catch (error) {
+                showToast(error.message || 'Erreur lors du refus du devis', 'error');
+            } finally {
+                const btn = document.getElementById('btnRejectQuote');
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon> Refuser le devis';
+            }
+        }
+
+        async function handlePayOrder() {
+            if (!currentSelectedOrder) return;
+            try {
+                const btn = document.getElementById('btnPayOrder');
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Ouverture...';
+                const data = await OrderManager.initiatePayment(currentSelectedOrder.id);
+                if (data?.payment_url) {
+                    window.location.href = data.payment_url;
+                    return;
+                }
+                showToast(data?.error || 'Lien de paiement non reçu', 'error');
+            } catch (error) {
+                showToast(error.message || "Erreur lors de l'ouverture du paiement", 'error');
+            } finally {
+                const btn = document.getElementById('btnPayOrder');
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:card-send-linear" width="20"></iconify-icon> Passer au paiement';
             }
         }
 

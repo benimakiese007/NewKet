@@ -18,12 +18,11 @@ import { otpRateLimit } from '../middlewares/otp-rate-limit.js';
 const router = Router();
 
 router.post('/', requireAuth, createOrder);
-router.get('/', requireAuth, requireAdmin, getOrders);
+router.get('/', requireAuth, getOrders);
 router.post('/:id/quote', requireAuth, createDeliveryQuote);
 router.post('/:id/quote/respond', requireAuth, respondToDeliveryQuote);
 router.put('/:id/status', 
     requireAuth, 
-    requireAdmin, 
     [
         body('status').trim().notEmpty().withMessage('Le statut est requis')
     ],

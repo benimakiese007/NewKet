@@ -107,9 +107,10 @@
                             <iconify-icon icon="solar:box-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Mes Produits</span>
                         </a>
-                        <a href="#" onclick="switchVendorTab('leads')" class="sidebar-link group btn-active-scale" aria-label="Demandes de Paiement">
+                        <a href="#" onclick="switchVendorTab('leads')" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
                             <iconify-icon icon="solar:card-send-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                            <span>Demandes de Paiement</span>
+                            <span>Demandes et devis</span>
+                            <span id="vendorLeadsBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
                         </a>
                         <a href="#" onclick="switchVendorTab('purchases')" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
                             <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
@@ -277,7 +278,7 @@
             <div id="tab-leads" class="hidden">
                 <div class="glass-panel p-8">
                     <div class="flex items-center justify-between mb-8">
-                        <h2 class="text-xl font-bold">Demandes de Paiement</h2>
+                        <h2 class="text-xl font-bold">Demandes clients</h2>
                     </div>
                     <div id="vendor-leads-list" class="space-y-4">
                         <p class="text-center text-sm text-gray-400 py-12">Chargement des prospects...</p>
@@ -740,7 +741,9 @@
 
                             } catch(err) {
                                 console.error('[Avatar] Upload error:', err);
-                                if (window.showToast) showToast('Erreur lors de l\'upload.', 'error');
+                                const uploadError = window.SupabaseAdapter?.getLastUploadError?.() || err;
+                                const errorMessage = window.SupabaseAdapter?.getReadableUploadError?.(uploadError) || 'Erreur lors de l\'upload.';
+                                if (window.showToast) showToast(errorMessage, 'error');
                                 if (progressDiv) progressDiv.classList.add('hidden');
                             } finally {
                                 saveAvatarBtn.disabled = false;
@@ -991,7 +994,8 @@
 
                 function renderVendorDashboard() {
                     const email = localStorage.getItem('newketUserEmail');
-                    const stats = OrderManager.getVendorStats(email);
+                    const userId = localStorage.getItem('newketUserId');
+                    const stats = OrderManager.getVendorStats(userId || email);
 
                     // Update Stats Slates
                     if (document.getElementById('vendorTotalSales')) document.getElementById('vendorTotalSales').textContent = CurrencyManager.formatPrice(stats.totalRevenue || 0);
@@ -1085,6 +1089,8 @@
                 function getStatusColor(status) {
                     switch (status) {
                         case 'PENDING': return 'bg-amber-50 text-amber-600';
+                        case 'QUOTE': return 'bg-orange-50 text-orange-600';
+                        case 'READY_FOR_PAYMENT': return 'bg-indigo-50 text-indigo-600';
                         case 'PROCESSING': return 'bg-yellow-50 text-yellow-600';
                         case 'PAID_HELD': return 'bg-purple-50 text-purple-600';
                           case 'IN_DELIVERY':
@@ -1187,7 +1193,7 @@
                 }
 
                 async function deleteProduct(id) {
-                    if (confirm('Voulez-vous vraiment supprimer cet article ? Cette action est irréversible.')) {
+                    const runDelete = async () => {
                         try {
                             const success = await ProductManager.deleteProduct(id);
                             if (success) {
@@ -1199,6 +1205,19 @@
                         } catch (error) {
                             if (window.showToast) showToast('Erreur lors de la suppression.', 'error');
                         }
+                    };
+
+                    if (typeof window.showConfirm === 'function') {
+                        window.showConfirm(
+                            'Supprimer cet article',
+                            'Cette action est irréversible. Continuer ?',
+                            runDelete
+                        );
+                        return;
+                    }
+
+                    if (confirm('Voulez-vous vraiment supprimer cet article ? Cette action est irréversible.')) {
+                        await runDelete();
                     }
                 }
 
@@ -1224,7 +1243,7 @@
                                 </div>
                                 <h4 class="font-black text-gray-900 mb-2">Aucun achat pour le moment</h4>
                                 <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">Vos coups de cœur NewKet apparaîtront ici dès votre première commande.</p>
-                                <a href="../" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
+                                <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
                                     Découvrir la collection
                                 </a>
                             </div>
@@ -1275,13 +1294,24 @@
                 // Order Detail Modal Functions
                 function renderVendorLeads() {
                     const email = localStorage.getItem('newketUserEmail');
-                    const stats = OrderManager.getVendorStats(email);
+                    const userId = localStorage.getItem('newketUserId');
+                    const stats = OrderManager.getVendorStats(userId || email);
                     const recentOrders = stats.orders || [];
+                    const leadsBadge = document.getElementById('vendorLeadsBadge');
+                    if (leadsBadge) {
+                        const needsAction = recentOrders.filter(o => ['PENDING', 'QUOTE', 'READY_FOR_PAYMENT'].includes(o.status)).length;
+                        if (needsAction > 0) {
+                            leadsBadge.textContent = String(needsAction);
+                            leadsBadge.classList.remove('hidden');
+                        } else {
+                            leadsBadge.classList.add('hidden');
+                        }
+                    }
                     const leadsList = document.getElementById('vendor-leads-list');
                     if (!leadsList) return;
 
                     if (recentOrders.length === 0) {
-                        leadsList.innerHTML = `<p class="col-span-full py-12 text-center text-sm text-gray-400">Aucun paiement initié pour le moment.</p>`;
+                        leadsList.innerHTML = `<p class="col-span-full py-12 text-center text-sm text-gray-400">Aucune demande client ni devis pour le moment.</p>`;
                     } else {
                         leadsList.innerHTML = recentOrders.map(o => `
                             <div class="glass-panel p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-lg transition-all group">
@@ -1296,7 +1326,7 @@
                                             <span class="text-gray-300">•</span>
                                             <span class="flex items-center gap-1 text-[10px] font-bold text-gray-500">
                                                 <iconify-icon icon="solar:phone-bold" width="12"></iconify-icon>
-                                                ${o.phone_number || '-'}
+                                                ${o.customer_phone || o.phone_number || '-'}
                                             </span>
                                         </div>
                                     </div>
@@ -1308,7 +1338,7 @@
                                     </div>
                                     <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${window.OrderManager ? OrderManager.getStatusLabel(o.status) : o.status}</span>
                                     <button onclick="openOrderDetailModal('${o.id}')" 
-                                        aria-label="Voir les détails du paiement"
+                                        aria-label="Voir les détails de la demande"
                                         class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                                         <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
                                     </button>
@@ -1372,11 +1402,20 @@
                     otpSection.classList.add('hidden');
                     disputedSection.classList.add('hidden');
 
-                    if (order.status === 'PENDING') {
+                    if (order.status === 'PENDING' || order.status === 'QUOTE') {
                         actions.classList.remove('hidden');
                         standardActions.classList.remove('hidden');
-                        document.getElementById('btnMarkDelivered').onclick = () => updateVendorOrderStatus(order.id, 'DELIVERED');
+                        document.getElementById('btnMarkDelivered').innerHTML = `<iconify-icon icon="solar:delivery-bold" width="16"></iconify-icon>${order.status === 'QUOTE' ? 'Modifier le devis' : 'Proposer un devis'}`;
+                        document.getElementById('btnMarkDelivered').onclick = () => handleVendorQuote(order);
                         document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'CANCELLED');
+                        document.getElementById('btnMarkCancelled').textContent = 'Annuler la demande';
+                    } else if (order.status === 'READY_FOR_PAYMENT') {
+                        actions.classList.remove('hidden');
+                        standardActions.classList.remove('hidden');
+                        document.getElementById('btnMarkDelivered').innerHTML = `<iconify-icon icon="solar:clock-circle-bold" width="16"></iconify-icon>En attente du paiement`;
+                        document.getElementById('btnMarkDelivered').onclick = () => showToast('Le client doit maintenant accepter le devis et payer.', 'info');
+                        document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'CANCELLED');
+                        document.getElementById('btnMarkCancelled').textContent = 'Annuler la demande';
                     } else if (order.status === 'PAID_HELD') {
                         actions.classList.remove('hidden');
                         otpSection.classList.remove('hidden');
@@ -1423,8 +1462,19 @@
                     document.getElementById('orderDetailModal').classList.add('hidden');
                 };
 
-                async function updateVendorOrderStatus(orderId, newStatus) {
-                    if (!confirm(`Voulez-vous vraiment passer cette commande en statut "${newStatus}" ?`)) return;
+                async function updateVendorOrderStatus(orderId, newStatus, skipConfirm = false) {
+                    const confirmationText = `Passer cette commande en statut \"${newStatus}\" ?`;
+                    if (!skipConfirm) {
+                        if (typeof window.showConfirm === 'function') {
+                            window.showConfirm(
+                                'Confirmation',
+                                confirmationText,
+                                () => updateVendorOrderStatus(orderId, newStatus, true)
+                            );
+                            return;
+                        }
+                        if (!confirm(`Voulez-vous vraiment passer cette commande en statut \"${newStatus}\" ?`)) return;
+                    }
                     
                     try {
                         const success = await OrderManager.updateOrderStatus(orderId, newStatus);
@@ -1439,6 +1489,131 @@
                         }
                     } catch (error) {
                         showToast('Une erreur est survenue.', 'error');
+                    }
+                }
+
+                function openVendorQuoteModal(order) {
+                    return new Promise((resolve) => {
+                        const currentQuote = order?.latest_delivery_quote || null;
+                        const presetFee = currentQuote?.delivery_fee_amount ?? order?.delivery_fee_amount ?? '';
+                        const presetDelay = currentQuote?.estimated_delay_hours ?? 24;
+                        const presetNote = currentQuote?.note ?? '';
+
+                        const container = document.createElement('div');
+                        container.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm';
+                        container.innerHTML = `
+                            <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-100">
+                                <div class="p-5 sm:p-6 border-b border-gray-100 bg-gray-50 flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Devis de livraison</p>
+                                        <h3 class="text-lg font-black text-gray-900 truncate">${currentQuote ? 'Modifier le devis' : 'Proposer un devis'}</h3>
+                                        <p class="text-xs text-gray-500 mt-1">Le client doit accepter avant de payer. Paiement en sequestre.</p>
+                                    </div>
+                                    <button type="button" data-quote-close class="w-9 h-9 rounded-full bg-white hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors shadow-sm border border-gray-100">
+                                        <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
+                                    </button>
+                                </div>
+                                <div class="p-5 sm:p-6 space-y-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div class="space-y-1">
+                                            <label class="block text-xs font-bold text-gray-600">Montant livraison (CDF)</label>
+                                            <input data-quote-fee type="number" min="0" step="1" inputmode="numeric"
+                                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black/10 focus:border-black outline-none text-sm bg-white"
+                                                placeholder="Ex: 5000" value="${String(presetFee)}">
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="block text-xs font-bold text-gray-600">Delai estime (heures)</label>
+                                            <input data-quote-delay type="number" min="1" step="1" inputmode="numeric"
+                                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black/10 focus:border-black outline-none text-sm bg-white"
+                                                placeholder="Ex: 24" value="${String(presetDelay)}">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="block text-xs font-bold text-gray-600">Note (jour, localisation, contraintes)</label>
+                                        <textarea data-quote-note rows="3"
+                                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-black/10 focus:border-black outline-none text-sm bg-white resize-none"
+                                            placeholder="Ex: Livraison lundi matin. RDV au rond-point...">${String(presetNote || '')}</textarea>
+                                    </div>
+                                    <div class="p-3 rounded-xl bg-amber-50 border border-amber-100 text-xs text-amber-900">
+                                        <div class="flex items-start gap-2">
+                                            <iconify-icon icon="solar:info-circle-bold" width="18" class="text-amber-600"></iconify-icon>
+                                            <p>Astuce: plus la note est claire, moins il y a d'annulations.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-5 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row gap-3">
+                                    <button type="button" data-quote-cancel class="flex-1 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-all">Annuler</button>
+                                    <button type="button" data-quote-submit class="flex-1 py-3 bg-black text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
+                                        <iconify-icon icon="solar:send-bold" width="16"></iconify-icon>
+                                        Envoyer le devis
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+
+                        const close = (result) => {
+                            document.body.style.overflow = '';
+                            container.remove();
+                            resolve(result);
+                        };
+
+                        const feeEl = () => container.querySelector('[data-quote-fee]');
+                        const delayEl = () => container.querySelector('[data-quote-delay]');
+                        const noteEl = () => container.querySelector('[data-quote-note]');
+                        const submitBtn = () => container.querySelector('[data-quote-submit]');
+
+                        container.addEventListener('click', (e) => {
+                            if (e.target === container) close(null);
+                        });
+                        container.querySelector('[data-quote-close]')?.addEventListener('click', () => close(null));
+                        container.querySelector('[data-quote-cancel]')?.addEventListener('click', () => close(null));
+
+                        container.querySelector('[data-quote-submit]')?.addEventListener('click', () => {
+                            const deliveryFee = Number(feeEl()?.value || 0);
+                            const estimatedDelay = Number(delayEl()?.value || 0);
+                            const note = String(noteEl()?.value || '').trim();
+
+                            if (!Number.isFinite(deliveryFee) || deliveryFee < 0) {
+                                showToast('Montant de livraison invalide.', 'error');
+                                feeEl()?.focus();
+                                return;
+                            }
+                            if (!Number.isFinite(estimatedDelay) || estimatedDelay <= 0) {
+                                showToast('Delai invalide.', 'error');
+                                delayEl()?.focus();
+                                return;
+                            }
+
+                            const btn = submitBtn();
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon> Envoi...';
+                            }
+
+                            close({
+                                delivery_fee_amount: deliveryFee,
+                                estimated_delay_hours: Math.round(estimatedDelay),
+                                note
+                            });
+                        });
+
+                        document.body.style.overflow = 'hidden';
+                        document.body.appendChild(container);
+                        feeEl()?.focus();
+                    });
+                }
+
+                async function handleVendorQuote(order) {
+                    const payload = await openVendorQuoteModal(order);
+                    if (!payload) return;
+
+                    try {
+                        await OrderManager.createDeliveryQuote(order.id, payload);
+                        showToast('Devis envoyé au client.', 'success');
+                        closeOrderDetailModal();
+                        await renderVendorDashboard();
+                    } catch (error) {
+                        showToast(error.message || 'Erreur lors de la creation du devis', 'error');
                     }
                 }
 
@@ -1541,13 +1716,18 @@
                     }
                 };
 
-                window.handleVendorAmiableResolve = async function() {
+                window.handleVendorAmiableResolve = async function(skipConfirm = false) {
                     const orderId = window.currentDisputeOrderIdForVendor;
                     const disputeId = window.currentDisputeIdForVendor;
                     if (!orderId || !disputeId) return;
                     
-                    if(!confirm("Ceci procédera au remboursement du client depuis vos fonds sur ce litige, et clôturera le litige. Étês-vous sûr ?")) {
-                        return;
+                    const confirmText = "Ceci procédera au remboursement du client depuis vos fonds sur ce litige, et clôturera le litige. Continuer ?";
+                    if (!skipConfirm) {
+                        if (typeof window.showConfirm === 'function') {
+                            window.showConfirm('Remboursement total', confirmText, () => window.handleVendorAmiableResolve(true));
+                            return;
+                        }
+                        if(!confirm(confirmText)) return;
                     }
                     
                     const btn = document.getElementById('btnAmiableResolve');
@@ -1575,15 +1755,36 @@
                     const disputeId = window.currentDisputeIdForVendor;
                     if (!orderId || !disputeId) return;
 
-                    const rawAmount = prompt("Montant du remboursement partiel (CDF) ?");
+                    const rawAmount = typeof window.showPromptModal === 'function'
+                        ? await window.showPromptModal({
+                            title: 'Remboursement partiel',
+                            message: 'Indiquez le montant à rembourser (en CDF).',
+                            label: 'Montant (CDF)',
+                            type: 'number',
+                            inputMode: 'numeric',
+                            step: 1,
+                            min: 1,
+                            required: true
+                        })
+                        : prompt("Montant du remboursement partiel (CDF) ?");
                     if (rawAmount === null) return;
-                    const amount = parseFloat(rawAmount);
+                    const amount = parseFloat(String(rawAmount).replace(',', '.'));
                     if (!Number.isFinite(amount) || amount <= 0) {
                         if (window.showToast) showToast("Montant invalide.", 'error');
                         return;
                     }
 
-                    const note = prompt("Expliquez votre proposition au client.") || '';
+                    const note = typeof window.showPromptModal === 'function'
+                        ? await window.showPromptModal({
+                            title: 'Message au client',
+                            message: 'Expliquez brièvement votre proposition.',
+                            label: 'Message',
+                            multiline: true,
+                            required: true
+                        })
+                        : (prompt("Expliquez votre proposition au client.") || '');
+
+                    if (note === null) return;
 
                     try {
                         await OrderManager.vendorRespondToDispute(disputeId, {
@@ -1603,13 +1804,21 @@
                     const disputeId = window.currentDisputeIdForVendor;
                     if (!orderId || !disputeId) return;
 
-                    const note = prompt("Argumentaire vendeur / preuves textuelles ?");
-                    if (!note || !note.trim()) return;
+                    const note = typeof window.showPromptModal === 'function'
+                        ? await window.showPromptModal({
+                            title: 'Contester le litige',
+                            message: 'Décrivez votre argumentaire / preuves (texte).',
+                            label: 'Argumentaire',
+                            multiline: true,
+                            required: true
+                        })
+                        : prompt("Argumentaire vendeur / preuves textuelles ?");
+                    if (!note || !String(note).trim()) return;
 
                     try {
                         await OrderManager.vendorRespondToDispute(disputeId, {
                             action: 'CONTEST',
-                            message: note.trim()
+                            message: String(note).trim()
                         });
                         if (window.showToast) showToast("Contestation envoyée en revue.", 'success');
                         await window.loadVendorDisputeChat(orderId);
@@ -1618,33 +1827,6 @@
                     }
                 };
 
-    </script>
-
-    <!-- Custom Confirmation Modal -->
-    <div id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
-        <div class="modal-box">
-            <p class="modal-title" id="confirmModalTitle">Confirmer l'action</p>
-            <p class="modal-message" id="confirmModalMessage"></p>
-            <div class="modal-actions">
-                <button class="btn-confirm-cancel" id="confirmModalCancel">Annuler</button>
-                <button class="btn-confirm-ok" id="confirmModalOk">Confirmer</button>
-            </div>
-        </div>
-    </div>
-    <script>
-        window.showConfirm = function(message, onConfirm, title) {
-            title = title || 'Confirmer l\'action';
-            const modal = document.getElementById('confirmModal');
-            document.getElementById('confirmModalTitle').textContent = title;
-            document.getElementById('confirmModalMessage').textContent = message;
-            modal.classList.add('active');
-            const ok = document.getElementById('confirmModalOk');
-            const cancel = document.getElementById('confirmModalCancel');
-            const close = () => modal.classList.remove('active');
-            ok.onclick = () => { close(); onConfirm(); };
-            cancel.onclick = close;
-            modal.onclick = (e) => { if (e.target === modal) close(); };
-        };
     </script>
 
     <script>
