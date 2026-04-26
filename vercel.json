@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/escrows/release-due",
+      "schedule": "5 0 * * *"
+    },
+    {
+      "path": "/api/cron/disputes/process-due",
+      "schedule": "10 0 * * *"
+    }
+  ]
+}
+

@@ -572,6 +572,10 @@
                             <iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>
                         </button>
                     </div>
+                    <div id="buyerDisputeActions" class="hidden grid grid-cols-2 gap-2">
+                        <button onclick="handleBuyerAcceptDisputeOffer()" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-[10px] font-black uppercase tracking-widest">Accepter l'offre</button>
+                        <button onclick="handleBuyerRejectDisputeOffer()" class="py-3 rounded-xl bg-white border border-orange-200 text-orange-700 hover:bg-orange-50 text-[10px] font-black uppercase tracking-widest">Refuser</button>
+                    </div>
                 </div>
 
                 <!-- Actions -->
@@ -647,6 +651,7 @@
 
     <script>
         let currentSelectedOrder = null;
+        let currentSelectedDispute = null;
 
         function switchTab(tabId) {
             ['orders', 'favorites', 'notifications', 'settings'].forEach(t => {
@@ -1178,18 +1183,18 @@
             btnValidate.classList.add('hidden');
             btnDispute.classList.add('hidden');
 
+            currentSelectedDispute = null;
+
             if (order.status === 'PAID_HELD') {
                 escrowSection.classList.remove('hidden');
                 otpSection.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
-                btnDispute.classList.remove('hidden');
             } else if (order.status === 'DELIVERED') {
                 escrowSection.classList.remove('hidden');
                 btnValidate.classList.remove('hidden');
                 btnDispute.classList.remove('hidden');
             } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
                 escrowSection.classList.remove('hidden');
-                btnDispute.classList.remove('hidden');
             }
 
 
@@ -1260,16 +1265,16 @@
                 return;
             }
 
-            const proofs = [];
-            if (proof1) proofs.push(proof1);
-            if (proof2) proofs.push(proof2);
+            const evidence = [];
+            if (proof1) evidence.push({ url: proof1, kind: 'photo', source: 'client' });
+            if (proof2) evidence.push({ url: proof2, kind: 'photo', source: 'client' });
 
             try {
                 const btn = document.getElementById('btnSubmitDispute');
                 btn.disabled = true;
                 btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi...';
 
-                await OrderManager.openDispute(currentSelectedOrder.id, category, description, proofs);
+                await OrderManager.openDispute(currentSelectedOrder.id, category, description, evidence);
                 
                 showToast('Litige ouvert. Notre service client va analyser votre demande.', 'warning');
                 closeDisputeModal();
@@ -1285,12 +1290,18 @@
 
         window.loadDisputeChat = async function(orderId) {
             const container = document.getElementById('disputeChatContainer');
+            const buyerActions = document.getElementById('buyerDisputeActions');
             if (!container) return;
+            if (buyerActions) buyerActions.classList.add('hidden');
 
             container.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-gray-400 text-xs gap-2"><iconify-icon icon="line-md:loading-twotone-loop" width="24"></iconify-icon>Chargement du fil...</div>';
 
             try {
-                const messages = await OrderManager.getDisputeMessages(orderId);
+                currentSelectedDispute = await OrderManager.getDisputeByOrder(orderId);
+                if (buyerActions && currentSelectedDispute.status === 'BUYER_PENDING') {
+                    buyerActions.classList.remove('hidden');
+                }
+                const messages = await OrderManager.getDisputeMessages(currentSelectedDispute.id);
                 container.innerHTML = '';
 
                 if (!messages || messages.length === 0) {
@@ -1299,17 +1310,22 @@
                 }
 
                 messages.forEach(msg => {
-                    const isMe = msg.sender_role === 'CUSTOMER';
+                    const senderRole = (msg.payload && msg.payload.sender_role) || msg.sender_role || 'SYSTEM';
+                    const isMe = senderRole === 'CUSTOMER';
                     let roleLabel = '';
                     let bubbleClass = '';
                     let alignClass = isMe ? 'self-end items-end' : 'self-start items-start';
+                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
 
-                    if (msg.sender_role === 'ADMIN') {
+                    if (senderRole === 'ADMIN') {
                         roleLabel = '<span class="text-[8px] font-black bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2 uppercase">SUPPORT</span>';
                         bubbleClass = 'bg-red-50 border border-red-100 text-red-950';
-                    } else if (msg.sender_role === 'VENDOR') {
+                    } else if (senderRole === 'VENDOR' || senderRole === 'SELLER') {
                         roleLabel = '<span class="text-[8px] font-black bg-blue-100 text-blue-600 px-1 py-0.5 rounded ml-2 uppercase">VENDEUR</span>';
                         bubbleClass = 'bg-blue-50 border border-blue-100 text-blue-950';
+                    } else if (senderRole === 'SYSTEM') {
+                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÈME</span>';
+                        bubbleClass = 'bg-gray-100 text-gray-700';
                     } else {
                         roleLabel = '<span class="text-[8px] font-black text-gray-400 ml-2 uppercase">VOUS</span>';
                         bubbleClass = 'bg-black text-white';
@@ -1324,7 +1340,7 @@
                                 ${roleLabel}
                             </div>
                             <div class="px-3 py-2 rounded-2xl text-xs font-medium ${bubbleClass} shadow-sm">
-                                ${msg.message}
+                                ${messageText}
                             </div>
                         </div>
                     `;
@@ -1348,7 +1364,13 @@
             btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>';
 
             try {
-                await OrderManager.addDisputeMessage(currentSelectedOrder.id, message, 'CUSTOMER');
+                if (!currentSelectedDispute) {
+                    currentSelectedDispute = await OrderManager.getDisputeByOrder(currentSelectedOrder.id);
+                }
+                await OrderManager.addDisputeMessage(currentSelectedDispute.id, {
+                    type: 'MESSAGE',
+                    payload: { message }
+                });
                 input.value = '';
                 await loadDisputeChat(currentSelectedOrder.id);
             } catch (error) {
@@ -1356,6 +1378,30 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>';
+            }
+        };
+
+        window.handleBuyerAcceptDisputeOffer = async function() {
+            if (!currentSelectedDispute) return;
+            try {
+                await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'ACCEPT' });
+                showToast("Proposition vendeur acceptée.", 'success');
+                await loadDashboardData();
+                await loadDisputeChat(currentSelectedOrder.id);
+            } catch (error) {
+                showToast(error.message || "Erreur lors de l'acceptation.", 'error');
+            }
+        };
+
+        window.handleBuyerRejectDisputeOffer = async function() {
+            if (!currentSelectedDispute) return;
+            try {
+                await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'REJECT' });
+                showToast("Le dossier passe en arbitrage plateforme.", 'warning');
+                await loadDashboardData();
+                await loadDisputeChat(currentSelectedOrder.id);
+            } catch (error) {
+                showToast(error.message || "Erreur lors du refus.", 'error');
             }
         };
         // ========================================================================

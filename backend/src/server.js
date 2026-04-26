@@ -77,7 +77,9 @@ import reviewRoutes from './routes/review.routes.js';
 import supportRoutes from './routes/support.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import disputeRoutes from './routes/dispute.routes.js';
+import cronRoutes from './routes/cron.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
+import { processDueDisputesJob } from './controllers/dispute.controller.js';
 
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -94,6 +96,7 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/disputes', disputeRoutes);
+app.use('/api/cron', cronRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {
@@ -129,16 +132,34 @@ app.listen(PORT, () => {
 
 const ESCROW_JOB_INTERVAL_MS = 15 * 60 * 1000;
 
-setTimeout(() => {
-  releaseDueEscrowsJob().catch((error) => {
-    console.error('[EscrowJob] Startup run failed:', error.message);
-  });
-}, 10000);
+const IS_VERCEL = String(process.env.VERCEL || '').toLowerCase() === '1' || Boolean(process.env.VERCEL);
 
-setInterval(() => {
-  releaseDueEscrowsJob().catch((error) => {
-    console.error('[EscrowJob] Scheduled run failed:', error.message);
-  });
-}, ESCROW_JOB_INTERVAL_MS);
+if (!IS_VERCEL) {
+  setTimeout(() => {
+    releaseDueEscrowsJob().catch((error) => {
+      console.error('[EscrowJob] Startup run failed:', error.message);
+    });
+  }, 10000);
+
+  setInterval(() => {
+    releaseDueEscrowsJob().catch((error) => {
+      console.error('[EscrowJob] Scheduled run failed:', error.message);
+    });
+  }, ESCROW_JOB_INTERVAL_MS);
+
+  setTimeout(() => {
+    processDueDisputesJob().catch((error) => {
+      console.error('[DisputeJob] Startup run failed:', error.message);
+    });
+  }, 15000);
+
+  setInterval(() => {
+    processDueDisputesJob().catch((error) => {
+      console.error('[DisputeJob] Scheduled run failed:', error.message);
+    });
+  }, 15 * 60 * 1000);
+} else {
+  console.log('[Jobs] Vercel detected: background intervals disabled. Use /api/cron/* endpoints with Vercel Cron Jobs.');
+}
 
 export default app;

@@ -492,11 +492,20 @@
                                         <h5 class="text-xs font-black text-red-900 uppercase">Commande en litige</h5>
                                         <p class="text-[10px] text-red-600 leading-tight">Un litige a été ouvert par le client. Notre équipe est en train d'évaluer le dossier. Les fonds sont bloqués jusqu'à la résolution.</p>
                                     </div>
-                                    <!-- Accord Amiable (Auto-resolution) -->
-                                    <button id="btnAmiableResolve" onclick="handleVendorAmiableResolve()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/30">
-                                        <iconify-icon icon="solar:hand-shake-bold" width="16"></iconify-icon>
-                                        Accepter d'Amiable et Rembourser
-                                    </button>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                        <button id="btnAmiableResolve" onclick="handleVendorAmiableResolve()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/30">
+                                            <iconify-icon icon="solar:hand-shake-bold" width="16"></iconify-icon>
+                                            Refund total
+                                        </button>
+                                        <button onclick="handleVendorPartialOffer()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                                            <iconify-icon icon="solar:wallet-money-bold" width="16"></iconify-icon>
+                                            Offre partielle
+                                        </button>
+                                        <button onclick="handleVendorContest()" class="w-full py-3 bg-slate-900 hover:bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/20">
+                                            <iconify-icon icon="solar:shield-cross-bold" width="16"></iconify-icon>
+                                            Contester
+                                        </button>
+                                    </div>
                                     
                                     <!-- Chat pour le vendeur -->
                                     <div class="mt-4 border-t border-red-100/50 pt-4">
@@ -1434,6 +1443,7 @@
                 }
 
                 window.currentDisputeOrderIdForVendor = null;
+                window.currentDisputeIdForVendor = null;
 
                 window.loadVendorDisputeChat = async function(orderId) {
                     const chatContainer = document.getElementById('vDisputeChat');
@@ -1442,7 +1452,9 @@
                     chatContainer.innerHTML = '<div class="text-center text-[10px] text-gray-400 italic mt-4"><iconify-icon icon="line-md:loading-loop" width="20"></iconify-icon><br>Chargement...</div>';
                     
                     try {
-                        const messages = await OrderManager.getDisputeMessages(orderId);
+                        const dispute = await OrderManager.getDisputeByOrder(orderId);
+                        window.currentDisputeIdForVendor = dispute.id;
+                        const messages = await OrderManager.getDisputeMessages(dispute.id);
                         chatContainer.innerHTML = '';
                         
                         if (!messages || messages.length === 0) {
@@ -1451,21 +1463,27 @@
                         }
                         
                         messages.forEach(msg => {
-                            const isMe = msg.sender_role === 'VENDOR';
+                            const senderRole = (msg.payload && msg.payload.sender_role) || msg.sender_role || 'SYSTEM';
+                            const isMe = senderRole === 'VENDOR' || senderRole === 'SELLER';
                             // Roles: ADMIN, CUSTOMER, VENDOR
                             let roleBadge = '';
                             let bubbleColor = '';
                             let textColor = '';
                             let align = isMe ? 'self-end items-end' : 'self-start items-start';
+                            const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
                             
-                            if (msg.sender_role === 'ADMIN') {
+                            if (senderRole === 'ADMIN') {
                                 roleBadge = '<span class="text-[8px] font-black uppercase bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2">ADMIN</span>';
                                 bubbleColor = 'bg-red-50 border border-red-100';
                                 textColor = 'text-red-900';
-                            } else if (msg.sender_role === 'CUSTOMER') {
+                            } else if (senderRole === 'CUSTOMER' || senderRole === 'BUYER') {
                                 roleBadge = '<span class="text-[8px] font-black uppercase bg-gray-100 text-gray-600 px-1 py-0.5 rounded ml-2">CLIENT</span>';
                                 bubbleColor = 'bg-gray-50 border border-gray-100';
                                 textColor = 'text-gray-900';
+                            } else if (senderRole === 'SYSTEM') {
+                                roleBadge = '<span class="text-[8px] font-black uppercase bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2">SYSTÈME</span>';
+                                bubbleColor = 'bg-gray-100 border border-gray-200';
+                                textColor = 'text-gray-700';
                             } else {
                                 roleBadge = '<span class="text-[8px] font-black uppercase text-gray-400 ml-2">Vous</span>';
                                 bubbleColor = 'bg-gray-900 border border-gray-900';
@@ -1482,7 +1500,7 @@
                                         ${roleBadge}
                                     </div>
                                     <div class="px-3 py-2 rounded-2xl ${bubbleColor} ${textColor} text-xs shadow-sm">
-                                        ${msg.message}
+                                        ${messageText}
                                     </div>
                                 </div>
                             `;
@@ -1499,8 +1517,9 @@
                     const input = document.getElementById('vDisputeMessageInput');
                     const message = input.value.trim();
                     const orderId = window.currentDisputeOrderIdForVendor;
+                    const disputeId = window.currentDisputeIdForVendor;
                     
-                    if (!message || !orderId) return;
+                    if (!message || !orderId || !disputeId) return;
                     
                     const btn = input.nextElementSibling;
                     const originalHtml = btn.innerHTML;
@@ -1508,15 +1527,10 @@
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-loop"></iconify-icon>';
                     
                     try {
-                        let senderId = null;
-                        const session = await window.SupabaseAdapter.getClient().auth.getSession();
-                        if (session?.data?.session?.user) {
-                            senderId = session.data.session.user.id;
-                        } else {
-                            senderId = 'VENDOR_ID'; // fallback
-                        }
-                        
-                        await OrderManager.addDisputeMessage(orderId, senderId, 'VENDOR', message);
+                        await OrderManager.addDisputeMessage(disputeId, {
+                            type: 'MESSAGE',
+                            payload: { message, sender_role: 'SELLER' }
+                        });
                         input.value = '';
                         await window.loadVendorDisputeChat(orderId);
                     } catch (error) {
@@ -1529,7 +1543,8 @@
 
                 window.handleVendorAmiableResolve = async function() {
                     const orderId = window.currentDisputeOrderIdForVendor;
-                    if (!orderId) return;
+                    const disputeId = window.currentDisputeIdForVendor;
+                    if (!orderId || !disputeId) return;
                     
                     if(!confirm("Ceci procédera au remboursement du client depuis vos fonds sur ce litige, et clôturera le litige. Étês-vous sûr ?")) {
                         return;
@@ -1541,7 +1556,10 @@
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-loop"></iconify-icon> Traitement...';
                     
                     try {
-                        await OrderManager.vendorResolveAmiable(orderId);
+                        await OrderManager.vendorRespondToDispute(disputeId, {
+                            action: 'ACCEPT_REFUND',
+                            message: 'Remboursement total accepté par le vendeur.'
+                        });
                         if(window.showToast) showToast("Litige résolu à l'amiable et client remboursé !", 'success');
                         window.closeOrderDetailModal();
                         renderVendorDashboard();
@@ -1549,6 +1567,54 @@
                         if(window.showToast) showToast(error.message || 'Erreur lors de la résolution amiable.', 'error');
                         btn.disabled = false;
                         btn.innerHTML = originalHtml;
+                    }
+                };
+
+                window.handleVendorPartialOffer = async function() {
+                    const orderId = window.currentDisputeOrderIdForVendor;
+                    const disputeId = window.currentDisputeIdForVendor;
+                    if (!orderId || !disputeId) return;
+
+                    const rawAmount = prompt("Montant du remboursement partiel (CDF) ?");
+                    if (rawAmount === null) return;
+                    const amount = parseFloat(rawAmount);
+                    if (!Number.isFinite(amount) || amount <= 0) {
+                        if (window.showToast) showToast("Montant invalide.", 'error');
+                        return;
+                    }
+
+                    const note = prompt("Expliquez votre proposition au client.") || '';
+
+                    try {
+                        await OrderManager.vendorRespondToDispute(disputeId, {
+                            action: 'OFFER_PARTIAL_REFUND',
+                            amount,
+                            message: note
+                        });
+                        if (window.showToast) showToast("Offre partielle envoyée au client.", 'success');
+                        await window.loadVendorDisputeChat(orderId);
+                    } catch (error) {
+                        if (window.showToast) showToast(error.message || "Erreur lors de l'envoi de l'offre.", 'error');
+                    }
+                };
+
+                window.handleVendorContest = async function() {
+                    const orderId = window.currentDisputeOrderIdForVendor;
+                    const disputeId = window.currentDisputeIdForVendor;
+                    if (!orderId || !disputeId) return;
+
+                    const note = prompt("Argumentaire vendeur / preuves textuelles ?");
+                    if (!note || !note.trim()) return;
+
+                    try {
+                        await OrderManager.vendorRespondToDispute(disputeId, {
+                            action: 'CONTEST',
+                            message: note.trim()
+                        });
+                        if (window.showToast) showToast("Contestation envoyée en revue.", 'success');
+                        await window.loadVendorDisputeChat(orderId);
+                    } catch (error) {
+                        if (window.showToast) showToast(error.message || "Erreur lors de la contestation.", 'error');
                     }
                 };
 

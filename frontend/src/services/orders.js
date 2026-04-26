@@ -331,14 +331,25 @@ const OrderManager = {
         }
     },
 
-    async openDispute(orderId, reasonCategory, description, proofUrls) {
+    async getDisputeByOrder(orderId) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.get(`/disputes/by-order/${orderId}`);
+            return data.data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur getDisputeByOrder:', error);
+            throw error;
+        }
+    },
+
+    async openDispute(orderId, reasonCategory, description, evidence) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
             const data = await ApiClient.post(`/disputes`, {
                 order_id: orderId,
-                reason_category: reasonCategory,
+                reason: reasonCategory,
                 description,
-                proof_urls: proofUrls
+                evidence
             });
             this._initialized = false; // Rafraîchissement
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
@@ -349,8 +360,33 @@ const OrderManager = {
         }
     },
 
+    async vendorRespondToDispute(disputeId, payload) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/disputes/${disputeId}/vendor-action`, payload);
+            this._initialized = false;
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur vendorRespondToDispute:', error);
+            throw error;
+        }
+    },
+
+    async buyerRespondToDispute(disputeId, payload) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/disputes/${disputeId}/buyer-action`, payload);
+            this._initialized = false;
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur buyerRespondToDispute:', error);
+            throw error;
+        }
+    },
+
     async resolveDispute(disputeId, payload) {
-        // payload = { resolution_decision, refund_amount, action_for_order }
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
             const data = await ApiClient.patch(`/disputes/${disputeId}/resolve`, payload);
@@ -374,10 +410,10 @@ const OrderManager = {
         }
     },
 
-    async addDisputeMessage(disputeId, message) {
+    async addDisputeMessage(disputeId, payload) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
-            const data = await ApiClient.post(`/disputes/${disputeId}/messages`, { message });
+            const data = await ApiClient.post(`/disputes/${disputeId}/messages`, payload);
             return data;
         } catch (error) {
             console.error('[OrderManager] Erreur addDisputeMessage:', error);

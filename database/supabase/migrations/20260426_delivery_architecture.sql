@@ -8,7 +8,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 DO $$
 BEGIN
     ALTER TABLE public.orders
-        ADD COLUMN IF NOT EXISTS vendor_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+        ADD COLUMN IF NOT EXISTS vendor_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
         ADD COLUMN IF NOT EXISTS merchandise_amount NUMERIC(12,2),
         ADD COLUMN IF NOT EXISTS delivery_fee_amount NUMERIC(12,2) DEFAULT 0,
         ADD COLUMN IF NOT EXISTS accepted_delivery_quote_id UUID,
@@ -33,7 +33,11 @@ SET
     total = COALESCE(total, total_amount, 0),
     vendor_id = COALESCE(
         vendor_id,
-        NULLIF((items->0->>'vendor_id'), '')::uuid
+        CASE
+            WHEN NULLIF((items->0->>'vendor_id'), '') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$'
+                THEN ((items->0->>'vendor_id'))::uuid
+            ELSE NULL
+        END
     ),
     escrow_status = COALESCE(escrow_status, CASE
         WHEN status IN ('PAID_HELD', 'DELIVERED') THEN 'HELD'
@@ -101,7 +105,7 @@ ALTER TABLE public.orders
 CREATE TABLE IF NOT EXISTS public.delivery_quotes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id TEXT NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
-    vendor_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    vendor_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     delivery_fee_amount NUMERIC(12,2) NOT NULL CHECK (delivery_fee_amount >= 0),
     estimated_delay_hours INTEGER NOT NULL CHECK (estimated_delay_hours > 0),
     note TEXT,
@@ -117,7 +121,7 @@ CREATE INDEX IF NOT EXISTS idx_delivery_quotes_status ON public.delivery_quotes(
 CREATE TABLE IF NOT EXISTS public.deliveries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id TEXT NOT NULL UNIQUE REFERENCES public.orders(id) ON DELETE CASCADE,
-    vendor_id UUID REFERENCES public.users(id) ON DELETE SET NULL,
+    vendor_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     mode TEXT NOT NULL DEFAULT 'SELLER_MANAGED' CHECK (mode IN ('SELLER_MANAGED')),
     external_courier_name TEXT,
     external_courier_phone TEXT,

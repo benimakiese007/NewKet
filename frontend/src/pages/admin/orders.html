@@ -451,9 +451,7 @@
             document.getElementById('adminDisputeDetails').classList.add('hidden');
             
             try {
-                // Fetch all disputes (MVP way since backend doesn't have a specific GET /by-order endpoint)
-                const disputes = await OrderManager.getDisputes();
-                currentDispute = disputes.find(d => d.order_id === orderId && d.status === 'OPEN');
+                currentDispute = await OrderManager.getDisputeByOrder(orderId);
                 
                 if (!currentDispute) {
                     alert('Ce litige est déjà résolu ou introuvable.');
@@ -461,14 +459,15 @@
                     return;
                 }
 
-                document.getElementById('adminDisputeReason').textContent = currentDispute.reason_category;
+                document.getElementById('adminDisputeReason').textContent = currentDispute.reason || currentDispute.reason_category;
                 document.getElementById('adminDisputeDesc').textContent = currentDispute.description;
                 document.getElementById('adminDisputeTotal').textContent = currentDispute.orders ? window.CurrencyManager.formatPrice(currentDispute.orders.total) : 'N/A';
                 
                 const proofsDiv = document.getElementById('adminDisputeProofs');
-                if (currentDispute.proof_urls && currentDispute.proof_urls.length > 0) {
-                    proofsDiv.innerHTML = currentDispute.proof_urls.map(url => `
-                        <a href="${url}" target="_blank" class="text-sm font-medium text-blue-600 hover:underline inline-flex items-center gap-1">
+                const evidence = currentDispute.evidence || [];
+                if (evidence.length > 0) {
+                    proofsDiv.innerHTML = evidence.map(item => `
+                        <a href="${item.url}" target="_blank" class="text-sm font-medium text-blue-600 hover:underline inline-flex items-center gap-1">
                             <iconify-icon icon="solar:link-circle-linear" width="16"></iconify-icon> Voir la preuve jointe
                         </a>
                     `).join('');
@@ -506,9 +505,10 @@
                 }
 
                 chatContainer.innerHTML = messages.map(msg => {
-                    const isAdmin = msg.sender_role === 'ADMIN';
-                    const isClient = msg.sender_role === 'CUSTOMER';
-                    const isVendor = msg.sender_role === 'VENDOR';
+                    const senderRole = (msg.payload && msg.payload.sender_role) || msg.sender_role || 'SYSTEM';
+                    const isAdmin = senderRole === 'ADMIN';
+                    const isVendor = senderRole === 'VENDOR' || senderRole === 'SELLER';
+                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
 
                     let roleBadge = '';
                     let bgColor = 'bg-gray-100';
@@ -541,7 +541,7 @@
                                     })}</span>
                                 </div>
                                 <div class="${bgColor} p-3 rounded-2xl text-sm text-gray-800 break-words whitespace-pre-wrap ${isAdmin ? 'rounded-tr-none' : 'rounded-tl-none'} shadow-sm">
-                                    ${msg.message}
+                                    ${messageText}
                                 </div>
                             </div>
                         </div>
@@ -569,7 +569,10 @@
                 btn.disabled = true;
                 btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>';
 
-                await OrderManager.addDisputeMessage(currentDispute.id, message);
+                await OrderManager.addDisputeMessage(currentDispute.id, {
+                    type: 'MESSAGE',
+                    payload: { message, sender_role: 'ADMIN' }
+                });
                 
                 input.value = '';
                 await loadAdminDisputeMessages(currentDispute.id);
@@ -590,6 +593,13 @@
             const resolution_decision = document.getElementById('adminResolutionDesc').value.trim();
             const action_for_order = document.getElementById('adminResolutionAction').value;
             const refund_amount = parseFloat(document.getElementById('adminRefundAmount').value) || 0;
+            let resolution = 'RELEASE_TO_SELLER';
+
+            if (action_for_order === 'REFUNDED') {
+                resolution = 'FULL_REFUND';
+            } else if (action_for_order === 'PARTIAL_REFUND') {
+                resolution = 'PARTIAL_REFUND';
+            }
 
             if (!resolution_decision) {
                 alert("Vous devez fournir une explication textuelle (décision).");
@@ -603,6 +613,7 @@
 
                 await OrderManager.resolveDispute(currentDispute.id, {
                     resolution_decision,
+                    resolution,
                     action_for_order,
                     refund_amount
                 });

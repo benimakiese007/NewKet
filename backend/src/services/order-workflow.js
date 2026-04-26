@@ -48,8 +48,53 @@ export const ESCROW_EVENT_TYPES = {
     AUTO_RELEASED: 'AUTO_RELEASED',
     FROZEN: 'FROZEN',
     REFUNDED: 'REFUNDED',
+    PARTIAL: 'PARTIAL',
     MANUAL_OVERRIDE: 'MANUAL_OVERRIDE'
 };
+
+export const DISPUTE_STATUSES = {
+    OPEN: 'OPEN',
+    SELLER_PENDING: 'SELLER_PENDING',
+    BUYER_PENDING: 'BUYER_PENDING',
+    UNDER_REVIEW: 'UNDER_REVIEW',
+    RESOLVED: 'RESOLVED',
+    REJECTED: 'REJECTED'
+};
+
+export const DISPUTE_REASONS = {
+    NOT_RECEIVED: 'NOT_RECEIVED',
+    DAMAGED: 'DAMAGED',
+    NOT_AS_DESCRIBED: 'NOT_AS_DESCRIBED',
+    OTHER: 'OTHER'
+};
+
+export const DISPUTE_RESOLUTIONS = {
+    FULL_REFUND: 'FULL_REFUND',
+    PARTIAL_REFUND: 'PARTIAL_REFUND',
+    RELEASE_TO_SELLER: 'RELEASE_TO_SELLER'
+};
+
+export const DISPUTE_MESSAGE_TYPES = {
+    MESSAGE: 'MESSAGE',
+    OFFER: 'OFFER',
+    EVIDENCE: 'EVIDENCE',
+    SYSTEM: 'SYSTEM'
+};
+
+export const DISPUTE_VENDOR_ACTIONS = {
+    ACCEPT_REFUND: 'ACCEPT_REFUND',
+    OFFER_PARTIAL_REFUND: 'OFFER_PARTIAL_REFUND',
+    CONTEST: 'CONTEST'
+};
+
+export const DISPUTE_BUYER_ACTIONS = {
+    ACCEPT: 'ACCEPT',
+    REJECT: 'REJECT'
+};
+
+export const DISPUTE_SELLER_RESPONSE_HOURS = 24;
+export const DISPUTE_BUYER_RESPONSE_HOURS = 24;
+export const DISPUTE_REVIEW_HOURS = 72;
 
 export const MAX_OTP_ATTEMPTS = 5;
 export const ESCROW_HOLD_HOURS = 72;
@@ -119,6 +164,10 @@ export function generateOtpCode() {
 
 export function computeEscrowReleaseAt(fromDate = new Date()) {
     return new Date(new Date(fromDate).getTime() + ESCROW_HOLD_HOURS * 60 * 60 * 1000).toISOString();
+}
+
+export function addHours(fromDate, hours) {
+    return new Date(new Date(fromDate).getTime() + hours * 60 * 60 * 1000).toISOString();
 }
 
 export async function logOrderStatusHistory(client, { orderId, previousStatus, newStatus, changedBy, notes = null }) {
