@@ -1357,7 +1357,14 @@ window.showPromptModal = ({
 
       } catch (err) {
           console.error('[NewKet] Checkout error:', err);
-        showToast("Erreur lors de l'envoi de la demande.", "error");
+        const msg = err?.message || '';
+        const isBackendDown = /ERR_CONNECTION_REFUSED|Failed to fetch|NetworkError|Load failed/i.test(msg);
+        showToast(
+            isBackendDown
+                ? "API indisponible (backend). Lance `npm run dev:backend` puis recharge la page."
+                : "Erreur lors de l'envoi de la demande.",
+            "error"
+        );
           btnElement.innerHTML = originalHtml;
           btnElement.disabled = false;
       }

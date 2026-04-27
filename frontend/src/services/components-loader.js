@@ -17,13 +17,12 @@ const HEADER_HTML = `
                 <div class="flex min-w-0 flex-1 items-center justify-center text-center">
                     <span class="block max-w-full truncate px-2 sm:px-4 leading-none whitespace-nowrap">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
                 </div>
-                <div class="hidden sm:flex shrink-0 items-center gap-4 md:gap-6">
-                    <a href="{{ROOT}}src/pages/support.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Support</a>
-                    <a href="{{ROOT}}src/pages/faq.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">FAQ</a>
-                    <a href="{{ROOT}}src/pages/forum.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Forum</a>
-                </div>
-            </div>
-        </div>
+                  <div class="hidden sm:flex shrink-0 items-center gap-4 md:gap-6">
+                      <a href="{{ROOT}}src/pages/support.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Support</a>
+                      <a href="{{ROOT}}src/pages/faq.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">FAQ</a>
+                  </div>
+              </div>
+          </div>
         <!-- Main header content (Logo, Search, Icons) -->
             <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
@@ -104,6 +103,17 @@ const HEADER_HTML = `
 
             <!-- Desktop Icons (Notifications, Favorites, Account, Theme) -->
             <div class="header-actions hidden sm:flex items-center gap-4 shrink-0">
+                <!-- Currency Toggle (Desktop) -->
+                <div class="hidden lg:flex items-center">
+                    <div class="currency-switch-segmented scale-90 origin-right" id="desktopCurrencyToggle" data-active="CDF" title="Devise d'affichage">
+                        <div class="segmented-track">
+                            <div class="segmented-handle"></div>
+                            <span class="segmented-label" data-currency="USD">USD</span>
+                            <span class="segmented-label" data-currency="CDF">CDF</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Theme Toggle -->
                 <button data-theme-toggle
                     class="p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale" 
@@ -228,28 +238,10 @@ const HEADER_HTML = `
             </nav>
         </div>
 
-        <div class="header-quick-links px-4 mb-6 border-t border-gray-50 pt-6">
-            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Liens utiles</h3>
-            <nav class="flex flex-col gap-1">
-                <a href="{{ROOT}}src/pages/support.html"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                    <iconify-icon icon="solar:help-bold" width="20"></iconify-icon> Support
-                </a>
-                <a href="{{ROOT}}src/pages/faq.html"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                    <iconify-icon icon="solar:question-circle-bold" width="20"></iconify-icon> FAQ
-                </a>
-                <a href="{{ROOT}}src/pages/forum.html"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                    <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum
-                </a>
-            </nav>
-        </div>
-
-        <div class="px-4 mb-6 border-t border-gray-50 pt-6">
-            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Personnel</h3>
-            <nav class="flex flex-col gap-1">
-                <a href="{{ROOT}}src/pages/notifications.html"
+	        <div class="px-4 mb-6 border-t border-gray-50 pt-6">
+	            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Personnel</h3>
+	            <nav class="flex flex-col gap-1">
+	                <a href="{{ROOT}}src/pages/notifications.html"
                     class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:bell-linear"
                             width="20"></iconify-icon> Notifications</span>
@@ -275,12 +267,30 @@ const HEADER_HTML = `
                     class="hidden flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium mt-2 transition-all">
                     <iconify-icon icon="solar:download-square-bold" width="20"></iconify-icon> Installer l'Application
                 </button>
-            </nav>
-        </div>
+                </nav>
+            </div>
 
-        <div class="px-4 mt-auto border-t border-gray-50 pt-5 pb-6">
-            <div class="p-4 bg-gray-50 rounded-2xl mb-4">
-                <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
+            <div class="header-quick-links px-4 mb-6 border-t border-gray-50 pt-6">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Liens utiles</h3>
+                <nav class="flex flex-col gap-1">
+                    <a href="{{ROOT}}src/pages/support.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:help-bold" width="20"></iconify-icon> Support
+                    </a>
+                    <a href="{{ROOT}}src/pages/faq.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:question-circle-bold" width="20"></iconify-icon> FAQ
+                    </a>
+                    <a href="{{ROOT}}src/pages/forum.html"
+                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum
+                    </a>
+                </nav>
+            </div>
+
+            <div class="px-4 mt-auto border-t border-gray-50 pt-5 pb-6">
+                <div class="p-4 bg-gray-50 rounded-2xl mb-4">
+                    <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
                 <div class="currency-switch-segmented scale-90 origin-left" id="mobileCurrencyToggle" data-active="CDF">
                     <div class="segmented-track">
                         <div class="segmented-handle"></div>
@@ -297,7 +307,7 @@ const HEADER_HTML = `
             </button>
         </div>
     </div>
-</div>`;;
+</div>`;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
 <footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5" style="padding-bottom: calc(2rem + env(safe-area-inset-bottom));">

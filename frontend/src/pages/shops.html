@@ -154,7 +154,7 @@
 
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 pt-6 md:pt-8">
-        <div class="mb-16 text-center">
+        <div class="shops-hero mb-16 text-center">
             <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-gray-900 mb-6 uppercase">Nos Maisons de Luxe
             </h1>
             <p class="text-gray-500 text-lg max-w-2xl mx-auto font-medium">L'élégance à travers nos partenaires
@@ -165,13 +165,17 @@
                 <div
                     class="flex items-center bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-100 transition-all duration-500 p-1">
                     <iconify-icon icon="solar:magnifer-linear" width="22" class="ml-4 text-gray-400"></iconify-icon>
-                    <input type="text" id="shopSearchInput" placeholder="Trouver une boutique..."
-                        class="w-full py-3 px-4 bg-transparent text-sm outline-none placeholder-gray-400 font-bold">
+                    <label for="shopSearchInput" class="sr-only">Rechercher une boutique</label>
+                    <input type="search" id="shopSearchInput" placeholder="Trouver une boutique..." autocomplete="off"
+                        class="w-full py-3 px-4 bg-transparent text-sm outline-none placeholder-gray-400 font-bold"
+                        aria-describedby="shopsResultsCount">
                 </div>
+                <div id="shopsResultsCount" class="mt-3 text-xs font-bold uppercase tracking-widest text-gray-400"
+                    aria-live="polite"></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="shopsGrid">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8" id="shopsGrid">
             <!-- Loading Skeletons -->
             <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
             <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
@@ -206,15 +210,48 @@
             transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
+        @media (hover: none) and (pointer: coarse) {
+            .shop-card:hover {
+                transform: none;
+                box-shadow: none;
+                border-color: rgb(243 244 246);
+            }
+        }
+
         #shopSearchInput::placeholder {
             text-transform: uppercase;
             letter-spacing: 0.1em;
             font-size: 0.7rem;
         }
+
+        @media (max-width: 640px) {
+            .shops-hero {
+                margin-bottom: 3rem !important;
+            }
+
+            .shop-card {
+                padding: 1.5rem !important;
+                border-radius: 2rem !important;
+            }
+        }
     </style>
     <script>
         let allSellers = [];
         let shopStats = {};
+        let searchDebounceId = null;
+
+        function setResultsCountText(count, total) {
+            const el = document.getElementById('shopsResultsCount');
+            if (!el) return;
+
+            if (count == null || total == null) {
+                el.textContent = '';
+                return;
+            }
+
+            if (count === total) el.textContent = `${total} boutique${total > 1 ? 's' : ''}`;
+            else el.textContent = `${count} sur ${total} boutiques`;
+        }
 
         async function loadShops() {
             const grid = document.getElementById('shopsGrid');
@@ -297,10 +334,12 @@
                 if (filteredSellers.length === 0) {
                     grid.innerHTML = '';
                     noShops.classList.remove('hidden');
+                    setResultsCountText(0, allSellers.length);
                     return;
                 }
 
                 noShops.classList.add('hidden');
+                setResultsCountText(filteredSellers.length, allSellers.length);
                 grid.innerHTML = filteredSellers.map(seller => {
                     const avatar = seller.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(seller.company_name || seller.name || 'Vendor') + '&background=f3f4f6&color=000&bold=true');
                     const dateJoined = seller.date_joined ? new Date(seller.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
@@ -373,12 +412,21 @@
                 console.error('Erreur chargement boutiques:', err);
                 grid.innerHTML = '';
                 noShops.classList.remove('hidden');
+                setResultsCountText(null, null);
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('shopSearchInput');
-            searchInput.addEventListener('input', loadShops);
+
+            // Keep layout stable before data loads
+            setResultsCountText(null, null);
+
+            searchInput.addEventListener('input', () => {
+                if (searchDebounceId) window.clearTimeout(searchDebounceId);
+                searchDebounceId = window.setTimeout(loadShops, 150);
+            });
+            searchInput.addEventListener('search', loadShops);
 
             if (window.newketInitialized) {
                 loadShops();

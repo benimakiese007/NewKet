@@ -38,6 +38,21 @@
             background-position: center;
         }
 
+        .vendor-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(80% 80% at 0% 100%, rgba(0, 0, 0, 0.55), transparent 60%),
+                radial-gradient(70% 70% at 100% 0%, rgba(0, 0, 0, 0.35), transparent 55%);
+            pointer-events: none;
+        }
+
+        .vendor-hero-inner {
+            position: relative;
+            isolation: isolate;
+        }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -66,6 +81,12 @@
         .card-hover:hover .img-zoom img {
             transform: scale(1.08);
         }
+
+        @media (max-width: 640px) {
+            .vendor-hero {
+                height: 360px !important;
+            }
+        }
     </style>
 </head>
 
@@ -77,15 +98,28 @@
 
 
     <!-- Vendor Hero -->
-    <div class="vendor-hero relative h-[300px] sm:h-[400px] flex items-end">
+    <div class="vendor-hero relative h-[320px] sm:h-[440px] flex items-end">
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 relative z-10 w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10 sm:pb-12 relative z-10 w-full vendor-hero-inner">
+            <div class="flex items-center justify-between mb-6">
+                <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('shops')"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white border border-white/15 hover:bg-white/15 transition-colors text-xs font-black uppercase tracking-widest">
+                    <iconify-icon icon="solar:arrow-left-linear" width="18"></iconify-icon>
+                    Boutiques
+                </a>
+                <button type="button" onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth', block:'start'})"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white text-black hover:bg-gray-100 transition-colors text-xs font-black uppercase tracking-widest shadow-xl">
+                    <iconify-icon icon="solar:bag-2-linear" width="18"></iconify-icon>
+                    Voir la collection
+                </button>
+            </div>
+
             <div class="flex flex-col sm:flex-row items-end gap-6">
                 <div
                     class="w-32 h-32 sm:w-40 sm:h-40 rounded-[2.5rem] bg-white p-1 border-4 border-white/20 shadow-2xl overflow-hidden">
                     <img loading="lazy" id="vendorAvatar"
                         src="https://ui-avatars.com/api/?name=Vendor&background=f3f4f6&color=000&bold=true"
-                        class="w-full h-full object-cover rounded-[2rem]">
+                        class="w-full h-full object-cover rounded-[2rem]" alt="Logo boutique">
                 </div>
                 <div class="flex-1 mb-2">
                     <div class="flex items-center gap-3 mb-2">
@@ -122,11 +156,22 @@
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 pt-6">
-        <div class="flex items-center justify-between mb-10 pb-6 border-b border-gray-100">
-            <h2 class="text-2xl font-black text-gray-900 uppercase">La Collection</h2>
-            <p class="text-sm font-bold text-gray-400 uppercase tracking-widest"><span id="productCount">0</span>
-                Articles</p>
+    <main id="collection" class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 pt-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 pb-6 border-b border-gray-100">
+            <div>
+                <h2 class="text-2xl font-black text-gray-900 uppercase">La Collection</h2>
+                <p class="mt-1 text-xs font-bold text-gray-400 uppercase tracking-widest"><span id="productCount">0</span> article<span id="productPlural">s</span></p>
+            </div>
+            <div class="flex items-center gap-3">
+                <label for="sortProducts" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Trier</label>
+                <select id="sortProducts"
+                    class="bg-white border border-gray-200 rounded-2xl px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-100">
+                    <option value="newest">Plus récents</option>
+                    <option value="price_asc">Prix croissant</option>
+                    <option value="price_desc">Prix décroissant</option>
+                    <option value="name_asc">Nom A → Z</option>
+                </select>
+            </div>
         </div>
 
         <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
@@ -165,6 +210,71 @@
 
 
     <script>
+        let currentProducts = [];
+        function safeNumber(v) {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function sortProducts(products, sortMode) {
+            const copy = [...(products || [])];
+            switch (sortMode) {
+                case 'price_asc':
+                    copy.sort((a, b) => safeNumber(a.price) - safeNumber(b.price));
+                    break;
+                case 'price_desc':
+                    copy.sort((a, b) => safeNumber(b.price) - safeNumber(a.price));
+                    break;
+                case 'name_asc':
+                    copy.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'fr', { sensitivity: 'base' }));
+                    break;
+                case 'newest':
+                default:
+                    copy.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                    break;
+            }
+            return copy;
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            const noProducts = document.getElementById('noProductsMsg');
+            const countEl = document.getElementById('productCount');
+            const pluralEl = document.getElementById('productPlural');
+            if (!grid || !noProducts || !countEl) return;
+
+            const list = products || [];
+            countEl.textContent = list.length;
+            if (pluralEl) pluralEl.textContent = list.length > 1 ? 's' : '';
+            document.getElementById('vendor-items-count').textContent = list.length;
+
+            if (list.length === 0) {
+                grid.innerHTML = '';
+                noProducts.classList.remove('hidden');
+                return;
+            }
+
+            noProducts.classList.add('hidden');
+            grid.innerHTML = list.map((p) => {
+                const productUrl = `${window.resolvePath('product')}?id=${p.id}`;
+                const imageUrl = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : p.image;
+                return `
+                    <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50 hover:border-gray-200 transition-colors" onclick="location.href='${productUrl}'">
+                        <div class="img-container aspect-[4/5] img-zoom">
+                             <img src="${imageUrl}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700" alt="${p.name || ''}">
+                             <button onclick="event.stopPropagation(); orderProduct('${p.id}')" class="absolute bottom-4 right-4 w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-xl">
+                                <iconify-icon icon="solar:bag-plus-linear" width="24"></iconify-icon>
+                             </button>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-gray-900 mb-1 truncate">${p.name || ''}</h3>
+                            <p class="text-xl font-black text-black">${CurrencyManager.formatPrice(p.price)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         async function loadShopData() {
             const urlParams = new URLSearchParams(window.location.search);
             const email = urlParams.get('email');
@@ -222,41 +332,11 @@
                     eq: [['supplier_email', email]],
                     order: ['created_at', { ascending: false }]
                 });
-                
-                const grid = document.getElementById('productsGrid');
-                const noProducts = document.getElementById('noProductsMsg');
-                const countEl = document.getElementById('productCount');
 
-                // Products mapped from DB
-                // Remove map mapping over p.image so it preserves all images
-
-                countEl.textContent = products.length;
-                document.getElementById('vendor-items-count').textContent = products.length;
-
-                if (products.length === 0) {
-                    grid.innerHTML = '';
-                    noProducts.classList.remove('hidden');
-                    return;
-                }
-
-                noProducts.classList.add('hidden');
-                grid.innerHTML = products.map((p) => {
-                    const productUrl = `${window.resolvePath('product')}?id=${p.id}`;
-                    return `
-                    <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50" onclick="location.href='${productUrl}'">
-                        <div class="img-container aspect-[4/5] img-zoom">
-                             <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : p.image}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700" alt="${p.name}">
-                             <button onclick="event.stopPropagation(); orderProduct('${p.id}')" class="absolute bottom-4 right-4 w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-xl">
-                                <iconify-icon icon="solar:bag-plus-linear" width="24"></iconify-icon>
-                             </button>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="font-bold text-gray-900 mb-1 truncate">${p.name}</h3>
-                            <p class="text-xl font-black text-black">${CurrencyManager.formatPrice(p.price)}</p>
-                        </div>
-                    </div>
-                `;
-                }).join('');
+                currentProducts = products || [];
+                const sortSelect = document.getElementById('sortProducts');
+                const sortMode = sortSelect ? sortSelect.value : 'newest';
+                renderProducts(sortProducts(currentProducts, sortMode));
 
                 // 3. Calculate Average Rating
                 const productIds = products.map(p => p.id);
@@ -288,6 +368,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const sortSelect = document.getElementById('sortProducts');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', () => {
+                    renderProducts(sortProducts(currentProducts, sortSelect.value));
+                });
+            }
+
             if (window.newketInitialized) {
                 loadShopData();
             } else {
@@ -300,6 +387,8 @@
             });
         });
     </script>
+
+    <div id="footer-placeholder"></div>
 </body>
 
 </html>
