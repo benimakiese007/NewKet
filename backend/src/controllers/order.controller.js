@@ -28,6 +28,18 @@ function isAdminActor(user) {
     return role === 'admin' || email === 'benimakiese1234@gmail.com';
 }
 
+function assertOrderMutableOrFail({ order, user, res, actionLabel }) {
+    if (!order) return false;
+
+    if (order.status === ORDER_STATUSES.CANCELLED) {
+        if (isAdminActor(user)) return true;
+        res.status(409).json({ error: `Commande annulée: action "${actionLabel}" impossible.` });
+        return false;
+    }
+
+    return true;
+}
+
 async function restoreStockIfNeeded(order) {
     const items = order?.items || [];
     for (const item of items) {
@@ -257,6 +269,9 @@ export const createDeliveryQuote = async (req, res) => {
 
         const order = await fetchOrderOr404(id, res);
         if (!order) return;
+        if (!assertOrderMutableOrFail({ order, user: req.user, res, actionLabel: 'verify-delivery-otp' })) return;
+        if (!assertOrderMutableOrFail({ order, user: req.user, res, actionLabel: 'respond-delivery-quote' })) return;
+        if (!assertOrderMutableOrFail({ order, user: req.user, res, actionLabel: 'create-delivery-quote' })) return;
 
         if (!isVendorActor(order, req.user)) {
             return res.status(403).json({ error: 'Seul le vendeur de cette commande peut proposer la livraison.' });
@@ -425,6 +440,10 @@ export const updateOrderStatus = async (req, res) => {
         const adminActor = isAdminActor(req.user);
         const vendorActor = isVendorActor(order, req.user);
 
+        if (previousStatus === ORDER_STATUSES.CANCELLED && !adminActor) {
+            return res.status(409).json({ error: 'Commande annulée: aucune modification possible.' });
+        }
+
         if (!adminActor) {
             const vendorCanCancel = vendorActor
                 && status === ORDER_STATUSES.CANCELLED
@@ -475,6 +494,7 @@ export const markOrderInDelivery = async (req, res) => {
 
         const order = await fetchOrderOr404(id, res);
         if (!order) return;
+        if (!assertOrderMutableOrFail({ order, user: req.user, res, actionLabel: 'start-delivery' })) return;
 
         if (!isVendorActor(order, req.user)) {
             return res.status(403).json({ error: 'Seul le vendeur peut démarrer la livraison.' });
@@ -618,6 +638,7 @@ export const confirmOrderCompletion = async (req, res) => {
         const { id } = req.params;
         const order = await fetchOrderOr404(id, res);
         if (!order) return;
+        if (!assertOrderMutableOrFail({ order, user: req.user, res, actionLabel: 'confirm-completion' })) return;
 
         if (!isCustomerActor(order, req.user)) {
             return res.status(403).json({ error: 'Seul le client peut confirmer la commande.' });
@@ -652,6 +673,7 @@ export const releaseEscrow = async (req, res) => {
         const { id } = req.params;
         const order = await fetchOrderOr404(id, res);
         if (!order) return;
+        if (!assertOrderMutableOrFail({ order, user: req.user, res, actionLabel: 'admin-release-escrow' })) return;
 
         const result = await releaseOrderEscrow({
             client,
