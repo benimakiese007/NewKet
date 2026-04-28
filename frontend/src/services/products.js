@@ -17,6 +17,8 @@ const PRODUCTS_PAGE_SIZE = 20; // Load 20 at a time instead of 200
 
 const ProductManager = {
     products: [],
+    _productByIdCache: new Map(),
+    _viewedThisSession: new Set(),
 
     // Pagination state
     _currentPage: 1,
@@ -250,6 +252,10 @@ const ProductManager = {
         if (!id) return;
         if (!window.ApiClient) return;
         if (!this._isUuid(id)) return;
+
+        // Dedupe per tab session to avoid spamming analytics when UI re-renders
+        if (this._viewedThisSession.has(id)) return;
+        this._viewedThisSession.add(id);
         
         try {
             // Send to Express Backend (which increments Supabase)
@@ -267,6 +273,8 @@ const ProductManager = {
         // 1. Check local memory
         const local = this.getProduct(id);
         if (local) return local;
+        const cached = this._productByIdCache.get(id);
+        if (cached) return cached;
 
         // 2. Fetch from network
         try {
@@ -277,12 +285,23 @@ const ProductManager = {
                     eq: [['id', id]],
                     single: true
                 });
-                if (product) return this._mapProduct(product);
+                if (product) {
+                    const mapped = this._mapProduct(product);
+                    this._productByIdCache.set(id, mapped);
+                    return mapped;
+                }
             }
 
             // Fallback: ApiClient
-            const product = await window.ApiClient.get(`/products/${id}`);
-            if (product) return this._mapProduct(product);
+            const product = await window.ApiClient.get(`/products/${id}`, {
+                cacheKey: `product:${id}`,
+                cacheTtlMs: 60_000
+            });
+            if (product) {
+                const mapped = this._mapProduct(product);
+                this._productByIdCache.set(id, mapped);
+                return mapped;
+            }
 
             return null;
         } catch (err) {

@@ -22,6 +22,58 @@ function isNetworkFailure(error) {
  * Automatically injects the Supabase user session token into the 'Authorization' header.
  */
 export const ApiClient = {
+    _sessionCache: {
+        token: null,
+        expiresAt: 0
+    },
+    _inflight: new Map(),
+    _responseCache: new Map(),
+
+    _getCachedResponse(cacheKey) {
+        if (!cacheKey) return null;
+        const entry = this._responseCache.get(cacheKey);
+        if (!entry) return null;
+        if (Date.now() > entry.expiresAt) {
+            this._responseCache.delete(cacheKey);
+            return null;
+        }
+        return entry.data;
+    },
+
+    _setCachedResponse(cacheKey, data, ttlMs) {
+        if (!cacheKey) return;
+        const ttl = Math.max(0, Number(ttlMs) || 0);
+        if (!ttl) return;
+        this._responseCache.set(cacheKey, { data, expiresAt: Date.now() + ttl });
+    },
+
+    async _getAuthHeaderCached() {
+        const now = Date.now();
+        if (this._sessionCache.token && now < this._sessionCache.expiresAt) {
+            return { Authorization: `Bearer ${this._sessionCache.token}` };
+        }
+
+        let token = null;
+
+        if (window.SupabaseAdapter) {
+            const session = await window.SupabaseAdapter.getSession(3000); // 3s timeout
+            token = session?.access_token || null;
+        } else if (window.supabaseClient) {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            token = session?.access_token || null;
+        }
+
+        if (token) {
+            this._sessionCache.token = token;
+            this._sessionCache.expiresAt = now + 60_000; // 60s
+            return { Authorization: `Bearer ${token}` };
+        }
+
+        this._sessionCache.token = null;
+        this._sessionCache.expiresAt = 0;
+        return {};
+    },
+
     async fetch(endpoint, options = {}) {
         const url = `${API_BASE_URL}${endpoint}`;
         
@@ -30,18 +82,10 @@ export const ApiClient = {
             ...(options.headers || {})
         };
 
-        // Try to obtain the Supabase JWT token safely
-        if (window.SupabaseAdapter) {
-            const session = await window.SupabaseAdapter.getSession(3000); // 3s timeout
-            if (session?.access_token) {
-                headers['Authorization'] = `Bearer ${session.access_token}`;
-            }
-        } else if (window.supabaseClient) {
-            // Fallback if adapter not ready
-            const { data: { session } } = await window.supabaseClient.auth.getSession();
-            if (session?.access_token) {
-                headers['Authorization'] = `Bearer ${session.access_token}`;
-            }
+        // Auth header (cached) to reduce repeated async session lookups
+        try {
+            headers = { ...headers, ...(await this._getAuthHeaderCached()) };
+        } catch {
         }
 
         const config = {
@@ -50,7 +94,19 @@ export const ApiClient = {
         };
 
         try {
-            const response = await fetch(url, config);
+            const isGet = (config.method || 'GET').toUpperCase() === 'GET';
+            const cacheKey = options.cacheKey && isGet ? String(options.cacheKey) : null;
+            const cached = this._getCachedResponse(cacheKey);
+            if (cached != null) return cached;
+
+            const dedupe = options.dedupe !== false;
+            const inflightKey = (dedupe && isGet) ? url : null;
+            if (inflightKey && this._inflight.has(inflightKey)) {
+                return await this._inflight.get(inflightKey);
+            }
+
+            const run = async () => {
+                const response = await fetch(url, config);
 
             // Safe JSON parse — SW may return plain text (e.g. "Offline") on network failure
             let data;
@@ -71,7 +127,20 @@ export const ApiClient = {
                 throw new Error(data.error || `Erreur API ${response.status}`);
             }
 
-            return data;
+                if (cacheKey && options.cacheTtlMs) {
+                    this._setCachedResponse(cacheKey, data, options.cacheTtlMs);
+                }
+
+                return data;
+            };
+
+            if (inflightKey) {
+                const promise = run().finally(() => this._inflight.delete(inflightKey));
+                this._inflight.set(inflightKey, promise);
+                return await promise;
+            }
+
+            return await run();
         } catch (error) {
             if (options.suppressNetworkError && isNetworkFailure(error)) {
                 return null;

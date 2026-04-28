@@ -8,6 +8,8 @@ const SearchManager = {
     initialized: false,
     overlayPortaled: false,
     searchActive: false,
+    _suggestionsCache: new Map(),
+    _suggestionsSeq: 0,
 
     init() {
         if (this.initialized) return;
@@ -358,6 +360,15 @@ const SearchManager = {
         container.classList.add('active');
 
         try {
+            const cacheKey = `${this.selectedCategory}::${query.toLowerCase()}`;
+            const cached = this._suggestionsCache.get(cacheKey);
+            if (cached && Date.now() < cached.expiresAt) {
+                container.innerHTML = cached.html;
+                return;
+            }
+
+            const seq = ++this._suggestionsSeq;
+
             // Live fetch from Supabase
             const searchOptions = {
                 or: `name.ilike.%${query}%,category.ilike.%${query}%`,
@@ -371,6 +382,9 @@ const SearchManager = {
             }
 
             const filtered = await window.SupabaseAdapter.fetchWithFilters('products', searchOptions);
+
+            // If a newer request started, ignore this result
+            if (seq !== this._suggestionsSeq) return;
 
             if (!filtered || filtered.length === 0) {
                 container.innerHTML = `
@@ -387,12 +401,12 @@ const SearchManager = {
                 
                 html += filtered.map(p => {
                     const firstImg = (p.image || '').split(',')[0];
-                    const optImg = firstImg;
+                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(firstImg, { width: 120, quality: 70 }) : firstImg) || firstImg;
                         
                     return `
                     <a href="${window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html'}?id=${p.id}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden">
-                            <img src="${escapeHTML(optImg)}" class="w-full h-full object-cover" alt="">
+                            <img src="${escapeHTML(optImg)}" loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>
@@ -419,6 +433,7 @@ const SearchManager = {
                     </div>`;
 
                 container.innerHTML = html;
+                this._suggestionsCache.set(cacheKey, { html, expiresAt: Date.now() + 30_000 }); // 30s
             }
         } catch (error) {
             console.error('[NewKet Search] Error fetching suggestions:', error);

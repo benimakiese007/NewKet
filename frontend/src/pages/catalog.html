@@ -741,7 +741,7 @@
             const track = document.getElementById('price-range-track');
 
             if (!minSlider || !maxSlider || !minInput || !maxInput || !track) {
-                console.warn('[NewKet Catalog] Price controls missing from DOM');
+                // Silent no-op: avoid console noise on layouts where the price controls are not rendered
                 return;
             }
 

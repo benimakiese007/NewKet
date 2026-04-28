@@ -4,6 +4,22 @@ Ce registre definit les commandes slash a utiliser pour piloter les workflows du
 
 ## Active commands
 
+### /commit-push
+
+- Type: workflow
+- Workflow file: `workflows/commit-push-workflow.md`
+- Skill file: `skills/commit-push-pack.md`
+- Rules file: `rules/commit-push-rules.md`
+- Usage: verifie le diff, add, commit, puis push sur la branche courante
+
+Prompt court :
+
+`/commit-push`
+
+Prompt libre :
+
+`/commit-push commit et push mes changements avec un message clair`
+
 ### /audit-ui
 
 - Type: workflow
@@ -51,3 +67,35 @@ Prompt court :
 Prompt libre :
 
 `/dark-mode implemente un mode sombre global, lisible et coherent avec switch persistant, prefers-color-scheme et correction des incoherences visuelles`
+
+### /performance-check
+
+- Type: workflow
+- Workflow file: `workflows/performance-check-workflow.md`
+- Skill file: `skills/performance-fluid-ux-pack.md`
+- Rules file: `rules/performance-fluid-ux-rules.md`
+- Usage: audit performance/UX fluide d'une page/feature, reduction API calls, lazy loading, cache, images, performance percue
+
+Prompt court :
+
+`/performance-check`
+
+Prompt libre :
+
+`/performance-check analyse cette page/feature, detecte ce qui casse la fluidite (API calls, images, re-renders) et propose des optimisations concretes (ou implemente-les si je dis vas-y)`
+
+### /scaling-check
+
+- Type: workflow
+- Workflow file: `workflows/scaling-check-workflow.md`
+- Skill file: `skills/scalability-engine-pack.md`
+- Rules file: `rules/scalability-engine-rules.md`
+- Usage: verifier la scalabilite d'une feature (API stateless, DB load, pagination, indexes, cache, async/queue, cout)
+
+Prompt court :
+
+`/scaling-check`
+
+Prompt libre :
+
+`/scaling-check analyse l'impact scalabilite de cette feature (API/DB) et propose les actions minimales (pagination, indexes, cache, async) pour etre pret au scale`
