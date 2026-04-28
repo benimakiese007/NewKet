@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render Categories in Horizontal Layout
     const renderCategories = () => {
         const allDiscussionsHtml = `
-            <button class="group w-full px-6 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all text-left ${!currentCategoryId ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}" 
+            <button class="forum-filter-item group w-full px-4 py-3 rounded-xl text-[13px] font-semibold transition-colors text-left ${!currentCategoryId ? 'is-active' : ''}" 
                 onclick="window.forumManager.filterByCategory(null)">
                 <div class="flex items-center gap-2">
                     <iconify-icon icon="solar:globus-linear" class="${!currentCategoryId ? 'block' : 'hidden'}"></iconify-icon>
@@ -64,10 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const categoriesHtml = categories.map(cat => {
             const isActive = currentCategoryId === cat.id;
             return `
-                <button class="group w-full px-6 py-3.5 rounded-2xl text-[12px] font-black uppercase tracking-wider transition-all text-left ${isActive ? 'bg-black text-white dark:bg-white dark:text-black shadow-xl shadow-black/10' : 'text-gray-500 dark:text-zinc-500 bg-gray-50 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'}" 
+                <button class="forum-filter-item group w-full px-4 py-3 rounded-xl text-[13px] font-semibold transition-colors text-left ${isActive ? 'is-active' : ''}" 
                     onclick="window.forumManager.filterByCategory('${escapeHTML(cat.id)}')">
                     <div class="flex items-center gap-2">
-                        <iconify-icon icon="${escapeHTML(cat.icon || 'solar:chat-round-line-linear')}" width="18" class="${isActive ? 'text-white dark:text-black' : 'text-gray-400 group-hover:text-white dark:group-hover:text-black'}"></iconify-icon>
+                        <iconify-icon icon="${escapeHTML(cat.icon || 'solar:chat-round-line-linear')}" width="18" class="forum-filter-item-icon"></iconify-icon>
                         <span>${escapeHTML(cat.name)}</span>
                     </div>
                 </button>
@@ -254,15 +254,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Filter Toggle Logic
         const filterToggleBtn = document.getElementById('filterToggleBtn');
-        const filterPanel = document.getElementById('filterPanel');
-        if (filterToggleBtn && filterPanel) {
-            filterToggleBtn.addEventListener('click', () => {
-                const isHidden = filterPanel.classList.contains('hidden');
-                if (isHidden) {
-                    filterPanel.classList.remove('hidden');
-                } else {
-                    filterPanel.classList.add('hidden');
+        const filterDropdown = document.getElementById('filterDropdown');
+        if (filterToggleBtn && filterDropdown) {
+            const closeDropdown = () => {
+                filterDropdown.classList.add('hidden');
+            };
+
+            const positionDropdown = () => {
+                const rect = filterToggleBtn.getBoundingClientRect();
+                const gap = 10;
+                const top = rect.bottom + gap;
+
+                const dropdownRect = filterDropdown.getBoundingClientRect();
+                const padding = 12;
+                const maxLeft = window.innerWidth - dropdownRect.width - padding;
+                const desiredLeft = rect.left;
+                const clampedLeft = Math.max(padding, Math.min(desiredLeft, maxLeft));
+
+                filterDropdown.style.top = `${Math.round(top)}px`;
+                filterDropdown.style.left = `${Math.round(clampedLeft)}px`;
+                filterDropdown.style.maxWidth = `${Math.max(240, window.innerWidth - padding * 2)}px`;
+            };
+
+            filterToggleBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const willOpen = filterDropdown.classList.contains('hidden');
+                if (!willOpen) {
+                    filterDropdown.classList.add('hidden');
+                    return;
                 }
+
+                filterDropdown.classList.remove('hidden');
+                filterDropdown.style.visibility = 'hidden';
+                positionDropdown();
+                filterDropdown.style.visibility = '';
+            });
+
+            document.addEventListener('click', (event) => {
+                if (filterDropdown.classList.contains('hidden')) return;
+                if (filterDropdown.contains(event.target) || filterToggleBtn.contains(event.target)) return;
+                closeDropdown();
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') closeDropdown();
+            });
+
+            window.addEventListener('resize', () => {
+                if (filterDropdown.classList.contains('hidden')) return;
+                positionDropdown();
             });
         }
 

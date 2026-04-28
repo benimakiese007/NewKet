@@ -450,7 +450,7 @@ function buildProductCardHTML(p, options = {}) {
                     title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
-                <a href="${resolvePath('pages/product')}?id=${p.id}">
+                <a href="${resolvePath('pages/product')}?id=${p.id}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">
                     <img
                         ${productImgAttrs}
                         alt="${p.name}"
@@ -477,7 +477,7 @@ function buildProductCardHTML(p, options = {}) {
                     }</span>
                 </div>
                 <h3 class="product-title">
-                    <a href="${resolvePath('pages/product')}?id=${p.id}">${p.name}</a>
+                    <a href="${resolvePath('pages/product')}?id=${p.id}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${p.name}</a>
                 </h3>
                 <div class="product-rating">
                     ${starsHTML}
@@ -508,6 +508,36 @@ function buildProductCardHTML(p, options = {}) {
             </div>
         </div>
     `;
+}
+
+/**
+ * Stores a "selection context" in sessionStorage so product page can swipe within
+ * the same list the user came from (catalog/collection/search/shop/favorites).
+ * @param {HTMLElement} linkEl - The clicked <a> element.
+ */
+function setProductSwipeContext(linkEl) {
+    try {
+        if (!linkEl || !linkEl.closest) return;
+        const container =
+            linkEl.closest('.product-grid')
+            || linkEl.closest('[data-products-container]')
+            || linkEl.closest('section')
+            || document;
+
+        const cards = Array.from(container.querySelectorAll('[data-product-id]'));
+        const ids = cards
+            .map(c => c && c.getAttribute && c.getAttribute('data-product-id'))
+            .filter(Boolean);
+
+        if (ids.length < 2) return;
+        sessionStorage.setItem('newket_product_swipe_context', JSON.stringify({
+            ids,
+            capturedAt: Date.now(),
+            href: window.location.href
+        }));
+    } catch (e) {
+        // ignore
+    }
 }
 
 
@@ -1634,6 +1664,7 @@ window.normalizeNotificationType = normalizeNotificationType;
 window.isPopupNotification = isPopupNotification;
 window.debounce = debounce;
 window.buildProductCardHTML = buildProductCardHTML;
+window.setProductSwipeContext = setProductSwipeContext;
 window.buildSkeletonCardHTML = buildSkeletonCardHTML;
 window.buildSkeletonDashboardStatsHTML = buildSkeletonDashboardStatsHTML;
 window.buildSkeletonActivityHTML = buildSkeletonActivityHTML;

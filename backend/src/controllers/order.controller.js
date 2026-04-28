@@ -31,6 +31,12 @@ function isAdminActor(user) {
 function assertOrderMutableOrFail({ order, user, res, actionLabel }) {
     if (!order) return false;
 
+    if (order.payment_locked_at) {
+        if (isAdminActor(user)) return true;
+        res.status(409).json({ error: `Commande verrouill??e (paiement en cours): action "${actionLabel}" impossible.` });
+        return false;
+    }
+
     if (order.status === ORDER_STATUSES.CANCELLED) {
         if (isAdminActor(user)) return true;
         res.status(409).json({ error: `Commande annulée: action "${actionLabel}" impossible.` });

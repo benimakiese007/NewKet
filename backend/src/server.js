@@ -53,6 +53,12 @@ app.use(cors({
 app.use(express.json({ limit: '8mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Ensure UTF-8 for API responses (prevents ambiguous client decoding).
+app.use('/api', (req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
+
 // ─── Maintenance & Auth Globale ──────────────────────────────
 import { optionalAuth } from './middlewares/auth.js';
 import { maintenanceMiddleware } from './middlewares/maintenance.js';
@@ -78,6 +84,7 @@ import supportRoutes from './routes/support.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import disputeRoutes from './routes/dispute.routes.js';
 import cronRoutes from './routes/cron.routes.js';
+import systemHealthRoutes from './routes/systemHealth.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 
@@ -97,6 +104,7 @@ app.use('/api/support', supportRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/disputes', disputeRoutes);
 app.use('/api/cron', cronRoutes);
+app.use('/api/system-health', systemHealthRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {

@@ -87,8 +87,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || 'NK-' + Math.random().toString(36).slice(2, 11).toUpperCase();
-            const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'successful').toLowerCase();
-            const isSuccess = ['successful', 'success', 'completed', 'paid'].includes(rawStatus);
+            const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'pending').toLowerCase();
+            const isSuccessFromUrl = ['successful', 'success', 'completed', 'paid'].includes(rawStatus);
 
             const txRefEl = document.getElementById('txRef');
             if (txRefEl) txRefEl.textContent = txRef;
@@ -103,40 +103,79 @@
             const statusIcon = document.getElementById('statusIcon');
             const pageTitle = document.querySelector('title');
 
-            if (!isSuccess) {
+            function setFailureUI(labelText) {
                 if (pageTitle) pageTitle.textContent = 'Paiement annule | NewKet';
                 if (statusTitle) statusTitle.textContent = 'Paiement non confirme';
                 if (statusDescription) {
                     statusDescription.textContent = "Le paiement n'a pas ete confirme, donc la fiche n'a pas encore ete envoyee au vendeur. Vous pouvez relancer le paiement quand vous voulez.";
                 }
-                if (statusLabel) statusLabel.textContent = rawStatus === 'cancelled' ? 'Annule' : 'En attente';
+                if (statusLabel) statusLabel.textContent = labelText || 'En attente';
                 if (statusBadge) statusBadge.className = 'flex items-center gap-2 text-xs font-black uppercase tracking-widest text-amber-600';
                 if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-amber-500 animate-pulse';
                 if (statusGlow) statusGlow.className = 'absolute inset-0 rounded-full bg-amber-500/10 animate-ping duration-[2000ms]';
                 if (statusIconShell) statusIconShell.className = 'relative flex h-full w-full items-center justify-center rounded-full bg-amber-500 text-white shadow-xl shadow-amber-500/20';
                 if (statusIcon) statusIcon.setAttribute('icon', 'solar:danger-triangle-bold');
-                return;
             }
 
-            const count = 200;
-            const defaults = {
-                origin: { y: 0.7 },
-                zIndex: 1000
-            };
+            function setSuccessUI() {
+                const count = 200;
+                const defaults = {
+                    origin: { y: 0.7 },
+                    zIndex: 1000
+                };
 
-            function fire(particleRatio, opts) {
-                confetti({
-                    ...defaults,
-                    ...opts,
-                    particleCount: Math.floor(count * particleRatio)
-                });
+                function fire(particleRatio, opts) {
+                    confetti({
+                        ...defaults,
+                        ...opts,
+                        particleCount: Math.floor(count * particleRatio)
+                    });
+                }
+
+                fire(0.25, { spread: 26, startVelocity: 55 });
+                fire(0.2, { spread: 60 });
+                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+                fire(0.1, { spread: 120, startVelocity: 45 });
             }
 
-            fire(0.25, { spread: 26, startVelocity: 55 });
-            fire(0.2, { spread: 60 });
-            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-            fire(0.1, { spread: 120, startVelocity: 45 });
+            async function loadServerStatus() {
+                if (!window.ApiClient) return null;
+                try {
+                    return await window.ApiClient.get(`/payment/status/${encodeURIComponent(txRef)}`, {
+                        cacheKey: `payment-status:${txRef}`,
+                        cacheTtlMs: 5_000,
+                        suppressNetworkError: true
+                    });
+                } catch {
+                    return null;
+                }
+            }
+
+            (async () => {
+                const serverStatus = await loadServerStatus();
+                const orderStatus = serverStatus?.order?.status || null;
+                const paymentStatus = (serverStatus?.order?.payment_status || serverStatus?.payment?.status || '').toString().toLowerCase();
+
+                const isPaid = ['paid', 'success', 'successful'].includes(paymentStatus) || ['paid_held', 'delivered', 'completed'].includes((orderStatus || '').toString().toLowerCase());
+
+                if (!serverStatus) {
+                    if (!isSuccessFromUrl) {
+                        setFailureUI(rawStatus === 'cancelled' ? 'Annule' : 'En attente');
+                        return;
+                    }
+                    setSuccessUI();
+                    return;
+                }
+
+                if (!isPaid) {
+                    setFailureUI(paymentStatus === 'failed' ? 'Echec' : 'En attente');
+                    return;
+                }
+
+                setSuccessUI();
+            })();
+
         });
     </script>
 </body>

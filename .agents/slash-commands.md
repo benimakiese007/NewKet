@@ -99,3 +99,35 @@ Prompt court :
 Prompt libre :
 
 `/scaling-check analyse l'impact scalabilite de cette feature (API/DB) et propose les actions minimales (pagination, indexes, cache, async) pour etre pret au scale`
+
+### /system-check
+
+- Type: workflow
+- Workflow file: `workflows/system-check-workflow.md`
+- Skill file: `skills/system-health-monitor-pack.md`
+- Rules file: `rules/system-health-monitor-rules.md`
+- Usage: supervision intelligente (perf, paiements, commandes, users, vendeurs) + rapport + priorites P0/P1/P2 + actions
+
+Prompt court :
+
+`/system-check`
+
+Prompt libre :
+
+`/system-check genere un rapport system health (P0/P1/P2) avec preuves et actions concretes`
+
+### /encoding-check
+
+- Type: workflow
+- Workflow file: `workflows/encoding-check-workflow.md`
+- Skill file: `skills/encoding-rendering-fixer-pack.md`
+- Rules file: `rules/encoding-rendering-fixer-rules.md`
+- Usage: detecte et corrige les problemes d'encodage (accents/symboles/emojis) et standardise le rendu (UTF-8 partout)
+
+Prompt court :
+
+`/encoding-check`
+
+Prompt libre :
+
+`/encoding-check scanne l'app, identifie les textes corrompus (Ã©, �), trouve la source (DB/API/frontend) et corrige en UTF-8 sans double encodage`

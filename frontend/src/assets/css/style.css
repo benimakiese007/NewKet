@@ -43,7 +43,7 @@ html:not(.auth-loading) body {
   --transition-premium: cubic-bezier(0.4, 0, 0.2, 1);
   /* Typography */
   --font-heading: 'Poppins', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
     --header-height: 80px; /* Actual measured header height, overwritten by JS */
     --footer-height: 0px; /* Set by JS after footer loads */
   /* Shadows */

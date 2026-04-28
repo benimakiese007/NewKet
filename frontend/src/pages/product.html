@@ -121,9 +121,19 @@
                     <div>
                         <div class="flex items-center justify-between gap-4 mb-2">
                             <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">Catégorie</div>
-                            <button onclick="shareProduct()" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md">
-                                <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <div id="productSwitcher" class="flex items-center gap-1 opacity-0 pointer-events-none transition-opacity">
+                                    <button type="button" id="prevProductBtn" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md disabled:opacity-40 disabled:hover:shadow-sm" aria-label="Produit précédent">
+                                        <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
+                                    </button>
+                                    <button type="button" id="nextProductBtn" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md disabled:opacity-40 disabled:hover:shadow-sm" aria-label="Produit suivant">
+                                        <iconify-icon icon="solar:alt-arrow-right-linear" width="18"></iconify-icon>
+                                    </button>
+                                </div>
+                                <button onclick="shareProduct()" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md" aria-label="Partager">
+                                    <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
+                                </button>
+                            </div>
                         </div>
                         <h1 id="productName" class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-[1.1] mb-4">Chargement...</h1>
                         
@@ -209,14 +219,20 @@
     <script shadow>
         const productId = new URLSearchParams(window.location.search).get('id');
         let currentRating = 0;
+        let currentProductImages = [];
+        let currentProductImageIndex = 0;
 
         function showSkeleton() {
-            document.getElementById('productSkeleton').style.display = 'block';
-            document.getElementById('productGrid').style.display = 'none';
+            const sk = document.getElementById('productSkeleton');
+            const grid = document.getElementById('productGrid');
+            if (sk) sk.style.display = 'block';
+            if (grid) grid.style.display = 'none';
         }
         function hideSkeleton() {
-            document.getElementById('productSkeleton').style.display = 'none';
-            document.getElementById('productGrid').style.display = 'grid';
+            const sk = document.getElementById('productSkeleton');
+            const grid = document.getElementById('productGrid');
+            if (sk) sk.style.display = 'none';
+            if (grid) grid.style.display = 'grid';
         }
 
         async function initPage() {
@@ -244,10 +260,110 @@
             }
 
             renderProductDetails(p);
+            initProductSwitcher(p);
             loadReviews(p.id);
             renderRecommended(p.category);
             setupListeners(p);
             initRecentlyViewed(p);
+        }
+
+        function initProductSwitcher(currentProduct) {
+            const switcher = document.getElementById('productSwitcher');
+            const prevBtn = document.getElementById('prevProductBtn');
+            const nextBtn = document.getElementById('nextProductBtn');
+            if (!switcher || !prevBtn || !nextBtn) return;
+            if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
+
+            // Always show the switcher; disable buttons when unavailable
+            switcher.classList.remove('opacity-0', 'pointer-events-none');
+
+            const readContextIds = () => {
+                try {
+                    const raw = sessionStorage.getItem('newket_product_swipe_context');
+                    if (!raw) return null;
+                    const parsed = JSON.parse(raw);
+                    if (!parsed || !Array.isArray(parsed.ids)) return null;
+                    const ids = parsed.ids.filter(Boolean);
+                    return ids.length ? ids : null;
+                } catch (e) {
+                    return null;
+                }
+            };
+
+            const getAdjacentFromContextIds = () => {
+                const ids = readContextIds();
+                if (!ids || !currentProduct?.id) return { prevId: null, nextId: null };
+                const idx = ids.indexOf(currentProduct.id);
+                if (idx < 0) return { prevId: null, nextId: null };
+                return {
+                    // Prev = item after in the grid order, Next = item before (so it feels natural)
+                    prevId: ids[idx + 1] || null,
+                    nextId: ids[idx - 1] || null
+                };
+            };
+
+            const getAdjacentFromFallbackList = () => {
+                const list = (ProductManager.getProducts() || []).filter(p => (p?.category || '') === (currentProduct?.category || ''));
+                const idx = list.findIndex(p => p && p.id === currentProduct?.id);
+                if (idx < 0) return { prevId: null, nextId: null };
+                return {
+                    prevId: list[idx + 1]?.id || null,
+                    nextId: list[idx - 1]?.id || null
+                };
+            };
+
+            const computeAdjacentIds = () => {
+                const ctx = getAdjacentFromContextIds();
+                if (ctx.prevId || ctx.nextId) return ctx;
+                return getAdjacentFromFallbackList();
+            };
+
+            const applyState = () => {
+                const { prevId, nextId } = computeAdjacentIds();
+                prevBtn.disabled = !prevId;
+                nextBtn.disabled = !nextId;
+            };
+
+            const navigateTo = (id) => {
+                if (!id) return;
+                const target = `${window.resolvePath('product')}?id=${encodeURIComponent(id)}`;
+                window.location.href = target;
+            };
+
+            const isTextInputLike = (el) => {
+                if (!el) return false;
+                const tag = (el.tagName || '').toLowerCase();
+                if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+                if (el.isContentEditable) return true;
+                return false;
+            };
+
+            const navigatePrev = () => {
+                const { prevId } = computeAdjacentIds();
+                if (prevId) navigateTo(prevId);
+            };
+
+            const navigateNext = () => {
+                const { nextId } = computeAdjacentIds();
+                if (nextId) navigateTo(nextId);
+            };
+
+            prevBtn.onclick = () => {
+                navigatePrev();
+            };
+            nextBtn.onclick = () => {
+                navigateNext();
+            };
+
+            applyState();
+            window.addEventListener('productsUpdated', applyState);
+
+            // Keyboard fallback on desktop
+            document.addEventListener('keydown', (e) => {
+                if (isTextInputLike(document.activeElement)) return;
+                if (e.key === 'ArrowLeft') navigatePrev();
+                if (e.key === 'ArrowRight') navigateNext();
+            });
         }
 
         function renderProductDetails(p) {
@@ -273,15 +389,19 @@
             }
 
             const images = (p.image || '').split(',').map(img => img.trim()).filter(img => img);
-            const mainImgUrl = images[0] || window.resolvePath('assets/Images/default.png');
+            currentProductImages = images.length ? images : [window.resolvePath('assets/Images/default.png')];
+            currentProductImageIndex = 0;
+            const mainImgUrl = currentProductImages[0];
             document.getElementById('mainImage').src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mainImgUrl) : mainImgUrl;
 
             const thumbs = document.getElementById('thumbnailGrid');
-            thumbs.innerHTML = images.map((img, i) => `
-                <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900 shadow-sm' : 'border-transparent'} hover:border-gray-300 transition-all p-1 glass-card" onclick="window.changeImage('${img.replace(/'/g, "\\'")}', this)">
+            thumbs.innerHTML = currentProductImages.map((img, i) => `
+                <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900 shadow-sm' : 'border-transparent'} hover:border-gray-300 transition-all p-1 glass-card" data-img-index="${i}" onclick="window.changeImageByIndex(${i}, this)">
                     <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200 }) : img}" class="w-full h-full object-contain mix-blend-multiply" alt="Vue produit ${i + 1}">
                 </div>
             `).join('');
+
+            setupImageSwipe();
 
             const isFav = FavoritesManager.isInFavorites(p.id);
             const favBtn = document.getElementById('mainWishlistBtn');
@@ -308,7 +428,7 @@
                     "@context": "https://schema.org",
                     "@type": "Product",
                     "name": p.name,
-                    "image": images,
+                    "image": currentProductImages,
                     "description": p.description,
                     "offers": {
                         "@type": "Offer",
@@ -319,6 +439,52 @@
                 };
                 schemaScript.textContent = JSON.stringify(schema);
             }
+        }
+
+        function updateImageUI(index) {
+            if (!currentProductImages.length) return;
+            currentProductImageIndex = (index + currentProductImages.length) % currentProductImages.length;
+            const url = currentProductImages[currentProductImageIndex];
+            const mainImage = document.getElementById('mainImage');
+            if (mainImage) mainImage.src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(url) : url;
+
+            document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900'));
+            const active = document.querySelector(`#thumbnailGrid > div[data-img-index="${currentProductImageIndex}"]`);
+            if (active) active.classList.add('border-gray-900');
+        }
+
+        function setupImageSwipe() {
+            const mainImage = document.getElementById('mainImage');
+            if (!mainImage) return;
+            if (mainImage.dataset.swipeReady === '1') return;
+            mainImage.dataset.swipeReady = '1';
+
+            const SWIPE_MIN_X = 50;
+            const SWIPE_MAX_Y = 60;
+            let startX = null;
+            let startY = null;
+
+            const onTouchStart = (e) => {
+                const t = e.touches && e.touches[0];
+                if (!t) return;
+                startX = t.clientX;
+                startY = t.clientY;
+            };
+            const onTouchEnd = (e) => {
+                const t = e.changedTouches && e.changedTouches[0];
+                if (!t || startX == null || startY == null) return;
+                const dx = t.clientX - startX;
+                const dy = t.clientY - startY;
+                startX = null;
+                startY = null;
+                if (Math.abs(dy) > SWIPE_MAX_Y) return;
+                if (Math.abs(dx) < SWIPE_MIN_X) return;
+                if (dx < 0) updateImageUI(currentProductImageIndex + 1);
+                else updateImageUI(currentProductImageIndex - 1);
+            };
+
+            mainImage.addEventListener('touchstart', onTouchStart, { passive: true });
+            mainImage.addEventListener('touchend', onTouchEnd, { passive: true });
         }
 
         function setupListeners(p) {
@@ -423,7 +589,7 @@
         }
 
         window.updateQty = (val) => { const inp = document.getElementById('qty-input'); inp.value = Math.max(1, (parseInt(inp.value) || 1) + val); };
-        window.changeImage = (url, el) => { document.getElementById('mainImage').src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(url) : url; document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); };
+        window.changeImageByIndex = (idx, el) => { updateImageUI(parseInt(idx) || 0); if (el) { document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); } };
         window.openZoom = () => { document.getElementById('zoomModalImg').src = document.getElementById('mainImage').src; document.getElementById('zoomModal').classList.remove('invisible', 'opacity-0'); document.body.style.overflow = 'hidden'; };
         window.closeZoom = () => { document.getElementById('zoomModal').classList.add('invisible', 'opacity-0'); document.body.style.overflow = ''; };
         window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copié !', 'info'); } };

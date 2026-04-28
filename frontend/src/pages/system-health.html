@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <script>
+        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
+    </script>
+    <script type="module" src="/src/services/app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health - NewKet</title>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .pill { border: 1px solid rgba(0,0,0,0.08); }
+        .pill.p0 { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+        .pill.p1 { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+        .pill.p2 { background: #fef9c3; color: #854d0e; border-color: #fde68a; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div id="header-placeholder"></div>
+
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold text-gray-900">System Health</h1>
+                <p class="text-sm text-gray-600">Supervision intelligente: incidents P0/P1/P2 + actions.</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="runCheckBtn" class="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-900">
+                    Lancer /system-check
+                </button>
+                <button id="refreshBtn" class="px-4 py-2 rounded-lg bg-white text-black pill hover:bg-gray-100">
+                    Rafraichir
+                </button>
+            </div>
+        </div>
+
+        <section class="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="bg-white rounded-xl p-4 pill">
+                <div class="text-xs text-gray-500">P0</div>
+                <div id="countP0" class="text-2xl font-semibold text-gray-900">0</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 pill">
+                <div class="text-xs text-gray-500">P1</div>
+                <div id="countP1" class="text-2xl font-semibold text-gray-900">0</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 pill">
+                <div class="text-xs text-gray-500">P2</div>
+                <div id="countP2" class="text-2xl font-semibold text-gray-900">0</div>
+            </div>
+        </section>
+
+        <section class="mt-5 bg-white rounded-xl pill overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="font-semibold text-gray-900">Incidents</h2>
+                <div class="text-xs text-gray-500">Source: `system_health_incidents`</div>
+            </div>
+            <div id="incidentsList" class="divide-y divide-gray-100"></div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { ApiClient } from '/src/services/api-client.js';
+        import { showToast } from '/src/services/ui-helpers.js';
+
+        const $ = (id) => document.getElementById(id);
+        const incidentsList = $('incidentsList');
+        const runCheckBtn = $('runCheckBtn');
+        const refreshBtn = $('refreshBtn');
+
+        function pillClass(priority) {
+            if (priority === 'P0') return 'p0';
+            if (priority === 'P1') return 'p1';
+            return 'p2';
+        }
+
+        function escapeHtml(text) {
+            return String(text ?? '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        async function loadIncidents() {
+            const data = await ApiClient.fetch('/system-health/incidents?limit=100', { cacheKey: 'system-health-incidents', cacheTtlMs: 2_000 });
+            const incidents = data?.incidents || [];
+
+            const counts = { P0: 0, P1: 0, P2: 0 };
+            for (const i of incidents) {
+                const p = i.priority || 'P2';
+                counts[p] = (counts[p] || 0) + 1;
+            }
+            $('countP0').textContent = String(counts.P0 || 0);
+            $('countP1').textContent = String(counts.P1 || 0);
+            $('countP2').textContent = String(counts.P2 || 0);
+
+            if (!incidents.length) {
+                incidentsList.innerHTML = `<div class="p-4 text-sm text-gray-600">Aucun incident pour le moment.</div>`;
+                return;
+            }
+
+            incidentsList.innerHTML = incidents.map((i) => {
+                const evidence = i.evidence ? JSON.stringify(i.evidence, null, 2) : '';
+                return `
+                    <div class="p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="pill ${pillClass(i.priority)} text-xs px-2 py-1 rounded-full">${escapeHtml(i.priority)}</span>
+                                    <span class="text-xs text-gray-500">${escapeHtml(i.category)}</span>
+                                </div>
+                                <div class="mt-1 font-semibold text-gray-900">${escapeHtml(i.title)}</div>
+                                <div class="mt-1 text-sm text-gray-700">${escapeHtml(i.summary)}</div>
+                                <div class="mt-2 text-xs text-gray-500">Status: <span class="mono">${escapeHtml(i.status)}</span> • ${escapeHtml(i.created_at)}</div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button data-ack="${escapeHtml(i.id)}" class="px-3 py-2 rounded-lg bg-white pill hover:bg-gray-100 text-sm">Ack</button>
+                                <button data-resolve="${escapeHtml(i.id)}" class="px-3 py-2 rounded-lg bg-black text-white hover:bg-gray-900 text-sm">Resolve</button>
+                            </div>
+                        </div>
+                        ${evidence ? `<details class="mt-3"><summary class="text-sm text-gray-600 cursor-pointer">Evidence</summary><pre class="mt-2 text-xs bg-gray-50 rounded-lg p-3 overflow-auto mono">${escapeHtml(evidence)}</pre></details>` : ''}
+                        ${(i.action_immediate || i.action_robust) ? `
+                            <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <div class="text-xs text-gray-500">Action immediate</div>
+                                    <div class="text-sm text-gray-800">${escapeHtml(i.action_immediate || '')}</div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <div class="text-xs text-gray-500">Action robuste</div>
+                                    <div class="text-sm text-gray-800">${escapeHtml(i.action_robust || '')}</div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        incidentsList.addEventListener('click', async (e) => {
+            const ackId = e.target?.getAttribute?.('data-ack');
+            const resolveId = e.target?.getAttribute?.('data-resolve');
+            try {
+                if (ackId) {
+                    await ApiClient.fetch(`/system-health/incidents/${ackId}/ack`, { method: 'POST' });
+                    showToast('Incident acknowledged', 'success');
+                    await loadIncidents();
+                }
+                if (resolveId) {
+                    await ApiClient.fetch(`/system-health/incidents/${resolveId}/resolve`, { method: 'POST' });
+                    showToast('Incident resolved', 'success');
+                    await loadIncidents();
+                }
+            } catch (err) {
+                showToast(err?.message || 'Erreur', 'error');
+            }
+        });
+
+        runCheckBtn.addEventListener('click', async () => {
+            runCheckBtn.disabled = true;
+            runCheckBtn.textContent = 'Scan en cours...';
+            try {
+                const resp = await ApiClient.fetch('/system-health/check', { method: 'POST' });
+                showToast(`System-check: ${resp?.stored ?? 0} incident(s)`, 'success');
+                await loadIncidents();
+            } catch (err) {
+                showToast(err?.message || 'Erreur system-check', 'error');
+            } finally {
+                runCheckBtn.disabled = false;
+                runCheckBtn.textContent = 'Lancer /system-check';
+            }
+        });
+
+        refreshBtn.addEventListener('click', async () => {
+            try {
+                await loadIncidents();
+            } catch (err) {
+                showToast(err?.message || 'Erreur refresh', 'error');
+            }
+        });
+
+        loadIncidents().catch(() => {});
+    </script>
+</body>
+
+</html>
+

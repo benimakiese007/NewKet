@@ -12,6 +12,12 @@ import {
 
 const generateTxId = () => generateTransactionId();
 
+function normalizeAmount(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return null;
+    return Math.round(n * 100) / 100;
+}
+
 const verifyFlutterwaveSignature = (req) => {
     const webhookSecret = process.env.FLW_WEBHOOK_SECRET;
     const incomingHash = req.headers['verif-hash'];
@@ -91,6 +97,79 @@ async function loadExchangeRate(client) {
 export const initiatePayment = async (req, res) => {
     try {
         const client = supabaseAdmin || supabase;
+
+        const { error: webhookInsertError } = await client
+            .from('payment_webhook_events')
+            .insert({
+                provider: 'flutterwave',
+                event_type: payload.event,
+                provider_event_id: providerEventId,
+                tx_ref: ourTxId || null,
+                payload,
+                signature_valid: signatureValid,
+                received_at: new Date().toISOString(),
+                process_status: 'RECEIVED'
+            });
+
+        if (webhookInsertError) {
+            if (String(webhookInsertError.code) === '23505') {
+                return res.status(200).send('OK');
+            }
+            console.error('[FLW Webhook] Failed to store webhook event:', webhookInsertError);
+            return res.status(500).send('Erreur DB');
+        }
+
+        const { data: orderRow, error: orderLookupError } = await client
+            .from('orders')
+            .select('id, payment_expected_amount, payment_expected_currency')
+            .eq('transaction_id', ourTxId)
+            .maybeSingle();
+
+        if (orderLookupError || !orderRow) {
+            await client
+                .from('payment_webhook_events')
+                .update({
+                    process_status: 'FAILED',
+                    process_error: 'ORDER_NOT_FOUND',
+                    processed_at: new Date().toISOString()
+                })
+                .eq('provider', 'flutterwave')
+                .eq('provider_event_id', providerEventId);
+            return res.status(404).send('Order not found');
+        }
+
+        const expectedAmount = normalizeAmount(orderRow.payment_expected_amount);
+        const expectedCurrency = String(orderRow.payment_expected_currency || '').toUpperCase();
+        const gotAmount = normalizeAmount(verifiedPayment.amount);
+        const gotCurrency = String(verifiedPayment.currency || '').toUpperCase();
+
+        if (expectedAmount !== null && gotAmount !== null && expectedAmount !== gotAmount) {
+            await client
+                .from('payment_webhook_events')
+                .update({
+                    process_status: 'FAILED',
+                    process_error: `AMOUNT_MISMATCH expected=${expectedAmount} got=${gotAmount}`,
+                    order_id: orderRow.id,
+                    processed_at: new Date().toISOString()
+                })
+                .eq('provider', 'flutterwave')
+                .eq('provider_event_id', providerEventId);
+            return res.status(400).send('Montant invalide');
+        }
+
+        if (expectedCurrency && gotCurrency && expectedCurrency !== gotCurrency) {
+            await client
+                .from('payment_webhook_events')
+                .update({
+                    process_status: 'FAILED',
+                    process_error: `CURRENCY_MISMATCH expected=${expectedCurrency} got=${gotCurrency}`,
+                    order_id: orderRow.id,
+                    processed_at: new Date().toISOString()
+                })
+                .eq('provider', 'flutterwave')
+                .eq('provider_event_id', providerEventId);
+            return res.status(400).send('Devise invalide');
+        }
         const {
             order_id,
             product_id,
@@ -235,6 +314,23 @@ export const initiatePayment = async (req, res) => {
             }
         };
 
+        // Server-side source of truth for integrity checks + order locking.
+        const nowIso = new Date().toISOString();
+        const { error: lockError } = await client
+            .from('orders')
+            .update({
+                payment_status: 'INITIATED',
+                payment_provider: 'flutterwave',
+                payment_expected_amount: normalizeAmount(finalAmountUSD),
+                payment_expected_currency: 'USD',
+                payment_locked_at: nowIso,
+                payment_lock_reason: 'PAYMENT_INITIATED',
+                updated_at: nowIso
+            })
+            .eq('id', orderId);
+
+        if (lockError) throw lockError;
+
         const flwResponse = await fetch('https://api.flutterwave.com/v3/payments', {
             method: 'POST',
             headers: {
@@ -277,7 +373,8 @@ export const initiatePayment = async (req, res) => {
 
 export const flutterwaveWebhook = async (req, res) => {
     try {
-        if (!verifyFlutterwaveSignature(req)) {
+        const signatureValid = verifyFlutterwaveSignature(req);
+        if (!signatureValid) {
             console.warn('[FLW Webhook] Signature invalide');
             return res.status(401).send('Unauthorized');
         }
@@ -289,6 +386,7 @@ export const flutterwaveWebhook = async (req, res) => {
 
         const flwTxId = payload.data?.id;
         const ourTxId = payload.data?.tx_ref;
+        const providerEventId = `${String(flwTxId || 'unknown')}:${String(payload.event || 'unknown')}`;
         const verifiedPayment = await verifyFlutterwavePayment(flwTxId);
 
         if (!verifiedPayment) {
@@ -298,13 +396,55 @@ export const flutterwaveWebhook = async (req, res) => {
         const client = supabaseAdmin || supabase;
 
         if (verifiedPayment.status === 'successful') {
+            await client
+                .from('orders')
+                .update({
+                    payment_provider: 'flutterwave',
+                    payment_provider_tx_id: String(flwTxId || ''),
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', orderRow.id);
+
             const { data: rpcData, error: rpcError } = await client.rpc('process_order_payment', {
                 p_transaction_id: ourTxId
             });
 
             if (rpcError || (rpcData && !rpcData.success)) {
                 console.error('[FLW Webhook] process_order_payment failed:', rpcError || rpcData?.message);
+                await client
+                    .from('payment_webhook_events')
+                    .update({
+                        process_status: 'FAILED',
+                        process_error: String(rpcError?.message || rpcData?.message || 'RPC_FAILED'),
+                        order_id: orderRow.id,
+                        processed_at: new Date().toISOString()
+                    })
+                    .eq('provider', 'flutterwave')
+                    .eq('provider_event_id', providerEventId);
                 return res.status(500).send('Erreur lors de la validation atomique');
+            }
+
+            const { data: paymentRow } = await client
+                .from('payments')
+                .select('id, currency, amount')
+                .eq('order_id', orderRow.id)
+                .maybeSingle();
+
+            if (paymentRow?.id) {
+                await client
+                    .from('financial_ledger_entries')
+                    .insert({
+                        order_id: orderRow.id,
+                        payment_id: paymentRow.id,
+                        entry_type: 'CUSTOMER_CHARGE',
+                        amount: normalizeAmount(paymentRow.amount) ?? normalizeAmount(verifiedPayment.amount) ?? 0,
+                        currency: String(paymentRow.currency || verifiedPayment.currency || 'USD'),
+                        metadata: {
+                            provider: 'flutterwave',
+                            provider_tx_id: flwTxId || null,
+                            tx_ref: ourTxId || null
+                        }
+                    });
             }
 
             const { data: orderInfo } = await client
@@ -319,12 +459,23 @@ export const flutterwaveWebhook = async (req, res) => {
                     NotificationService.notifyCustomerOTP(orderInfo);
                 }
             }
+
+            await client
+                .from('payment_webhook_events')
+                .update({
+                    process_status: 'PROCESSED',
+                    order_id: orderRow.id,
+                    processed_at: new Date().toISOString()
+                })
+                .eq('provider', 'flutterwave')
+                .eq('provider_event_id', providerEventId);
         } else {
             const { error: dbUpdateError } = await client
                 .from('orders')
                 .update({
                     payment_status: 'FAILED',
                     status: 'CANCELLED',
+                    payment_lock_reason: 'PAYMENT_FAILED',
                     updated_at: new Date().toISOString()
                 })
                 .eq('transaction_id', ourTxId);
@@ -333,11 +484,142 @@ export const flutterwaveWebhook = async (req, res) => {
                 console.error('[FLW Webhook] Failed to mark order as cancelled:', dbUpdateError);
                 return res.status(500).send('Erreur DB');
             }
+
+            await client
+                .from('payment_webhook_events')
+                .update({
+                    process_status: 'PROCESSED',
+                    order_id: orderRow.id,
+                    processed_at: new Date().toISOString()
+                })
+                .eq('provider', 'flutterwave')
+                .eq('provider_event_id', providerEventId);
         }
 
         return res.status(200).send('OK');
     } catch (error) {
         console.error('flutterwaveWebhook error:', error);
         return res.status(500).send('Erreur interne');
+    }
+};
+
+export const reverifyFlutterwaveTransaction = async (req, res) => {
+    try {
+        const client = supabaseAdmin || supabase;
+        const { flw_transaction_id, tx_ref } = req.body || {};
+
+        if (!flw_transaction_id || !tx_ref) {
+            return res.status(400).json({ error: 'flw_transaction_id et tx_ref sont requis.' });
+        }
+
+        const verifiedPayment = await verifyFlutterwavePayment(flw_transaction_id);
+        if (!verifiedPayment) {
+            return res.status(400).json({ error: 'Paiement non vérifiable' });
+        }
+
+        const { data: orderRow, error: orderLookupError } = await client
+            .from('orders')
+            .select('id, payment_expected_amount, payment_expected_currency')
+            .eq('transaction_id', tx_ref)
+            .maybeSingle();
+
+        if (orderLookupError || !orderRow) {
+            return res.status(404).json({ error: 'Commande introuvable pour ce tx_ref.' });
+        }
+
+        const expectedAmount = normalizeAmount(orderRow.payment_expected_amount);
+        const expectedCurrency = String(orderRow.payment_expected_currency || '').toUpperCase();
+        const gotAmount = normalizeAmount(verifiedPayment.amount);
+        const gotCurrency = String(verifiedPayment.currency || '').toUpperCase();
+
+        if (expectedAmount !== null && gotAmount !== null && expectedAmount !== gotAmount) {
+            return res.status(400).json({ error: `Montant invalide (expected=${expectedAmount}, got=${gotAmount}).` });
+        }
+
+        if (expectedCurrency && gotCurrency && expectedCurrency !== gotCurrency) {
+            return res.status(400).json({ error: `Devise invalide (expected=${expectedCurrency}, got=${gotCurrency}).` });
+        }
+
+        await client
+            .from('orders')
+            .update({
+                payment_provider: 'flutterwave',
+                payment_provider_tx_id: String(flw_transaction_id),
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', orderRow.id);
+
+        if (verifiedPayment.status === 'successful') {
+            const { data: rpcData, error: rpcError } = await client.rpc('process_order_payment', {
+                p_transaction_id: tx_ref
+            });
+
+            if (rpcError || (rpcData && !rpcData.success)) {
+                return res.status(500).json({ error: 'process_order_payment échec', details: rpcError?.message || rpcData?.message });
+            }
+
+            return res.status(200).json({ success: true, message: 'Paiement revalidé et commande mise à jour.' });
+        }
+
+        await client
+            .from('orders')
+            .update({
+                payment_status: 'FAILED',
+                status: 'CANCELLED',
+                payment_lock_reason: 'PAYMENT_FAILED',
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', orderRow.id);
+
+        return res.status(200).json({ success: true, message: 'Paiement non-successful: commande annulée.' });
+    } catch (error) {
+        console.error('reverifyFlutterwaveTransaction error:', error);
+        return res.status(500).json({ error: 'Erreur interne' });
+    }
+};
+
+export const getPaymentStatus = async (req, res) => {
+    try {
+        const client = supabaseAdmin || supabase;
+        const txRef = req.params.tx_ref;
+
+        const { data: order, error } = await client
+            .from('orders')
+            .select('id, transaction_id, status, payment_status, escrow_status, payment_provider, payment_provider_tx_id, payment_locked_at, updated_at')
+            .eq('transaction_id', txRef)
+            .maybeSingle();
+
+        if (error || !order) {
+            return res.status(404).json({ error: 'Transaction introuvable.' });
+        }
+
+        // If authenticated, enforce customer ownership when possible.
+        if (req.user?.id) {
+            const { data: orderOwner } = await client
+                .from('orders')
+                .select('customer_id, user_id')
+                .eq('id', order.id)
+                .single();
+
+            const customerId = orderOwner?.user_id || orderOwner?.customer_id || null;
+            if (customerId && customerId !== req.user.id) {
+                return res.status(403).json({ error: 'Accès refusé.' });
+            }
+        }
+
+        const { data: payment } = await client
+            .from('payments')
+            .select('status, amount, currency, updated_at, succeeded_at, failed_at, completed_at')
+            .eq('order_id', order.id)
+            .maybeSingle();
+
+        return res.status(200).json({
+            ok: true,
+            order,
+            payment: payment || null
+        });
+    } catch (error) {
+        console.error('getPaymentStatus error:', error);
+        return res.status(500).json({ error: 'Erreur interne' });
     }
 };
