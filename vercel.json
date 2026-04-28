@@ -1,4 +1,8 @@
 {
+  "rewrites": [
+    { "source": "/boutique/:shopSlug", "destination": "/src/pages/shop.html" },
+    { "source": "/boutique/:shopSlug/produit/:productSlug", "destination": "/src/pages/product.html" }
+  ],
   "crons": [
     {
       "path": "/api/cron/escrows/release-due",
@@ -10,4 +14,3 @@
     }
   ]
 }
-

@@ -86,7 +86,7 @@
                     <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsSuccess">0</p>
                 </div>
                 <div class="glass-panel p-5 border-b-4 border-green-500">
-                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Valeur Estimée ($)</p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Valeur Estimée</p>
                     <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsValue">$0</p>
                 </div>
             </div>
@@ -165,10 +165,10 @@
             document.getElementById('statLeadsTotal').textContent = totalLeads;
             document.getElementById('statLeadsPending').textContent = pendingLeads;
             document.getElementById('statLeadsSuccess').textContent = successLeads;
-            if(window.CurrencyManager) {
-                document.getElementById('statLeadsValue').textContent = '$' + window.CurrencyManager.convert(totalFC, true).toFixed(2);
+            if (window.CurrencyManager) {
+                document.getElementById('statLeadsValue').textContent = window.CurrencyManager.formatPrice(totalFC, window.CurrencyManager.currentCurrency, true);
             } else {
-                document.getElementById('statLeadsValue').textContent = '$' + (totalFC / 2500).toFixed(2);
+                document.getElementById('statLeadsValue').textContent = totalFC.toLocaleString() + ' FC';
             }
 
             if (filteredOrders.length === 0) {

@@ -482,17 +482,13 @@ const ComponentLoader = {
             // Set global CSS variable for other components to use
             document.documentElement.style.setProperty('--header-height', `${height}px`);
 
-            // Use a stable spacer instead of dynamic insertion if possible, 
-            // but for existing pages we stick to the dynamic spacer for backward compatibility.
-            let spacer = document.getElementById('dynamic-header-spacer');
-            if (!spacer) {
-                spacer = document.createElement('div');
-                spacer.id = 'dynamic-header-spacer';
-                placeholder.insertAdjacentElement('afterend', spacer);
-            }
+            // Reserve space via the placeholder so 100vh/flex layouts don't
+            // get an extra spacer element that can cause overflow.
+            placeholder.style.minHeight = `${height}px`;
 
-            spacer.style.height = `${height}px`;
-            spacer.style.pointerEvents = 'none';
+            // Backward-compat cleanup: remove any spacer previously inserted.
+            const spacer = document.getElementById('dynamic-header-spacer');
+            if (spacer) spacer.remove();
             document.documentElement.style.scrollPaddingTop = `${height + 20}px`;
         };
 

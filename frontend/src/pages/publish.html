@@ -165,6 +165,18 @@
                     </div>
                 </div>
 
+                <div class="grid sm:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <iconify-icon icon="solar:box-bold" class="text-gray-400"></iconify-icon>
+                            <label for="stockInput" class="text-sm font-bold text-gray-900 uppercase tracking-wider">Quantité</label>
+                        </div>
+                        <div class="relative group input-focus border border-gray-100 rounded-2xl transition-all duration-300 bg-gray-50/50">
+                            <input type="number" id="stockInput" name="stockInput" required min="1" step="1" value="1" placeholder="ex: 5"
+                                class="w-full px-6 py-5 rounded-2xl outline-none text-gray-900 bg-transparent font-bold text-xl">
+                        </div>
+                    </div>
+
                 <div class="space-y-4">
                     <div class="flex items-center gap-2 mb-1">
                         <iconify-icon icon="solar:wallet-money-bold" class="text-gray-400"></iconify-icon>
@@ -185,9 +197,10 @@
                                 class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300"></iconify-icon>
                         </div>
                     </div>
+                </div>
 
-                    <div id="exchangeRateGroup"
-                        class="bg-gray-900 rounded-3xl p-6 flex flex-col sm:grid sm:grid-cols-2 items-center gap-6 border border-white/10 shadow-xl overflow-hidden relative">
+                <div id="exchangeRateGroup"
+                    class="sm:col-span-2 bg-gray-900 rounded-3xl p-6 flex flex-col sm:grid sm:grid-cols-2 items-center gap-6 border border-white/10 shadow-xl overflow-hidden relative">
                         <!-- Background glow -->
                         <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[50px] rounded-full"></div>
                         
@@ -210,7 +223,9 @@
                                 <div class="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2 border border-white/10 group-hover:border-white/20 transition-all">
                                     <span class="text-[10px] text-gray-500 font-bold uppercase">Taux</span>
                                     <input type="number" id="exchangeRate" name="exchangeRate"
-                                        class="w-14 outline-none text-xs text-indigo-300 font-black bg-transparent text-right"
+                                        class="w-20 outline-none text-xs text-indigo-300 font-black bg-transparent text-right tabular-nums"
+                                        inputmode="numeric" min="1" step="1"
+                                        aria-label="Taux de change (1 USD en FC)"
                                         value="2800">
                                     <span class="text-[10px] text-gray-500 font-bold uppercase">FC</span>
                                 </div>
@@ -382,6 +397,7 @@
             const estimatedPriceEl = document.getElementById('estimatedPrice');
             const otherCurrencyNameEl = document.getElementById('otherCurrencyName');
             const exchangeRateInput = document.getElementById('exchangeRate');
+            const EXCHANGE_RATE_STORAGE_KEY = 'newket_publish_exchange_rate';
 
             function updateStatusBanner() {
                 const status = localStorage.getItem('newketUserStatus') || 'pending';
@@ -447,15 +463,37 @@
             updateStatusBanner();
             window.addEventListener('userStatusUpdated', updateStatusBanner);
 
-            // Set initial configured exchange rate
-            if (window.ConfigManager) {
-                exchangeRateInput.value = ConfigManager.getExchangeRate();
+            function getConfigExchangeRate() {
+                try {
+                    if (window.ConfigManager && typeof ConfigManager.getExchangeRate === 'function') {
+                        const rate = parseFloat(ConfigManager.getExchangeRate());
+                        if (Number.isFinite(rate) && rate > 0) return rate;
+                    }
+                } catch (_) {}
+                return 2800;
             }
+
+            function getSavedExchangeRate() {
+                const saved = localStorage.getItem(EXCHANGE_RATE_STORAGE_KEY);
+                const parsed = parseFloat(saved);
+                if (Number.isFinite(parsed) && parsed > 0) return parsed;
+                return null;
+            }
+
+            function setExchangeRateInputValue(rate) {
+                const normalized = Math.round(Number(rate));
+                if (!Number.isFinite(normalized) || normalized <= 0) return;
+                exchangeRateInput.value = String(normalized);
+            }
+
+            // Initial exchange rate: saved (vendor) -> global config -> fallback
+            const savedRate = getSavedExchangeRate();
+            setExchangeRateInputValue(savedRate ?? getConfigExchangeRate());
 
             function updateEstimate() {
                 const price = parseFloat(priceInput.value) || 0;
                 const currency = currencyInput.value;
-                const exchangeRate = parseFloat(exchangeRateInput.value) || 2800;
+                const exchangeRate = parseFloat(exchangeRateInput.value) || getConfigExchangeRate();
 
                 // Sync promo currency badge
                 const promoCurrencyBadge = document.getElementById('promoCurrencyBadge');
@@ -484,7 +522,13 @@
             // écouteurs pour le calcul en temps réel
             priceInput.addEventListener('input', updateEstimate);
             currencyInput.addEventListener('change', updateEstimate);
-            exchangeRateInput.addEventListener('input', updateEstimate);
+            exchangeRateInput.addEventListener('input', () => {
+                const currentRate = parseFloat(exchangeRateInput.value);
+                if (Number.isFinite(currentRate) && currentRate > 0) {
+                    localStorage.setItem(EXCHANGE_RATE_STORAGE_KEY, String(Math.round(currentRate)));
+                }
+                updateEstimate();
+            });
 
             // Category Selection Handling
             const categoryInput = document.getElementById('pCategoryInput');
@@ -526,6 +570,15 @@
 
                     document.getElementById('pTitleInput').value = product.name;
                     
+                    // Restore per-product exchange rate when present
+                    if (exchangeRateInput) {
+                        const perProductRate = parseFloat(product.custom_exchange_rate);
+                        if (Number.isFinite(perProductRate) && perProductRate > 0) {
+                            setExchangeRateInputValue(perProductRate);
+                            localStorage.setItem(EXCHANGE_RATE_STORAGE_KEY, String(Math.round(perProductRate)));
+                        }
+                    }
+                    
                     // Handle Category
                     if (categoryInput) {
                         categoryInput.value = product.category || '';
@@ -540,7 +593,7 @@
                     document.getElementById('pDescInput').value = product.description || '';
                     
                     // Price handling (Assuming stored in CDF like the publish logic suggests)
-                    const currentRate = parseFloat(exchangeRateInput.value) || 2800;
+                    const currentRate = parseFloat(exchangeRateInput.value) || getConfigExchangeRate();
                     
                     // Simple logic: if price is small, assume it was USD, but current publish logic converts to CDF
                     // So we probably need to reverse the conversion if user prefers USD view
@@ -560,7 +613,13 @@
                         // because submit handler filters by 'http' to identify existing ones.
                         renderPreviews();
                     }
-                    
+
+                    const stockInput = document.getElementById('stockInput');
+                    if (stockInput) {
+                        const parsedStock = parseInt(product.stock, 10);
+                        stockInput.value = (Number.isInteger(parsedStock) && parsedStock > 0) ? String(parsedStock) : '1';
+                    }
+                     
                     updateEstimate();
                 } catch (error) {
                     console.error('Error loading product for edit:', error);
@@ -664,6 +723,7 @@
                 const descInput = document.getElementById('pDescInput');
                 const priceVal = parseFloat(priceInput.value);
                 const currency = currencyInput.value;
+                const stockVal = parseInt(document.getElementById('stockInput')?.value, 10);
 
                 const userId = localStorage.getItem('newketUserId');
                 if (!userId) {
@@ -672,7 +732,7 @@
                     return;
                 }
 
-                if (!titleInput.value.trim() || !categoryInput.value || !document.getElementById('pConditionInput').value || !priceVal || priceVal <= 0) {
+                if (!titleInput.value.trim() || !categoryInput.value || !document.getElementById('pConditionInput').value || !priceVal || priceVal <= 0 || !Number.isInteger(stockVal) || stockVal <= 0) {
                     if (typeof showToast === 'function') showToast("Veuillez remplir tous les champs obligatoires (*).", "error");
                     return;
                 }
@@ -688,7 +748,7 @@
                 submitBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Publication...';
 
                 try {
-                    const exchangeRate = parseFloat(exchangeRateInput.value) || 2800;
+                    const exchangeRate = parseFloat(exchangeRateInput.value) || getConfigExchangeRate();
                     const finalPrice = currency === 'USD' ? priceVal * exchangeRate : priceVal;
                     
                     const isPromo = isPromoToggle.checked;
@@ -735,7 +795,8 @@
                         old_price: finalOldPrice,
                         is_new: document.getElementById('pConditionInput').value === 'new',
                         status: 'published',
-                        custom_exchange_rate: exchangeRate
+                        custom_exchange_rate: exchangeRate,
+                        stock: stockVal
                     };
 
                     if (isEditMode) {
@@ -744,7 +805,6 @@
                     } else {
                         const newProduct = {
                             ...productData,
-                            stock: 10,
                             reviews: 0,
                             created_at: new Date().toISOString()
                         };
@@ -776,6 +836,3 @@
 </body>
 
 </html>
-
-
-

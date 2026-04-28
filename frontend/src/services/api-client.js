@@ -124,7 +124,12 @@ export const ApiClient = {
             }
 
             if (!response.ok) {
-                throw new Error(data.error || `Erreur API ${response.status}`);
+                const baseMsg = data?.error || `Erreur API ${response.status}`;
+                const details = data?.details ? `: ${data.details}` : '';
+                const err = new Error(`${baseMsg}${details}`);
+                err.status = response.status;
+                err.data = data;
+                throw err;
             }
 
                 if (cacheKey && options.cacheTtlMs) {

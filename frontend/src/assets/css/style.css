@@ -227,7 +227,8 @@ button {
 
 /* CLS Mitigation - Reserve space for injected components */
 #header-placeholder {
-  min-height: 0;
+  /* Header is position: fixed; reserve its height so content is not hidden. */
+  min-height: var(--header-height, 0px);
 }
 
 #footer-placeholder {
@@ -240,7 +241,7 @@ button {
 
 @media (max-width: 640px) {
   #header-placeholder {
-    min-height: 0;
+    min-height: var(--header-height, 0px);
   }
 }
 

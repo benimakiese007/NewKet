@@ -3,6 +3,7 @@
 const CurrencyManager = {
     currentCurrency: localStorage.getItem('newketCurrency') || 'CDF',
     defaultRate: 2500, // 1 USD = 2500 CDF
+    _delegatedBound: false,
 
     init() {
         this.updateCurrencyUI();
@@ -12,24 +13,68 @@ const CurrencyManager = {
     },
 
     bindEvents() {
-        // Switch Bulle & Segmented Toggle Logic
-        document.querySelectorAll('.currency-switch, .currency-toggle, .currency-switch-segmented').forEach(toggle => {
-            toggle.addEventListener('click', () => {
+        if (this._delegatedBound) return;
+        this._delegatedBound = true;
+
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+
+            // Legacy option buttons
+            const optionBtn = target?.closest?.('.currency-option');
+            const optionCurrency = optionBtn?.dataset?.currency;
+            if (optionCurrency === 'USD' || optionCurrency === 'CDF') {
+                event.preventDefault();
+                this.setCurrency(optionCurrency);
+                return;
+            }
+
+            // Admin button group
+            const adminBtn = target?.closest?.('#currencyToggle button[data-currency]');
+            const adminCurrency = adminBtn?.getAttribute?.('data-currency');
+            if (adminCurrency === 'USD' || adminCurrency === 'CDF') {
+                event.preventDefault();
+                event.stopPropagation();
+                this.setCurrency(adminCurrency);
+                return;
+            }
+
+            // Segmented toggle labels (explicit currency)
+            const segmentedLabel = target?.closest?.('.currency-switch-segmented [data-currency]');
+            const segmentedCurrency = segmentedLabel?.getAttribute?.('data-currency');
+            if (segmentedCurrency === 'USD' || segmentedCurrency === 'CDF') {
+                event.preventDefault();
+                this.setCurrency(segmentedCurrency);
+
+                const segmentedToggle = segmentedLabel.closest('.currency-switch-segmented');
+                if (segmentedToggle) {
+                    segmentedToggle.style.transform = 'scale(0.95)';
+                    setTimeout(() => segmentedToggle.style.transform = 'scale(1)', 100);
+                }
+                return;
+            }
+
+            // Segmented toggle container (toggle between currencies)
+            const segmentedToggle = target?.closest?.('.currency-switch-segmented');
+            if (segmentedToggle) {
+                event.preventDefault();
                 const newCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
                 this.setCurrency(newCurrency);
 
-                // Small haptic animation
-                toggle.style.transform = 'scale(0.95)';
-                setTimeout(() => toggle.style.transform = 'scale(1)', 100);
-            });
-        });
+                segmentedToggle.style.transform = 'scale(0.95)';
+                setTimeout(() => segmentedToggle.style.transform = 'scale(1)', 100);
+                return;
+            }
 
-        // Keep support for legacy .currency-option buttons
-        document.querySelectorAll('.currency-option').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const currency = e.currentTarget.dataset.currency;
-                this.setCurrency(currency);
-            });
+            // Legacy one-click toggle containers
+            const legacyToggle = target?.closest?.('.currency-switch, .currency-toggle');
+            if (legacyToggle) {
+                event.preventDefault();
+                const newCurrency = this.currentCurrency === 'CDF' ? 'USD' : 'CDF';
+                this.setCurrency(newCurrency);
+
+                legacyToggle.style.transform = 'scale(0.95)';
+                setTimeout(() => legacyToggle.style.transform = 'scale(1)', 100);
+            }
         });
     },
 
@@ -46,7 +91,7 @@ const CurrencyManager = {
 
     updateCurrencyUI() {
         // Update Toggles
-        document.querySelectorAll('.currency-switch, .currency-toggle, .currency-switch-segmented').forEach(toggle => {
+        document.querySelectorAll('.currency-switch, .currency-toggle, .currency-switch-segmented, #currencyToggle').forEach(toggle => {
             toggle.setAttribute('data-active', this.currentCurrency);
 
             // Old label support (if any)
@@ -66,11 +111,16 @@ const CurrencyManager = {
             toggle.classList.remove('usd', 'cdf');
             toggle.classList.add(this.currentCurrency.toLowerCase());
 
-            toggle.querySelectorAll('button').forEach(btn => {
-                if (btn.getAttribute('data-currency') === this.currentCurrency) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
+            toggle.querySelectorAll('button[data-currency]').forEach(btn => {
+                const isActive = btn.getAttribute('data-currency') === this.currentCurrency;
+                btn.classList.toggle('active', isActive);
+
+                // Admin button-group styling parity (Tailwind classes embedded in markup)
+                if (toggle.id === 'currencyToggle') {
+                    btn.classList.toggle('bg-white', isActive);
+                    btn.classList.toggle('shadow-sm', isActive);
+                    btn.classList.toggle('text-black', isActive);
+                    btn.classList.toggle('text-gray-400', !isActive);
                 }
             });
         });
@@ -110,17 +160,23 @@ const CurrencyManager = {
         }
 
         if (currency === 'CDF') {
-            return new Intl.NumberFormat('fr-CD', {
-                style: 'currency',
-                currency: 'CDF',
+            let formatted = new Intl.NumberFormat('fr-FR', {
+                useGrouping: true,
                 maximumFractionDigits: 0
-            }).format(value).replace('CDF', 'FC');
-        } else {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(value);
+            }).format(Number(value) || 0);
+
+            // fr-FR often uses narrow no-break spaces (U+202F) for grouping; normalize to regular spaces for visibility.
+            formatted = formatted.replace(/[\u202F\u00A0]/g, ' ');
+            return `${formatted} FC`;
         }
+
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            useGrouping: true,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(Number(value) || 0);
     },
 
     // Convert between currencies

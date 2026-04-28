@@ -194,6 +194,77 @@ function resolvePath(path) {
 }
 window.resolvePath = resolvePath;
 
+function _nkNormalizeForSlug(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[’']/g, '')
+        .replace(/[^a-zA-Z0-9]+/g, '_')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '');
+}
+
+function buildShopSlug(shopName) {
+    const base = _nkNormalizeForSlug(shopName);
+    if (!base) return 'Shop_NewKet';
+    return `${base}_Shop_NewKet`;
+}
+
+function buildProductSlug(productName) {
+    const base = _nkNormalizeForSlug(productName);
+    if (!base) return 'Produit_NewKet';
+    return `${base}_NewKet`;
+}
+
+async function copyTextToClipboard(text) {
+    const value = String(text || '');
+    if (!value) return false;
+    try {
+        await navigator.clipboard.writeText(value);
+        return true;
+    } catch {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = value;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.top = '-1000px';
+            ta.style.left = '-1000px';
+            document.body.appendChild(ta);
+            ta.select();
+            const ok = document.execCommand('copy');
+            ta.remove();
+            return !!ok;
+        } catch {
+            return false;
+        }
+    }
+}
+
+function buildShopShareUrl({ shopName, email } = {}) {
+    const slug = buildShopSlug(shopName);
+    const url = new URL(`/boutique/${encodeURIComponent(slug)}`, window.location.origin);
+    if (email) url.searchParams.set('email', email);
+    return url.toString();
+}
+
+function buildProductShareUrl({ shopName, email, productName, productId } = {}) {
+    const shopSlug = buildShopSlug(shopName);
+    const productSlug = buildProductSlug(productName);
+    const url = new URL(`/boutique/${encodeURIComponent(shopSlug)}/produit/${encodeURIComponent(productSlug)}`, window.location.origin);
+    if (productId) url.searchParams.set('id', productId);
+    if (email) url.searchParams.set('email', email);
+    return url.toString();
+}
+
+window.NewKetLinks = {
+    buildShopSlug,
+    buildProductSlug,
+    buildShopShareUrl,
+    buildProductShareUrl,
+    copyTextToClipboard
+};
+
 /**
  * Debounce function to limit execution frequency.
  */

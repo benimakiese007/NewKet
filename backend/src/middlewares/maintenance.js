@@ -23,12 +23,12 @@ export const maintenanceMiddleware = async (req, res, next) => {
         if (isMaintenanceCached === null || (now - lastCheck) > CACHE_DURATION) {
             const { data, error } = await supabase
                 .from('settings')
-                .select('maintenanceMode')
+                .select('maintenance_mode')
                 .eq('id', 'global-settings')
                 .maybeSingle();
 
             if (!error && data) {
-                isMaintenanceCached = !!data.maintenanceMode;
+                isMaintenanceCached = !!data.maintenance_mode;
                 lastCheck = now;
             } else if (error) {
                 console.error('❌ Erreur vérification maintenance:', error);

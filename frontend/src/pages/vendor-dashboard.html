@@ -41,7 +41,7 @@
     <nav class="dashboard-topbar fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
             <div class="flex items-center gap-6">
-                <button id="vendorMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+                <button id="vendorMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                     <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                 </button>
             </div>
@@ -58,6 +58,17 @@
                 <button data-theme-toggle onclick="ThemeManager.toggle()" class="theme-toggle hidden sm:flex h-10 w-10 text-gray-500 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50 items-center justify-center" aria-label="Basculer le thème">
                     <iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon>
                 </button>
+
+                <!-- Currency Toggle -->
+                <div class="hidden sm:flex items-center">
+                    <div class="currency-switch-segmented scale-90 origin-right" id="vendorCurrencyToggle" data-active="CDF" title="Devise d'affichage">
+                        <div class="segmented-track">
+                            <div class="segmented-handle"></div>
+                            <span class="segmented-label" data-currency="USD">USD</span>
+                            <span class="segmented-label" data-currency="CDF">CDF</span>
+                        </div>
+                    </div>
+                </div>
                 <button onclick="AuthManager.handleLogoutClick(this)" class="h-10 w-10 sm:w-auto sm:px-4 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
                     <iconify-icon icon="solar:logout-bold" width="20"></iconify-icon>
                     <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Quitter</span>
@@ -69,12 +80,12 @@
     <!-- Overlay pour Mobile -->
     <div id="vendorSidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
 
-    <main class="dashboard-main-offset max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16">
-        <div class="vendor-dashboard-layout flex flex-col lg:flex-row gap-8">
+    <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16">
+        <div class="vendor-dashboard-layout flex flex-col md:flex-row gap-8">
             <!-- Sidebar -->
-            <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-300 ease-in-out h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
+            <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full md:translate-x-0 md:sticky md:top-28 md:self-start md:inset-auto md:w-72 transition-all duration-300 ease-in-out h-screen md:h-[calc(100vh-7rem)] overflow-y-auto border-0 md:border-r border-gray-100 flex-shrink-0">
 
-                <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 lg:min-h-0 lg:sticky lg:top-24 lg:rounded-[1.5rem] lg:border lg:shadow-sm space-y-8">
+                <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 md:pt-6 md:min-h-0 md:rounded-[1.5rem] md:border md:shadow-sm space-y-8">
                     <!-- Brand Section -->
                     <div class="flex items-center gap-4 px-2 pb-6 border-b border-gray-100/50">
                     <div class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center shadow-sm border border-white/15 shrink-0 overflow-hidden">
@@ -122,7 +133,7 @@
                                 <span>Paramètres</span>
                             </a>
                             <!-- Theme Toggle Mobile -->
-                            <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle lg:hidden group btn-active-scale w-full text-left">
+                            <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle md:hidden group btn-active-scale w-full text-left">
                                 <iconify-icon data-theme-icon icon="solar:moon-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
                                 <span class="theme-toggle-text">Mode Sombre</span>
                             </button>
@@ -245,7 +256,7 @@
                 </div>
 
                 <!-- Recent Activity (New for Vendor) -->
-                <div class="glass-panel p-8 lg:col-span-2">
+                <div class="glass-panel p-8">
                     <div class="flex items-center justify-between mb-6 vendor-card-header">
                         <h3 class="font-bold text-gray-900">Activités Récentes de la Boutique</h3>
                         <iconify-icon icon="solar:history-bold" width="20" class="text-gray-300"></iconify-icon>
@@ -550,6 +561,7 @@
                 let selectedWithdrawMethod = '';
 
                 function switchVendorTab(tabId) {
+                    window.newketVendorActiveTab = tabId;
                     // Masquer tous les onglets (null-safe)
                     ['tab-dashboard', 'tab-products', 'tab-leads', 'tab-purchases', 'tab-settings'].forEach(id => {
                         const el = document.getElementById(id);
@@ -578,6 +590,29 @@
                         window.SidebarManager.close();
                     }
                 }
+
+                // Re-render visible tab when currency changes
+                (function bindVendorCurrencyRerender() {
+                    if (window.__newketVendorCurrencyBound) return;
+                    window.__newketVendorCurrencyBound = true;
+
+                    function rerenderVisible() {
+                        const tabId = window.newketVendorActiveTab ||
+                            (document.getElementById('tab-dashboard') && !document.getElementById('tab-dashboard').classList.contains('hidden') ? 'dashboard' : null) ||
+                            (document.getElementById('tab-products') && !document.getElementById('tab-products').classList.contains('hidden') ? 'products' : null) ||
+                            (document.getElementById('tab-leads') && !document.getElementById('tab-leads').classList.contains('hidden') ? 'leads' : null) ||
+                            (document.getElementById('tab-purchases') && !document.getElementById('tab-purchases').classList.contains('hidden') ? 'purchases' : null);
+
+                        if (tabId === 'dashboard' && typeof renderVendorDashboard === 'function') renderVendorDashboard();
+                        else if (tabId === 'products' && typeof renderVendorProducts === 'function') renderVendorProducts();
+                        else if (tabId === 'leads' && typeof renderVendorLeads === 'function') renderVendorLeads();
+                        else if (tabId === 'purchases' && typeof renderVendorPurchases === 'function') renderVendorPurchases();
+                    }
+
+                    window.addEventListener('currencyChanged', () => {
+                        try { rerenderVisible(); } catch (e) {}
+                    });
+                })();
 
                 document.addEventListener('DOMContentLoaded', () => {
                     if (window.newketInitialized) {

@@ -12,6 +12,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });     // Backend .
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+export const hasServiceRoleKey = Boolean(SUPABASE_SERVICE_ROLE_KEY);
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.error('❌ ERREUR FATALE: SUPABASE_URL ou SUPABASE_ANON_KEY manquantes dans le .env backend.');
@@ -34,3 +35,12 @@ if (SUPABASE_SERVICE_ROLE_KEY) {
 }
 
 export const supabaseAdmin = adminClient;
+
+export function createUserSupabaseClient(accessToken) {
+    if (!accessToken) return supabase;
+    return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        global: {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        }
+    });
+}

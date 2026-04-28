@@ -107,11 +107,18 @@
                     <iconify-icon icon="solar:arrow-left-linear" width="18"></iconify-icon>
                     Boutiques
                 </a>
-                <button type="button" onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth', block:'start'})"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white text-black hover:bg-gray-100 transition-colors text-xs font-black uppercase tracking-widest shadow-xl">
-                    <iconify-icon icon="solar:bag-2-linear" width="18"></iconify-icon>
-                    Voir la collection
-                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="shareShopLink()"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white border border-white/15 hover:bg-white/15 transition-colors text-xs font-black uppercase tracking-widest">
+                        <iconify-icon icon="solar:share-linear" width="18"></iconify-icon>
+                        Copier le lien
+                    </button>
+                    <button type="button" onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth', block:'start'})"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white text-black hover:bg-gray-100 transition-colors text-xs font-black uppercase tracking-widest shadow-xl">
+                        <iconify-icon icon="solar:bag-2-linear" width="18"></iconify-icon>
+                        Voir la collection
+                    </button>
+                </div>
             </div>
 
             <div class="flex flex-col sm:flex-row items-end gap-6">
@@ -211,6 +218,39 @@
 
     <script>
         let currentProducts = [];
+        let currentShopName = '';
+        let currentShopEmail = '';
+
+        function getOrCreateSessionId() {
+            try {
+                const key = 'newket_session_id';
+                const existing = localStorage.getItem(key);
+                if (existing && existing.length >= 12) return existing;
+                const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`.slice(0, 64);
+                localStorage.setItem(key, id);
+                return id;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function recordShopViewOncePerDay(vendorId) {
+            try {
+                if (!vendorId || !window.ApiClient) return;
+                const sessionId = getOrCreateSessionId();
+                const dayKey = new Date().toISOString().slice(0, 10);
+                const dedupeKey = `newket_shop_viewed:${vendorId}:${dayKey}`;
+                if (localStorage.getItem(dedupeKey)) return;
+                localStorage.setItem(dedupeKey, '1');
+
+                window.ApiClient.post('/analytics/shop-view', {
+                    vendor_id: vendorId,
+                    session_id: sessionId
+                }).catch(() => {});
+            } catch (e) {
+                // no-op
+            }
+        }
         function safeNumber(v) {
             const n = Number(v);
             return Number.isFinite(n) ? n : 0;
@@ -256,7 +296,14 @@
 
             noProducts.classList.add('hidden');
             grid.innerHTML = list.map((p) => {
-                const productUrl = `${window.resolvePath('product')}?id=${p.id}`;
+                const productUrl = (window.NewKetLinks && window.NewKetLinks.buildProductShareUrl)
+                    ? window.NewKetLinks.buildProductShareUrl({
+                        shopName: currentShopName,
+                        email: currentShopEmail,
+                        productName: p.name,
+                        productId: p.id
+                    })
+                    : `${window.resolvePath('product')}?id=${p.id}`;
                 const imageUrl = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : p.image;
                 return `
                     <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50 hover:border-gray-200 transition-colors" onclick="location.href='${productUrl}'">
@@ -284,6 +331,8 @@
                 return;
             }
 
+            currentShopEmail = email;
+
             try {
                 // 1. Load Vendor Info
                 const vendor = await window.SupabaseAdapter.fetchWithFilters('users', {
@@ -307,8 +356,12 @@
                 }
 
                 const shopName = vendor.company_name || vendor.name || 'Boutique sans nom';
+                currentShopName = shopName;
                 document.getElementById('vendorName').textContent = shopName;
                 document.getElementById('vendorAvatar').src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=f3f4f6&color=000&bold=true`;
+
+                // Analytics: record shop view (deduped per day / session)
+                recordShopViewOncePerDay(vendor.id);
 
                 const joinDate = vendor.date_joined ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
                 document.getElementById('vendorMeta').innerHTML = `<iconify-icon icon="solar:calendar-outline"></iconify-icon> Membre depuis ${joinDate}`;
@@ -359,6 +412,23 @@
                 console.error('Error loading shop:', err);
                 location.href = window.resolvePath('shops');
             }
+        }
+
+        async function shareShopLink() {
+            const url = (window.NewKetLinks && window.NewKetLinks.buildShopShareUrl)
+                ? window.NewKetLinks.buildShopShareUrl({ shopName: currentShopName, email: currentShopEmail })
+                : window.location.href;
+
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: `${currentShopName} — NewKet`, url });
+                    return;
+                }
+            } catch {
+            }
+
+            const ok = window.NewKetLinks?.copyTextToClipboard ? await window.NewKetLinks.copyTextToClipboard(url) : false;
+            if (window.showToast) showToast(ok ? 'Lien copié !' : 'Copie impossible', ok ? 'info' : 'error');
         }
 
         function orderProduct(id) {

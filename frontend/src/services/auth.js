@@ -687,7 +687,8 @@ const AuthManager = {
             const isProtectedPage = path.includes('/admin/') || 
                                    path.includes('dashboard') || 
                                    path.includes('publish') ||
-                                   path.includes('settings');
+                                   path.includes('settings') ||
+                                   path.includes('achat');
             const isLoginPage = path.includes('login');
 
             if (isProtectedPage && !isLoginPage) {

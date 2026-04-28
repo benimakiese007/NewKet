@@ -143,6 +143,36 @@ const AdminLayout = {
                 </div>
             </nav>
         `;
+
+        if (window.CurrencyManager && typeof CurrencyManager.updateCurrencyUI === 'function') {
+            CurrencyManager.updateCurrencyUI();
+        }
+
+        // Ensure admin pages re-render monetary values on currency change
+        if (!window.__newketAdminCurrencyBound) {
+            window.__newketAdminCurrencyBound = true;
+
+            window.addEventListener('currencyChanged', () => {
+                try {
+                    if (typeof window.refreshDashboardData === 'function') return window.refreshDashboardData();
+                    if (typeof window.handleSearch === 'function') return window.handleSearch();
+                    if (typeof window.renderAdminOrders === 'function') return window.renderAdminOrders();
+                    if (typeof window.renderAdminProducts === 'function') return window.renderAdminProducts();
+                    if (typeof window.renderUsers === 'function') return window.renderUsers();
+                    if (typeof window.renderDiagnostics === 'function') return window.renderDiagnostics();
+                    if (typeof window.renderActivities === 'function') return window.renderActivities();
+                    if (typeof window.renderNotifications === 'function') return window.renderNotifications();
+                    if (typeof window.renderReviews === 'function') return window.renderReviews();
+                    if (typeof window.renderAdmins === 'function') return window.renderAdmins();
+                    if (typeof window.renderStats === 'function') return window.renderStats();
+                    if (typeof window.loadSubscribers === 'function') return window.loadSubscribers();
+                    if (typeof window.loadUserDetails === 'function') return window.loadUserDetails();
+                    if (window.CurrencyManager && typeof CurrencyManager.updateAllPrices === 'function') {
+                        CurrencyManager.updateAllPrices();
+                    }
+                } catch (_) {}
+            });
+        }
         navbarPlaceholder.dataset.rendered = 'true';
     },
 
