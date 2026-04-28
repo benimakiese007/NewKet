@@ -1,7 +1,10 @@
 import NodeCache from 'node-cache';
 import crypto from 'crypto';
 
+const ENABLE_MEMORY_CACHE = String(process.env.ENABLE_MEMORY_CACHE || '').toLowerCase() === '1';
+
 // Keep cache small-medium: items expire after 60s by default, check every 120s for expired items.
+// NOTE: Memory cache is not shared across instances. Keep it opt-in via ENABLE_MEMORY_CACHE=1.
 const memoryCache = new NodeCache({ stdTTL: 60, checkperiod: 120, maxKeys: 1000 });
 
 /**
@@ -24,6 +27,16 @@ export const cacheMiddleware = (duration = 60) => {
     return (req, res, next) => {
         // Seulement pour les requêtes GET
         if (req.method !== 'GET') {
+            return next();
+        }
+
+        // Always send explicit caching headers so CDNs / browsers can help scale reads.
+        // Private when token present to avoid cross-user leakage.
+        const cacheScope = req.token ? 'private' : 'public';
+        res.setHeader('Cache-Control', `${cacheScope}, max-age=${Math.max(0, parseInt(duration, 10) || 0)}`);
+
+        if (!ENABLE_MEMORY_CACHE) {
+            res.setHeader('X-Cache', 'BYPASS');
             return next();
         }
 

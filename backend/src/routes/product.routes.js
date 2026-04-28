@@ -12,13 +12,22 @@ import { optionalAuth, requireAuth } from '../middlewares/auth.js';
 import { cacheMiddleware } from '../middlewares/cache.js';
 import { body } from 'express-validator';
 import { validate } from '../middlewares/validation.js';
+import rateLimit from 'express-rate-limit';
 
 const router = Router();
 
+// Hot path protection (accueil / catalogue): limit read bursts per IP.
+const productsReadLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 120, // 120 req/minute
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
 // Routes publiques / optionnelles
 // Durée de cache: 30 secondes pour les produits, pour être assez réactif mais encaisser les pics
-router.get('/', optionalAuth, cacheMiddleware(30), getProducts);
-router.get('/:id', optionalAuth, cacheMiddleware(30), getProductById);
+router.get('/', productsReadLimiter, optionalAuth, cacheMiddleware(30), getProducts);
+router.get('/:id', productsReadLimiter, optionalAuth, cacheMiddleware(30), getProductById);
 
 // Routes sécurisées
 router.post('/', 

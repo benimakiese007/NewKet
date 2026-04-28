@@ -201,15 +201,16 @@ export const createOrder = async (req, res) => {
 
 export const getOrders = async (req, res) => {
     try {
-        const { page = 1, limit = 50 } = req.query;
-        const offset = (page - 1) * parseInt(limit, 10);
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limit = Math.max(1, Math.min(60, parseInt(req.query.limit, 10) || 50));
+        const offset = (page - 1) * limit;
         const userId = req.user?.id || null;
 
         let query = client
             .from('orders')
             .select('id, status, created_at, total, total_amount, merchandise_amount, delivery_fee_amount, customer_name, customer_email, customer_phone, customer_city, customer_lat, customer_lng, phone_number, items, payment_status, transaction_id, user_id, customer_id, vendor_id, escrow_status, escrow_release_at, proof_status, otp_code, accepted_delivery_quote_id')
             .order('created_at', { ascending: false })
-            .range(offset, offset + parseInt(limit, 10) - 1);
+            .range(offset, offset + limit - 1);
 
         if (!isAdminActor(req.user)) {
             const role = req.user?.app_metadata?.role || req.user?.user_metadata?.role || 'customer';

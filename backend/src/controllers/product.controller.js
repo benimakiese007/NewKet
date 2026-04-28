@@ -37,7 +37,9 @@ const getScopedClient = (req) => {
 
 export const getProducts = async (req, res) => {
     try {
-        const { page = 1, limit = 20, category } = req.query;
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limit = Math.max(1, Math.min(60, parseInt(req.query.limit, 10) || 20));
+        const category = req.query.category;
         const offset = (page - 1) * limit;
 
         const supabase = getScopedClient(req);
@@ -52,7 +54,7 @@ export const getProducts = async (req, res) => {
                 { count: 'estimated' }
             )
             .order('created_at', { ascending: false })
-            .range(offset, offset + parseInt(limit) - 1);
+            .range(offset, offset + limit - 1);
 
         if (category) {
             query = query.eq('category', category);
@@ -62,7 +64,7 @@ export const getProducts = async (req, res) => {
 
         if (error) throw error;
 
-        res.json({ data, count, page: parseInt(page) });
+        res.json({ data, count, page });
     } catch (err) {
         console.error('❌ getProducts error:', err);
         res.status(500).json({ error: err.message });
