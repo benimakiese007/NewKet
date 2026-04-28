@@ -9,7 +9,8 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE IF NOT EXISTS public.payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_id TEXT NOT NULL UNIQUE REFERENCES public.orders(id) ON DELETE CASCADE,
-    customer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    -- orders.customer_id is TEXT in the live schema (legacy). Keep it as TEXT here too.
+    customer_id TEXT,
     vendor_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     transaction_ref TEXT,
     amount NUMERIC(12,2),
@@ -184,4 +185,3 @@ BEGIN
         PERFORM public.sync_payment_from_order(r.id);
     END LOOP;
 END $$;
-
