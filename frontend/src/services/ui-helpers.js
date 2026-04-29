@@ -207,7 +207,7 @@ function _nkNormalizeForSlug(value) {
 function buildShopSlug(shopName) {
     const base = _nkNormalizeForSlug(shopName);
     if (!base) return 'Shop_NewKet';
-    return `${base}_Shop_NewKet`;
+    return base;
 }
 
 function buildProductSlug(productName) {
@@ -241,10 +241,10 @@ async function copyTextToClipboard(text) {
     }
 }
 
-function buildShopShareUrl({ shopName, email } = {}) {
-    const slug = buildShopSlug(shopName);
-    const url = new URL(`/boutique/${encodeURIComponent(slug)}`, window.location.origin);
-    if (email) url.searchParams.set('email', email);
+function buildShopShareUrl({ shopName, shopSlug } = {}) {
+    const providedSlug = String(shopSlug || '').trim();
+    const slug = providedSlug || buildShopSlug(shopName);
+    const url = new URL(`/boutique/${encodeURIComponent(slug)}/NewKet`, window.location.origin);
     return url.toString();
 }
 

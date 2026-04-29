@@ -85,6 +85,30 @@ canvas {
 
 @media (max-width: 639px) {
 
+    /* Fallback: if JS header spacing hasn't run yet, avoid content being hidden */
+    #header-placeholder {
+        min-height: max(var(--header-height, 0px), 112px) !important;
+    }
+
+    /* Shop page hero: ensure top actions are not hidden under header on small screens */
+    .vendor-hero {
+        height: 520px !important;
+        min-height: 520px !important;
+    }
+
+    /* Actions row: keep link button aligned right on mobile */
+    .vendor-hero-inner .shop-hero-actions {
+        justify-content: flex-end !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .vendor-hero-inner .shop-hero-actions button {
+        padding: 0.55rem 0.85rem !important;
+        font-size: 10px !important;
+        border-radius: 1.25rem !important;
+        white-space: nowrap !important;
+    }
+
     /* Removing static header spacers override to use dynamic JS spacing */
 
     .main-header .w-full {

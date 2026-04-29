@@ -907,12 +907,16 @@
                             const newName = document.getElementById('vSetStoreName').value;
                             const newEmail = document.getElementById('vSetEmail').value;
                             const newShipping = document.getElementById('vSetShipping').value;
+                            const newShopSlug = (window.NewKetLinks && window.NewKetLinks.buildShopSlug)
+                                ? window.NewKetLinks.buildShopSlug(newName)
+                                : null;
                             
                             const newProfile = {
                                 ...ProfileManager.getProfile(),
                                 company_name: newName,
                                 email: newEmail,
-                                shipping_time: newShipping
+                                shipping_time: newShipping,
+                                shop_slug: newShopSlug
                             };
                             
                             // 1. Save Locally
@@ -923,8 +927,23 @@
                                 if (window.SupabaseAdapter) {
                                     const user = await window.SupabaseAdapter.getClient().auth.getUser();
                                     if (user && user.data.user) {
+                                        if (newShopSlug) {
+                                            const conflicts = await window.SupabaseAdapter.fetchWithFilters('users', {
+                                                eq: [['role', 'supplier'], ['shop_slug', newShopSlug]],
+                                                limit: 1,
+                                                skipCache: true
+                                            });
+                                            const hasConflict = Array.isArray(conflicts)
+                                                && conflicts.length > 0
+                                                && conflicts[0]?.id !== user.data.user.id;
+                                            if (hasConflict) {
+                                                if (window.showToast) window.showToast("Ce nom de boutique est déjà utilisé. Choisissez un autre nom unique.", "warning", "Boutique");
+                                                return;
+                                            }
+                                        }
                                         await window.SupabaseAdapter.update('users', user.data.user.id, {
                                             company_name: newName,
+                                            shop_slug: newShopSlug,
                                             shipping_time: newShipping
                                         });
                                     }

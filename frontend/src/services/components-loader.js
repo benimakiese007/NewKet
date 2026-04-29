@@ -8,7 +8,7 @@ const HEADER_HTML = `
     <!-- Main header container -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="main">
         <!-- Top Info Bar -->
-        <div class="header-topbar bg-slate-900 text-white py-1.5 px-4 sm:px-8 border-b border-gray-900">
+        <div class="header-topbar text-white py-1.5 px-4 sm:px-8 border-b border-[#0A4A2E]" style="background-color: #013220;">
             <div class="max-w-7xl mx-auto w-full flex min-h-9 items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-3 md:gap-4">
                 <div class="hidden md:flex shrink-0 items-center gap-4 lg:gap-6">
                     <span class="flex items-center gap-1.5"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-400" aria-hidden="true"></iconify-icon> Livraison Offerte</span>
@@ -281,10 +281,6 @@ const HEADER_HTML = `
                         class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                         <iconify-icon icon="solar:question-circle-bold" width="20"></iconify-icon> FAQ
                     </a>
-                    <a href="{{ROOT}}src/pages/forum.html"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                        <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum
-                    </a>
                 </nav>
             </div>
 
@@ -310,14 +306,14 @@ const HEADER_HTML = `
 </div>`;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="bg-gray-900 text-white mt-16 pt-16 pb-8 border-t border-white/5" style="padding-bottom: calc(2rem + env(safe-area-inset-bottom));">
+<footer class="text-white mt-16 pt-10 pb-7 border-t border-[#0A4A2E]" style="background-color: #013220; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-10 gap-10 mb-12">
-            <div class="lg:col-span-4 space-y-6">
-                <div class="flex items-center ml-2">
-                    <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-28 w-auto object-contain transform scale-[2] grayscale invert opacity-90 origin-left">
+        <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-10">
+            <div class="lg:col-span-4 space-y-4">
+                <div class="flex items-center justify-center lg:justify-start">
+                    <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-20 sm:h-24 lg:h-28 w-auto object-contain">
                 </div>
-                <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
+                <p class="text-gray-400 text-sm leading-relaxed max-w-md">
                     L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
                 </p>
                 <div class="space-y-2 text-sm text-gray-400">
@@ -336,7 +332,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                     <a href="https://x.com/lephoenixman" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur X" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon></a>
                 </div>
             </div>
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-4">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
                 <ul class="space-y-4">
                     <li><a id="accountLinkFooter" href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
@@ -345,17 +341,17 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                     <li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
                 </ul>
             </div>
-            <div class="lg:col-span-4 space-y-6">
+            <div class="lg:col-span-4 space-y-4">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
                 <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.</p>
-                <form id="newsletterForm" class="relative group" onsubmit="event.preventDefault(); if (window.handleNewsletterSubmit) { window.handleNewsletterSubmit(event); } else if (window.showToast) { window.showToast('Merci pour votre inscription !', 'success', 'Newsletter'); }"> 
+                <form id="newsletterForm" class="group flex flex-col sm:block gap-2 sm:gap-0 sm:relative" onsubmit="event.preventDefault(); if (window.handleNewsletterSubmit) { window.handleNewsletterSubmit(event); } else if (window.showToast) { window.showToast('Merci pour votre inscription !', 'success', 'Newsletter'); }"> 
                     <input id="newsletterEmail" name="newsletterEmail" type="email" placeholder="Votre email" autocomplete="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
-                    <button id="newsletterBtn" type="submit" class="absolute right-2 top-2 bg-white text-black text-xs font-bold uppercase px-4 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">S'inscrire</button>
-                    <div id="newsletterMsg" class="hidden text-xs absolute -bottom-6 left-0 w-full mt-2"></div>
+                    <button id="newsletterBtn" type="submit" class="w-full sm:w-auto sm:absolute sm:right-2 sm:top-2 bg-white text-black text-xs font-bold uppercase px-4 py-3 sm:py-1.5 rounded-lg hover:bg-gray-200 transition-colors">S'inscrire</button>
+                    <div id="newsletterMsg" class="hidden text-xs w-full sm:absolute sm:-bottom-6 sm:left-0 mt-1 sm:mt-2"></div>
                 </form>
             </div>
         </div>
-        <div class="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-5">
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience Luxe</p>
             <div class="flex gap-8">
                 <a href="{{ROOT}}src/pages/privacy.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
@@ -371,7 +367,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="minimal">
-    <div class="header-topbar bg-gray-950 text-white py-1.5 px-4 border-b border-white/5">
+    <div class="header-topbar text-white py-1.5 px-4 border-b border-[#0A4A2E]" style="background-color: #013220;">
         <div class="max-w-7xl mx-auto w-full flex min-h-9 items-center justify-center text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-center">
             <span class="block max-w-full truncate px-2 sm:px-4 leading-none whitespace-nowrap">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
         </div>
@@ -493,6 +489,13 @@ const ComponentLoader = {
         };
 
         adjust();
+        // Extra passes to catch late-loading assets (logo/font) on mobile browsers
+        requestAnimationFrame(adjust);
+        setTimeout(adjust, 250);
+        window.addEventListener('load', adjust, { once: true });
+        if (document.fonts?.ready) {
+            document.fonts.ready.then(adjust).catch(() => {});
+        }
         window.addEventListener('resize', adjust);
         
         // Observer for dynamic header changes (e.g. banners)

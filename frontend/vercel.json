@@ -4,6 +4,8 @@
   "framework": "vite",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" }
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
+    { "source": "/boutique/:shopSlug", "destination": "/src/pages/shop?shop=:shopSlug" }
   ]
 }

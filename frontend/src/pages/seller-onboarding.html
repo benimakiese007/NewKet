@@ -337,8 +337,35 @@
                 }
 
                 // Update user profile
+                const fallbackBuildShopSlug = (value) => String(value || '')
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[’']/g, '')
+                    .replace(/[^a-zA-Z0-9]+/g, '_')
+                    .replace(/_+/g, '_')
+                    .replace(/^_+|_+$/g, '');
+                const slugBuilder = (window.NewKetLinks && typeof window.NewKetLinks.buildShopSlug === 'function')
+                    ? window.NewKetLinks.buildShopSlug
+                    : fallbackBuildShopSlug;
+                const shopSlug = slugBuilder(companyName);
+                if (!shopSlug) {
+                    throw new Error("Nom de boutique invalide. Veuillez saisir un nom avec des lettres ou chiffres.");
+                }
+
+                if (shopSlug && window.SupabaseAdapter) {
+                    const conflicts = await window.SupabaseAdapter.fetchWithFilters('users', {
+                        eq: [['role', 'supplier'], ['shop_slug', shopSlug]],
+                        limit: 1,
+                        skipCache: true
+                    });
+                    if (Array.isArray(conflicts) && conflicts.length > 0) {
+                        throw new Error("Ce nom de boutique est déjà utilisé. Choisissez un autre nom unique.");
+                    }
+                }
+
                 const updateData = {
                     company_name: companyName,
+                    shop_slug: shopSlug,
                     store_phone: phone,
                     store_description: storeDescription,
                     store_address: storeAddress,
@@ -352,9 +379,17 @@
                 // We add physical shop photo url if any
                 if (physicalUrl) updateData.physical_shop_url = physicalUrl;
 
-                const updateRes = await window.SupabaseAdapter.update('users', userId, updateData);
-
-                if (!updateRes) {
+                const updateResult = await window.SupabaseAdapter.update('users', userId, updateData, { returnMeta: true });
+                if (!updateResult?.ok) {
+                    const updateError = updateResult?.error || null;
+                    const code = String(updateError?.code || '').trim();
+                    const details = String(updateError?.details || '').toLowerCase();
+                    const message = String(updateError?.message || '').toLowerCase();
+                    const isShopSlugConflict = code === '23505'
+                        && (details.includes('shop_slug') || message.includes('shop_slug'));
+                    if (isShopSlugConflict) {
+                        throw new Error("Ce nom de boutique vient d'être pris. Choisissez un autre nom unique.");
+                    }
                     throw new Error("Erreur de sauvegarde: aucun profil mis à jour.");
                 }
 

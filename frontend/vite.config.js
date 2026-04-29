@@ -2,6 +2,29 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+  plugins: [
+    {
+      name: 'newket-pretty-url-rewrites',
+      configureServer(server) {
+        server.middlewares.use((req, _res, next) => {
+          try {
+            const originalUrl = req.url || '';
+            // Rewrite /boutique/<slug>/NewKet to the shop HTML page in dev.
+            const m = originalUrl.match(/^\/boutique\/([^/?#]+)(?:\/NewKet)?\/?(?:\?.*)?$/i);
+            if (m) {
+              const slug = m[1];
+              const url = new URL(originalUrl, 'http://localhost');
+              url.searchParams.set('shop', slug);
+              req.url = `/src/pages/shop.html?${url.searchParams.toString()}`;
+            }
+          } catch {
+            // ignore
+          }
+          next();
+        });
+      }
+    }
+  ],
   server: {
     host: 'localhost',
     port: 5173,

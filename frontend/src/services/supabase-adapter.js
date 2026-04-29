@@ -465,9 +465,9 @@ window.SupabaseAdapter = {
         }
     },
 
-    async update(table, id, data) {
+    async update(table, id, data, options = {}) {
         const client = this.getClient();
-        if (!client) return false;
+        if (!client) return options.returnMeta ? { ok: false, error: new Error('Supabase client not initialized.') } : false;
 
         try {
             await this._retry(async () => {
@@ -475,10 +475,10 @@ window.SupabaseAdapter = {
                 if (error) throw error;
             });
             this._invalidateTable(table);
-            return true;
+            return options.returnMeta ? { ok: true, error: null } : true;
         } catch (err) {
             console.error(`[NewKet] Error updating ${table} (id: ${id}):`, err);
-            return false;
+            return options.returnMeta ? { ok: false, error: err } : false;
         }
     },
 

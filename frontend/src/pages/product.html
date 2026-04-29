@@ -383,7 +383,7 @@
             if (vendorLink) {
                 vendorLink.textContent = shopName;
                 vendorLink.href = (window.NewKetLinks && window.NewKetLinks.buildShopShareUrl)
-                    ? window.NewKetLinks.buildShopShareUrl({ shopName, email: p.supplier_email || '' })
+                    ? window.NewKetLinks.buildShopShareUrl({ shopName, shopSlug: vendor.shop_slug })
                     : `${window.resolvePath('shop')}?email=${p.supplier_email || ''}`;
                 const avatar = document.getElementById('vendorAvatarDetail');
                 if (vendor.avatar) avatar.innerHTML = `<img src="${vendor.avatar}" class="w-full h-full object-cover" alt="${shopName}">`;
