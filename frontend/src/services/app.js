@@ -23,6 +23,7 @@ import './ui.js';
 import './search.js';
 import './components-loader.js';
 import './realtime-notifications.js';
+import './admin-layout.js';
 
 // main.js is usually the last one as it depends on initialized UI
 import './main.js';
