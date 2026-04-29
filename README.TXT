@@ -26,7 +26,7 @@ TECHNOLOGIES CLES :
 - Frontend : Vite, Vanilla CSS/Tailwind, Service Workers (PWA)
 - Backend  : Node.js, Express, Nodemailer
 - DB/Auth  : Supabase (PostgreSQL)
-- Paiement : Intégration Flutterwave
+- Paiement : Intégration AvadaPay
 - Monitoring : Sentry Integration
 
 NOTES DE VERSION :

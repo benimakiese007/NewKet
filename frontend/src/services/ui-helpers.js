@@ -1404,7 +1404,7 @@ window.showPromptModal = ({
             return;
         }
 
-        // Show a quick modal to collect customer info (Phone & City & Email for Flutterwave)
+        // Show a quick modal to collect customer info (Phone & City & Email for AvadaPay)
         const customerInfo = await showCheckoutModal(p.name, p.price);
         if (!customerInfo) {
             btnElement.innerHTML = originalHtml;

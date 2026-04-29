@@ -306,7 +306,7 @@ const HEADER_HTML = `
 </div>`;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="text-white mt-16 pt-10 pb-7 border-t border-[#0A4A2E]" style="background-color: #013220; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
+<footer class="text-white mt-16 pt-10 pb-7 border-t border-[#0A4A2E]" style="background-color: #013220; margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-10">
             <div class="lg:col-span-4 space-y-4">
@@ -344,9 +344,9 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
             <div class="lg:col-span-4 space-y-4">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Inspiration & Offres</h4>
                 <p class="text-gray-400 text-sm">Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.</p>
-                <form id="newsletterForm" class="group flex flex-col sm:block gap-2 sm:gap-0 sm:relative" onsubmit="event.preventDefault(); if (window.handleNewsletterSubmit) { window.handleNewsletterSubmit(event); } else if (window.showToast) { window.showToast('Merci pour votre inscription !', 'success', 'Newsletter'); }"> 
-                    <input id="newsletterEmail" name="newsletterEmail" type="email" placeholder="Votre email" autocomplete="email" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
-                    <button id="newsletterBtn" type="submit" class="w-full sm:w-auto sm:absolute sm:right-2 sm:top-2 bg-white text-black text-xs font-bold uppercase px-4 py-3 sm:py-1.5 rounded-lg hover:bg-gray-200 transition-colors">S'inscrire</button>
+                <form id="newsletterForm" class="group flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:relative" onsubmit="event.preventDefault(); if (window.handleNewsletterSubmit) { window.handleNewsletterSubmit(event); } else if (window.showToast) { window.showToast('Merci pour votre inscription !', 'success', 'Newsletter'); }"> 
+                    <input id="newsletterEmail" name="newsletterEmail" type="email" placeholder="Votre email" autocomplete="email" class="w-full sm:flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition-all">
+                    <button id="newsletterBtn" type="submit" class="w-full sm:w-auto bg-white text-black text-xs font-bold uppercase px-5 py-3 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap">S'inscrire</button>
                     <div id="newsletterMsg" class="hidden text-xs w-full sm:absolute sm:-bottom-6 sm:left-0 mt-1 sm:mt-2"></div>
                 </form>
             </div>

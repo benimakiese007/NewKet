@@ -216,7 +216,7 @@
                         <h3 class="font-bold text-gray-900">Intérêt pour vos produits</h3>
                         <div
                             class="text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md">
-                            Flutterwave</div>
+                            AvadaPay</div>
                     </div>
                     <div class="aspect-[16/9]">
                         <canvas id="salesChart"></canvas>
@@ -395,10 +395,11 @@
                         </button>
                     </div>
 
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Info Settings Card -->
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-8">Informations de la Boutique</h2>
-                        <form id="vendorSettingsForm" class="space-y-6 max-w-lg">
+                        <form id="vendorSettingsForm" class="space-y-6 w-full">
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Nom de la boutique</label>
                                 <input id="vSetStoreName" name="vSetStoreName" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Votre nom de boutique">
@@ -415,6 +416,32 @@
                         </form>
                     </div>
 
+                    <!-- Security Card -->
+                    <div class="glass-panel p-8">
+                        <h2 class="text-xl font-bold mb-2">Sécurité</h2>
+                        <p class="text-sm text-gray-400 mb-6">Changez votre mot de passe en toute sécurité.</p>
+
+                        <form id="vendorPasswordForm" class="space-y-4 w-full">
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Mot de passe actuel</label>
+                                <input id="vCurrentPassword" name="vCurrentPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="current-password">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Nouveau mot de passe</label>
+                                <input id="vNewPassword" name="vNewPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="new-password">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Confirmer le nouveau mot de passe</label>
+                                <input id="vConfirmPassword" name="vConfirmPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="new-password">
+                                <p class="text-xs text-gray-500 mt-2">Astuce : utilisez au moins 8 caractères.</p>
+                            </div>
+                            <button id="vendorUpdatePasswordBtn" type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                                Mettre à jour le mot de passe
+                            </button>
+                        </form>
+                    </div>
+
+                    </div>
                 </div>
             </div>
 
@@ -543,7 +570,7 @@
                         <div class="bg-blue-50 p-4 rounded-xl flex items-start gap-3">
                             <iconify-icon icon="solar:info-circle-bold" class="text-blue-500 shrink-0" width="20"></iconify-icon>
                             <p class="text-[10px] text-blue-700 leading-relaxed font-medium">
-                                <strong>Note :</strong> Les transactions sont sécurisées par Flutterwave. Le statut de chaque commande est mis à jour automatiquement après confirmation du paiement.
+                                <strong>Note :</strong> Les transactions sont sécurisées par AvadaPay. Le statut de chaque commande est mis à jour automatiquement après confirmation du paiement.
                             </p>
                         </div>
                     </div>
@@ -959,6 +986,58 @@
                             // Refresh UI
                             if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.company_name;
                             if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = newProfile.company_name;
+                        });
+                    }
+
+                    // Handle Password Update
+                    const passwordForm = document.getElementById('vendorPasswordForm');
+                    if (passwordForm) {
+                        passwordForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+
+                            const btn = document.getElementById('vendorUpdatePasswordBtn');
+                            const currentPass = (document.getElementById('vCurrentPassword')?.value || '').trim();
+                            const newPass = (document.getElementById('vNewPassword')?.value || '').trim();
+                            const confirmPass = (document.getElementById('vConfirmPassword')?.value || '').trim();
+
+                            if (!currentPass) {
+                                if (window.showToast) window.showToast('Veuillez saisir votre mot de passe actuel.', 'warning', 'Sécurité');
+                                return;
+                            }
+                            if (!newPass) {
+                                if (window.showToast) window.showToast('Veuillez saisir un nouveau mot de passe.', 'warning', 'Sécurité');
+                                return;
+                            }
+                            if (newPass.length < 8) {
+                                if (window.showToast) window.showToast('Le nouveau mot de passe doit contenir au moins 8 caractères.', 'warning', 'Sécurité');
+                                return;
+                            }
+                            if (newPass !== confirmPass) {
+                                if (window.showToast) window.showToast('Les mots de passe ne correspondent pas.', 'warning', 'Sécurité');
+                                return;
+                            }
+
+                            try {
+                                if (btn) btn.disabled = true;
+
+                                if (!window.AuthManager || typeof window.AuthManager.changePassword !== 'function') {
+                                    throw new Error("Fonction de changement de mot de passe indisponible (AuthManager.changePassword).");
+                                }
+
+                                await window.AuthManager.changePassword(currentPass, newPass);
+
+                                document.getElementById('vCurrentPassword').value = '';
+                                document.getElementById('vNewPassword').value = '';
+                                document.getElementById('vConfirmPassword').value = '';
+
+                                if (window.showToast) window.showToast('Mot de passe mis à jour avec succès.', 'success', 'Sécurité');
+                            } catch (err) {
+                                console.error('[Security] Password update error:', err);
+                                const msg = (err && err.message) ? err.message : 'Erreur lors de la mise à jour du mot de passe.';
+                                if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                            } finally {
+                                if (btn) btn.disabled = false;
+                            }
                         });
                     }
 

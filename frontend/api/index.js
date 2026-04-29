@@ -393,13 +393,16 @@ router.post('/payments/initiate', async (req, res) => {
 
         if (dbError) throw dbError;
 
-        // 4. Flutterwave Payload
-        const flwPayload = {
+        // 4. AvadaPay Payload
+        if (!process.env.AVADAPAY_API_BASE_URL || !process.env.AVADAPAY_SECRET_KEY) {
+            throw new Error('AvadaPay n’est pas configuré (AVADAPAY_API_BASE_URL / AVADAPAY_SECRET_KEY)');
+        }
+
+        const avadaPayload = {
             tx_ref: txId,
             amount: finalAmountUSD,
             currency: 'USD',
-            redirect_url: process.env.FLW_REDIRECT_URL || `https://${req.headers.host}/pages/payment-success.html`,
-            payment_options: 'mobilemoney,card,ussd',
+            redirect_url: process.env.AVADAPAY_REDIRECT_URL || `https://${req.headers.host}/pages/payment-success.html`,
             customer: {
                 email: customer_email || 'client@newket.cd',
                 phonenumber: customer_phone || '',
@@ -413,25 +416,31 @@ router.post('/payments/initiate', async (req, res) => {
             meta: { transaction_id: txId, product_id, vendor_id }
         };
 
-        const flwResponse = await fetch('https://api.flutterwave.com/v3/payments', {
+        const avadaUrl = process.env.AVADAPAY_API_BASE_URL.replace(/\/$/, '') + '/payments';
+        const avadaResponse = await fetch(avadaUrl, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${process.env.FLW_SECRET_KEY}`,
+                'Authorization': `Bearer ${process.env.AVADAPAY_SECRET_KEY}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(flwPayload)
+            body: JSON.stringify(avadaPayload)
         });
 
-        const flwData = await flwResponse.json();
-        if (flwData.status !== 'success' || !flwData.data?.link) {
-            throw new Error(flwData.message || 'Erreur Flutterwave');
+        const avadaData = await avadaResponse.json().catch(() => ({}));
+        if (!avadaResponse.ok) {
+            throw new Error(avadaData.message || `Erreur AvadaPay (HTTP ${avadaResponse.status})`);
+        }
+
+        const paymentUrl = avadaData?.data?.link || avadaData?.data?.payment_url || avadaData?.payment_url || avadaData?.link;
+        if (!paymentUrl) {
+            throw new Error('Réponse AvadaPay invalide: payment_url manquant');
         }
 
         res.status(200).json({
             success: true,
             transaction_id: txId,
-            payment_url: flwData.data.link,
-            public_key: process.env.FLW_PUBLIC_KEY
+            payment_url: paymentUrl,
+            public_key: process.env.AVADAPAY_PUBLIC_KEY
         });
     } catch (err) {
         console.error('Erreur initiatePayment:', err);

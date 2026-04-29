@@ -300,8 +300,9 @@
                     <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50 hover:border-gray-200 transition-colors" onclick="location.href='${productUrl}'">
                         <div class="img-container aspect-[4/5] img-zoom">
                              <img src="${imageUrl}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700" alt="${p.name || ''}">
-                             <button onclick="event.stopPropagation(); orderProduct('${p.id}')" class="absolute bottom-4 right-4 w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-xl">
-                                <iconify-icon icon="solar:bag-plus-linear" width="24"></iconify-icon>
+                             <button onclick="event.stopPropagation(); orderProduct('${p.id}')" class="absolute bottom-4 right-4 h-12 px-4 bg-black text-white rounded-2xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-xl">
+                                <iconify-icon icon="solar:bag-plus-linear" width="22"></iconify-icon>
+                                <span class="text-[11px] font-black uppercase tracking-widest leading-none">Commander</span>
                              </button>
                         </div>
                         <div class="p-6">

@@ -1,6 +1,9 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
-import NotificationService from '../services/notificationService.js';
-import crypto from 'crypto';
+import {
+    createAvadaPayCheckoutLink,
+    isAvadaPayConfigured,
+    verifyAvadaPaySignature
+} from '../services/avadapay.js';
 import {
     ESCROW_STATUSES,
     ORDER_STATUSES,
@@ -18,51 +21,8 @@ function normalizeAmount(value) {
     return Math.round(n * 100) / 100;
 }
 
-const verifyFlutterwaveSignature = (req) => {
-    const webhookSecret = process.env.FLW_WEBHOOK_SECRET;
-    const incomingHash = req.headers['verif-hash'];
-
-    if (!webhookSecret || !incomingHash) return false;
-
-    try {
-        const secretBuf = Buffer.from(webhookSecret, 'utf8');
-        const incomingBuf = Buffer.from(incomingHash, 'utf8');
-
-        if (secretBuf.length !== incomingBuf.length) {
-            crypto.timingSafeEqual(secretBuf, Buffer.alloc(secretBuf.length));
-            return false;
-        }
-
-        return crypto.timingSafeEqual(secretBuf, incomingBuf);
-    } catch (error) {
-        console.error('Flutterwave signature verification failed:', error);
-        return false;
-    }
-};
-
-const verifyFlutterwavePayment = async (transactionId) => {
-    try {
-        const response = await fetch(`https://api.flutterwave.com/v3/transactions/${transactionId}/verify`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-        if (data.status === 'success' && data.data) {
-            return data.data;
-        }
-        return null;
-    } catch (error) {
-        console.error('Flutterwave payment verification failed:', error);
-        return null;
-    }
-};
-
 function getRedirectUrl(req) {
-    if (process.env.FLW_REDIRECT_URL) return process.env.FLW_REDIRECT_URL;
+    if (process.env.AVADAPAY_REDIRECT_URL) return process.env.AVADAPAY_REDIRECT_URL;
     const host = req.headers.host || 'localhost:3001';
     const frontendHost = host.includes('localhost') ? host.replace(':3001', ':5173') : host;
     return `http://${frontendHost}/src/pages/payment-success.html`;
@@ -71,6 +31,10 @@ function getRedirectUrl(req) {
 function getPaymentLogoUrl() {
     const frontendUrl = process.env.FRONTEND_URL || 'https://newket.vercel.app';
     return `${frontendUrl.replace(/\/$/, '')}/Images/Logo_Header_Officiel_PNG.png`;
+}
+
+function getActivePaymentProvider() {
+    return 'avadapay';
 }
 
 async function loadProductForPayment(client, productId) {
@@ -97,79 +61,6 @@ async function loadExchangeRate(client) {
 export const initiatePayment = async (req, res) => {
     try {
         const client = supabaseAdmin || supabase;
-
-        const { error: webhookInsertError } = await client
-            .from('payment_webhook_events')
-            .insert({
-                provider: 'flutterwave',
-                event_type: payload.event,
-                provider_event_id: providerEventId,
-                tx_ref: ourTxId || null,
-                payload,
-                signature_valid: signatureValid,
-                received_at: new Date().toISOString(),
-                process_status: 'RECEIVED'
-            });
-
-        if (webhookInsertError) {
-            if (String(webhookInsertError.code) === '23505') {
-                return res.status(200).send('OK');
-            }
-            console.error('[FLW Webhook] Failed to store webhook event:', webhookInsertError);
-            return res.status(500).send('Erreur DB');
-        }
-
-        const { data: orderRow, error: orderLookupError } = await client
-            .from('orders')
-            .select('id, payment_expected_amount, payment_expected_currency')
-            .eq('transaction_id', ourTxId)
-            .maybeSingle();
-
-        if (orderLookupError || !orderRow) {
-            await client
-                .from('payment_webhook_events')
-                .update({
-                    process_status: 'FAILED',
-                    process_error: 'ORDER_NOT_FOUND',
-                    processed_at: new Date().toISOString()
-                })
-                .eq('provider', 'flutterwave')
-                .eq('provider_event_id', providerEventId);
-            return res.status(404).send('Order not found');
-        }
-
-        const expectedAmount = normalizeAmount(orderRow.payment_expected_amount);
-        const expectedCurrency = String(orderRow.payment_expected_currency || '').toUpperCase();
-        const gotAmount = normalizeAmount(verifiedPayment.amount);
-        const gotCurrency = String(verifiedPayment.currency || '').toUpperCase();
-
-        if (expectedAmount !== null && gotAmount !== null && expectedAmount !== gotAmount) {
-            await client
-                .from('payment_webhook_events')
-                .update({
-                    process_status: 'FAILED',
-                    process_error: `AMOUNT_MISMATCH expected=${expectedAmount} got=${gotAmount}`,
-                    order_id: orderRow.id,
-                    processed_at: new Date().toISOString()
-                })
-                .eq('provider', 'flutterwave')
-                .eq('provider_event_id', providerEventId);
-            return res.status(400).send('Montant invalide');
-        }
-
-        if (expectedCurrency && gotCurrency && expectedCurrency !== gotCurrency) {
-            await client
-                .from('payment_webhook_events')
-                .update({
-                    process_status: 'FAILED',
-                    process_error: `CURRENCY_MISMATCH expected=${expectedCurrency} got=${gotCurrency}`,
-                    order_id: orderRow.id,
-                    processed_at: new Date().toISOString()
-                })
-                .eq('provider', 'flutterwave')
-                .eq('provider_event_id', providerEventId);
-            return res.status(400).send('Devise invalide');
-        }
         const {
             order_id,
             product_id,
@@ -231,6 +122,7 @@ export const initiatePayment = async (req, res) => {
             : Number(product.price || 0) * Number(firstItem.quantity || 1);
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
         const txId = generateTxId();
+        const provider = getActivePaymentProvider();
 
         if (!orderId) {
             const resolvedVendorId = vendor_id || product.user_id || null;
@@ -290,12 +182,32 @@ export const initiatePayment = async (req, res) => {
             };
         }
 
-        const flwPayload = {
+        // Server-side source of truth for integrity checks + order locking.
+        const nowIso = new Date().toISOString();
+        const { error: lockError } = await client
+            .from('orders')
+            .update({
+                payment_status: 'INITIATED',
+                payment_provider: provider,
+                payment_expected_amount: normalizeAmount(finalAmountUSD),
+                payment_expected_currency: 'USD',
+                payment_locked_at: nowIso,
+                payment_lock_reason: 'PAYMENT_INITIATED',
+                updated_at: nowIso
+            })
+            .eq('id', orderId);
+
+        if (lockError) throw lockError;
+
+        if (!isAvadaPayConfigured()) {
+            throw new Error('AvadaPay n’est pas configuré (AVADAPAY_API_BASE_URL / AVADAPAY_SECRET_KEY)');
+        }
+
+        const avadaPayload = {
             tx_ref: txId,
             amount: finalAmountUSD,
             currency: 'USD',
             redirect_url: getRedirectUrl(req),
-            payment_options: 'mobilemoney,card,ussd',
             customer: {
                 email: order.customer_email || req.user?.email || 'client@newket.cd',
                 phonenumber: order.customer_phone || order.phone_number || '',
@@ -314,45 +226,17 @@ export const initiatePayment = async (req, res) => {
             }
         };
 
-        // Server-side source of truth for integrity checks + order locking.
-        const nowIso = new Date().toISOString();
-        const { error: lockError } = await client
-            .from('orders')
-            .update({
-                payment_status: 'INITIATED',
-                payment_provider: 'flutterwave',
-                payment_expected_amount: normalizeAmount(finalAmountUSD),
-                payment_expected_currency: 'USD',
-                payment_locked_at: nowIso,
-                payment_lock_reason: 'PAYMENT_INITIATED',
-                updated_at: nowIso
-            })
-            .eq('id', orderId);
-
-        if (lockError) throw lockError;
-
-        const flwResponse = await fetch('https://api.flutterwave.com/v3/payments', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(flwPayload)
-        });
-
-        const flwData = await flwResponse.json();
-
-        if (flwData.status !== 'success' || !flwData.data?.link) {
-            console.error('Flutterwave initiatePayment failed:', flwData);
-            throw new Error(flwData.message || 'Impossible de créer le lien de paiement');
-        }
+        const avada = await createAvadaPayCheckoutLink(avadaPayload);
+        const paymentUrl = avada.payment_url;
+        const providerPublicKey = process.env.AVADAPAY_PUBLIC_KEY || null;
 
         return res.status(200).json({
             success: true,
             order_id: orderId,
             transaction_id: txId,
-            payment_url: flwData.data.link,
-            public_key: process.env.FLW_PUBLIC_KEY
+            provider,
+            payment_url: paymentUrl,
+            public_key: providerPublicKey
         });
     } catch (error) {
         console.error('Critical initiatePayment error:', {
@@ -371,210 +255,61 @@ export const initiatePayment = async (req, res) => {
     }
 };
 
-export const flutterwaveWebhook = async (req, res) => {
+export const paymentWebhook = async (req, res) => {
+    return avadaPayWebhook(req, res);
+};
+
+export const avadaPayWebhook = async (req, res) => {
     try {
-        const signatureValid = verifyFlutterwaveSignature(req);
-        if (!signatureValid) {
-            console.warn('[FLW Webhook] Signature invalide');
-            return res.status(401).send('Unauthorized');
-        }
+        const signatureValid = verifyAvadaPaySignature(req);
+        if (!signatureValid) return res.status(401).send('Unauthorized');
 
         const payload = req.body;
-        if (payload.event !== 'charge.completed') {
-            return res.status(200).send('Event ignoré');
-        }
+        const ourTxId = payload?.tx_ref || payload?.data?.tx_ref || payload?.transaction_id || null;
+        const providerTxId = payload?.id || payload?.data?.id || payload?.payment_id || null;
+        const eventType = payload?.event || payload?.type || payload?.status || 'unknown';
+        const providerEventId = `${String(providerTxId || 'unknown')}:${String(eventType || 'unknown')}`;
 
-        const flwTxId = payload.data?.id;
-        const ourTxId = payload.data?.tx_ref;
-        const providerEventId = `${String(flwTxId || 'unknown')}:${String(payload.event || 'unknown')}`;
-        const verifiedPayment = await verifyFlutterwavePayment(flwTxId);
-
-        if (!verifiedPayment) {
-            return res.status(400).send('Paiement non vérifiable');
-        }
+        if (!ourTxId) return res.status(400).send('tx_ref manquant');
 
         const client = supabaseAdmin || supabase;
 
-        if (verifiedPayment.status === 'successful') {
-            await client
-                .from('orders')
-                .update({
-                    payment_provider: 'flutterwave',
-                    payment_provider_tx_id: String(flwTxId || ''),
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', orderRow.id);
-
-            const { data: rpcData, error: rpcError } = await client.rpc('process_order_payment', {
-                p_transaction_id: ourTxId
+        const { error: webhookInsertError } = await client
+            .from('payment_webhook_events')
+            .insert({
+                provider: 'avadapay',
+                event_type: String(eventType),
+                provider_event_id: providerEventId,
+                tx_ref: String(ourTxId),
+                payload,
+                signature_valid: signatureValid,
+                received_at: new Date().toISOString(),
+                process_status: 'RECEIVED'
             });
 
-            if (rpcError || (rpcData && !rpcData.success)) {
-                console.error('[FLW Webhook] process_order_payment failed:', rpcError || rpcData?.message);
-                await client
-                    .from('payment_webhook_events')
-                    .update({
-                        process_status: 'FAILED',
-                        process_error: String(rpcError?.message || rpcData?.message || 'RPC_FAILED'),
-                        order_id: orderRow.id,
-                        processed_at: new Date().toISOString()
-                    })
-                    .eq('provider', 'flutterwave')
-                    .eq('provider_event_id', providerEventId);
-                return res.status(500).send('Erreur lors de la validation atomique');
-            }
-
-            const { data: paymentRow } = await client
-                .from('payments')
-                .select('id, currency, amount')
-                .eq('order_id', orderRow.id)
-                .maybeSingle();
-
-            if (paymentRow?.id) {
-                await client
-                    .from('financial_ledger_entries')
-                    .insert({
-                        order_id: orderRow.id,
-                        payment_id: paymentRow.id,
-                        entry_type: 'CUSTOMER_CHARGE',
-                        amount: normalizeAmount(paymentRow.amount) ?? normalizeAmount(verifiedPayment.amount) ?? 0,
-                        currency: String(paymentRow.currency || verifiedPayment.currency || 'USD'),
-                        metadata: {
-                            provider: 'flutterwave',
-                            provider_tx_id: flwTxId || null,
-                            tx_ref: ourTxId || null
-                        }
-                    });
-            }
-
-            const { data: orderInfo } = await client
-                .from('orders')
-                .select('id, otp_code, customer_email, customer_name, transaction_id')
-                .eq('transaction_id', ourTxId)
-                .single();
-
-            if (orderInfo) {
-                NotificationService.notifyOrderSuccess(orderInfo.id);
-                if (orderInfo.customer_email && orderInfo.otp_code) {
-                    NotificationService.notifyCustomerOTP(orderInfo);
-                }
-            }
-
-            await client
-                .from('payment_webhook_events')
-                .update({
-                    process_status: 'PROCESSED',
-                    order_id: orderRow.id,
-                    processed_at: new Date().toISOString()
-                })
-                .eq('provider', 'flutterwave')
-                .eq('provider_event_id', providerEventId);
-        } else {
-            const { error: dbUpdateError } = await client
-                .from('orders')
-                .update({
-                    payment_status: 'FAILED',
-                    status: 'CANCELLED',
-                    payment_lock_reason: 'PAYMENT_FAILED',
-                    updated_at: new Date().toISOString()
-                })
-                .eq('transaction_id', ourTxId);
-
-            if (dbUpdateError) {
-                console.error('[FLW Webhook] Failed to mark order as cancelled:', dbUpdateError);
-                return res.status(500).send('Erreur DB');
-            }
-
-            await client
-                .from('payment_webhook_events')
-                .update({
-                    process_status: 'PROCESSED',
-                    order_id: orderRow.id,
-                    processed_at: new Date().toISOString()
-                })
-                .eq('provider', 'flutterwave')
-                .eq('provider_event_id', providerEventId);
+        if (webhookInsertError) {
+            if (String(webhookInsertError.code) === '23505') return res.status(200).send('OK');
+            console.error('[AVADAPAY Webhook] Failed to store webhook event:', webhookInsertError);
+            return res.status(500).send('Erreur DB');
         }
+
+        // TODO: when you have AvadaPay docs/keys for verification, add:
+        // - verify transaction server-side
+        // - amount/currency integrity checks
+        // - atomic `process_order_payment` call
+        await client
+            .from('payment_webhook_events')
+            .update({
+                process_status: 'PENDING_VERIFICATION',
+                processed_at: new Date().toISOString()
+            })
+            .eq('provider', 'avadapay')
+            .eq('provider_event_id', providerEventId);
 
         return res.status(200).send('OK');
     } catch (error) {
-        console.error('flutterwaveWebhook error:', error);
+        console.error('avadaPayWebhook error:', error);
         return res.status(500).send('Erreur interne');
-    }
-};
-
-export const reverifyFlutterwaveTransaction = async (req, res) => {
-    try {
-        const client = supabaseAdmin || supabase;
-        const { flw_transaction_id, tx_ref } = req.body || {};
-
-        if (!flw_transaction_id || !tx_ref) {
-            return res.status(400).json({ error: 'flw_transaction_id et tx_ref sont requis.' });
-        }
-
-        const verifiedPayment = await verifyFlutterwavePayment(flw_transaction_id);
-        if (!verifiedPayment) {
-            return res.status(400).json({ error: 'Paiement non vérifiable' });
-        }
-
-        const { data: orderRow, error: orderLookupError } = await client
-            .from('orders')
-            .select('id, payment_expected_amount, payment_expected_currency')
-            .eq('transaction_id', tx_ref)
-            .maybeSingle();
-
-        if (orderLookupError || !orderRow) {
-            return res.status(404).json({ error: 'Commande introuvable pour ce tx_ref.' });
-        }
-
-        const expectedAmount = normalizeAmount(orderRow.payment_expected_amount);
-        const expectedCurrency = String(orderRow.payment_expected_currency || '').toUpperCase();
-        const gotAmount = normalizeAmount(verifiedPayment.amount);
-        const gotCurrency = String(verifiedPayment.currency || '').toUpperCase();
-
-        if (expectedAmount !== null && gotAmount !== null && expectedAmount !== gotAmount) {
-            return res.status(400).json({ error: `Montant invalide (expected=${expectedAmount}, got=${gotAmount}).` });
-        }
-
-        if (expectedCurrency && gotCurrency && expectedCurrency !== gotCurrency) {
-            return res.status(400).json({ error: `Devise invalide (expected=${expectedCurrency}, got=${gotCurrency}).` });
-        }
-
-        await client
-            .from('orders')
-            .update({
-                payment_provider: 'flutterwave',
-                payment_provider_tx_id: String(flw_transaction_id),
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', orderRow.id);
-
-        if (verifiedPayment.status === 'successful') {
-            const { data: rpcData, error: rpcError } = await client.rpc('process_order_payment', {
-                p_transaction_id: tx_ref
-            });
-
-            if (rpcError || (rpcData && !rpcData.success)) {
-                return res.status(500).json({ error: 'process_order_payment échec', details: rpcError?.message || rpcData?.message });
-            }
-
-            return res.status(200).json({ success: true, message: 'Paiement revalidé et commande mise à jour.' });
-        }
-
-        await client
-            .from('orders')
-            .update({
-                payment_status: 'FAILED',
-                status: 'CANCELLED',
-                payment_lock_reason: 'PAYMENT_FAILED',
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', orderRow.id);
-
-        return res.status(200).json({ success: true, message: 'Paiement non-successful: commande annulée.' });
-    } catch (error) {
-        console.error('reverifyFlutterwaveTransaction error:', error);
-        return res.status(500).json({ error: 'Erreur interne' });
     }
 };
 

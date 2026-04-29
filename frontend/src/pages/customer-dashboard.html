@@ -471,14 +471,19 @@
                     </h2>
                     <form class="space-y-5" id="passwordForm">
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
+                            <input type="password" id="currentPassword" placeholder="••••••••" autocomplete="current-password"
+                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
-                            <input type="password" id="newPassword" placeholder="Minimum 8 caractères"
+                            <input type="password" id="newPassword" placeholder="Minimum 8 caractères" autocomplete="new-password"
                                 class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de
                                 passe</label>
-                            <input type="password" id="confirmPassword" placeholder="Répéter le mot de passe"
+                            <input type="password" id="confirmPassword" placeholder="Répéter le mot de passe" autocomplete="new-password"
                                 class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                         </div>
                         <button type="submit"
@@ -520,7 +525,7 @@
                     </div>
                     <div class="space-y-1 text-right">
                         <div class="text-xs font-bold text-gray-400 uppercase">Mode de paiement</div>
-                        <div id="modalContactMethod" class="text-sm font-medium">Flutterwave</div>
+                        <div id="modalContactMethod" class="text-sm font-medium">AvadaPay</div>
                     </div>
                 </div>
 
@@ -1000,17 +1005,23 @@
         // Password Form Submit
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const np = document.getElementById('newPassword').value;
-            const cp = document.getElementById('confirmPassword').value;
-            if (np.length < 6) { showToast('Le mot de passe doit faire au moins 6 caractères.', 'error'); return; }
+            const currentPass = (document.getElementById('currentPassword')?.value || '').trim();
+            const np = (document.getElementById('newPassword')?.value || '').trim();
+            const cp = (document.getElementById('confirmPassword')?.value || '').trim();
+
+            if (!currentPass) { showToast('Veuillez saisir votre mot de passe actuel.', 'error'); return; }
+            if (!np) { showToast('Veuillez saisir un nouveau mot de passe.', 'error'); return; }
+            if (np.length < 8) { showToast('Le mot de passe doit faire au moins 8 caractères.', 'error'); return; }
             if (np !== cp) { showToast('Les mots de passe ne correspondent pas.', 'error'); return; }
             
             try {
-                // SÉCURITÉ : Appel direct à Supabase pour hacher et mettre à jour le MP côté serveur
-                const { error } = await AuthManager.supabase.auth.updateUser({ password: np });
-                
-                if (error) throw error;
+                if (!window.AuthManager || typeof window.AuthManager.changePassword !== 'function') {
+                    throw new Error("Fonction de changement de mot de passe indisponible (AuthManager.changePassword).");
+                }
 
+                await window.AuthManager.changePassword(currentPass, np);
+
+                document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
                 showToast('Mot de passe mis à jour avec succès !', 'success');
@@ -1278,7 +1289,7 @@
                 transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id.substring(0, 16)}...` : '';
             }
             if (contactMethodEl) {
-                contactMethodEl.textContent = order.payment_status && order.payment_status !== 'N/A' ? 'Flutterwave Online' : 'Paiement en cours';
+                contactMethodEl.textContent = order.payment_status && order.payment_status !== 'N/A' ? 'AvadaPay Online' : 'Paiement en cours';
             }
 
             const itemsList = document.getElementById('modalOrderItems');

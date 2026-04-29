@@ -50,7 +50,14 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use(express.json({ limit: '8mb' }));
+// Capture raw body (needed for payment webhooks signature verification).
+app.use(express.json({
+  limit: '8mb',
+  verify: (req, res, buf) => {
+    // Keep as Buffer for HMAC computations.
+    req.rawBody = buf;
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Ensure UTF-8 for API responses (prevents ambiguous client decoding).

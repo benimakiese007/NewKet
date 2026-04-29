@@ -899,6 +899,42 @@ const AuthManager = {
         }
     },
 
+    async changePassword(currentPassword, newPassword) {
+        if (!window.supabaseClient) {
+            throw new Error('Supabase non initialisé.');
+        }
+        let email = this.user?.email;
+        if (!email) {
+            const { data, error } = await window.supabaseClient.auth.getUser();
+            if (error) throw error;
+            email = data?.user?.email || null;
+        }
+        if (!email) {
+            throw new Error('Utilisateur non authentifié.');
+        }
+        if (!currentPassword || !newPassword) {
+            throw new Error('Paramètres invalides.');
+        }
+
+        // Re-authenticate to ensure the current password is correct
+        const { error: signInError } = await window.supabaseClient.auth.signInWithPassword({
+            email,
+            password: currentPassword
+        });
+        if (signInError) {
+            throw new Error('Mot de passe actuel incorrect.');
+        }
+
+        const { error: updateError } = await window.supabaseClient.auth.updateUser({
+            password: newPassword
+        });
+        if (updateError) {
+            throw updateError;
+        }
+
+        return true;
+    },
+
     showPendingNotice() {
         if (document.getElementById('kyc-notice')) return;
         const notice = document.createElement('div');

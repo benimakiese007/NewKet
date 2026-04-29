@@ -213,36 +213,13 @@ async function fetchVendorPayoutDetails(client, vendorId) {
     return data || null;
 }
 
-async function attemptFlutterwaveTransfer(vendor, order) {
-    if (!process.env.FLW_SECRET_KEY || !vendor || (!vendor.account_number && !vendor.mobile_money_number)) {
-        return { status: 'manual', message: 'Transfert automatique non disponible.' };
+async function attemptVendorPayoutTransfer(vendor) {
+    // Legacy payout provider removed: keep escrow release working with manual payout until AvadaPay payouts are integrated.
+    if (!vendor || (!vendor.account_number && !vendor.mobile_money_number)) {
+        return { status: 'manual', message: 'Transfert automatique non disponible (coordonnées vendeur manquantes).' };
     }
 
-    const payload = {
-        account_bank: vendor.bank_code || 'MPS',
-        account_number: vendor.account_number || vendor.mobile_money_number,
-        amount: order.total_amount,
-        currency: 'CDF',
-        narration: `NewKet Paiement - Commande ${order.transaction_id || order.id}`,
-        reference: `NK_RELEASE_${order.id}_${Date.now()}`,
-        beneficiary_name: vendor.name || 'Vendeur NewKet'
-    };
-
-    const response = await fetch('https://api.flutterwave.com/v3/transfers', {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-    return {
-        status: data?.status || 'unknown',
-        message: data?.message || 'Réponse Flutterwave inconnue',
-        raw: data
-    };
+    return { status: 'manual', message: 'Transfert automatique non activé. Paiement vendeur à traiter manuellement.' };
 }
 
 export async function releaseOrderEscrow({
@@ -266,7 +243,7 @@ export async function releaseOrderEscrow({
     let transfer = { status: 'manual', message: 'Transfert automatique non disponible.' };
 
     try {
-        transfer = await attemptFlutterwaveTransfer(vendor, order);
+        transfer = await attemptVendorPayoutTransfer(vendor);
     } catch (error) {
         console.error('[Escrow] Transfer error:', error.message);
         transfer = { status: 'manual', message: 'Erreur transfert automatique, traitement manuel requis.' };
