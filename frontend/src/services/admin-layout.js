@@ -4,6 +4,11 @@
  */
 
 const AdminLayout = {
+    isAdminPageContext() {
+        const path = window.location.pathname || '';
+        return path.includes('/admin/');
+    },
+
     async init() {
 
         // 1. Security Check (Strict Admin only for admin/ folder)
@@ -32,6 +37,8 @@ const AdminLayout = {
     },
 
     checkAccess() {
+        if (!this.isAdminPageContext()) return;
+
         // Wait for AuthManager to be ready before checking role.
         // AuthManager.role may be null at parse time — always read from localStorage as fallback.
         const role = window.AuthManager?.role || localStorage.getItem('newketRole');
@@ -341,6 +348,7 @@ window.AdminLayout = AdminLayout;
 // ────────────────────────────────────────────────────────────────────────────
 
 function _adminRenderLayout() {
+    if (!AdminLayout.isAdminPageContext()) return;
     AdminLayout.injectStyles();
     AdminLayout.renderNavbar();
     AdminLayout.renderSidebar();
@@ -348,6 +356,7 @@ function _adminRenderLayout() {
 }
 
 function _adminCheckAuth() {
+    if (!AdminLayout.isAdminPageContext()) return;
     AdminLayout.checkAccess();
     AdminLayout.updateAdminProfile();
     // Init SidebarManager after auth is ready (SidebarManager is guaranteed available at this point)
@@ -363,18 +372,20 @@ function _hasAdminLayoutPlaceholders() {
     );
 }
 
-// Passe 1 : rendu immédiat
-if (_hasAdminLayoutPlaceholders()) {
-    _adminRenderLayout();
-} else if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _adminRenderLayout);
-} else {
-    _adminRenderLayout();
-}
+if (AdminLayout.isAdminPageContext()) {
+    // Passe 1 : rendu immédiat
+    if (_hasAdminLayoutPlaceholders()) {
+        _adminRenderLayout();
+    } else if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', _adminRenderLayout);
+    } else {
+        _adminRenderLayout();
+    }
 
-// Passe 2 : vérification d'accès (attend que l'auth soit résolue)
-if (window.newketInitialized) {
-    _adminCheckAuth();
-} else {
-    window.addEventListener('newketInitialized', _adminCheckAuth);
+    // Passe 2 : vérification d'accès (attend que l'auth soit résolue)
+    if (window.newketInitialized) {
+        _adminCheckAuth();
+    } else {
+        window.addEventListener('newketInitialized', _adminCheckAuth);
+    }
 }

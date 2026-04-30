@@ -1,22 +1,23 @@
--- EXÉCUTER CE SCRIPT DANS L'ÉDITEUR SQL DE SUPABASE
--- https://supabase.com/dashboard/project/[votre-id]/sql
+-- Analytics produits : colonne views + RPC (IDs produits = TEXT dans ce projet)
+-- Appliqué aussi via Supabase migrations : database/supabase/migrations/20260430_product_views_analytics.sql
 
--- 1. Ajouter la colonne 'views' à la table products
 ALTER TABLE products ADD COLUMN IF NOT EXISTS views INTEGER DEFAULT 0;
 
--- 2. Créer une table pour le tracking détaillé des vues (optionnel mais recommandé pour des analytics futurs)
 CREATE TABLE IF NOT EXISTS product_views_log (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    product_id TEXT REFERENCES products(id) ON DELETE CASCADE,
     viewer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     viewed_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
 
--- 4. Fonction pour incrémenter les vues (utilisée par le backend via RPC)
-CREATE OR REPLACE FUNCTION increment_product_views(product_id UUID)
+DROP FUNCTION IF EXISTS public.increment_product_views(uuid);
+DROP FUNCTION IF EXISTS public.increment_product_views(text);
+
+CREATE OR REPLACE FUNCTION public.increment_product_views(product_id TEXT)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
     UPDATE products
@@ -24,3 +25,6 @@ BEGIN
     WHERE id = product_id;
 END;
 $$;
+
+REVOKE ALL ON FUNCTION public.increment_product_views(text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.increment_product_views(text) TO service_role;

@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // NewKet – Vercel Serverless API
 // Expose toutes les routes Express via /api/* sur Vercel.
 // Les variables d'environnement SUPABASE_URL, SUPABASE_ANON_KEY
@@ -95,6 +95,25 @@ const requireAdmin = async (req, res, next) => {
 router.get('/health', (req, res) =>
     res.json({ status: 'ok', message: 'NewKet Serverless API 🚀', timestamp: new Date().toISOString() })
 );
+
+// ── Analytics (vues produit — même contrat que backend Express) ─
+const PRODUCT_VIEW_ID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+router.post('/analytics/view/:productId', async (req, res) => {
+    const { productId } = req.params;
+    if (!productId || !PRODUCT_VIEW_ID_REGEX.test(productId)) {
+        return res.status(400).json({ error: 'Product ID invalide.' });
+    }
+    try {
+        const sb = supabaseAdmin();
+        const { error } = await sb.rpc('increment_product_views', { product_id: productId });
+        if (error) throw error;
+        return res.json({ success: true, message: 'View counted.' });
+    } catch (err) {
+        console.error('[Vercel API] analytics/view:', err?.message || err);
+        return res.status(500).json({ error: 'Failed to count view.' });
+    }
+});
 
 // ── PRODUITS ──────────────────────────────────────────────────
 router.get('/products', optionalAuth, async (req, res) => {

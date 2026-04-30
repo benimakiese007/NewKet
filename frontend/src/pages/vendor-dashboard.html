@@ -409,6 +409,10 @@
                                 <input id="vSetEmail" name="vSetEmail" type="email" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="votre@email.com">
                             </div>
                             <div>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Numéro de téléphone</label>
+                                <input id="vSetPhone" name="vSetPhone" type="tel" inputmode="tel" autocomplete="tel" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: +243...">
+                            </div>
+                            <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Délai d'expédition</label>
                                 <input id="vSetShipping" name="vSetShipping" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Sous 24h, 48h...">
                             </div>
@@ -698,6 +702,14 @@
                         // Populate Settings
                         if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = boutiqueName || '';
                         if (document.getElementById('vSetEmail')) document.getElementById('vSetEmail').value = localStorage.getItem('newketUserEmail') || profile.email;
+                        if (document.getElementById('vSetPhone')) {
+                            document.getElementById('vSetPhone').value =
+                                profile.phone ||
+                                profile.store_phone ||
+                                profile.store_phone_whatsapp ||
+                                localStorage.getItem('newketUserPhone') ||
+                                '';
+                        }
                         
                         // Load extra settings from profile (synced with Supabase)
                         if (profile.shipping_time && document.getElementById('vSetShipping')) {
@@ -933,6 +945,7 @@
                             e.preventDefault();
                             const newName = document.getElementById('vSetStoreName').value;
                             const newEmail = document.getElementById('vSetEmail').value;
+                            const newPhone = (document.getElementById('vSetPhone')?.value || '').trim();
                             const newShipping = document.getElementById('vSetShipping').value;
                             const newShopSlug = (window.NewKetLinks && window.NewKetLinks.buildShopSlug)
                                 ? window.NewKetLinks.buildShopSlug(newName)
@@ -942,6 +955,9 @@
                                 ...ProfileManager.getProfile(),
                                 company_name: newName,
                                 email: newEmail,
+                                phone: newPhone,
+                                store_phone: newPhone,
+                                store_phone_whatsapp: newPhone,
                                 shipping_time: newShipping,
                                 shop_slug: newShopSlug
                             };
@@ -971,7 +987,9 @@
                                         await window.SupabaseAdapter.update('users', user.data.user.id, {
                                             company_name: newName,
                                             shop_slug: newShopSlug,
-                                            shipping_time: newShipping
+                                            shipping_time: newShipping,
+                                            store_phone: newPhone || null,
+                                            store_phone_whatsapp: newPhone || null
                                         });
                                     }
                                 }

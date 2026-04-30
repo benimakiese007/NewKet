@@ -558,17 +558,27 @@ const AuthManager = {
 
         // --- NEW: Bounce logic for users already logged in ---
         if (this.role && isLoginPage) {
-            // Zero-flash: Hide body until redirect starts
+            let targetPath = window.resolvePath('customer-dashboard');
+            if (this.role === 'admin') {
+                targetPath = window.resolvePath('admin/');
+            } else if (this.role === 'supplier') {
+                targetPath = window.resolvePath('vendor-dashboard');
+            }
+
+            // Start redirect without freezing the login UI forever.
+            // If navigation fails/gets interrupted, we restore visibility.
             document.body.style.opacity = '0';
             document.body.style.pointerEvents = 'none';
 
-            if (this.role === 'admin') {
-                window.location.href = window.resolvePath('admin/');
-            } else if (this.role === 'supplier') {
-                window.location.href = window.resolvePath('vendor-dashboard');
-            } else {
-                window.location.href = window.resolvePath('customer-dashboard');
-            }
+            const currentHref = window.location.href;
+            window.location.href = targetPath;
+
+            window.setTimeout(() => {
+                if (window.location.href === currentHref) {
+                    document.body.style.opacity = '';
+                    document.body.style.pointerEvents = '';
+                }
+            }, 700);
             return;
         }
 

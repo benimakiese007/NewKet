@@ -4,8 +4,15 @@
 <head>
     <script>
         // PREMIUM AUTH SHIELD
-        // Prevents content flash by hiding body until AuthManager is ready
+        // Prevents content flash by hiding body until AuthManager is ready.
+        // Hard fail-safe: always unhide after a short timeout, even if any JS init fails.
         document.documentElement.classList.add('auth-loading');
+        window.setTimeout(() => {
+            document.documentElement.classList.remove('auth-loading');
+        }, 2500);
+        window.addEventListener('load', () => {
+            document.documentElement.classList.remove('auth-loading');
+        }, { once: true });
     </script>
     <script type="module" src="/src/services/admin-config.js" defer></script>
     <script>
@@ -373,12 +380,34 @@
 
     <script>
         // --- 1. GSAP Intros ---
-        document.addEventListener('DOMContentLoaded', async () => {
-            gsap.to("#bgImage", { scale: 1, duration: 10, ease: "power1.out" });
+        function revealLoginContentFallback() {
+            document.body.style.opacity = '';
+            document.body.style.pointerEvents = '';
+            document.querySelectorAll('.animate-item').forEach((el) => {
+                el.style.opacity = '1';
+                el.style.transform = 'none';
+            });
+            const form = document.getElementById('authForm');
+            if (form) {
+                form.style.opacity = '1';
+                form.style.transform = 'none';
+            }
+        }
 
-            const tl = gsap.timeline();
-            tl.from("#heroContent > *", { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: "power2.out", delay: 0.2 })
-                .from(".animate-item", { opacity: 0, y: 15, stagger: 0.05, duration: 0.6, ease: "power2.out", clearProps: "all" }, "-=0.6");
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.gsap) {
+                gsap.to("#bgImage", { scale: 1, duration: 10, ease: "power1.out" });
+
+                const tl = gsap.timeline();
+                tl.from("#heroContent > *", { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: "power2.out", delay: 0.2 })
+                    .from(".animate-item", { opacity: 0, y: 15, stagger: 0.05, duration: 0.6, ease: "power2.out", clearProps: "all" }, "-=0.6");
+            } else {
+                console.warn('[NewKet Login] GSAP unavailable, showing content without animation.');
+                revealLoginContentFallback();
+            }
+
+            // Extra fail-safe in case a third-party script interrupts animation flow.
+            window.setTimeout(revealLoginContentFallback, 1200);
 
             // Redirection logic for already logged in users (Skill 3)
             window.addEventListener('newketInitialized', () => {

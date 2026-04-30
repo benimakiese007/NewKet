@@ -764,12 +764,217 @@ async function loadLeaflet() {
     });
 }
 
+function nkNormalizeCheckoutNameCandidate(raw) {
+    return String(raw || '').replace(/\s+/g, ' ').trim();
+}
+
+function nkCheckoutNameLooksLikeRoleLabel(raw) {
+    const v = nkNormalizeCheckoutNameCandidate(raw).toLowerCase();
+    if (!v) return true;
+    const banned = new Set([
+        'admin',
+        'administrator',
+        'administrateur',
+        'administration',
+        'moderator',
+        'modérateur',
+        'support',
+        'newket',
+        'user',
+        'utilisateur',
+        'guest',
+        'invité'
+    ]);
+    if (banned.has(v)) return true;
+    // Very short labels are usually not a real full name
+    if (v.length < 3) return true;
+    return false;
+}
+
+function nkDeriveCheckoutNameFromEmail(email) {
+    const e = String(email || '').trim().toLowerCase();
+    if (!e.includes('@')) return '';
+    const local = e.split('@')[0] || '';
+    if (!local) return '';
+    const cleaned = local.replace(/[._+-]+/g, ' ').trim();
+    if (!cleaned) return '';
+    return cleaned
+        .split(/\s+/g)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+}
+
+function nkDigitsOnly(value) {
+    return String(value || '').replace(/\D+/g, '');
+}
+
+function nkIsMeaningfulCheckoutPhone(raw) {
+    const digits = nkDigitsOnly(raw);
+    if (digits.length < 8) return false;
+    // Ignore the default placeholder shipped in ConfigManager defaults
+    if (digits === '243000000000') return false;
+    return true;
+}
+
+function nkGetPlatformSupportPhoneForCheckout() {
+    try {
+        const fromManager = window.ConfigManager?.getConfig?.()?.supportPhone;
+        if (nkIsMeaningfulCheckoutPhone(fromManager)) return String(fromManager).trim();
+
+        const fromGlobal = window.newketConfig?.supportPhone;
+        if (nkIsMeaningfulCheckoutPhone(fromGlobal)) return String(fromGlobal).trim();
+
+        const saved = localStorage.getItem('newket_global_config');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            const p = parsed?.supportPhone;
+            if (nkIsMeaningfulCheckoutPhone(p)) return String(p).trim();
+        }
+    } catch (_) {}
+    return '';
+}
+
 /**
  * Shows a checkout modal to collect customer details before payment.
  * Returns a Promise that resolves to { phone, name, city, lat, lng } or null if cancelled.
  */
 function showCheckoutModal(productName, productPrice) {
     return new Promise(async (resolve) => {
+        const escapeAttr = (value) =>
+            String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+        const profile = window.ProfileManager?.getProfile?.() || {};
+        const role =
+            window.AuthManager?.role ||
+            localStorage.getItem('newketRole') ||
+            '';
+
+        let prefillName = '';
+        if (role === 'supplier') {
+            prefillName = (
+                profile.company_name ||
+                profile.boutique_name ||
+                localStorage.getItem('newketCompany') ||
+                localStorage.getItem('newketBoutiqueName') ||
+                ''
+            ).trim();
+        }
+        if (!prefillName) {
+            const profileName = nkNormalizeCheckoutNameCandidate(profile.name);
+            const storedName = nkNormalizeCheckoutNameCandidate(localStorage.getItem('newketUserName'));
+            prefillName = (!nkCheckoutNameLooksLikeRoleLabel(profileName) ? profileName : '') ||
+                (!nkCheckoutNameLooksLikeRoleLabel(storedName) ? storedName : '') ||
+                '';
+        }
+
+        let prefillPhone = (
+            profile.phone ||
+            profile.store_phone ||
+            profile.store_phone_whatsapp ||
+            localStorage.getItem('newketUserPhone') ||
+            ''
+        ).trim();
+        let prefillEmail = (profile.email || localStorage.getItem('newketUserEmail') || '').trim();
+        const prefillCity = (profile.city || localStorage.getItem('newketUserCity') || 'Kinshasa').trim();
+
+        if (!prefillEmail && window.SupabaseAdapter?.getClient) {
+            try {
+                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                prefillEmail = user?.email || '';
+            } catch (_) {}
+        }
+
+        // Admins: if no personal phone is known yet, prefill from platform support phone (admin settings).
+        if (role === 'admin' && !nkIsMeaningfulCheckoutPhone(prefillPhone)) {
+            const support = nkGetPlatformSupportPhoneForCheckout();
+            if (support) prefillPhone = support;
+        }
+
+        // Hydrate phone from DB if local cache is empty (common for admin accounts).
+        if (!prefillPhone && window.SupabaseAdapter?.fetchWithFilters) {
+            try {
+                const user =
+                    window.AuthManager?.user ||
+                    (await window.SupabaseAdapter.getClient().auth.getUser())?.data?.user ||
+                    null;
+                const userId = user?.id || localStorage.getItem('newketUserId');
+                if (userId) {
+                    const row = await window.SupabaseAdapter.fetchWithFilters('users', {
+                        eq: [['id', userId]],
+                        select: 'phone,store_phone,store_phone_whatsapp',
+                        single: true,
+                        skipCache: true
+                    });
+                    const resolved =
+                        row?.store_phone ||
+                        row?.phone ||
+                        row?.store_phone_whatsapp ||
+                        '';
+                    prefillPhone = String(resolved || '').trim();
+                    if (prefillPhone && window.ProfileManager?.saveProfile) {
+                        window.ProfileManager.saveProfile({
+                            phone: prefillPhone,
+                            store_phone: row?.store_phone || prefillPhone,
+                            store_phone_whatsapp: row?.store_phone_whatsapp || prefillPhone
+                        });
+                    }
+                }
+            } catch (_) {}
+        }
+
+        if (role === 'admin' && !nkIsMeaningfulCheckoutPhone(prefillPhone)) {
+            const support = nkGetPlatformSupportPhoneForCheckout();
+            if (support) prefillPhone = support;
+        }
+
+        // Last fallback from auth metadata for lazy users.
+        if (!prefillName && window.AuthManager?.user?.user_metadata) {
+            const meta = window.AuthManager.user.user_metadata;
+            if (role === 'supplier') {
+                prefillName =
+                    meta.company_name ||
+                    meta.shop_name ||
+                    meta.store_name ||
+                    '';
+            }
+            if (!prefillName) {
+                const metaFull = nkNormalizeCheckoutNameCandidate(meta.full_name);
+                const metaName = nkNormalizeCheckoutNameCandidate(meta.name);
+                prefillName =
+                    (!nkCheckoutNameLooksLikeRoleLabel(metaFull) ? metaFull : '') ||
+                    (!nkCheckoutNameLooksLikeRoleLabel(metaName) ? metaName : '') ||
+                    '';
+            }
+        }
+
+        if (!prefillPhone && window.AuthManager?.user?.user_metadata) {
+            const meta = window.AuthManager.user.user_metadata;
+            prefillPhone = (
+                meta.phone ||
+                meta.phone_number ||
+                meta.tel ||
+                meta.mobile ||
+                meta.whatsapp ||
+                ''
+            ).trim();
+        }
+
+        // Email-derived fallback (admins often have "Administrateur" mistakenly stored as profile.name)
+        if (!prefillName) {
+            if (!prefillEmail && window.SupabaseAdapter?.getClient) {
+                try {
+                    const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                    prefillEmail = user?.email || prefillEmail;
+                } catch (_) {}
+            }
+            prefillName = nkDeriveCheckoutNameFromEmail(prefillEmail);
+        }
+
         // Ensure Leaflet is loaded
         try {
             await loadLeaflet();
@@ -811,7 +1016,7 @@ function showCheckoutModal(productName, productPrice) {
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:user-bold" width="18"></iconify-icon>
                                     </div>
-                                    <input type="text" id="${modalId}-name" placeholder="Nom complet" required 
+                                    <input type="text" id="${modalId}-name" placeholder="Nom complet" value="${escapeAttr(prefillName)}" required 
                                         class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
 
@@ -819,7 +1024,7 @@ function showCheckoutModal(productName, productPrice) {
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:phone-bold" width="18"></iconify-icon>
                                     </div>
-                                    <input type="tel" id="${modalId}-phone" placeholder="Numéro de tél. (ex: 070707...)" required 
+                                    <input type="tel" id="${modalId}-phone" placeholder="Numéro de tél. (ex: 070707...)" value="${escapeAttr(prefillPhone)}" required 
                                         class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
 
@@ -827,7 +1032,7 @@ function showCheckoutModal(productName, productPrice) {
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:letter-bold" width="18"></iconify-icon>
                                     </div>
-                                    <input type="email" id="${modalId}-email" value="${localStorage.getItem('newketUserEmail') || ''}" placeholder="Adresse Email" required 
+                                    <input type="email" id="${modalId}-email" value="${escapeAttr(prefillEmail)}" placeholder="Adresse Email" required 
                                         class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
 
@@ -835,7 +1040,7 @@ function showCheckoutModal(productName, productPrice) {
                                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-indigo-500 transition-colors">
                                         <iconify-icon icon="solar:map-point-bold" width="18"></iconify-icon>
                                     </div>
-                                    <input type="text" id="${modalId}-city" value="Kinshasa" placeholder="Ville" required 
+                                    <input type="text" id="${modalId}-city" value="${escapeAttr(prefillCity)}" placeholder="Ville" required 
                                         class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-gray-400 font-medium">
                                 </div>
                             </div>
@@ -1076,6 +1281,45 @@ function showCheckoutModal(productName, productPrice) {
                     showToast("L'adresse email est obligatoire", "warning");
                     return;
                 }
+            }
+
+            // Persist checkout user inputs for next purchases.
+            const checkoutRole =
+                window.AuthManager?.role ||
+                localStorage.getItem('newketRole') ||
+                '';
+
+            localStorage.setItem('newketUserPhone', phone || '');
+            localStorage.setItem('newketUserEmail', email || '');
+            localStorage.setItem('newketUserCity', city || '');
+
+            const normalizedCheckoutName = nkNormalizeCheckoutNameCandidate(name);
+            const safeCompanyName =
+                checkoutRole === 'supplier' && !nkCheckoutNameLooksLikeRoleLabel(normalizedCheckoutName)
+                    ? normalizedCheckoutName
+                    : '';
+            const safePersonName = (!nkCheckoutNameLooksLikeRoleLabel(normalizedCheckoutName)
+                ? normalizedCheckoutName
+                : nkDeriveCheckoutNameFromEmail(email));
+
+            if (checkoutRole === 'supplier') {
+                if (safeCompanyName) localStorage.setItem('newketCompany', safeCompanyName);
+            } else if (safePersonName) {
+                localStorage.setItem('newketUserName', safePersonName);
+            }
+
+            if (window.ProfileManager?.saveProfile) {
+                const patch = {
+                    phone: phone || undefined,
+                    email: email || undefined,
+                    city: city || undefined
+                };
+                if (checkoutRole === 'supplier') {
+                    if (safeCompanyName) patch.company_name = safeCompanyName;
+                } else if (safePersonName) {
+                    patch.name = safePersonName;
+                }
+                window.ProfileManager.saveProfile(patch);
             }
 
             window.closeCheckoutModal(id, { 

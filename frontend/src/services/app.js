@@ -28,6 +28,17 @@ import './admin-layout.js';
 // main.js is usually the last one as it depends on initialized UI
 import './main.js';
 
-// Initialize Vercel Analytics
-inject();
+// Initialize Vercel Analytics only in production contexts.
+// This avoids local 403/noise when debug script is blocked by browser policies/ad blockers.
+const isLocalHost =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
+if (!isLocalHost) {
+    try {
+        inject();
+    } catch (err) {
+        console.warn('[NewKet] Vercel Analytics disabled:', err?.message || err);
+    }
+}
 

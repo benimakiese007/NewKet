@@ -59,6 +59,15 @@ const ProfileManager = {
         // Also update individual keys for compatibility
         if (data.name) localStorage.setItem('newketUserName', data.name);
         if (data.email) localStorage.setItem('newketUserEmail', data.email);
+        const resolvedPhone =
+            data.phone ||
+            data.store_phone ||
+            data.store_phone_whatsapp ||
+            '';
+        if (resolvedPhone) localStorage.setItem('newketUserPhone', resolvedPhone);
+        if (data.city) localStorage.setItem('newketUserCity', data.city);
+        if (data.company_name) localStorage.setItem('newketCompany', data.company_name);
+        if (data.boutique_name) localStorage.setItem('newketBoutiqueName', data.boutique_name);
         const avatar = data.avatar || data.avatar_url || data.picture || data.photo_url || data.picture_url;
         if (avatar) localStorage.setItem('newketUserAvatar', avatar);
         
