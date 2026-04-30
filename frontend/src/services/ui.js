@@ -182,6 +182,21 @@ const UI = {
     }
 };
 
+window.NewKetPageRefresh = async function () {
+    const hasHomeGrids =
+        document.getElementById('pinnedProductGrid') ||
+        document.getElementById('recentProductGrid') ||
+        document.getElementById('allProductGrid');
+
+    if (!hasHomeGrids) return;
+
+    if (window.ProductManager?.fetchFreshData) {
+        await window.ProductManager.fetchFreshData();
+    }
+
+    UI.renderHomeGrid();
+};
+
 /**
  * Global functions for home page filters
  */

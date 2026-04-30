@@ -61,6 +61,7 @@ const HEADER_HTML = `
                             <option value="Femme">Femme</option>
                             <option value="Homme">Homme</option>
                             <option value="Tech & Gadgets">Tech</option>
+                            <option value="HIGH-TECH">HIGH-TECH</option>
                             <option value="Art de vivre">Maison</option>
                         </select>
                     </div>
@@ -75,6 +76,7 @@ const HEADER_HTML = `
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Femme">Femme</button>
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Homme">Homme</button>
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Tech & Gadgets">Tech</button>
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="HIGH-TECH">HIGH-TECH</button>
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Art de vivre">Maison</button>
                             </div>
                         </div>
@@ -167,6 +169,8 @@ const HEADER_HTML = `
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Homme</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Tech & Gadgets</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">HIGH-TECH</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Art de vivre</a>
                     <a href="{{ROOT}}src/pages/catalog.html?promo=true"
@@ -190,7 +194,7 @@ const HEADER_HTML = `
         </button>
     </div>
 
-    <div class="flex-1 overflow-y-auto py-4">
+    <div class="flex-1 overflow-y-auto pt-4 pb-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
         <!-- Guest Call to Action -->
         <div id="mobileGuestCTA" class="px-4 mb-6">
             <a href="/src/pages/login.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
@@ -233,7 +237,7 @@ const HEADER_HTML = `
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                    <iconify-icon icon="solar:woman-linear" width="20"></iconify-icon> Femme
+                    <iconify-icon icon="solar:user-circle-linear" width="20"></iconify-icon> Femme
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
@@ -242,6 +246,10 @@ const HEADER_HTML = `
                 <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
                     <iconify-icon icon="solar:laptop-minimalistic-linear" width="20"></iconify-icon> Tech & Gadgets
+                </a>
+                <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    <iconify-icon icon="solar:cpu-linear" width="20"></iconify-icon> HIGH-TECH
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">

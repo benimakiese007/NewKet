@@ -217,7 +217,36 @@
 
 
     <script shadow>
-        const productId = new URLSearchParams(window.location.search).get('id');
+        function _nkExtractProductIdFromPathname() {
+            try {
+                const path = (window.location.pathname || '').replace(/\/+$/, '');
+                const parts = path.split('/').filter(Boolean);
+                if (!parts.length) return null;
+
+                // /Boutique/<shop>/<product>/<1-100>/NewKet
+                if (parts.length >= 5 && String(parts[0]).toLowerCase() === 'boutique') {
+                    const productToken = decodeURIComponent(parts[2] || '').trim();
+                    if (/^(prod-[a-z0-9-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(productToken)) {
+                        return productToken;
+                    }
+                }
+
+                // /boutique/<shop>/produit/<product>
+                if (parts.length >= 4 && String(parts[0]).toLowerCase() === 'boutique' && String(parts[2]).toLowerCase() === 'produit') {
+                    const productToken = decodeURIComponent(parts[3] || '').trim();
+                    if (/^(prod-[a-z0-9-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(productToken)) {
+                        return productToken;
+                    }
+                }
+
+                return null;
+            } catch {
+                return null;
+            }
+        }
+
+        let productId = new URLSearchParams(window.location.search).get('id');
+        if (!productId) productId = _nkExtractProductIdFromPathname();
         let currentProduct = null;
         let _nkShareMeta = null;
         let currentRating = 0;
@@ -270,6 +299,18 @@
             setupListeners(p);
             initRecentlyViewed(p);
         }
+
+        window.NewKetPageRefresh = async function () {
+            if (window.ProductManager?._productByIdCache && productId) {
+                window.ProductManager._productByIdCache.delete(productId);
+            }
+
+            if (window.ProductManager?.products && productId) {
+                window.ProductManager.products = window.ProductManager.products.filter((p) => p?.id !== productId);
+            }
+
+            await initPage();
+        };
 
         function initProductSwitcher(currentProduct) {
             const switcher = document.getElementById('productSwitcher');
@@ -330,7 +371,14 @@
 
             const navigateTo = (id) => {
                 if (!id) return;
-                const target = `${window.resolvePath('product')}?id=${encodeURIComponent(id)}`;
+                const target = window.NewKetLinks?.buildProductPagePath
+                    ? window.NewKetLinks.buildProductPagePath({
+                        shopName: currentProduct?.users?.company_name || currentProduct?.users?.name,
+                        shopSlug: currentProduct?.users?.shop_slug,
+                        productName: currentProduct?.name,
+                        productId: id
+                    })
+                    : `${window.resolvePath('product')}?id=${encodeURIComponent(id)}`;
                 window.location.href = target;
             };
 

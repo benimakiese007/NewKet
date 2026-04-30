@@ -177,72 +177,116 @@ const App = {
         });
 
         // Scroll Direction Detection for Category Nav
-        let lastScrollTop = 0;
+        let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
         let accumulatedDelta = 0;
-        const deltaThreshold = 15; // Minimum scroll distance before menu state changes
+        let scrollTicking = false;
+        const deltaThreshold = 18;
         const categoryNav = document.getElementById('categoryNav');
-        const scrollThreshold = 100; // Menu only hiding after this scroll point
+        const mobileSearch = document.getElementById('mobileSearchContainer');
+        const mainHeader = document.querySelector('.main-header');
+        const headerLeadRow = mainHeader?.querySelector('.header-content > div:first-child');
+        const headerScrollState = {
+            searchOnSeparateRow: false
+        };
+        const scrollThreshold = 96;
+        const compactThreshold = 72;
+        const retractThreshold = 148;
 
-        window.addEventListener('scroll', () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const mobileSearch = document.getElementById('mobileSearchContainer');
-            const mainHeader = document.querySelector('.main-header');
-            const headerLeadRow = mainHeader?.querySelector('.header-content > div:first-child');
-            const searchOnSeparateRow = Boolean(
-                mobileSearch &&
-                headerLeadRow &&
-                mobileSearch.offsetTop > (headerLeadRow.offsetTop + 8)
-            );
-            const shouldElevate = scrollTop > 12;
-            
-            const diff = scrollTop - lastScrollTop;
-            
-            // Track accumulated direction
+        const syncHeaderLayoutState = () => {
+            if (!mobileSearch || !mainHeader || !headerLeadRow) {
+                headerScrollState.searchOnSeparateRow = false;
+                return;
+            }
+
+            headerScrollState.searchOnSeparateRow =
+                mobileSearch.offsetTop > (headerLeadRow.offsetTop + 8);
+        };
+
+        const applyHeaderScrollState = (scrollTop) => {
+            if (!mainHeader) return;
+
+            const clampedScrollTop = Math.max(0, scrollTop);
+            const diff = clampedScrollTop - lastScrollTop;
+            const shouldElevate = clampedScrollTop > 10;
+
             if ((diff > 0 && accumulatedDelta < 0) || (diff < 0 && accumulatedDelta > 0)) {
                 accumulatedDelta = 0;
             }
+
             accumulatedDelta += diff;
+            mainHeader.classList.toggle('scrolled', shouldElevate);
 
-            mainHeader?.classList.toggle('scrolled', shouldElevate);
-
-            // Decision logic based on threshold
-            if (scrollTop > scrollThreshold) {
-                if (accumulatedDelta > deltaThreshold) {
-                    // Downward movement detected
-                    categoryNav?.classList.add('nav-hidden');
-                    if (searchOnSeparateRow && mobileSearch) {
-                        mobileSearch.classList.add('search-bar-hidden');
-                        mainHeader?.classList.add('header-compact');
-                        mainHeader?.classList.remove('header-retracted');
-                    } else {
-                        mainHeader?.classList.remove('header-compact');
-                        mobileSearch?.classList.remove('search-bar-hidden');
-                        mainHeader?.classList.add('header-retracted');
-                    }
-                    accumulatedDelta = 0;
-                } else if (accumulatedDelta < -deltaThreshold) {
-                    // Upward movement detected
-                    categoryNav?.classList.remove('nav-hidden');
-                    if (searchOnSeparateRow && mobileSearch) {
-                        mobileSearch.classList.remove('search-bar-hidden');
-                        mainHeader?.classList.remove('header-compact');
-                    }
-                    mainHeader?.classList.remove('header-retracted');
-                    accumulatedDelta = 0;
-                }
-            } else if (scrollTop <= 30) {
-                // Force show when near the top to avoid getting stuck
+            if (clampedScrollTop <= 24) {
                 categoryNav?.classList.remove('nav-hidden');
-                if (mobileSearch) {
-                    mobileSearch.classList.remove('search-bar-hidden');
+                mobileSearch?.classList.remove('search-bar-hidden');
+                mainHeader.classList.remove('header-compact', 'header-retracted');
+                accumulatedDelta = 0;
+                lastScrollTop = clampedScrollTop;
+                return;
+            }
+
+            const scrollingDown = accumulatedDelta > deltaThreshold;
+            const scrollingUp = accumulatedDelta < -deltaThreshold;
+
+            if (clampedScrollTop > scrollThreshold && scrollingDown) {
+                categoryNav?.classList.add('nav-hidden');
+
+                if (headerScrollState.searchOnSeparateRow && clampedScrollTop > compactThreshold) {
+                    mobileSearch?.classList.add('search-bar-hidden');
+                    mainHeader.classList.add('header-compact');
+                    mainHeader.classList.remove('header-retracted');
+                } else if (clampedScrollTop > retractThreshold) {
+                    mainHeader.classList.remove('header-compact');
+                    mobileSearch?.classList.remove('search-bar-hidden');
+                    mainHeader.classList.add('header-retracted');
                 }
-                mainHeader?.classList.remove('header-compact');
-                mainHeader?.classList.remove('header-retracted');
+
+                accumulatedDelta = 0;
+            } else if (scrollingUp) {
+                categoryNav?.classList.remove('nav-hidden');
+                mobileSearch?.classList.remove('search-bar-hidden');
+                mainHeader.classList.remove('header-compact', 'header-retracted');
                 accumulatedDelta = 0;
             }
-            
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        }, { passive: true });
+
+            if (clampedScrollTop <= scrollThreshold) {
+                categoryNav?.classList.remove('nav-hidden');
+            }
+
+            if (clampedScrollTop <= compactThreshold) {
+                mobileSearch?.classList.remove('search-bar-hidden');
+                mainHeader.classList.remove('header-compact');
+            }
+
+            if (clampedScrollTop <= retractThreshold) {
+                mainHeader.classList.remove('header-retracted');
+            }
+
+            lastScrollTop = clampedScrollTop;
+        };
+
+        const queueHeaderScrollUpdate = () => {
+            if (scrollTicking) return;
+
+            scrollTicking = true;
+            window.requestAnimationFrame(() => {
+                applyHeaderScrollState(window.pageYOffset || document.documentElement.scrollTop || 0);
+                scrollTicking = false;
+            });
+        };
+
+        syncHeaderLayoutState();
+        window.addEventListener('resize', syncHeaderLayoutState);
+        if (document.fonts?.ready) {
+            document.fonts.ready.then(syncHeaderLayoutState).catch(() => {});
+        }
+        if (window.ResizeObserver && mainHeader) {
+            const headerScrollObserver = new ResizeObserver(syncHeaderLayoutState);
+            headerScrollObserver.observe(mainHeader);
+        }
+
+        applyHeaderScrollState(lastScrollTop);
+        window.addEventListener('scroll', queueHeaderScrollUpdate, { passive: true });
     },
 
     shakeFavoritesIcon() {

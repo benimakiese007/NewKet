@@ -442,6 +442,7 @@
                                     <option value="Femme">Femme</option>
                                     <option value="Homme">Homme</option>
                                     <option value="Tech & Gadgets">Tech & Gadgets</option>
+                                    <option value="HIGH-TECH">HIGH-TECH</option>
                                     <option value="Art de vivre">Art de vivre</option>
                                     <option value="Autres">Autres</option>
                                 </select>
@@ -485,6 +486,10 @@
                                             <label class="flex items-center gap-3 cursor-pointer group">
                                                 <input type="checkbox" value="Tech & Gadgets" class="filter-checkbox category-filter">
                                                 <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Tech & Gadgets</span>
+                                            </label>
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <input type="checkbox" value="HIGH-TECH" class="filter-checkbox category-filter">
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">HIGH-TECH</span>
                                             </label>
                                             <label class="flex items-center gap-3 cursor-pointer group">
                                                 <input type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
@@ -1033,6 +1038,14 @@
             if (btn) btn.remove();
         }
 
+        window.NewKetPageRefresh = async function () {
+            if (window.ProductManager?.fetchFreshData) {
+                await window.ProductManager.fetchFreshData();
+            }
+
+            await renderCatalog(false);
+        };
+
         function resetFilters() {
             const sInput = document.getElementById('searchInput');
             if (sInput) sInput.value = '';
@@ -1082,7 +1095,15 @@
         }
 
         function shareProductCard(id, name) {
-            const productUrl = window.location.origin + window.resolvePath('product') + '?id=' + id;
+            const product = window.ProductManager ? ProductManager.getProduct(id) : null;
+            const productUrl = window.NewKetLinks?.buildProductShareUrl
+                ? window.NewKetLinks.buildProductShareUrl({
+                    shopName: product?.users?.company_name || product?.users?.name,
+                    productName: product?.name,
+                    productId: id,
+                    email: product?.supplier_email
+                })
+                : (window.location.origin + window.resolvePath('product') + '?id=' + id);
             const shareData = {
                 title: name + ' — NewKet',
                 text: 'Découvrez ' + name + ' sur NewKet !',

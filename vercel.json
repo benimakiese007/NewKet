@@ -1,5 +1,8 @@
 {
   "rewrites": [
+    { "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet", "destination": "/src/pages/product.html" },
+    { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop.html" },
+
     { "source": "/boutique/:shopSlug", "destination": "/src/pages/shop.html" },
     { "source": "/boutique/:shopSlug/produit/:productSlug", "destination": "/src/pages/product.html" }
   ],

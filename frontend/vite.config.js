@@ -9,6 +9,24 @@ export default defineConfig({
         server.middlewares.use((req, _res, next) => {
           try {
             const originalUrl = req.url || '';
+            // Rewrite product pretty URLs to product page.
+            // Supported (case-insensitive):
+            // - /boutique/<shop-slug>/produit/<product-id-or-slug>
+            // - /Boutique/<shop-slug>/<product-id-or-slug>/<1-100>/NewKet
+            const legacyProduct = originalUrl.match(/^\/boutique\/[^/?#]+\/produit\/([^/?#]+)\/?(?:\?.*)?$/i);
+            const prettyProduct = originalUrl.match(/^\/boutique\/[^/?#]+\/([^/?#]+)\/(?:[0-9]{1,3})\/newket\/?(?:\?.*)?$/i);
+            const pMatch = legacyProduct || prettyProduct;
+            if (pMatch) {
+              const productToken = pMatch[1];
+              const url = new URL(originalUrl, 'http://localhost');
+              // Only set id when it's very likely an ID; otherwise let product.html parse pathname.
+              if (/^(prod-[a-z0-9-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(productToken)) {
+                url.searchParams.set('id', productToken);
+              }
+              req.url = `/src/pages/product.html?${url.searchParams.toString()}`;
+              return next();
+            }
+
             // Rewrite /boutique/<slug>/NewKet to the shop HTML page in dev.
             const m = originalUrl.match(/^\/boutique\/([^/?#]+)(?:\/NewKet)?\/?(?:\?.*)?$/i);
             if (m) {

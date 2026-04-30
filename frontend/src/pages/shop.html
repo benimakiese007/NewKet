@@ -88,6 +88,7 @@
                 min-height: 520px !important;
             }
         }
+
     </style>
 </head>
 
@@ -114,7 +115,7 @@
             <div class="flex flex-col sm:flex-row items-end gap-6">
                 <div
                     class="w-32 h-32 sm:w-40 sm:h-40 rounded-[2.5rem] bg-white p-1 border-4 border-white/20 shadow-2xl overflow-hidden">
-                    <img loading="lazy" id="vendorAvatar"
+                    <img loading="eager" fetchpriority="high" decoding="async" id="vendorAvatar"
                         src="https://ui-avatars.com/api/?name=Vendor&background=f3f4f6&color=000&bold=true"
                         class="w-full h-full object-cover rounded-[2rem]" alt="Logo boutique">
                 </div>
@@ -171,7 +172,7 @@
             </div>
         </div>
 
-        <div id="productsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+        <div id="productsGrid" class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
             <!-- Premium Skeletons -->
             <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
                 <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
@@ -212,6 +213,82 @@
         let currentShopEmail = '';
         let currentShopSlug = '';
 
+        function getShopCacheKey({ email = '', shopSlug = '' } = {}) {
+            const normalizedEmail = String(email || '').trim().toLowerCase();
+            const normalizedSlug = String(shopSlug || '').trim().toLowerCase();
+            const identity = normalizedEmail || normalizedSlug;
+            return identity ? `newket_shop_cache:${identity}` : null;
+        }
+
+        function readCachedShop(cacheKey) {
+            if (!cacheKey) return null;
+            try {
+                const raw = localStorage.getItem(cacheKey);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function writeCachedShop(cacheKey, vendor) {
+            if (!cacheKey || !vendor) return;
+            try {
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    company_name: vendor.company_name || '',
+                    name: vendor.name || '',
+                    email: vendor.email || '',
+                    avatar: vendor.avatar || '',
+                    cover_image: vendor.cover_image || '',
+                    shipping_time: vendor.shipping_time || '',
+                    date_joined: vendor.date_joined || '',
+                    shop_slug: vendor.shop_slug || ''
+                }));
+            } catch {
+                // no-op
+            }
+        }
+
+        function applyVendorHero(vendor, fallbackShopSlug = '') {
+            if (!vendor) return;
+
+            const shopName = vendor.company_name || vendor.name || 'Boutique sans nom';
+            currentShopName = shopName;
+            currentShopEmail = vendor.email || currentShopEmail;
+            currentShopSlug = vendor.shop_slug || fallbackShopSlug || currentShopSlug;
+
+            const vendorNameEl = document.getElementById('vendorName');
+            const vendorAvatarEl = document.getElementById('vendorAvatar');
+            const vendorMetaEl = document.getElementById('vendorMeta');
+            const shippingEl = document.getElementById('vendor-shipping-value');
+            const heroEl = document.querySelector('.vendor-hero');
+
+            if (vendorNameEl) vendorNameEl.textContent = shopName;
+            if (vendorAvatarEl) {
+                vendorAvatarEl.src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=f3f4f6&color=000&bold=true`;
+            }
+
+            const joinDate = vendor.date_joined
+                ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                : 'récemment';
+            if (vendorMetaEl) {
+                vendorMetaEl.innerHTML = `<iconify-icon icon="solar:calendar-outline"></iconify-icon> Membre depuis ${joinDate}`;
+            }
+
+            document.title = `${shopName} à NewKet`;
+
+            if (heroEl && vendor.cover_image) {
+                heroEl.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('${vendor.cover_image}')`;
+                heroEl.style.backgroundSize = 'cover';
+                heroEl.style.backgroundPosition = 'center';
+            }
+
+            if (shippingEl && vendor.shipping_time) {
+                shippingEl.textContent = vendor.shipping_time;
+            }
+        }
+
         function getOrCreateSessionId() {
             try {
                 const key = 'newket_session_id';
@@ -242,6 +319,7 @@
                 // no-op
             }
         }
+
         function safeNumber(v) {
             const n = Number(v);
             return Number.isFinite(n) ? n : 0;
@@ -286,32 +364,25 @@
             }
 
             noProducts.classList.add('hidden');
-            grid.innerHTML = list.map((p) => {
-                const productUrl = (window.NewKetLinks && window.NewKetLinks.buildProductShareUrl)
-                    ? window.NewKetLinks.buildProductShareUrl({
-                        shopName: currentShopName,
-                        email: currentShopEmail,
-                        productName: p.name,
-                        productId: p.id
-                    })
-                    : `${window.resolvePath('product')}?id=${p.id}`;
-                const imageUrl = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : p.image;
-                return `
-                    <div class="card-hover bg-white rounded-3xl group cursor-pointer overflow-hidden border border-gray-50 hover:border-gray-200 transition-colors" onclick="location.href='${productUrl}'">
-                        <div class="img-container aspect-[4/5] img-zoom">
-                             <img src="${imageUrl}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-700" alt="${p.name || ''}">
-                             <button onclick="event.stopPropagation(); orderProduct('${p.id}')" class="absolute bottom-4 right-4 h-12 px-4 bg-black text-white rounded-2xl flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-xl">
-                                <iconify-icon icon="solar:bag-plus-linear" width="22"></iconify-icon>
-                                <span class="text-[11px] font-black uppercase tracking-widest leading-none">Commander</span>
-                             </button>
-                        </div>
-                        <div class="p-6">
-                            <h3 class="font-bold text-gray-900 mb-1 truncate">${p.name || ''}</h3>
-                            <p class="text-xl font-black text-black">${CurrencyManager.formatPrice(p.price)}</p>
-                        </div>
-                    </div>
-                `;
+            const vendorSummary = {
+                company_name: currentShopName,
+                name: currentShopName,
+                avatar: document.getElementById('vendorAvatar')?.getAttribute('src') || ''
+            };
+
+            grid.innerHTML = list.map((p, index) => {
+                const productWithVendor = {
+                    ...p,
+                    users: p.users || vendorSummary
+                };
+                return typeof window.buildProductCardHTML === 'function'
+                    ? window.buildProductCardHTML(productWithVendor, index)
+                    : '';
             }).join('');
+
+            if (typeof window.initLazyImages === 'function') {
+                window.initLazyImages(grid);
+            }
         }
 
         async function loadShopData() {
@@ -322,7 +393,6 @@
             const getShopSlugFromPath = () => {
                 try {
                     const path = window.location.pathname || '';
-                    // Match: /boutique/<slug>/NewKet  (and tolerate /boutique/<slug>)
                     const m = path.match(/\/boutique\/([^/]+)(?:\/NewKet)?\/?$/i);
                     if (!m) return null;
                     return decodeURIComponent(m[1] || '').trim() || null;
@@ -335,6 +405,7 @@
             const shopSlug = rawShopSlug
                 ? rawShopSlug.replace(/_Shop_NewKet$/i, '').trim()
                 : null;
+            const shopCacheKey = getShopCacheKey({ email, shopSlug });
 
             if (!email && !shopSlug) {
                 location.href = window.resolvePath('shops');
@@ -343,8 +414,12 @@
 
             currentShopEmail = email || '';
 
+            const cachedVendor = readCachedShop(shopCacheKey);
+            if (cachedVendor) {
+                applyVendorHero(cachedVendor, shopSlug || '');
+            }
+
             try {
-                // 1. Load Vendor Info
                 let vendor = null;
                 if (email) {
                     vendor = await window.SupabaseAdapter.fetchWithFilters('users', {
@@ -352,7 +427,6 @@
                         single: true
                     });
                 } else if (shopSlug) {
-                    // 1) Authoritative lookup: persisted unique slug
                     const exactMatch = await window.SupabaseAdapter.fetchWithFilters('users', {
                         eq: [['role', 'supplier'], ['shop_slug', shopSlug]],
                         limit: 1,
@@ -361,15 +435,14 @@
                     const exactList = Array.isArray(exactMatch) ? exactMatch : (exactMatch ? [exactMatch] : []);
                     vendor = exactList[0] || null;
 
-                    // 2) Backward-compat fallback for old records without shop_slug
                     if (!vendor) {
                         const prettyName = shopSlug.replace(/_/g, ' ').trim();
                         const safeLike = prettyName.replace(/%/g, '').slice(0, 80);
                         const candidates = await window.SupabaseAdapter.fetchWithFilters('users', {
-                        eq: [['role', 'supplier']],
-                        or: `company_name.ilike.%${safeLike}%,name.ilike.%${safeLike}%`,
-                        limit: 25,
-                        skipCache: true
+                            eq: [['role', 'supplier']],
+                            or: `company_name.ilike.%${safeLike}%,name.ilike.%${safeLike}%`,
+                            limit: 25,
+                            skipCache: true
                         });
                         const list = Array.isArray(candidates) ? candidates : (candidates ? [candidates] : []);
                         const buildSlug = (name) => {
@@ -402,36 +475,14 @@
                     return;
                 }
 
-                const shopName = vendor.company_name || vendor.name || 'Boutique sans nom';
-                currentShopName = shopName;
-                currentShopSlug = vendor.shop_slug || shopSlug || '';
-                document.getElementById('vendorName').textContent = shopName;
-                document.getElementById('vendorAvatar').src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=f3f4f6&color=000&bold=true`;
-
-                // Analytics: record shop view (deduped per day / session)
+                applyVendorHero(vendor, shopSlug || '');
+                writeCachedShop(shopCacheKey, vendor);
                 recordShopViewOncePerDay(vendor.id);
 
-                const joinDate = vendor.date_joined ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
-                document.getElementById('vendorMeta').innerHTML = `<iconify-icon icon="solar:calendar-outline"></iconify-icon> Membre depuis ${joinDate}`;
-                document.title = `${shopName} à NewKet`;
-
-                // Apply custom cover photo if set
-                const heroEl = document.querySelector('.vendor-hero');
-                if (heroEl && vendor.cover_image) {
-                    heroEl.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('${vendor.cover_image}')`;
-                    heroEl.style.backgroundSize = 'cover';
-                    heroEl.style.backgroundPosition = 'center';
-                }
-
-                // Update shipping if set
-                if (vendor.shipping_time) {
-                    document.getElementById('vendor-shipping-value').textContent = vendor.shipping_time;
-                }
-
-                // 2. Load Products directly from DB to get ALL vendor items
-                let products = await window.SupabaseAdapter.fetchWithFilters('products', {
+                const products = await window.SupabaseAdapter.fetchWithFilters('products', {
                     eq: [['supplier_email', currentShopEmail]],
-                    order: ['created_at', { ascending: false }]
+                    order: ['created_at', { ascending: false }],
+                    skipCache: true
                 });
 
                 currentProducts = products || [];
@@ -439,12 +490,12 @@
                 const sortMode = sortSelect ? sortSelect.value : 'newest';
                 renderProducts(sortProducts(currentProducts, sortMode));
 
-                // 3. Calculate Average Rating
-                const productIds = products.map(p => p.id);
+                const productIds = currentProducts.map(p => p.id);
                 if (productIds.length > 0) {
                     const reviews = await window.SupabaseAdapter.fetchWithFilters('product_reviews', {
                         in: [['product_id', productIds]],
-                        select: 'rating'
+                        select: 'rating',
+                        skipCache: true
                     });
 
                     if (reviews && reviews.length > 0) {
@@ -455,12 +506,15 @@
                         document.getElementById('vendor-rating-value').textContent = '-';
                     }
                 }
-
             } catch (err) {
                 console.error('Error loading shop:', err);
                 location.href = window.resolvePath('shops');
             }
         }
+
+        window.NewKetPageRefresh = async function () {
+            await loadShopData();
+        };
 
         async function shareShopLink() {
             const url = (window.NewKetLinks && window.NewKetLinks.buildShopShareUrl)
@@ -486,6 +540,29 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Product cards: event delegation (avoids inline onclick and escaping bugs)
+            const grid = document.getElementById('productsGrid');
+            if (grid && !grid.dataset.clickBound) {
+                grid.dataset.clickBound = '1';
+                grid.addEventListener('click', (e) => {
+                    const orderBtn = e.target.closest('.order-button');
+                    if (orderBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const id = orderBtn.getAttribute('data-order-product-id');
+                        if (id) orderProduct(id);
+                        return;
+                    }
+
+                    const card = e.target.closest('.product-card');
+                    if (!card) return;
+                    const encodedUrl = card.getAttribute('data-product-url') || '';
+                    const url = encodedUrl ? decodeURIComponent(encodedUrl) : '';
+                    if (!url) return;
+                    location.href = url;
+                });
+            }
+
             const sortSelect = document.getElementById('sortProducts');
             if (sortSelect) {
                 sortSelect.addEventListener('change', () => {
@@ -510,6 +587,3 @@
 </body>
 
 </html>
-
-
-

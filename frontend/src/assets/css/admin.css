@@ -318,6 +318,26 @@ html:not(.dark) #adminSidebar .sidebar-link.active span {
     margin-bottom: 2rem;
 }
 
+/* Deterministic chart sizing (avoid missing Tailwind arbitrary classes on prod builds) */
+.vendor-chart-shell {
+    width: 100%;
+    height: 320px;
+    position: relative;
+    overflow: visible;
+}
+
+@media (max-width: 1024px) {
+    .vendor-chart-shell {
+        height: 280px;
+    }
+}
+
+@media (max-width: 640px) {
+    .vendor-chart-shell {
+        height: 280px;
+    }
+}
+
 @media (max-width: 1024px) {
     .vendor-charts-grid {
         grid-template-columns: 1fr;
@@ -469,12 +489,85 @@ html:not(.dark) #adminSidebar .sidebar-link.active span {
     }
 
     #tab-dashboard .vendor-table-shell {
-        margin-inline: -1rem;
-        padding-inline: 1rem;
+        margin-inline: 0;
+        padding-inline: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+        touch-action: pan-x;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        padding-bottom: 10px;
+        overflow-y: hidden;
     }
 
     #tab-dashboard .vendor-orders-table {
         min-width: 760px;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    /* Make the horizontal scroll reach the very end on mobile */
+    #tab-dashboard .vendor-table-shell .vendor-orders-table {
+        display: inline-block;
+        width: max-content;
+        min-width: 1120px;
+    }
+
+    #tab-dashboard .vendor-orders-table th:nth-child(1),
+    #tab-dashboard .vendor-orders-table td:nth-child(1) {
+        min-width: 96px;
+    }
+
+    #tab-dashboard .vendor-orders-table th:nth-child(2),
+    #tab-dashboard .vendor-orders-table td:nth-child(2) {
+        min-width: 240px;
+    }
+
+    #tab-dashboard .vendor-orders-table th:nth-child(3),
+    #tab-dashboard .vendor-orders-table td:nth-child(3) {
+        min-width: 180px;
+    }
+
+    #tab-dashboard .vendor-orders-table th:nth-child(4),
+    #tab-dashboard .vendor-orders-table td:nth-child(4) {
+        min-width: 150px;
+    }
+
+    #tab-dashboard .vendor-orders-table th:nth-child(5),
+    #tab-dashboard .vendor-orders-table td:nth-child(5) {
+        min-width: 130px;
+    }
+
+    #tab-dashboard .vendor-orders-table th:nth-child(6),
+    #tab-dashboard .vendor-orders-table td:nth-child(6) {
+        min-width: 120px;
+    }
+
+    #tab-dashboard .vendor-orders-table th:nth-child(7),
+    #tab-dashboard .vendor-orders-table td:nth-child(7) {
+        min-width: 56px;
+    }
+
+    #tab-dashboard .vendor-table-shell::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    #tab-dashboard .vendor-table-shell::-webkit-scrollbar-thumb {
+        background: rgba(15, 23, 42, 0.18);
+        border-radius: 999px;
+    }
+
+    #tab-dashboard #salesChart,
+    #tab-dashboard #audienceChart {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
     }
 
     #tab-dashboard .vendor-activity-grid {

@@ -511,7 +511,7 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
   box-shadow: var(--shadow-sm);
   top: 0;
   z-index: 1000;
-  transition: all 0.3s ease-in-out;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.24s ease, background-color 0.24s ease, backdrop-filter 0.24s ease, border-color 0.24s ease;
   width: 100%;
   position: fixed;
   left: 0;
@@ -520,9 +520,11 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
 
 .main-header.scrolled {
   padding: 0;
-  /* Reduced padding on scroll */
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  background-color: rgba(255, 255, 255, 0.88);
+  border-color: rgba(148, 163, 184, 0.18);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  backdrop-filter: saturate(180%) blur(14px);
 }
 
 .header-content {
@@ -934,11 +936,13 @@ body.search-focused .main-header {
   border-bottom: 1px solid var(--border-color);
   padding: 0;
   overflow: hidden;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, visibility 0.3s;
+  transform-origin: top center;
+  transition: max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s ease, visibility 0.24s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   max-height: 100px;
   opacity: 1;
   visibility: visible;
-  will-change: max-height, opacity;
+  transform: translateY(0) scaleY(1);
+  will-change: max-height, opacity, transform;
 }
 
 .category-nav.nav-hidden {
@@ -949,6 +953,7 @@ body.search-focused .main-header {
   border-top-width: 0;
   border-bottom-width: 0;
   pointer-events: none;
+  transform: translateY(-6px) scaleY(0.96);
 }
 
 .header-topbar {
@@ -956,14 +961,15 @@ body.search-focused .main-header {
   max-height: 40px;
   opacity: 1;
   transform: translateY(0);
-  transition: max-height 0.28s ease, opacity 0.22s ease, transform 0.28s ease;
+  transition: max-height 0.26s ease, opacity 0.22s ease, transform 0.26s ease;
 }
 
 .main-header {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  --header-retracted-offset: 4.75rem;
+  -webkit-backdrop-filter: saturate(150%) blur(0px);
+  backdrop-filter: saturate(150%) blur(0px);
   transform: none;
-  will-change: transform, box-shadow, background-color;
+  will-change: transform, box-shadow, background-color, backdrop-filter;
 }
 
 .main-header.scrolled .header-topbar {
@@ -974,7 +980,7 @@ body.search-focused .main-header {
 }
 
 .main-header.header-retracted {
-  transform: translateY(calc(-1 * var(--header-height, 0px) + 5rem));
+  transform: translateY(calc(-1 * var(--header-height, 0px) + var(--header-retracted-offset)));
 }
 
 body.search-focused .main-header {
@@ -1057,7 +1063,8 @@ body.mobile-menu-open {
 /* Search Row Hide on Scroll when the header wraps to two rows */
 @media (max-width: 1023px) {
     #mobileSearchContainer {
-        transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: top center;
+        transition: max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), margin 0.28s ease;
         max-height: 100px;
         opacity: 1;
         overflow: hidden;
@@ -1070,16 +1077,12 @@ body.mobile-menu-open {
         margin-top: 0 !important;
         margin-bottom: 0 !important;
         pointer-events: none;
-        transform: translateY(-5px);
-    }
-    
-    .main-header {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+        transform: translateY(-8px) scaleY(0.96);
     }
 
     .main-header.header-compact .header-content {
         gap: 0 !important;
-        padding-bottom: 4px !important;
+        padding-bottom: 3px !important;
     }
 }
 

@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Supabase -->
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/vendor/chart.umd.js"></script>
     <link rel="stylesheet" href="/src/assets/css/style.css">
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <link rel="stylesheet" href="/src/assets/css/admin.css">
@@ -225,28 +225,28 @@
                     <!-- Charts & Tables Section -->
                     <div class="vendor-charts-grid">
                 <!-- Sales Chart -->
-                <div class="glass-panel p-8">
-                    <div class="flex items-center justify-between mb-6 vendor-card-header">
+                <div class="glass-panel p-4 sm:p-8">
+                    <div class="flex items-center justify-between mb-4 sm:mb-6 vendor-card-header">
                         <h3 class="font-bold text-gray-900">Intérêt pour vos produits</h3>
                         <div
                             class="text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md">
                             AvadaPay</div>
                     </div>
-                    <div class="aspect-[16/9]">
+                    <div class="vendor-chart-shell w-full">
                         <canvas id="salesChart"></canvas>
                     </div>
                 </div>
 
                 <!-- Recent Orders Table -->
-                <div class="glass-panel p-8">
-                    <div class="flex items-center justify-between mb-6 vendor-card-header">
+                <div class="glass-panel p-4 sm:p-8">
+                    <div class="flex items-center justify-between mb-4 sm:mb-6 vendor-card-header">
                         <h3 class="font-bold text-gray-900">Dernières Commandes</h3>
                         <a href="#"
                             class="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Voir
                             tout</a>
                     </div>
                     <div class="overflow-x-auto vendor-table-shell">
-                        <table class="w-full text-left vendor-orders-table">
+                        <table class="w-full text-left whitespace-nowrap vendor-orders-table">
                             <thead>
                                 <tr
                                     class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 border-b border-gray-50">
@@ -262,7 +262,7 @@
                             <tbody id="vendor-recent-orders" class="divide-y divide-gray-50">
                                 <!-- Injected by JS -->
                                 <tr>
-                                    <td colspan="4" class="py-8 text-center text-sm text-gray-400">Chargement...</td>
+                                    <td colspan="7" class="py-8 text-center text-sm text-gray-400">Chargement...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -524,6 +524,7 @@
                         <p class="text-sm text-gray-400 mb-6">Changez votre mot de passe en toute sécurité.</p>
 
                         <form id="vendorPasswordForm" class="space-y-4 w-full">
+                            <input type="text" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Mot de passe actuel</label>
                                 <input id="vCurrentPassword" name="vCurrentPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="current-password">
@@ -1268,19 +1269,24 @@
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     const stats = OrderManager.getVendorStats(userId || email);
+                    const setText = (id, value) => {
+                        const element = document.getElementById(id);
+                        if (element) element.textContent = value;
+                    };
+                    const products = Array.isArray(window.ProductManager?.getProducts?.()) ? ProductManager.getProducts() : [];
 
                     // Update Stats Slates
-                    if (document.getElementById('vendorTotalSales')) document.getElementById('vendorTotalSales').textContent = CurrencyManager.formatPrice(stats.totalRevenue || 0);
-                    if (document.getElementById('vendorConversionRate')) document.getElementById('vendorConversionRate').textContent = (stats.conversionRate || 0) + '%';
-                    if (document.getElementById('vendorAvgOrder')) document.getElementById('vendorAvgOrder').textContent = CurrencyManager.formatPrice(stats.averageOrderValue || 0);
-                    document.getElementById('vendorOrders').textContent = stats.totalOrders;
+                    setText('vendorTotalSales', CurrencyManager.formatPrice(stats.totalRevenue || 0));
+                    setText('vendorConversionRate', (stats.conversionRate || 0) + '%');
+                    setText('vendorAvgOrder', CurrencyManager.formatPrice(stats.averageOrderValue || 0));
+                    setText('vendorOrders', stats.totalOrders || 0);
 
-                    const myProducts = ProductManager.getProducts().filter(p => p.supplier_email === email);
-                    if (document.getElementById('vendorProducts')) document.getElementById('vendorProducts').textContent = myProducts.length;
+                    const myProducts = products.filter(p => p.supplier_email === email);
+                    setText('vendorProducts', myProducts.length);
 
                     // Calculate Total Product Views
                     const totalViews = myProducts.reduce((sum, p) => sum + (p.views || 0), 0);
-                    if (document.getElementById('vendorTotalViews')) document.getElementById('vendorTotalViews').textContent = totalViews;
+                    setText('vendorTotalViews', totalViews);
 
                     // Calculate Average Rating from Reviews
                     const productIds = myProducts.map(p => p.id);
@@ -1304,8 +1310,9 @@
                     // Render Recent Orders (stats.orders est le bon champ, pas stats.recentOrders)
                     const recentOrders = stats.orders || [];
                     const ordersTable = document.getElementById('vendor-recent-orders');
+                    if (!ordersTable) return;
                     if (recentOrders.length === 0) {
-                        ordersTable.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-sm text-gray-400">Aucune commande pour le moment</td></tr>`;
+                        ordersTable.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-sm text-gray-400">Aucune commande pour le moment</td></tr>`;
                     } else {
                         ordersTable.innerHTML = recentOrders.map(o => `
                         <tr class="hover:bg-gray-50 transition-all cursor-pointer group" onclick="openOrderDetailModal('${o.id}')">
@@ -1349,7 +1356,7 @@
                     }
 
                     // Render Chart
-                    const chartData = stats.chartData || { labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'], data: [0, 0, 0, 0, 0, 0, 0] };
+                    const chartData = buildVendorInterestChartData(stats.orders || [], myProducts);
                     renderSalesChart(chartData);
 
                     // Activity feed handled by main.js logic generally or locally:
@@ -1409,31 +1416,112 @@
                 }
 
                 function renderSalesChart(chartData) {
+                    if (typeof Chart === 'undefined') {
+                        console.error('[VendorDashboard] Chart.js failed to load.');
+                        return;
+                    }
                     const ctx = document.getElementById('salesChart');
                     if (!ctx) return;
+                    const isMobile = window.matchMedia('(max-width: 640px)').matches;
+                    const rawLabels = Array.isArray(chartData?.labels) ? chartData.labels : [];
+                    const rawData = Array.isArray(chartData?.data) ? chartData.data.map(value => Number(value) || 0) : [];
+                    const visibleLabels = isMobile ? rawLabels.slice(-4) : rawLabels;
+                    const visibleData = isMobile ? rawData.slice(-4) : rawData;
+                    const normalizedData = {
+                        labels: visibleLabels,
+                        data: visibleData
+                    };
                     if (salesChart) salesChart.destroy();
                     salesChart = new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: chartData.labels,
+                            labels: normalizedData.labels,
                             datasets: [{
                                 label: 'Ventes',
-                                data: chartData.data,
+                                data: normalizedData.data,
                                 borderColor: '#000000',
                                 backgroundColor: 'rgba(0,0,0,0.02)',
                                 borderWidth: 3, tension: 0.4, fill: true,
-                                pointBackgroundColor: '#000000', pointRadius: 4
+                                pointBackgroundColor: '#000000',
+                                pointRadius: isMobile ? 2.5 : 4,
+                                pointHoverRadius: isMobile ? 4 : 6
                             }]
                         },
                         options: {
-                            responsive: true, maintainAspectRatio: false,
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            normalized: true,
+                            layout: { padding: { left: 36, right: 30, top: 20, bottom: 8 } },
                             plugins: { legend: { display: false } },
                             scales: {
-                                y: { beginAtZero: true, grid: { display: false }, ticks: { font: { size: 10 } } },
-                                x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                                y: {
+                                    beginAtZero: true,
+                                    grace: '10%',
+                                    grid: { display: false },
+                                    ticks: {
+                                        font: { size: isMobile ? 9 : 10 },
+                                        maxTicksLimit: isMobile ? 4 : 6,
+                                        padding: 10
+                                    }
+                                },
+                                x: {
+                                    offset: true,
+                                    grid: { display: false },
+                                    ticks: {
+                                        autoSkip: true,
+                                        maxRotation: 0,
+                                        minRotation: 0,
+                                        maxTicksLimit: isMobile ? 4 : 7,
+                                        font: { size: isMobile ? 9 : 10 },
+                                        padding: 6
+                                    }
+                                }
                             }
                         }
                     });
+                }
+
+                function buildVendorInterestChartData(orders, products) {
+                    const labels = [];
+                    const dailyTotals = new Map();
+                    const today = new Date();
+
+                    for (let offset = 6; offset >= 0; offset -= 1) {
+                        const currentDay = new Date(today);
+                        currentDay.setHours(0, 0, 0, 0);
+                        currentDay.setDate(today.getDate() - offset);
+                        const key = currentDay.toISOString().slice(0, 10);
+                        labels.push(currentDay.toLocaleDateString('fr-FR', { weekday: 'short' }));
+                        dailyTotals.set(key, 0);
+                    }
+
+                    (Array.isArray(orders) ? orders : []).forEach(order => {
+                        const rawDate = order?.date || order?.created_at || order?.createdAt;
+                        if (!rawDate) return;
+                        const parsedDate = new Date(rawDate);
+                        if (Number.isNaN(parsedDate.getTime())) return;
+                        const key = parsedDate.toISOString().slice(0, 10);
+                        if (!dailyTotals.has(key)) return;
+                        dailyTotals.set(key, (dailyTotals.get(key) || 0) + 1);
+                    });
+
+                    const data = Array.from(dailyTotals.values());
+                    const hasOrders = data.some(value => value > 0);
+                    if (hasOrders) return { labels, data };
+
+                    const fallbackProducts = (Array.isArray(products) ? products : [])
+                        .slice()
+                        .sort((left, right) => (Number(right.views) || 0) - (Number(left.views) || 0))
+                        .slice(0, 7);
+
+                    if (fallbackProducts.length > 0) {
+                        return {
+                            labels: fallbackProducts.map(product => (product.name || 'Produit').slice(0, 10)),
+                            data: fallbackProducts.map(product => Number(product.views) || 0)
+                        };
+                    }
+
+                    return { labels, data };
                 }
 
                 function renderVendorAnalytics() {
@@ -1497,7 +1585,7 @@
                     const topProductsContainer = document.getElementById('analyticsTopProducts');
                     if (topProductsContainer) {
                         topProductsContainer.innerHTML = topProducts.length ? topProducts.map((p, index) => `
-                            <div class="flex items-center gap-4 group cursor-pointer p-2 hover:bg-gray-50 rounded-2xl transition-all" onclick="window.location.href='product?id=${p.id}'">
+                            <div class="flex items-center gap-4 group cursor-pointer p-2 hover:bg-gray-50 rounded-2xl transition-all" onclick="window.location.href=(window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : 'product?id=${p.id}')">
                                 <div class="w-10 h-10 rounded-xl bg-white overflow-hidden border border-gray-100 shrink-0 shadow-sm">
                                     <img src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}" class="w-full h-full object-contain p-1" onerror="this.src='../assets/Images/default.png'">
                                 </div>
@@ -1515,16 +1603,25 @@
                 }
 
                 function renderAudienceChart(chartData) {
+                    if (typeof Chart === 'undefined') {
+                        console.error('[VendorDashboard] Chart.js failed to load.');
+                        return;
+                    }
                     const ctx = document.getElementById('audienceChart');
                     if (!ctx) return;
+                    const isMobile = window.matchMedia('(max-width: 640px)').matches;
+                    const audienceLabels = Array.isArray(chartData?.labels) ? chartData.labels : [];
+                    const audienceData = Array.isArray(chartData?.data) ? chartData.data : [];
+                    const visibleAudienceLabels = isMobile ? audienceLabels.slice(-4) : audienceLabels;
+                    const visibleAudienceData = isMobile ? audienceData.slice(-4) : audienceData;
                     if (audienceChart) audienceChart.destroy();
                     audienceChart = new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: chartData.labels,
+                            labels: visibleAudienceLabels,
                             datasets: [{
                                 label: 'Visites',
-                                data: chartData.data,
+                                data: visibleAudienceData,
                                 borderColor: '#000000',
                                 backgroundColor: (context) => {
                                     const chart = context.chart;
@@ -1541,13 +1638,14 @@
                                 pointBackgroundColor: '#000000',
                                 pointBorderColor: '#ffffff',
                                 pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6
+                                pointRadius: isMobile ? 2.5 : 4,
+                                pointHoverRadius: isMobile ? 4 : 6
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
+                            normalized: true,
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
@@ -1565,11 +1663,12 @@
                                 y: {
                                     beginAtZero: true,
                                     grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
-                                    ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8' }
+                                    ticks: { font: { size: isMobile ? 9 : 10, weight: 'bold' }, color: '#94a3b8' }
                                 },
                                 x: {
+                                    offset: true,
                                     grid: { display: false },
-                                    ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8' }
+                                    ticks: { font: { size: isMobile ? 9 : 10, weight: 'bold' }, color: '#94a3b8' }
                                 }
                             }
                         }

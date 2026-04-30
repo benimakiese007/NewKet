@@ -20,6 +20,7 @@ import './managers.js';
 
 import './ui-helpers.js';
 import './ui.js';
+import './pull-to-refresh.js';
 import './search.js';
 import './components-loader.js';
 import './realtime-notifications.js';
@@ -41,4 +42,3 @@ if (!isLocalHost) {
         console.warn('[NewKet] Vercel Analytics disabled:', err?.message || err);
     }
 }
-

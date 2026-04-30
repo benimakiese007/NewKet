@@ -404,7 +404,7 @@ const SearchManager = {
                     const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(firstImg, { width: 120, quality: 70 }) : firstImg) || firstImg;
                         
                     return `
-                    <a href="${window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html'}?id=${p.id}" class="suggestion-item">
+                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden">
                             <img src="${escapeHTML(optImg)}" loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">
                         </div>

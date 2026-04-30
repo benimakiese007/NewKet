@@ -244,17 +244,37 @@ async function copyTextToClipboard(text) {
 function buildShopShareUrl({ shopName, shopSlug } = {}) {
     const providedSlug = String(shopSlug || '').trim();
     const slug = providedSlug || buildShopSlug(shopName);
-    const url = new URL(`/boutique/${encodeURIComponent(slug)}/NewKet`, window.location.origin);
+    const url = new URL(`/Boutique/${encodeURIComponent(slug)}/NewKet`, window.location.origin);
     return url.toString();
 }
 
 function buildProductShareUrl({ shopName, email, productName, productId } = {}) {
     const shopSlug = buildShopSlug(shopName);
     const productSlug = buildProductSlug(productName);
-    const url = new URL(`/boutique/${encodeURIComponent(shopSlug)}/produit/${encodeURIComponent(productSlug)}`, window.location.origin);
+    const random = Math.floor(Math.random() * 100) + 1;
+    const url = new URL(`/Boutique/${encodeURIComponent(shopSlug)}/${encodeURIComponent(productSlug)}/${random}/NewKet`, window.location.origin);
+    // Keep id as a query param so product.html can always resolve to a real product record.
     if (productId) url.searchParams.set('id', productId);
     if (email) url.searchParams.set('email', email);
     return url.toString();
+}
+
+function buildProductPagePath({ shopName, shopSlug, productName, productId, email } = {}) {
+    const resolvedShopSlug = String(shopSlug || '').trim() || buildShopSlug(shopName);
+    const productSlug = buildProductSlug(productName);
+
+    if (resolvedShopSlug && productSlug) {
+        const random = Math.floor(Math.random() * 100) + 1;
+        const url = new URL(`/Boutique/${encodeURIComponent(resolvedShopSlug)}/${encodeURIComponent(productSlug)}/${random}/NewKet`, window.location.origin);
+        if (productId) url.searchParams.set('id', productId);
+        if (email) url.searchParams.set('email', email);
+        return `${url.pathname}${url.search}`;
+    }
+
+    const fallback = new URL(window.resolvePath('product'), window.location.origin);
+    if (productId) fallback.searchParams.set('id', productId);
+    if (email) fallback.searchParams.set('email', email);
+    return `${fallback.pathname}${fallback.search}`;
 }
 
 window.NewKetLinks = {
@@ -262,8 +282,41 @@ window.NewKetLinks = {
     buildProductSlug,
     buildShopShareUrl,
     buildProductShareUrl,
+    buildProductPagePath,
     copyTextToClipboard
 };
+
+document.addEventListener('click', async (event) => {
+    const shareButton = event.target instanceof Element
+        ? event.target.closest('button[aria-label="Partager ce produit"]')
+        : null;
+    if (!shareButton) return;
+
+    const productCard = shareButton.closest('[data-product-share-url]');
+    const productUrl = productCard?.getAttribute('data-product-share-url');
+    if (!productUrl) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const productName = productCard?.getAttribute('data-product-name') || 'Produit NewKet';
+    try {
+        if (navigator.share) {
+            await navigator.share({
+                title: `${productName} - NewKet`,
+                url: productUrl
+            });
+            return;
+        }
+    } catch {
+        return;
+    }
+
+    const copied = await copyTextToClipboard(productUrl);
+    if (copied && window.showToast) {
+        showToast('Lien copie !', 'info');
+    }
+}, true);
 
 /**
  * Debounce function to limit execution frequency.
@@ -510,9 +563,20 @@ function buildProductCardHTML(p, options = {}) {
             ? `data-src="${avatar}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" loading="lazy"`
             : '';
     const avatarImgClass = prioritizeAvatar ? '' : 'lazy-img';
+    const vendor = Array.isArray(p.users) ? p.users[0] : p.users;
+    const productPagePath = window.NewKetLinks?.buildProductPagePath
+        ? window.NewKetLinks.buildProductPagePath({
+            shopName: vendor?.company_name || vendor?.name,
+            shopSlug: vendor?.shop_slug,
+            productName: p.name,
+            productId: p.id,
+            email: p.supplier_email
+        })
+        : `${resolvePath('pages/product')}?id=${p.id}`;
+    const absoluteProductUrl = `${window.location.origin}${productPagePath}`;
 
     return `
-        <div class="product-card card-active-scale ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}">
+        <div class="product-card card-active-scale ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${String(p.name || 'Produit NewKet').replace(/"/g, '&quot;')}">
             <div class="product-image">
                 ${badgeHTML}
                 <button onclick="addToWishlist('${p.id}', event)" 
@@ -521,7 +585,7 @@ function buildProductCardHTML(p, options = {}) {
                     title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
-                <a href="${resolvePath('pages/product')}?id=${p.id}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">
+                <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">
                     <img
                         ${productImgAttrs}
                         alt="${p.name}"
@@ -542,13 +606,13 @@ function buildProductCardHTML(p, options = {}) {
                         }
                     </div>
                     <span>Vendu par : ${ 
-                        (Array.isArray(p.users) ? p.users[0] : p.users)?.company_name || 
-                        (Array.isArray(p.users) ? p.users[0] : p.users)?.name || 
+                        vendor?.company_name || 
+                        vendor?.name || 
                         'NewKet Shop' 
                     }</span>
                 </div>
                 <h3 class="product-title">
-                    <a href="${resolvePath('pages/product')}?id=${p.id}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${p.name}</a>
+                    <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${p.name}</a>
                 </h3>
                 <div class="product-rating">
                     ${starsHTML}
