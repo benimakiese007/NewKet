@@ -140,7 +140,7 @@ export const createOrder = async (req, res) => {
         const quantity = Math.max(1, Math.min(100, parseInt(requestedQuantity, 10) || 1));
         const { data: product, error: productError } = await client
             .from('products')
-            .select('id, name, price, supplier_email, user_id')
+            .select('id, name, price, image, supplier_email, user_id')
             .eq('id', product_id)
             .single();
 
@@ -165,6 +165,7 @@ export const createOrder = async (req, res) => {
                     vendor_id: vendorId,
                     price: product.price,
                     name: product.name,
+                    image: product.image,
                     quantity,
                     supplier_email: product.supplier_email
                 }],
@@ -214,7 +215,15 @@ export const getOrders = async (req, res) => {
 
         let query = client
             .from('orders')
-            .select('id, status, created_at, total, total_amount, merchandise_amount, delivery_fee_amount, customer_name, customer_email, customer_phone, customer_city, customer_lat, customer_lng, phone_number, items, payment_status, transaction_id, user_id, customer_id, vendor_id, escrow_status, escrow_release_at, proof_status, otp_code, accepted_delivery_quote_id')
+            .select(`
+                id, status, created_at, total, total_amount, merchandise_amount, 
+                delivery_fee_amount, customer_name, customer_email, customer_phone, 
+                customer_city, customer_lat, customer_lng, phone_number, items, 
+                payment_status, transaction_id, user_id, customer_id, vendor_id, 
+                escrow_status, escrow_release_at, proof_status, otp_code, 
+                accepted_delivery_quote_id,
+                customer:users!customer_id(id, name, avatar)
+            `)
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1);
 

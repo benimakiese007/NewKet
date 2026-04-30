@@ -22,9 +22,15 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 // Validation UUID simple pour eviter les injections via IDs
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// Validation ID produit (UUID ou format prod-timestamp)
+const PRODUCT_ID_REGEX = /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|prod-[a-z0-9-]+)$/i;
 
 function isValidUuid(value) {
     return typeof value === 'string' && UUID_REGEX.test(value);
+}
+
+function isValidProductId(value) {
+    return typeof value === 'string' && PRODUCT_ID_REGEX.test(value);
 }
 
 function getClientIp(req) {
@@ -52,7 +58,7 @@ router.post('/view/:productId', analyticsLimiter, async (req, res) => {
         return res.status(400).json({ error: 'Product ID is required.' });
     }
 
-    if (!isValidUuid(productId)) {
+    if (!isValidProductId(productId)) {
         return res.status(400).json({ error: 'Product ID invalide.' });
     }
 

@@ -218,6 +218,7 @@
 
     <script shadow>
         const productId = new URLSearchParams(window.location.search).get('id');
+        let currentProduct = null;
         let _nkShareMeta = null;
         let currentRating = 0;
         let currentProductImages = [];
@@ -254,6 +255,8 @@
                 `;
                 return;
             }
+
+            currentProduct = p;
 
             // Record view for analytics
             if (window.ProductManager && ProductManager.recordView) {
@@ -515,24 +518,44 @@
                     renderReviewForm(pid);
                     return;
                 }
+
+
+
                 const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
                 const starsHTML = Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < Math.round(avg) ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('');
                 document.getElementById('headerRating').classList.remove('invisible');
                 document.getElementById('headerStars').innerHTML = starsHTML;
                 document.getElementById('headerReviewCount').textContent = `${reviews.length} avis client${reviews.length > 1 ? 's' : ''}`;
                 countText.innerHTML = `<div class="flex items-center gap-3"><div class="flex gap-0.5">${starsHTML}</div><span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis vérifiés</span></div>`;
-                list.innerHTML = reviews.map(r => `
+                list.innerHTML = reviews.map(r => {
+                    const isAuthor = AuthManager.user && AuthManager.user.id === r.user_id;
+                    const isAdmin = AuthManager.user && (AuthManager.user.user_metadata?.role === 'admin' || AuthManager.user.app_metadata?.role === 'admin');
+                    const canDelete = isAuthor || isAdmin;
+                    const avatarUrl = r.user_avatar || null;
+                    const initial = r.user_name?.charAt(0) || '?';
+                    const avatarHTML = avatarUrl
+                        ? `<div class="w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-inner ring-1 ring-black/5"><img src="${avatarUrl}" alt="${r.user_name || ''}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase\\'>${initial}</div>'"></div>`
+                        : `<div class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase">${initial}</div>`;
+
+                    return `
                     <div class="glass-card p-10 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
                         <div class="flex items-start justify-between mb-8">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase">${r.user_name?.charAt(0) || '?'}</div>
+                                ${avatarHTML}
                                 <div><div class="font-black text-gray-900 uppercase tracking-tighter text-sm mb-1">${r.user_name || 'Anonyme'}</div><div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${new Date(r.created_at).toLocaleDateString()}</div></div>
                             </div>
-                            <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90">${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < r.rating ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('')}</div>
+                            <div class="flex flex-col items-end gap-2">
+                                <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90">${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < r.rating ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('')}</div>
+                                ${canDelete ? `
+                                    <button onclick="window.confirmDeleteReview('${r.id}')" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Supprimer mon avis">
+                                        <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
                         <p class="text-base text-gray-600 font-medium leading-relaxed italic border-l-4 border-gray-100 pl-6 capitalize-first">${r.comment}</p>
                     </div>
-                `).join('');
+                `}).join('');
                 renderReviewForm(pid);
             } catch (e) { console.error(e); }
         }
@@ -541,6 +564,11 @@
             const cont = document.getElementById('reviewFormContainer');
             if (!AuthManager.user) {
                 cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('login')" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
+                return;
+            }
+
+            if (currentProduct && AuthManager.user.id === currentProduct.user_id) {
+                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100 text-gray-400 font-black uppercase tracking-widest text-[10px]">Vous ne pouvez pas donner votre avis sur votre propre produit</div>`;
                 return;
             }
             cont.innerHTML = `
@@ -571,8 +599,24 @@
             if (!currentRating) return showToast('Veuillez sélectionner une note', 'warning');
             const txt = document.getElementById('reviewText').value.trim();
             if (!txt) return showToast('Veuillez écrire un commentaire', 'warning');
+
+            if (currentProduct && AuthManager.user && AuthManager.user.id === currentProduct.user_id) {
+                return showToast('Vous ne pouvez pas évaluer votre propre produit', 'error');
+            }
+
             try {
-                const success = await SupabaseAdapter.insert('product_reviews', { product_id: pid, user_id: AuthManager.user.id, user_name: AuthManager.user.user_metadata?.name || 'Utilisateur', rating: currentRating, comment: txt });
+                const _profile = window.ProfileManager?.getProfile?.() || {};
+                const _meta = AuthManager.user.user_metadata || {};
+                const _reviewName = _profile.name || _profile.company_name || _meta.full_name || _meta.name || _meta.company_name || (AuthManager.user.email ? AuthManager.user.email.split('@')[0] : 'Utilisateur');
+                const _avatar = _profile.avatar || _meta.avatar_url || _meta.picture || null;
+                const success = await SupabaseAdapter.insert('product_reviews', { 
+                    product_id: pid, 
+                    user_id: AuthManager.user.id, 
+                    user_name: _reviewName, 
+                    user_avatar: _avatar,
+                    rating: currentRating, 
+                    comment: txt 
+                });
                 if (success) { showToast('Avis publié !', 'success'); loadReviews(pid); }
             } catch (e) { showToast('Erreur', 'error'); }
         };
@@ -590,6 +634,22 @@
             // à Activer le lazy loading sur les images .lazy-img injectées
             if (window.initLazyImages) window.initLazyImages(grid);
         }
+
+        window.confirmDeleteReview = async (rid) => {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
+            try {
+                const res = await ReviewManager.deleteReview(rid);
+                if (res.success) {
+                    showToast('Avis supprimé', 'success');
+                    loadReviews(productId);
+                } else {
+                    showToast(res.error || 'Erreur lors de la suppression', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Erreur lors de la suppression', 'error');
+            }
+        };
 
         window.updateQty = (val) => { const inp = document.getElementById('qty-input'); inp.value = Math.max(1, (parseInt(inp.value) || 1) + val); };
         window.changeImageByIndex = (idx, el) => { updateImageUI(parseInt(idx) || 0); if (el) { document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); } };

@@ -144,12 +144,22 @@
             tbody.innerHTML = filtered.map(r => `
                 <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
                     <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="font-bold text-gray-900">${r.user_name || 'Anonyme'}</div>
-                            <div class="flex text-orange-400 text-xs">
-                                ${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-${i < r.rating ? 'bold' : 'linear'}"></iconify-icon>`).join('')}
+                        <div class="flex items-center gap-3 mb-2">
+                            ${r.user_avatar ? 
+                                `<img src="${r.user_avatar}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">` : ''
+                            }
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-sm font-bold shadow-sm" style="${r.user_avatar ? 'display:none' : 'display:flex'}">
+                                ${(r.user_name || 'A').charAt(0).toUpperCase()}
                             </div>
-                            <div class="text-[10px] text-gray-400">${new Date(r.created_at).toLocaleDateString()}</div>
+                            <div>
+                                <div class="font-bold text-gray-900 leading-none mb-1">${r.user_name || 'Anonyme'}</div>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex text-orange-400 text-[10px]">
+                                        ${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-${i < r.rating ? 'bold' : 'linear'}"></iconify-icon>`).join('')}
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 font-medium">${new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="text-sm text-gray-600 mb-1">"${r.comment}"</div>
                         <div class="text-[10px] font-black uppercase text-gray-400">Sur le produit: <span class="text-black">${r.productName}</span></div>

@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Catalogue Luxe – NewKet | Pépites de Mode & Accessoires</title>
-    <meta name="description" content="Explorez le catalogue exclusif NewKet : mode féminine, style homme, montres de luxe et technologie. Les meilleures pépites en RDC, authentifiées et livrées chez vous.">
+    <meta name="description" content="Explorez le catalogue exclusif NewKet : mode femme, mode homme, montres de luxe et technologie. Les meilleures pépites en RDC, authentifiées et livrées chez vous.">
     <link rel="canonical" href="https://newket.vercel.app/src/pages/catalog.html">
     
     <!-- Open Graph -->
@@ -441,7 +441,7 @@
                                     <option value="">Catégorie</option>
                                     <option value="Femme">Femme</option>
                                     <option value="Homme">Homme</option>
-                                    <option value="Tech & Gadgets">High Tech</option>
+                                    <option value="Tech & Gadgets">Tech & Gadgets</option>
                                     <option value="Art de vivre">Art de vivre</option>
                                     <option value="Autres">Autres</option>
                                 </select>
@@ -468,12 +468,12 @@
                                 <!-- Category Dropdown -->
                                 <div class="filter-dropdown w-full sm:w-auto">
                                     <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
-                                        <span class="flex items-center gap-2"><iconify-icon icon="solar:folder-with-files-linear" width="14"></iconify-icon> Catégorie</span>
+                                        <span class="flex items-center gap-2"><iconify-icon icon="solar:tag-linear" width="14"></iconify-icon> Catégorie</span>
                                         <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
                                     </button>
                                     <div class="filter-dropdown-content mobile-inline sm:absolute">
-                                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4">Rayons</h4>
-                                        <div class="space-y-3" id="categoryFilters">
+                                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4">Parcourir</h4>
+                                        <div class="space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                                             <label class="flex items-center gap-3 cursor-pointer group">
                                                 <input type="checkbox" value="Femme" class="filter-checkbox category-filter">
                                                 <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Femme</span>
@@ -484,15 +484,11 @@
                                             </label>
                                             <label class="flex items-center gap-3 cursor-pointer group">
                                                 <input type="checkbox" value="Tech & Gadgets" class="filter-checkbox category-filter">
-                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">High Tech</span>
+                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Tech & Gadgets</span>
                                             </label>
                                             <label class="flex items-center gap-3 cursor-pointer group">
                                                 <input type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
                                                 <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Art de vivre</span>
-                                            </label>
-                                            <label class="flex items-center gap-3 cursor-pointer group">
-                                                <input type="checkbox" value="Autres" class="filter-checkbox category-filter">
-                                                <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">Autres</span>
                                             </label>
                                         </div>
                                     </div>
@@ -570,7 +566,6 @@
 
                             <!-- Bottom Controls -->
                             <div class="hidden sm:flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                                <!-- Promo Toggle -->
                                 <label class="w-full sm:w-auto">
                                     <input type="checkbox" value="true" class="hidden promo-filter peer">
                                     <span class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold cursor-pointer peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-600 transition-all hover:border-red-200">
@@ -676,9 +671,17 @@
             const categoryParam = urlParams.get('category');
             if (categoryParam) {
                 console.log('Applying Category Filter:', categoryParam);
-                document.querySelectorAll(`.category-filter[value="${categoryParam}"]`).forEach(cb => {
-                    cb.checked = true;
+                document.querySelectorAll(`.category-filter`).forEach(cb => {
+                    if (cb.value === categoryParam || 
+                        (categoryParam === 'Collections Femme' && cb.value === 'Femme') ||
+                        (categoryParam === 'Style Homme' && cb.value === 'Homme')) {
+                        cb.checked = true;
+                    }
                 });
+
+
+
+
             }
 
             // Handle promo parameter
@@ -818,7 +821,10 @@
             const urlQ = new URLSearchParams(window.location.search).get('q') || '';
             const query = (searchInput?.value || urlQ).trim().toLowerCase();
 
-            const activeCatégories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const activeCatégories = [...selectedCategories];
+            if (selectedCategories.includes('Femme')) activeCatégories.push('Collections Femme');
+            if (selectedCategories.includes('Homme')) activeCatégories.push('Style Homme');
             const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
             const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
             const activePromo = document.querySelector('.promo-filter:checked') !== null;

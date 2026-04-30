@@ -49,6 +49,17 @@ const OrderManager = {
             return;
         }
 
+        // Re-normalize orders when products are updated so we don't get stuck with missing product names/images
+        if (!this._productsListenerAdded) {
+            window.addEventListener('productsUpdated', () => {
+                if (this.data && this.data.length > 0 && this._rawOrders) {
+                    this.data = this._rawOrders.map(order => this._normalizeOrder(order));
+                    window.dispatchEvent(new CustomEvent('ordersUpdated'));
+                }
+            });
+            this._productsListenerAdded = true;
+        }
+
         // Wait for existing fetch
         if (this._fetchPromise) {
             await this._fetchPromise;
@@ -68,7 +79,8 @@ const OrderManager = {
             try {
                 // Fetch from Express Backend API
                 const orders = await ApiClient.get('/orders');
-                this.data = (orders || []).map(order => this._normalizeOrder(order));
+                this._rawOrders = orders || [];
+                this.data = this._rawOrders.map(order => this._normalizeOrder(order));
                 this._initialized = true;
                 localStorage.setItem('newket_orders_sync_time', now.toString());
                 console.log(`[OrderManager] Loaded ${this.data.length} orders.`);
@@ -91,14 +103,37 @@ const OrderManager = {
      * so all admin pages can consume it uniformly.
      */
     _normalizeOrder(order) {
-        const product = window.ProductManager ? ProductManager.getProduct(order.product_id) : null;
+        // Parse items if they arrive as a JSON string
+        let rawItems = order.items;
+        if (typeof rawItems === 'string') {
+            try { rawItems = JSON.parse(rawItems); } catch (e) { rawItems = []; }
+        }
+        let rawOrderItems = order.order_items;
+        if (typeof rawOrderItems === 'string') {
+            try { rawOrderItems = JSON.parse(rawOrderItems); } catch (e) { rawOrderItems = []; }
+        }
+
+        const itemsArr = Array.isArray(rawItems) ? rawItems : [];
+        const orderItemsArr = Array.isArray(rawOrderItems) ? rawOrderItems : [];
+        const allItems = itemsArr.length > 0 ? itemsArr : orderItemsArr;
+        const firstItem = allItems.length > 0 ? allItems[0] : null;
+
+        const productId = order.product_id || firstItem?.product_id || firstItem?.id || null;
+        
+        // Retrieve up-to-date product data if available
+        let product = null;
+        if (window.ProductManager && productId && typeof window.ProductManager.getProduct === 'function') {
+            product = window.ProductManager.getProduct(productId);
+        }
+        
         return {
             id: order.id,
-            product_id: order.product_id,
-            product_name: product?.name || 'Produit',
-            product_image: product?.image || '',
-            customer_name: order.user_name || order.customer_name || 'Visiteur',
-            customer_email: order.user_email || order.customer_email || '',
+            product_id: productId,
+            product_name: product?.name || order.product_name || firstItem?.name || firstItem?.product_name || 'Produit',
+            product_image: (product?.image || order.product_image || firstItem?.image || firstItem?.product_image || '').split(',')[0],
+            customer_name: (Array.isArray(order.customer) ? order.customer[0] : order.customer)?.name || order.user_name || order.customer_name || 'Visiteur',
+            customer_email: order.user_email || order.customer_email || (Array.isArray(order.customer) ? order.customer[0] : order.customer)?.email || '',
+            customer: Array.isArray(order.customer) ? order.customer[0] : (order.customer || null),
             user_id: order.user_id,
             customer_id: order.customer_id || order.user_id || null,
             vendor_id: order.vendor_id,
@@ -119,14 +154,21 @@ const OrderManager = {
             latest_delivery_quote: order.latest_delivery_quote || null,
             payment_method: order.payment_status && order.payment_status !== 'N/A' ? 'Paiement en ligne' : 'N/A',
             type: 'order',
-            items: order.items || [{
-                id: order.product_id,
+            items: allItems.map(item => ({
+                id: item.product_id || item.id,
+                name: item.product_name || item.name || 'Produit',
+                image: (item.product_image || item.image || '').split(',')[0],
+                price: item.price || 0,
+                quantity: item.quantity || 1,
+                category: item.category || ''
+            })).concat((allItems.length === 0 && productId) ? [{
+                id: productId,
                 name: product?.name || 'Produit',
-                image: product?.image?.split(',')[0] || '',
+                image: (product?.image || '').split(',')[0],
                 price: product?.price || 0,
                 quantity: 1,
                 category: product?.category || ''
-            }],
+            }] : []),
             _raw: order
         };
     },

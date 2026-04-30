@@ -240,9 +240,53 @@ const ProductManager = {
         return this.products.find(p => p.id === id);
     },
 
-    _isUuid(value) {
+    /**
+     * Fetches a single product by ID from the network if not in cache.
+     * @param {string} id - The product ID
+     * @returns {Promise<Object|null>} The product object or null
+     */
+    async fetchProductById(id) {
+        if (!id) return null;
+        
+        // 1. Check local cache
+        const cached = this.getProduct(id);
+        if (cached) return cached;
+
+        // 2. Fetch from network
+        try {
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                // We use fetchWithFilters which handles the client call
+                const results = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                    eq: { id: id }
+                });
+                
+                if (results && results.length > 0) {
+                    const mapped = this._mapProduct(results[0]);
+                    // Add to cache to avoid refetching
+                    this.products.push(mapped);
+                    return mapped;
+                }
+            } else if (window.ApiClient) {
+                const result = await window.ApiClient.get(`/products/${id}`);
+                if (result && result.data) {
+                    const mapped = this._mapProduct(result.data);
+                    this.products.push(mapped);
+                    return mapped;
+                }
+            }
+        } catch (e) {
+            console.error('[ProductManager] Error fetching product:', id, e);
+        }
+        return null;
+    },
+
+    _isValidProductId(value) {
         return typeof value === 'string'
-            && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+            && (
+                /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value) ||
+                /^prod-[a-z0-9-]+$/i.test(value)
+            );
     },
 
     /**
@@ -251,7 +295,7 @@ const ProductManager = {
     async recordView(id) {
         if (!id) return;
         if (!window.ApiClient) return;
-        if (!this._isUuid(id)) return;
+        if (!this._isValidProductId(id)) return;
 
         // Dedupe per tab session to avoid spamming analytics when UI re-renders
         if (this._viewedThisSession.has(id)) return;

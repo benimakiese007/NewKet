@@ -1,10 +1,11 @@
 import express from 'express';
 import * as reviewController from '../controllers/review.controller.js';
+import { requireAuth } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-// Routes admin pour les avis
+// Routes pour les avis
 router.get('/', reviewController.getReviews);
-router.delete('/:id', reviewController.deleteReview);
+router.delete('/:id', requireAuth, reviewController.deleteReview);
 
 export default router;

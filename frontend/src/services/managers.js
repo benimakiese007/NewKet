@@ -344,18 +344,20 @@ const ReviewManager = {
     },
     getReviews() { return this.reviews; },
     async deleteReview(id) {
-        if (!window.ApiClient) return false;
+        if (!window.ApiClient) return { success: false, error: 'Client API non disponible' };
         try {
             const result = await window.ApiClient.delete(`/reviews/${id}`);
             if (result && result.success) {
                 this.reviews = this.reviews.filter(r => r.id !== id);
                 window.dispatchEvent(new CustomEvent('reviewsUpdated'));
-                return true;
+                return result;
             }
+            return { success: false, error: 'La suppression a échoué' };
         } catch (e) {
             console.error('[ReviewManager] Delete error:', e);
+            const errorMsg = e.data?.error || e.message || 'Erreur lors de la suppression';
+            return { success: false, error: errorMsg };
         }
-        return false;
     }
 };
 

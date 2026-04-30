@@ -1,4 +1,4 @@
-﻿/* NewKet EMarket Component Loader */
+/* NewKet EMarket Component Loader */
 
 /**
  * Header HTML inlined to avoid CORS issues with file:// protocol.
@@ -58,8 +58,8 @@ const HEADER_HTML = `
                     <div id="mobileSearchCategoryNativeShell" class="mobile-search-category-shell">
                         <select id="mobileSearchCategorySelect" class="mobile-search-category-native" aria-label="Choisir une catégorie">
                             <option value="all">Tout</option>
-                            <option value="Collections Femme">Femme</option>
-                            <option value="Style Homme">Homme</option>
+                            <option value="Femme">Femme</option>
+                            <option value="Homme">Homme</option>
                             <option value="Tech & Gadgets">Tech</option>
                             <option value="Art de vivre">Maison</option>
                         </select>
@@ -72,8 +72,8 @@ const HEADER_HTML = `
                         <div id="searchCategoryMenu" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 z-[100] overflow-hidden">
                             <div class="py-2">
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="all">Tout</button>
-                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Collections Femme">Femme</button>
-                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Style Homme">Homme</button>
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Femme">Femme</button>
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Homme">Homme</button>
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Tech & Gadgets">Tech</button>
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Art de vivre">Maison</button>
                             </div>
@@ -161,10 +161,10 @@ const HEADER_HTML = `
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Boutiques</a>
                     <a href="{{ROOT}}src/pages/forum.html"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Forum</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Collections Femme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Collections Femme</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Style Homme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Style Homme</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Femme</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Homme</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Tech & Gadgets</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
@@ -229,7 +229,23 @@ const HEADER_HTML = `
                 </a>
                 <a href="{{ROOT}}src/pages/forum.html"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
-                    <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum Communauté
+                    <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum
+                </a>
+                <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    <iconify-icon icon="solar:woman-linear" width="20"></iconify-icon> Femme
+                </a>
+                <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    <iconify-icon icon="solar:user-rounded-linear" width="20"></iconify-icon> Homme
+                </a>
+                <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    <iconify-icon icon="solar:laptop-minimalistic-linear" width="20"></iconify-icon> Tech & Gadgets
+                </a>
+                <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    <iconify-icon icon="solar:sofa-linear" width="20"></iconify-icon> Art de vivre
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?promo=true"
                     class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-red-600 font-bold">

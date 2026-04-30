@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet UI Handler — V2
  * Manages specialized rendering for Home page and common UI states.
  */
@@ -129,7 +129,12 @@ const UI = {
 
         const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
         if (currentFilter !== 'all') {
-            filtered = filtered.filter(p => p.category === currentFilter);
+            filtered = filtered.filter(p => {
+                if (currentFilter === 'Femme') return p.category === 'Femme' || p.category === 'Collections Femme';
+                if (currentFilter === 'Homme') return p.category === 'Homme' || p.category === 'Style Homme';
+                if (currentFilter === 'Promos') return p.isPromo === true;
+                return p.category === currentFilter;
+            });
         }
 
         const displayList = append 

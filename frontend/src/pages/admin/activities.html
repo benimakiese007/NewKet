@@ -97,8 +97,8 @@
 
             emptyState.classList.add('hidden');
             tbody.innerHTML = activities.map((act, i) => {
-                const date = act.created_at ? new Date(act.created_at) : new Date();
-                const timeStr = ActivityManager.formatTime(act.created_at || new Date().toISOString());
+                const date = act.time ? new Date(act.time) : new Date();
+                const timeStr = ActivityManager.formatTime(act.time || new Date().toISOString());
                 const fullDate = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                 
                 let iconStr = 'solar:info-circle-bold-duotone';
@@ -160,7 +160,7 @@
 
             const headers = ['Date/Heure', 'Type', 'Description'];
             const rows = activities.map(act => [
-                act.created_at || '',
+                act.time || '',
                 act.type || 'Système',
                 (act.text || '').replace(/,/g, ' ') // protect CSV
             ]);

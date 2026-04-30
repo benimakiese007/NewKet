@@ -15,20 +15,9 @@ import rateLimit from 'express-rate-limit';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ─── Sécurité et Performance ───────────────────────────────
-app.use(helmet()); // Sécurise les headers HTTP
-app.use(compression()); // Réduit la taille des réponses
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limite chaque IP à 200 requêtes par fenêtre de 15 minutes
-  message: { error: 'Trop de requêtes, veuillez réessayer plus tard.' },
-  standardHeaders: true, // Retourne le rate limit info dans les `RateLimit-*` headers
-  legacyHeaders: false, // Désactive les `X-RateLimit-*` headers
-});
-app.use('/api', limiter); // Applique le rate limiting sur toutes les API
-
 // ─── Middlewares Globaux ───────────────────────────────────
+
+// 1. CORS en PREMIER pour intercepter les preflight (OPTIONS)
 const ALLOWED_ORIGINS = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -39,17 +28,46 @@ const ALLOWED_ORIGINS = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
-    if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
-    // Allow local network IPs dynamically for mobile testing
+    // Autorise tout en développement local pour éviter les blocages CORS
+    if (!origin || process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // IPs locales (mobile testing)
     if (origin.startsWith('http://192.168.') || origin.startsWith('http://10.') || origin.startsWith('http://172.')) {
       return callback(null, true);
     }
+
     callback(new Error(`CORS: origin '${origin}' not allowed`));
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Range'],
+  exposedHeaders: ['Content-Range', 'X-Total-Count'],
+  maxAge: 86400 // Cache le preflight pendant 24h
 }));
+
+// 2. Sécurité et Performance
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Autorise le chargement de ressources cross-domain
+  contentSecurityPolicy: false // Désactivé en dev car trop restrictif pour scripts/styles inline
+}));
+app.use(compression()); // Réduit la taille des réponses
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200, // Limite chaque IP à 200 requêtes par fenêtre de 15 minutes
+  message: { error: 'Trop de requêtes, veuillez réessayer plus tard.' },
+  standardHeaders: true, // Retourne le rate limit info dans les `RateLimit-*` headers
+  legacyHeaders: false, // Désactive les `X-RateLimit-*` headers
+  skip: (req) => process.env.NODE_ENV === 'development', // Ne pas limiter en développement
+});
+app.use('/api', limiter); // Applique le rate limiting sur toutes les API
+
 // Capture raw body (needed for payment webhooks signature verification).
 app.use(express.json({
   limit: '8mb',

@@ -135,11 +135,11 @@
                         <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Categories</h3>
                         <div class="space-y-4" id="categoryFilters">
                             <label class="flex items-center gap-3 group cursor-pointer">
-                                <input id="catFemme" name="catFemme" type="checkbox" value="Collections Femme" class="filter-checkbox category-filter">
+                                <input id="catFemme" name="catFemme" type="checkbox" value="Femme" class="filter-checkbox category-filter">
                                 <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Femme</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
-                                <input id="catHomme" name="catHomme" type="checkbox" value="Style Homme" class="filter-checkbox category-filter">
+                                <input id="catHomme" name="catHomme" type="checkbox" value="Homme" class="filter-checkbox category-filter">
                                 <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Homme</span>
                             </label>
                             <label class="flex items-center gap-3 group cursor-pointer">
@@ -286,7 +286,14 @@
 
             // Apply Categories
             if (activeCategories.length > 0) {
-                products = products.filter(p => activeCategories.includes(p.category));
+                products = products.filter(p => {
+                    const expanded = activeCategories.flatMap(cat => {
+                        if (cat === 'Femme') return ['Femme', 'Collections Femme'];
+                        if (cat === 'Homme') return ['Homme', 'Style Homme'];
+                        return [cat];
+                    });
+                    return expanded.includes(p.category);
+                });
             }
 
             // Sort

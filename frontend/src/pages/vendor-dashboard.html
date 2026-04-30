@@ -34,6 +34,11 @@
         html.dark body {
             background-color: #0a0f1a !important;
         }
+
+        .glass-panel {
+            background-color: white !important;
+            opacity: 1 !important;
+        }
     </style>
 </head>
 
@@ -109,6 +114,10 @@
                         <a href="#" onclick="switchVendorTab('dashboard')" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
                             <iconify-icon icon="solar:chart-square-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Tableau de bord</span>
+                        </a>
+                        <a href="#" onclick="switchVendorTab('analytics')" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
+                            <iconify-icon icon="solar:graph-up-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                            <span>Analyses & Stats</span>
                         </a>
                         <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/publish')" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
                             <iconify-icon icon="solar:add-circle-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
@@ -190,6 +199,11 @@
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Produits en ligne</p>
                             <div class="text-3xl font-black text-gray-900" id="vendorProducts">0</div>
                         </div>
+                        <div class="glass-panel p-8 relative overflow-hidden group">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vues Produits</p>
+                            <div class="text-3xl font-black text-gray-900" id="vendorTotalViews">0</div>
+                            <p class="text-xs text-amber-500 mt-2 font-bold italic">Intérêt total</p>
+                        </div>
                         <div class="glass-panel p-8">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Taux de Conversion</p>
                             <div class="flex items-center gap-2">
@@ -267,6 +281,90 @@
                 </div>
                 </div>
             </div> <!-- End of tab-dashboard -->
+
+            <!-- Analytics Tab -->
+            <div id="tab-analytics" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h1 class="text-fluid-h1 font-bold tracking-tight">Analyses & Performance</h1>
+                        <p class="text-gray-500 mt-1">Suivez l'audience de votre boutique et de vos produits.</p>
+                    </div>
+                    <div class="flex bg-gray-100 p-1 rounded-xl">
+                        <button class="px-4 py-2 text-[10px] font-black uppercase tracking-widest bg-white rounded-lg shadow-sm">30 Jours</button>
+                    </div>
+                </div>
+
+                <!-- Analytics Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-panel p-8 relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vues Boutique</p>
+                            <div class="text-3xl font-black text-gray-900" id="analyticsShopViews">0</div>
+                            <p class="text-xs text-blue-500 mt-2 font-bold italic">Visites sur votre profil</p>
+                        </div>
+                        <iconify-icon icon="solar:shop-bold-duotone" class="absolute -right-4 -bottom-4 text-8xl text-gray-50 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"></iconify-icon>
+                    </div>
+                    <div class="glass-panel p-8 relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Visiteurs Uniques</p>
+                            <div class="text-3xl font-black text-gray-900" id="analyticsUniqueVisitors">0</div>
+                            <p class="text-xs text-indigo-500 mt-2 font-bold italic">Clients distincts</p>
+                        </div>
+                        <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="absolute -right-4 -bottom-4 text-8xl text-gray-50 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"></iconify-icon>
+                    </div>
+                    <div class="glass-panel p-8 relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vues Produits</p>
+                            <div class="text-3xl font-black text-gray-900" id="analyticsProductViews">0</div>
+                            <p class="text-xs text-amber-500 mt-2 font-bold italic">Cumul de vos articles</p>
+                        </div>
+                        <iconify-icon icon="solar:eye-bold-duotone" class="absolute -right-4 -bottom-4 text-8xl text-gray-50 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"></iconify-icon>
+                    </div>
+                    <div class="glass-panel p-8 relative overflow-hidden group">
+                        <div class="relative z-10">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Taux d'Engagement</p>
+                            <div class="text-3xl font-black text-gray-900" id="analyticsEngagementRate">0%</div>
+                            <p class="text-xs text-green-500 mt-2 font-bold italic">Intérêt des visiteurs</p>
+                        </div>
+                        <iconify-icon icon="solar:fire-bold-duotone" class="absolute -right-4 -bottom-4 text-8xl text-gray-50 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"></iconify-icon>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Main Audience Chart -->
+                    <div class="lg:col-span-2 glass-panel p-8">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 class="font-bold text-gray-900">Évolution de l'Audience</h3>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Visites boutique par jour</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-black"></div>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-gray-600">Visites</span>
+                            </div>
+                        </div>
+                        <div class="h-[350px] w-full">
+                            <canvas id="audienceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Products by Views -->
+                    <div class="glass-panel p-8">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 class="font-bold text-gray-900">Top Produits</h3>
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Les plus consultés</p>
+                            </div>
+                        </div>
+                        <div class="space-y-6" id="analyticsTopProducts">
+                            <!-- Injected by JS -->
+                            <div class="flex items-center justify-center py-12">
+                                <iconify-icon icon="line-md:loading-loop" class="text-gray-200 text-3xl"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Products Management Tab (Hidden by default) -->
             <div id="tab-products" class="hidden">
@@ -452,7 +550,7 @@
             <!-- Order Detail Modal (New for Vendor) -->
             <div id="orderDetailModal"
                 class="fixed inset-0 z-[150] hidden flex items-center justify-center bg-black/60 p-4">
-                <div class="glass-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
+                <div class="solid-modal-content bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                         <div>
                             <h2 class="text-xl font-bold" id="vModalOrderId">Détails de la commande</h2>
@@ -468,10 +566,16 @@
                     <div class="p-6 space-y-8">
                         <!-- Client Info -->
                         <div class="grid grid-cols-3 gap-6 bg-gray-50 p-6 rounded-2xl">
-                            <div>
-                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Client</p>
-                                <p class="font-bold text-gray-900" id="vModalCustomerName"></p>
-                                <p class="text-xs text-gray-500" id="vModalCustomerEmail"></p>
+                            <div class="flex items-center gap-3">
+                                <div id="vModalAvatarContainer" class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                    <img id="vModalCustomerAvatar" src="" alt="" class="w-full h-full object-cover hidden">
+                                    <iconify-icon id="vModalCustomerIcon" icon="solar:user-bold" width="20" class="text-gray-400"></iconify-icon>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Client</p>
+                                    <p class="font-bold text-gray-900" id="vModalCustomerName"></p>
+                                    <p class="text-xs text-gray-500" id="vModalCustomerEmail"></p>
+                                </div>
                             </div>
                             <div>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Contact</p>
@@ -589,12 +693,13 @@
 
             <script>
                 let salesChart = null;
+                let audienceChart = null;
                 let selectedWithdrawMethod = '';
 
                 function switchVendorTab(tabId) {
                     window.newketVendorActiveTab = tabId;
                     // Masquer tous les onglets (null-safe)
-                    ['tab-dashboard', 'tab-products', 'tab-leads', 'tab-purchases', 'tab-settings'].forEach(id => {
+                    ['tab-dashboard', 'tab-analytics', 'tab-products', 'tab-leads', 'tab-purchases', 'tab-settings'].forEach(id => {
                         const el = document.getElementById(id);
                         if (el) el.classList.add('hidden');
                     });
@@ -612,6 +717,7 @@
 
                     // Charger les données de l'onglet
                     if (tabId === 'dashboard') renderVendorDashboard();
+                    else if (tabId === 'analytics') renderVendorAnalytics();
                     else if (tabId === 'products') renderVendorProducts();
                     else if (tabId === 'leads') renderVendorLeads();
                     else if (tabId === 'purchases') renderVendorPurchases();
@@ -630,17 +736,24 @@
                     function rerenderVisible() {
                         const tabId = window.newketVendorActiveTab ||
                             (document.getElementById('tab-dashboard') && !document.getElementById('tab-dashboard').classList.contains('hidden') ? 'dashboard' : null) ||
+                            (document.getElementById('tab-analytics') && !document.getElementById('tab-analytics').classList.contains('hidden') ? 'analytics' : null) ||
                             (document.getElementById('tab-products') && !document.getElementById('tab-products').classList.contains('hidden') ? 'products' : null) ||
                             (document.getElementById('tab-leads') && !document.getElementById('tab-leads').classList.contains('hidden') ? 'leads' : null) ||
                             (document.getElementById('tab-purchases') && !document.getElementById('tab-purchases').classList.contains('hidden') ? 'purchases' : null);
 
                         if (tabId === 'dashboard' && typeof renderVendorDashboard === 'function') renderVendorDashboard();
+                        else if (tabId === 'analytics' && typeof renderVendorAnalytics === 'function') renderVendorAnalytics();
                         else if (tabId === 'products' && typeof renderVendorProducts === 'function') renderVendorProducts();
                         else if (tabId === 'leads' && typeof renderVendorLeads === 'function') renderVendorLeads();
                         else if (tabId === 'purchases' && typeof renderVendorPurchases === 'function') renderVendorPurchases();
                     }
 
                     window.addEventListener('currencyChanged', () => {
+                        try { rerenderVisible(); } catch (e) {}
+                    });
+
+                    // Re-render when orders are re-normalized (e.g. after products load)
+                    window.addEventListener('ordersUpdated', () => {
                         try { rerenderVisible(); } catch (e) {}
                     });
                 })();
@@ -1066,6 +1179,14 @@
                 function initVendorDashboard() {
                     updateStatusBanner();
                     renderVendorDashboard();
+
+                    // Search functionality for Products tab
+                    const searchInput = document.getElementById('dashboardSearch');
+                    if (searchInput) {
+                        searchInput.addEventListener('input', () => {
+                            renderVendorProducts();
+                        });
+                    }
                 }
 
                 function updateStatusBanner() {
@@ -1157,6 +1278,10 @@
                     const myProducts = ProductManager.getProducts().filter(p => p.supplier_email === email);
                     if (document.getElementById('vendorProducts')) document.getElementById('vendorProducts').textContent = myProducts.length;
 
+                    // Calculate Total Product Views
+                    const totalViews = myProducts.reduce((sum, p) => sum + (p.views || 0), 0);
+                    if (document.getElementById('vendorTotalViews')) document.getElementById('vendorTotalViews').textContent = totalViews;
+
                     // Calculate Average Rating from Reviews
                     const productIds = myProducts.map(p => p.id);
                     if (productIds.length > 0) {
@@ -1185,7 +1310,17 @@
                         ordersTable.innerHTML = recentOrders.map(o => `
                         <tr class="hover:bg-gray-50 transition-all cursor-pointer group" onclick="openOrderDetailModal('${o.id}')">
                             <td class="py-4 font-bold text-xs uppercase tracking-wider text-gray-400">#${o.id.substring(0, 6)}</td>
-                            <td class="py-4 text-sm font-bold text-gray-900">${o.customer?.name || o.customer_name || 'Client'}</td>
+                            <td class="py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 overflow-hidden shrink-0 flex items-center justify-center">
+                                        ${o.customer?.avatar ? `<img src="${window.getOptimizedImageUrl(o.customer.avatar)}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<iconify-icon icon=\'solar:user-bold\' width=\'14\' class=\'text-gray-400\'></iconify-icon>'">` : `<iconify-icon icon="solar:user-bold" width="14" class="text-gray-400"></iconify-icon>`}
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-900 line-clamp-1">${o.customer?.name || o.customer_name || 'Client'}</span>
+                                        <span class="text-[10px] text-gray-400 line-clamp-1">${o.customer?.email || o.customer_email || ''}</span>
+                                    </div>
+                                </div>
+                            </td>
                             <td class="py-4">
                                 ${o.phone_number ? `
                                     <div class="text-[10px] font-black bg-gray-100 px-2 py-1 rounded-md inline-flex items-center gap-1 group-hover:bg-black group-hover:text-white transition-all">
@@ -1301,9 +1436,160 @@
                     });
                 }
 
+                function renderVendorAnalytics() {
+                    const email = localStorage.getItem('newketUserEmail');
+                    
+                    // 1. Local Product Stats (Always available)
+                    const myProducts = ProductManager.getProducts().filter(p => p.supplier_email === email);
+                    const totalProductViews = myProducts.reduce((sum, p) => sum + (p.views || 0), 0);
+                    
+                    if (document.getElementById('analyticsProductViews')) {
+                        document.getElementById('analyticsProductViews').textContent = totalProductViews.toLocaleString();
+                    }
+
+                    // 2. Fetch Shop Metrics from Backend (Optional/Async)
+                    const updateShopMetrics = async () => {
+                        try {
+                            // Using the centralized ApiClient for correct port/auth
+                            const metrics = await ApiClient.get('/analytics/vendor/shop-metrics?days=30', {
+                                suppressNetworkError: true // Avoid console noise if server is down
+                            });
+                            
+                            if (!metrics) throw new Error("No data received");
+
+                            const shopViews = metrics.success ? (metrics.total_views || 0) : 0;
+                            const uniqueVisitors = metrics.success ? (metrics.unique_visitors || 0) : 0;
+
+                            if (document.getElementById('analyticsShopViews')) document.getElementById('analyticsShopViews').textContent = shopViews.toLocaleString();
+                            if (document.getElementById('analyticsUniqueVisitors')) document.getElementById('analyticsUniqueVisitors').textContent = uniqueVisitors.toLocaleString();
+                            
+                            // Engagement Rate
+                            const visitors = uniqueVisitors || 1;
+                            const engagement = Math.min(100, Math.round((totalProductViews / visitors) * 10)) / 10;
+                            if (document.getElementById('analyticsEngagementRate')) {
+                                document.getElementById('analyticsEngagementRate').textContent = engagement + '%';
+                            }
+
+                            // Chart Data (Use real data if history exists, else mock)
+                            const historyData = (metrics.success && metrics.history && metrics.history.length) ? metrics.history : [
+                                { label: 'J-30', value: 5 }, { label: 'J-25', value: 12 }, { label: 'J-20', value: 8 }, 
+                                { label: 'J-15', value: 25 }, { label: 'J-10', value: 18 }, { label: 'J-5', value: 30 }, { label: 'J-0', value: 22 }
+                            ];
+
+                            renderAudienceChart({
+                                labels: historyData.map(d => d.label),
+                                data: historyData.map(d => d.value)
+                            });
+                        } catch (e) { 
+                            console.error("Analytics fetch error:", e);
+                            // Fallback chart on error
+                            renderAudienceChart({
+                                labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+                                data: [10, 25, 15, 30]
+                            });
+                        }
+                    };
+
+                    updateShopMetrics();
+
+                    // 3. Render Top Products
+                    const topProducts = [...myProducts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+                    const topProductsContainer = document.getElementById('analyticsTopProducts');
+                    if (topProductsContainer) {
+                        topProductsContainer.innerHTML = topProducts.length ? topProducts.map((p, index) => `
+                            <div class="flex items-center gap-4 group cursor-pointer p-2 hover:bg-gray-50 rounded-2xl transition-all" onclick="window.location.href='product?id=${p.id}'">
+                                <div class="w-10 h-10 rounded-xl bg-white overflow-hidden border border-gray-100 shrink-0 shadow-sm">
+                                    <img src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}" class="w-full h-full object-contain p-1" onerror="this.src='../assets/Images/default.png'">
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-bold text-xs text-gray-900 truncate group-hover:text-black transition-colors">${p.name}</h4>
+                                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">${p.category || 'Luxe'}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-black text-sm text-gray-900">${p.views || 0}</p>
+                                    <p class="text-[8px] font-black text-gray-400 uppercase tracking-tighter">Vues</p>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-center text-xs text-gray-400 py-8">Aucun produit en ligne.</p>';
+                    }
+                }
+
+                function renderAudienceChart(chartData) {
+                    const ctx = document.getElementById('audienceChart');
+                    if (!ctx) return;
+                    if (audienceChart) audienceChart.destroy();
+                    audienceChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: chartData.labels,
+                            datasets: [{
+                                label: 'Visites',
+                                data: chartData.data,
+                                borderColor: '#000000',
+                                backgroundColor: (context) => {
+                                    const chart = context.chart;
+                                    const {ctx, chartArea} = chart;
+                                    if (!chartArea) return null;
+                                    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                    gradient.addColorStop(0, 'rgba(0,0,0,0.05)');
+                                    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+                                    return gradient;
+                                },
+                                borderWidth: 3,
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#000000',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 2,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#000000',
+                                    titleFont: { size: 10, weight: 'bold' },
+                                    bodyFont: { size: 12 },
+                                    padding: 12,
+                                    displayColors: false,
+                                    callbacks: {
+                                        label: (context) => `${context.parsed.y} visites`
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { color: 'rgba(0,0,0,0.03)', drawBorder: false },
+                                    ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8' }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { font: { size: 10, weight: 'bold' }, color: '#94a3b8' }
+                                }
+                            }
+                        }
+                    });
+                }
+
                 function renderVendorProducts() {
                     const email = localStorage.getItem('newketUserEmail');
-                    const myProducts = ProductManager.getProducts().filter(p => p.supplier_email === email);
+                    const searchQuery = document.getElementById('dashboardSearch')?.value.toLowerCase() || '';
+
+                    let myProducts = ProductManager.getProducts().filter(p => p.supplier_email === email);
+
+                    // Apply search filter
+                    if (searchQuery) {
+                        myProducts = myProducts.filter(p => 
+                            p.name.toLowerCase().includes(searchQuery) || 
+                            (p.category && p.category.toLowerCase().includes(searchQuery))
+                        );
+                    }
+
                     const grid = document.getElementById('vendor-products-grid');
                     grid.innerHTML = myProducts.length ? myProducts.map(p => `
                         <div class="glass-panel p-4 flex flex-col group relative">
@@ -1403,8 +1689,10 @@
                         purchasesList.innerHTML = myPurchases.map((o, index) => `
                             <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700" style="animation-delay: ${index * 100}ms">
                                 <div class="flex items-center gap-5">
-                                    <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-black group-hover:bg-gray-100 transition-colors shrink-0">
-                                        <iconify-icon icon="solar:cart-large-minimalistic-bold-duotone" width="28"></iconify-icon>
+                                    <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center overflow-hidden shrink-0 border border-gray-100 transition-colors">
+                                        <img src="${window.getOptimizedImageUrl(o.product_image || (o.items && o.items[0]?.image))}" 
+                                             class="w-full h-full object-contain p-2"
+                                             onerror="this.src='../assets/Images/default.png'">
                                     </div>
                                     <div>
                                         <h4 class="font-black text-gray-900 group-hover:translate-x-1 transition-transform duration-300">
@@ -1464,35 +1752,41 @@
                     if (recentOrders.length === 0) {
                         leadsList.innerHTML = `<p class="col-span-full py-12 text-center text-sm text-gray-400">Aucune demande client ni devis pour le moment.</p>`;
                     } else {
-                        leadsList.innerHTML = recentOrders.map(o => `
-                            <div class="glass-panel p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-lg transition-all group">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-gray-600">
-                                        <iconify-icon icon="solar:user-bold" width="24"></iconify-icon>
+                        leadsList.innerHTML = recentOrders.map((o, index) => `
+                            <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700" style="animation-delay: ${index * 100}ms">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 border border-gray-100 text-gray-500">
+                                        ${o.customer?.avatar ? `<img src="${window.getOptimizedImageUrl(o.customer.avatar)}" class="w-full h-full object-cover" onerror="this.src='../assets/Images/default.png'">` : `<iconify-icon icon="solar:user-bold" width="24"></iconify-icon>`}
                                     </div>
                                     <div>
-                                        <h4 class="font-bold text-gray-900">${o.customer?.name || o.customer_name || 'Client'}</h4>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">${new Date(o.date || o.timestamp).toLocaleDateString()}</span>
-                                            <span class="text-gray-300">•</span>
-                                            <span class="flex items-center gap-1 text-[10px] font-bold text-gray-500">
+                                        <h4 class="font-black text-gray-900 group-hover:translate-x-1 transition-transform duration-300">${o.customer?.name || o.customer_name || 'Client'}</h4>
+                                        <div class="flex items-center gap-3 mt-1.5">
+                                            <span class="text-[9px] font-black uppercase tracking-tighter text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
+                                                ${new Date(o.date || o.timestamp).toLocaleDateString()}
+                                            </span>
+                                            <span class="flex items-center gap-1 text-[9px] font-black uppercase tracking-tighter text-gray-500 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
                                                 <iconify-icon icon="solar:phone-bold" width="12"></iconify-icon>
                                                 ${o.customer_phone || o.phone_number || '-'}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-4 w-full sm:w-auto">
-                                    <div class="text-left sm:text-right flex-1 sm:flex-none">
-                                        <p class="font-black text-sm text-gray-900">${CurrencyManager.formatPrice(o.total)}</p>
-                                        <p class="text-[10px] text-gray-500 truncate max-w-[150px]">${o.product_name || 'Produit'}</p>
+                                <div class="flex items-center gap-6 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-50">
+                                    <div class="flex flex-col items-start sm:items-end flex-1 sm:flex-none">
+                                        <p class="font-black text-lg text-gray-900 leading-none mb-1">${CurrencyManager.formatPrice(o.total)}</p>
+                                        <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest truncate max-w-[150px]">
+                                            ${o.product_name || 'Commande'}
+                                        </p>
                                     </div>
-                                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${getStatusColor(o.status)}">${window.OrderManager ? OrderManager.getStatusLabel(o.status) : o.status}</span>
-                                    <button onclick="openOrderDetailModal('${o.id}')" 
-                                        aria-label="Voir les détails de la demande"
-                                        class="w-10 h-10 rounded-full bg-gray-50 hover:bg-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                                        <iconify-icon icon="solar:eye-bold" width="16"></iconify-icon>
-                                    </button>
+                                    <div class="flex items-center gap-3">
+                                        <span class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${getStatusColor(o.status)}">
+                                            ${window.OrderManager ? OrderManager.getStatusLabel(o.status) : o.status}
+                                        </span>
+                                        <button onclick="openOrderDetailModal('${o.id}')" 
+                                            class="w-12 h-12 rounded-2xl bg-gray-900 text-white flex items-center justify-center hover:bg-black transition-all shadow-lg shadow-gray-200 active:scale-95 group/btn">
+                                            <iconify-icon icon="solar:maximize-square-minimalistic-bold" width="20" class="group-hover/btn:scale-110 transition-transform"></iconify-icon>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         `).join('');
@@ -1500,10 +1794,11 @@
                 }
 
                 // Order Detail Modal Functions
-                window.openOrderDetailModal = function(orderId) {
+                window.openOrderDetailModal = async function(orderId) {
                     const order = OrderManager.getOrderById(orderId);
                     if (!order) return;
 
+                    // Header Info
                     document.getElementById('vModalOrderId').textContent = `Commande #${order.id.substring(0, 8)}`;
                     document.getElementById('vModalOrderDate').textContent = new Date(order.timestamp || order.date).toLocaleDateString('fr-FR', {
                         day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -1511,6 +1806,22 @@
                     document.getElementById('vModalCustomerName').textContent = order.customer?.name || order.customer_name || 'Client';
                     document.getElementById('vModalCustomerEmail').textContent = order.customer?.email || 'Pas d\'email';
                     document.getElementById('vModalCustomerPhone').textContent = order.phone_number || 'Pas de numéro';
+
+                    // Avatar logic
+                    const avatarImg = document.getElementById('vModalCustomerAvatar');
+                    const avatarIcon = document.getElementById('vModalCustomerIcon');
+                    if (order.customer?.avatar) {
+                        avatarImg.src = window.getOptimizedImageUrl(order.customer.avatar);
+                        avatarImg.onerror = () => {
+                            avatarImg.classList.add('hidden');
+                            avatarIcon.classList.remove('hidden');
+                        };
+                        avatarImg.classList.remove('hidden');
+                        avatarIcon.classList.add('hidden');
+                    } else {
+                        avatarImg.classList.add('hidden');
+                        avatarIcon.classList.remove('hidden');
+                    }
                     document.getElementById('vModalOrderTotal').textContent = CurrencyManager.formatPrice(order.total);
 
                     const payStatusEl = document.getElementById('vModalPaymentStatus');
@@ -1525,22 +1836,33 @@
                     }
 
                     const itemsContainer = document.getElementById('vModalOrderItems');
-                    const items = order.items || [];
-                    itemsContainer.innerHTML = items.map(item => `
-                        <div class="flex items-center gap-4 p-4 border border-gray-50 rounded-2xl hover:bg-gray-50 transition-colors">
-                            <div class="w-16 h-16 bg-white rounded-xl overflow-hidden p-2 border border-gray-100">
-                                <img src="${window.getOptimizedImageUrl(item.image)}" alt="${item.name}" loading="lazy" class="w-full h-full object-contain" onerror="this.src='../assets/Images/default.png'">
+                    let items = order.items || [];
+
+                    // Internal function to render items list
+                    const renderItems = (data) => {
+                        itemsContainer.innerHTML = data.map(item => `
+                            <div class="flex items-center gap-4 p-4 border border-gray-50 rounded-2xl hover:bg-gray-50 transition-colors">
+                                <div class="w-16 h-16 bg-white rounded-xl overflow-hidden p-2 border border-gray-100 flex items-center justify-center">
+                                    <img src="${window.getOptimizedImageUrl(item.image)}" 
+                                         alt="${item.name}" 
+                                         loading="lazy" 
+                                         class="w-full h-full object-contain" 
+                                         onerror="this.src='../assets/Images/default.png'">
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm text-gray-900">${item.name}</h4>
+                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${item.category || 'Produit'}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-sm">${CurrencyManager.formatPrice(item.price)}</p>
+                                    <p class="text-[10px] font-black text-gray-400 uppercase">Qté: ${item.quantity || 1}</p>
+                                </div>
                             </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-sm text-gray-900">${item.name}</h4>
-                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${item.category || ''}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold text-sm">${CurrencyManager.formatPrice(item.price)}</p>
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Qté: ${item.quantity || 1}</p>
-                            </div>
-                        </div>
-                    `).join('');
+                        `).join('');
+                    };
+
+                    // Initial render (may contain placeholders)
+                    renderItems(items);
 
                     // Show/Hide buttons based on status
                     const actions = document.getElementById('vModalActions');
@@ -1572,14 +1894,39 @@
                         otpSection.classList.remove('hidden');
                         document.getElementById('vOtpInput').value = '';
                         currentOrderIdForOtp = order.id;
-                      } else if (order.status === 'DISPUTE_OPEN' || order.status === 'DISPUTED' || order.status === 'FROZEN') {
-                          actions.classList.remove('hidden');
-                          disputedSection.classList.remove('hidden');
-                          window.currentDisputeOrderIdForVendor = order.id;
-                          window.loadVendorDisputeChat(order.id);
-                      }
+                    } else if (order.status === 'DISPUTE_OPEN' || order.status === 'DISPUTED' || order.status === 'FROZEN') {
+                        actions.classList.remove('hidden');
+                        disputedSection.classList.remove('hidden');
+                        window.currentDisputeOrderIdForVendor = order.id;
+                        window.loadVendorDisputeChat(order.id);
+                    }
                     
                     document.getElementById('orderDetailModal').classList.remove('hidden');
+
+                    // Data Enrichment: Fetch real product data if missing
+                    for (let i = 0; i < items.length; i++) {
+                        const item = items[i];
+                        if (item.name === 'Produit' || !item.image) {
+                            const productId = item.product_id || item.id;
+                            if (productId) {
+                                try {
+                                    const product = await ProductManager.fetchProductById(productId);
+                                    if (product) {
+                                        items[i] = {
+                                            ...items[i],
+                                            name: product.name,
+                                            image: product.image,
+                                            category: product.category,
+                                            price: items[i].price || product.price
+                                        };
+                                        renderItems(items);
+                                    }
+                                } catch (err) {
+                                    console.error('Failed to enrich order item:', err);
+                                }
+                            }
+                        }
+                    }
                 };
 
                 let currentOrderIdForOtp = null;

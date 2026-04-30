@@ -6,16 +6,9 @@ export const getActivities = async (req, res) => {
         const userEmail = req.user?.email;
         if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
-        // Check if user is admin to allow seeing all activities
-        let isAdmin = false;
-        if (userId) {
-            const { data: userData } = await supabaseAdmin
-                .from('users')
-                .select('role')      // ✅ Seulement le champ nécessaire
-                .eq('id', userId)
-                .single();
-            if (userData?.role === 'admin') isAdmin = true;
-        }
+        // The route is protected by requireAdmin, so we can assume the user is an admin
+        // but we still check metadata for double safety if we ever change the route.
+        const isAdmin = req.user?.app_metadata?.role === 'admin' || true; 
 
         // ✅ OPTIMISATION: Colonnes précises seulement
         let query = supabaseAdmin

@@ -9,7 +9,7 @@ export const getReviews = async (req, res) => {
         // ✅ OPTIMISATION: Colonnes précises + pagination + join slim
         const { data, error } = await supabaseAdmin
             .from('product_reviews')
-            .select('id, product_id, user_id, rating, comment, created_at, products(name)')
+            .select('id, product_id, user_id, rating, comment, created_at, user_name, user_avatar, products(name)')
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1);
 
@@ -33,12 +33,31 @@ export const deleteReview = async (req, res) => {
         const { id } = req.params;
         if (!id) return res.status(400).json({ error: 'ID requis.' });
 
-        const { error } = await supabaseAdmin
+        // 1. Récupérer l'avis pour vérifier l'auteur
+        const { data: review, error: fetchError } = await supabaseAdmin
+            .from('product_reviews')
+            .select('user_id')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !review) {
+            return res.status(404).json({ error: 'Avis introuvable.' });
+        }
+
+        // 2. Vérifier les permissions (Auteur ou Admin)
+        const isAuthor = req.user && req.user.id === review.user_id;
+        const isAdmin = req.user && (req.user.app_metadata?.role === 'admin' || req.user.user_metadata?.role === 'admin');
+
+        if (!isAuthor && !isAdmin) {
+            return res.status(403).json({ error: 'Non autorisé à supprimer cet avis.' });
+        }
+
+        const { error: deleteError } = await supabaseAdmin
             .from('product_reviews')
             .delete()
             .eq('id', id);
 
-        if (error) throw error;
+        if (deleteError) throw deleteError;
         res.json({ success: true, message: 'Avis supprimé avec succès.' });
     } catch (err) {
         console.error('Erreur deleteReview:', err);

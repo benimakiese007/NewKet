@@ -76,15 +76,14 @@ const getAdminEmails = async () => {
 
     try {
         const { data, error } = await supabase
-            .from('settings')
-            .select('admin_emails')
-            .eq('id', 'global-settings')
-            .single();
+            .from('users')
+            .select('email')
+            .eq('role', 'admin');
 
         if (error) throw error;
 
         adminEmailCache = {
-            emails: Array.isArray(data?.admin_emails) ? data.admin_emails.map(e => e.toLowerCase()) : [],
+            emails: Array.isArray(data) ? data.map(u => u.email?.toLowerCase()).filter(Boolean) : [],
             lastFetched: now
         };
         return adminEmailCache.emails;

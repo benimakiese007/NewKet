@@ -712,8 +712,18 @@ function buildSkeletonNotificationHTML(count = 4) {
 function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
     if (!url) return '/src/assets/Images/default.png';
     
+    let target = url;
+    // If it's an array, take the first element
+    if (Array.isArray(url)) {
+        target = url[0];
+    }
+    
+    if (typeof target !== 'string') {
+        return '/src/assets/Images/default.png';
+    }
+
     // Handle comma-separated list of images
-    const images = url.split(',');
+    const images = target.split(',');
     const firstImg = (images[0] || '').trim();
     
     if (!firstImg || firstImg === 'Images/default.png') {
@@ -728,6 +738,15 @@ function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
     // Handle relative local paths (Images/...)
     if (firstImg.startsWith('Images/')) {
         return '/src/assets/' + firstImg;
+    }
+
+    // Handle Supabase storage paths (product-images, vendor-covers, user-assets, vendor-docs)
+    const supabaseBuckets = ['product-images', 'vendor-covers', 'user-assets', 'vendor-docs'];
+    const isSupabasePath = supabaseBuckets.some(b => firstImg.startsWith(b + '/'));
+
+    if (isSupabasePath && !firstImg.startsWith('http')) {
+        const baseUrl = window.supabaseClient?.supabaseUrl || 'https://kuygjocnnlvjtoaquicq.supabase.co';
+        return `${baseUrl}/storage/v1/object/public/${firstImg}`;
     }
 
     return firstImg;
