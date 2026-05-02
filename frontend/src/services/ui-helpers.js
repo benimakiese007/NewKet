@@ -1118,7 +1118,7 @@ function showCheckoutModal(productName, productPrice) {
             <div id="${modalId}" class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300" style="z-index:20000;">
                 <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" style="z-index:20000;" onclick="closeCheckoutModal('${modalId}', null)"></div>
                 
-                <div class="relative w-full max-w-md max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-10rem)] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" style="z-index:20001;">
+                <div class="relative w-full max-w-md max-h-[65vh] max-h-[65dvh] sm:max-h-[70vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" style="z-index:20001; max-height: 65dvh !important;">
                     <!-- Header -->
                     <div class="px-5 py-3.5 sm:px-6 sm:py-5 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
                         <div class="pr-4">

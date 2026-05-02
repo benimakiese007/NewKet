@@ -6,5 +6,7 @@
     },
     "css.lint.unknownAtRules": "ignore",
     "workbench.editor.enablePreviewFromQuickOpen": true,
-    "workbench.editor.enablePreviewFromCodeNavigation": true
+    "workbench.editor.enablePreviewFromCodeNavigation": true,
+    "mobile-preview.device": "iPhone 15 Pro Max",
+    "mobile-preview.url": "http://localhost:5173/"
 }
