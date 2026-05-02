@@ -630,6 +630,7 @@ html:not(.dark) #adminSidebar .sidebar-link.active span {
 @media (max-width: 768px) {
     #vendorSidebar,
     #customerSidebar {
+        will-change: transform;
         background-color: #ffffff !important;
         backdrop-filter: none !important;
         height: 100dvh !important;
@@ -643,7 +644,22 @@ html:not(.dark) #adminSidebar .sidebar-link.active span {
         padding: 0 !important;
         margin: 0 !important;
         position: fixed !important;
-        z-index: 150 !important;
+        /* Must stay above its overlay on mobile */
+        z-index: 9999 !important;
+    }
+
+    #vendorSidebarOverlay,
+    #customerSidebarOverlay {
+        /* Must stay behind the drawer; avoid blur for text crispness */
+        z-index: 9998 !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+
+    /* After the drawer finishes animating in, remove transform to avoid iOS text blurriness */
+    #vendorSidebar.drawer-settled,
+    #customerSidebar.drawer-settled {
+        transform: none !important;
     }
 
     #vendorSidebar .glass-panel,

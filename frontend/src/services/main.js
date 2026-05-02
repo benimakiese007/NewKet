@@ -74,7 +74,13 @@ const App = {
         if (window.NotificationManager && isLoggedIn) initPromises.push(NotificationManager.init().catch(e => console.warn('[App] NotificationManager init failed (non-blocking):', e.message)));
         if (window.FavoritesManager && isLoggedIn) initPromises.push(FavoritesManager.syncFromSupabase().catch(e => console.warn('[App] FavoritesManager sync failed (non-blocking):', e.message)));
 
-        await Promise.all(initPromises);
+        const initResults = await Promise.allSettled(initPromises);
+        initResults.forEach((result) => {
+            if (result.status === 'rejected') {
+                const message = result.reason?.message || String(result.reason || 'Unknown error');
+                console.warn('[App] Non-blocking init failure:', message);
+            }
+        });
 
         // 3. Initialize UI State
         if (window.CurrencyManager) {
@@ -186,6 +192,14 @@ const App = {
         const mobileSearch = document.getElementById('mobileSearchContainer');
         const mainHeader = document.querySelector('.main-header');
         const headerLeadRow = mainHeader?.querySelector('.header-content > div:first-child');
+        const isCatalogPage = (() => {
+            try {
+                const path = String(window.location?.pathname || '');
+                return path.endsWith('/catalog.html') || path.includes('/src/pages/catalog.html');
+            } catch (_) {
+                return false;
+            }
+        })();
         const headerScrollState = {
             searchOnSeparateRow: false
         };
@@ -207,8 +221,39 @@ const App = {
             if (!mainHeader) return;
 
             const clampedScrollTop = Math.max(0, scrollTop);
-            const diff = clampedScrollTop - lastScrollTop;
             const shouldElevate = clampedScrollTop > 10;
+
+            // Catalog: keep header/menu stable like Index (no retract/compact hiding).
+            if (isCatalogPage) {
+                mainHeader.classList.toggle('scrolled', shouldElevate);
+                categoryNav?.classList.remove('nav-hidden');
+                mobileSearch?.classList.remove('search-bar-hidden');
+                mainHeader.classList.remove('header-compact', 'header-retracted');
+                accumulatedDelta = 0;
+                lastScrollTop = clampedScrollTop;
+                return;
+            }
+
+            // If an overlay/modal locks the page scroll, avoid retracting/hiding header UI.
+            // Otherwise the category/search rows can remain "swallowed" while the user is in a dialog.
+            if (
+                document.documentElement.classList.contains('overflow-hidden') ||
+                document.body.classList.contains('overflow-hidden') ||
+                document.documentElement.classList.contains('mobile-menu-open') ||
+                document.body.classList.contains('mobile-menu-open') ||
+                document.body.classList.contains('checkout-modal-open') ||
+                document.querySelector('[role="dialog"][aria-modal="true"]:not([aria-hidden="true"])') ||
+                document.querySelector('dialog[open]')
+            ) {
+                categoryNav?.classList.remove('nav-hidden');
+                mobileSearch?.classList.remove('search-bar-hidden');
+                mainHeader.classList.remove('header-compact', 'header-retracted');
+                accumulatedDelta = 0;
+                lastScrollTop = clampedScrollTop;
+                return;
+            }
+
+            const diff = clampedScrollTop - lastScrollTop;
 
             if ((diff > 0 && accumulatedDelta < 0) || (diff < 0 && accumulatedDelta > 0)) {
                 accumulatedDelta = 0;

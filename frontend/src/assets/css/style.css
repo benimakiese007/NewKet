@@ -942,7 +942,8 @@ body.search-focused .main-header {
   overflow: hidden;
   transform-origin: top center;
   transition: max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s ease, visibility 0.24s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-  max-height: 100px;
+  /* Allow 2+ wrapped rows on narrow widths (e.g. when scrollbar disappears on modal open) */
+  max-height: 220px;
   opacity: 1;
   visibility: visible;
   transform: translateY(0) scaleY(1);
@@ -987,6 +988,15 @@ body.search-focused .main-header {
 
 body.search-focused .main-header {
   transform: none !important;
+}
+
+.checkout-modal-open .main-header {
+  transform: none !important;
+}
+
+.checkout-modal-open .category-nav {
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 .header-content {

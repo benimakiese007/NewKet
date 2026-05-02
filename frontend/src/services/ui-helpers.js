@@ -473,15 +473,36 @@ const SidebarManager = {
         const overlay = document.getElementById(this.overlayId);
         if (!sidebar) return;
 
+        // Hard-override stacking for mobile drawers (prevents overlay tinting the drawer on some devices)
+        if (overlay) {
+            overlay.style.zIndex = '9998';
+            overlay.style.webkitBackdropFilter = 'none';
+            overlay.style.backdropFilter = 'none';
+        }
+        sidebar.style.zIndex = '9999';
+
         if (this.state.isMobile) {
             // Mobile Drawer Logic
             if (this.state.isDrawerOpen) {
+                // Reset "settled" mode (used to avoid iOS/Safari text blurriness after transforms)
+                sidebar.classList.remove('drawer-settled');
                 sidebar.classList.remove('-translate-x-full');
                 sidebar.classList.add('translate-x-0'); // Ensure it is shown
                 if (overlay) overlay.classList.remove('hidden');
                 document.documentElement.classList.add('overflow-hidden');
                 document.body.classList.add('overflow-hidden');
+
+                // After the slide-in transition completes, remove transform to keep text crisp on mobile Safari.
+                // (Transforms + large fixed panels can cause persistent subpixel blur on iOS.)
+                window.clearTimeout(this._settleTimer);
+                this._settleTimer = window.setTimeout(() => {
+                    if (this.state.isMobile && this.state.isDrawerOpen) {
+                        sidebar.classList.add('drawer-settled');
+                    }
+                }, 360);
             } else {
+                window.clearTimeout(this._settleTimer);
+                sidebar.classList.remove('drawer-settled');
                 sidebar.classList.remove('translate-x-0'); // Ensure we don't have conflicting translate classes
                 sidebar.classList.add('-translate-x-full');
                 if (overlay) overlay.classList.add('hidden');
@@ -1087,12 +1108,17 @@ function showCheckoutModal(productName, productPrice) {
 
         const modalId = 'checkout-modal-' + Date.now();
         const priceStr = window.CurrencyManager ? window.CurrencyManager.formatPrice(productPrice) : `${productPrice.toLocaleString()} FC`;
+
+        // "Triche" display: keep header/nav stable while checkout modal is open (Catalog was clipping menus).
+        try {
+            document.body.classList.add('checkout-modal-open');
+        } catch (_) {}
         
         const modalHtml = `
-            <div id="${modalId}" class="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
-                <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeCheckoutModal('${modalId}', null)"></div>
+            <div id="${modalId}" class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300" style="z-index:20000;">
+                <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" style="z-index:20000;" onclick="closeCheckoutModal('${modalId}', null)"></div>
                 
-                <div class="relative w-full max-w-md max-h-[95vh] sm:max-h-[90vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300">
+                <div class="relative w-full max-w-md max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-10rem)] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" style="z-index:20001;">
                     <!-- Header -->
                     <div class="px-5 py-3.5 sm:px-6 sm:py-5 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
                         <div class="pr-4">
@@ -1105,7 +1131,7 @@ function showCheckoutModal(productName, productPrice) {
                     </div>
 
                     <!-- Body -->
-                    <div class="px-5 py-4 sm:px-6 sm:py-5 space-y-4 overflow-y-auto flex-1">
+                    <div class="px-5 py-4 sm:px-6 sm:py-5 space-y-4 overflow-y-auto overscroll-contain flex-1">
                         <div class="bg-indigo-50/50 p-4 rounded-2xl flex items-center justify-between mb-2 border border-indigo-100/50">
                             <span class="text-sm font-semibold text-indigo-900">Total à payer</span>
                             <span class="text-xl font-black text-indigo-600">${priceStr}</span>
@@ -1352,6 +1378,9 @@ function showCheckoutModal(productName, productPrice) {
                 delete window._locateMe;
                 delete window._checkoutMapRef;
                 delete window._checkoutMarkerRef;
+                try {
+                    document.body.classList.remove('checkout-modal-open');
+                } catch (_) {}
                 resolve(result);
             }, 300);
         };

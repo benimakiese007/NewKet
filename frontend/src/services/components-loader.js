@@ -8,7 +8,7 @@ const HEADER_HTML = `
     <!-- Main header container -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="main">
         <!-- Top Info Bar -->
-        <div class="header-topbar text-white py-1.5 px-4 sm:px-8 border-b border-[#0A4A2E]" style="background-color: #013220;">
+        <div class="header-topbar text-white py-1.5 px-4 sm:px-8 border-b border-[#0A4A2E] hidden sm:block" style="background-color: #013220;">
             <div class="max-w-7xl mx-auto w-full flex min-h-9 items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-3 md:gap-4">
                 <div class="hidden md:flex shrink-0 items-center gap-4 lg:gap-6">
                     <span class="flex items-center gap-1.5"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-400" aria-hidden="true"></iconify-icon> Livraison Offerte</span>
@@ -37,8 +37,8 @@ const HEADER_HTML = `
                 <div class="flex items-center sm:min-w-0">
                     <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
                         <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" 
-                            class="header-brand-image h-10 sm:h-20 w-auto object-contain"
-                            onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+                            class="header-brand-image h-8 sm:h-20 w-auto object-contain"
+                            onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                     </a>
                 </div>
 
@@ -154,7 +154,7 @@ const HEADER_HTML = `
         <div id="searchOverlay" class="search-overlay"></div>
 
         <!-- Category Nav -->
-        <div id="categoryNav" class="category-nav border-t border-gray-50 bg-white hidden sm:block transition-all duration-300 ease-in-out transform origin-top">
+        <div id="categoryNav" class="category-nav border-t border-gray-50 bg-white flex sm:block transition-all duration-300 ease-in-out transform origin-top">
             <div class="w-full px-4 sm:px-8">
                 <nav class="flex items-center gap-2 overflow-x-auto py-2 -mx-2 scroll-affordance" style="scrollbar-width:none;">
                     <a href="{{ROOT}}src/pages/catalog.html"
@@ -184,10 +184,10 @@ const HEADER_HTML = `
 
 <!-- Mobile Menu Sidebar -->
 <div id="mobileOverlay"
-    class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" aria-hidden="true">
+    class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" style="z-index: 9000;" aria-hidden="true">
 </div>
-<div id="mobileMenu" class="fixed inset-0 bg-white z-[9999] flex flex-col" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
-    <div class="px-6 py-8 flex items-center justify-between border-b border-gray-100/50">
+<div id="mobileMenu" class="fixed inset-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
+    <div class="px-6 flex items-center justify-between border-b border-gray-100/50" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
         <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="h-12 w-auto object-contain">
         <button id="closeMobileMenu" class="p-4 rounded-full bg-gray-100/80 hover:bg-gray-200 transition-all btn-active-scale shadow-sm" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
@@ -197,7 +197,7 @@ const HEADER_HTML = `
     <div class="flex-1 overflow-y-auto pt-4 pb-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
         <!-- Guest Call to Action -->
         <div id="mobileGuestCTA" class="px-4 mb-6">
-            <a href="/src/pages/login.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
+            <a href="{{ROOT}}src/pages/login.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
                 <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                     <iconify-icon icon="solar:user-bold" width="24"></iconify-icon>
                 </div>
