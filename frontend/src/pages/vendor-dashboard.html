@@ -308,31 +308,94 @@
                 </div>
 
                 <!-- Recent Orders Table -->
-                <div class="glass-panel p-4 sm:p-8 min-w-0 overflow-hidden w-full">
+                <div class="glass-panel p-4 sm:p-8 min-w-0 overflow-hidden w-full relative">
+                    <!-- Bulk Action Bar -->
+                    <div id="vendor-bulk-actions" class="absolute top-0 left-0 w-full h-[72px] bg-white z-20 flex items-center justify-between px-4 sm:px-8 border-b border-gray-100 hidden">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-bold text-gray-900"><span id="vendor-bulk-count">0</span> sélection(s)</span>
+                            <div class="hidden sm:flex gap-2">
+                                <button onclick="window.handleBulkStatusUpdate('PROCESSING')" class="px-3 py-1.5 bg-gray-100 hover:bg-black hover:text-white text-gray-700 text-xs font-bold rounded-lg transition-colors">Préparation</button>
+                                <button onclick="window.handleBulkStatusUpdate('SHIPPED')" class="px-3 py-1.5 bg-gray-100 hover:bg-black hover:text-white text-gray-700 text-xs font-bold rounded-lg transition-colors">Expédier</button>
+                            </div>
+                            <div class="sm:hidden relative group">
+                                <button class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg flex items-center gap-1">Action <iconify-icon icon="solar:alt-arrow-down-linear"></iconify-icon></button>
+                                <div class="absolute left-0 top-full mt-1 bg-white shadow-lg rounded-xl border border-gray-100 hidden group-hover:block w-32 overflow-hidden">
+                                    <button onclick="window.handleBulkStatusUpdate('PROCESSING')" class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-gray-50">Préparation</button>
+                                    <button onclick="window.handleBulkStatusUpdate('SHIPPED')" class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-gray-50">Expédier</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="window.clearBulkSelection()" class="text-gray-400 hover:text-black">
+                            <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
+                        </button>
+                    </div>
+
                     <div class="flex items-center justify-between mb-4 sm:mb-6 vendor-card-header">
                         <h3 class="font-bold text-gray-900">Dernières Commandes</h3>
-                        <a href="#"
-                            class="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Voir
-                            tout</a>
+                        <div class="flex items-center gap-3">
+                            <button onclick="window.exportOrdersToCSV()" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-600 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-all hidden sm:flex">
+                                <iconify-icon icon="solar:document-text-bold"></iconify-icon>
+                                Exporter (CSV)
+                            </button>
+                            <a href="#"
+                                class="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Voir
+                                tout</a>
+                        </div>
                     </div>
                     <div class="overflow-x-auto vendor-table-shell">
                         <table class="w-full text-left whitespace-nowrap vendor-orders-table">
                             <thead>
                                 <tr
                                     class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 border-b border-gray-50">
-                                    <th class="pb-4">ID</th>
+                                    <th class="pb-4 w-10">
+                                        <input type="checkbox" id="vendor-select-all" class="rounded border-gray-300 text-black focus:ring-black cursor-pointer" onchange="window.toggleAllOrders(this)">
+                                    </th>
+                                    <th class="pb-4 cursor-pointer hover:text-black transition-colors select-none group" onclick="window.sortOrders('id')">ID <iconify-icon icon="solar:alt-arrow-down-linear" class="inline-block align-middle opacity-0 group-hover:opacity-50 transition-opacity" id="sort-icon-id"></iconify-icon></th>
                                     <th class="pb-4">Client & Produit</th>
                                     <th class="pb-4">Contact</th>
-                                    <th class="pb-4 text-right">Montant</th>
+                                    <th class="pb-4 text-right cursor-pointer hover:text-black transition-colors select-none group" onclick="window.sortOrders('total')">Montant <iconify-icon icon="solar:alt-arrow-down-linear" class="inline-block align-middle opacity-0 group-hover:opacity-50 transition-opacity" id="sort-icon-total"></iconify-icon></th>
                                     <th class="pb-4 text-center">Paiement</th>
-                                    <th class="pb-4 text-center">Statut</th>
+                                    <th class="pb-4 text-center cursor-pointer hover:text-black transition-colors select-none group" onclick="window.sortOrders('status')">Statut <iconify-icon icon="solar:alt-arrow-down-linear" class="inline-block align-middle opacity-0 group-hover:opacity-50 transition-opacity" id="sort-icon-status"></iconify-icon></th>
                                     <th class="pb-4"></th>
                                 </tr>
                             </thead>
                             <tbody id="vendor-recent-orders" class="divide-y divide-gray-50">
-                                <!-- Injected by JS -->
+                                <!-- Skeleton Loading (Initial State) -->
                                 <tr>
-                                    <td colspan="7" class="py-8 text-center text-sm text-gray-400">Chargement...</td>
+                                    <td class="py-4"><div class="h-4 w-4 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4"><div class="h-4 w-12 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-9 h-9 rounded-full bg-gray-100 animate-pulse shrink-0"></div>
+                                            <div class="flex flex-col gap-1 w-full">
+                                                <div class="h-3 w-24 bg-gray-100 rounded animate-pulse"></div>
+                                                <div class="h-2 w-16 bg-gray-100 rounded animate-pulse"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4"><div class="h-4 w-20 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4 text-right"><div class="h-4 w-16 bg-gray-100 rounded animate-pulse ml-auto"></div></td>
+                                    <td class="py-4"><div class="h-4 w-16 bg-gray-100 rounded-full animate-pulse mx-auto"></div></td>
+                                    <td class="py-4"><div class="h-4 w-16 bg-gray-100 rounded-full animate-pulse mx-auto"></div></td>
+                                    <td class="py-4"></td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4"><div class="h-4 w-4 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4"><div class="h-4 w-12 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-9 h-9 rounded-full bg-gray-100 animate-pulse shrink-0"></div>
+                                            <div class="flex flex-col gap-1 w-full">
+                                                <div class="h-3 w-20 bg-gray-100 rounded animate-pulse"></div>
+                                                <div class="h-2 w-24 bg-gray-100 rounded animate-pulse"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4"><div class="h-4 w-20 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4 text-right"><div class="h-4 w-16 bg-gray-100 rounded animate-pulse ml-auto"></div></td>
+                                    <td class="py-4"><div class="h-4 w-16 bg-gray-100 rounded-full animate-pulse mx-auto"></div></td>
+                                    <td class="py-4"><div class="h-4 w-16 bg-gray-100 rounded-full animate-pulse mx-auto"></div></td>
+                                    <td class="py-4"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -767,6 +830,186 @@
                 let salesChart = null;
                 let audienceChart = null;
                 let selectedWithdrawMethod = '';
+
+                // Global State for Sorting and Selection
+                window.vendorOrderState = {
+                    sortColumn: 'id',
+                    sortDirection: 'desc',
+                    selectedOrders: new Set(),
+                    orders: []
+                };
+
+                window.sortOrders = function(column) {
+                    if (window.vendorOrderState.sortColumn === column) {
+                        window.vendorOrderState.sortDirection = window.vendorOrderState.sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        window.vendorOrderState.sortColumn = column;
+                        window.vendorOrderState.sortDirection = 'desc'; // Default to desc for new column
+                    }
+                    renderVendorDashboard();
+                };
+
+                window.toggleAllOrders = function(checkbox) {
+                    const checkboxes = document.querySelectorAll('.vendor-order-checkbox');
+                    if (checkbox.checked) {
+                        checkboxes.forEach(cb => {
+                            cb.checked = true;
+                            window.vendorOrderState.selectedOrders.add(cb.value);
+                        });
+                    } else {
+                        checkboxes.forEach(cb => cb.checked = false);
+                        window.vendorOrderState.selectedOrders.clear();
+                    }
+                    window.updateBulkActionBar();
+                };
+
+                window.toggleOrderSelection = function(checkbox, orderId) {
+                    if (checkbox.checked) {
+                        window.vendorOrderState.selectedOrders.add(orderId);
+                    } else {
+                        window.vendorOrderState.selectedOrders.delete(orderId);
+                    }
+                    
+                    // Update "Select All" checkbox state
+                    const selectAllCheckbox = document.getElementById('vendor-select-all');
+                    if (selectAllCheckbox) {
+                        const totalCheckboxes = document.querySelectorAll('.vendor-order-checkbox').length;
+                        selectAllCheckbox.checked = totalCheckboxes > 0 && window.vendorOrderState.selectedOrders.size === totalCheckboxes;
+                    }
+                    window.updateBulkActionBar();
+                };
+
+                window.updateBulkActionBar = function() {
+                    const actionBar = document.getElementById('vendor-bulk-actions');
+                    const countSpan = document.getElementById('vendor-bulk-count');
+                    if (!actionBar || !countSpan) return;
+
+                    const count = window.vendorOrderState.selectedOrders.size;
+                    countSpan.textContent = count;
+
+                    if (count > 0) {
+                        actionBar.classList.remove('hidden');
+                    } else {
+                        actionBar.classList.add('hidden');
+                    }
+                };
+
+                window.clearBulkSelection = function() {
+                    window.vendorOrderState.selectedOrders.clear();
+                    const checkboxes = document.querySelectorAll('.vendor-order-checkbox');
+                    checkboxes.forEach(cb => cb.checked = false);
+                    const selectAllCheckbox = document.getElementById('vendor-select-all');
+                    if (selectAllCheckbox) selectAllCheckbox.checked = false;
+                    window.updateBulkActionBar();
+                };
+
+                window.handleBulkStatusUpdate = async function(newStatus) {
+                    const selectedIds = Array.from(window.vendorOrderState.selectedOrders);
+                    if (selectedIds.length === 0) return;
+
+                    try {
+                        const promises = selectedIds.map(id => window.OrderManager.updateOrderStatus(id, newStatus));
+                        await Promise.all(promises);
+                        
+                        if (window.showToast) {
+                            window.showToast(`${selectedIds.length} commande(s) mise(s) à jour avec succès.`, 'success', 'Succès');
+                        }
+                        
+                        window.clearBulkSelection();
+                        // Re-fetch data indirectly or re-render (assuming OrderManager fires events or updates cache)
+                        if(window.loadUserOrders) {
+                            await window.loadUserOrders();
+                        } else {
+                            renderVendorDashboard(); // fallback if cache updated locally
+                        }
+
+                    } catch (error) {
+                        console.error('[BulkUpdate] Error:', error);
+                        if (window.showToast) {
+                            window.showToast('Erreur lors de la mise à jour des commandes.', 'error', 'Erreur');
+                        }
+                    }
+                };
+
+                window.exportOrdersToCSV = function() {
+                    const orders = window.vendorOrderState.orders;
+                    if (!orders || orders.length === 0) {
+                        if (window.showToast) window.showToast('Aucune commande à exporter.', 'warning');
+                        return;
+                    }
+
+                    // Define CSV Headers
+                    const headers = [
+                        'ID Commande',
+                        'Date',
+                        'Client Nom',
+                        'Client Email',
+                        'Client Telephone',
+                        'Produit',
+                        'Quantite',
+                        'Total (FC)',
+                        'Statut Paiement',
+                        'ID Transaction',
+                        'Statut Commande'
+                    ];
+
+                    // Map Orders to CSV Rows
+                    const csvRows = [headers.join(',')]; // Header row
+
+                    orders.forEach(order => {
+                        const date = order.created_at ? new Date(order.created_at).toLocaleDateString() : '';
+                        const customerName = order.customer?.name || order.customer_name || '';
+                        const customerEmail = order.customer?.email || order.customer_email || '';
+                        const customerPhone = order.phone_number || '';
+                        const productName = order.product_name || (order.items && order.items[0]?.name) || '';
+                        const quantity = (order.items && order.items[0]?.quantity) || 1;
+                        const total = order.total || 0;
+                        const paymentStatus = order.payment_status || '';
+                        const transactionId = order.transaction_id || '';
+                        const orderStatus = order.status || '';
+
+                        // Escape values containing commas or quotes
+                        const escapeCSV = (value) => {
+                            if (value === null || value === undefined) return '""';
+                            const str = String(value);
+                            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                                return `"${str.replace(/"/g, '""')}"`;
+                            }
+                            return str;
+                        };
+
+                        const row = [
+                            escapeCSV(order.id),
+                            escapeCSV(date),
+                            escapeCSV(customerName),
+                            escapeCSV(customerEmail),
+                            escapeCSV(customerPhone),
+                            escapeCSV(productName),
+                            escapeCSV(quantity),
+                            escapeCSV(total),
+                            escapeCSV(paymentStatus),
+                            escapeCSV(transactionId),
+                            escapeCSV(orderStatus)
+                        ];
+
+                        csvRows.push(row.join(','));
+                    });
+
+                    // Create Blob and Trigger Download
+                    const csvContent = csvRows.join('\n');
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const link = document.createElement('a');
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `commandes_newket_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    if (window.showToast) window.showToast('Export CSV généré avec succès.', 'success');
+                };
 
                 function switchVendorTab(tabId) {
                     window.newketVendorActiveTab = tabId;
@@ -1385,15 +1628,67 @@
                         if (document.getElementById('vendorRating')) document.getElementById('vendorRating').textContent = '-';
                     }
 
-                    // Render Recent Orders (stats.orders est le bon champ, pas stats.recentOrders)
-                    const recentOrders = stats.orders || [];
+                    // Render Recent Orders
+                    let recentOrders = stats.orders || [];
+                    
+                    // Sorting Logic
+                    if (window.vendorOrderState.sortColumn) {
+                        recentOrders = [...recentOrders].sort((a, b) => {
+                            let valA = a[window.vendorOrderState.sortColumn];
+                            let valB = b[window.vendorOrderState.sortColumn];
+                            
+                            // Special cases
+                            if (window.vendorOrderState.sortColumn === 'id') {
+                                valA = a.created_at || a.id;
+                                valB = b.created_at || b.id;
+                            }
+                            
+                            if (valA < valB) return window.vendorOrderState.sortDirection === 'asc' ? -1 : 1;
+                            if (valA > valB) return window.vendorOrderState.sortDirection === 'asc' ? 1 : -1;
+                            return 0;
+                        });
+                    }
+                    
+                    // Update sort icons
+                    ['id', 'total', 'status'].forEach(col => {
+                        const icon = document.getElementById(`sort-icon-${col}`);
+                        if (icon) {
+                            if (col === window.vendorOrderState.sortColumn) {
+                                icon.classList.remove('opacity-0', 'group-hover:opacity-50');
+                                icon.classList.add('opacity-100', 'text-black');
+                                icon.setAttribute('icon', window.vendorOrderState.sortDirection === 'asc' ? 'solar:alt-arrow-up-linear' : 'solar:alt-arrow-down-linear');
+                            } else {
+                                icon.classList.add('opacity-0', 'group-hover:opacity-50');
+                                icon.classList.remove('opacity-100', 'text-black');
+                                icon.setAttribute('icon', 'solar:alt-arrow-down-linear');
+                            }
+                        }
+                    });
+
+                    window.vendorOrderState.orders = recentOrders;
+
                     const ordersTable = document.getElementById('vendor-recent-orders');
                     if (!ordersTable) return;
                     if (recentOrders.length === 0) {
-                        ordersTable.innerHTML = `<tr><td colspan="7" class="py-12 text-center text-sm text-gray-400">Aucune commande pour le moment</td></tr>`;
+                        ordersTable.innerHTML = `
+                            <tr>
+                                <td colspan="8" class="py-16 text-center">
+                                    <div class="flex flex-col items-center justify-center gap-3">
+                                        <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mb-2">
+                                            <iconify-icon icon="solar:box-minimalistic-bold-duotone" width="32"></iconify-icon>
+                                        </div>
+                                        <h4 class="font-bold text-gray-900 text-lg">Aucune commande</h4>
+                                        <p class="text-sm text-gray-400 max-w-sm">Vous n'avez pas encore reçu de commandes. Continuez à promouvoir vos produits !</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
                     } else {
                         ordersTable.innerHTML = recentOrders.map(o => `
-                        <tr class="hover:bg-gray-50 transition-all cursor-pointer group" onclick="openOrderDetailModal('${o.id}')">
+                        <tr class="hover:bg-gray-50 transition-all cursor-pointer group" onclick="if(!event.target.closest('input[type=checkbox]')) openOrderDetailModal('${o.id}')">
+                            <td class="py-4 w-10" onclick="event.stopPropagation()">
+                                <input type="checkbox" value="${o.id}" class="vendor-order-checkbox rounded border-gray-300 text-black focus:ring-black cursor-pointer" ${window.vendorOrderState.selectedOrders.has(o.id) ? 'checked' : ''} onchange="window.toggleOrderSelection(this, '${o.id}')">
+                            </td>
                             <td class="py-4 font-bold text-xs uppercase tracking-wider text-gray-400">#${o.id.substring(0, 6)}</td>
                             <td class="py-4">
                                 <div class="flex items-center gap-3">
@@ -1438,6 +1733,7 @@
                         </tr>
                 `).join('');
                     }
+                    window.updateBulkActionBar();
 
                     // Render Chart
                     const chartData = buildVendorInterestChartData(stats.orders || [], myProducts);
