@@ -130,7 +130,7 @@ const OrderManager = {
             id: order.id,
             product_id: productId,
             product_name: product?.name || order.product_name || firstItem?.name || firstItem?.product_name || 'Produit',
-            product_image: (product?.image || order.product_image || firstItem?.image || firstItem?.product_image || '').split(',')[0],
+            product_image: (product?.image || order.product_image || order.image || order.image_url || firstItem?.image || firstItem?.product_image || firstItem?.image_url || '').split(',')[0],
             customer_name: (Array.isArray(order.customer) ? order.customer[0] : order.customer)?.name || order.user_name || order.customer_name || 'Visiteur',
             customer_email: order.user_email || order.customer_email || (Array.isArray(order.customer) ? order.customer[0] : order.customer)?.email || '',
             customer: Array.isArray(order.customer) ? order.customer[0] : (order.customer || null),
@@ -157,7 +157,7 @@ const OrderManager = {
             items: allItems.map(item => ({
                 id: item.product_id || item.id,
                 name: item.product_name || item.name || 'Produit',
-                image: (item.product_image || item.image || '').split(',')[0],
+                image: (item.product_image || item.image || item.image_url || item.thumbnail || '').split(',')[0],
                 price: item.price || 0,
                 quantity: item.quantity || 1,
                 category: item.category || ''

@@ -215,21 +215,26 @@ const AdminLayout = {
         const links = [
             { href: window.resolvePath('admin/index'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
             { href: window.resolvePath('admin/user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
-            { href: window.resolvePath('admin/products'), icon: 'solar:box-bold', label: "Contrôle Catalogue" },
-            { href: window.resolvePath('admin/orders'), icon: 'solar:bag-bold', label: "Commandes & Retraits" },
+            { href: window.resolvePath('admin/products'), icon: 'solar:box-bold', label: 'Contrôle Catalogue' },
+            { href: window.resolvePath('admin/orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits' },
             { href: window.resolvePath('admin/activities'), icon: 'solar:history-bold', label: "Journal d'Activités" },
             { href: window.resolvePath('admin/diagnostics'), icon: 'solar:chart-square-bold', label: "Audit & Diagnostics" },
             { href: window.resolvePath('admin/reviews'), icon: 'solar:star-bold', label: "Avis & Modération" },
-            { href: window.resolvePath('admin/newsletter'), icon: 'solar:letter-bold', label: "Newsletter" },
-            { href: window.resolvePath('admin/notifications-admin'), icon: 'solar:bell-bing-bold', label: "Notifications" },
-            { href: window.resolvePath('admin/support'), icon: 'solar:chat-round-dots-bold', label: "Support Platform" },
+            { href: window.resolvePath('admin/newsletter'), icon: 'solar:letter-bold', label: 'Newsletter' },
+            { href: window.resolvePath('admin/notifications-admin'), icon: 'solar:bell-bing-bold', label: 'Notifications' },
+            { href: window.resolvePath('admin/support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform' },
             { href: window.resolvePath('admin/security'), icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins" },
-            { href: window.resolvePath('admin/settings'), icon: 'solar:settings-bold', label: "Paramètres", sub: true }
+            { href: window.resolvePath('admin/settings'), icon: 'solar:settings-bold', label: 'Paramètres', sub: true }
         ];
 
         let sidebarHTML = `
-            <div id="adminOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
+            <div id="adminOverlay" class="fixed inset-0 bg-black/50 z-[110] hidden transition-all duration-300"></div>
             <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
+                
+                <!-- Mobile Close Button -->
+                <button onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
+                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                </button>
 
                 <div class="min-h-screen p-6 pt-24 lg:min-h-0 lg:px-4 lg:py-8 lg:sticky lg:top-[64px]">
                     <!-- Admin Profile Header -->
@@ -256,17 +261,64 @@ const AdminLayout = {
         links.forEach(link => {
             if (link.sub) sidebarHTML += `<div class="py-4"><div class="h-px bg-gray-100 mb-4"></div>`;
 
-            const isActive = currentPath.includes(link.href) || (link.href === '/src/pages/admin/index.html' && (currentPath.endsWith('/admin/') || currentPath.endsWith('/admin/index.html'))) ? 'active' : '';
+            // --- Dropdown / Accordion Link ---
+            if (link.dropdown && link.children) {
+                const isParentActive = link.matchPaths?.some(p => currentPath.includes(p)) || false;
+                const openClass = isParentActive ? 'sidebar-dropdown--open' : '';
 
-            sidebarHTML += `
-                <a href="${link.href}" class="sidebar-link ${isActive} group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50">
-                    <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-white/20 text-white shadow-lg backdrop-blur-md' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
-                        <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
+                sidebarHTML += `
+                <div class="sidebar-dropdown ${openClass}" data-dropdown="${link.dropdown}">
+                    <button
+                        type="button"
+                        onclick="AdminLayout._toggleDropdown('${link.dropdown}')"
+                        class="sidebar-link ${isParentActive ? 'active' : ''} group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50 w-full text-left"
+                    >
+                        <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isParentActive ? 'bg-white/20 text-white shadow-lg backdrop-blur-md' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
+                            <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
+                        </div>
+                        <span class="flex-1 text-sm font-bold tracking-tight ${isParentActive ? 'text-white' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
+                        <iconify-icon
+                            icon="solar:alt-arrow-down-bold"
+                            width="16"
+                            class="sidebar-dropdown__chevron transition-transform duration-300 ${isParentActive ? 'text-white rotate-180' : 'text-gray-400 group-hover/link:text-black'}"
+                        ></iconify-icon>
+                    </button>
+                    <div class="sidebar-dropdown__body overflow-hidden transition-all duration-300" style="${isParentActive ? '' : 'max-height:0;opacity:0;'} ">
+                        <div class="ml-4 pl-4 border-l-2 border-gray-100 space-y-0.5 py-1 mb-1">
+                `;
+
+                link.children.forEach(child => {
+                    const isChildActive = currentPath === child.href.split('?')[0] ||
+                        (currentPath.includes(child.href.split('?')[0]) && child.href.includes('?') && window.location.search === '?' + child.href.split('?')[1]);
+                    sidebarHTML += `
+                        <a href="${child.href}" class="sidebar-link-child ${isChildActive ? 'active-child' : ''} group/child flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-gray-50">
+                            <div class="flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-200 ${isChildActive ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400 group-hover/child:bg-gray-200 group-hover/child:text-black'}">
+                                <iconify-icon icon="${child.icon}" width="14"></iconify-icon>
+                            </div>
+                            <span class="text-xs font-bold tracking-tight ${isChildActive ? 'text-blue-600' : 'text-gray-400 group-hover/child:text-black'}">${child.label}</span>
+                        </a>
+                    `;
+                });
+
+                sidebarHTML += `
+                        </div>
                     </div>
-                    <span class="text-sm font-bold tracking-tight ${isActive ? 'text-white' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
-                    ${isActive ? '<div class="absolute right-3 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>' : ''}
-                </a>
-            `;
+                </div>
+                `;
+
+            } else {
+                // --- Regular Link ---
+                const isActive = currentPath.includes(link.href) || (link.href === '/src/pages/admin/index.html' && (currentPath.endsWith('/admin/') || currentPath.endsWith('/admin/index.html'))) ? 'active' : '';
+                sidebarHTML += `
+                    <a href="${link.href}" class="sidebar-link ${isActive} group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50">
+                        <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-white/20 text-white shadow-lg backdrop-blur-md' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
+                            <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
+                        </div>
+                        <span class="text-sm font-bold tracking-tight ${isActive ? 'text-white' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
+                        ${isActive ? '<div class="absolute right-3 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>' : ''}
+                    </a>
+                `;
+            }
 
             if (link.sub) sidebarHTML += `</div>`;
         });
@@ -287,6 +339,42 @@ const AdminLayout = {
 
         sidebarPlaceholder.innerHTML = sidebarHTML;
         sidebarPlaceholder.dataset.rendered = 'true';
+
+        // Initialize open dropdowns after render
+        sidebarPlaceholder.querySelectorAll('.sidebar-dropdown--open').forEach(el => {
+            const body = el.querySelector('.sidebar-dropdown__body');
+            if (body) { body.style.maxHeight = body.scrollHeight + 'px'; body.style.opacity = '1'; }
+        });
+    },
+
+    _toggleDropdown(id) {
+        const dropdown = document.querySelector(`.sidebar-dropdown[data-dropdown="${id}"]`);
+        if (!dropdown) return;
+        const body = dropdown.querySelector('.sidebar-dropdown__body');
+        const chevron = dropdown.querySelector('.sidebar-dropdown__chevron');
+        const btn = dropdown.querySelector('button.sidebar-link');
+        const isOpen = dropdown.classList.contains('sidebar-dropdown--open');
+
+        // Close all other open dropdowns
+        document.querySelectorAll('.sidebar-dropdown--open').forEach(el => {
+            if (el !== dropdown) {
+                el.classList.remove('sidebar-dropdown--open');
+                const b = el.querySelector('.sidebar-dropdown__body');
+                const c = el.querySelector('.sidebar-dropdown__chevron');
+                if (b) { b.style.maxHeight = '0'; b.style.opacity = '0'; }
+                if (c) c.classList.remove('rotate-180');
+            }
+        });
+
+        if (isOpen) {
+            dropdown.classList.remove('sidebar-dropdown--open');
+            if (body) { body.style.maxHeight = '0'; body.style.opacity = '0'; }
+            if (chevron) chevron.classList.remove('rotate-180');
+        } else {
+            dropdown.classList.add('sidebar-dropdown--open');
+            if (body) { body.style.maxHeight = body.scrollHeight + 'px'; body.style.opacity = '1'; }
+            if (chevron) chevron.classList.add('rotate-180');
+        }
     },
 
     bindEvents() {

@@ -152,7 +152,7 @@
             </div>
 
             <!-- User Details Modal (Premium Redesign) -->
-            <div id="userDetailsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+            <div id="userDetailsModal" class="hidden fixed inset-0 z-[100] items-center justify-center p-4 sm:p-6">
                 <div class="absolute inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity" onclick="closeUserDetailsModal()"></div>
 
                 <div class="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] scale-95 opacity-0 transition-all duration-300 border border-white/20" id="userDetailsModalContent">
@@ -510,18 +510,36 @@
             });
         }
 
-        function initializeUsers() {
-            renderUsers();
-            window.addEventListener('usersUpdated', renderUsers);
+        // Note: initializeUsers and DOMContentLoaded are already defined above (lines 406-418).
+
+        // ─── User Details Modal ───────────────────────────────────────────────
+        function closeUserDetailsModal() {
+            const modal = document.getElementById('userDetailsModal');
+            const content = document.getElementById('userDetailsModalContent');
+            if (!modal) return;
+            if (content) {
+                content.classList.add('scale-95', 'opacity-0');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (content) content.classList.remove('scale-95', 'opacity-0');
+            }, 300);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.newketInitialized) {
-                initializeUsers();
-            } else {
-                window.addEventListener('newketInitialized', initializeUsers);
-            }
-        });
+        function openUserDetailsModal(userId) {
+            const modal = document.getElementById('userDetailsModal');
+            const content = document.getElementById('userDetailsModalContent');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                if (content) {
+                    content.classList.remove('scale-95', 'opacity-0');
+                }
+            });
+        }
+
+        window.closeUserDetailsModal = closeUserDetailsModal;
+        window.openUserDetailsModal = openUserDetailsModal;
 
         // Closing modal on Escape
         document.addEventListener('keydown', (e) => {

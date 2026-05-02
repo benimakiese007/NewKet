@@ -102,6 +102,7 @@ const App = {
 
             menu.classList.toggle('active', isOpen);
             overlay.classList.toggle('active', isOpen);
+            document.documentElement.classList.toggle('mobile-menu-open', isOpen);
             document.body.classList.toggle('mobile-menu-open', isOpen);
 
             if (openBtn) openBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');

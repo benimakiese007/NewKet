@@ -186,11 +186,11 @@ const HEADER_HTML = `
 <div id="mobileOverlay"
     class="fixed inset-0 bg-black/50 z-[60] opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" aria-hidden="true">
 </div>
-<div id="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-[70] shadow-2xl sm:hidden flex flex-col" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
-    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="h-10 w-auto object-contain pl-1">
-        <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-gray-100 btn-active-scale" aria-label="Fermer le menu">
-            <iconify-icon icon="solar:close-circle-linear" width="24" class="text-gray-600"></iconify-icon>
+<div id="mobileMenu" class="fixed inset-0 bg-white z-[9999] flex flex-col" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
+    <div class="px-6 py-8 flex items-center justify-between border-b border-gray-100/50">
+        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="h-12 w-auto object-contain">
+        <button id="closeMobileMenu" class="p-4 rounded-full bg-gray-100/80 hover:bg-gray-200 transition-all btn-active-scale shadow-sm" aria-label="Fermer le menu">
+            <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
         </button>
     </div>
 
@@ -224,35 +224,35 @@ const HEADER_HTML = `
             <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Catégories</h3>
             <nav class="flex flex-col gap-1">
                 <a href="{{ROOT}}src/pages/catalog.html"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon> Toutes les pièces
                 </a>
                 <a href="{{ROOT}}src/pages/shops.html"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon> Boutiques
                 </a>
                 <a href="{{ROOT}}src/pages/forum.html"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:user-circle-linear" width="20"></iconify-icon> Femme
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:user-rounded-linear" width="20"></iconify-icon> Homme
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:laptop-minimalistic-linear" width="20"></iconify-icon> Tech & Gadgets
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:cpu-linear" width="20"></iconify-icon> HIGH-TECH
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:sofa-linear" width="20"></iconify-icon> Art de vivre
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?promo=true"
@@ -266,21 +266,21 @@ const HEADER_HTML = `
 	            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Personnel</h3>
 	            <nav class="flex flex-col gap-1">
 	                <a href="{{ROOT}}src/pages/notifications.html"
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:bell-linear"
                             width="20"></iconify-icon> Notifications</span>
                     <span
                         class="notification-badge bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
                 <a href="{{ROOT}}src/pages/favorites.html"
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                    class="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:heart-linear"
                             width="20"></iconify-icon> Favoris</span>
                     <span id="mobileFavoritesBadge"
                         class="bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
                 </a>
                 <button data-theme-toggle
-                    class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium w-full text-left" title="Changer le thème">
+                    class="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium w-full text-left transition-all active:scale-[0.98]" title="Changer le thème">
                     <span class="flex items-center gap-3"><iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon> Mode Sombre</span>
                 </button>
                 <a href="{{ROOT}}src/pages/publish.html"
@@ -298,11 +298,11 @@ const HEADER_HTML = `
                 <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Liens utiles</h3>
                 <nav class="flex flex-col gap-1">
                     <a href="{{ROOT}}src/pages/support.html"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                         <iconify-icon icon="solar:help-bold" width="20"></iconify-icon> Support
                     </a>
                     <a href="{{ROOT}}src/pages/faq.html"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-gray-700 font-medium">
+                        class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                         <iconify-icon icon="solar:question-circle-bold" width="20"></iconify-icon> FAQ
                     </a>
                 </nav>
@@ -322,8 +322,8 @@ const HEADER_HTML = `
             
             <!-- Logout Button (Authenticated Only) -->
             <button id="mobileLogoutBtn" data-action="logout" style="display: none;"
-                class="flex items-center justify-center gap-2 w-full px-3 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-colors">
-                <iconify-icon icon="solar:logout-3-bold" width="20"></iconify-icon> Se déconnecter
+                class="flex items-center justify-center gap-2 w-full px-4 py-4 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-all active:scale-[0.98]">
+                <iconify-icon icon="solar:logout-linear" width="20"></iconify-icon> Se déconnecter
             </button>
         </div>
     </div>
@@ -496,20 +496,21 @@ const ComponentLoader = {
             const placeholder = document.getElementById('header-placeholder');
             if (!header || !placeholder) return;
 
-            const height = header.offsetHeight;
-            if (height === 0) return;
+            // Separate read and write to avoid forced reflows
+            requestAnimationFrame(() => {
+                // DOM READ
+                const height = header.offsetHeight;
+                if (height === 0) return;
 
-            // Set global CSS variable for other components to use
-            document.documentElement.style.setProperty('--header-height', `${height}px`);
-
-            // Reserve space via the placeholder so 100vh/flex layouts don't
-            // get an extra spacer element that can cause overflow.
-            placeholder.style.minHeight = `${height}px`;
-
-            // Backward-compat cleanup: remove any spacer previously inserted.
-            const spacer = document.getElementById('dynamic-header-spacer');
-            if (spacer) spacer.remove();
-            document.documentElement.style.scrollPaddingTop = `${height + 20}px`;
+                requestAnimationFrame(() => {
+                    // DOM WRITE
+                    document.documentElement.style.setProperty('--header-height', `${height}px`);
+                    placeholder.style.minHeight = `${height}px`;
+                    const spacer = document.getElementById('dynamic-header-spacer');
+                    if (spacer) spacer.remove();
+                    document.documentElement.style.scrollPaddingTop = `${height + 20}px`;
+                });
+            });
         };
 
         adjust();

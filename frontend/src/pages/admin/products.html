@@ -120,7 +120,7 @@
     </div>
 
     <!-- Product Modal (Premium Redesign) -->
-    <div id="productModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+    <div id="productModal" class="hidden fixed inset-0 z-[100] items-center justify-center p-4 sm:p-6">
         <div class="absolute inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity" onclick="closeModal()"></div>
 
         <div class="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-premium border border-white/20" id="productModalContent">
@@ -262,7 +262,7 @@
                         </div>
                     </td>
                 </tr>
-            `}).join('');
+                `}).join('');
 
             if (window.CurrencyManager) CurrencyManager.updateAllPrices();
         }
@@ -271,11 +271,14 @@
             const modal = document.getElementById('productModal');
             document.getElementById('modalTitle').textContent = isEdit ? 'Modifier l\'Article' : 'Nouvel Article';
             if (!isEdit) document.getElementById('productForm').reset();
+            modal.classList.add('flex'); // Add flex back
             modal.classList.remove('hidden');
         }
 
         function closeModal() {
-            document.getElementById('productModal').classList.add('hidden');
+            const modal = document.getElementById('productModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex'); // Remove flex
         }
 
         function editProduct(id) {
@@ -304,10 +307,12 @@
             const count = document.getElementById('selectedCountText');
 
             if (selected.length > 0) {
+                bar.classList.add('flex'); // Ensure flex is added
                 bar.classList.remove('hidden');
                 count.textContent = selected.length;
             } else {
                 bar.classList.add('hidden');
+                bar.classList.remove('flex');
             }
         }
 
@@ -395,6 +400,3 @@
 </body>
 
 </html>
-
-
-

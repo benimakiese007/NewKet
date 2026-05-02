@@ -243,6 +243,11 @@
         <!-- Sidebar -->
         <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full md:translate-x-0 md:sticky md:top-28 md:self-start md:inset-auto md:w-64 transition-all duration-300 ease-in-out h-screen md:h-[calc(100vh-7rem)] overflow-y-auto border-0 md:border-r border-gray-100 flex-shrink-0">
 
+            <!-- Mobile Close Button -->
+            <button onclick="SidebarManager.close()" class="md:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
+                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+            </button>
+
             <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 md:pt-6 md:min-h-0 md:rounded-[1.5rem] md:border md:shadow-sm">
                 <div class="flex items-center gap-4 mb-8 p-3 rounded-2xl bg-gray-50/80 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
                     <div class="relative flex-shrink-0">
@@ -509,7 +514,7 @@
     </div>
 
     <!-- Order Detail Modal -->
-    <div id="orderModal"
+    <div id="orderModal" style="display: none;"
         class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/60  p-4">
         <div
             class="glass-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden animate-in fade-in zoom-in duration-300">
@@ -612,7 +617,7 @@
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
                             Valider la réception
                         </button>
-                        <button id="btnOpenDispute" onclick="handleOpenDispute()" 
+                        <button id="btnOpenDispute" onclick="showDisputeModal()" 
                             class="hidden flex-1 py-3 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon>
                             Signaler un litige
@@ -1171,6 +1176,8 @@
                 }
             }
 
+            if (!ordersList) return; // Safeguard if DOM is not ready or element is missing
+
             if (orders.length === 0) {
                 ordersList.innerHTML = `
                     <div class="glass-panel p-12 text-center text-gray-500">
@@ -1211,6 +1218,8 @@
         function renderFavorites() {
             const favorites = FavoritesManager.getFavorites();
             const favoritesGrid = document.getElementById('favorites-grid');
+
+            if (!favoritesGrid) return; // Safeguard if DOM is not ready or element is missing
 
             if (favorites.length === 0) {
                 favoritesGrid.innerHTML = `
@@ -1387,6 +1396,7 @@
             }
 
             document.getElementById('orderModal').classList.remove('hidden');
+            document.getElementById('orderModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
 
@@ -1481,18 +1491,23 @@
         // ========================== GESTION DES LITIGES ==========================
         function showDisputeModal() {
             if (!currentSelectedOrder) return;
+            console.trace('showDisputeModal called'); // Trace to see if called automatically
             document.getElementById('disputeOrderId').textContent = currentSelectedOrder.id;
             document.getElementById('disputeReason').value = '';
             document.getElementById('disputeDescription').value = '';
             document.getElementById('disputeProof1').value = '';
             document.getElementById('disputeProof2').value = '';
-            document.getElementById('disputeModal').classList.remove('hidden');
+            const modal = document.getElementById('disputeModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             closeOrderModal();
         }
 
         function closeDisputeModal() {
-            document.getElementById('disputeModal').classList.add('hidden');
+            const modal = document.getElementById('disputeModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
             document.body.style.overflow = '';
         }
 
@@ -1652,6 +1667,7 @@
 
         function closeOrderModal() {
             document.getElementById('orderModal').classList.add('hidden');
+            document.getElementById('orderModal').style.display = 'none';
             document.body.style.overflow = '';
         }
 
@@ -1796,7 +1812,7 @@
     </script>
     
     <!-- Modal d'Ouverture de Litige (Dispute Modal) -->
-    <div id="disputeModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
+    <div id="disputeModal" style="display: none;" class="fixed inset-0 z-[200] flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
         <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                 <div class="flex items-center gap-3">

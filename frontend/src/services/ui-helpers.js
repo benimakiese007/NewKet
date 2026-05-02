@@ -353,7 +353,21 @@ const SidebarManager = {
         // Auto-detect overlay if not provided
         this.overlayId = overlayId || (sidebarId.includes('admin') ? 'adminOverlay' : (sidebarId.includes('vendor') ? 'vendorSidebarOverlay' : 'sidebarOverlay'));
         
+        // Prevent transition flash on init
+        const sidebar = document.getElementById(this.sidebarId);
+        if (sidebar) sidebar.classList.add('no-transition');
+        
         this.applyState();
+
+        // Restore transitions
+        if (sidebar) {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    sidebar.classList.remove('no-transition');
+                });
+            });
+        }
+
 
         if (this.state.initialized) return;
         this.state.initialized = true;
@@ -465,28 +479,34 @@ const SidebarManager = {
                 sidebar.classList.remove('-translate-x-full');
                 sidebar.classList.add('translate-x-0'); // Ensure it is shown
                 if (overlay) overlay.classList.remove('hidden');
+                document.documentElement.classList.add('overflow-hidden');
                 document.body.classList.add('overflow-hidden');
             } else {
                 sidebar.classList.remove('translate-x-0'); // Ensure we don't have conflicting translate classes
                 sidebar.classList.add('-translate-x-full');
                 if (overlay) overlay.classList.add('hidden');
+                document.documentElement.classList.remove('overflow-hidden');
                 document.body.classList.remove('overflow-hidden');
             }
             // Ensure no collapse state on mobile
             sidebar.classList.remove('sidebar-collapsed');
+            document.documentElement.classList.remove('sidebar-is-collapsed');
             document.body.classList.remove('sidebar-is-collapsed');
         } else {
             // Desktop Collapse Logic
             sidebar.classList.remove('-translate-x-full');
             sidebar.classList.remove('translate-x-0');
             if (overlay) overlay.classList.add('hidden');
+            document.documentElement.classList.remove('overflow-hidden');
             document.body.classList.remove('overflow-hidden');
 
             if (this.state.isCollapsed) {
                 sidebar.classList.add('sidebar-collapsed');
+                document.documentElement.classList.add('sidebar-is-collapsed');
                 document.body.classList.add('sidebar-is-collapsed');
             } else {
                 sidebar.classList.remove('sidebar-collapsed');
+                document.documentElement.classList.remove('sidebar-is-collapsed');
                 document.body.classList.remove('sidebar-is-collapsed');
             }
         }

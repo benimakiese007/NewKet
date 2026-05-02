@@ -1,7 +1,7 @@
 const PTR_MIN_TOUCH_WIDTH = 1024;
-const PTR_TRIGGER_DISTANCE = 72;
-const PTR_MAX_PULL_DISTANCE = 96;
-const PTR_MAX_TRANSLATE = 52;
+const PTR_TRIGGER_DISTANCE = 80;
+const PTR_MAX_PULL_DISTANCE = 110;
+const PTR_MAX_TRANSLATE = 60;
 
 const PullToRefresh = {
     state: {
@@ -12,9 +12,7 @@ const PullToRefresh = {
         surface: null,
         indicator: null,
         label: null,
-        spinner: null,
-        headerLogo: null,
-        usingHeaderLogo: false
+        spinner: null
     },
 
     init() {
@@ -22,7 +20,6 @@ const PullToRefresh = {
         document.body.dataset.ptrInitialized = '1';
 
         this.injectStyles();
-        this.resolveHeaderLogo();
         this.createIndicator();
 
         document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
@@ -39,21 +36,31 @@ const PullToRefresh = {
         style.textContent = `
             .nk-ptr-indicator {
                 position: fixed;
-                top: 12px;
+                top: 16px;
                 left: 50%;
                 z-index: 1300;
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                padding: 10px 14px;
-                border-radius: 999px;
-                background: rgba(15, 23, 42, 0.92);
-                color: #fff;
-                box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
-                transform: translate(-50%, calc(-100% - 24px));
+                gap: 12px;
+                padding: 10px 20px;
+                border-radius: 24px;
+                
+                /* Glassmorphism */
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(16px) saturate(180%);
+                -webkit-backdrop-filter: blur(16px) saturate(180%);
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                
+                box-shadow: 
+                    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+                    0 10px 30px -5px rgba(0, 0, 0, 0.1),
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+                
+                color: #000;
+                transform: translate(-50%, -100px);
                 opacity: 0;
                 pointer-events: none;
-                transition: transform 180ms ease, opacity 180ms ease;
+                transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
                 will-change: transform, opacity;
             }
 
@@ -62,81 +69,69 @@ const PullToRefresh = {
                 transform: translate(-50%, 0);
             }
 
+            .nk-ptr-spinner-container {
+                position: relative;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
             .nk-ptr-spinner {
-                width: 18px;
-                height: 18px;
-                border-radius: 999px;
-                border: 2px solid rgba(255, 255, 255, 0.22);
-                border-top-color: #ffffff;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                border: 2px solid rgba(0, 0, 0, 0.05);
+                border-top-color: #000;
                 transform: rotate(0deg);
+                transition: transform 0.1s linear;
             }
 
             .nk-ptr-indicator.is-refreshing .nk-ptr-spinner {
-                animation: nk-ptr-spin 0.75s linear infinite;
+                animation: nk-ptr-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
             }
 
             .nk-ptr-label {
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 700;
-                letter-spacing: 0.02em;
+                text-transform: uppercase;
+                letter-spacing: 0.1em;
                 white-space: nowrap;
-            }
-
-            .nk-ptr-logo {
-                will-change: transform;
-                transform-origin: 50% 50%;
-            }
-
-            .nk-ptr-logo.is-refreshing {
-                animation: nk-ptr-spin 0.75s linear infinite;
+                color: #000;
+                opacity: 0.8;
             }
 
             @keyframes nk-ptr-spin {
-                to {
-                    transform: rotate(360deg);
-                }
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
             }
+
+            /* Dark mode support */
+            html.dark .nk-ptr-indicator {
+                background: rgba(15, 23, 42, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+                color: #fff;
+            }
+            html.dark .nk-ptr-label { color: #fff; }
+            html.dark .nk-ptr-spinner { border-color: rgba(255, 255, 255, 0.1); border-top-color: #fff; }
         `;
 
         document.head.appendChild(style);
     },
 
-    resolveHeaderLogo() {
-        const resolve = () => {
-            const logo =
-                document.querySelector('img.header-brand-image') ||
-                document.querySelector('.main-header img[alt="NewKet"]') ||
-                document.querySelector('#header-placeholder img[alt="NewKet"]');
-
-            if (!logo) return;
-
-            this.state.headerLogo = logo;
-            this.state.usingHeaderLogo = true;
-            logo.classList.add('nk-ptr-logo');
-
-            // If the floating indicator already exists, remove it: user wants only the header logo.
-            if (this.state.indicator) {
-                this.state.indicator.remove();
-                this.state.indicator = null;
-                this.state.spinner = null;
-                this.state.label = null;
-            }
-        };
-
-        resolve();
-        window.addEventListener('componentsLoaded', resolve, { once: true });
-    },
-
     createIndicator() {
-        if (this.state.usingHeaderLogo) return;
         if (this.state.indicator) return;
 
         const indicator = document.createElement('div');
         indicator.className = 'nk-ptr-indicator';
         indicator.setAttribute('aria-hidden', 'true');
         indicator.innerHTML = `
-            <span class="nk-ptr-spinner"></span>
-            <span class="nk-ptr-label">Tirez pour actualiser</span>
+            <div class="nk-ptr-spinner-container">
+                <div class="nk-ptr-spinner"></div>
+            </div>
+            <span class="nk-ptr-label">Mise à jour...</span>
         `;
 
         document.body.appendChild(indicator);
@@ -156,18 +151,9 @@ const PullToRefresh = {
     },
 
     isBlockedTarget(target) {
-        const active = document.activeElement;
-        if (active) {
-            const tag = (active.tagName || '').toLowerCase();
-            if (tag === 'input' || tag === 'textarea' || tag === 'select' || active.isContentEditable) {
-                return true;
-            }
-        }
-
         if (target?.closest('input, textarea, select, [contenteditable="true"]')) return true;
         if (document.querySelector('[role="dialog"][aria-hidden="false"], dialog[open], .modal.active, .drawer.active')) return true;
         if (document.body.classList.contains('mobile-menu-open')) return true;
-
         return false;
     },
 
@@ -197,8 +183,10 @@ const PullToRefresh = {
             return;
         }
 
-        const pullDistance = Math.min(PTR_MAX_PULL_DISTANCE, deltaY * 0.55);
+        // Apply resistance and limit pull distance
+        const pullDistance = Math.min(PTR_MAX_PULL_DISTANCE, deltaY * 0.4);
         this.state.armed = pullDistance >= PTR_TRIGGER_DISTANCE;
+        
         event.preventDefault();
         this.applyPullVisuals(pullDistance);
     },
@@ -224,25 +212,25 @@ const PullToRefresh = {
 
     applyPullVisuals(pullDistance) {
         const progress = Math.min(1, pullDistance / PTR_TRIGGER_DISTANCE);
-        const translate = Math.round(progress * PTR_MAX_TRANSLATE);
-
+        
+        // Elastic translation for the main surface
         if (this.state.surface) {
+            const surfaceTranslate = Math.round(progress * PTR_MAX_TRANSLATE);
             this.state.surface.style.transition = 'none';
-            this.state.surface.style.transform = `translateY(${translate}px)`;
+            this.state.surface.style.transform = `translateY(${surfaceTranslate}px)`;
         }
 
-        if (this.state.headerLogo) {
-            this.state.headerLogo.classList.remove('is-refreshing');
-            const logoTranslate = Math.round(progress * 10);
-            const logoRotate = Math.round(progress * 140);
-            this.state.headerLogo.style.transform = `translateY(${logoTranslate}px) rotate(${logoRotate}deg)`;
-        } else if (this.state.indicator) {
+        if (this.state.indicator) {
             this.state.indicator.classList.add('is-visible');
             this.state.indicator.classList.remove('is-refreshing');
+            
+            // The pill slides down from the top
+            const pillTranslate = Math.min(70, Math.round(progress * 80));
+            this.state.indicator.style.transform = `translate(-50%, ${pillTranslate - 50}px)`;
         }
 
         if (this.state.label) {
-            this.state.label.textContent = this.state.armed ? 'Relachez pour actualiser' : 'Tirez pour actualiser';
+            this.state.label.textContent = this.state.armed ? 'Relâcher' : 'Tirer';
         }
 
         if (this.state.spinner) {
@@ -253,11 +241,10 @@ const PullToRefresh = {
     async startRefresh() {
         this.state.refreshing = true;
 
-        if (this.state.headerLogo) {
-            this.state.headerLogo.classList.add('is-refreshing');
-            this.state.headerLogo.style.transform = 'translateY(10px)';
-        } else if (this.state.indicator) {
+        if (this.state.indicator) {
             this.state.indicator.classList.add('is-visible', 'is-refreshing');
+            // Pin the pill in its "refreshing" position
+            this.state.indicator.style.transform = `translate(-50%, 25px)`;
         }
 
         if (this.state.label) {
@@ -265,22 +252,19 @@ const PullToRefresh = {
         }
 
         if (this.state.surface) {
-            this.state.surface.style.transition = 'transform 180ms ease';
-            this.state.surface.style.transform = `translateY(${Math.round(PTR_MAX_TRANSLATE * 0.65)}px)`;
+            this.state.surface.style.transition = 'transform 0.3s cubic-bezier(0.2, 0, 0, 1)';
+            this.state.surface.style.transform = `translateY(${PTR_MAX_TRANSLATE}px)`;
         }
 
         try {
             await window.NewKetPageRefresh();
         } catch (error) {
             console.error('[NewKet PTR] Refresh failed:', error);
-            if (typeof window.showToast === 'function') {
-                window.showToast('Actualisation impossible', 'error');
-            }
         } finally {
             window.setTimeout(() => {
                 this.state.refreshing = false;
                 this.resetVisuals();
-            }, 140);
+            }, 1000); // Minimum duration for the animation to feel premium
         }
     },
 
@@ -291,31 +275,20 @@ const PullToRefresh = {
 
     resetVisuals() {
         if (this.state.surface) {
-            this.state.surface.style.transition = 'transform 200ms ease';
+            this.state.surface.style.transition = 'transform 0.5s cubic-bezier(0.2, 0, 0, 1)';
             this.state.surface.style.transform = 'translateY(0)';
-            window.setTimeout(() => {
-                if (this.state.surface) {
-                    this.state.surface.style.transition = '';
-                }
-            }, 220);
         }
 
         if (this.state.indicator) {
             this.state.indicator.classList.remove('is-visible', 'is-refreshing');
+            this.state.indicator.style.transform = 'translate(-50%, -100px)';
         }
 
-        if (this.state.label) {
-            this.state.label.textContent = 'Tirez pour actualiser';
-        }
-
-        if (this.state.spinner) {
-            this.state.spinner.style.transform = 'rotate(0deg)';
-        }
-
-        if (this.state.headerLogo) {
-            this.state.headerLogo.classList.remove('is-refreshing');
-            this.state.headerLogo.style.transform = '';
-        }
+        window.setTimeout(() => {
+            if (!this.state.pulling && !this.state.refreshing && this.state.surface) {
+                this.state.surface.style.transition = '';
+            }
+        }, 500);
     }
 };
 

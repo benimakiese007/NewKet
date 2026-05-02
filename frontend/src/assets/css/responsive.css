@@ -197,7 +197,8 @@ canvas {
     }
 
     #mobileMenu {
-        width: min(90vw, 22rem) !important;
+        width: 100% !important;
+        max-width: none !important;
     }
 }
 
@@ -880,13 +881,46 @@ canvas {
    ========================================== */
 
 #mobileMenu {
-    transition: transform 0.3s ease-in-out;
-    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
 }
 
 #mobileMenu.active {
     transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
 }
+
+/* Staggered animations for menu items */
+#mobileMenu.active nav a,
+#mobileMenu.active #mobileGuestCTA,
+#mobileMenu.active #mobileLoggedCTA {
+    animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#mobileMenu.active #mobileGuestCTA, #mobileMenu.active #mobileLoggedCTA { animation-delay: 0.1s; }
+#mobileMenu.active nav a:nth-child(1) { animation-delay: 0.15s; }
+#mobileMenu.active nav a:nth-child(2) { animation-delay: 0.2s; }
+#mobileMenu.active nav a:nth-child(3) { animation-delay: 0.25s; }
+#mobileMenu.active nav a:nth-child(4) { animation-delay: 0.3s; }
+#mobileMenu.active nav a:nth-child(5) { animation-delay: 0.35s; }
+
 
 #mobileOverlay {
     transition: opacity 0.3s ease-in-out;

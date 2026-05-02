@@ -227,22 +227,26 @@ button {
 
 /* CLS Mitigation - Reserve space for injected components */
 #header-placeholder {
-  /* Header is position: fixed; reserve its height so content is not hidden. */
-  min-height: var(--header-height, 0px);
+    width: 100%;
+    min-height: 130px; /* Fallback for desktop */
+    transition: min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
 }
 
-#footer-placeholder {
-  min-height: 0; /* Height is set dynamically after footer loads */
+@media (max-width: 1024px) {
+    #header-placeholder {
+        min-height: 115px; /* Fallback for mobile */
+    }
 }
 
-.h-30 {
-  height: 7.5rem;
+.header-retracted + #header-placeholder {
+    min-height: calc(130px - var(--header-retracted-offset, 4.75rem)) !important;
 }
 
-@media (max-width: 640px) {
-  #header-placeholder {
-    min-height: var(--header-height, 0px);
-  }
+@media (max-width: 1024px) {
+    .header-retracted + #header-placeholder {
+        min-height: calc(115px - var(--header-retracted-offset, 4.75rem)) !important;
+    }
 }
 
 @media (min-width: 640px) {
@@ -966,10 +970,8 @@ body.search-focused .main-header {
 
 .main-header {
   --header-retracted-offset: 4.75rem;
-  -webkit-backdrop-filter: saturate(150%) blur(0px);
-  backdrop-filter: saturate(150%) blur(0px);
   transform: none;
-  will-change: transform, box-shadow, background-color, backdrop-filter;
+  will-change: transform, box-shadow, background-color;
 }
 
 .main-header.scrolled .header-topbar {
@@ -9295,7 +9297,6 @@ html.dark .search-suggestions,
 html.dark #searchCategoryMenu {
     background: #0f172a !important;
     background-color: #0f172a !important;
-    opacity: 1 !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
 }
