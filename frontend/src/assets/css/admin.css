@@ -104,6 +104,7 @@ body {
     align-items: start;
 }
 
+
 @media (min-width: 1280px) {
     #tab-settings .customer-settings-grid {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -113,6 +114,9 @@ body {
 #adminSidebar, #customerSidebar, #vendorSidebar {
     transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: width, transform;
+    /* Ensure hardware acceleration for smooth sliding, but allow removal via .drawer-settled */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 /* Sidebar Collapsed State (Desktop) */
@@ -660,18 +664,18 @@ html:not(.dark) #adminSidebar .sidebar-link.active span {
     #vendorSidebar.drawer-settled,
     #customerSidebar.drawer-settled {
         transform: none !important;
+        /* Force layout recalculation for crisp text */
+        perspective: none !important;
+        -webkit-perspective: none !important;
     }
 
     #vendorSidebar .glass-panel,
     #customerSidebar .glass-panel {
         background-color: #ffffff !important;
         backdrop-filter: none !important;
-        border: none !important;
+        -webkit-backdrop-filter: none !important;
         box-shadow: none !important;
-        border-radius: 0 !important;
-        height: 100% !important;
-        width: 100% !important;
-        padding-top: 5rem !important; /* Space for close button */
+        border: none !important;
     }
 
     #vendorSidebar.translate-x-0,

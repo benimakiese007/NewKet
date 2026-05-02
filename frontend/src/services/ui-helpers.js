@@ -499,7 +499,7 @@ const SidebarManager = {
                     if (this.state.isMobile && this.state.isDrawerOpen) {
                         sidebar.classList.add('drawer-settled');
                     }
-                }, 360);
+                }, 450);
             } else {
                 window.clearTimeout(this._settleTimer);
                 sidebar.classList.remove('drawer-settled');
