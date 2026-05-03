@@ -46,6 +46,14 @@ export default defineConfig({
   server: {
     host: 'localhost',
     port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path
+      }
+    },
     hmr: {
       host: 'localhost',
       protocol: 'ws',

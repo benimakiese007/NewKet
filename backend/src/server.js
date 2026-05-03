@@ -13,7 +13,7 @@ import rateLimit from 'express-rate-limit';
 // Variables d'environnement déjà chargées en haut (avant initSentry)
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // ─── Middlewares Globaux ───────────────────────────────────
 

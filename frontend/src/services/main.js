@@ -15,13 +15,15 @@ const App = {
         initSentry();
 
         // --- GLOBAL APP FAIL-SAFE ---
-        // Ensure the white loading screen is REMOVED after 6 seconds, even if something hangs deep in a manager.
+        // Ensure the white loading screen is REMOVED after 12 seconds, even if something hangs deep in a manager.
         setTimeout(() => {
             if (document.documentElement.classList.contains('auth-loading')) {
                 console.warn('[NewKet App] Initialization fail-safe triggered. Removing loading screen.');
                 document.documentElement.classList.remove('auth-loading');
+                window.newketInitialized = true;
+                window.dispatchEvent(new CustomEvent('newketInitialized'));
             }
-        }, 6000);
+        }, 12000);
 
         // 0. Initialize Configuration
         if (window.ConfigManager) await ConfigManager.init();

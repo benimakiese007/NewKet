@@ -102,7 +102,7 @@ window.SupabaseAdapter = {
     /**
      * Internal helper to enforce a timeout on an async operation.
      */
-    async _withTimeout(promise, ms = 7000, label = 'Operation') {
+    async _withTimeout(promise, ms = 20000, label = 'Operation') {
         let timeoutId;
         const timeoutPromise = new Promise((_, reject) => {
             timeoutId = setTimeout(() => {

@@ -36,7 +36,37 @@ const hashIp = (ip) => {
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isValidUuid = (id) => typeof id === 'string' && UUID_REGEX.test(id);
 
-// ── CONSTANTES CRON ──────────────────────────────────────────
+// ── CONSTANTES ORDRES & LIVRAISON ────────────────────────────
+const ORDER_STATUSES = {
+    PENDING: 'PENDING',
+    QUOTE: 'QUOTE',
+    READY_FOR_PAYMENT: 'READY_FOR_PAYMENT',
+    PAID_HELD: 'PAID_HELD',
+    IN_DELIVERY: 'IN_DELIVERY',
+    DELIVERED: 'DELIVERED',
+    COMPLETED: 'COMPLETED',
+    CANCELLED: 'CANCELLED',
+    DISPUTE_OPEN: 'DISPUTE_OPEN',
+    FROZEN: 'FROZEN',
+    REFUNDED: 'REFUNDED'
+};
+
+const DELIVERY_QUOTE_STATUSES = {
+    PENDING: 'PENDING',
+    ACCEPTED: 'ACCEPTED',
+    REJECTED: 'REJECTED',
+    CANCELLED: 'CANCELLED',
+    EXPIRED: 'EXPIRED'
+};
+
+const DELIVERY_STATUSES = {
+    PENDING: 'PENDING',
+    IN_TRANSIT: 'IN_TRANSIT',
+    DELIVERED: 'DELIVERED',
+    FAILED: 'FAILED',
+    CANCELLED: 'CANCELLED'
+};
+
 const CRON_STATUSES = {
     ORDER_DELIVERED: 'Livré',
     ORDER_COMPLETED: 'Terminé',
@@ -48,6 +78,31 @@ const CRON_STATUSES = {
     RESOLUTION_FULL_REFUND: 'FULL_REFUND',
     RESOLUTION_RELEASE_TO_SELLER: 'RELEASE_TO_SELLER'
 };
+
+const mapLegacyOrderStatus = (status) => {
+    const map = {
+        'SHIPPED': ORDER_STATUSES.IN_DELIVERY,
+        'RELEASED': ORDER_STATUSES.COMPLETED,
+        'DISPUTED': ORDER_STATUSES.DISPUTE_OPEN,
+        'PAYÉ': ORDER_STATUSES.PAID_HELD
+    };
+    return map[status] || status;
+};
+
+const generateOrderId = () => `ORD_${crypto.randomBytes(5).toString('hex').toUpperCase()}_${Date.now()}`;
+
+async function logOrderStatusHistory(client, { orderId, previousStatus, newStatus, changedBy, notes = null }) {
+    try {
+        await client.from('order_status_history').insert({
+            order_id: orderId,
+            previous_status: previousStatus,
+            new_status: newStatus,
+            changed_by: changedBy || 'system',
+            notes,
+            changed_at: new Date().toISOString()
+        });
+    } catch (err) { console.warn('[OrderHistory] Log error:', err.message); }
+}
 
 // ── Email Service ─────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
@@ -483,15 +538,140 @@ router.post('/favorites', requireAuth, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ── COMMANDES (DÉSACTIVÉES - MODÈLE LEAD GEN) ─────────────────
+// ── COMMANDES ─────────────────────────────────────────────────
 router.get('/orders', requireAuth, async (req, res) => {
-    // NewKet est passé à un modèle Lead Generation (WhatsApp). 
-    // La table 'orders' a été supprimée. On retourne une liste vide instantanément.
-    res.json([]);
+    try {
+        const sb = getSupabase(req.token);
+        const { data, error } = await sb.from('orders')
+            .select(`
+                *,
+                customer:profiles!customer_id(id, name, avatar)
+            `)
+            .or(`vendor_id.eq.${req.user.id},customer_id.eq.${req.user.id}`)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        res.json(data.map(o => ({ ...o, status: mapLegacyOrderStatus(o.status) })));
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 router.post('/orders', requireAuth, async (req, res) => {
-    res.status(410).json({ error: 'Le système de commande directe est désactivé. Utilisez les boutons WhatsApp.' });
+    try {
+        const {
+            product_id, vendor_id, quantity = 1,
+            customer_phone, customer_name, customer_city, customer_email,
+            customer_lat, customer_lng
+        } = req.body;
+
+        if (!product_id || !vendor_id) {
+            return res.status(400).json({ error: 'product_id et vendor_id sont requis.' });
+        }
+
+        const sb = supabaseAdmin();
+        
+        // 1. Infos produit
+        const { data: product, error: pError } = await sb.from('products')
+            .select('id, name, price, image, supplier_email, user_id')
+            .eq('id', product_id).single();
+
+        if (pError || !product) return res.status(404).json({ error: 'Produit introuvable' });
+
+        const orderId = generateOrderId();
+        const amount = Number(product.price) * quantity;
+
+        // 2. Création commande
+        const { data: order, error: oError } = await sb.from('orders').insert({
+            id: orderId,
+            user_id: req.user.id,
+            customer_id: req.user.id,
+            vendor_id: vendor_id || product.user_id,
+            items: [{
+                product_id: product.id,
+                vendor_id: vendor_id || product.user_id,
+                price: product.price,
+                name: product.name,
+                image: product.image,
+                quantity,
+                supplier_email: product.supplier_email
+            }],
+            total: amount,
+            merchandise_amount: amount,
+            delivery_fee_amount: 0,
+            total_amount: amount,
+            status: ORDER_STATUSES.PENDING,
+            payment_status: 'UNPAID',
+            customer_phone,
+            customer_name,
+            customer_city,
+            customer_email: customer_email || req.user.email,
+            customer_lat,
+            customer_lng
+        }).select().single();
+
+        if (oError) throw oError;
+
+        await logOrderStatusHistory(sb, { orderId, newStatus: ORDER_STATUSES.PENDING, changedBy: req.user.id });
+
+        res.status(201).json({ success: true, order });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.post('/orders/:id/quote', requireAuth, async (req, res) => {
+    try {
+        const { delivery_fee_amount, estimated_delay_hours, note } = req.body;
+        const sb = supabaseAdmin();
+        
+        const { data: order } = await sb.from('orders').select('vendor_id, status').eq('id', req.params.id).single();
+        if (order.vendor_id !== req.user.id) return res.status(403).json({ error: 'Accès refusé' });
+
+        const { data: quote, error } = await sb.from('delivery_quotes').insert({
+            order_id: req.params.id,
+            vendor_id: req.user.id,
+            delivery_fee_amount: Number(delivery_fee_amount),
+            estimated_delay_hours: parseInt(estimated_delay_hours),
+            note
+        }).select().single();
+
+        if (error) throw error;
+
+        await sb.from('orders').update({ status: ORDER_STATUSES.QUOTE }).eq('id', req.params.id);
+        await logOrderStatusHistory(sb, { orderId: req.params.id, previousStatus: order.status, newStatus: ORDER_STATUSES.QUOTE, changedBy: req.user.id });
+
+        res.status(201).json({ success: true, quote });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.post('/orders/:id/quote/respond', requireAuth, async (req, res) => {
+    try {
+        const { action } = req.body; // 'ACCEPT' or 'REJECT'
+        const sb = supabaseAdmin();
+        
+        const { data: order } = await sb.from('orders').select('*').eq('id', req.params.id).single();
+        if (order.customer_id !== req.user.id) return res.status(403).json({ error: 'Accès refusé' });
+
+        const { data: quote } = await sb.from('delivery_quotes')
+            .select('*').eq('order_id', req.params.id).eq('status', 'PENDING')
+            .order('created_at', { ascending: false }).limit(1).single();
+
+        if (!quote) return res.status(404).json({ error: 'Aucun devis en attente' });
+
+        const status = action === 'ACCEPT' ? 'ACCEPTED' : 'REJECTED';
+        await sb.from('delivery_quotes').update({ status, responded_at: new Date().toISOString() }).eq('id', quote.id);
+
+        let nextStatus = action === 'ACCEPT' ? ORDER_STATUSES.READY_FOR_PAYMENT : ORDER_STATUSES.CANCELLED;
+        
+        const update = { status: nextStatus };
+        if (action === 'ACCEPT') {
+            update.accepted_delivery_quote_id = quote.id;
+            update.delivery_fee_amount = quote.delivery_fee_amount;
+            update.total_amount = Number(order.merchandise_amount) + Number(quote.delivery_fee_amount);
+        }
+
+        await sb.from('orders').update(update).eq('id', req.params.id);
+        await logOrderStatusHistory(sb, { orderId: req.params.id, previousStatus: order.status, newStatus: nextStatus, changedBy: req.user.id });
+
+        res.json({ success: true, status: nextStatus });
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ── NOTIFICATIONS ─────────────────────────────────────────────
@@ -812,3 +992,13 @@ app.use((err, req, res, next) => {
 
 // ── Export pour Vercel ────────────────────────────────────────
 export default app;
+
+// ── Serveur de développement local ────────────────────────────
+// Permet de lancer 'node api/index.js' pour tester l'API localement sur le port 3000
+if (process.env.NODE_ENV !== 'production' || process.argv.includes('--listen')) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`🚀 API Server running on http://localhost:${PORT}`);
+        console.log(`📡 Proxy: Vite (5173) -> API (${PORT})`);
+    });
+}

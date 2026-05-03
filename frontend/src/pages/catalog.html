@@ -971,8 +971,9 @@
                 catalogHasMore = allProducts.length > to + 1;
             }
 
-            // Show skeletons if not initialized and no products yet
-            if (!window.newketInitialized && products.length === 0 && !append) {
+            // Show skeletons if still loading and no products yet
+            const isLoading = (window.ProductManager && window.ProductManager.loading) || !window.newketInitialized;
+            if (isLoading && products.length === 0 && !append) {
                 grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
                 return;
             }

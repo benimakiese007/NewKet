@@ -116,7 +116,20 @@ const UI = {
      */
     renderFilteredBatch(products, container, batchSize, append = false) {
         if (!products || products.length === 0) {
-            if (!append) container.innerHTML = window.buildSkeletonCardHTML(batchSize);
+            if (!append) {
+                const isLoading = window.ProductManager && window.ProductManager.loading;
+                if (isLoading) {
+                    container.innerHTML = window.buildSkeletonCardHTML(batchSize);
+                } else {
+                    container.innerHTML = `
+                        <div class="col-span-full py-20 text-center">
+                            <iconify-icon icon="solar:box-minimalistic-broken" width="64" class="text-gray-300 mb-4" style="color: #cbd5e1;"></iconify-icon>
+                            <p class="text-gray-500 font-medium">Aucun produit trouvé</p>
+                            <button onclick="location.reload()" class="mt-4 text-sm text-primary hover:underline">Réessayer</button>
+                        </div>
+                    `;
+                }
+            }
             return;
         }
 

@@ -21,14 +21,14 @@ const AuthManager = {
         this._authChecking = true;
 
         // --- GLOBAL FAIL-SAFE ---
-        // Force-remove loading screen after 5s regardless of what happens
+        // Force-remove loading screen after 10s regardless of what happens
         setTimeout(() => {
             if (this._authChecking) {
                 console.warn('[NewKet Auth] Fail-safe: Forcefully removing loading screen.');
                 document.documentElement.classList.remove('auth-loading');
                 this._authChecking = false;
             }
-        }, 5000);
+        }, 10000);
         
         try {
             if (window.supabaseClient) {
@@ -102,7 +102,8 @@ const AuthManager = {
         if (this._sessionUpdatePromise) return this._sessionUpdatePromise;
 
         this._sessionUpdatePromise = (async () => {
-        const email = user.email;
+            try {
+                const email = user.email;
         
         // --- 🛡️ SECURE ROLE RESOLUTION ---
         // Priority 1: app_metadata (Controlled strictly by server/admin)
@@ -199,10 +200,14 @@ const AuthManager = {
             if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
             if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
             
-            // Finalize initialization
-            this._authChecking = false;
-            this._initialized = true;
-            document.documentElement.classList.remove('auth-loading');
+            } catch (err) {
+                console.error('[NewKet Auth] handleSessionUpdate error:', err);
+            } finally {
+                // Finalize initialization
+                this._authChecking = false;
+                this._initialized = true;
+                document.documentElement.classList.remove('auth-loading');
+            }
         })();
 
         try {
