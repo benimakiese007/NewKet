@@ -4,6 +4,35 @@
  * Header HTML inlined to avoid CORS issues with file:// protocol.
  * When served via HTTP, fetch is used instead.
  */
+const CATEGORY_NAV_HTML = `
+        <!-- Category Nav -->
+        <div id="categoryNav" class="category-nav bg-white flex sm:block transition-all duration-300 ease-in-out transform origin-top border-b border-gray-100">
+            <div class="max-w-7xl mx-auto w-full px-4 sm:px-8">
+                <nav class="flex items-center gap-2 overflow-x-auto py-3 -mx-2 scroll-affordance" style="scrollbar-width:none;">
+                    <a href="{{ROOT}}src/pages/catalog.html"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Toutes les pièces</a>
+                    <a href="{{ROOT}}src/pages/shops.html"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Boutiques</a>
+                    <a href="{{ROOT}}src/pages/forum.html"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Forum</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Femme</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Homme</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Tech & Gadgets</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">HIGH-TECH</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Art de vivre</a>
+                    <a href="{{ROOT}}src/pages/catalog.html?promo=true"
+                        class="nav-link px-4 py-2 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-100 transition-colors flex items-center gap-1 shrink-0">
+                        <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
+                    </a>
+                </nav>
+            </div>
+        </div>`;
+
 const HEADER_HTML = `
     <!-- Main header container -->
     <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="main">
@@ -153,33 +182,7 @@ const HEADER_HTML = `
         <!-- Global Search Overlay -->
         <div id="searchOverlay" class="search-overlay"></div>
 
-        <!-- Category Nav -->
-        <div id="categoryNav" class="category-nav border-t border-gray-50 bg-white flex sm:block transition-all duration-300 ease-in-out transform origin-top">
-            <div class="w-full px-4 sm:px-8">
-                <nav class="flex items-center gap-2 overflow-x-auto py-2 -mx-2 scroll-affordance" style="scrollbar-width:none;">
-                    <a href="{{ROOT}}src/pages/catalog.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Toutes les pièces</a>
-                    <a href="{{ROOT}}src/pages/shops.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Boutiques</a>
-                    <a href="{{ROOT}}src/pages/forum.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Forum</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Femme</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Homme</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Tech & Gadgets</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">HIGH-TECH</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Art de vivre</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?promo=true"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-100 transition-colors flex items-center gap-1 shrink-0">
-                        <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
-                    </a>
-                </nav>
             </div>
-        </div>
     </header>
 
 <!-- Mobile Menu Sidebar -->
@@ -428,9 +431,24 @@ const ComponentLoader = {
             componentsToLoad.push(
                 this.loadComponent('header-placeholder', 'components/header.html', HEADER_HTML)
             );
+
+            // Handle Category Nav standalone injection
+            let catNavPlaceholder = document.getElementById('category-nav-placeholder');
+            const headerPlaceholder = document.getElementById('header-placeholder');
+            
+            // If placeholder missing on a non-minimal page, inject it dynamically after header
+            if (!catNavPlaceholder && headerPlaceholder) {
+                catNavPlaceholder = document.createElement('div');
+                catNavPlaceholder.id = 'category-nav-placeholder';
+                headerPlaceholder.parentNode.insertBefore(catNavPlaceholder, headerPlaceholder.nextSibling);
+            }
+
+            if (catNavPlaceholder) {
+                componentsToLoad.push(
+                    this.loadComponent('category-nav-placeholder', '', CATEGORY_NAV_HTML)
+                );
+            }
         }
-
-
 
         if (!isMinimalPage) {
             componentsToLoad.push(

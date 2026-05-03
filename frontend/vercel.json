@@ -10,6 +10,17 @@
     { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
 
     { "source": "/boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
-    { "source": "/boutique/:shopSlug", "destination": "/src/pages/shop?shop=:shopSlug" }
+    { "source": "/boutique/:shopSlug", "destination": "/src/pages/shop?shop=:shopSlug" },
+    { "source": "/boutique/:shopSlug/produit/:productSlug", "destination": "/src/pages/product?id=:productSlug" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/escrows/release-due",
+      "schedule": "5 0 * * *"
+    },
+    {
+      "path": "/api/cron/disputes/process-due",
+      "schedule": "10 0 * * *"
+    }
   ]
 }

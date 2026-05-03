@@ -15,6 +15,19 @@ const generateTxId = () => {
     return 'NK_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_' + Date.now();
 };
 
+// ── CONSTANTES CRON ──────────────────────────────────────────
+const CRON_STATUSES = {
+    ORDER_DELIVERED: 'Livré',
+    ORDER_COMPLETED: 'Terminé',
+    ESCROW_AUTO_RELEASED: 'AUTO_RELEASED',
+    DISPUTE_SELLER_PENDING: 'SELLER_PENDING',
+    DISPUTE_BUYER_PENDING: 'BUYER_PENDING',
+    DISPUTE_UNDER_REVIEW: 'UNDER_REVIEW',
+    DISPUTE_RESOLVED: 'RESOLVED',
+    RESOLUTION_FULL_REFUND: 'FULL_REFUND',
+    RESOLUTION_RELEASE_TO_SELLER: 'RELEASE_TO_SELLER'
+};
+
 const app = express();
 const router = express.Router();
 
@@ -89,6 +102,17 @@ const requireAdmin = async (req, res, next) => {
         || req.user.user_metadata?.role === 'admin';
     if (!isAdmin) return res.status(403).json({ error: 'Accès refusé: droits administrateur requis.' });
     next();
+};
+
+const requireCronAuth = (req, res, next) => {
+    const secret = process.env.CRON_SECRET || process.env.NEWKET_CRON_SECRET || 'fallback-if-not-set';
+    const authHeader = req.headers.authorization || '';
+    const token = req.query.token;
+    if (authHeader === `Bearer ${secret}` || token === secret || req.headers['x-vercel-cron']) {
+        return next();
+    }
+    console.warn(`[Cron] Unauthorized attempt from ${req.ip}`);
+    res.status(401).json({ error: 'Unauthorized cron access' });
 };
 
 // ── Health ────────────────────────────────────────────────────
@@ -500,6 +524,105 @@ router.put('/profile', requireAuth, async (req, res) => {
 // Montage du routeur sur '/' et '/api' pour une compatibilité maximale
 app.use('/api', router);
 app.use('/', router);
+
+// ── CRON JOBS ────────────────────────────────────────────────
+router.get('/cron/escrows/release-due', requireCronAuth, async (req, res) => {
+    try {
+        const sb = supabaseAdmin();
+        const now = new Date().toISOString();
+        
+        const { data: orders, error } = await sb.from('orders')
+            .select('*')
+            .eq('status', CRON_STATUSES.ORDER_DELIVERED)
+            .lte('escrow_release_at', now);
+            
+        if (error) throw error;
+        
+        let processed = 0;
+        for (const order of (orders || [])) {
+            await sb.from('orders').update({
+                status: CRON_STATUSES.ORDER_COMPLETED,
+                escrow_status: CRON_STATUSES.ESCROW_AUTO_RELEASED,
+                released_at: now,
+                completed_at: now,
+                updated_at: now
+            }).eq('id', order.id);
+            
+            await sb.from('order_status_history').insert({
+                order_id: order.id,
+                previous_status: CRON_STATUSES.ORDER_DELIVERED,
+                new_status: CRON_STATUSES.ORDER_COMPLETED,
+                changed_by: 'system-cron',
+                notes: 'Auto-release via Vercel Cron'
+            });
+            processed++;
+        }
+        
+        res.json({ success: true, job: 'release-due-escrows', processed, timestamp: now });
+    } catch (err) {
+        console.error('[Cron] Escrow release failed:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.get('/cron/disputes/process-due', requireCronAuth, async (req, res) => {
+    try {
+        const sb = supabaseAdmin();
+        const now = new Date().toISOString();
+        
+        const { data: disputes, error } = await sb.from('disputes')
+            .select('*')
+            .in('status', [
+                CRON_STATUSES.DISPUTE_SELLER_PENDING,
+                CRON_STATUSES.DISPUTE_BUYER_PENDING,
+                CRON_STATUSES.DISPUTE_UNDER_REVIEW
+            ]);
+            
+        if (error) throw error;
+        
+        let processed = 0;
+        for (const dispute of (disputes || [])) {
+            let shouldResolve = false;
+            let resolution = '';
+            let reason = '';
+            
+            if (dispute.status === CRON_STATUSES.DISPUTE_SELLER_PENDING && dispute.seller_response_due_at <= now) {
+                shouldResolve = true;
+                resolution = CRON_STATUSES.RESOLUTION_FULL_REFUND;
+                reason = 'seller_timeout';
+            } else if (dispute.status === CRON_STATUSES.DISPUTE_BUYER_PENDING && dispute.buyer_response_due_at <= now) {
+                shouldResolve = true;
+                resolution = dispute.proposed_resolution || CRON_STATUSES.RESOLUTION_FULL_REFUND;
+                reason = 'buyer_timeout';
+            } else if (dispute.status === CRON_STATUSES.DISPUTE_UNDER_REVIEW && dispute.review_due_at <= now) {
+                shouldResolve = true;
+                resolution = CRON_STATUSES.RESOLUTION_RELEASE_TO_SELLER; // Default admin timeout policy
+                reason = 'review_timeout';
+            }
+            
+            if (shouldResolve) {
+                await sb.from('disputes').update({
+                    status: CRON_STATUSES.DISPUTE_RESOLVED,
+                    resolution,
+                    resolved_at: now,
+                    updated_at: now
+                }).eq('id', dispute.id);
+                
+                await sb.from('dispute_messages').insert({
+                    dispute_id: dispute.id,
+                    type: 'SYSTEM',
+                    payload: { event: 'AUTO_RESOLVE', reason, resolution }
+                });
+                processed++;
+            }
+        }
+        
+        res.json({ success: true, job: 'process-due-disputes', processed, timestamp: now });
+    } catch (err) {
+        console.error('[Cron] Dispute processing failed:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // ── Gestion des erreurs globale ───────────────────────────────
 app.use((err, req, res, next) => {

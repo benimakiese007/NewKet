@@ -226,7 +226,6 @@ const App = {
             // Catalog: keep header/menu stable like Index (no retract/compact hiding).
             if (isCatalogPage) {
                 mainHeader.classList.toggle('scrolled', shouldElevate);
-                categoryNav?.classList.remove('nav-hidden');
                 mobileSearch?.classList.remove('search-bar-hidden');
                 mainHeader.classList.remove('header-compact', 'header-retracted');
                 accumulatedDelta = 0;
@@ -245,7 +244,6 @@ const App = {
                 document.querySelector('[role="dialog"][aria-modal="true"]:not([aria-hidden="true"])') ||
                 document.querySelector('dialog[open]')
             ) {
-                categoryNav?.classList.remove('nav-hidden');
                 mobileSearch?.classList.remove('search-bar-hidden');
                 mainHeader.classList.remove('header-compact', 'header-retracted');
                 accumulatedDelta = 0;
@@ -263,7 +261,6 @@ const App = {
             mainHeader.classList.toggle('scrolled', shouldElevate);
 
             if (clampedScrollTop <= 24) {
-                categoryNav?.classList.remove('nav-hidden');
                 mobileSearch?.classList.remove('search-bar-hidden');
                 mainHeader.classList.remove('header-compact', 'header-retracted');
                 accumulatedDelta = 0;
@@ -275,8 +272,6 @@ const App = {
             const scrollingUp = accumulatedDelta < -deltaThreshold;
 
             if (clampedScrollTop > scrollThreshold && scrollingDown) {
-                categoryNav?.classList.add('nav-hidden');
-
                 if (headerScrollState.searchOnSeparateRow && clampedScrollTop > compactThreshold) {
                     mobileSearch?.classList.add('search-bar-hidden');
                     mainHeader.classList.add('header-compact');
@@ -289,14 +284,9 @@ const App = {
 
                 accumulatedDelta = 0;
             } else if (scrollingUp) {
-                categoryNav?.classList.remove('nav-hidden');
                 mobileSearch?.classList.remove('search-bar-hidden');
                 mainHeader.classList.remove('header-compact', 'header-retracted');
                 accumulatedDelta = 0;
-            }
-
-            if (clampedScrollTop <= scrollThreshold) {
-                categoryNav?.classList.remove('nav-hidden');
             }
 
             if (clampedScrollTop <= compactThreshold) {
