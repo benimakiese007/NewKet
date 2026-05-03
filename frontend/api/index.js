@@ -546,7 +546,7 @@ router.get('/orders', requireAuth, async (req, res) => {
         // Security is enforced by the explicit .or() filter below.
         const sb = supabaseAdmin();
         const { data, error } = await sb.from('orders')
-            .select('*')
+            .select('*, customer:users!orders_customer_id_users_fk(*)')
             .or(`vendor_id.eq.${req.user.id},customer_id.eq.${req.user.id}`)
             .order('created_at', { ascending: false });
 
