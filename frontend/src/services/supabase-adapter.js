@@ -77,7 +77,7 @@ window.SupabaseAdapter = {
                     if (attempt >= maxAttempts) {
                         console.error('[NewKet] Fatal Auth Error: Token could not be refreshed. Forcing logout.');
                         if (window.AuthManager && typeof window.AuthManager.logout === 'function') {
-                            window.AuthManager.logout();
+                            window.AuthManager.logout(false, 'Erreur fatale authentification (Adapter)');
                         } else {
                             localStorage.removeItem('newketRole');
                             localStorage.removeItem('newketUserEmail');

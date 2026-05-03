@@ -436,7 +436,7 @@
         async function initAchatPage() {
             document.getElementById('btnLogout')?.addEventListener('click', () => {
                 if (window.AuthManager && typeof AuthManager.logout === 'function') {
-                    AuthManager.logout('Logout manuel (achat)');
+                    AuthManager.logout(false, 'Logout manuel (achat)');
                     return;
                 }
                 localStorage.clear();

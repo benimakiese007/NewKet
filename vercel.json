@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "frontend/dist",
+  "framework": "vite",
+  "cleanUrls": true,
+  "functions": {
+    "frontend/api/index.js": {
+      "runtime": "nodejs18.x",
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "frontend/api/index.js"
+    },
+    { "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet", "destination": "/src/pages/product?id=:productSlug" },
+    { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
+    { "source": "/boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
+    { "source": "/boutique/:shopSlug", "destination": "/src/pages/shop?shop=:shopSlug" },
+    { "source": "/boutique/:shopSlug/produit/:productSlug", "destination": "/src/pages/product?id=:productSlug" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/escrows/release-due",
+      "schedule": "5 0 * * *"
+    },
+    {
+      "path": "/api/cron/disputes/process-due",
+      "schedule": "10 0 * * *"
+    }
+  ]
+}

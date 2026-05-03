@@ -445,6 +445,12 @@ const AuthManager = {
     },
 
     async logout(confirmFirst = false, reason = 'Utilisateur/Système') {
+        // Robustness: if first arg is a string, it's actually the reason
+        if (typeof confirmFirst === 'string') {
+            reason = confirmFirst;
+            confirmFirst = false;
+        }
+
         if (confirmFirst) {
             const confirmed = await window.showLogoutConfirm();
             if (!confirmed) return;
@@ -501,11 +507,26 @@ const AuthManager = {
         
         try {
             // getUser() always calls the server to get fresh data, unlike getSession()
+            // Use the adapter for a safer session check (includes retry and timeout)
+            const session = window.SupabaseAdapter ? await window.SupabaseAdapter.getSession(5000) : null;
+            
+            if (!session) {
+                console.warn('[NewKet Auth] Session invalid or expired during refresh.');
+                this.logout(false, 'Session expirée');
+                return;
+            }
+
+            // double check user object
             const { data: { user }, error } = await window.supabaseClient.auth.getUser();
             
             if (error || !user) {
-                console.warn('[NewKet Auth] Session invalid or expired during refresh.');
-                this.logout('Session expirée');
+                // If it's a server error (5xx), we might want to wait instead of logging out
+                if (error && error.status >= 500) {
+                    console.warn('[NewKet Auth] Supabase server error during refresh validation. Skipping logout for now.');
+                    return;
+                }
+                console.warn('[NewKet Auth] User invalid or missing during refresh.');
+                this.logout(false, 'Session expirée ou invalide');
                 return;
             }
 
@@ -703,7 +724,7 @@ const AuthManager = {
 
             if (isProtectedPage && !isLoginPage) {
                 console.error('[NewKet Auth] Access denied: No active role on protected page.');
-                this.logout('Session ou rôle manquant sur page protégée');
+                this.logout(false, 'Session ou rôle manquant sur page protégée');
                 return;
             }
         }
