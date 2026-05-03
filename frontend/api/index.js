@@ -9,11 +9,32 @@
 import express from 'express';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
+import nodemailer from 'nodemailer';
 
 // Helpers
 const generateTxId = () => {
     return 'NK_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_' + Date.now();
 };
+
+// ── Helpers Analytics ─────────────────────────────────────────
+const getClientIp = (req) => {
+    const xff = req.headers['x-forwarded-for'];
+    if (typeof xff === 'string' && xff.trim()) {
+        return xff.split(',')[0].trim();
+    }
+    return req.ip || req.connection?.remoteAddress || '';
+};
+
+const hashIp = (ip) => {
+    if (!ip) return null;
+    const salt = process.env.ANALYTICS_IP_SALT || 'nk-salt-2024';
+    return crypto.createHash('sha256').update(`${salt}:${ip}`).digest('hex');
+};
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isValidUuid = (id) => typeof id === 'string' && UUID_REGEX.test(id);
 
 // ── CONSTANTES CRON ──────────────────────────────────────────
 const CRON_STATUSES = {
@@ -27,6 +48,55 @@ const CRON_STATUSES = {
     RESOLUTION_FULL_REFUND: 'FULL_REFUND',
     RESOLUTION_RELEASE_TO_SELLER: 'RELEASE_TO_SELLER'
 };
+
+// ── Email Service ─────────────────────────────────────────────
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
+    }
+});
+
+const EmailService = {
+    async sendMail({ to, subject, html }) {
+        try {
+            if (!process.env.GMAIL_USER) return { success: false, error: 'GMAIL_USER non configuré' };
+            const info = await transporter.sendMail({
+                from: `"NewKet EMarket" <${process.env.GMAIL_USER}>`,
+                to, subject, html
+            });
+            return { success: true, messageId: info.messageId };
+        } catch (error) {
+            console.error('[EmailService] Error:', error);
+            return { success: false, error: error.message };
+        }
+    },
+    async sendLeadNotification({ vendorEmail, vendorName, productName, customerName, customerPhone }) {
+        const html = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                <h1 style="text-align: center; color: #000;">NewKet</h1>
+                <div style="padding: 20px; background-color: #f0fdf4; border-radius: 15px;">
+                    <h2 style="color: #166534;">Nouveau Prospect WhatsApp ! 🚀</h2>
+                    <p>Bonjour <b>${vendorName}</b>,</p>
+                    <p>Un client vient de cliquer sur votre produit <b>"${productName}"</b>.</p>
+                    <p><b>Client :</b> ${customerName || 'Visiteur'}</p>
+                    <p><b>Tel :</b> ${customerPhone || 'Visible sur WhatsApp'}</p>
+                </div>
+            </div>
+        `;
+        return this.sendMail({ to: vendorEmail, subject: `🚀 Nouveau prospect pour : ${productName}`, html });
+    }
+};
+
+// ── Rate Limiters ─────────────────────────────────────────────
+const analyticsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100, // Augmenté pour Vercel (plusieurs instances)
+    message: { error: 'Trop de requêtes analytics.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 const app = express();
 const router = express.Router();
@@ -123,7 +193,7 @@ router.get('/health', (req, res) =>
 // ── Analytics (vues produit — même contrat que backend Express) ─
 const PRODUCT_VIEW_ID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-router.post('/analytics/view/:productId', async (req, res) => {
+router.post('/analytics/view/:productId', analyticsLimiter, async (req, res) => {
     const { productId } = req.params;
     if (!productId || !PRODUCT_VIEW_ID_REGEX.test(productId)) {
         return res.status(400).json({ error: 'Product ID invalide.' });
@@ -136,6 +206,75 @@ router.post('/analytics/view/:productId', async (req, res) => {
     } catch (err) {
         console.error('[Vercel API] analytics/view:', err?.message || err);
         return res.status(500).json({ error: 'Failed to count view.' });
+    }
+});
+
+router.post('/analytics/shop-view', analyticsLimiter, async (req, res) => {
+    const { vendor_id, session_id } = req.body;
+    if (!isValidUuid(vendor_id)) {
+        return res.status(400).json({ error: 'vendor_id invalide.' });
+    }
+
+    const viewerUserId = req.user?.id && isValidUuid(req.user.id) ? req.user.id : null;
+    const safeSessionId = typeof session_id === 'string' && session_id.length <= 128 ? session_id : null;
+    const ipHash = hashIp(getClientIp(req));
+    const userAgent = typeof req.headers['user-agent'] === 'string' ? req.headers['user-agent'].slice(0, 300) : null;
+
+    try {
+        const sb = supabaseAdmin();
+        const dayKey = new Date().toISOString().slice(0, 10);
+        const dayStart = `${dayKey}T00:00:00.000Z`;
+        const dayEnd = `${dayKey}T23:59:59.999Z`;
+
+        // Déduplication simple
+        if (viewerUserId) {
+            const { data: existing } = await sb.from('shop_views').select('id')
+                .eq('vendor_id', vendor_id).eq('viewer_user_id', viewerUserId)
+                .gte('created_at', dayStart).lt('created_at', dayEnd).limit(1);
+            if (existing?.length) return res.json({ success: true, deduped: true });
+        } else if (safeSessionId) {
+            const { data: existing } = await sb.from('shop_views').select('id')
+                .eq('vendor_id', vendor_id).eq('session_id', safeSessionId)
+                .gte('created_at', dayStart).lt('created_at', dayEnd).limit(1);
+            if (existing?.length) return res.json({ success: true, deduped: true });
+        }
+
+        const { error } = await sb.from('shop_views').insert({
+            vendor_id, viewer_user_id: viewerUserId, session_id: safeSessionId,
+            ip_hash: ipHash, user_agent: userAgent
+        });
+        if (error) throw error;
+        return res.json({ success: true });
+    } catch (err) {
+        console.error('[Vercel API] analytics/shop-view:', err);
+        return res.status(500).json({ error: 'Failed to record shop view.' });
+    }
+});
+
+router.get('/analytics/vendor/shop-metrics', requireAuth, async (req, res) => {
+    const vendorId = req.user.id;
+    const days = Math.max(1, Math.min(90, parseInt(req.query.days) || 30));
+    const sinceIso = new Date(Date.now() - (days * 24 * 60 * 60 * 1000)).toISOString();
+
+    try {
+        const sb = supabaseAdmin();
+        const { data, error } = await sb.from('shop_views').select('viewer_user_id, session_id, ip_hash, created_at')
+            .eq('vendor_id', vendorId).gte('created_at', sinceIso);
+        if (error) throw error;
+
+        const rows = data || [];
+        const uniqueVisitors = new Set(rows.map(r => String(r.viewer_user_id || r.session_id || r.ip_hash || ''))
+            .filter(v => v && v !== 'null')).size;
+
+        return res.json({
+            success: true,
+            days,
+            total_views: rows.length,
+            unique_visitors: uniqueVisitors
+        });
+    } catch (err) {
+        console.error('[Vercel API] analytics/shop-metrics:', err);
+        return res.status(500).json({ error: 'Failed to fetch metrics.' });
     }
 });
 
@@ -509,6 +648,47 @@ router.get('/profile', requireAuth, async (req, res) => {
         const { data, error } = await sb.from('profiles').select('*').eq('id', req.user.id).single();
         if (error && error.code !== 'PGRST116') throw error;
         res.json(data || {});
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── EMAILS ────────────────────────────────────────────────────
+router.post('/emails/lead-notification', optionalAuth, async (req, res) => {
+    const { vendorEmail, vendorName, productName, customerName, customerPhone } = req.body;
+    if (!vendorEmail || !vendorName || !productName) {
+        return res.status(400).json({ error: 'Informations manquantes.' });
+    }
+    const result = await EmailService.sendLeadNotification({
+        vendorEmail, vendorName, productName, customerName, customerPhone
+    });
+    if (result.success) res.json({ success: true });
+    else res.status(500).json({ error: result.error });
+});
+
+// ── REVIEWS ───────────────────────────────────────────────────
+router.get('/reviews', async (req, res) => {
+    try {
+        const { product_id, page = 1, limit = 50 } = req.query;
+        const offset = (page - 1) * limit;
+        const sb = supabaseAdmin();
+        let query = sb.from('product_reviews').select('*').order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+        if (product_id) query = query.eq('product_id', product_id);
+        const { data, error } = await query;
+        if (error) throw error;
+        res.json(data);
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ── SUPPORT ───────────────────────────────────────────────────
+router.post('/support/tickets', optionalAuth, async (req, res) => {
+    try {
+        const { subject, customer_name, customer_email, message } = req.body;
+        if (!subject || !customer_name || !message) return res.status(400).json({ error: 'Champs requis manquants.' });
+        const ticketId = `TKT-${Date.now().toString().slice(-6)}`;
+        const { data, error } = await supabaseAdmin().from('support_tickets').insert({
+            id: ticketId, subject, customer_name, customer_email, message, status: 'OPEN'
+        }).select().single();
+        if (error) throw error;
+        res.status(201).json(data);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 

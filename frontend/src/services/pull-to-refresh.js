@@ -9,7 +9,7 @@ const PullToRefresh = {
         pulling: false,
         armed: false,
         startY: 0,
-        surface: null,
+        wrapper: null,
         indicator: null,
         label: null,
         spinner: null
@@ -34,11 +34,19 @@ const PullToRefresh = {
         const style = document.createElement('style');
         style.id = 'nk-ptr-styles';
         style.textContent = `
+            .nk-ptr-indicator-wrapper {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 0;
+                overflow: hidden;
+                width: 100%;
+                will-change: height;
+                transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
             .nk-ptr-indicator {
-                position: fixed;
-                top: 16px;
-                left: 50%;
-                z-index: 1300;
+                position: relative;
                 display: flex;
                 align-items: center;
                 gap: 12px;
@@ -57,7 +65,7 @@ const PullToRefresh = {
                     inset 0 0 0 1px rgba(255, 255, 255, 0.5);
                 
                 color: #000;
-                transform: translate(-50%, -100px);
+                transform: translateY(-20px);
                 opacity: 0;
                 pointer-events: none;
                 transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
@@ -66,7 +74,7 @@ const PullToRefresh = {
 
             .nk-ptr-indicator.is-visible {
                 opacity: 1;
-                transform: translate(-50%, 0);
+                transform: translateY(0);
             }
 
             .nk-ptr-spinner-container {
@@ -124,6 +132,10 @@ const PullToRefresh = {
     createIndicator() {
         if (this.state.indicator) return;
 
+        const wrapper = document.createElement('div');
+        wrapper.className = 'nk-ptr-indicator-wrapper';
+        wrapper.id = 'nk-ptr-wrapper';
+
         const indicator = document.createElement('div');
         indicator.className = 'nk-ptr-indicator';
         indicator.setAttribute('aria-hidden', 'true');
@@ -134,14 +146,29 @@ const PullToRefresh = {
             <span class="nk-ptr-label">Mise à jour...</span>
         `;
 
-        document.body.appendChild(indicator);
+        wrapper.appendChild(indicator);
+
+        const categoryNav = document.getElementById('category-nav-placeholder');
+        const headerPlaceholder = document.getElementById('header-placeholder');
+        const main = document.querySelector('main');
+        
+        if (categoryNav && categoryNav.parentNode) {
+            categoryNav.parentNode.insertBefore(wrapper, categoryNav.nextSibling);
+        } else if (headerPlaceholder && headerPlaceholder.parentNode) {
+            headerPlaceholder.parentNode.insertBefore(wrapper, headerPlaceholder.nextSibling);
+        } else if (main) {
+            main.insertBefore(wrapper, main.firstChild);
+        } else {
+            document.body.prepend(wrapper);
+        }
+
+        this.state.wrapper = wrapper;
         this.state.indicator = indicator;
         this.state.spinner = indicator.querySelector('.nk-ptr-spinner');
         this.state.label = indicator.querySelector('.nk-ptr-label');
     },
 
     isEligibleTouch(event) {
-        this.state.surface = document.querySelector('main') || document.body;
 
         if (typeof window.NewKetPageRefresh !== 'function' || this.state.refreshing) return false;
         if (window.innerWidth > PTR_MIN_TOUCH_WIDTH) return false;
@@ -213,20 +240,18 @@ const PullToRefresh = {
     applyPullVisuals(pullDistance) {
         const progress = Math.min(1, pullDistance / PTR_TRIGGER_DISTANCE);
         
-        // Elastic translation for the main surface
-        if (this.state.surface) {
-            const surfaceTranslate = Math.round(progress * PTR_MAX_TRANSLATE);
-            this.state.surface.style.transition = 'none';
-            this.state.surface.style.transform = `translateY(${surfaceTranslate}px)`;
+        if (this.state.wrapper) {
+            const wrapperHeight = Math.round(progress * PTR_MAX_TRANSLATE);
+            this.state.wrapper.style.transition = 'none';
+            this.state.wrapper.style.height = `${wrapperHeight}px`;
         }
 
         if (this.state.indicator) {
             this.state.indicator.classList.add('is-visible');
             this.state.indicator.classList.remove('is-refreshing');
             
-            // The pill slides down from the top
-            const pillTranslate = Math.min(70, Math.round(progress * 80));
-            this.state.indicator.style.transform = `translate(-50%, ${pillTranslate - 50}px)`;
+            const pillTranslate = Math.min(0, Math.round(progress * 20) - 20);
+            this.state.indicator.style.transform = `translateY(${pillTranslate}px)`;
         }
 
         if (this.state.label) {
@@ -241,19 +266,18 @@ const PullToRefresh = {
     async startRefresh() {
         this.state.refreshing = true;
 
+        if (this.state.wrapper) {
+            this.state.wrapper.style.transition = 'height 0.3s cubic-bezier(0.2, 0, 0, 1)';
+            this.state.wrapper.style.height = `${PTR_MAX_TRANSLATE}px`;
+        }
+
         if (this.state.indicator) {
             this.state.indicator.classList.add('is-visible', 'is-refreshing');
-            // Pin the pill in its "refreshing" position
-            this.state.indicator.style.transform = `translate(-50%, 25px)`;
+            this.state.indicator.style.transform = `translateY(0)`;
         }
 
         if (this.state.label) {
             this.state.label.textContent = 'Actualisation...';
-        }
-
-        if (this.state.surface) {
-            this.state.surface.style.transition = 'transform 0.3s cubic-bezier(0.2, 0, 0, 1)';
-            this.state.surface.style.transform = `translateY(${PTR_MAX_TRANSLATE}px)`;
         }
 
         try {
@@ -274,19 +298,19 @@ const PullToRefresh = {
     },
 
     resetVisuals() {
-        if (this.state.surface) {
-            this.state.surface.style.transition = 'transform 0.5s cubic-bezier(0.2, 0, 0, 1)';
-            this.state.surface.style.transform = 'translateY(0)';
+        if (this.state.wrapper) {
+            this.state.wrapper.style.transition = 'height 0.5s cubic-bezier(0.2, 0, 0, 1)';
+            this.state.wrapper.style.height = '0';
         }
 
         if (this.state.indicator) {
             this.state.indicator.classList.remove('is-visible', 'is-refreshing');
-            this.state.indicator.style.transform = 'translate(-50%, -100px)';
+            this.state.indicator.style.transform = 'translateY(-20px)';
         }
 
         window.setTimeout(() => {
-            if (!this.state.pulling && !this.state.refreshing && this.state.surface) {
-                this.state.surface.style.transition = '';
+            if (!this.state.pulling && !this.state.refreshing && this.state.wrapper) {
+                this.state.wrapper.style.transition = '';
             }
         }, 500);
     }
