@@ -10,14 +10,14 @@ let _isShowingToast = false;
 /**
  * Shows a toast message to the user using a central queue system.
  */
-function showToast(message, type = 'info', title = null, iconOverride = null) {
+export function showToast(message, type = 'info', title = null, iconOverride = null) {
     _toastQueue.push({ message, type, title, iconOverride });
     if (!_isShowingToast) {
         _processToastQueue();
     }
 }
 
-function normalizeNotificationType(rawType) {
+export function normalizeNotificationType(rawType) {
     if (!rawType) return 'info';
     if (rawType === 'broadcast') return 'info';
     if (rawType.startsWith('broadcast:')) return rawType.split(':')[1] || 'info';
@@ -25,7 +25,7 @@ function normalizeNotificationType(rawType) {
     return rawType;
 }
 
-function isPopupNotification(rawType) {
+export function isPopupNotification(rawType) {
     return rawType === 'broadcast' || String(rawType || '').startsWith('broadcast:');
 }
 
@@ -321,7 +321,7 @@ document.addEventListener('click', async (event) => {
 /**
  * Debounce function to limit execution frequency.
  */
-function debounce(func, wait) {
+export function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
         const later = () => {
@@ -339,7 +339,7 @@ window.debounce = debounce;
  * Handles sidebar collapse/expand states across all dashboards.
  * Supports both Desktop (Collapse) and Mobile (Drawer) modes.
  */
-const SidebarManager = {
+export const SidebarManager = {
     state: {
         isCollapsed: localStorage.getItem('newketSidebarCollapsed') === 'true',
         isMobile: window.innerWidth < 1024,
@@ -538,7 +538,7 @@ window.SidebarManager = SidebarManager;
 /**
  * Génère les étoiles de notation.
  */
-function buildStarsHTML(rating) {
+export function buildStarsHTML(rating) {
     const fullStars = Math.floor(rating || 0);
     const emptyStars = 5 - fullStars;
     let html = '';
@@ -557,7 +557,7 @@ function buildStarsHTML(rating) {
  * @param {object} p - Product object.
  * @param {object} options - UI options (animationClass, delay).
  */
-function buildProductCardHTML(p, options = {}) {
+export function buildProductCardHTML(p, options = {}) {
     const {
         animationClass = '',
         delay = '0s',
@@ -691,7 +691,7 @@ function buildProductCardHTML(p, options = {}) {
  * the same list the user came from (catalog/collection/search/shop/favorites).
  * @param {HTMLElement} linkEl - The clicked <a> element.
  */
-function setProductSwipeContext(linkEl) {
+export function setProductSwipeContext(linkEl) {
     try {
         if (!linkEl || !linkEl.closest) return;
         const container =
@@ -721,7 +721,7 @@ function setProductSwipeContext(linkEl) {
 /**
  * Builds Skeleton cards for loading states.
  */
-function buildSkeletonCardHTML(count = 5) {
+export function buildSkeletonCardHTML(count = 5) {
     let html = '';
     for (let i = 0; i < count; i++) {
         html += `
@@ -742,7 +742,7 @@ function buildSkeletonCardHTML(count = 5) {
 /**
  * Builds Skeleton for Dashboard Statistics Grid.
  */
-function buildSkeletonDashboardStatsHTML(count = 4) {
+export function buildSkeletonDashboardStatsHTML(count = 4) {
     let html = '';
     for (let i = 0; i < count; i++) {
         html += `
@@ -759,7 +759,7 @@ function buildSkeletonDashboardStatsHTML(count = 4) {
 /**
  * Builds Skeleton for Activity Feed.
  */
-function buildSkeletonActivityHTML(count = 3) {
+export function buildSkeletonActivityHTML(count = 3) {
     let html = '';
     for (let i = 0; i < count; i++) {
         html += `
@@ -778,7 +778,7 @@ function buildSkeletonActivityHTML(count = 3) {
 /**
  * Builds Skeleton for Notifications list.
  */
-function buildSkeletonNotificationHTML(count = 4) {
+export function buildSkeletonNotificationHTML(count = 4) {
     let html = '';
     for (let i = 0; i < count; i++) {
         html += `
@@ -814,7 +814,7 @@ function buildSkeletonNotificationHTML(count = 4) {
  * Normalizes an image URL and returns the first entry when multiple are provided.
  * Supabase runtime transformations are disabled for this project, so URLs are left untouched.
  */
-function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
+export function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
     if (!url) return '/src/assets/Images/default.png';
     
     let target = url;
@@ -1859,7 +1859,7 @@ window.showPromptModal = ({
  */
 let _lazyObserver = null;
 
-function initLazyImages(root = document) {
+export function initLazyImages(root = document) {
     const lazyImages = root.querySelectorAll('img.lazy-img[data-src]');
     if (!lazyImages.length) return;
 
@@ -1911,7 +1911,7 @@ function initLazyImages(root = document) {
 /**
  * Gets a consistent color based on a string (for avatars).
  */
-function getAvatarColor(name) {
+export function getAvatarColor(name) {
     if (!name) return '#6366f1';
     const palette = [
         '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b',
@@ -1928,7 +1928,7 @@ function getAvatarColor(name) {
 /**
  * Gets initials from a full name.
  */
-function getInitials(name) {
+export function getInitials(name) {
     if (!name) return '?';
     const parts = name.trim().split(/\s+/);
     if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
@@ -1939,7 +1939,7 @@ function getInitials(name) {
  * Renders an avatar with image fallback to initials.
  * Supports both complex (img + placeholder) and simple (single div) displays.
  */
-function renderAvatar(name, url, imgId, placeholderId) {
+export function renderAvatar(name, url, imgId, placeholderId) {
     const img = document.getElementById(imgId);
     const placeholder = document.getElementById(placeholderId);
     
@@ -2014,7 +2014,7 @@ function renderAvatar(name, url, imgId, placeholderId) {
  * Gère le mode clair/sombre de l'application via TailwindCSS (class 'dark' sur html)
  * et sauvegarde la préférence dans le localStorage.
  */
-const ThemeManager = {
+export const ThemeManager = {
     _boundToggleHandler: false,
     getPageThemeDefault() {
         return document.documentElement.dataset.themeDefault || document.body?.dataset.themeDefault || 'system';
