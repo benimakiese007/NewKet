@@ -156,8 +156,8 @@ const PullToRefresh = {
             categoryNav.parentNode.insertBefore(wrapper, categoryNav.nextSibling);
         } else if (headerPlaceholder && headerPlaceholder.parentNode) {
             headerPlaceholder.parentNode.insertBefore(wrapper, headerPlaceholder.nextSibling);
-        } else if (main) {
-            main.insertBefore(wrapper, main.firstChild);
+        } else if (main && main.parentNode) {
+            main.parentNode.insertBefore(wrapper, main);
         } else {
             document.body.prepend(wrapper);
         }

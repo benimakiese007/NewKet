@@ -45,18 +45,14 @@
 <body class="bg-gray-50 transition-colors duration-200">
     <nav class="dashboard-topbar fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
-            <div class="flex items-center gap-6">
-                <button id="vendorMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
-                    <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
-                </button>
-            </div>
-
-            <!-- Center Logo -->
-            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <a href="/" class="flex items-center justify-center group">
-                    <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain">
-                </a>
-            </div>
+        <div class="flex items-center gap-4 sm:gap-6">
+            <button id="vendorMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+                <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
+            </button>
+            <a href="/" class="flex items-center justify-center group">
+                <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain">
+            </a>
+        </div>
 
             <div class="flex items-center gap-4">
                 <!-- Theme Toggle Desktop -->
@@ -82,99 +78,95 @@
         </div>
     </nav>
 
-    </nav>
-
     <!-- Overlay pour Mobile -->
     <div id="vendorSidebarOverlay" class="fixed inset-0 bg-black/30 z-[9998] hidden transition-all duration-300"></div>
 
-    <!-- Sidebar moved to body root for correct stacking context on mobile -->
-    <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full md:translate-x-0 md:sticky md:top-28 md:self-start md:inset-auto md:w-72 transition-transform duration-400 ease-in-out h-screen md:h-[calc(100vh-7rem)] overflow-y-auto border-0 md:border-r border-gray-100 flex-shrink-0">
+    <!-- Sidebar moved back to main to act as a flex sibling, removing relative from main to preserve stacking context -->
+    <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col md:flex-row gap-8 relative">
+        <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full md:translate-x-0 md:sticky md:top-28 md:self-start md:inset-auto md:w-72 transition-transform duration-400 ease-in-out h-screen md:h-[calc(100vh-7rem)] overflow-y-auto border-0 md:border-r border-gray-100 flex-shrink-0">
 
-        <!-- Mobile Close Button -->
-        <button onclick="SidebarManager.close()" class="md:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
-            <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
-        </button>
+            <!-- Mobile Close Button -->
+            <button onclick="SidebarManager.close()" class="md:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
+                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+            </button>
 
-        <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 md:pt-6 md:min-h-0 md:rounded-[1.5rem] md:border md:shadow-sm space-y-8 relative">
+            <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 md:pt-6 md:min-h-0 md:rounded-[1.5rem] md:border md:shadow-sm space-y-8 relative">
 
-            <!-- Brand Section -->
-            <div class="flex items-center gap-4 px-2 pb-6 border-b border-gray-100/50">
-            <div class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center shadow-sm border border-white/15 shrink-0 overflow-hidden">
-                <img id="vendorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
-                <iconify-icon id="vendorAvatarPlaceholder" icon="solar:shop-bold" width="18"></iconify-icon>
-            </div>
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-1.5 mb-0.5">
-                        <p class="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400">Ma Boutique</p>
-                        <div class="w-1 h-1 rounded-full bg-green-500 animate-pulse"></div>
+                <!-- Brand Section -->
+                <div class="flex items-center gap-4 px-2 pb-6 border-b border-gray-100/50">
+                <div class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center shadow-sm border border-white/15 shrink-0 overflow-hidden">
+                    <img id="vendorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
+                    <iconify-icon id="vendorAvatarPlaceholder" icon="solar:shop-bold" width="18"></iconify-icon>
+                </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-1.5 mb-0.5">
+                            <p class="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400">Ma Boutique</p>
+                            <div class="w-1 h-1 rounded-full bg-green-500 animate-pulse"></div>
+                        </div>
+                        <h2 class="font-bold text-gray-900 truncate text-sm flex items-center gap-1.5" id="vendorName">
+                            <span>Chargement...</span>
+                            <iconify-icon icon="solar:verified-check-bold" class="text-blue-500 hidden" id="vendorVerifiedBadge" width="14"></iconify-icon>
+                        </h2>
                     </div>
-                    <h2 class="font-bold text-gray-900 truncate text-sm flex items-center gap-1.5" id="vendorName">
-                        <span>Chargement...</span>
-                        <iconify-icon icon="solar:verified-check-bold" class="text-blue-500 hidden" id="vendorVerifiedBadge" width="14"></iconify-icon>
-                    </h2>
                 </div>
-            </div>
 
-            <!-- Navigation -->
-            <nav class="space-y-1.5">
-                <a href="#" onclick="switchVendorTab('dashboard')" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
-                    <iconify-icon icon="solar:chart-square-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                    <span>Tableau de bord</span>
-                </a>
-                <a href="#" onclick="switchVendorTab('analytics')" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
-                    <iconify-icon icon="solar:graph-up-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                    <span>Analyses & Stats</span>
-                </a>
-                <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/publish')" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
-                    <iconify-icon icon="solar:add-circle-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                    <span>Publier un article</span>
-                </a>
-                <a href="#" onclick="switchVendorTab('products')" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
-                    <iconify-icon icon="solar:box-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                    <span>Mes Produits</span>
-                </a>
-                <a href="#" onclick="switchVendorTab('leads')" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
-                    <iconify-icon icon="solar:card-send-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                    <span>Demandes et devis</span>
-                    <span id="vendorLeadsBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
-                </a>
-                <a href="#" onclick="switchVendorTab('purchases')" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
-                    <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                    <span>Mes Achats</span>
-                </a>
-                <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
-                    <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
-                        <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
-                        <span>Paramètres</span>
+                <!-- Navigation -->
+                <nav class="space-y-1.5">
+                    <a href="#" onclick="switchVendorTab('dashboard')" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
+                        <iconify-icon icon="solar:chart-square-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                        <span>Tableau de bord</span>
                     </a>
-                    <!-- Theme Toggle Mobile -->
-                    <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle md:hidden group btn-active-scale w-full text-left">
-                        <iconify-icon data-theme-icon icon="solar:moon-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
-                        <span class="theme-toggle-text">Mode Sombre</span>
-                    </button>
-                    <button class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2 w-full" onclick="AuthManager.handleLogoutClick(this)">
-                        <iconify-icon icon="solar:logout-2-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
-                        <span>Se déconnecter</span>
-                    </button>
-                </div>
-            </nav>
+                    <a href="#" onclick="switchVendorTab('analytics')" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
+                        <iconify-icon icon="solar:graph-up-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                        <span>Analyses & Stats</span>
+                    </a>
+                    <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/publish')" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
+                        <iconify-icon icon="solar:add-circle-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                        <span>Publier un article</span>
+                    </a>
+                    <a href="#" onclick="switchVendorTab('products')" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
+                        <iconify-icon icon="solar:box-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                        <span>Mes Produits</span>
+                    </a>
+                    <a href="#" onclick="switchVendorTab('leads')" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
+                        <iconify-icon icon="solar:card-send-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                        <span>Demandes et devis</span>
+                        <span id="vendorLeadsBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
+                    </a>
+                    <a href="#" onclick="switchVendorTab('purchases')" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
+                        <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                        <span>Mes Achats</span>
+                    </a>
+                    <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
+                        <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
+                            <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                            <span>Paramètres</span>
+                        </a>
+                        <!-- Theme Toggle Mobile -->
+                        <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle md:hidden group btn-active-scale w-full text-left">
+                            <iconify-icon data-theme-icon icon="solar:moon-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
+                            <span class="theme-toggle-text">Mode Sombre</span>
+                        </button>
+                        <button class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2 w-full" onclick="AuthManager.handleLogoutClick(this)">
+                            <iconify-icon icon="solar:logout-2-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
+                            <span>Se déconnecter</span>
+                        </button>
+                    </div>
+                </nav>
 
-            <!-- Stats Reminder -->
-            <div class="bg-gray-50 rounded-2xl p-4 mt-8">
-                <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Status Boutique</p>
-                <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                    <span class="text-[11px] font-bold text-gray-700">En ligne sur NewKet</span>
+                <!-- Stats Reminder -->
+                <div class="bg-gray-50 rounded-2xl p-4 mt-8">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-1">Status Boutique</p>
+                    <div class="flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                        <span class="text-[11px] font-bold text-gray-700">En ligne sur NewKet</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </aside>
+        </aside>
 
-    <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16">
-        <div class="vendor-dashboard-layout flex flex-col md:flex-row gap-8">
-
-            <!-- Main Content -->
-            <div class="vendor-main-content flex-1 min-w-0">
+        <!-- Main Content -->
+        <div class="vendor-main-content flex-1 min-w-0">
                 <!-- Dashboard Navbar is now global at the top -->
 
                 <!-- Dashboard Tab Container -->
@@ -758,10 +750,12 @@
                     </div>
                 </div>
             </div>
-                </div>
-            </div>
         </div>
-    </main>
+    </div>
+</div>
+
+</div> <!-- End of vendor-main-content (169) -->
+</main> <!-- End of main container (85) -->
 
 
 

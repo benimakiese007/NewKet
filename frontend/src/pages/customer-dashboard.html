@@ -199,18 +199,14 @@
 </head>
 <body>    <nav class="dashboard-topbar fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
-            <div class="flex items-center gap-6">
-                <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
-                    <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
-                </button>
-            </div>
-
-            <!-- Center Logo -->
-            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <a href="/" class="flex items-center justify-center group">
-                    <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain">
-                </a>
-            </div>
+        <div class="flex items-center gap-4 sm:gap-6">
+            <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+                <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
+            </button>
+            <a href="/" class="flex items-center justify-center group">
+                <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain">
+            </a>
+        </div>
 
             <div class="flex items-center gap-4">
                 <!-- Theme Toggle Desktop -->
@@ -318,7 +314,7 @@
         </aside>
 
         <!-- Content -->
-        <main class="flex-1 min-w-0 customer-main-content">
+        <div class="flex-1 min-w-0 customer-main-content">
             <!-- Dashboard Navbar is now global at the top -->
 
             <!-- Orders Tab -->
@@ -510,10 +506,7 @@
                     </form>
                 </div>
             </div>
-        </main>
-    </div>
-
-    <!-- Order Detail Modal -->
+        </div>
     <div id="orderModal" style="display: none;"
         class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/60  p-4">
         <div
@@ -1873,6 +1866,8 @@
         </div>
     </div>
 
+</div> <!-- End of customer-main-content (317) -->
+</main>
     <input type="file" id="customerAvatarUploadInput" accept="image/png,image/jpeg,image/webp,image/jpg" class="hidden">
 </body>
 
