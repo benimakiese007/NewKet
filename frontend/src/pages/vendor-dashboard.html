@@ -264,6 +264,10 @@
                     <div class="flex items-center justify-between mb-4 sm:mb-6 vendor-card-header">
                         <h3 class="font-bold text-gray-900">Dernières Commandes</h3>
                         <div class="flex items-center gap-3">
+                            <button onclick="window.refreshOrders(this)" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-all">
+                                <iconify-icon icon="solar:refresh-bold"></iconify-icon>
+                                Synchroniser
+                            </button>
                             <button onclick="window.exportOrdersToCSV()" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-600 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-lg transition-all hidden sm:flex">
                                 <iconify-icon icon="solar:document-text-bold"></iconify-icon>
                                 Exporter (CSV)
@@ -860,6 +864,29 @@
                         console.error('[BulkUpdate] Error:', error);
                         if (window.showToast) {
                             window.showToast('Erreur lors de la mise à jour des commandes.', 'error', 'Erreur');
+                        }
+                    }
+                };
+
+                window.refreshOrders = async function(btn) {
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.classList.add('opacity-50');
+                        const icon = btn.querySelector('iconify-icon');
+                        if (icon) icon.classList.add('animate-spin');
+                    }
+                    try {
+                        await OrderManager.init({ force: true });
+                        if (typeof renderVendorDashboard === 'function') renderVendorDashboard();
+                        if (window.showToast) window.showToast('Données synchronisées', 'success');
+                    } catch (e) {
+                        if (window.showToast) window.showToast('Erreur de synchronisation', 'error');
+                    } finally {
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-50');
+                            const icon = btn.querySelector('iconify-icon');
+                            if (icon) icon.classList.remove('animate-spin');
                         }
                     }
                 };
@@ -1690,6 +1717,9 @@
                     }
             updateStatusBanner();
             window.addEventListener('userStatusUpdated', updateStatusBanner);
+            document.addEventListener('ordersUpdated', () => {
+                if (typeof renderVendorDashboard === 'function') renderVendorDashboard();
+            });
                 }
 
                 function getStatusColor(status) {

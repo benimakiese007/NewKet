@@ -733,6 +733,9 @@ router.post('/payments/initiate', async (req, res) => {
             .from('orders')
             .insert({
                 id: txId,
+                vendor_id: vendor_id, // IMPORTANT: Ensure the vendor can see the order
+                user_id: req.user?.id || null, // Link to customer if logged in
+                customer_id: req.user?.id || null,
                 items: [{
                     product_id,
                     vendor_id,

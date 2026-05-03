@@ -38,7 +38,9 @@ const OrderManager = {
         return this.STATUS_LABELS[backendStatus] || backendStatus || 'Inconnu';
     },
 
-    async init() {
+    async init(options = {}) {
+        const force = options.force === true;
+        
         if (!window.ApiClient) {
             console.error('[OrderManager] ApiClient introuvable.');
             return;
@@ -71,7 +73,7 @@ const OrderManager = {
         const now = Date.now();
         const COOLDOWN = 1000 * 60 * 5; // 5 mins
         
-        if (this._initialized && lastFetch && (now - parseInt(lastFetch)) < COOLDOWN && this.data.length > 0) {
+        if (!force && this._initialized && lastFetch && (now - parseInt(lastFetch)) < COOLDOWN && this.data.length > 0) {
             return; // Skip if recently fetched and data exists
         }
 
