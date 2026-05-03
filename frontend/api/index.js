@@ -541,12 +541,12 @@ router.post('/favorites', requireAuth, async (req, res) => {
 // ── COMMANDES ─────────────────────────────────────────────────
 router.get('/orders', requireAuth, async (req, res) => {
     try {
-        const sb = getSupabase(req.token);
+        // Use admin client: RLS policies on 'orders' only check customer_email/supplier_emails,
+        // NOT vendor_id or customer_id UUIDs — user-scoped JWT would return 0 rows.
+        // Security is enforced by the explicit .or() filter below.
+        const sb = supabaseAdmin();
         const { data, error } = await sb.from('orders')
-            .select(`
-                *,
-                customer:profiles!customer_id(id, name, avatar)
-            `)
+            .select('*')
             .or(`vendor_id.eq.${req.user.id},customer_id.eq.${req.user.id}`)
             .order('created_at', { ascending: false });
 
