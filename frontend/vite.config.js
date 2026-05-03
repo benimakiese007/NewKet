@@ -88,6 +88,12 @@ export default defineConfig({
         terms: resolve(__dirname, 'src/pages/terms.html'),
         error404: resolve(__dirname, 'src/pages/404.html'),
         error500: resolve(__dirname, 'src/pages/500.html'),
+        achat: resolve(__dirname, 'src/pages/achat.html'),
+        faq: resolve(__dirname, 'src/pages/faq.html'),
+        payment_success: resolve(__dirname, 'src/pages/payment-success.html'),
+        promo: resolve(__dirname, 'src/pages/promo.html'),
+        support: resolve(__dirname, 'src/pages/support.html'),
+        system_health: resolve(__dirname, 'src/pages/system-health.html'),
         
         // Admin pages
         admin_index: resolve(__dirname, 'src/pages/admin/index.html'),
