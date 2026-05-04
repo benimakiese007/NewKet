@@ -108,7 +108,7 @@ const AdminLayout = {
 
         navbarPlaceholder.innerHTML = `
             <nav class="dashboard-topbar fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
-                <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
+                <div class="dashboard-topbar-inner max-w-7xl mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
                     <div class="flex items-center gap-6">
                         <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
@@ -227,9 +227,12 @@ const AdminLayout = {
             { href: window.resolvePath('admin/settings'), icon: 'solar:settings-bold', label: 'Paramètres', sub: true }
         ];
 
+        const isDesktop = window.innerWidth >= 1024;
+        const entryAnimation = isDesktop ? 'animate-slide-in-left' : '';
+
         let sidebarHTML = `
             <div id="adminOverlay" class="fixed inset-0 bg-black/50 z-[110] hidden transition-all duration-300"></div>
-            <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
+            <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0 ${entryAnimation}">
                 
                 <!-- Mobile Close Button -->
                 <button onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
@@ -311,10 +314,10 @@ const AdminLayout = {
                 const isActive = currentPath.includes(link.href) || (link.href === '/src/pages/admin/index.html' && (currentPath.endsWith('/admin/') || currentPath.endsWith('/admin/index.html'))) ? 'active' : '';
                 sidebarHTML += `
                     <a href="${link.href}" class="sidebar-link ${isActive} group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50">
-                        <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-white/20 text-white shadow-lg backdrop-blur-md' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
+                        <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-slate-900 text-white shadow-lg' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
                             <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
                         </div>
-                        <span class="text-sm font-bold tracking-tight ${isActive ? 'text-white' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
+                        <span class="text-sm font-bold tracking-tight ${isActive ? 'text-slate-900' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
                         ${isActive ? '<div class="absolute right-3 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>' : ''}
                     </a>
                 `;

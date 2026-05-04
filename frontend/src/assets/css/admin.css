@@ -31,23 +31,10 @@ body {
     padding-top: var(--admin-navbar-offset);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     .admin-shell {
         flex-direction: row !important;
         align-items: flex-start;
-    }
-
-    #adminSidebar {
-        position: static !important;
-        transform: none !important;
-        height: auto !important;
-        width: 18rem !important;
-        z-index: auto !important;
-    }
-
-    #adminMobileMenuBtn,
-    #adminOverlay {
-        display: none !important;
     }
 }
 
@@ -69,9 +56,8 @@ body {
 }
 
 /* ── CRITICAL: Desktop sidebar layout fixes ──────────────────────────────── */
-/* The compiled tailwind.css is missing lg:static, lg:translate-x-0, etc.    */
 /* These rules ensure the sidebar participates in the flex flow on desktop.  */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     #adminSidebar, #customerSidebar, #vendorSidebar {
         position: sticky !important;
         top: calc(var(--dashboard-topbar-height) + 1rem);
@@ -103,7 +89,6 @@ body {
     gap: 2rem;
     align-items: start;
 }
-
 
 @media (min-width: 1280px) {
     #tab-settings .customer-settings-grid {
@@ -200,10 +185,10 @@ body {
 
 /* Glassmorphism Panels - Premium Tier */
 .glass-panel {
-    background: var(--grad-glass);
-    backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%);
-    border: 1px solid var(--glass-border);
     box-shadow: var(--shadow-md);
     border-radius: 24px;
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -242,8 +227,8 @@ body {
     gap: var(--space-md);
     padding: var(--space-md) var(--space-lg);
     border-radius: 1rem;
-    color: #64748b;
-    font-weight: 600;
+    color: #475569;
+    font-weight: 700;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 0.875rem;
     letter-spacing: -0.01em;
@@ -414,6 +399,22 @@ html:not(.dark) #adminSidebar .sidebar-link.active span {
 .stagger-3 { animation-delay: 0.3s; }
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
+
+/* Slide In Left Animation */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
 /* Scrollbar Customization */
 ::-webkit-scrollbar {
@@ -663,7 +664,7 @@ html:not(.dark) #adminSidebar .sidebar-link.active span {
     /* After the drawer finishes animating in, remove transform to avoid iOS text blurriness */
     #vendorSidebar.drawer-settled,
     #customerSidebar.drawer-settled {
-        transform: none !important;
+        transform: none;
         /* Force layout recalculation for crisp text */
         perspective: none !important;
         -webkit-perspective: none !important;
