@@ -16,6 +16,7 @@ const AuthManager = {
     _realtimeChannel: null,
     _syncInterval: null,
     _sessionUpdatePromise: null,
+    _logoutInProgress: false,
 
     async init() {
         this._authChecking = true;
@@ -103,6 +104,7 @@ const AuthManager = {
 
         this._sessionUpdatePromise = (async () => {
             try {
+                this._logoutInProgress = false;
                 const email = user.email;
         
         // --- 🛡️ SECURE ROLE RESOLUTION ---
@@ -423,6 +425,8 @@ const AuthManager = {
      */
     async handleLogoutClick(btnEl, confirmFirst = true) {
         if (!btnEl) return this.logout(confirmFirst);
+        if (btnEl.disabled) return;
+        if (this._logoutInProgress) return;
         
         const originalHTML = btnEl.innerHTML;
         const originalDisabled = btnEl.disabled;
@@ -430,7 +434,9 @@ const AuthManager = {
         try {
             // Confirmation before disabling button to avoid "stuck" disabled state if user cancels
             if (confirmFirst) {
-                const confirmed = await window.showLogoutConfirm();
+                const confirmed = typeof window.showLogoutConfirm === 'function'
+                    ? await window.showLogoutConfirm()
+                    : window.confirm('Êtes-vous sûr de vouloir fermer votre session ?');
                 if (!confirmed) return;
             }
 
@@ -460,6 +466,13 @@ const AuthManager = {
             const confirmed = await window.showLogoutConfirm();
             if (!confirmed) return;
         }
+
+        if (this._logoutInProgress) {
+            console.warn('[NewKet Auth] Logout already in progress.');
+            return;
+        }
+
+        this._logoutInProgress = true;
 
         console.warn(`[NewKet Auth] Logout triggered. Reason: ${reason}`);
         
@@ -719,6 +732,9 @@ const AuthManager = {
         }
 
         if (this.role === null) {
+            if (this._logoutInProgress) {
+                return;
+            }
             const path = window.location.pathname;
             const isProtectedPage = path.includes('/admin/') || 
                                    path.includes('dashboard') || 

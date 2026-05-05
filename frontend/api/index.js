@@ -488,15 +488,61 @@ router.post('/settings', requireAuth, requireAdmin, async (req, res) => {
 // ── UTILISATEURS ──────────────────────────────────────────────
 router.get('/users', requireAuth, requireAdmin, async (req, res) => {
     try {
-        const { data, error } = await supabaseAdmin().auth.admin.listUsers();
+        // Align with local backend: read app profiles from `users` (role/status/company fields),
+        // not Auth users from `auth.admin.listUsers()`.
+        const { data, error } = await supabaseAdmin()
+            .from('users')
+            .select('id, email, name, role, status, avatar, company_name, created_at:date_joined')
+            .order('date_joined', { ascending: false });
+
         if (error) throw error;
-        res.json(data.users);
+        res.json(data || []);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.get('/users/:id', requireAuth, async (req, res) => {
+router.put('/users/:id/status', requireAuth, requireAdmin, async (req, res) => {
     try {
-        const { data, error } = await supabaseAdmin().from('profiles').select('*').eq('id', req.params.id).single();
+        const rawStatus = req.body?.status;
+        const status = typeof rawStatus === 'string' ? rawStatus.trim() : '';
+        // Admin UI can treat "submitted" as a pending-review state.
+        const allowed = ['pending', 'submitted', 'approved', 'rejected'];
+
+        if (!allowed.includes(status)) {
+            return res.status(400).json({ error: 'Statut invalide' });
+        }
+
+        const { data, error } = await supabaseAdmin()
+            .from('users')
+            .update({ status })
+            .eq('id', req.params.id)
+            .select('id, email, name, role, status, avatar, company_name, created_at:date_joined')
+            .single();
+
+        if (error) throw error;
+        res.json({ success: true, user: data });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.delete('/users/:id', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const { error } = await supabaseAdmin()
+            .from('users')
+            .delete()
+            .eq('id', req.params.id);
+
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+router.get('/users/:id', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const { data, error } = await supabaseAdmin()
+            .from('users')
+            .select('id, email, name, role, status, avatar, company_name, created_at:date_joined')
+            .eq('id', req.params.id)
+            .single();
+
         if (error) throw error;
         res.json(data);
     } catch (err) { res.status(500).json({ error: err.message }); }

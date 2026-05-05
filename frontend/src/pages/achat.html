@@ -442,9 +442,9 @@
         }
 
         async function initAchatPage() {
-            document.getElementById('btnLogout')?.addEventListener('click', () => {
-                if (window.AuthManager && typeof AuthManager.logout === 'function') {
-                    AuthManager.logout(false, 'Logout manuel (achat)');
+            document.getElementById('btnLogout')?.addEventListener('click', function () {
+                if (window.AuthManager && typeof AuthManager.handleLogoutClick === 'function') {
+                    AuthManager.handleLogoutClick(this);
                     return;
                 }
                 localStorage.clear();
