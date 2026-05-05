@@ -591,13 +591,36 @@ router.get('/orders', requireAuth, async (req, res) => {
         // NOT vendor_id or customer_id UUIDs — user-scoped JWT would return 0 rows.
         // Security is enforced by the explicit .or() filter below.
         const sb = supabaseAdmin();
-        const { data, error } = await sb.from('orders')
+        const { data: orders, error } = await sb.from('orders')
             .select('*, customer:users!orders_customer_id_users_fk(*)')
             .or(`vendor_id.eq.${req.user.id},customer_id.eq.${req.user.id}`)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        res.json(data.map(o => ({ ...o, status: mapLegacyOrderStatus(o.status) })));
+
+        // Enrich each order with its latest pending delivery quote
+        const orderIds = (orders || []).map(o => o.id);
+        let quotesByOrder = {};
+        if (orderIds.length > 0) {
+            const { data: quotes } = await sb.from('delivery_quotes')
+                .select('*')
+                .in('order_id', orderIds)
+                .eq('status', 'PENDING')
+                .order('created_at', { ascending: false });
+
+            (quotes || []).forEach(q => {
+                // Keep only the most recent PENDING quote per order
+                if (!quotesByOrder[q.order_id]) {
+                    quotesByOrder[q.order_id] = q;
+                }
+            });
+        }
+
+        res.json((orders || []).map(o => ({
+            ...o,
+            status: mapLegacyOrderStatus(o.status),
+            latest_delivery_quote: quotesByOrder[o.id] || null
+        })));
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
