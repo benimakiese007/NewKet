@@ -29,9 +29,14 @@
         .btn-ghost { border: 1px solid #e2e8f0; background: #fff; border-radius: 0.9rem; padding: 0.85rem 1.1rem; font-weight: 800; color: #0f172a; }
         .muted { color: #64748b; }
         .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 9999px; background: #eef2ff; color: #4338ca; }
-        .card-link { border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.25rem; background: white; transition: all .15s ease; }
+        .card-link { border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.1rem; background: white; transition: all .15s ease; }
         .card-link:hover { border-color: #000; transform: translateY(-1px); }
-        .img-cover { width: 78px; height: 78px; border-radius: 18px; object-fit: cover; background: #f1f5f9; border: 1px solid #e2e8f0; }
+        .img-cover { width: 72px; height: 72px; border-radius: 18px; object-fit: cover; background: #f1f5f9; border: 1px solid #e2e8f0; }
+
+        @media (min-width: 640px) {
+            .card-link { padding: 1.25rem; }
+            .img-cover { width: 78px; height: 78px; }
+        }
 
         /* Sidebar styles (align with customer dashboard) */
         .sidebar-link {
@@ -213,7 +218,7 @@
             const orderId = safeText(order.id);
 
             const btn = showButton
-                ? `<button class="btn-primary text-sm flex items-center gap-2" onclick="goToOrder('${orderId}')">
+                ? `<button class="btn-primary text-sm flex items-center justify-center gap-2 w-full sm:w-auto" onclick="goToOrder('${orderId}')">
                         <iconify-icon icon="solar:arrow-right-bold" width="18"></iconify-icon>
                         Continuer
                    </button>`
@@ -221,20 +226,23 @@
 
             return `
                 <div class="card-link">
-                    <div class="flex items-center gap-4">
-                        <img class="img-cover" src="${img || '/Images/Logo NewKet PNG.png'}" alt="">
-                        <div class="flex-1 min-w-0">
-                            <div class="text-[11px] font-black uppercase tracking-wider text-gray-400">Demande #${orderId}</div>
-                            <div class="mt-1 font-black text-gray-900 truncate">${safeText(productName)}</div>
-                            <div class="mt-1 text-sm muted flex flex-wrap items-center gap-x-3 gap-y-1">
-                                <span>${safeText(dateLabel)}</span>
-                                <span class="text-gray-300">•</span>
-                                <span class="font-semibold text-gray-700">${safeText(statusLabel)}</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div class="flex items-center gap-4 min-w-0 flex-1">
+                            <img class="img-cover shrink-0" src="${img || '/Images/Logo NewKet PNG.png'}" alt="">
+                            <div class="min-w-0">
+                                <div class="text-[11px] font-black uppercase tracking-wider text-gray-400">Demande #${orderId}</div>
+                                <div class="mt-1 font-black text-gray-900 truncate">${safeText(productName)}</div>
+                                <div class="mt-1 text-sm muted flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span>${safeText(dateLabel)}</span>
+                                    <span class="text-gray-300">•</span>
+                                    <span class="font-semibold text-gray-700">${safeText(statusLabel)}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-right">
+
+                        <div class="flex items-center justify-between sm:flex-col sm:items-end sm:justify-start gap-3 sm:gap-2">
                             <div class="text-lg sm:text-xl font-black tracking-tight text-gray-900 whitespace-nowrap">${total}</div>
-                            <div class="mt-2 flex justify-end">${btn}</div>
+                            <div class="w-full sm:w-auto flex justify-end">${btn}</div>
                         </div>
                     </div>
                 </div>

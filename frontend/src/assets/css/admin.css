@@ -29,12 +29,61 @@ body {
 
 .admin-shell {
     padding-top: var(--admin-navbar-offset);
+    width: 100%;
+    max-width: min(100%, 90rem);
+    overflow-x: clip;
 }
 
 @media (min-width: 1024px) {
     .admin-shell {
         flex-direction: row !important;
         align-items: flex-start;
+    }
+
+    /* Keep the injected admin sidebar in the flex flow and let the main area
+       shrink into the remaining space instead of overflowing off-screen. */
+    .admin-shell > #adminSidebarPlaceholder {
+        flex: 0 0 18rem;
+        width: 18rem;
+        max-width: 18rem;
+        min-width: 18rem;
+    }
+
+    .admin-shell > main {
+        flex: 1 1 0%;
+        width: 0;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .sidebar-is-collapsed .admin-shell > #adminSidebarPlaceholder {
+        flex-basis: 80px;
+        width: 80px;
+        max-width: 80px;
+        min-width: 80px;
+    }
+
+    .sidebar-is-collapsed .admin-shell > main {
+        max-width: none;
+    }
+}
+
+/* Admin pages: the HTML uses Tailwind container classes (max-w-7xl/mx-auto)
+   but admin layout is injected dynamically; keep desktop layout deterministic. */
+@media (min-width: 1024px) {
+    .admin-shell {
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    /* Neutralize "inset-0" from injected markup on desktop */
+    #adminSidebar {
+        inset: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 18rem !important;
     }
 }
 
@@ -71,7 +120,9 @@ body {
     #customerSidebar {
         width: 16rem !important; /* w-64 = 256px */
     }
-    #adminSidebar, #vendorSidebar {
+    /* Do not force the expanded width when the sidebar is in collapsed mode */
+    #adminSidebar:not(.sidebar-collapsed),
+    #vendorSidebar:not(.sidebar-collapsed) {
         width: 18rem !important; /* w-72 = 288px */
     }
 

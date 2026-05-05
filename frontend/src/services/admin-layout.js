@@ -4,9 +4,58 @@
  */
 
 const AdminLayout = {
+    navigationLoadingKey: 'newket_admin_navigation_loading',
+
+    ensureNoFoucStyles() {
+        if (document.getElementById('nk-admin-nofouc')) return;
+        const style = document.createElement('style');
+        style.id = 'nk-admin-nofouc';
+        style.textContent = `
+            /* Prevent admin shell layout jump between pass1 and pass2 (auth + SidebarManager). */
+            html.admin-layout-loading .admin-shell,
+            html.admin-layout-loading #adminNavbarPlaceholder {
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        `;
+        document.head.appendChild(style);
+    },
+
+    setLayoutLoading(isLoading) {
+        this.ensureNoFoucStyles();
+        document.documentElement.classList.toggle('admin-layout-loading', Boolean(isLoading));
+    },
+
+    markNavigationLoading() {
+        try {
+            sessionStorage.setItem(this.navigationLoadingKey, '1');
+        } catch (_) {}
+        this.setLayoutLoading(true);
+    },
+
+    consumeNavigationLoading() {
+        try {
+            const pending = sessionStorage.getItem(this.navigationLoadingKey) === '1';
+            if (pending) {
+                sessionStorage.removeItem(this.navigationLoadingKey);
+            }
+            return pending;
+        } catch (_) {
+            return false;
+        }
+    },
+
     isAdminPageContext() {
         const path = window.location.pathname || '';
-        return path.includes('/admin/');
+        return path.includes('/admin/') || path.endsWith('/admin');
+    },
+
+    getCurrentAdminFile(path = window.location.pathname || '') {
+        if (!path) return 'index';
+        if (path.endsWith('/admin') || path.endsWith('/admin/')) return 'index';
+
+        const file = path.split('/').pop().replace('.html', '');
+        return file || 'index';
     },
 
     async init() {
@@ -16,6 +65,9 @@ const AdminLayout = {
 
         // 2. Inject CSS
         this.injectStyles();
+
+        // Avoid visual jump: keep admin shell hidden until auth + SidebarManager settle.
+        this.setLayoutLoading(true);
 
         // 3. Inject Layout Components
         this.renderNavbar();
@@ -34,6 +86,7 @@ const AdminLayout = {
         window.addEventListener('profileUpdated', () => this.updateAdminProfile());
         window.addEventListener('componentsLoaded', () => this.updateAdminProfile());
 
+        this.maybeDebugLayout('init');
     },
 
     checkAccess() {
@@ -123,9 +176,15 @@ const AdminLayout = {
                     </div>
 
                     <div class="flex items-center gap-2 sm:gap-6">
-                        <div class="hidden lg:flex items-center bg-gray-50/50 rounded-2xl p-1 border border-gray-100/50" id="currencyToggle" data-active="CDF">
-                             <button data-currency="USD" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-white hover:shadow-sm text-gray-400">USD</button>
-                             <button data-currency="CDF" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white shadow-sm text-black">CDF</button>
+                        <!-- Currency Toggle (interrupteur) -->
+                        <div class="flex items-center">
+                            <div class="currency-switch-segmented scale-90 origin-right" id="currencyToggle" data-active="CDF" title="Devise d'affichage">
+                                <div class="segmented-track">
+                                    <div class="segmented-handle"></div>
+                                    <span class="segmented-label" data-currency="USD">USD</span>
+                                    <span class="segmented-label" data-currency="CDF">CDF</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="h-8 w-px bg-gray-100 mx-1 hidden sm:block"></div>
@@ -181,6 +240,7 @@ const AdminLayout = {
             });
         }
         navbarPlaceholder.dataset.rendered = 'true';
+        this.maybeDebugLayout('renderNavbar');
     },
 
     renderSidebar() {
@@ -188,7 +248,7 @@ const AdminLayout = {
         if (!sidebarPlaceholder) return;
 
         const currentPath = window.location.pathname;
-        const currentFile = currentPath.split('/').pop().replace('.html', '') || 'index';
+        const currentFile = this.getCurrentAdminFile(currentPath);
 
         // Optimization: If already rendered, just update the active state to prevent flicker
         if (sidebarPlaceholder.dataset.rendered === 'true') {
@@ -227,12 +287,9 @@ const AdminLayout = {
             { href: window.resolvePath('admin/settings'), icon: 'solar:settings-bold', label: 'Paramètres', sub: true }
         ];
 
-        const isDesktop = window.innerWidth >= 1024;
-        const entryAnimation = isDesktop ? 'animate-slide-in-left' : '';
-
         let sidebarHTML = `
             <div id="adminOverlay" class="fixed inset-0 bg-black/50 z-[110] hidden transition-all duration-300"></div>
-            <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0 ${entryAnimation}">
+            <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
                 
                 <!-- Mobile Close Button -->
                 <button onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
@@ -311,7 +368,9 @@ const AdminLayout = {
 
             } else {
                 // --- Regular Link ---
-                const isActive = currentPath.includes(link.href) || (link.href === '/src/pages/admin/index.html' && (currentPath.endsWith('/admin/') || currentPath.endsWith('/admin/index.html'))) ? 'active' : '';
+                const isIndexLink = link.href === '/src/pages/admin/index.html';
+                const isIndexPage = currentFile === 'index';
+                const isActive = currentPath.includes(link.href) || (isIndexLink && isIndexPage) ? 'active' : '';
                 sidebarHTML += `
                     <a href="${link.href}" class="sidebar-link ${isActive} group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50">
                         <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-slate-900 text-white shadow-lg' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
@@ -342,6 +401,7 @@ const AdminLayout = {
 
         sidebarPlaceholder.innerHTML = sidebarHTML;
         sidebarPlaceholder.dataset.rendered = 'true';
+        this.maybeDebugLayout('renderSidebar');
 
         // Initialize open dropdowns after render
         sidebarPlaceholder.querySelectorAll('.sidebar-dropdown--open').forEach(el => {
@@ -381,7 +441,94 @@ const AdminLayout = {
     },
 
     bindEvents() {
-        // Overlay clicks are now handled globally by SidebarManager
+        if (this._boundNavigationLoading) return;
+        this._boundNavigationLoading = true;
+
+        document.addEventListener('click', (event) => {
+            const link = event.target.closest('#adminSidebar a[href], #adminNavbarPlaceholder a[href]');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+            if (link.target && link.target !== '_self') return;
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+            const url = new URL(link.href, window.location.origin);
+            const isSameOrigin = url.origin === window.location.origin;
+            const isAdminTarget = url.pathname.includes('/src/pages/admin/') || url.pathname.endsWith('/src/pages/admin');
+
+            if (isSameOrigin && isAdminTarget) {
+                this.markNavigationLoading();
+            }
+        }, true);
+    },
+
+    maybeDebugLayout(stage) {
+        try {
+            const url = new URL(window.location.href);
+            if (!url.searchParams.has('debugLayout')) return;
+
+            const pick = (sel) => {
+                const el = document.querySelector(sel);
+                if (!el) return null;
+                const r = el.getBoundingClientRect();
+                const cs = window.getComputedStyle(el);
+                return {
+                    sel,
+                    id: el.id || null,
+                    className: typeof el.className === 'string' ? el.className : null,
+                    rect: {
+                        left: r.left,
+                        top: r.top,
+                        width: r.width,
+                        height: r.height,
+                        right: r.right,
+                        bottom: r.bottom
+                    },
+                    computed: {
+                        position: cs.position,
+                        inset: cs.inset,
+                        left: cs.left,
+                        right: cs.right,
+                        top: cs.top,
+                        bottom: cs.bottom,
+                        width: cs.width,
+                        maxWidth: cs.maxWidth,
+                        transform: cs.transform,
+                        overflowX: cs.overflowX,
+                        overflowY: cs.overflowY,
+                        display: cs.display
+                    }
+                };
+            };
+
+            const snapshot = {
+                stage,
+                ts: new Date().toISOString(),
+                viewport: { w: window.innerWidth, h: window.innerHeight, dpr: window.devicePixelRatio },
+                scroll: { x: window.scrollX, y: window.scrollY },
+                htmlClass: document.documentElement.className,
+                bodyClass: document.body.className,
+                sidebarCollapsedKey: localStorage.getItem('newketSidebarCollapsed'),
+                nodes: {
+                    shell: pick('.admin-shell'),
+                    sidebarPlaceholder: pick('#adminSidebarPlaceholder'),
+                    sidebar: pick('#adminSidebar'),
+                    main: pick('.admin-shell > main'),
+                    navbar: pick('.dashboard-topbar')
+                },
+                docScrollWidth: document.documentElement.scrollWidth,
+                bodyScrollWidth: document.body.scrollWidth
+            };
+
+            // eslint-disable-next-line no-console
+            console.log('[NewKet][LayoutDebug]', snapshot);
+
+            window.clearTimeout(window.__nkLayoutDebugTimer);
+            window.__nkLayoutDebugTimer = window.setTimeout(() => {
+                try { this.maybeDebugLayout(stage + ':t+2000ms'); } catch (_) {}
+            }, 2000);
+        } catch (_) {}
     },
 
     async updateAdminProfile() {
@@ -440,10 +587,13 @@ window.AdminLayout = AdminLayout;
 
 function _adminRenderLayout() {
     if (!AdminLayout.isAdminPageContext()) return;
+    AdminLayout.consumeNavigationLoading();
+    AdminLayout.setLayoutLoading(true);
     AdminLayout.injectStyles();
     AdminLayout.renderNavbar();
     AdminLayout.renderSidebar();
     AdminLayout.bindEvents();
+    AdminLayout.maybeDebugLayout('pass1');
 }
 
 function _adminCheckAuth() {
@@ -454,6 +604,15 @@ function _adminCheckAuth() {
     if (window.SidebarManager) {
         window.SidebarManager.init('adminSidebar', 'admin-content', 'adminOverlay');
     }
+
+    // Reveal the shell only once the pass2 layout state has been applied.
+    // Double-rAF ensures styles/class changes are committed before paint.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            AdminLayout.setLayoutLoading(false);
+        });
+    });
+    AdminLayout.maybeDebugLayout('pass2');
 }
 
 function _hasAdminLayoutPlaceholders() {

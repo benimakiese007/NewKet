@@ -352,11 +352,17 @@ export const SidebarManager = {
         this.mainContentClass = mainContentClass;
         // Auto-detect overlay if not provided
         this.overlayId = overlayId || (sidebarId.includes('admin') ? 'adminOverlay' : (sidebarId.includes('vendor') ? 'vendorSidebarOverlay' : 'sidebarOverlay'));
-        
+
+        // IMPORTANT: SidebarManager.init() can run seconds after initial module load
+        // (e.g. after `newketInitialized`). Recompute responsive/collapsed state at
+        // init-time to avoid applying the wrong mode after the first paint.
+        this.state.isMobile = window.innerWidth < 1024;
+        this.state.isCollapsed = localStorage.getItem('newketSidebarCollapsed') === 'true';
+         
         // Prevent transition flash on init
         const sidebar = document.getElementById(this.sidebarId);
         if (sidebar) sidebar.classList.add('no-transition');
-        
+         
         this.applyState();
 
         // Restore transitions

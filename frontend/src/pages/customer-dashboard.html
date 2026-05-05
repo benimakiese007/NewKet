@@ -215,7 +215,7 @@
                 </button>
 
                 <!-- Currency Toggle -->
-                <div class="hidden sm:flex items-center">
+                <div class="flex items-center">
                     <div class="currency-switch-segmented scale-90 origin-right" id="customerCurrencyToggle" data-active="CDF" title="Devise d'affichage">
                         <div class="segmented-track">
                             <div class="segmented-handle"></div>
@@ -1686,50 +1686,46 @@
             document.getElementById('invSubtotal').textContent = CurrencyManager.formatPrice(o.total);
             document.getElementById('invTotal').textContent = CurrencyManager.formatPrice(o.total);
 
-            // Trigger Print
+            // Trigger print dialog so the customer can save the invoice as PDF.
             const printContent = document.getElementById('invoiceTemplate').innerHTML;
-            const originalContent = document.body.innerHTML;
+            const printFrame = document.createElement('iframe');
 
-            printWindow.document.write('<html><head><title>Facture NewKet</title>    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'><path fill=\'%23000\' d=\'m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.51Z\'/></svg>">');
-            printWindow.document.write('</head><body>');
-            printWindow.document.write(printContent);
-            printWindow.document.write(`
-    <scri` + `pt>
-        // ===== Sprint 2: Form Loading States =====
-        function setButtonLoading(btn, loading) {
-            if (loading) {
-                btn.classList.add('btn-loading');
-                btn.disabled = true;
-            } else {
-                btn.classList.remove('btn-loading');
-                btn.disabled = false;
+            printFrame.style.position = 'fixed';
+            printFrame.style.right = '0';
+            printFrame.style.bottom = '0';
+            printFrame.style.width = '0';
+            printFrame.style.height = '0';
+            printFrame.style.border = '0';
+            document.body.appendChild(printFrame);
+
+            const printDocument = printFrame.contentWindow?.document;
+            if (!printDocument) {
+                printFrame.remove();
+                showToast('Impossible de préparer la facture.', 'error');
+                return;
             }
-        }
 
-        // Intercept form submissions for loading state
-        document.addEventListener('DOMContentLoaded', () => {
-            const forms = ['profileForm', 'addressForm', 'passwordForm'];
-            forms.forEach(id => {
-                const form = document.getElementById(id);
-                if (!form) return;
-                const btn = form.querySelector('button[type="submit"]');
-                if (!btn) return;
-                form.addEventListener('submit', () => {
-                    setButtonLoading(btn, true);
-                    // Auto-reset after 4s as fallback
-                    setTimeout(() => setButtonLoading(btn, false), 4000);
-                });
-            });
-        });
-    </scri` + `pt>
+            printDocument.open();
+            printDocument.write(`
+                <!doctype html>
+                <html>
+                    <head>
+                        <title>Facture NewKet</title>
+                        <style>
+                            @page { margin: 18mm; }
+                            body { margin: 0; font-family: Arial, sans-serif; color: #333; }
+                        </style>
+                    </head>
+                    <body>${printContent}</body>
+                </html>
+            `);
+            printDocument.close();
 
-</body></html>`);
-            printWindow.document.close();
-            printWindow.focus();
             setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 500);
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                setTimeout(() => printFrame.remove(), 1000);
+            }, 250);
         }
 
         function removeFavorite(id) {
