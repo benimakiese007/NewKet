@@ -725,6 +725,11 @@
             const dashboardView = document.getElementById('view-dashboard');
             const dashboardLink = document.getElementById('link-dashboard');
 
+            // Update Hash for persistence
+            if (window.location.hash !== '#' + tabId) {
+                window.location.hash = tabId;
+            }
+
             ['orders', 'favorites', 'notifications', 'settings'].forEach(t => {
                 const el = document.getElementById('tab-' + t);
                 const link = document.getElementById('link-' + t);

@@ -972,14 +972,21 @@
                 };
 
                 function switchVendorTab(tabId) {
+                    console.log("Switching vendor tab to:", tabId);
+                    
+                    // Update Hash
+                    if (window.location.hash !== '#' + tabId) {
+                        window.location.hash = tabId;
+                    }
+
                     window.newketVendorActiveTab = tabId;
+
                     // Masquer tous les onglets (null-safe)
-                    ['tab-dashboard', 'tab-analytics', 'tab-products', 'tab-leads', 'tab-purchases', 'tab-settings'].forEach(id => {
-                        const el = document.getElementById(id);
+                    ['dashboard', 'analytics', 'products', 'leads', 'purchases', 'settings'].forEach(id => {
+                        const el = document.getElementById('tab-' + id);
                         if (el) el.classList.add('hidden');
                     });
 
-                    // Retirer la classe active de tous les liens
                     document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
 
                     // Afficher l'onglet actif (null-safe)
@@ -1000,6 +1007,16 @@
                     // Close sidebar on mobile
                     if (window.SidebarManager && window.SidebarManager.state.isMobile && window.SidebarManager.state.isDrawerOpen) {
                         window.SidebarManager.close();
+                    }
+                }
+
+                function syncVendorTabFromHash() {
+                    const hash = window.location.hash.replace('#', '');
+                    const validTabs = ['dashboard', 'analytics', 'products', 'leads', 'purchases', 'settings'];
+                    if (hash && validTabs.includes(hash)) {
+                        switchVendorTab(hash);
+                    } else {
+                        switchVendorTab('dashboard');
                     }
                 }
 
@@ -1460,7 +1477,12 @@
 
                 function initVendorDashboard() {
                     updateStatusBanner();
-                    renderVendorDashboard();
+                    
+                    // Sync tab from Hash
+                    syncVendorTabFromHash();
+                    
+                    // Listen for hash changes
+                    window.addEventListener('hashchange', syncVendorTabFromHash);
 
                     // Search functionality for Products tab
                     const searchInput = document.getElementById('dashboardSearch');
