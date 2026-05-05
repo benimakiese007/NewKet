@@ -646,8 +646,6 @@
 
             window.__newketCatalogInitialized = true;
             const urlParams = new URLSearchParams(window.location.search);
-            console.log('Catalog Initialization Started');
-            console.log('Current URL Search:', window.location.search);
             const sortSelect = document.getElementById('sortSelect');
             
             const prefillSearchInput = () => {
@@ -675,7 +673,6 @@
             // Handle category parameter
             const categoryParam = urlParams.get('category');
             if (categoryParam) {
-                console.log('Applying Category Filter:', categoryParam);
                 document.querySelectorAll(`.category-filter`).forEach(cb => {
                     if (cb.value === categoryParam || 
                         (categoryParam === 'Collections Femme' && cb.value === 'Femme') ||
@@ -691,9 +688,7 @@
 
             // Handle promo parameter
             const promoParam = urlParams.get('promo');
-            console.log('Promo Parameter Read:', promoParam);
             if (promoParam === 'true') {
-                console.log('Enabling Promo Filter UI');
                 document.querySelectorAll('.promo-filter').forEach(cb => {
                     cb.checked = true;
                 });
@@ -736,8 +731,6 @@
                 input.addEventListener('input', handleSearchChange);
             });
 
-            // Trigger initial render to apply URL parameters
-            console.log('Triggering Initial Render');
             renderCatalog();
         }
 

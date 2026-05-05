@@ -97,6 +97,7 @@ export default defineConfig({
         
         // Admin pages
         admin_index: resolve(__dirname, 'src/pages/admin/index.html'),
+        admin_activities: resolve(__dirname, 'src/pages/admin/activities.html'),
         admin_diagnostics: resolve(__dirname, 'src/pages/admin/diagnostics.html'),
         admin_notifications: resolve(__dirname, 'src/pages/admin/notifications-admin.html'),
         admin_orders: resolve(__dirname, 'src/pages/admin/orders.html'),

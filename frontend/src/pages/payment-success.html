@@ -81,17 +81,14 @@
         </div>
     </main>
 
-    <div id="footer-placeholder"></div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || 'NK-' + Math.random().toString(36).slice(2, 11).toUpperCase();
+            const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || '';
             const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'pending').toLowerCase();
-            const isSuccessFromUrl = ['successful', 'success', 'completed', 'paid'].includes(rawStatus);
 
             const txRefEl = document.getElementById('txRef');
-            if (txRefEl) txRefEl.textContent = txRef;
+            if (txRefEl) txRefEl.textContent = txRef || 'Indisponible';
 
             const statusTitle = document.getElementById('statusTitle');
             const statusDescription = document.getElementById('statusDescription');
@@ -117,6 +114,20 @@
                 if (statusIcon) statusIcon.setAttribute('icon', 'solar:danger-triangle-bold');
             }
 
+            function setPendingUI(labelText) {
+                if (pageTitle) pageTitle.textContent = 'Verification paiement | NewKet';
+                if (statusTitle) statusTitle.textContent = 'Verification en cours';
+                if (statusDescription) {
+                    statusDescription.textContent = "Nous attendons encore la confirmation serveur du paiement. Revenez dans quelques instants depuis vos commandes si l'etat n'evolue pas.";
+                }
+                if (statusLabel) statusLabel.textContent = labelText || 'Verification';
+                if (statusBadge) statusBadge.className = 'flex items-center gap-2 text-xs font-black uppercase tracking-widest text-sky-600';
+                if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-sky-500 animate-pulse';
+                if (statusGlow) statusGlow.className = 'absolute inset-0 rounded-full bg-sky-500/10 animate-ping duration-[2000ms]';
+                if (statusIconShell) statusIconShell.className = 'relative flex h-full w-full items-center justify-center rounded-full bg-sky-500 text-white shadow-xl shadow-sky-500/20';
+                if (statusIcon) statusIcon.setAttribute('icon', 'solar:clock-circle-bold');
+            }
+
             function setSuccessUI() {
                 const count = 200;
                 const defaults = {
@@ -140,6 +151,7 @@
             }
 
             async function loadServerStatus() {
+                if (!txRef) return null;
                 if (!window.ApiClient) return null;
                 try {
                     return await window.ApiClient.get(`/payment/status/${encodeURIComponent(txRef)}`, {
@@ -159,12 +171,13 @@
 
                 const isPaid = ['paid', 'success', 'successful'].includes(paymentStatus) || ['paid_held', 'delivered', 'completed'].includes((orderStatus || '').toString().toLowerCase());
 
+                if (!txRef) {
+                    setFailureUI('Reference absente');
+                    return;
+                }
+
                 if (!serverStatus) {
-                    if (!isSuccessFromUrl) {
-                        setFailureUI(rawStatus === 'cancelled' ? 'Annule' : 'En attente');
-                        return;
-                    }
-                    setSuccessUI();
+                    setPendingUI(rawStatus === 'cancelled' ? 'Annule' : 'Verification');
                     return;
                 }
 

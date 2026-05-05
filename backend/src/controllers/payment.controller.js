@@ -21,6 +21,72 @@ function normalizeAmount(value) {
     return Math.round(n * 100) / 100;
 }
 
+function normalizeCurrency(value) {
+    return String(value || '').trim().toUpperCase();
+}
+
+function getWebhookAmount(payload) {
+    const candidates = [
+        payload?.amount,
+        payload?.data?.amount,
+        payload?.amount_paid,
+        payload?.data?.amount_paid,
+        payload?.transaction?.amount,
+        payload?.data?.transaction?.amount
+    ];
+
+    for (const candidate of candidates) {
+        const amount = normalizeAmount(candidate);
+        if (amount !== null) return amount;
+    }
+
+    return null;
+}
+
+function getWebhookCurrency(payload) {
+    return normalizeCurrency(
+        payload?.currency
+        || payload?.data?.currency
+        || payload?.transaction?.currency
+        || payload?.data?.transaction?.currency
+    );
+}
+
+function getWebhookSuccessState(payload) {
+    const raw = String(
+        payload?.status
+        || payload?.data?.status
+        || payload?.event
+        || payload?.type
+        || ''
+    ).trim().toLowerCase();
+
+    const successStates = new Set([
+        'success',
+        'successful',
+        'completed',
+        'paid',
+        'payment.success',
+        'charge.success'
+    ]);
+
+    const failureStates = new Set([
+        'failed',
+        'failure',
+        'cancelled',
+        'canceled',
+        'declined',
+        'expired',
+        'payment.failed'
+    ]);
+
+    return {
+        raw,
+        isSuccess: successStates.has(raw),
+        isFailure: failureStates.has(raw)
+    };
+}
+
 function getRedirectUrl(req) {
     if (process.env.AVADAPAY_REDIRECT_URL) return process.env.AVADAPAY_REDIRECT_URL;
     const host = req.headers.host || 'localhost:3001';
@@ -273,6 +339,7 @@ export const avadaPayWebhook = async (req, res) => {
         if (!ourTxId) return res.status(400).send('tx_ref manquant');
 
         const client = supabaseAdmin || supabase;
+        const nowIso = new Date().toISOString();
 
         const { error: webhookInsertError } = await client
             .from('payment_webhook_events')
@@ -283,7 +350,7 @@ export const avadaPayWebhook = async (req, res) => {
                 tx_ref: String(ourTxId),
                 payload,
                 signature_valid: signatureValid,
-                received_at: new Date().toISOString(),
+                received_at: nowIso,
                 process_status: 'RECEIVED'
             });
 
@@ -293,16 +360,137 @@ export const avadaPayWebhook = async (req, res) => {
             return res.status(500).send('Erreur DB');
         }
 
-        // TODO: when you have AvadaPay docs/keys for verification, add:
-        // - verify transaction server-side
-        // - amount/currency integrity checks
-        // - atomic `process_order_payment` call
+        const { data: order, error: orderError } = await client
+            .from('orders')
+            .select('id, transaction_id, status, payment_status, payment_expected_amount, payment_expected_currency, payment_provider_tx_id')
+            .eq('transaction_id', String(ourTxId))
+            .maybeSingle();
+
+        if (orderError || !order) {
+            await client
+                .from('payment_webhook_events')
+                .update({
+                    process_status: 'ORDER_NOT_FOUND',
+                    processing_error: orderError?.message || 'Order not found',
+                    processed_at: nowIso
+                })
+                .eq('provider', 'avadapay')
+                .eq('provider_event_id', providerEventId);
+
+            return res.status(404).send('Commande introuvable');
+        }
+
+        const webhookAmount = getWebhookAmount(payload);
+        const webhookCurrency = getWebhookCurrency(payload);
+        const expectedAmount = normalizeAmount(order.payment_expected_amount);
+        const expectedCurrency = normalizeCurrency(order.payment_expected_currency);
+        const providerStatus = getWebhookSuccessState(payload);
+        const amountMismatch = expectedAmount !== null && webhookAmount !== null && expectedAmount !== webhookAmount;
+        const currencyMismatch = Boolean(expectedCurrency) && Boolean(webhookCurrency) && expectedCurrency !== webhookCurrency;
+
+        const eventUpdate = {
+            order_id: order.id,
+            processed_at: nowIso
+        };
+
+        if (providerTxId) {
+            await client
+                .from('orders')
+                .update({
+                    payment_provider: 'avadapay',
+                    payment_provider_tx_id: String(providerTxId),
+                    updated_at: nowIso
+                })
+                .eq('id', order.id);
+        }
+
+        if (amountMismatch || currencyMismatch) {
+            eventUpdate.process_status = 'VERIFICATION_FAILED';
+            eventUpdate.processing_error = amountMismatch
+                ? `Amount mismatch: expected ${expectedAmount}, got ${webhookAmount}`
+                : `Currency mismatch: expected ${expectedCurrency}, got ${webhookCurrency}`;
+
+            await client
+                .from('payment_webhook_events')
+                .update(eventUpdate)
+                .eq('provider', 'avadapay')
+                .eq('provider_event_id', providerEventId);
+
+            return res.status(400).send('Verification failed');
+        }
+
+        if (providerStatus.isFailure) {
+            await client
+                .from('orders')
+                .update({
+                    payment_status: 'FAILED',
+                    payment_provider: 'avadapay',
+                    payment_provider_tx_id: providerTxId ? String(providerTxId) : order.payment_provider_tx_id,
+                    updated_at: nowIso
+                })
+                .eq('id', order.id);
+
+            eventUpdate.process_status = 'FAILED';
+            eventUpdate.processing_error = providerStatus.raw || 'Provider reported failure';
+
+            await client
+                .from('payment_webhook_events')
+                .update(eventUpdate)
+                .eq('provider', 'avadapay')
+                .eq('provider_event_id', providerEventId);
+
+            return res.status(200).send('OK');
+        }
+
+        if (!providerStatus.isSuccess) {
+            eventUpdate.process_status = 'IGNORED';
+            eventUpdate.processing_error = `Unhandled provider status: ${providerStatus.raw || 'unknown'}`;
+
+            await client
+                .from('payment_webhook_events')
+                .update(eventUpdate)
+                .eq('provider', 'avadapay')
+                .eq('provider_event_id', providerEventId);
+
+            return res.status(200).send('OK');
+        }
+
+        const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
+            p_transaction_id: String(ourTxId)
+        });
+
+        if (rpcError) {
+            eventUpdate.process_status = 'PROCESSING_FAILED';
+            eventUpdate.processing_error = rpcError.message || 'RPC process_order_payment failed';
+
+            await client
+                .from('payment_webhook_events')
+                .update(eventUpdate)
+                .eq('provider', 'avadapay')
+                .eq('provider_event_id', providerEventId);
+
+            return res.status(500).send('Erreur traitement paiement');
+        }
+
+        if (rpcResult?.success === false) {
+            eventUpdate.process_status = 'PROCESSING_FAILED';
+            eventUpdate.processing_error = rpcResult?.message || 'process_order_payment returned success=false';
+
+            await client
+                .from('payment_webhook_events')
+                .update(eventUpdate)
+                .eq('provider', 'avadapay')
+                .eq('provider_event_id', providerEventId);
+
+            return res.status(400).send('Paiement non applique');
+        }
+
+        eventUpdate.process_status = 'PROCESSED';
+        eventUpdate.processing_error = null;
+
         await client
             .from('payment_webhook_events')
-            .update({
-                process_status: 'PENDING_VERIFICATION',
-                processed_at: new Date().toISOString()
-            })
+            .update(eventUpdate)
             .eq('provider', 'avadapay')
             .eq('provider_event_id', providerEventId);
 
