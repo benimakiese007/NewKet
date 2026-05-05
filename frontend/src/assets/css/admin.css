@@ -365,12 +365,12 @@ html:not(.dark) #adminSidebar .sidebar-link.active span {
 }
 
 /* Gradients */
-.premium-gradient-blue { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
-.premium-gradient-green { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
-.premium-gradient-orange { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
-.premium-gradient-purple { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); }
-.premium-gradient-dark { background: linear-gradient(135deg, #111827 0%, #1f2937 100%); }
-.glass-panel.premium-gradient-dark:hover { background: linear-gradient(135deg, #1f2937 0%, #374151 100%); }
+.glass-panel.premium-gradient-blue { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
+.glass-panel.premium-gradient-green { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
+.glass-panel.premium-gradient-orange { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
+.glass-panel.premium-gradient-purple { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); }
+.glass-panel.premium-gradient-dark { background: linear-gradient(135deg, #111827 0%, #1f2937 100%) !important; }
+.glass-panel.premium-gradient-dark:hover { background: linear-gradient(135deg, #1f2937 0%, #374151 100%) !important; }
 
 /* Grids & Layouts */
 .vendor-stats-grid {
