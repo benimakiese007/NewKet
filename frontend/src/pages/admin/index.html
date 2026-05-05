@@ -41,6 +41,7 @@
 
         <!-- Main Content -->
         <main class="flex-1 min-w-0 space-y-8 lg:pt-4">
+            <div id="adminOverviewPanel" class="space-y-8">
             <!-- Header Section -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
@@ -269,6 +270,18 @@
                     </div>
                 </div>
             </div>
+            </div>
+
+            <section id="adminEmbeddedPanel" class="hidden">
+                <div class="glass-panel p-4 sm:p-5">
+                    <iframe
+                        id="adminContentFrame"
+                        title="Vue admin"
+                        class="w-full border-0 rounded-[1.5rem] bg-transparent"
+                        style="min-height: 60vh;"
+                    ></iframe>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -765,6 +778,137 @@
                 }
             });
         }
+    </script>
+    <script>
+        (function() {
+            const shellViewSources = {
+                overview: null,
+                user: '/src/pages/admin/user.html?embedded=1',
+                products: '/src/pages/admin/products.html?embedded=1',
+                orders: '/src/pages/admin/orders.html?embedded=1',
+                activities: '/src/pages/admin/activities.html?embedded=1',
+                diagnostics: '/src/pages/admin/diagnostics.html?embedded=1',
+                reviews: '/src/pages/admin/reviews.html?embedded=1',
+                newsletter: '/src/pages/admin/newsletter.html?embedded=1',
+                'notifications-admin': '/src/pages/admin/notifications-admin.html?embedded=1',
+                support: '/src/pages/admin/support.html?embedded=1',
+                security: '/src/pages/admin/security.html?embedded=1',
+                settings: '/src/pages/admin/settings.html?embedded=1'
+            };
+
+            const viewTitles = {
+                overview: 'Tableau de bord | NewKet Admin',
+                user: 'Utilisateurs | NewKet Admin',
+                products: 'Catalogue | NewKet Admin',
+                orders: 'Commandes | NewKet Admin',
+                activities: 'Activites | NewKet Admin',
+                diagnostics: 'Diagnostics | NewKet Admin',
+                reviews: 'Avis | NewKet Admin',
+                newsletter: 'Newsletter | NewKet Admin',
+                'notifications-admin': 'Notifications | NewKet Admin',
+                support: 'Support | NewKet Admin',
+                security: 'Securite | NewKet Admin',
+                settings: 'Parametres | NewKet Admin'
+            };
+
+            const overviewPanel = document.getElementById('adminOverviewPanel');
+            const embeddedPanel = document.getElementById('adminEmbeddedPanel');
+            const frame = document.getElementById('adminContentFrame');
+
+            if (!overviewPanel || !embeddedPanel || !frame) return;
+
+            function getRequestedView() {
+                const params = new URLSearchParams(window.location.search);
+                const raw = params.get('view') || 'overview';
+                return shellViewSources[raw] ? raw : 'overview';
+            }
+
+            function buildUrl(view) {
+                return view === 'overview'
+                    ? '/src/pages/admin/index.html'
+                    : `/src/pages/admin/index.html?view=${encodeURIComponent(view)}`;
+            }
+
+            function setActiveView(view) {
+                const isOverview = view === 'overview';
+                overviewPanel.classList.toggle('hidden', !isOverview);
+                embeddedPanel.classList.toggle('hidden', isOverview);
+                document.title = viewTitles[view] || viewTitles.overview;
+                if (window.AdminLayout && typeof window.AdminLayout.renderSidebar === 'function') {
+                    window.AdminLayout.renderSidebar();
+                }
+            }
+
+            function navigate(view, options = {}) {
+                const targetView = shellViewSources[view] ? view : 'overview';
+                const pushState = options.pushState !== false;
+
+                const nextUrl = buildUrl(targetView);
+                if (pushState) {
+                    if (nextUrl !== window.location.pathname + window.location.search) {
+                        window.history.pushState({ view: targetView }, '', nextUrl);
+                    }
+                } else {
+                    window.history.replaceState({ view: targetView }, '', nextUrl);
+                }
+
+                setActiveView(targetView);
+
+                if (targetView !== 'overview') {
+                    const nextSrc = shellViewSources[targetView];
+                    if (frame.dataset.currentView !== targetView || frame.getAttribute('src') !== nextSrc) {
+                        frame.dataset.currentView = targetView;
+                        frame.setAttribute('src', nextSrc);
+                    }
+                }
+            }
+
+            window.AdminShell = { navigate };
+
+            window.addEventListener('popstate', () => {
+                navigate(getRequestedView(), { pushState: false });
+            });
+
+            window.addEventListener('message', (event) => {
+                if (event.origin !== window.location.origin || !event.data || typeof event.data !== 'object') return;
+
+                if (event.data.type === 'newket-admin-embed-metrics') {
+                    if (event.data.view && frame.dataset.currentView === event.data.view && event.data.height) {
+                        frame.style.height = `${Math.max(Number(event.data.height) || 0, 720)}px`;
+                    }
+                    if (event.data.title) {
+                        document.title = event.data.title;
+                    }
+                }
+
+                if (event.data.type === 'newket-admin-embed-navigate' && event.data.view) {
+                    navigate(event.data.view);
+                }
+            });
+
+            document.addEventListener('click', (event) => {
+                const link = event.target.closest('a[href]');
+                if (!link) return;
+                if (link.target && link.target !== '_self') return;
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+                const href = link.getAttribute('href');
+                if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+
+                const url = new URL(link.href, window.location.href);
+                if (url.origin !== window.location.origin) return;
+                if (!url.pathname.includes('/src/pages/admin/')) return;
+
+                const file = url.pathname.split('/').pop().replace('.html', '') || 'index';
+                const view = file === 'index' ? (url.searchParams.get('view') || 'overview') : file;
+                if (!shellViewSources.hasOwnProperty(view)) return;
+
+                event.preventDefault();
+                navigate(view);
+            }, true);
+
+            navigate(getRequestedView(), { pushState: false });
+        })();
     </script>
 </body>
 

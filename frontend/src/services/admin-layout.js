@@ -5,17 +5,42 @@
 
 const AdminLayout = {
     navigationLoadingKey: 'newket_admin_navigation_loading',
+    shellIndexPath: '/src/pages/admin/index.html',
+    shellViewMap: {
+        index: 'overview',
+        user: 'user',
+        products: 'products',
+        orders: 'orders',
+        activities: 'activities',
+        diagnostics: 'diagnostics',
+        reviews: 'reviews',
+        newsletter: 'newsletter',
+        'notifications-admin': 'notifications-admin',
+        support: 'support',
+        security: 'security',
+        settings: 'settings'
+    },
 
     ensureNoFoucStyles() {
         if (document.getElementById('nk-admin-nofouc')) return;
         const style = document.createElement('style');
         style.id = 'nk-admin-nofouc';
         style.textContent = `
-            /* Prevent admin shell layout jump between pass1 and pass2 (auth + SidebarManager). */
-            html.admin-layout-loading .admin-shell,
-            html.admin-layout-loading #adminNavbarPlaceholder {
-                opacity: 0 !important;
-                pointer-events: none !important;
+            /* Keep the admin chrome stable while the page-specific content hydrates. */
+            html.admin-layout-loading body {
+                background: #f8fafc;
+            }
+
+            html.admin-layout-loading #adminNavbarPlaceholder,
+            html.admin-layout-loading #adminSidebarPlaceholder {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            html.admin-layout-loading .admin-shell > main {
+                opacity: 1 !important;
+                filter: none !important;
+                transition: none !important;
             }
         `;
         document.head.appendChild(style);
@@ -48,6 +73,46 @@ const AdminLayout = {
     isAdminPageContext() {
         const path = window.location.pathname || '';
         return path.includes('/admin/') || path.endsWith('/admin');
+    },
+
+    isEmbeddedPage() {
+        try {
+            return new URL(window.location.href).searchParams.get('embedded') === '1';
+        } catch (_) {
+            return false;
+        }
+    },
+
+    getCurrentShellView() {
+        try {
+            const url = new URL(window.location.href);
+            const requestedView = url.searchParams.get('view');
+            if (requestedView && Object.values(this.shellViewMap).includes(requestedView)) {
+                return requestedView;
+            }
+        } catch (_) {}
+
+        return this.shellViewMap[this.getCurrentAdminFile()] || 'overview';
+    },
+
+    getShellHref(view = 'overview') {
+        if (!view || view === 'overview') return this.shellIndexPath;
+        return `${this.shellIndexPath}?view=${encodeURIComponent(view)}`;
+    },
+
+    getShellHrefForFile(file = 'index') {
+        return this.getShellHref(this.shellViewMap[file] || 'overview');
+    },
+
+    shouldRedirectLegacyPage() {
+        if (!this.isAdminPageContext() || this.isEmbeddedPage()) return false;
+        return this.getCurrentAdminFile() !== 'index';
+    },
+
+    redirectLegacyPageToShell() {
+        if (!this.shouldRedirectLegacyPage()) return false;
+        window.location.replace(this.getShellHrefForFile(this.getCurrentAdminFile()));
+        return true;
     },
 
     getCurrentAdminFile(path = window.location.pathname || '') {
@@ -155,6 +220,92 @@ const AdminLayout = {
         return path.startsWith('/') ? path : `/${path}`;
     },
 
+    setupEmbeddedMode() {
+        if (!this.isEmbeddedPage() || document.getElementById('nk-admin-embedded-style')) return;
+
+        const style = document.createElement('style');
+        style.id = 'nk-admin-embedded-style';
+        style.textContent = `
+            html, body {
+                background: #f8fafc !important;
+            }
+
+            #adminNavbarPlaceholder,
+            #adminSidebarPlaceholder,
+            #adminOverlay,
+            #adminSidebar,
+            #adminMobileMenuBtn {
+                display: none !important;
+            }
+
+            .admin-shell {
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+                gap: 0 !important;
+            }
+
+            .admin-shell > main {
+                width: 100% !important;
+                max-width: none !important;
+                padding-top: 0 !important;
+                margin-top: 0 !important;
+            }
+        `;
+        document.head.appendChild(style);
+
+        const postMetrics = () => {
+            try {
+                const main = document.querySelector('.admin-shell > main');
+                const height = Math.max(
+                    main?.scrollHeight || 0,
+                    document.body.scrollHeight || 0,
+                    document.documentElement.scrollHeight || 0
+                );
+                window.parent?.postMessage({
+                    type: 'newket-admin-embed-metrics',
+                    view: this.getCurrentShellView(),
+                    height,
+                    title: document.title
+                }, window.location.origin);
+            } catch (_) {}
+        };
+
+        window.addEventListener('load', postMetrics);
+        window.addEventListener('resize', postMetrics);
+        window.setTimeout(postMetrics, 0);
+        window.setTimeout(postMetrics, 250);
+
+        if (!window.__newketAdminEmbeddedObserver) {
+            const observer = new ResizeObserver(() => postMetrics());
+            observer.observe(document.body);
+            const main = document.querySelector('.admin-shell > main');
+            if (main) observer.observe(main);
+            window.__newketAdminEmbeddedObserver = observer;
+        }
+
+        document.addEventListener('click', (event) => {
+            const link = event.target.closest('a[href]');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+            if (link.target && link.target !== '_self') return;
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+            const url = new URL(link.href, window.location.href);
+            if (url.origin !== window.location.origin) return;
+            if (!url.pathname.includes('/src/pages/admin/')) return;
+
+            event.preventDefault();
+            window.parent?.postMessage({
+                type: 'newket-admin-embed-navigate',
+                view: this.shellViewMap[this.getCurrentAdminFile(url.pathname)] || 'overview'
+            }, window.location.origin);
+        }, true);
+    },
+
     renderNavbar() {
         const navbarPlaceholder = document.getElementById('adminNavbarPlaceholder');
         if (!navbarPlaceholder || navbarPlaceholder.dataset.rendered === 'true') return;
@@ -249,13 +400,16 @@ const AdminLayout = {
 
         const currentPath = window.location.pathname;
         const currentFile = this.getCurrentAdminFile(currentPath);
+        const currentView = this.getCurrentShellView();
 
         // Optimization: If already rendered, just update the active state to prevent flicker
         if (sidebarPlaceholder.dataset.rendered === 'true') {
             const sidebarLinks = sidebarPlaceholder.querySelectorAll('.sidebar-link');
             sidebarLinks.forEach(link => {
-                const href = link.getAttribute('href').split('/').pop().replace('.html', '') || 'index';
-                const isActive = currentFile === href || (href === 'index' && currentFile === '');
+                const href = link.getAttribute('href') || '';
+                const url = new URL(href, window.location.origin);
+                const hrefView = url.searchParams.get('view') || this.shellViewMap[this.getCurrentAdminFile(url.pathname)] || 'overview';
+                const isActive = currentView === hrefView;
                 link.classList.toggle('active', isActive);
             });
             return;
@@ -273,18 +427,18 @@ const AdminLayout = {
         }
 
         const links = [
-            { href: window.resolvePath('admin/index'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble" },
-            { href: window.resolvePath('admin/user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs" },
-            { href: window.resolvePath('admin/products'), icon: 'solar:box-bold', label: 'Contrôle Catalogue' },
-            { href: window.resolvePath('admin/orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits' },
-            { href: window.resolvePath('admin/activities'), icon: 'solar:history-bold', label: "Journal d'Activités" },
-            { href: window.resolvePath('admin/diagnostics'), icon: 'solar:chart-square-bold', label: "Audit & Diagnostics" },
-            { href: window.resolvePath('admin/reviews'), icon: 'solar:star-bold', label: "Avis & Modération" },
-            { href: window.resolvePath('admin/newsletter'), icon: 'solar:letter-bold', label: 'Newsletter' },
-            { href: window.resolvePath('admin/notifications-admin'), icon: 'solar:bell-bing-bold', label: 'Notifications' },
-            { href: window.resolvePath('admin/support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform' },
-            { href: window.resolvePath('admin/security'), icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins" },
-            { href: window.resolvePath('admin/settings'), icon: 'solar:settings-bold', label: 'Paramètres', sub: true }
+            { href: this.getShellHref('overview'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble", view: 'overview' },
+            { href: this.getShellHref('user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs", view: 'user' },
+            { href: this.getShellHref('products'), icon: 'solar:box-bold', label: 'Controle Catalogue', view: 'products' },
+            { href: this.getShellHref('orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits', view: 'orders' },
+            { href: this.getShellHref('activities'), icon: 'solar:history-bold', label: "Journal d'Activites", view: 'activities' },
+            { href: this.getShellHref('diagnostics'), icon: 'solar:chart-square-bold', label: "Audit & Diagnostics", view: 'diagnostics' },
+            { href: this.getShellHref('reviews'), icon: 'solar:star-bold', label: "Avis & Moderation", view: 'reviews' },
+            { href: this.getShellHref('newsletter'), icon: 'solar:letter-bold', label: 'Newsletter', view: 'newsletter' },
+            { href: this.getShellHref('notifications-admin'), icon: 'solar:bell-bing-bold', label: 'Notifications', view: 'notifications-admin' },
+            { href: this.getShellHref('support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform', view: 'support' },
+            { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: "Securite & Admins", view: 'security' },
+            { href: this.getShellHref('settings'), icon: 'solar:settings-bold', label: 'Parametres', view: 'settings', sub: true }
         ];
 
         let sidebarHTML = `
@@ -368,9 +522,7 @@ const AdminLayout = {
 
             } else {
                 // --- Regular Link ---
-                const isIndexLink = link.href === '/src/pages/admin/index.html';
-                const isIndexPage = currentFile === 'index';
-                const isActive = currentPath.includes(link.href) || (isIndexLink && isIndexPage) ? 'active' : '';
+                const isActive = currentView === (link.view || 'overview') ? 'active' : '';
                 sidebarHTML += `
                     <a href="${link.href}" class="sidebar-link ${isActive} group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50">
                         <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-slate-900 text-white shadow-lg' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
@@ -458,6 +610,12 @@ const AdminLayout = {
             const isAdminTarget = url.pathname.includes('/src/pages/admin/') || url.pathname.endsWith('/src/pages/admin');
 
             if (isSameOrigin && isAdminTarget) {
+                const nextView = url.searchParams.get('view') || this.shellViewMap[this.getCurrentAdminFile(url.pathname)] || 'overview';
+                if (typeof window.AdminShell?.navigate === 'function') {
+                    event.preventDefault();
+                    window.AdminShell.navigate(nextView);
+                    return;
+                }
                 this.markNavigationLoading();
             }
         }, true);
@@ -623,19 +781,23 @@ function _hasAdminLayoutPlaceholders() {
 }
 
 if (AdminLayout.isAdminPageContext()) {
-    // Passe 1 : rendu immédiat
-    if (_hasAdminLayoutPlaceholders()) {
-        _adminRenderLayout();
-    } else if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', _adminRenderLayout);
-    } else {
-        _adminRenderLayout();
-    }
+    AdminLayout.setupEmbeddedMode();
 
-    // Passe 2 : vérification d'accès (attend que l'auth soit résolue)
-    if (window.newketInitialized) {
-        _adminCheckAuth();
-    } else {
-        window.addEventListener('newketInitialized', _adminCheckAuth);
+    if (!AdminLayout.redirectLegacyPageToShell()) {
+        // Passe 1 : rendu immediat
+        if (_hasAdminLayoutPlaceholders()) {
+            _adminRenderLayout();
+        } else if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', _adminRenderLayout);
+        } else {
+            _adminRenderLayout();
+        }
+
+        // Passe 2 : verification d'acces (attend que l'auth soit resolue)
+        if (window.newketInitialized) {
+            _adminCheckAuth();
+        } else {
+            window.addEventListener('newketInitialized', _adminCheckAuth);
+        }
     }
 }

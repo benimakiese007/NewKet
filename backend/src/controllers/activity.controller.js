@@ -2,7 +2,6 @@ import { supabaseAdmin } from '../config/supabase.js';
 
 export const getActivities = async (req, res) => {
     try {
-        const userId = req.user?.id;
         const userEmail = req.user?.email;
         if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
@@ -13,7 +12,7 @@ export const getActivities = async (req, res) => {
         // ✅ OPTIMISATION: Colonnes précises seulement
         let query = supabaseAdmin
             .from('activities')
-            .select('id, user_email, text, type, time')
+            .select('id, user_id, user_email, text, type, time')
             .order('time', { ascending: false })
             .limit(50);
 
@@ -37,11 +36,13 @@ export const logActivity = async (req, res) => {
         if (!text) return res.status(400).json({ error: 'Texte requis.' });
         if (!req.user) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
 
+        const userId = req.user.id || null;
         const userEmail = req.user.email;
         
         const { data, error } = await supabaseAdmin
             .from('activities')
             .insert({
+                user_id: userId,
                 user_email: userEmail,
                 text,
                 type: type || 'info',
