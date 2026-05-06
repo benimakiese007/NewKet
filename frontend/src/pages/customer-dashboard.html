@@ -262,30 +262,30 @@
                     </div>
                 </div>
                 <nav class="space-y-1">
-                    <a href="#" onclick="switchTab('dashboard')" class="sidebar-link active" id="link-dashboard">
+                    <a href="javascript:void(0)" onclick="switchTab('dashboard', event)" class="sidebar-link active" id="link-dashboard">
                         <iconify-icon icon="solar:home-2-bold" width="20"></iconify-icon>
                         <span>Accueil</span>
                     </a>
-                    <a href="#" onclick="switchTab('orders')" class="sidebar-link" id="link-orders">
+                    <a href="javascript:void(0)" onclick="switchTab('orders', event)" class="sidebar-link" id="link-orders">
                         <iconify-icon icon="solar:bag-bold" width="20"></iconify-icon>
                         <span>Mes demandes et devis</span>
                         <span id="customerOrdersBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="#" onclick="window.location.href = (typeof window.resolvePath === 'function' ? window.resolvePath('achat') : '/src/pages/achat.html')" class="sidebar-link" id="link-achat">
+                    <a href="javascript:void(0)" onclick="window.location.href = (typeof window.resolvePath === 'function' ? window.resolvePath('achat') : '/src/pages/achat.html')" class="sidebar-link" id="link-achat">
                         <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                         <span>Achat</span>
                     </a>
-                    <a href="#" onclick="switchTab('favorites')" class="sidebar-link" id="link-favorites">
+                    <a href="javascript:void(0)" onclick="switchTab('favorites', event)" class="sidebar-link" id="link-favorites">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
                         <span>Mes Favoris</span>
                     </a>
-                    <a href="#" onclick="switchTab('notifications')" class="sidebar-link" id="link-notifications">
+                    <a href="javascript:void(0)" onclick="switchTab('notifications', event)" class="sidebar-link" id="link-notifications">
                         <iconify-icon icon="solar:bell-bold" width="20"></iconify-icon>
                         <span>Notifications</span>
                         <span
                             class="notification-badge ml-auto bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="#" onclick="switchTab('settings')" class="sidebar-link" id="link-settings">
+                    <a href="javascript:void(0)" onclick="switchTab('settings', event)" class="sidebar-link" id="link-settings">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
                         <span>Paramètres</span>
                     </a>
@@ -297,7 +297,7 @@
                     <!-- Admin Link for Suppliers -->
                     <div id="supplier-link-container" class="hidden">
                         <div class="h-px bg-gray-100 my-4 mx-2"></div>
-                        <a href="#" onclick="window.location.href=window.resolvePath('admin/')" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
+                        <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('admin/')" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
                             <iconify-icon icon="solar:shield-user-bold" width="20"></iconify-icon>
                             <span>Espace Vendeur</span>
                         </a>
@@ -721,7 +721,11 @@
         let currentSelectedOrder = null;
         let currentSelectedDispute = null;
 
-        function switchTab(tabId) {
+        function switchTab(tabId, event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             const dashboardView = document.getElementById('view-dashboard');
             const dashboardLink = document.getElementById('link-dashboard');
 
@@ -759,6 +763,9 @@
             }
             if (targetLink) targetLink.classList.add('active');
             if (tabId === 'notifications') renderDashboardNotifications();
+
+            // Auto-close sidebar on mobile after selection
+            if (window.SidebarManager) SidebarManager.close();
         }
 
         let customerAvatarUploadInFlight = false;

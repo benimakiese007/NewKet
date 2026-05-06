@@ -112,11 +112,11 @@
 
                 <!-- Navigation -->
                 <nav class="space-y-1.5">
-                    <a href="#" onclick="switchVendorTab('dashboard')" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
+                    <a href="javascript:void(0)" onclick="switchVendorTab('dashboard', event)" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
                         <iconify-icon icon="solar:chart-square-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Tableau de bord</span>
                     </a>
-                    <a href="#" onclick="switchVendorTab('analytics')" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
+                    <a href="javascript:void(0)" onclick="switchVendorTab('analytics', event)" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
                         <iconify-icon icon="solar:graph-up-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Analyses & Stats</span>
                     </a>
@@ -124,21 +124,21 @@
                         <iconify-icon icon="solar:add-circle-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Publier un article</span>
                     </a>
-                    <a href="#" onclick="switchVendorTab('products')" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
+                    <a href="javascript:void(0)" onclick="switchVendorTab('products', event)" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
                         <iconify-icon icon="solar:box-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Mes Produits</span>
                     </a>
-                    <a href="#" onclick="switchVendorTab('leads')" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
+                    <a href="javascript:void(0)" onclick="switchVendorTab('leads', event)" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
                         <iconify-icon icon="solar:card-send-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Demandes et devis</span>
                         <span id="vendorLeadsBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="#" onclick="switchVendorTab('purchases')" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
+                    <a href="javascript:void(0)" onclick="switchVendorTab('purchases', event)" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
                         <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Mes Achats</span>
                     </a>
                     <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
-                        <a href="#" onclick="switchVendorTab('settings')" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
+                        <a href="javascript:void(0)" onclick="switchVendorTab('settings', event)" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
                             <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Paramètres</span>
                         </a>
@@ -971,7 +971,11 @@
                     if (window.showToast) window.showToast('Export CSV généré avec succès.', 'success');
                 };
 
-                function switchVendorTab(tabId) {
+                function switchVendorTab(tabId, event) {
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
                     console.log("Switching vendor tab to:", tabId);
                     
                     // Update Hash
