@@ -12,7 +12,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Mes Produits | NewKet</title>
+    <title>Catalogue | NewKet Admin</title>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -378,11 +378,6 @@
 
         function initializeProducts() {
             renderAdminProducts();
-            const role = localStorage.getItem('newketRole');
-            if (role === 'admin') {
-                const pageTitle = document.getElementById('pageTitle');
-                if (pageTitle) pageTitle.textContent = 'Gestion du Catalogue';
-            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

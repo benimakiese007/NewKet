@@ -14,7 +14,10 @@ const ConfigManager = {
         maintenanceMode: false,
         socialLinks: {
             instagram: '',
-            facebook: ''
+            facebook: '',
+            x: '',
+            twitter: '',
+            linkedin: ''
         }
     },
 
@@ -33,6 +36,8 @@ const ConfigManager = {
 
         const instagram = row?.socialLinks?.instagram ?? row.instagram_link ?? row.instagram;
         const facebook = row?.socialLinks?.facebook ?? row.facebook_link ?? row.facebook;
+        const x = row?.socialLinks?.x ?? row?.socialLinks?.twitter ?? row.twitter_link ?? row.twitter ?? row.x;
+        const linkedin = row?.socialLinks?.linkedin ?? row.linkedin_link ?? row.linkedin;
 
         return {
             ...(row.id ? { id: row.id } : {}),
@@ -44,16 +49,68 @@ const ConfigManager = {
             ...(shippingFee !== undefined ? { shippingFee } : {}),
             ...(freeShippingThreshold !== undefined ? { freeShippingThreshold } : {}),
             ...(maintenanceMode !== undefined ? { maintenanceMode: !!maintenanceMode } : {}),
-            ...(instagram !== undefined || facebook !== undefined
-                ? { socialLinks: { instagram: instagram || '', facebook: facebook || '' } }
+            ...(instagram !== undefined || facebook !== undefined || x !== undefined || linkedin !== undefined
+                ? {
+                    socialLinks: {
+                        instagram: instagram || '',
+                        facebook: facebook || '',
+                        x: x || '',
+                        twitter: x || '',
+                        linkedin: linkedin || ''
+                    }
+                }
                 : {})
         };
     },
 
-    _toRemoteSettingsPayload(config) {
-        // Database columns are snake_case.
+    _normalizeSocialUrl(value, network) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        if (/^https?:\/\//i.test(raw)) return raw;
+        const handle = raw.replace(/^@/, '');
+        if (network === 'instagram') return `https://www.instagram.com/${handle}`;
+        if (network === 'facebook') return `https://www.facebook.com/${handle}`;
+        if (network === 'x') return `https://x.com/${handle}`;
+        if (network === 'linkedin') return `https://www.linkedin.com/in/${handle}`;
+        return `https://${raw}`;
+    },
+
+    _getSocialLinks(config) {
+        const links = config?.socialLinks || {};
+        const x = links.x || links.twitter || '';
         return {
-            id: config.id || 'global-settings',
+            instagram: this._normalizeSocialUrl(links.instagram, 'instagram'),
+            facebook: this._normalizeSocialUrl(links.facebook, 'facebook'),
+            x: this._normalizeSocialUrl(x, 'x'),
+            twitter: this._normalizeSocialUrl(x, 'x'),
+            linkedin: this._normalizeSocialUrl(links.linkedin, 'linkedin')
+        };
+    },
+
+    _toRemoteSettingsPayload(config, existingRow = null) {
+        const socialLinks = this._getSocialLinks(config);
+        const usesCamelSchema = !existingRow || ('shopName' in existingRow) || ('socialLinks' in existingRow);
+
+        if (usesCamelSchema) {
+            return {
+                id: config.id || existingRow?.id || 'global-settings',
+                shopName: config.shopName,
+                email: config.email,
+                supportPhone: config.supportPhone,
+                exchangeRate: config.exchangeRate,
+                currencySymbol: config.currencySymbol,
+                shippingFee: config.shippingFee,
+                freeShippingThreshold: config.freeShippingThreshold,
+                maintenanceMode: !!config.maintenanceMode,
+                socialLinks,
+                sellerCommission: config.sellerCommission,
+                targetAOV: config.targetAOV,
+                primaryColor: config.primaryColor
+            };
+        }
+
+        return {
+            id: config.id || existingRow?.id || 'global-settings',
             shop_name: config.shopName,
             contact_email: config.email,
             support_phone: config.supportPhone,
@@ -62,8 +119,10 @@ const ConfigManager = {
             shipping_fee: config.shippingFee,
             free_shipping_threshold: config.freeShippingThreshold,
             maintenance_mode: !!config.maintenanceMode,
-            instagram_link: config?.socialLinks?.instagram || '',
-            facebook_link: config?.socialLinks?.facebook || ''
+            instagram_link: socialLinks.instagram,
+            facebook_link: socialLinks.facebook,
+            twitter_link: socialLinks.x,
+            linkedin_link: socialLinks.linkedin
         };
     },
  
@@ -85,7 +144,8 @@ const ConfigManager = {
         // Also force-refresh when maintenance is ON to avoid "stuck maintenance" from stale cache.
         const cacheExpired = !fetchTime || now - parseInt(fetchTime) > CACHE_DURATION;
         const forceRefresh = this.config.maintenanceMode === true;
-        if (window.SupabaseAdapter && (cacheExpired || forceRefresh)) {
+        const socialLinksIncomplete = !this.config.socialLinks?.x || !this.config.socialLinks?.linkedin;
+        if (window.SupabaseAdapter && (cacheExpired || forceRefresh || socialLinksIncomplete)) {
             // Check if we are already fetching to prevent duplicate calls from multiple managers
             if (this._fetchPromise) {
                 await this._fetchPromise;
@@ -99,6 +159,7 @@ const ConfigManager = {
                         const normalized = this._normalizeRemoteSettingsRow(remoteConfig[0]);
                         if (normalized) this.config = { ...this.config, ...normalized };
                         this.saveLocal();
+                        window.dispatchEvent(new CustomEvent('configUpdated', { detail: this.config }));
                         localStorage.setItem('newket_global_config_time', now.toString());
                     }
                 } catch (err) {
@@ -124,16 +185,18 @@ const ConfigManager = {
 
     async saveConfig(newConfig) {
         this.config = { ...this.config, ...newConfig };
+        this.config.socialLinks = this._getSocialLinks(this.config);
         this.saveLocal();
 
         if (window.SupabaseAdapter) {
             try {
-                const payload = this._toRemoteSettingsPayload(this.config);
                 // Ensure local cache timestamp is fresh after a write.
                 localStorage.setItem('newket_global_config_time', Date.now().toString());
 
                 // If a row exists, update it; otherwise insert with deterministic id.
                 const rows = await window.SupabaseAdapter.fetch('settings');
+                const existingRow = rows && rows.length > 0 ? rows[0] : null;
+                const payload = this._toRemoteSettingsPayload(this.config, existingRow);
                 if (rows && rows.length > 0) {
                     await window.SupabaseAdapter.update('settings', rows[0].id, payload);
                 } else {

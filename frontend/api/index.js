@@ -189,10 +189,18 @@ const getSupabase = (token) =>
         global: token ? { headers: { Authorization: `Bearer ${token}` } } : {}
     });
 
+const requireEnv = (name) => {
+    const value = process.env[name];
+    if (!value) {
+        throw new Error(`${name} is required`);
+    }
+    return value;
+};
+
 const supabaseAdmin = () =>
     createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
+        requireEnv('SUPABASE_URL'),
+        requireEnv('SUPABASE_SERVICE_ROLE_KEY')
     );
 
 // ── Middlewares d'authentification ────────────────────────────
@@ -231,7 +239,11 @@ const requireAdmin = async (req, res, next) => {
 };
 
 const requireCronAuth = (req, res, next) => {
-    const secret = process.env.CRON_SECRET || process.env.NEWKET_CRON_SECRET || 'fallback-if-not-set';
+    const secret = process.env.CRON_SECRET || process.env.NEWKET_CRON_SECRET;
+    if (!secret) {
+        console.error('[Cron] Missing CRON_SECRET/NEWKET_CRON_SECRET');
+        return res.status(500).json({ error: 'Cron secret not configured' });
+    }
     const authHeader = req.headers.authorization || '';
     const token = req.query.token;
     if (authHeader === `Bearer ${secret}` || token === secret || req.headers['x-vercel-cron']) {

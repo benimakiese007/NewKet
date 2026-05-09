@@ -31,8 +31,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
-
     { "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet", "destination": "/src/pages/product?id=:productSlug" },
     { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
 

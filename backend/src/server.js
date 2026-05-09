@@ -1,5 +1,6 @@
 import { initSentry, sentryErrorHandler } from './middlewares/sentry.js';
 import dotenv from 'dotenv';
+import { pathToFileURL } from 'url';
 dotenv.config({ path: '../.env' });
 initSentry();
 
@@ -177,10 +178,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Serveur NewKet demarre sur http://localhost:${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
-});
+const isDirectRun = process.argv[1]
+  ? import.meta.url === pathToFileURL(process.argv[1]).href
+  : false;
+
+if (isDirectRun) {
+  app.listen(PORT, () => {
+    console.log(`Serveur NewKet demarre sur http://localhost:${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
+  });
+}
 
 if (!IS_VERCEL) {
   setTimeout(() => {

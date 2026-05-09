@@ -179,7 +179,14 @@ const AdminLayout = {
     },
 
     injectStyles() {
-        if (!document.querySelector('link[href*="admin.css"]')) {
+        const hasAdminCss = Array.from(document.querySelectorAll('link[rel~="stylesheet"]')).some((link) => {
+            const href = link.getAttribute('href') || '';
+            return href.includes('/src/assets/css/admin.css') ||
+                href.includes('/css/admin.css') ||
+                /\/assets\/admin-[^/]+\.css(?:[?#].*)?$/.test(href);
+        });
+
+        if (!hasAdminCss) {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = '/src/assets/css/admin.css';
@@ -242,9 +249,10 @@ const AdminLayout = {
             .admin-shell {
                 max-width: none !important;
                 margin: 0 !important;
-                padding: 0 !important;
+                padding: 0 0.375rem 0.375rem !important;
                 display: block !important;
                 gap: 0 !important;
+                overflow-x: visible !important;
             }
 
             .admin-shell > main {

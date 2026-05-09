@@ -12,7 +12,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Paramètres Admin | NewKet</title>
+    <title>Parametres | NewKet Admin</title>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -41,7 +41,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-premium">
                 <div>
                     <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Paramètres Plateforme</h1>
-                    <p class="text-gray-500 font-medium" id="pageSubtitle">Configuration globale de la marketplace et options système.</p>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Contrôle global et configuration du système.</p>
                 </div>
                 <div id="saveStatus"
                     class="hidden flex items-center gap-3 px-6 py-3 bg-green-50 text-green-600 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-green-100 shadow-xl shadow-green-500/10">
@@ -143,11 +143,11 @@
                         </div>
                     </div>
 
-                    <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Instagram</label>
                             <div class="relative">
-                                <iconify-icon icon="solar:camera-bold" width="20"
+                                <iconify-icon icon="line-md:instagram" width="20"
                                     class="absolute left-6 top-1/2 -translate-y-1/2 text-pink-500"></iconify-icon>
                                 <input type="text" id="socialInstagram"
                                     class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
@@ -157,11 +157,31 @@
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Facebook</label>
                             <div class="relative">
-                                <iconify-icon icon="solar:pen-new-square-bold" width="20"
+                                <iconify-icon icon="line-md:facebook" width="20"
                                     class="absolute left-6 top-1/2 -translate-y-1/2 text-blue-600"></iconify-icon>
                                 <input type="text" id="socialFacebook"
                                     class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
                                     placeholder="Lien Facebook">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">X</label>
+                            <div class="relative">
+                                <iconify-icon icon="line-md:twitter-x" width="20"
+                                    class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-900"></iconify-icon>
+                                <input type="text" id="socialX"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="Lien X">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">LinkedIn</label>
+                            <div class="relative">
+                                <iconify-icon icon="line-md:linkedin" width="20"
+                                    class="absolute left-6 top-1/2 -translate-y-1/2 text-sky-700"></iconify-icon>
+                                <input type="text" id="socialLinkedin"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="Lien LinkedIn">
                             </div>
                         </div>
                     </div>
@@ -224,12 +244,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
+            window.addEventListener('configUpdated', loadConfig);
+            window.addEventListener('newketInitialized', loadConfig);
 
-            const role = localStorage.getItem('newketRole');
-            if (role === 'admin') {
-                document.getElementById('pageTitle').textContent = 'Paramètres Plateforme';
-                document.getElementById('pageSubtitle').textContent = 'Contrôle global et configuration du système.';
-            }
         });
 
         function loadConfig() {
@@ -248,6 +265,8 @@
                 if (config.socialLinks) {
                     document.getElementById('socialInstagram').value = config.socialLinks.instagram || '';
                     document.getElementById('socialFacebook').value = config.socialLinks.facebook || '';
+                    document.getElementById('socialX').value = config.socialLinks.x || config.socialLinks.twitter || '';
+                    document.getElementById('socialLinkedin').value = config.socialLinks.linkedin || '';
                 }
 
                 document.getElementById('maintenanceMode').checked = config.maintenanceMode || false;
@@ -268,7 +287,10 @@
                 currencySymbol: document.getElementById('shopCurrency').value,
                 socialLinks: {
                     instagram: document.getElementById('socialInstagram').value,
-                    facebook: document.getElementById('socialFacebook').value
+                    facebook: document.getElementById('socialFacebook').value,
+                    x: document.getElementById('socialX').value,
+                    twitter: document.getElementById('socialX').value,
+                    linkedin: document.getElementById('socialLinkedin').value
                 },
                 maintenanceMode: document.getElementById('maintenanceMode').checked,
                 exchangeRate: parseFloat(document.getElementById('exchangeRate').value) || 2800,

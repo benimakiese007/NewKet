@@ -32,16 +32,12 @@
     }
   ],
   "functions": {
-    "frontend/api/index.js": {
+    "api/[...path].js": {
       "runtime": "nodejs18.x",
       "maxDuration": 10
     }
   },
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "frontend/api/index.js"
-    },
     { "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet", "destination": "/src/pages/product?id=:productSlug" },
     { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
     { "source": "/boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },

@@ -355,9 +355,10 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                     </a>
                 </div>
                 <div class="flex items-center gap-4">
-                    <a href="https://www.instagram.com/benimakiese007" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur Instagram" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:instagram" width="20"></iconify-icon></a>
-                    <a href="https://www.facebook.com/benimakiese1234@gmail.com" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur Facebook" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:facebook" width="20"></iconify-icon></a>
-                    <a href="https://x.com/lephoenixman" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur X" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon></a>
+                    <a data-social-link="instagram" href="https://www.instagram.com/benimakiese007" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur Instagram" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:instagram" width="20"></iconify-icon></a>
+                    <a data-social-link="facebook" href="https://www.facebook.com/Benimakiese007" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur Facebook" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:facebook" width="20"></iconify-icon></a>
+                    <a data-social-link="x" href="https://x.com/lephoenixman" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur X" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:twitter-x" width="20"></iconify-icon></a>
+                    <a data-social-link="linkedin" href="https://www.linkedin.com/company/newket" target="_blank" rel="noopener noreferrer" aria-label="NewKet sur LinkedIn" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300"><iconify-icon icon="line-md:linkedin" width="20"></iconify-icon></a>
                 </div>
             </div>
             <div class="lg:col-span-2 space-y-4">
@@ -459,6 +460,8 @@ const ComponentLoader = {
 
         await Promise.all(componentsToLoad);
         this.bindGlobalActions();
+        this.applyConfiguredSocialLinks();
+        window.addEventListener('configUpdated', () => this.applyConfiguredSocialLinks());
 
         // Set global flag to avoid race conditions
         window.componentsLoaded = true;
@@ -503,6 +506,43 @@ const ComponentLoader = {
                 event.preventDefault();
                 if (window.AppNotifications) AppNotifications.promptInstall();
             }
+        });
+    },
+
+    normalizeSocialUrl(value, network) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        if (/^https?:\/\//i.test(raw)) return raw;
+        const handle = raw.replace(/^@/, '');
+        if (network === 'instagram') return `https://www.instagram.com/${handle}`;
+        if (network === 'facebook') return `https://www.facebook.com/${handle}`;
+        if (network === 'x') return `https://x.com/${handle}`;
+        if (network === 'linkedin') return `https://www.linkedin.com/in/${handle}`;
+        return `https://${raw}`;
+    },
+
+    applyConfiguredSocialLinks() {
+        const defaults = {
+            instagram: 'https://www.instagram.com/benimakiese007',
+            facebook: 'https://www.facebook.com/Benimakiese007',
+            x: 'https://x.com/lephoenixman',
+            linkedin: 'https://www.linkedin.com/company/newket'
+        };
+        const configLinks = window.ConfigManager?.getConfig?.().socialLinks || {};
+        const links = {
+            instagram: configLinks.instagram || defaults.instagram,
+            facebook: configLinks.facebook || defaults.facebook,
+            x: configLinks.x || configLinks.twitter || defaults.x,
+            linkedin: configLinks.linkedin || defaults.linkedin
+        };
+
+        Object.entries(links).forEach(([network, href]) => {
+            const normalizedHref = this.normalizeSocialUrl(href, network);
+            document.querySelectorAll(`[data-social-link="${network}"]`).forEach((anchor) => {
+                const safeHref = window.safeUrl ? window.safeUrl(normalizedHref) : normalizedHref;
+                anchor.href = safeHref || defaults[network];
+                anchor.classList.toggle('hidden', !safeHref);
+            });
         });
     },
 

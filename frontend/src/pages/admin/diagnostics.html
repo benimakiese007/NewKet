@@ -12,7 +12,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Analyses & Diagnostics | NewKet</title>
+    <title>Diagnostics | NewKet Admin</title>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -41,10 +41,8 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Analyses Médicales du
-                        Shop</h1>
-                    <p class="text-gray-500" id="pageSubtitle">Diagnostic complet de vos performances et de votre
-                        catalogue.</p>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Analyses Médicales Plateforme</h1>
+                    <p class="text-gray-500" id="pageSubtitle">Diagnostic complet des performances globales et du catalogue mondial.</p>
                 </div>
                 <!-- Timeframe Selector -->
                 <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
@@ -176,13 +174,6 @@
 
             // Audit Log
             renderAuditLog();
-
-            // Dynamic Labels based on role
-            const role = localStorage.getItem('newketRole');
-            if (role === 'admin') {
-                document.getElementById('pageTitle').textContent = 'Analyses Médicales Plateforme';
-                document.getElementById('pageSubtitle').textContent = 'Diagnostic complet des performances globales et du catalogue mondial.';
-            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {

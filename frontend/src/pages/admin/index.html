@@ -12,7 +12,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Espace Vendeur | NewKet</title>
+    <title>Administration | NewKet</title>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -44,29 +44,24 @@
             <div id="adminOverviewPanel" class="space-y-8">
             <!-- Header Section -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
-                <div>
-                    <h1 class="text-4xl font-black tracking-tight text-gray-900">Tableau de bord</h1>
-                    <p class="text-gray-500 font-medium">Bon retour, voici un aperçu de la performance aujourd'hui.</p>
+                <div class="min-w-0">
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900">Vue d'ensemble</h1>
+                    <p class="text-gray-500 font-medium">Performances et activité globales de la plateforme.</p>
                 </div>
 
-                <div class="flex items-center gap-4">
+                <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
                     <!-- Timeframe Selector -->
-                    <div class="flex items-center bg-white border border-gray-100 rounded-2xl p-1 shadow-sm">
+                    <div class="flex w-full min-w-0 items-center overflow-x-auto bg-white border border-gray-100 rounded-2xl p-1 shadow-sm sm:w-auto">
                         <button onclick="updateTimeframe('day', this)"
-                            class="time-btn px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Jour</button>
+                            class="time-btn flex-1 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Jour</button>
                         <button onclick="updateTimeframe('week', this)"
-                            class="time-btn px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
+                            class="time-btn flex-1 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
                         <button onclick="updateTimeframe('month', this)"
-                            class="time-btn px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Mois</button>
+                            class="time-btn flex-1 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Mois</button>
                         <button onclick="updateTimeframe('all', this)"
-                            class="time-btn px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-black text-white shadow-lg">Tout</button>
+                            class="time-btn flex-1 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-black text-white shadow-lg">Tout</button>
                     </div>
 
-                    <a href="products.html"
-                        class="bg-black text-white px-6 py-3 rounded-2xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20">
-                        <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
-                        Nouveau Produit
-                    </a>
                 </div>
             </div>
 
@@ -352,21 +347,8 @@
                     else el.classList.add('hidden');
                 });
 
-                // Update Labels
-                if (isAdmin) {
-                    document.title = "Administration | NewKet";
-                    document.querySelector('h1').textContent = "Vue d'ensemble";
-                    document.querySelector('h1 + p').textContent = "Performances et activité globales de la plateforme.";
-
-                    // Hide Nouveau Produit button for admin
-                    const newProdBtn = document.querySelector('a[href="products.html"].bg-black');
-                    if (newProdBtn) newProdBtn.style.display = 'none';
-
-                    document.querySelectorAll('.stat-label-sales').forEach(el => el.textContent = 'Volume Brut (Platform)');
-                    // Commission labels removed as there are no commissions
-                } else {
+                if (!isAdmin) {
                     document.querySelectorAll('.stat-label-sales').forEach(el => el.textContent = 'Mes Gains (Brut)');
-                    // Commission labels removed as there are no commissions
                 }
             }
 
@@ -384,8 +366,24 @@
             }
         });
 
+        function getAdminShellView() {
+            return new URLSearchParams(window.location.search).get('view') || 'overview';
+        }
+
+        function isOverviewViewActive() {
+            return getAdminShellView() === 'overview';
+        }
+
+        function setTextIfPresent(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+            return el;
+        }
+
         async function refreshDashboardData() {
             try {
+                if (!isOverviewViewActive()) return;
+
                 const client = window.SupabaseAdapter.getClient();
                 if (!client) return;
 
@@ -408,23 +406,24 @@
                 });
 
                 // Update Stats UI
-                document.getElementById('statsOrders').textContent = stats.totalLeads;
+                setTextIfPresent('statsOrders', stats.totalLeads);
                 
                 const totalViews = products.reduce((sum, p) => sum + (parseInt(p.views) || 0), 0);
-                document.getElementById('statsSales').textContent = totalViews;
+                setTextIfPresent('statsSales', totalViews);
                 
                 // Funnel Update
-                document.getElementById('statsCommission').textContent = stats.conversionRate + "%";
-                document.getElementById('funnelViews').textContent = totalViews;
-                document.getElementById('funnelLeads').textContent = stats.totalLeads;
+                setTextIfPresent('statsCommission', stats.conversionRate + "%");
+                setTextIfPresent('funnelViews', totalViews);
+                setTextIfPresent('funnelLeads', stats.totalLeads);
                 const funnelRatio = totalViews > 0 ? (stats.totalLeads / totalViews) * 100 : 0;
-                document.getElementById('funnelBar').style.width = Math.min(funnelRatio, 100) + '%';
+                const funnelBar = document.getElementById('funnelBar');
+                if (funnelBar) funnelBar.style.width = Math.min(funnelRatio, 100) + '%';
                 
-                document.getElementById('statsNetSales').textContent = products.length;
-                document.getElementById('statsClients').textContent = stats.healthScore + "/100"; // Usant Clients field for Health Score in Admin
+                setTextIfPresent('statsNetSales', products.length);
+                const statsClients = setTextIfPresent('statsClients', stats.healthScore + "/100"); // Usant Clients field for Health Score in Admin
                 
                 // Update label for clients to Health Score
-                const visitorsLabel = document.getElementById('statsClients').previousElementSibling;
+                const visitorsLabel = statsClients?.previousElementSibling;
                 if (visitorsLabel) {
                     visitorsLabel.textContent = "Santé Plateforme";
                     visitorsLabel.classList.remove('text-purple-400');
@@ -461,14 +460,14 @@
                 // Users Stat
                 if (window.UserManager && UserManager._initialized) {
                     const allUsers = UserManager.getUsers();
-                    document.getElementById('statsTotalUsers').textContent = allUsers.length;
+                    setTextIfPresent('statsTotalUsers', allUsers.length);
                     
                     const newUsers = allUsers.filter(u => {
                         if(!u.created_at) return false;
                         const d = new Date(u.created_at);
                         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                     }).length;
-                    document.getElementById('statsNewUsers').textContent = `+${newUsers}`;
+                    setTextIfPresent('statsNewUsers', `+${newUsers}`);
                 }
 
             } catch (err) {
@@ -880,6 +879,8 @@
                         frame.dataset.currentView = targetView;
                         frame.setAttribute('src', nextSrc);
                     }
+                } else if (window.newketInitialized) {
+                    refreshDashboardData();
                 }
             }
 
