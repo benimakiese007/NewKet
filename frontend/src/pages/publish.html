@@ -311,24 +311,6 @@
 
                 <div id="imagePreviewContainer" class="hidden flex gap-5 overflow-x-auto pb-6 scroll-smooth custom-scrollbar"></div>
 
-                <div class="mt-8 p-6 bg-gradient-to-br from-indigo-50/80 via-white to-purple-50/80 rounded-3xl border border-indigo-100/50 shadow-sm" id="bgRemovalContainer" style="display: none;">
-                    <label class="flex items-center gap-6 cursor-pointer group">
-                        <div class="relative">
-                            <input type="checkbox" id="removeBackgroundCheck" name="removeBackgroundCheck" class="sr-only peer">
-                            <div class="w-14 h-7 bg-gray-200/50 rounded-full peer peer-checked:bg-indigo-600 transition-all duration-300 after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-7 shadow-inner"></div>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3">
-                                <span class="text-base font-bold text-gray-900">IA Studio Clean</span>
-                                <span class="px-2.5 py-1 bg-indigo-600 text-[9px] font-black text-white rounded-lg uppercase tracking-[0.15em] shadow-lg shadow-indigo-200/50">SMART UI</span>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1 font-medium italic">Nettoyage automatique du fond pour un look "E-commerce Premium".</p>
-                        </div>
-                        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-md text-indigo-600 group-hover:rotate-12 transition-all duration-500 scale-90 group-hover:scale-100 border border-gray-50">
-                            <iconify-icon icon="solar:magic-stick-3-bold-duotone" width="32"></iconify-icon>
-                        </div>
-                    </label>
-                </div>
             </div>
 
             <!-- Details Card -->
@@ -640,13 +622,13 @@
                 if (selectedProductImages.length === 0) {
                     uploadZone.classList.remove('hidden');
                     imagePreviewContainer.classList.add('hidden');
-                    bgRemovalContainer.style.display = 'none';
+                    if (bgRemovalContainer) bgRemovalContainer.style.display = 'none';
                     return;
                 }
 
                 uploadZone.classList.add('hidden');
                 imagePreviewContainer.classList.remove('hidden');
-                bgRemovalContainer.style.display = 'block';
+                if (bgRemovalContainer) bgRemovalContainer.style.display = 'block';
 
                 imagePreviewContainer.innerHTML = selectedProductImages.map((src, index) => `
                     <div class="relative flex-shrink-0 w-44 h-44 rounded-[2rem] border border-gray-100 overflow-hidden group shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">

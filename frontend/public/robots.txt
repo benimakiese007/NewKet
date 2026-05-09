@@ -1,17 +1,5 @@
 User-agent: *
 Allow: /
-Allow: /index
-Allow: /catalog
-Allow: /product
-Allow: /about
-Allow: /forum
-
-# Protect private dashboard paths
-Disallow: /pages/vendor-dashboard
-Disallow: /pages/customer-dashboard
-Disallow: /pages/settings
-Disallow: /pages/notifications
-Disallow: /admin/
 
 # Sitemaps
 Sitemap: https://newket.vercel.app/sitemap.xml

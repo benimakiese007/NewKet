@@ -1,8 +1,7 @@
-// ─── Sentry DOIT être initialisé EN PREMIER ───────────────────────────────
 import { initSentry, sentryErrorHandler } from './middlewares/sentry.js';
 import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });
-initSentry(); // ← Avant tout le reste
+initSentry();
 
 import express from 'express';
 import cors from 'cors';
@@ -10,89 +9,9 @@ import compression from 'compression';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
-// Variables d'environnement déjà chargées en haut (avant initSentry)
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// ─── Middlewares Globaux ───────────────────────────────────
-
-// 1. CORS en PREMIER pour intercepter les preflight (OPTIONS)
-const ALLOWED_ORIGINS = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:4173',
-  'http://127.0.0.1:4173',
-  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
-];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Autorise tout en développement local pour éviter les blocages CORS
-    if (!origin || process.env.NODE_ENV === 'development') {
-      return callback(null, true);
-    }
-    
-    if (ALLOWED_ORIGINS.includes(origin)) {
-      return callback(null, true);
-    }
-
-    // IPs locales (mobile testing)
-    if (origin.startsWith('http://192.168.') || origin.startsWith('http://10.') || origin.startsWith('http://172.')) {
-      return callback(null, true);
-    }
-
-    callback(new Error(`CORS: origin '${origin}' not allowed`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Range'],
-  exposedHeaders: ['Content-Range', 'X-Total-Count'],
-  maxAge: 86400 // Cache le preflight pendant 24h
-}));
-
-// 2. Sécurité et Performance
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }, // Autorise le chargement de ressources cross-domain
-  contentSecurityPolicy: false // Désactivé en dev car trop restrictif pour scripts/styles inline
-}));
-app.use(compression()); // Réduit la taille des réponses
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limite chaque IP à 200 requêtes par fenêtre de 15 minutes
-  message: { error: 'Trop de requêtes, veuillez réessayer plus tard.' },
-  standardHeaders: true, // Retourne le rate limit info dans les `RateLimit-*` headers
-  legacyHeaders: false, // Désactive les `X-RateLimit-*` headers
-  skip: (req) => process.env.NODE_ENV === 'development', // Ne pas limiter en développement
-});
-app.use('/api', limiter); // Applique le rate limiting sur toutes les API
-
-// Capture raw body (needed for payment webhooks signature verification).
-app.use(express.json({
-  limit: '8mb',
-  verify: (req, res, buf) => {
-    // Keep as Buffer for HMAC computations.
-    req.rawBody = buf;
-  }
-}));
-app.use(express.urlencoded({ extended: true }));
-
-// Ensure UTF-8 for API responses (prevents ambiguous client decoding).
-app.use('/api', (req, res, next) => {
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  next();
-});
-
-// ─── Maintenance & Auth Globale ──────────────────────────────
 import { optionalAuth } from './middlewares/auth.js';
 import { maintenanceMiddleware } from './middlewares/maintenance.js';
 
-app.use(optionalAuth); // Récupère l'utilisateur si présent
-app.use(maintenanceMiddleware); // Bloque les écritures si maintenance ON
-
-// ─── Routes ────────────────────────────────────────────────
-// Import des routes
 import productRoutes from './routes/product.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import favoriteRoutes from './routes/favorite.routes.js';
@@ -113,6 +32,109 @@ import systemHealthRoutes from './routes/systemHealth.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+const ESCROW_JOB_INTERVAL_MS = 15 * 60 * 1000;
+const IS_VERCEL = String(process.env.VERCEL || '').toLowerCase() === '1' || Boolean(process.env.VERCEL);
+
+app.disable('x-powered-by');
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:4173',
+  'http://127.0.0.1:4173',
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+];
+
+const cspDirectives = {
+  defaultSrc: ["'self'"],
+  baseUri: ["'self'"],
+  objectSrc: ["'none'"],
+  frameAncestors: ["'none'"],
+  formAction: ["'self'"],
+  scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://code.iconify.design', 'https://va.vercel-scripts.com'],
+  styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+  fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+  imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+  connectSrc: ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://vitals.vercel-insights.com', 'https://*.ingest.sentry.io'],
+  mediaSrc: ["'self'", 'blob:', 'https:'],
+  workerSrc: ["'self'", 'blob:'],
+  frameSrc: ["'self'"],
+  manifestSrc: ["'self'"],
+};
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+
+    if (origin.startsWith('http://192.168.') || origin.startsWith('http://10.') || origin.startsWith('http://172.')) {
+      return callback(null, true);
+    }
+
+    callback(new Error(`CORS: origin '${origin}' not allowed`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Range'],
+  exposedHeaders: ['Content-Range', 'X-Total-Count'],
+  maxAge: 86400
+}));
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: cspDirectives,
+  },
+  frameguard: { action: 'deny' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  permissionsPolicy: {
+    features: {
+      accelerometer: [],
+      camera: [],
+      geolocation: [],
+      gyroscope: [],
+      magnetometer: [],
+      microphone: [],
+      payment: [],
+      usb: []
+    }
+  }
+}));
+app.use(compression());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { error: 'Trop de requetes, veuillez reessayer plus tard.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === 'development',
+});
+app.use('/api', limiter);
+
+app.use(express.json({
+  limit: '8mb',
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/api', (req, res, next) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
+
+app.use(optionalAuth);
+app.use(maintenanceMiddleware);
+
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/favorites', favoriteRoutes);
@@ -131,41 +153,34 @@ app.use('/api/disputes', disputeRoutes);
 app.use('/api/cron', cronRoutes);
 app.use('/api/system-health', systemHealthRoutes);
 
-// Route de test
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    message: 'NewKet Backend API is running 🚀',
+  res.json({
+    status: 'ok',
+    message: 'NewKet Backend API is running',
     timestamp: new Date().toISOString()
   });
 });
 
-// ─── Gestion des erreurs ───────────────────────────────────
-// Sentry doit intercepter les erreurs AVANT notre handler custom
 app.use(sentryErrorHandler);
 
-// Handler d'erreur maison (après Sentry)
 app.use((err, req, res, next) => {
-  const eventId = res.sentry; // ID Sentry attaché par sentryErrorHandler
-  console.error('❌ Erreur serveur:', err.stack);
-  if (eventId) console.error(`   🔍 Sentry Event ID: ${eventId}`);
-  
-  res.status(err.status || 500).json({ 
+  const eventId = res.sentry;
+  console.error('Server error:', err.stack);
+  if (eventId) {
+    console.error(`Sentry Event ID: ${eventId}`);
+  }
+
+  res.status(err.status || 500).json({
     error: 'Erreur interne du serveur',
     message: process.env.NODE_ENV === 'development' ? err.message : undefined,
-    ...(eventId && { sentryEventId: eventId }) // Retourner l'ID en dev pour faciliter le debug
+    ...(eventId && { sentryEventId: eventId })
   });
 });
 
-// ─── Démarrage du serveur ──────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur NewKet démarré sur http://localhost:${PORT}`);
-  console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`Serveur NewKet demarre sur http://localhost:${PORT}`);
+  console.log(`Health check: http://localhost:${PORT}/api/health`);
 });
-
-const ESCROW_JOB_INTERVAL_MS = 15 * 60 * 1000;
-
-const IS_VERCEL = String(process.env.VERCEL || '').toLowerCase() === '1' || Boolean(process.env.VERCEL);
 
 if (!IS_VERCEL) {
   setTimeout(() => {

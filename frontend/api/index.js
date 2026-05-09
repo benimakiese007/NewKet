@@ -155,6 +155,7 @@ const analyticsLimiter = rateLimit({
 
 const app = express();
 const router = express.Router();
+app.disable('x-powered-by');
 
 // Middleware pour logger les requêtes (utile pour le debug Vercel)
 app.use((req, res, next) => {

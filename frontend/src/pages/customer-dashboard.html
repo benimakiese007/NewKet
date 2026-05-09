@@ -2,9 +2,7 @@
 <html lang="fr">
 
 <head>
-    <script>
-        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
-    </script>
+    <script src="/security-bootstrap.js"></script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -200,7 +198,7 @@
 <body>    <nav class="dashboard-topbar fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
-            <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+            <button id="customerMobileBtn" data-toggle-sidebar="customer" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all">
                 <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
             </button>
             <a href="/" class="flex items-center justify-center group">
@@ -210,7 +208,7 @@
 
             <div class="flex items-center gap-4">
                 <!-- Theme Toggle Desktop -->
-                <button data-theme-toggle onclick="ThemeManager.toggle()" class="theme-toggle hidden sm:flex h-10 w-10 text-gray-500 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50 items-center justify-center" aria-label="Basculer le thème">
+                <button data-theme-toggle data-theme-toggle-safe class="theme-toggle hidden sm:flex h-10 w-10 text-gray-500 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50 items-center justify-center" aria-label="Basculer le thème">
                     <iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon>
                 </button>
 
@@ -224,7 +222,7 @@
                         </div>
                     </div>
                 </div>
-                <button onclick="AuthManager.handleLogoutClick(this)" class="h-10 w-10 sm:w-auto sm:px-4 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
+                <button data-logout-safe class="h-10 w-10 sm:w-auto sm:px-4 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
                     <iconify-icon icon="solar:logout-bold" width="20"></iconify-icon>
                     <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Déconnexion</span>
                 </button>
@@ -240,7 +238,7 @@
         <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full md:translate-x-0 md:sticky md:top-28 md:self-start md:inset-auto md:w-64 transition-transform duration-300 ease-in-out h-screen md:h-[calc(100vh-7rem)] overflow-y-auto border-0 md:border-r border-gray-100 flex-shrink-0">
 
             <!-- Mobile Close Button -->
-            <button onclick="SidebarManager.close()" class="md:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
+            <button data-close-sidebar="customer" class="md:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
                 <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
             </button>
 
@@ -262,11 +260,11 @@
                     </div>
                 </div>
                 <nav class="space-y-1">
-                    <a href="javascript:void(0)" onclick="switchTab('dashboard', event)" class="sidebar-link active" id="link-dashboard">
+                    <a href="javascript:void(0)" data-switch-customer-tab="dashboard" class="sidebar-link active" id="link-dashboard">
                         <iconify-icon icon="solar:home-2-bold" width="20"></iconify-icon>
                         <span>Accueil</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchTab('orders', event)" class="sidebar-link" id="link-orders">
+                    <a href="javascript:void(0)" data-switch-customer-tab="orders" class="sidebar-link" id="link-orders">
                         <iconify-icon icon="solar:bag-bold" width="20"></iconify-icon>
                         <span>Mes demandes et devis</span>
                         <span id="customerOrdersBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
@@ -275,22 +273,22 @@
                         <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                         <span>Achat</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchTab('favorites', event)" class="sidebar-link" id="link-favorites">
+                    <a href="javascript:void(0)" data-switch-customer-tab="favorites" class="sidebar-link" id="link-favorites">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
                         <span>Mes Favoris</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchTab('notifications', event)" class="sidebar-link" id="link-notifications">
+                    <a href="javascript:void(0)" data-switch-customer-tab="notifications" class="sidebar-link" id="link-notifications">
                         <iconify-icon icon="solar:bell-bold" width="20"></iconify-icon>
                         <span>Notifications</span>
                         <span
                             class="notification-badge ml-auto bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchTab('settings', event)" class="sidebar-link" id="link-settings">
+                    <a href="javascript:void(0)" data-switch-customer-tab="settings" class="sidebar-link" id="link-settings">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
                         <span>Paramètres</span>
                     </a>
                     <!-- Theme Toggle Mobile -->
-                    <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle md:hidden w-full text-left">
+                    <button data-theme-toggle data-theme-toggle-safe class="sidebar-link theme-toggle md:hidden w-full text-left">
                         <iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon>
                         <span class="theme-toggle-text">Mode Sombre</span>
                     </button>
@@ -305,7 +303,7 @@
                 </nav>
                 <!-- Logout -->
                 <div class="mt-4 pt-4 border-t border-gray-100">
-                    <button class="sidebar-logout" onclick="AuthManager.handleLogoutClick(this)">
+                    <button class="sidebar-logout" data-logout-safe>
                         <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
                         <span>Se déconnecter</span>
                     </button>
@@ -1188,7 +1186,7 @@
                     <div class="glass-panel p-12 text-center text-gray-500">
                         <iconify-icon icon="solar:chat-round-line-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
                         <p>Vous n'avez pas encore envoyé de demande ni reçu de devis. L'exceptionnel vous attend.</p>
-                        <a href="#" onclick="window.location.href=window.resolvePath('catalog')" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Voir les articles</a>
+                        <a href="/src/pages/catalog.html" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Voir les articles</a>
                     </div>
                 `;
             } else {
@@ -1231,7 +1229,7 @@
                     <div class="col-span-full glass-panel p-12 text-center text-gray-500">
                         <iconify-icon icon="solar:heart-broken-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
                         <p>Votre liste de désirs est vide. Laissez-vous séduire par nos pièces d'exception.</p>
-                        <a href="#" onclick="window.location.href=window.resolvePath('catalog')" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Explorer le catalogue</a>
+                        <a href="/src/pages/catalog.html" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Explorer le catalogue</a>
                     </div>
                 `;
             } else {

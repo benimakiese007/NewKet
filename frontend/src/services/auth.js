@@ -759,8 +759,22 @@ const AuthManager = {
         const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
         const displayName = profile.name || localStorage.getItem('newketUserName') || 'Mon Compte';
         const initials = typeof window.getInitials === 'function' ? window.getInitials(displayName) : (displayName?.trim()?.charAt(0)?.toUpperCase() || '?');
+        const hideAccountIcon = (icon) => {
+            if (!icon) return;
+            icon.style.display = 'none';
+            icon.classList.add('hidden');
+            icon.setAttribute('aria-hidden', 'true');
+        };
+
+        const showAccountIcon = (icon) => {
+            if (!icon) return;
+            icon.style.display = 'block';
+            icon.classList.remove('hidden');
+            icon.removeAttribute('aria-hidden');
+        };
+
         const renderInitials = (accountLink, icon, text) => {
-            if (icon) icon.style.display = 'none';
+            hideAccountIcon(icon);
 
             const img = accountLink.querySelector('.nav-user-avatar');
             if (img) img.style.display = 'none';
@@ -784,7 +798,7 @@ const AuthManager = {
 
             if (avatarUrl && !isFooterLink) {
                 if (initialsBadge) initialsBadge.remove();
-                if (icon) icon.style.display = 'none';
+                hideAccountIcon(icon);
                 let img = accountLink.querySelector('.nav-user-avatar');
                 if (!img) {
                     img = document.createElement('img');
@@ -805,6 +819,8 @@ const AuthManager = {
                 }
                 img.style.display = 'block';
             } else if (!isFooterLink) {
+                const existingImg = accountLink.querySelector('.nav-user-avatar');
+                if (existingImg) existingImg.style.display = 'none';
                 initialsBadge = renderInitials(accountLink, icon, initials);
             }
 
@@ -883,8 +899,10 @@ const AuthManager = {
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-linear');
                     icon.className = 'text-gray-600';
-                    icon.style.display = 'block';
+                    showAccountIcon(icon);
                 }
+                const existingImg = accountLink.querySelector('.nav-user-avatar');
+                if (existingImg) existingImg.style.display = 'none';
                 accountLink.classList.remove('bg-gray-900', 'bg-gray-100', 'text-white', 'bg-white');
                 accountLink.classList.add('hover:bg-gray-50');
                 const badge = accountLink.querySelector('.role-badge');

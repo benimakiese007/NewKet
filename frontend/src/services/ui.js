@@ -42,21 +42,34 @@ const UI = {
 
     renderPinned(products) {
         const grid = document.getElementById('pinnedProductGrid');
+        const section = document.getElementById('pinnedSection');
         if (!grid) return;
 
         // If no products yet, show skeletons
         if (!products || products.length === 0) {
-            grid.innerHTML = window.buildSkeletonCardHTML(5);
+            if (section) section.classList.remove('hidden');
+            grid.innerHTML = window.buildSkeletonCardHTML(12);
             return;
         }
 
-        // Filter products where pinned is true or high rating as proxy
-        const pinned = products.filter(p => p.pinned === true || p.is_pinned === true).slice(0, 5);
+        const pinned = products
+            .filter(p => p.pinned === true || p.is_pinned === true)
+            .sort((a, b) => {
+                const aDate = new Date(a.created_at || 0).getTime();
+                const bDate = new Date(b.created_at || 0).getTime();
+                return bDate - aDate;
+            })
+            .slice(0, 12);
 
-        // Fallback: if none marked as pinned, use 5 highest rated
-        const displayList = pinned.length > 0 ? pinned : [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
+        if (pinned.length === 0) {
+            if (section) section.classList.add('hidden');
+            grid.innerHTML = '';
+            return;
+        }
 
-        grid.innerHTML = displayList.map((p, idx) =>
+        if (section) section.classList.remove('hidden');
+
+        grid.innerHTML = pinned.map((p, idx) =>
             window.buildProductCardHTML(p, {
                 animationClass: 'animate-fade-in',
                 delay: `${idx * 0.05}s`,

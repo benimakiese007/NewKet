@@ -237,6 +237,60 @@ const NotificationService = {
         } catch (error) {
             console.error('[NotificationService] OTP sending error:', error);
         }
+    },
+
+    async notifyVendorManualPayout(order) {
+        if (!order?.vendor_id) return;
+
+        try {
+            const vendor = await fetchUserById(order.vendor_id);
+            if (!vendor?.email) return;
+
+            const amount = Number(order.total_amount || order.total || 0);
+            const transactionId = order.transaction_id || order.id;
+            const nowIso = new Date().toISOString();
+
+            await createDbNotification({
+                id: `notif-manual-payout-${order.id}-${vendor.id}`,
+                user_email: vendor.email,
+                title: 'Paiement vendeur en attente',
+                message: `La commande ${transactionId} a été libérée, mais le transfert vendeur reste à traiter manuellement.`,
+                type: 'warning',
+                target_role: 'supplier',
+                read: false,
+                date: nowIso
+            });
+
+            EmailService.sendMail({
+                to: vendor.email,
+                subject: 'Paiement vendeur à traiter manuellement - NewKet',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                        <h2 style="color: #111827;">Paiement vendeur en attente</h2>
+                        <p>Bonjour <b>${vendor.name || 'Vendeur'}</b>,</p>
+                        <p>La commande <b>${transactionId}</b> a été libérée.</p>
+                        <div style="background: #fff7ed; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                            <p><b>Montant :</b> ${amount} ${process.env.CURRENCY || 'CDF'}</p>
+                            <p><b>Statut :</b> transfert manuel requis</p>
+                        </div>
+                        <p>L’intégration payout de l’agrégateur n’est pas encore active. Le règlement vendeur doit donc être finalisé manuellement.</p>
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="${getFrontendBaseUrl()}/pages/vendor-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Ouvrir mon tableau vendeur</a>
+                        </div>
+                    </div>
+                `
+            }).catch(err => console.error('[NotificationService] Manual payout email error:', err));
+
+            await supabaseAdmin.from('activities').insert({
+                user_email: vendor.email,
+                user_id: vendor.id,
+                type: 'warning',
+                text: `Commande ${transactionId} libérée : payout vendeur manuel à traiter.`,
+                time: nowIso
+            });
+        } catch (error) {
+            console.error('[NotificationService] notifyVendorManualPayout error:', error);
+        }
     }
 };
 

@@ -122,6 +122,15 @@ canvas {
         align-items: stretch !important;
     }
 
+    .header-brand-row {
+        margin-bottom: 0.1rem !important;
+    }
+
+    .header-icon-button {
+        border-radius: 0.9rem !important;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05) !important;
+    }
+
     .search-bar {
         margin: 0 !important;
         background-color: #f3f4f6 !important;
@@ -145,34 +154,9 @@ canvas {
         height: 40px !important;
     }
 
-    .category-nav {
-        display: flex !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
-        background: #fff !important;
-        border-bottom: 1px solid #f3f4f6 !important;
-        z-index: 40 !important;
-    }
-
-    .category-nav::-webkit-scrollbar {
+    .category-nav,
+    #categoryNav {
         display: none !important;
-    }
-
-    .category-nav nav {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        padding: 0.5rem 1rem !important;
-        gap: 0.5rem !important;
-    }
-
-    .category-nav .nav-link {
-        padding: 0.4rem 0.8rem !important;
-        font-size: 11px !important;
-        background: #f9fafb !important;
-        border: 1px solid #f3f4f6 !important;
-        border-radius: 20px !important;
-        color: #4b5563 !important;
     }
 
     html.ios-native-category .mobile-search-category-shell {
@@ -231,6 +215,15 @@ canvas {
         width: 100% !important;
         max-width: none !important;
     }
+
+    .mobile-menu-shortcuts-grid {
+        gap: 0.625rem !important;
+    }
+
+    .mobile-menu-shortcut-card {
+        min-height: 78px !important;
+        padding: 0.9rem !important;
+    }
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {
@@ -253,6 +246,10 @@ canvas {
         margin-left: auto !important;
     }
 
+    .header-icon-button {
+        border-radius: 1rem !important;
+    }
+
     #mobileSearchContainer {
         order: 3 !important;
         flex: 1 1 100% !important;
@@ -271,6 +268,14 @@ canvas {
 
     .category-nav,
     #categoryNav {
+        display: flex !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+
+    .category-nav::-webkit-scrollbar,
+    #categoryNav::-webkit-scrollbar {
         display: none !important;
     }
 }
@@ -549,6 +554,31 @@ canvas {
    ========================================== */
 
 @media (max-width: 767px) {
+    /* Breadcrumbs: always a single horizontal row (scrollable) */
+    #breadcrumbs {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+
+    #breadcrumbs::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    #breadcrumbs > * {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+    }
+
+    #breadcrumbs iconify-icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
     .catalog-layout {
         flex-direction: column !important;
     }

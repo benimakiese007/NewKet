@@ -60,3 +60,11 @@ const HeroSlider = {
 };
 
 window.HeroSlider = HeroSlider;
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('heroSection')) HeroSlider.init();
+    }, { once: true });
+} else if (document.getElementById('heroSection')) {
+    HeroSlider.init();
+}

@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { supabaseAdmin, supabase } from '../config/supabase.js';
+import NotificationService from './notificationService.js';
 
 export const ORDER_STATUSES = {
     PENDING: 'PENDING',
@@ -287,6 +288,10 @@ export async function releaseOrderEscrow({
         changedBy: initiatedBy,
         notes: autoRelease ? 'Auto release after escrow delay' : 'Escrow released'
     });
+
+    if (transfer.status === 'manual') {
+        await NotificationService.notifyVendorManualPayout(updatedOrder);
+    }
 
     return { order: updatedOrder, transfer };
 }

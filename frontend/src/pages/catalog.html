@@ -44,9 +44,7 @@
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
     <!-- Theme FOUC prevention — synchronous, blocks rendering -->
-    <script>
-        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
-    </script>
+    <script src="/security-bootstrap.js"></script>
     <script type="module" src="/src/services/app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -416,7 +414,7 @@
                         <!-- Mobile Top Row: Filter Toggle & Sort -->
                         <div class="flex items-center gap-2 w-full sm:w-auto">
                             <!-- Mobile filter trigger -->
-                            <button id="mobileFilterToggle" onclick="document.getElementById('mobileFiltersContainer').classList.toggle('hidden')" class="sm:hidden flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold">
+                    <button id="mobileFilterToggle" data-open-mobile-filters class="sm:hidden flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold">
                                 <iconify-icon icon="solar:tuning-square-2-bold" width="16"></iconify-icon>
                                 Filtres
                             </button>
@@ -468,7 +466,7 @@
                             <div class="grid grid-cols-2 gap-2 w-full hidden sm:flex sm:flex-row sm:items-center sm:gap-3 sm:w-auto">
                                 <!-- Category Dropdown -->
                                 <div class="filter-dropdown w-full sm:w-auto">
-                                    <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
+                                <button data-toggle-mobile-dropdown class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
                                         <span class="flex items-center gap-2"><iconify-icon icon="solar:tag-linear" width="14"></iconify-icon> Catégorie</span>
                                         <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
                                     </button>
@@ -501,7 +499,7 @@
 
                                 <!-- Price Dropdown -->
                                 <div class="filter-dropdown w-full sm:w-auto">
-                                    <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
+                                <button data-toggle-mobile-dropdown class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
                                         <span class="flex items-center gap-2"><iconify-icon icon="solar:wad-of-money-linear" width="14"></iconify-icon> Prix</span>
                                         <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
                                     </button>
@@ -522,7 +520,7 @@
 
                                 <!-- Condition Dropdown -->
                                 <div class="filter-dropdown w-full sm:w-auto">
-                                    <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
+                                <button data-toggle-mobile-dropdown class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
                                         <span class="flex items-center gap-2"><iconify-icon icon="solar:checklist-minimalistic-linear" width="14"></iconify-icon> État</span>
                                         <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
                                     </button>
@@ -543,7 +541,7 @@
 
                                 <!-- Rating Dropdown -->
                                 <div class="filter-dropdown w-full sm:w-auto">
-                                    <button onclick="toggleMobileDropdown(this)" class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
+                                <button data-toggle-mobile-dropdown class="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2 px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-[11px] font-bold hover:border-black transition-all">
                                         <span class="flex items-center gap-2"><iconify-icon icon="solar:star-ring-linear" width="14"></iconify-icon> Note</span>
                                         <iconify-icon icon="solar:alt-arrow-down-linear" width="12" class="text-slate-400 dropdown-arrow"></iconify-icon>
                                     </button>
@@ -580,7 +578,7 @@
                                 </label>
 
                                 <!-- Reset -->
-                                <button onclick="resetFilters()" class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 text-slate-500 bg-slate-200 sm:bg-transparent rounded-xl sm:rounded-none hover:text-black transition-colors" title="Réinitialiser">
+                        <button data-reset-filters class="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 text-slate-500 bg-slate-200 sm:bg-transparent rounded-xl sm:rounded-none hover:text-black transition-colors" title="Réinitialiser">
                                     <iconify-icon icon="solar:restart-linear" width="18"></iconify-icon>
                                     <span class="sm:hidden text-[11px] font-bold">Réinitialiser</span>
                                 </button>
@@ -977,7 +975,7 @@
                         <iconify-icon icon="solar:magnifer-zoom-out-linear" width="64" class="text-slate-200 mb-4"></iconify-icon>
                         <h2 class="text-xl font-bold text-slate-900">Quête infructueuse</h2>
                         <p class="text-slate-500">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</p>
-                        <button onclick="resetFilters()" class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">Réinitialiser l'horizon</button>
+            <button data-reset-filters class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">Réinitialiser l'horizon</button>
                     </div>
                 `;
                 removeLoadMoreButton();

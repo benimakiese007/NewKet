@@ -13,8 +13,6 @@ const CATEGORY_NAV_HTML = `
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Toutes les pièces</a>
                     <a href="{{ROOT}}src/pages/shops.html"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Boutiques</a>
-                    <a href="{{ROOT}}src/pages/forum.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Forum</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
                         class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Femme</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
@@ -39,25 +37,25 @@ const HEADER_HTML = `
         <!-- Top Info Bar -->
         <div class="header-topbar text-white py-1.5 px-4 sm:px-8 border-b border-[#0A4A2E] hidden sm:block" style="background-color: #013220;">
             <div class="max-w-7xl mx-auto w-full flex min-h-9 items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-3 md:gap-4">
-                <div class="hidden md:flex shrink-0 items-center gap-4 lg:gap-6">
-                    <span class="flex items-center gap-1.5"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-400" aria-hidden="true"></iconify-icon> Livraison Offerte</span>
-                    <span class="flex items-center gap-1.5 opacity-60"><iconify-icon icon="solar:shield-check-bold" width="12" aria-hidden="true"></iconify-icon> Paiement Sécurisé</span>
+                <div class="hidden md:flex shrink-0 items-center gap-2 lg:gap-3">
+                    <span class="header-topbar-pill"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-300" aria-hidden="true"></iconify-icon> Livraison offerte</span>
+                    <span class="header-topbar-pill header-topbar-pill-muted"><iconify-icon icon="solar:shield-check-bold" width="12" aria-hidden="true"></iconify-icon> Paiement sécurisé</span>
                 </div>
                 <div class="flex min-w-0 flex-1 items-center justify-center text-center">
                     <span class="block max-w-full truncate px-2 sm:px-4 leading-none whitespace-nowrap">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
                 </div>
-                  <div class="hidden sm:flex shrink-0 items-center gap-4 md:gap-6">
-                      <a href="{{ROOT}}src/pages/support.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">Support</a>
-                      <a href="{{ROOT}}src/pages/faq.html" class="hover:text-orange-400 transition-colors uppercase whitespace-nowrap">FAQ</a>
+                  <div class="hidden sm:flex shrink-0 items-center gap-2 md:gap-3">
+                      <a href="{{ROOT}}src/pages/support.html" class="header-topbar-link">Support</a>
+                      <a href="{{ROOT}}src/pages/faq.html" class="header-topbar-link">FAQ</a>
                   </div>
               </div>
           </div>
         <!-- Main header content (Logo, Search, Icons) -->
             <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
-            <div class="flex items-center justify-between w-full sm:w-auto sm:flex-none h-12 sm:h-auto relative px-1 sm:px-0">
+            <div class="header-brand-row flex items-center justify-between w-full sm:w-auto sm:flex-none h-12 sm:h-auto relative px-1 sm:px-0">
                 <!-- Hamburger Menu (Mobile) -->
-                <button id="mobileMenuBtn" class="p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
+                <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
                     title="Menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
                     <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
                 </button>
@@ -72,7 +70,7 @@ const HEADER_HTML = `
                 </div>
 
                 <!-- Account Icon (Mobile) -->
-                <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale sm:hidden"
+                <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale sm:hidden"
                     title="Compte" aria-label="Mon compte">
                     <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
                 </a>
@@ -116,8 +114,10 @@ const HEADER_HTML = `
                         
                     <iconify-icon icon="solar:magnifer-linear" width="20" class="search-icon"></iconify-icon>
                     
-                    <button id="searchBtn"
-                        class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black hover:bg-slate-800 transition-all uppercase tracking-widest hidden md:block btn-active-scale">RECHERCHE</button>
+                    <button id="searchBtn" aria-label="Lancer la recherche"
+                        class="bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800 transition-all hidden md:flex items-center justify-center btn-active-scale">
+                        <iconify-icon icon="solar:magnifer-linear" width="18"></iconify-icon>
+                    </button>
                 </div>
 
                 <!-- Publish Button (Desktop Only) -->
@@ -133,7 +133,7 @@ const HEADER_HTML = `
             </div>
 
             <!-- Desktop Icons (Notifications, Favorites, Account, Theme) -->
-            <div class="header-actions hidden sm:flex items-center gap-4 shrink-0">
+            <div class="header-actions hidden sm:flex items-center gap-3 shrink-0">
                 <!-- Currency Toggle (Desktop) -->
                 <div class="hidden lg:flex items-center">
                     <div class="currency-switch-segmented scale-90 origin-right" id="desktopCurrencyToggle" data-active="CDF" title="Devise d'affichage">
@@ -147,14 +147,14 @@ const HEADER_HTML = `
 
                 <!-- Theme Toggle -->
                 <button data-theme-toggle
-                    class="p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale" 
+                    class="header-icon-button p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale" 
                     title="Changer le thème">
                     <iconify-icon data-theme-icon icon="solar:moon-bold" width="22" class="text-gray-600"></iconify-icon>
                 </button>
 
                 <!-- Notifications -->
                 <a href="{{ROOT}}src/pages/notifications.html"
-                    class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                    class="header-icon-button relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Notifications" aria-label="Voir les notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
@@ -163,7 +163,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}src/pages/favorites.html" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Favoris" aria-label="Voir les favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
                     <span
@@ -172,7 +172,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Account -->
-                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
                     title="Compte" id="accountLink" aria-label="Mon compte">
                     <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
                 </a>
@@ -190,8 +190,11 @@ const HEADER_HTML = `
     class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" style="z-index: 9000;" aria-hidden="true">
 </div>
 <div id="mobileMenu" class="fixed inset-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
-    <div class="px-6 flex items-center justify-between border-b border-gray-100/50" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
-        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="h-12 w-auto object-contain">
+    <div class="mobile-menu-header px-6 flex items-center justify-between border-b border-gray-100/50" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
+        <div class="mobile-menu-brand">
+            <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="h-12 w-auto object-contain">
+            <p class="mobile-menu-subtitle">Votre navigation principale</p>
+        </div>
         <button id="closeMobileMenu" class="p-4 rounded-full bg-gray-100/80 hover:bg-gray-200 transition-all btn-active-scale shadow-sm" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
         </button>
@@ -223,89 +226,87 @@ const HEADER_HTML = `
             </a>
         </div>
 
+        <div class="mobile-menu-shortcuts px-4 mb-6">
+            <div class="mobile-menu-shortcuts-grid">
+                <a href="{{ROOT}}src/pages/catalog.html" class="mobile-menu-shortcut-card">
+                    <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon>
+                    <span>Catalogue</span>
+                </a>
+                <a href="{{ROOT}}src/pages/shops.html" class="mobile-menu-shortcut-card">
+                    <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
+                    <span>Boutiques</span>
+                </a>
+                <a href="{{ROOT}}src/pages/publish.html" class="mobile-menu-shortcut-card publish-btn">
+                    <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
+                    <span>Vendre</span>
+                </a>
+                <a href="{{ROOT}}src/pages/favorites.html" class="mobile-menu-shortcut-card">
+                    <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
+                    <span>Favoris</span>
+                </a>
+            </div>
+        </div>
+
         <div class="px-4 mb-6">
-            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Catégories</h3>
+            <h3 class="mobile-menu-section-title">Catégories</h3>
             <nav class="flex flex-col gap-1">
-                <a href="{{ROOT}}src/pages/catalog.html"
-                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
-                    <iconify-icon icon="solar:shop-linear" width="20"></iconify-icon> Toutes les pièces
-                </a>
-                <a href="{{ROOT}}src/pages/shops.html"
-                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
-                    <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon> Boutiques
-                </a>
-                <a href="{{ROOT}}src/pages/forum.html"
-                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
-                    <iconify-icon icon="solar:chat-round-line-linear" width="20"></iconify-icon> Forum
-                </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
-                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:user-circle-linear" width="20"></iconify-icon> Femme
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
-                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:user-rounded-linear" width="20"></iconify-icon> Homme
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
-                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:laptop-minimalistic-linear" width="20"></iconify-icon> Tech & Gadgets
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
-                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:cpu-linear" width="20"></iconify-icon> HIGH-TECH
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
-                    class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <iconify-icon icon="solar:sofa-linear" width="20"></iconify-icon> Art de vivre
                 </a>
                 <a href="{{ROOT}}src/pages/catalog.html?promo=true"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-red-600 font-bold">
+                    class="mobile-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 text-red-600 font-bold">
                     <iconify-icon icon="solar:fire-bold" width="20"></iconify-icon> Promos
                 </a>
             </nav>
         </div>
 
 	        <div class="px-4 mb-6 border-t border-gray-50 pt-6">
-	            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Personnel</h3>
+	            <h3 class="mobile-menu-section-title">Personnel</h3>
 	            <nav class="flex flex-col gap-1">
 	                <a href="{{ROOT}}src/pages/notifications.html"
-                    class="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                    class="mobile-menu-link flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:bell-linear"
                             width="20"></iconify-icon> Notifications</span>
                     <span
                         class="notification-badge bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
-                <a href="{{ROOT}}src/pages/favorites.html"
-                    class="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
-                    <span class="flex items-center gap-3"><iconify-icon icon="solar:heart-linear"
-                            width="20"></iconify-icon> Favoris</span>
-                    <span id="mobileFavoritesBadge"
-                        class="bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
-                </a>
                 <button data-theme-toggle
-                    class="flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium w-full text-left transition-all active:scale-[0.98]" title="Changer le thème">
+                    class="mobile-menu-link flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium w-full text-left transition-all active:scale-[0.98]" title="Changer le thème">
                     <span class="flex items-center gap-3"><iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon> Mode Sombre</span>
                 </button>
-                <a href="{{ROOT}}src/pages/publish.html"
-                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-900 text-white font-medium mt-2 publish-btn btn-active-scale">
-                    <iconify-icon icon="solar:add-circle-linear" width="20"></iconify-icon> Vendre un article
-                </a>
                 <button data-action="install-app" id="pwa-install-btn"
-                    class="hidden flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium mt-2 transition-all">
+                    class="hidden mobile-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium mt-2 transition-all">
                     <iconify-icon icon="solar:download-square-bold" width="20"></iconify-icon> Installer l'Application
                 </button>
                 </nav>
             </div>
 
             <div class="header-quick-links px-4 mb-6 border-t border-gray-50 pt-6">
-                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Liens utiles</h3>
+                <h3 class="mobile-menu-section-title">Liens utiles</h3>
                 <nav class="flex flex-col gap-1">
                     <a href="{{ROOT}}src/pages/support.html"
-                        class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                        class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                         <iconify-icon icon="solar:help-bold" width="20"></iconify-icon> Support
                     </a>
                     <a href="{{ROOT}}src/pages/faq.html"
-                        class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
+                        class="mobile-menu-link flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
                         <iconify-icon icon="solar:question-circle-bold" width="20"></iconify-icon> FAQ
                     </a>
                 </nav>

@@ -4,6 +4,7 @@ import {
     isAvadaPayConfigured,
     verifyAvadaPaySignature
 } from '../services/avadapay.js';
+import NotificationService from '../services/notificationService.js';
 import {
     ESCROW_STATUSES,
     ORDER_STATUSES,
@@ -136,6 +137,15 @@ export const initiatePayment = async (req, res) => {
             customer_city,
             customer_email
         } = req.body;
+
+        if (!isAvadaPayConfigured()) {
+            return res.status(503).json({
+                success: false,
+                code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
+                error: 'Paiement indisponible',
+                message: 'L’agrégateur de paiement n’est pas encore configuré. Ajoute les clés AvadaPay côté backend puis réessaie.'
+            });
+        }
 
         let order = null;
         let orderId = order_id || null;
@@ -493,6 +503,21 @@ export const avadaPayWebhook = async (req, res) => {
             .update(eventUpdate)
             .eq('provider', 'avadapay')
             .eq('provider_event_id', providerEventId);
+
+        const { data: paidOrder, error: paidOrderError } = await client
+            .from('orders')
+            .select('*')
+            .eq('transaction_id', String(ourTxId))
+            .maybeSingle();
+
+        if (paidOrderError) {
+            console.error('[avadaPayWebhook] Could not reload paid order for OTP notification:', paidOrderError);
+        } else if (paidOrder?.otp_code && paidOrder?.customer_email) {
+            NotificationService.notifyCustomerOTP(paidOrder)
+                .catch((notifyError) => {
+                    console.error('[avadaPayWebhook] OTP notification failed:', notifyError);
+                });
+        }
 
         return res.status(200).send('OK');
     } catch (error) {

@@ -8,6 +8,7 @@ import './api-client.js';
 import './sanitize.js';
 
 import './config-manager.js';
+import './security-page.js';
 
 import './auth.js';
 import './profile-manager.js';

@@ -400,6 +400,9 @@ const OrderManager = {
         try {
             return await ApiClient.post('/payments/initiate', { order_id: orderId });
         } catch (error) {
+            if (error?.data?.code === 'PAYMENT_PROVIDER_NOT_CONFIGURED') {
+                throw new Error(error.data.message || 'Le paiement est temporairement indisponible.');
+            }
             console.error('[OrderManager] Erreur initiatePayment:', error);
             throw error;
         }

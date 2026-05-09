@@ -30,9 +30,7 @@
       "description": "Chargement..."
     }
     </script>
-    <script>
-        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
-    </script>
+    <script src="/security-bootstrap.js"></script>
     <script type="module" src="/src/services/app.js"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     
@@ -44,6 +42,7 @@
         * { font-family: 'Inter', sans-serif; }
         .glass-card { background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.4); }
         .hero-gradient { background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%); }
+        .breadcrumb-sep { opacity: 0.8; }
     </style>
 </head>
 
@@ -52,12 +51,12 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-6" id="main-content">
         <!-- Breadcrumbs -->
-        <nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs">
-            <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('index')" class="hover:text-gray-900 transition-colors">Accueil</a>
-            <iconify-icon icon="solar:alt-arrow-right-linear" width="10"></iconify-icon>
-            <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('catalog')" class="hover:text-gray-900 transition-colors">Catalogue</a>
-            <iconify-icon icon="solar:alt-arrow-right-linear" width="10"></iconify-icon>
-            <span class="text-gray-900" id="breadcrumb-current">Produit</span>
+        <nav class="flex flex-nowrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs" style="flex-wrap: nowrap; white-space: nowrap;">
+            <a href="/index.html" class="hover:text-gray-900 transition-colors" style="flex: 0 0 auto;">Accueil</a>
+            <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
+            <a href="/src/pages/catalog.html" class="hover:text-gray-900 transition-colors" style="flex: 0 0 auto;">Catalogue</a>
+            <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
+            <span class="text-gray-900" id="breadcrumb-current" style="flex: 0 0 auto;">Produit</span>
         </nav>
 
         <!-- Skeleton Loading Premium -->
@@ -110,7 +109,7 @@
             <!-- Image Section -->
             <div id="productImageCol">
                 <div class="w-full aspect-square glass-card rounded-3xl overflow-hidden group relative flex items-center justify-center p-1 sm:p-2 hover:shadow-2xl transition-all duration-700">
-                    <img id="mainImage" src="" alt="Image du produit" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply scale-105 group-hover:scale-125 transition-transform duration-1000 ease-out cursor-zoom-in" onclick="openZoom()">
+                    <img id="mainImage" src="" alt="Image du produit" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply scale-105 group-hover:scale-125 transition-transform duration-1000 ease-out cursor-zoom-in" data-open-zoom>
                 </div>
                 <div class="flex flex-wrap gap-3 sm:gap-4 mt-6" id="thumbnailGrid"></div>
             </div>
@@ -122,15 +121,7 @@
                         <div class="flex items-center justify-between gap-4 mb-2">
                             <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">Catégorie</div>
                             <div class="flex items-center gap-2">
-                                <div id="productSwitcher" class="flex items-center gap-1 opacity-0 pointer-events-none transition-opacity">
-                                    <button type="button" id="prevProductBtn" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md disabled:opacity-40 disabled:hover:shadow-sm" aria-label="Produit précédent">
-                                        <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
-                                    </button>
-                                    <button type="button" id="nextProductBtn" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md disabled:opacity-40 disabled:hover:shadow-sm" aria-label="Produit suivant">
-                                        <iconify-icon icon="solar:alt-arrow-right-linear" width="18"></iconify-icon>
-                                    </button>
-                                </div>
-                                <button onclick="shareProduct()" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md" aria-label="Partager">
+                                <button data-share-product class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md" aria-label="Partager">
                                     <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
                                 </button>
                             </div>
@@ -165,17 +156,17 @@
 
                     <div class="space-y-4">
                         <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm w-fit">
-                            <button onclick="updateQty(-1)" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-400 hover:text-gray-900">
-                                <iconify-icon icon="solar:minus-linear" width="20"></iconify-icon>
+                            <button data-update-qty="-1" aria-label="Réduire la quantité" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
+                                <span aria-hidden="true">-</span>
                             </button>
                             <input type="number" id="qty-input" value="1" min="1" class="w-12 text-center font-bold text-gray-900 bg-transparent border-none outline-none">
-                            <button onclick="updateQty(1)" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-400 hover:text-gray-900">
-                                <iconify-icon icon="solar:add-linear" width="20"></iconify-icon>
+                            <button data-update-qty="1" aria-label="Augmenter la quantité" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
+                                <span aria-hidden="true">+</span>
                             </button>
                         </div>
                         <div class="flex gap-3">
-                            <button id="mainOrderBtn" class="flex-1 bg-gray-900 hover:bg-black text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-lg shadow-gray-900/20 flex items-center justify-center gap-2">
-                                <span>Commander</span>
+                            <button id="mainOrderBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">
+                                <span>Acheter</span>
                                 <iconify-icon icon="solar:bag-bold" width="24"></iconify-icon>
                             </button>
                             <button id="mainWishlistBtn" class="w-12 h-12 flex items-center justify-center rounded-2xl border-2 border-gray-100 text-gray-300 hover:text-red-500 hover:border-red-50 transition-all">
@@ -197,7 +188,7 @@
         <section class="mt-8 pb-8 border-t border-gray-100 pt-8">
             <div class="flex items-center justify-between mb-8">
                 <h2 class="text-3xl font-bold tracking-tight text-gray-900">Articles similaires</h2>
-                <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('catalog')" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
+                <a href="/src/pages/catalog.html" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
                     Voir tout <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
                 </a>
             </div>
@@ -205,7 +196,7 @@
         </section>
     </main>
 
-    <div id="zoomModal" class="fixed inset-0 z-[100] invisible opacity-0 transition-all duration-500 bg-black/95 flex items-center justify-center p-4 backdrop-blur-2xl" onclick="closeZoom()">
+    <div id="zoomModal" class="fixed inset-0 z-[100] invisible opacity-0 transition-all duration-500 bg-black/95 flex items-center justify-center p-4 backdrop-blur-2xl" data-close-zoom>
         <button class="absolute top-8 right-8 text-white/50 hover:text-white transition-all">
             <iconify-icon icon="solar:close-circle-bold" width="40"></iconify-icon>
         </button>
@@ -277,7 +268,7 @@
                     <div class="py-32 text-center">
                         <iconify-icon icon="solar:ghost-broken" width="80" class="text-gray-200 mb-8"></iconify-icon>
                         <h1 class="text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Article Introuvable</h1>
-                        <a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('catalog')" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
+                        <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
                     </div>
                 `;
                 return;
@@ -291,7 +282,6 @@
             }
 
             renderProductDetails(p);
-            initProductSwitcher(p);
             loadReviews(p.id);
             renderRecommended(p.category);
             setupListeners(p);
@@ -309,112 +299,6 @@
 
             await initPage();
         };
-
-        function initProductSwitcher(currentProduct) {
-            const switcher = document.getElementById('productSwitcher');
-            const prevBtn = document.getElementById('prevProductBtn');
-            const nextBtn = document.getElementById('nextProductBtn');
-            if (!switcher || !prevBtn || !nextBtn) return;
-            if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
-
-            // Always show the switcher; disable buttons when unavailable
-            switcher.classList.remove('opacity-0', 'pointer-events-none');
-
-            const readContextIds = () => {
-                try {
-                    const raw = sessionStorage.getItem('newket_product_swipe_context');
-                    if (!raw) return null;
-                    const parsed = JSON.parse(raw);
-                    if (!parsed || !Array.isArray(parsed.ids)) return null;
-                    const ids = parsed.ids.filter(Boolean);
-                    return ids.length ? ids : null;
-                } catch (e) {
-                    return null;
-                }
-            };
-
-            const getAdjacentFromContextIds = () => {
-                const ids = readContextIds();
-                if (!ids || !currentProduct?.id) return { prevId: null, nextId: null };
-                const idx = ids.indexOf(currentProduct.id);
-                if (idx < 0) return { prevId: null, nextId: null };
-                return {
-                    // Prev = item after in the grid order, Next = item before (so it feels natural)
-                    prevId: ids[idx + 1] || null,
-                    nextId: ids[idx - 1] || null
-                };
-            };
-
-            const getAdjacentFromFallbackList = () => {
-                const list = (ProductManager.getProducts() || []).filter(p => (p?.category || '') === (currentProduct?.category || ''));
-                const idx = list.findIndex(p => p && p.id === currentProduct?.id);
-                if (idx < 0) return { prevId: null, nextId: null };
-                return {
-                    prevId: list[idx + 1]?.id || null,
-                    nextId: list[idx - 1]?.id || null
-                };
-            };
-
-            const computeAdjacentIds = () => {
-                const ctx = getAdjacentFromContextIds();
-                if (ctx.prevId || ctx.nextId) return ctx;
-                return getAdjacentFromFallbackList();
-            };
-
-            const applyState = () => {
-                const { prevId, nextId } = computeAdjacentIds();
-                prevBtn.disabled = !prevId;
-                nextBtn.disabled = !nextId;
-            };
-
-            const navigateTo = (id) => {
-                if (!id) return;
-                const target = window.NewKetLinks?.buildProductPagePath
-                    ? window.NewKetLinks.buildProductPagePath({
-                        shopName: currentProduct?.users?.company_name || currentProduct?.users?.name,
-                        shopSlug: currentProduct?.users?.shop_slug,
-                        productName: currentProduct?.name,
-                        productId: id
-                    })
-                    : `${window.resolvePath('product')}?id=${encodeURIComponent(id)}`;
-                window.location.href = target;
-            };
-
-            const isTextInputLike = (el) => {
-                if (!el) return false;
-                const tag = (el.tagName || '').toLowerCase();
-                if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
-                if (el.isContentEditable) return true;
-                return false;
-            };
-
-            const navigatePrev = () => {
-                const { prevId } = computeAdjacentIds();
-                if (prevId) navigateTo(prevId);
-            };
-
-            const navigateNext = () => {
-                const { nextId } = computeAdjacentIds();
-                if (nextId) navigateTo(nextId);
-            };
-
-            prevBtn.onclick = () => {
-                navigatePrev();
-            };
-            nextBtn.onclick = () => {
-                navigateNext();
-            };
-
-            applyState();
-            window.addEventListener('productsUpdated', applyState);
-
-            // Keyboard fallback on desktop
-            document.addEventListener('keydown', (e) => {
-                if (isTextInputLike(document.activeElement)) return;
-                if (e.key === 'ArrowLeft') navigatePrev();
-                if (e.key === 'ArrowRight') navigateNext();
-            });
-        }
 
         function renderProductDetails(p) {
             hideSkeleton();
@@ -568,6 +452,17 @@
 
 
                 const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+                const reviewUserIds = [...new Set(reviews.map(r => r.user_id).filter(Boolean))];
+                const reviewUsers = reviewUserIds.length
+                    ? await SupabaseAdapter.fetchWithFilters('users', {
+                        select: 'id, avatar',
+                        in: [['id', reviewUserIds]],
+                        skipCache: true
+                    })
+                    : [];
+                const userAvatarById = new Map(
+                    (Array.isArray(reviewUsers) ? reviewUsers : []).map(user => [user.id, user.avatar || null])
+                );
                 const starsHTML = Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < Math.round(avg) ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('');
                 document.getElementById('headerRating').classList.remove('invisible');
                 document.getElementById('headerStars').innerHTML = starsHTML;
@@ -577,7 +472,7 @@
                     const isAuthor = AuthManager.user && AuthManager.user.id === r.user_id;
                     const isAdmin = AuthManager.user && (AuthManager.user.user_metadata?.role === 'admin' || AuthManager.user.app_metadata?.role === 'admin');
                     const canDelete = isAuthor || isAdmin;
-                    const avatarUrl = r.user_avatar || null;
+                    const avatarUrl = r.user_avatar || userAvatarById.get(r.user_id) || null;
                     const initial = r.user_name?.charAt(0) || '?';
                     const avatarHTML = avatarUrl
                         ? `<div class="w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-inner ring-1 ring-black/5"><img src="${avatarUrl}" alt="${r.user_name || ''}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase\\'>${initial}</div>'"></div>`
@@ -609,7 +504,7 @@
         function renderReviewForm(pid) {
             const cont = document.getElementById('reviewFormContainer');
             if (!AuthManager.user) {
-                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="#" onclick="event.preventDefault(); location.href=window.resolvePath('login')" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
+                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="/src/pages/login.html" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
                 return;
             }
 
@@ -618,27 +513,74 @@
                 return;
             }
             cont.innerHTML = `
-                <div class="hero-gradient rounded-[3rem] p-10 sm:p-16 text-white relative shadow-[0_0_40px_rgba(255,255,255,0.1)] border border-white/20">
-                    <h3 class="text-3xl font-black text-white uppercase tracking-tighter mb-8">Votre avis d'exception</h3>
-                    <div class="grid lg:grid-cols-2 gap-16">
-                        <div class="space-y-6">
-                            <div class="flex gap-3" id="starSelector">${[1, 2, 3, 4, 5].map(i => `<iconify-icon icon="solar:star-bold" width="32" data-star="${i}" class="cursor-pointer text-white/20 hover:text-white/40 transition-colors" onclick="window.setRating(${i})"></iconify-icon>`).join('')}</div>
+                <div class="rounded-[2.5rem] border border-gray-100 bg-white p-6 sm:p-8 shadow-sm">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-2xl sm:text-3xl font-black text-gray-900 uppercase tracking-tighter">Votre avis d'exception</h3>
+                            <p class="mt-2 text-sm text-gray-500 font-medium">Partagez votre ressenti sur ce produit en quelques lignes.</p>
                         </div>
-                        <div class="space-y-6">
-                            <textarea id="reviewText" placeholder="Confiez-nous votre avis..." class="w-full bg-white/5 border border-white/20 rounded-3xl p-8 text-base placeholder:text-white/60 placeholder:font-bold placeholder:text-lg outline-none focus:border-white/40 focus:bg-white/10 transition-all text-white min-h-[160px]"></textarea>
-                            <button onclick="window.submitReview('${pid}')" id="reviewSubmitBtn" class="w-full bg-white text-gray-900 hover:bg-gray-100 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all font-black py-6 rounded-2xl uppercase tracking-widest text-[10px]">Publier mon avis</button>
+                        <button type="button" id="reviewToggleBtn" onclick="window.toggleReviewForm()" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gray-900 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-gray-800">
+                            <span id="reviewToggleBtnLabel">Noter le produit</span>
+                            <iconify-icon id="reviewToggleBtnIcon" icon="solar:alt-arrow-down-linear" width="18"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <div id="reviewFormPanel" class="hidden mt-6 border-t border-gray-100 pt-6">
+                        <div class="space-y-5">
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Votre note</div>
+                                <div class="flex flex-wrap gap-3" id="starSelector">${[1, 2, 3, 4, 5].map(i => `<button type="button" aria-label="Noter ${i} sur 5" data-star="${i}" class="flex h-12 w-12 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 transition-all hover:-translate-y-0.5 hover:border-amber-300 hover:bg-amber-50" onclick="window.setRating(${i})"><iconify-icon icon="solar:star-bold" width="24" class="pointer-events-none text-gray-300 transition-colors"></iconify-icon></button>`).join('')}</div>
+                                <p id="reviewRatingHint" class="mt-3 text-sm text-gray-500 font-medium">Sélectionnez une note de 1 à 5 étoiles.</p>
+                            </div>
+
+                            <div>
+                                <textarea id="reviewText" placeholder="Confiez-nous votre avis..." class="w-full min-h-[170px] resize-none rounded-[1.75rem] border border-gray-200 bg-gray-50 px-5 py-5 text-base text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-gray-900 focus:bg-white"></textarea>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button onclick="window.submitReview('${pid}')" id="reviewSubmitBtn" class="inline-flex items-center justify-center rounded-2xl bg-gray-900 px-8 py-4 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-gray-800">
+                                    Publier mon avis
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>`;
         }
 
+        window.toggleReviewForm = () => {
+            const panel = document.getElementById('reviewFormPanel');
+            const label = document.getElementById('reviewToggleBtnLabel');
+            const icon = document.getElementById('reviewToggleBtnIcon');
+            if (!panel) return;
+            const isHidden = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', !isHidden);
+            if (label) label.textContent = isHidden ? 'Fermer la note' : 'Noter le produit';
+            if (icon) icon.setAttribute('icon', isHidden ? 'solar:alt-arrow-up-linear' : 'solar:alt-arrow-down-linear');
+        };
+
         window.setRating = (v) => {
             currentRating = v;
-            document.querySelectorAll('#starSelector iconify-icon').forEach(s => {
+            document.querySelectorAll('#starSelector [data-star]').forEach(s => {
                 const active = parseInt(s.dataset.star) <= v;
-                s.classList.toggle('text-amber-400', active);
-                s.classList.toggle('text-white/20', !active);
+                s.classList.toggle('border-amber-300', active);
+                s.classList.toggle('bg-amber-50', active);
+                const icon = s.querySelector('iconify-icon');
+                if (icon) {
+                    icon.classList.toggle('text-amber-400', active);
+                    icon.classList.toggle('text-gray-300', !active);
+                }
             });
+            const hint = document.getElementById('reviewRatingHint');
+            if (hint) {
+                const labels = {
+                    1: 'Très décevant',
+                    2: 'Peut mieux faire',
+                    3: 'Correct',
+                    4: 'Très satisfaisant',
+                    5: 'Exceptionnel'
+                };
+                hint.textContent = `${v}/5 - ${labels[v] || 'Sélectionnez une note de 1 à 5 étoiles.'}`;
+            }
         };
 
         window.submitReview = async (pid) => {
@@ -654,7 +596,7 @@
                 const _profile = window.ProfileManager?.getProfile?.() || {};
                 const _meta = AuthManager.user.user_metadata || {};
                 const _reviewName = _profile.name || _profile.company_name || _meta.full_name || _meta.name || _meta.company_name || (AuthManager.user.email ? AuthManager.user.email.split('@')[0] : 'Utilisateur');
-                const _avatar = _profile.avatar || _meta.avatar_url || _meta.picture || null;
+                const _avatar = _profile.avatar || _profile.avatar_url || _profile.photo_url || _profile.picture || _meta.avatar_url || _meta.picture || null;
                 const success = await SupabaseAdapter.insert('product_reviews', { 
                     product_id: pid, 
                     user_id: AuthManager.user.id, 

@@ -257,6 +257,24 @@
                         </div>
                     </div>
 
+                    <div class="glass-panel p-6 border-b-4 border-amber-500">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                <iconify-icon icon="solar:password-bold" width="24"></iconify-icon>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="text-[10px] font-black uppercase tracking-[0.24em] text-amber-600 mb-2">Livraison securisee</div>
+                                <h3 class="text-lg font-black text-gray-900 leading-tight">Comprendre le fonctionnement OTP</h3>
+                                <p class="text-sm text-gray-500 mt-2">Ouvre une page admin qui explique quand le code OTP est genere, ou il apparait, qui le saisit et ce qui se passe apres validation.</p>
+                                <a href="/src/pages/admin/index.html?view=otp-guide"
+                                    class="inline-flex items-center gap-2 mt-4 bg-black text-white px-4 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-xl shadow-black/10">
+                                    <iconify-icon icon="solar:arrow-right-up-bold" width="16"></iconify-icon>
+                                    Voir le guide
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- System Activity -->
                     <div class="glass-panel p-6">
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -786,6 +804,7 @@
                 user: '/src/pages/admin/user.html?embedded=1',
                 products: '/src/pages/admin/products.html?embedded=1',
                 orders: '/src/pages/admin/orders.html?embedded=1',
+                'otp-guide': '/src/pages/admin/otp-guide.html?embedded=1',
                 activities: '/src/pages/admin/activities.html?embedded=1',
                 diagnostics: '/src/pages/admin/diagnostics.html?embedded=1',
                 reviews: '/src/pages/admin/reviews.html?embedded=1',
@@ -801,6 +820,7 @@
                 user: 'Utilisateurs | NewKet Admin',
                 products: 'Catalogue | NewKet Admin',
                 orders: 'Commandes | NewKet Admin',
+                'otp-guide': 'Guide | NewKet Admin',
                 activities: 'Activites | NewKet Admin',
                 diagnostics: 'Diagnostics | NewKet Admin',
                 reviews: 'Avis | NewKet Admin',

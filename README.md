@@ -1,50 +1,38 @@
-# NewKet 🛒
+﻿# NewKet
 
-Plateforme e-commerce moderne — Architecture Monorepo Fullstack.
+Plateforme e-commerce fullstack organisée en monorepo.
 
-## Structure du Projet
+## Structure
 
-```
-newket/
-├── frontend/          # Application web (Vite + Tailwind)
-│   ├── src/
-│   │   ├── assets/    # CSS, images, fonts
-│   │   ├── components/# Composants HTML réutilisables
-│   │   ├── pages/     # Pages du site + admin/
-│   │   └── services/  # Logique JS (auth, API, etc.)
-│   └── public/        # Fichiers statiques (manifest, SW)
-│
-├── backend/           # API Node.js (Express)
-│   └── src/
-│       ├── controllers/
-│       ├── routes/
-│       ├── services/
-│       ├── models/
-│       ├── middlewares/
-│       └── server.js
-│
-├── database/          # Supabase (migrations, fonctions)
-│   └── supabase/
-│
-└── docs/              # Documentation projet
+```text
+NewKet/
+├── frontend/   # Vite + HTML/CSS/JS
+├── backend/    # API Express + logique métier
+├── database/   # Migrations Supabase
+├── docs/       # Documentation projet
+└── tools/      # Scripts utilitaires locaux
 ```
 
-## Démarrage rapide
+## Démarrage
 
 ```bash
-# Installer toutes les dépendances
 npm run install:all
-
-# Lancer le frontend
-npm run dev:frontend
-
-# Lancer le backend
 npm run dev:backend
+npm run dev:frontend
 ```
 
-## Technologies
+## Variables importantes
 
-- **Frontend** : HTML, CSS, Tailwind, Vite
-- **Backend** : Node.js, Express
-- **Base de données** : Supabase (PostgreSQL)
-- **Déploiement** : Vercel (frontend)
+- `frontend/.env` : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+- `backend/.env` : Supabase, SMTP, Sentry, AvadaPay
+
+## Paiement agrégateur
+
+- Le flux AvadaPay est déjà câblé côté backend et frontend.
+- Tant que `AVADAPAY_API_BASE_URL` et `AVADAPAY_SECRET_KEY` ne sont pas renseignés, l’API retourne `PAYMENT_PROVIDER_NOT_CONFIGURED`.
+- La libération d’escrow continue de fonctionner, mais le payout vendeur reste manuel jusqu’à l’activation des clés payout/provider.
+
+## Validation locale
+
+- Build frontend : `npm run build:frontend`
+- Vérification syntaxe backend : `node --check backend/src/server.js`

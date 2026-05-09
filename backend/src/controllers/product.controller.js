@@ -50,7 +50,7 @@ export const getProducts = async (req, res) => {
             .from('products')
             .select(
                 'id, name, price, old_price, image, category, description, ' +
-                'supplier_email, user_id, is_new, is_promo, stock, created_at, custom_exchange_rate',
+                'supplier_email, user_id, is_new, is_promo, pinned, rating, reviews, stock, created_at, custom_exchange_rate',
                 { count: 'estimated' }
             )
             .order('created_at', { ascending: false })
@@ -80,7 +80,7 @@ export const getProductById = async (req, res) => {
             .from('products')
             .select(
                 'id, name, price, old_price, image, category, description, ' +
-                'supplier_email, user_id, is_new, is_promo, stock, created_at, custom_exchange_rate'
+                'supplier_email, user_id, is_new, is_promo, pinned, rating, reviews, stock, created_at, custom_exchange_rate'
             )
             .eq('id', id)
             .single();
@@ -100,7 +100,7 @@ export const createProduct = async (req, res) => {
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
             'name', 'price', 'old_price', 'image', 'category', 
-            'description', 'is_new', 'is_promo', 'stock', 'custom_exchange_rate'
+            'description', 'is_new', 'is_promo', 'pinned', 'stock', 'custom_exchange_rate'
         ];
         
         const productData = {};
@@ -143,7 +143,7 @@ export const updateProduct = async (req, res) => {
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
             'name', 'price', 'old_price', 'image', 'category', 
-            'description', 'is_new', 'is_promo', 'stock', 'custom_exchange_rate'
+            'description', 'is_new', 'is_promo', 'pinned', 'stock', 'custom_exchange_rate'
         ];
         
         const updateData = {};

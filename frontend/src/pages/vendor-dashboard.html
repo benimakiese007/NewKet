@@ -2,9 +2,7 @@
 <html lang="fr" class="auth-loading">
 
 <head>
-    <script>
-        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
-    </script>
+    <script src="/security-bootstrap.js"></script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,7 +44,7 @@
     <nav class="dashboard-topbar fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
-            <button id="vendorMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+            <button id="vendorMobileBtn" data-toggle-sidebar="vendor" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all">
                 <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
             </button>
             <a href="/" class="flex items-center justify-center group">
@@ -56,7 +54,7 @@
 
             <div class="flex items-center gap-4">
                 <!-- Theme Toggle Desktop -->
-                <button data-theme-toggle onclick="ThemeManager.toggle()" class="theme-toggle hidden sm:flex h-10 w-10 text-gray-500 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50 items-center justify-center" aria-label="Basculer le thème">
+                <button data-theme-toggle data-theme-toggle-safe class="theme-toggle hidden sm:flex h-10 w-10 text-gray-500 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50 items-center justify-center" aria-label="Basculer le thème">
                     <iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon>
                 </button>
 
@@ -70,7 +68,7 @@
                         </div>
                     </div>
                 </div>
-                <button onclick="AuthManager.handleLogoutClick(this)" class="h-10 w-10 sm:w-auto sm:px-4 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
+                <button data-logout-safe class="h-10 w-10 sm:w-auto sm:px-4 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
                     <iconify-icon icon="solar:logout-bold" width="20"></iconify-icon>
                     <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Quitter</span>
                 </button>
@@ -86,7 +84,7 @@
         <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full md:translate-x-0 md:sticky md:top-28 md:self-start md:inset-auto md:w-72 transition-transform duration-400 ease-in-out h-screen md:h-[calc(100vh-7rem)] overflow-y-auto border-0 md:border-r border-gray-100 flex-shrink-0">
 
             <!-- Mobile Close Button -->
-            <button onclick="SidebarManager.close()" class="md:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
+            <button data-close-sidebar="vendor" class="md:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
                 <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
             </button>
 
@@ -112,11 +110,11 @@
 
                 <!-- Navigation -->
                 <nav class="space-y-1.5">
-                    <a href="javascript:void(0)" onclick="switchVendorTab('dashboard', event)" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
+                    <a href="javascript:void(0)" data-switch-vendor-tab="dashboard" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
                         <iconify-icon icon="solar:chart-square-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Tableau de bord</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchVendorTab('analytics', event)" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
+                    <a href="javascript:void(0)" data-switch-vendor-tab="analytics" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
                         <iconify-icon icon="solar:graph-up-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Analyses & Stats</span>
                     </a>
@@ -124,30 +122,30 @@
                         <iconify-icon icon="solar:add-circle-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Publier un article</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchVendorTab('products', event)" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
+                    <a href="javascript:void(0)" data-switch-vendor-tab="products" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
                         <iconify-icon icon="solar:box-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Mes Produits</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchVendorTab('leads', event)" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
+                    <a href="javascript:void(0)" data-switch-vendor-tab="leads" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
                         <iconify-icon icon="solar:card-send-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Demandes et devis</span>
                         <span id="vendorLeadsBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="switchVendorTab('purchases', event)" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
+                    <a href="javascript:void(0)" data-switch-vendor-tab="purchases" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
                         <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Mes Achats</span>
                     </a>
                     <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
-                        <a href="javascript:void(0)" onclick="switchVendorTab('settings', event)" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
+                        <a href="javascript:void(0)" data-switch-vendor-tab="settings" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
                             <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Paramètres</span>
                         </a>
                         <!-- Theme Toggle Mobile -->
-                        <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle md:hidden group btn-active-scale w-full text-left">
+                        <button data-theme-toggle data-theme-toggle-safe class="sidebar-link theme-toggle md:hidden group btn-active-scale w-full text-left">
                             <iconify-icon data-theme-icon icon="solar:moon-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
                             <span class="theme-toggle-text">Mode Sombre</span>
                         </button>
-                        <button class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2 w-full" onclick="AuthManager.handleLogoutClick(this)">
+                        <button class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2 w-full" data-logout-safe>
                             <iconify-icon icon="solar:logout-2-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
                             <span>Se déconnecter</span>
                         </button>
@@ -272,7 +270,7 @@
                                 <iconify-icon icon="solar:document-text-bold"></iconify-icon>
                                 Exporter (CSV)
                             </button>
-                            <a href="#"
+                            <a href="/src/pages/admin/orders.html"
                                 class="text-xs font-bold text-gray-400 hover:text-black transition-colors uppercase tracking-widest">Voir
                                 tout</a>
                         </div>
@@ -2845,6 +2843,4 @@
 </body>
 
 </html>
-
-
 
