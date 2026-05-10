@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             topicsGrid.innerHTML = `
                 <div class="bg-white dark:bg-zinc-900 p-16 rounded-[40px] text-center border border-dashed border-gray-200 dark:border-zinc-800">
                     <div class="w-20 h-20 bg-gray-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <iconify-icon icon="solar:chat-square-line-linear" width="40" class="text-gray-300 dark:text-zinc-600"></iconify-icon>
+                        <iconify-icon icon="solar:chat-square-linear" width="40" class="text-gray-300 dark:text-zinc-600"></iconify-icon>
                     </div>
                     <h3 class="text-xl font-bold mb-2">Pas encore de discussion</h3>
                     <p class="text-gray-500 dark:text-zinc-400">Soyez le premier à lancer le débat dans cette catégorie !</p>
