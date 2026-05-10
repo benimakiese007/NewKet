@@ -109,7 +109,7 @@ canvas {
 
     /* Fallback: if JS header spacing hasn't run yet, avoid content being hidden */
     #header-placeholder {
-        min-height: max(var(--header-height, 0px), 112px);
+        min-height: max(var(--header-height, 0px), calc(144px + env(safe-area-inset-top, 0px)));
     }
 
     /* Shop page hero: ensure top actions are not hidden under header on small screens */

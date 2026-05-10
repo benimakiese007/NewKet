@@ -167,9 +167,9 @@
     <div class="flex-1 flex w-full h-full relative">
         <!-- Left Side: Immersive Image (Hidden on smaller screens) -->
         <div class="hidden lg:flex lg:w-1/2 relative split-image overflow-hidden items-end p-16">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1920&fm=jpg&fit=crop"
+            <img loading="lazy" src="/Images/Image_De_La_Section_A_Gauche_Du_Login.webp"
                 alt="NewKet Experience"
-                class="absolute inset-0 w-full h-full object-cover scale-105 transform origin-center" id="bgImage">
+                class="absolute inset-0 w-full h-full object-cover object-top scale-100 transform origin-center" id="bgImage">
 
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 z-10"></div>
 
@@ -193,11 +193,11 @@
                             src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=150&auto=format&fit=crop"
                             alt="User">
                         <div
-                            class="w-10 h-10 rounded-full border-2 border-black bg-white text-black flex items-center justify-center text-xs font-black">
-                            +2k</div>
+                            class="min-w-[3rem] h-10 px-2 rounded-full border-2 border-black bg-white text-black flex items-center justify-center text-xs font-black tabular-nums"
+                            id="activeMembersCount">...</div>
                     </div>
-                    <div class="text-sm font-bold text-gray-300">
-                        Membres actifs
+                    <div class="text-sm font-bold text-gray-300" id="activeMembersLabel">
+                        Utilisateurs
                     </div>
                 </div>
             </div>
@@ -785,12 +785,36 @@
                 else if (typeof showToast !== 'undefined') showToast("Email de réinitialisation envoyé.", "success");
             });
         }
+        async function loadPublicUserStats() {
+            const countEl = document.getElementById('activeMembersCount');
+            const labelEl = document.getElementById('activeMembersLabel');
+
+            if (!countEl || !labelEl || !window.ApiClient) return;
+
+            try {
+                const stats = await window.ApiClient.get('/users/public-stats', {
+                    suppressNetworkError: true,
+                    cacheKey: 'login-public-user-stats',
+                    cacheTtlMs: 60000
+                });
+
+                const totalUsers = Number(stats?.totalUsers);
+                if (!Number.isFinite(totalUsers) || totalUsers < 0) {
+                    throw new Error('Invalid public user stats payload');
+                }
+
+                countEl.textContent = totalUsers.toLocaleString('fr-FR');
+                labelEl.textContent = totalUsers > 1 ? 'Utilisateurs' : 'Utilisateur';
+            } catch (error) {
+                console.warn('[Login] Impossible de charger le total utilisateurs:', error);
+                countEl.textContent = '0';
+                labelEl.textContent = 'Utilisateurs';
+            }
+        }
+
+        loadPublicUserStats();
     </script>
 </body>
 
 </html>
-
-
-
-
 

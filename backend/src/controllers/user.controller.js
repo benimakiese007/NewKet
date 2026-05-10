@@ -1,5 +1,23 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 
+export const getPublicUserStats = async (req, res) => {
+    try {
+        const client = supabaseAdmin || supabase;
+        const { count, error } = await client
+            .from('users')
+            .select('id', { count: 'exact', head: true });
+
+        if (error) throw error;
+
+        return res.status(200).json({
+            totalUsers: Number(count) || 0
+        });
+    } catch (err) {
+        console.error('❌ Erreur getPublicUserStats:', err.message);
+        return res.status(500).json({ error: 'Failed to fetch public user stats' });
+    }
+};
+
 export const getUsers = async (req, res) => {
     try {
         const client = supabaseAdmin || supabase;

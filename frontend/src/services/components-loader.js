@@ -380,9 +380,9 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <header class="main-header newket-header-shell fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="minimal">
-    <div class="relative flex h-[64px] sm:h-[112px] items-center justify-center">
+    <div class="relative flex h-[64px] sm:h-[92px] items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
-        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="header-brand-image h-10 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105">
+        <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="header-brand-image h-10 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105">
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-gray-300">
         <iconify-icon icon="solar:lock-password-bold" width="18"></iconify-icon>

@@ -235,7 +235,7 @@ button {
 
 @media (max-width: 1024px) {
     #header-placeholder {
-        min-height: 115px; /* Fallback for mobile */
+        min-height: calc(144px + env(safe-area-inset-top, 0px)); /* Fallback for mobile fixed header + search row */
     }
 }
 
