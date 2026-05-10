@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet Newsletter Manager
  * Handles subscriptions from the footer form — saves to Supabase.
  */

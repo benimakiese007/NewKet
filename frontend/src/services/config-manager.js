@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ConfigManager - NewKet EMarket
  * Centralized settings management (Exchange Rate, Shop Metadata, etc.)
  */

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet — XSS Sanitization Utility
  * Provides a global escapeHTML() function to safely inject user-controlled
  * data into innerHTML without risking Cross-Site Scripting (XSS) attacks.

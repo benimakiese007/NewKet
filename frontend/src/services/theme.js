@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet ThemeManager — Dark Mode
  * Applies dark class to <html>, persists preference, and exposes toggle.
  */

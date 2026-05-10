@@ -1,4 +1,4 @@
-﻿# NewKet
+# NewKet
 
 Plateforme e-commerce fullstack organisée en monorepo.
 

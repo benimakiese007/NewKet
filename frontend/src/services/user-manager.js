@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet User Manager
  * Handles user/vendor data for the Admin CMS and Platform.
  */

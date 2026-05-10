@@ -5,12 +5,12 @@
     <script src="/security-bootstrap.js"></script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#111827">
+    <meta name="theme-color" content="#064734">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
@@ -195,7 +195,7 @@
         }
     </style>
 </head>
-<body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
+<body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
             <button id="customerMobileBtn" data-toggle-sidebar="customer" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all">
@@ -583,7 +583,7 @@
                     <div id="otpDisplaySection" class="hidden p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
                         <div class="text-xs font-bold text-purple-600 uppercase mb-2">Code de validation (OTP)</div>
                         <div id="otpValue" class="text-3xl font-black tracking-[0.5em] text-purple-900">------</div>
-                        <p class="text-[10px] text-purple-500 mt-2">Donnez ce code au livreur uniquement APRÈS avoir reçu et vérifié votre colis.</p>
+                        <p class="text-[10px] text-purple-500 mt-2">Donnez ce code au livreur uniquement APRÃˆS avoir reçu et vérifié votre colis.</p>
                     </div>
 
                     <!-- Actions Buttons -->
@@ -1586,7 +1586,7 @@
                         roleLabel = '<span class="text-[8px] font-black bg-blue-100 text-blue-600 px-1 py-0.5 rounded ml-2 uppercase">VENDEUR</span>';
                         bubbleClass = 'bg-blue-50 border border-blue-100 text-blue-950';
                     } else if (senderRole === 'SYSTEM') {
-                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÈME</span>';
+                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÃˆME</span>';
                         bubbleClass = 'bg-gray-100 text-gray-700';
                     } else {
                         roleLabel = '<span class="text-[8px] font-black text-gray-400 ml-2 uppercase">VOUS</span>';
@@ -1878,3 +1878,5 @@
 </body>
 
 </html>
+
+

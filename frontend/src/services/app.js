@@ -1,4 +1,4 @@
-﻿// app.js - Centralized entry point for NewKet services
+// app.js - Centralized entry point for NewKet services
 // This file aggregates all the main modules to optimize loading and maintainability (Phases 5 & 6)
 
 import { inject } from '@vercel/analytics';

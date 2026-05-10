@@ -5,7 +5,8 @@
     <script src="/security-bootstrap.js"></script>
     <script type="module" src="/src/services/app.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#064734">
     <title>Tableau de Bord Vendeur | NewKet — Gérez votre boutique de luxe</title>
     <meta name="description" content="Accédez à votre espace vendeur NewKet. Suivez vos ventes, gérez vos produits et communiquez avec vos clients en toute simplicité sur la marketplace de luxe de référence en RDC.">
     <link rel="canonical" href="https://newket.cd/src/pages/vendor-dashboard.html">
@@ -41,7 +42,7 @@
 </head>
 
 <body class="bg-gray-50 transition-colors duration-200">
-    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50 transition-all duration-300">
+    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
             <button id="vendorMobileBtn" data-toggle-sidebar="vendor" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all">
@@ -2201,7 +2202,7 @@
                                     <iconify-icon icon="solar:bag-heart-bold-duotone" width="48"></iconify-icon>
                                 </div>
                                 <h4 class="font-black text-gray-900 mb-2">Aucun achat pour le moment</h4>
-                                <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">Vos coups de cœur NewKet apparaîtront ici dès votre première commande.</p>
+                                <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">Vos coups de cÅ“ur NewKet apparaîtront ici dès votre première commande.</p>
                                 <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
                                     Découvrir la collection
                                 </a>
@@ -2650,7 +2651,7 @@
                                 bubbleColor = 'bg-gray-50 border border-gray-100';
                                 textColor = 'text-gray-900';
                             } else if (senderRole === 'SYSTEM') {
-                                roleBadge = '<span class="text-[8px] font-black uppercase bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2">SYSTÈME</span>';
+                                roleBadge = '<span class="text-[8px] font-black uppercase bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2">SYSTÃˆME</span>';
                                 bubbleColor = 'bg-gray-100 border border-gray-200';
                                 textColor = 'text-gray-700';
                             } else {
@@ -2843,4 +2844,6 @@
 </body>
 
 </html>
+
+
 

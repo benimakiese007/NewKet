@@ -174,10 +174,10 @@ const HEADER_HTML = `
     class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" style="z-index: 9000;" aria-hidden="true">
 </div>
 <div id="mobileMenu" class="fixed inset-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
-    <div class="mobile-menu-header px-6 flex items-center justify-between border-b border-gray-100/50" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
+    <div class="mobile-menu-header px-6 flex items-center justify-between bg-white text-gray-900 border-b border-gray-100/60" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
         <div class="mobile-menu-brand">
-            <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="h-12 w-auto object-contain">
-            <p class="mobile-menu-subtitle">Votre navigation principale</p>
+            <img src="{{ROOT}}Images/Logo_Vert_Pour_Fond_Blanc.png" alt="NewKet" class="h-12 w-auto object-contain">
+            <p class="mobile-menu-subtitle text-gray-500">Votre navigation principale</p>
         </div>
         <button id="closeMobileMenu" class="p-4 rounded-full bg-gray-100/80 hover:bg-gray-200 transition-all btn-active-scale shadow-sm" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>

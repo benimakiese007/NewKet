@@ -20,7 +20,8 @@ const ASSETS_TO_CACHE = [
     '/favicon-16x16.png',
     '/favicon-32x32.png',
     '/favicon.ico',
-    '/Images/Logo_Header_Officiel_PNG.png'
+    '/Images/Logo_Header_Officiel_PNG.png',
+    '/Images/Logo_Vert_Pour_Fond_Blanc.png'
 ];
 
 // Install Event

@@ -1,4 +1,4 @@
-﻿/* newket EMarket Favorites Manager */
+/* newket EMarket Favorites Manager */
 
 const FavoritesManager = {
     async _getCurrentUser() {

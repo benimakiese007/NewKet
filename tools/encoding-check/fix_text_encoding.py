@@ -1,11 +1,50 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from pathlib import Path
 
-REPLACEMENTS = {
+# This script fixes common mojibake sequences found in the repo and rewrites
+# matching text files as strict UTF-8.
+
+REPLACEMENTS: dict[str, str] = {
+    # Double-encoded sequences that appear in some HTML titles/text.
+    "ÃƒÂ©": "Ã©",
+    "ÃƒÂ¨": "Ã¨",
+    "Ãƒ ": "Ã ",
+    "Ãƒâ‚¬": "Ã€",
+    "ÃƒÂ¢": "Ã¢",
+    "ÃƒÂª": "Ãª",
+    "ÃƒÂ«": "Ã«",
+    "ÃƒÂ®": "Ã®",
+    "ÃƒÂ¯": "Ã¯",
+    "ÃƒÂ´": "Ã´",
+    "ÃƒÂ¶": "Ã¶",
+    "ÃƒÂ¹": "Ã¹",
+    "ÃƒÂ»": "Ã»",
+    "ÃƒÂ¼": "Ã¼",
+    "ÃƒÂ§": "Ã§",
+    "Ã¢â‚¬â„¢": "â€™",
+    "Ã¢â‚¬Å“": "â€œ",
+    "Ã¢â‚¬Â": "â€",
+    "Ã¢â‚¬â€œ": "â€“",
+    "Ã¢â‚¬â€": "â€”",
+    "Ã¢â‚¬Â¢": "â€¢",
+    "Ã¢Ëœâ€¦": "â˜…",
+
+    # Emoji mojibake (C1 controls show up in Vite/parse5 warnings).
+    "ðŸ””": "🔔",
+    "âš\xa0ï¸\x8f": "⚠️",
+    "ðŸš¨": "🚨",
+    "ðŸŽ\x81": "🎁",
+    "ðŸ“¢": "📢",
+    "ðŸ›\x8dï¸\x8f": "🛍️",
+    "ðŸ†": "🏆",
+
+    # Canonical UTF-8 characters.
+    "Ã€": "À",
+    "Ã‰": "É",
     "Ã©": "é",
     "Ã¨": "è",
-    "Ã ": "à",
+    "Ã ": "à",
     "Ã¢": "â",
     "Ãª": "ê",
     "Ã«": "ë",
@@ -22,18 +61,67 @@ REPLACEMENTS = {
     "â€": "”",
     "â€“": "–",
     "â€”": "—",
+    "â€¢": "•",
+    "â˜…": "★",
+    "âœ…": "✅",
+    "âŒ": "❌",
+}
+
+TEXT_EXTENSIONS = {
+    ".html",
+    ".css",
+    ".js",
+    ".mjs",
+    ".cjs",
+    ".ts",
+    ".tsx",
+    ".json",
+    ".md",
+    ".txt",
+    ".env",
 }
 
 
+def _looks_texty(path: Path) -> bool:
+    if path.suffix.lower() in TEXT_EXTENSIONS:
+        return True
+    if path.name.upper() in {"README", "LICENSE"}:
+        return True
+    return False
+
+
 def fix_text_file(path: Path, root: Path) -> bool:
-    if not path.exists():
+    if not path.exists() or not path.is_file():
         return False
-    text = path.read_text(encoding="utf-8", errors="ignore")
+    if not _looks_texty(path):
+        return False
+
+    raw = path.read_bytes()
+    if not raw:
+        return False
+
+    had_utf8_bom = raw.startswith(b"\xef\xbb\xbf")
+    if had_utf8_bom:
+        raw = raw[3:]
+
+    decoded: str | None = None
+    for enc in ("utf-8", "cp1252", "latin-1"):
+        try:
+            decoded = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    if decoded is None:
+        decoded = raw.decode("utf-8", errors="replace")
+
+    text = decoded
     fixed = text
     for wrong, right in REPLACEMENTS.items():
         fixed = fixed.replace(wrong, right)
-    if fixed == text:
+
+    if fixed == text and not had_utf8_bom:
         return False
+
     path.write_text(fixed, encoding="utf-8", newline="\n")
     print(f"fixed-text: {path.relative_to(root)}")
     return True
@@ -41,22 +129,32 @@ def fix_text_file(path: Path, root: Path) -> bool:
 
 def main() -> int:
     root = Path(__file__).resolve().parents[2]
-    targets = [
-        root / "README.md",
-        root / "README.TXT",
-        root / "frontend" / ".env.example",
-        root / "frontend" / "src" / "pages" / "404.html",
-        root / "frontend" / "src" / "pages" / "achat.html",
-        root / "frontend" / "src" / "pages" / "customer-dashboard.html",
-        root / "frontend" / "src" / "pages" / "login.html",
-        root / "frontend" / "src" / "pages" / "product.html",
-        root / "backend" / "src" / "controllers" / "payment.controller.js",
-        root / "backend" / "src" / "services" / "order-workflow.js",
+    search_roots = [
+        root,
+        root / "frontend",
+        root / "backend",
+        root / "api",
+        root / "docs",
+        root / "database",
     ]
-    for target in targets:
-        fix_text_file(target, root)
+
+    ignore_dirs = {"node_modules", "dist", ".git", ".vercel", ".vscode"}
+
+    for base in search_roots:
+        if not base.exists():
+            continue
+        if base.is_file():
+            fix_text_file(base, root)
+            continue
+        for path in base.rglob("*"):
+            if not path.is_file():
+                continue
+            if any(part in ignore_dirs for part in path.parts):
+                continue
+            fix_text_file(path, root)
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

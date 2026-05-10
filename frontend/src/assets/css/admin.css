@@ -107,12 +107,12 @@ body {
 }
 
 .newket-dashboard-header {
-    background:
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.24), transparent 28%),
-        radial-gradient(circle at top right, rgba(134, 239, 172, 0.2), transparent 24%),
-        linear-gradient(135deg, rgba(11, 107, 61, 0.98) 0%, rgba(16, 185, 129, 0.96) 50%, rgba(34, 197, 94, 0.93) 100%) !important;
-    border-bottom-color: rgba(34, 197, 94, 0.28) !important;
-    box-shadow: 0 20px 44px rgba(5, 150, 105, 0.22);
+    background: #064734 !important;
+    background-image: none !important;
+    border-bottom-color: rgba(6, 71, 52, 0.6) !important;
+    box-shadow: 0 20px 44px rgba(6, 71, 52, 0.24) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
 }
 
 .newket-dashboard-header #adminMobileMenuBtn,
@@ -208,16 +208,25 @@ body {
 
 /* ── CRITICAL: Desktop sidebar layout fixes ──────────────────────────────── */
 /* These rules ensure the sidebar participates in the flex flow on desktop.  */
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
     #adminSidebar, #customerSidebar, #vendorSidebar {
+        /* Dashboards may ship base mobile-drawer classes (`fixed inset-0 z-[9999]`)
+           on the sidebar element. On >= md screens the sidebar becomes part of the
+           page layout and must not cover the fixed header. */
         position: sticky !important;
-        top: calc(var(--dashboard-topbar-height) + 1rem);
+        top: calc(var(--dashboard-topbar-height) + 1rem) !important;
+        inset: auto !important;
         transform: none !important;
         height: auto !important;
         max-height: none !important;
         overflow-y: visible !important;
+        z-index: 20 !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    #adminSidebar, #customerSidebar, #vendorSidebar {
         align-self: flex-start;
-        z-index: 20;
     }
     #customerSidebar {
         width: 16rem !important; /* w-64 = 256px */

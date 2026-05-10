@@ -1,4 +1,4 @@
-﻿# Payment Provider Setup
+# Payment Provider Setup
 
 ## Current state
 

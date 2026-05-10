@@ -4,8 +4,8 @@
   "description": "L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe.",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#064734",
+  "theme_color": "#064734",
   "orientation": "portrait",
   "categories": [
     "shopping",
@@ -39,3 +39,4 @@
     }
   ]
 }
+

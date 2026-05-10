@@ -1,4 +1,4 @@
-﻿# System Health Report - 2026-04-28
+# System Health Report - 2026-04-28
 
 - GeneratedAt: 2026-04-28 02:11:54
 - Repo: C:\Users\tmaut\Downloads\THE PHOENIX\NewKet

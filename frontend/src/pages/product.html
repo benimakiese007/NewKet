@@ -3,12 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#111827">
+    <meta name="theme-color" content="#064734">
     <title>Chargement... — NewKet</title>
     <meta name="description" content="Découvrez une sélection exclusive d'articles de luxe sur NewKet.">
     
@@ -624,7 +624,7 @@
         }
 
         window.confirmDeleteReview = async (rid) => {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
+            if (!confirm('ÃŠtes-vous sûr de vouloir supprimer cet avis ?')) return;
             try {
                 const res = await ReviewManager.deleteReview(rid);
                 if (res.success) {
@@ -661,5 +661,7 @@
     </div>
 </body>
 </html>
+
+
 
 
