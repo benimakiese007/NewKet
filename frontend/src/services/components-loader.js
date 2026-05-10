@@ -6,25 +6,25 @@
  */
 const CATEGORY_NAV_HTML = `
         <!-- Category Nav -->
-        <div id="categoryNav" class="category-nav bg-white flex sm:block transition-all duration-300 ease-in-out transform origin-top border-b border-gray-100">
+        <div id="categoryNav" class="category-nav newket-category-nav bg-white flex sm:block transition-all duration-300 ease-in-out transform origin-top border-b border-gray-100">
             <div class="max-w-7xl mx-auto w-full px-4 sm:px-8">
                 <nav class="flex items-center gap-2 overflow-x-auto py-3 -mx-2 scroll-affordance" style="scrollbar-width:none;">
                     <a href="{{ROOT}}src/pages/catalog.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Toutes les pièces</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Toutes les pièces</a>
                     <a href="{{ROOT}}src/pages/shops.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Boutiques</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Boutiques</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Femme</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Femme</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Homme</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Homme</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Tech & Gadgets</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Tech & Gadgets</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">HIGH-TECH</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">HIGH-TECH</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Art de vivre</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Art de vivre</a>
                     <a href="{{ROOT}}src/pages/catalog.html?promo=true"
-                        class="nav-link px-4 py-2 text-sm font-medium text-gray-900 hover:text-black whitespace-nowrap rounded-lg hover:bg-100 transition-colors flex items-center gap-1 shrink-0">
+                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1 shrink-0">
                         <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
                     </a>
                 </nav>
@@ -33,23 +33,7 @@ const CATEGORY_NAV_HTML = `
 
 const HEADER_HTML = `
     <!-- Main header container -->
-    <header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="main">
-        <!-- Top Info Bar -->
-        <div class="header-topbar text-white py-1.5 px-4 sm:px-8 border-b border-[#0A4A2E] hidden sm:block" style="background-color: #013220;">
-            <div class="max-w-7xl mx-auto w-full flex min-h-9 items-center justify-between text-[9px] sm:text-[10px] font-bold tracking-widest uppercase gap-3 md:gap-4">
-                <div class="hidden md:flex shrink-0 items-center gap-2 lg:gap-3">
-                    <span class="header-topbar-pill"><iconify-icon icon="solar:delivery-bold" width="12" class="text-orange-300" aria-hidden="true"></iconify-icon> Livraison offerte</span>
-                    <span class="header-topbar-pill header-topbar-pill-muted"><iconify-icon icon="solar:shield-check-bold" width="12" aria-hidden="true"></iconify-icon> Paiement sécurisé</span>
-                </div>
-                <div class="flex min-w-0 flex-1 items-center justify-center text-center">
-                    <span class="block max-w-full truncate px-2 sm:px-4 leading-none whitespace-nowrap">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
-                </div>
-                  <div class="hidden sm:flex shrink-0 items-center gap-2 md:gap-3">
-                      <a href="{{ROOT}}src/pages/support.html" class="header-topbar-link">Support</a>
-                      <a href="{{ROOT}}src/pages/faq.html" class="header-topbar-link">FAQ</a>
-                  </div>
-              </div>
-          </div>
+    <header class="main-header newket-header-shell fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="main">
         <!-- Main header content (Logo, Search, Icons) -->
             <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
@@ -395,12 +379,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 </footer>`;
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
-<header class="main-header fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="minimal">
-    <div class="header-topbar text-white py-1.5 px-4 border-b border-[#0A4A2E]" style="background-color: #013220;">
-        <div class="max-w-7xl mx-auto w-full flex min-h-9 items-center justify-center text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-center">
-            <span class="block max-w-full truncate px-2 sm:px-4 leading-none whitespace-nowrap">Marketplace de Luxe &mdash; Boutique NewKet Officielle</span>
-        </div>
-    </div>
+<header class="main-header newket-header-shell fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm" data-header-shell="minimal">
     <div class="relative flex h-[64px] sm:h-[112px] items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
         <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="header-brand-image h-10 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105">
