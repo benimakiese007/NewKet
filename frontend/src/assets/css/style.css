@@ -680,7 +680,7 @@ html.ios-native-category #searchCategoryBtn {
   padding: 10px 16px !important;
   border: none !important;
   background: transparent !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   font-weight: 500 !important;
   color: var(--text-dark) !important;
   outline: none !important;
@@ -876,7 +876,7 @@ body.search-focused .main-header {
   padding: 10px 16px !important;
   border: none !important;
   background: transparent !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   font-weight: 500 !important;
   color: var(--text-dark) !important;
   outline: none !important;
@@ -1090,7 +1090,7 @@ body.search-focused .main-header {
   }
 
   .newket-header-shell #mobileSearchContainer .search-input {
-    font-size: 0.95rem !important;
+    font-size: 16px !important;
     font-weight: 600 !important;
     padding-top: 0.8rem !important;
     padding-bottom: 0.8rem !important;
@@ -2482,7 +2482,7 @@ body.mobile-menu-open {
 
   .search-input {
     padding: 0.6rem 1rem 0.6rem 2.8rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
     background-color: #f3f4f6;
     /* Lighter background */
     border: none;

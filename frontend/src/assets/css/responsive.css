@@ -172,7 +172,7 @@ canvas {
 
     .search-input {
         padding: 0.35rem 1rem !important;
-        font-size: 0.8rem !important;
+        font-size: 1rem !important;
         height: 40px !important;
     }
 
@@ -190,7 +190,7 @@ canvas {
     }
 
     .mobile-search-category-native {
-        font-size: 10px !important;
+        font-size: 16px !important;
         padding-left: 12px !important;
         padding-right: 12px !important;
         border-radius: 0 !important;
@@ -1636,7 +1636,7 @@ html.dark .glass-panel {
     .search-input {
         padding-left: 2.5rem !important;
         padding-right: 0.9rem !important;
-        font-size: 0.9rem !important;
+        font-size: 16px !important;
     }
 
     #searchBtn {
