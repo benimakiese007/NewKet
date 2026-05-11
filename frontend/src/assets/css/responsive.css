@@ -99,7 +99,7 @@ canvas {
         right: 0;
         top: calc(-1 * env(safe-area-inset-top, 0px));
         height: env(safe-area-inset-top, 0px);
-        background: #064734;
+        background: #013220;
         pointer-events: none;
     }
 

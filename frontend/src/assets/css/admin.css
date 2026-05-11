@@ -104,15 +104,54 @@ body {
 
 .dashboard-topbar {
     overflow: visible;
+    background: var(--newket-green) !important;
+    color: white !important;
 }
 
 .newket-dashboard-header {
-    background: #064734 !important;
+    background: #013220 !important;
     background-image: none !important;
-    border-bottom-color: rgba(6, 71, 52, 0.6) !important;
-    box-shadow: 0 20px 44px rgba(6, 71, 52, 0.24) !important;
+    border-bottom-color: rgba(1, 50, 32, 0.6) !important;
+    box-shadow: 0 20px 44px rgba(1, 50, 32, 0.24) !important;
+    color: white !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
+}
+
+.newket-dashboard-header .dashboard-topbar-inner {
+    color: white !important;
+}
+
+.newket-dashboard-header #adminMobileMenuBtn,
+.newket-dashboard-header [data-theme-toggle],
+.newket-dashboard-header a[href="/"] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+.newket-dashboard-header #adminMobileMenuBtn:hover,
+.newket-dashboard-header [data-theme-toggle]:hover,
+.newket-dashboard-header a[href="/"]:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+
+.newket-dashboard-header iconify-icon {
+    color: white !important;
+}
+
+.newket-dashboard-header .segmented-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.newket-dashboard-header .segmented-label {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.newket-dashboard-header .segmented-label.active {
+    color: white !important;
 }
 
 .newket-dashboard-header #adminMobileMenuBtn,

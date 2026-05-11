@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#064734">
+    <meta name="theme-color" content="#013220">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
@@ -74,14 +74,14 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-black tracking-tight text-gray-900">Support / Tickets</h1>
-                    <p class="text-gray-500">Gérez les demandes d'assistance et répondez aux utilisateurs.</p>
+                    <p class="text-gray-500">GÃ©rez les demandes d'assistance et rÃ©pondez aux utilisateurs.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <select id="filterStatus" onchange="renderTickets()"
                         class="text-xs font-black uppercase tracking-widest bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black cursor-pointer">
                         <option value="all">Tous les statuts</option>
                         <option value="ouvert">Ouvert</option>
-                        <option value="resolu">Résolu</option>
+                        <option value="resolu">RÃ©solu</option>
                     </select>
                 </div>
             </div>
@@ -97,7 +97,7 @@
                     <div class="text-2xl font-black text-red-500" id="statOpenTickets">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Tickets Résolus</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Tickets RÃ©solus</div>
                     <div class="text-2xl font-black text-green-500" id="statResolvedTickets">0</div>
                 </div>
             </div>
@@ -106,7 +106,7 @@
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h2 class="font-bold text-gray-900 flex items-center gap-2">
                         <iconify-icon icon="solar:inbox-bold-duotone" width="20"
-                            class="text-blue-500"></iconify-icon>Boîte de Réception
+                            class="text-blue-500"></iconify-icon>BoÃ®te de RÃ©ception
                     </h2>
                 </div>
                 <div id="ticketsContainer" class="divide-y divide-gray-50">
@@ -130,7 +130,7 @@
             if (dbFilter !== 'all') filtered = filtered.filter(t => t.status === dbFilter);
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun ticket trouvé.</div>`;
+                container.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun ticket trouvÃ©.</div>`;
                 return;
             }
 
@@ -141,7 +141,7 @@
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
                             <span class="text-xs font-black uppercase text-gray-400">${t.id.slice(0, 8)}</span>
-                            <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded-full ${isResolved ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}">${isResolved ? 'Résolu' : 'Ouvert'}</span>
+                            <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded-full ${isResolved ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}">${isResolved ? 'RÃ©solu' : 'Ouvert'}</span>
                             <div class="text-[10px] text-gray-400 ml-auto">${new Date(t.created_at).toLocaleDateString()}</div>
                         </div>
                         <h3 class="font-bold text-gray-900 mb-1">${t.subject}</h3>
@@ -149,7 +149,7 @@
                         <div class="text-[10px] font-black uppercase text-gray-400">Client: <span class="text-black">${t.customer_name}</span></div>
                     </div>
                     <div class="flex items-center gap-2 mt-4 md:mt-0">
-                        ${!isResolved ? `<button onclick="resolveTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Marquer Résolu</button>` : `<button onclick="reopenTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">Rouvrir</button>`}
+                        ${!isResolved ? `<button onclick="resolveTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Marquer RÃ©solu</button>` : `<button onclick="reopenTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">Rouvrir</button>`}
                         <button onclick="deleteTicket('${t.id}')" class="text-gray-300 hover:text-red-400 p-2 transition-colors"><iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon></button>
                     </div>
                 </div>
@@ -161,9 +161,9 @@
         async function resolveTicket(id) {
             const success = await SupportManager.updateStatus(id, 'resolved');
             if (success) {
-                showToast('Ticket résolu', 'success');
+                showToast('Ticket rÃ©solu', 'success');
             } else {
-                showToast('Erreur lors de la mise à jour', 'error');
+                showToast('Erreur lors de la mise Ã  jour', 'error');
             }
         }
 
@@ -172,15 +172,15 @@
             if (success) {
                 showToast('Ticket rouvert', 'info');
             } else {
-                showToast('Erreur lors de la mise à jour', 'error');
+                showToast('Erreur lors de la mise Ã  jour', 'error');
             }
         }
 
         async function deleteTicket(id) {
-            if (!confirm('Supprimer définitivement ce ticket ?')) return;
+            if (!confirm('Supprimer dÃ©finitivement ce ticket ?')) return;
             const success = await SupportManager.deleteTicket(id);
             if (success) {
-                showToast('Ticket supprimé', 'success');
+                showToast('Ticket supprimÃ©', 'success');
             } else {
                 showToast('Erreur lors de la suppression', 'error');
             }
@@ -213,6 +213,7 @@
 </body>
 
 </html>
+
 
 
 

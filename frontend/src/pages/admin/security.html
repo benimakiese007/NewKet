@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#064734">
-    <title>Sécurité & Accès | NewKet Admin</title>
+    <meta name="theme-color" content="#013220">
+    <title>SÃ©curitÃ© & AccÃ¨s | NewKet Admin</title>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <script>
@@ -48,13 +48,13 @@
             <!-- Header -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-4xl font-black tracking-tight text-gray-900">Sécurité & Accès</h1>
-                    <p class="text-gray-500 font-medium">Gestion dynamique des rôles administrateurs et privilèges plateforme.</p>
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900">SÃ©curitÃ© & AccÃ¨s</h1>
+                    <p class="text-gray-500 font-medium">Gestion dynamique des rÃ´les administrateurs et privilÃ¨ges plateforme.</p>
                 </div>
                 
                 <div class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-full text-xs font-black uppercase tracking-widest border border-green-100">
                     <iconify-icon icon="solar:shield-check-bold" width="16"></iconify-icon>
-                    Système Sécurisé
+                    SystÃ¨me SÃ©curisÃ©
                 </div>
             </div>
 
@@ -79,7 +79,7 @@
                 <div class="space-y-6">
                     <div class="glass-panel p-8 premium-gradient-dark text-white">
                         <h3 class="font-black text-xl mb-4">Ajouter un Admin</h3>
-                        <p class="text-white/60 text-sm mb-6">L'adresse e-mail doit être associée à un compte utilisateur existant sur NewKet pour que les privilèges s'activent.</p>
+                        <p class="text-white/60 text-sm mb-6">L'adresse e-mail doit Ãªtre associÃ©e Ã  un compte utilisateur existant sur NewKet pour que les privilÃ¨ges s'activent.</p>
                         
                         <div class="space-y-4">
                             <div>
@@ -88,7 +88,7 @@
                                     class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-white transition-all">
                             </div>
                             <button onclick="handleAddAdmin()" class="w-full bg-white text-black font-black py-3 rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl">
-                                Valider les privilèges
+                                Valider les privilÃ¨ges
                             </button>
                         </div>
                     </div>
@@ -98,7 +98,7 @@
                             <iconify-icon icon="solar:danger-bold" class="text-amber-500" width="24"></iconify-icon>
                             <div>
                                 <h4 class="font-bold text-gray-900 text-sm">Zone Critique</h4>
-                                <p class="text-xs text-gray-500 mt-1">Les modifications sont appliquées instantanément. Retirer votre propre e-mail vous fera perdre l'accès immédiatement.</p>
+                                <p class="text-xs text-gray-500 mt-1">Les modifications sont appliquÃ©es instantanÃ©ment. Retirer votre propre e-mail vous fera perdre l'accÃ¨s immÃ©diatement.</p>
                             </div>
                         </div>
                     </div>
@@ -125,14 +125,14 @@
                 renderAdmins();
             } catch (err) {
                 console.error('[Security] Failed to load admins:', err);
-                listContainer.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erreur de chargement. Vérifiez vos permissions.</div>`;
+                listContainer.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erreur de chargement. VÃ©rifiez vos permissions.</div>`;
             }
         }
 
         function renderAdmins() {
             const listContainer = document.getElementById('adminList');
             if (adminEmails.length === 0) {
-                listContainer.innerHTML = `<div class="p-12 text-center text-gray-400 italic">Aucun administrateur configuré.</div>`;
+                listContainer.innerHTML = `<div class="p-12 text-center text-gray-400 italic">Aucun administrateur configurÃ©.</div>`;
                 return;
             }
 
@@ -161,7 +161,7 @@
             }
 
             if (adminEmails.includes(email)) {
-                if (window.showToast) window.showToast('Cet e-mail est déjà dans la liste.', 'info', 'Doublon');
+                if (window.showToast) window.showToast('Cet e-mail est dÃ©jÃ  dans la liste.', 'info', 'Doublon');
                 return;
             }
 
@@ -171,7 +171,7 @@
         }
 
         async function removeAdmin(email) {
-            window.showConfirm("Retirer l'accès", `Voulez-vous vraiment retirer les accès admin pour ${email} ?`, async () => {
+            window.showConfirm("Retirer l'accÃ¨s", `Voulez-vous vraiment retirer les accÃ¨s admin pour ${email} ?`, async () => {
                 const updatedList = adminEmails.filter(e => e !== email);
                 await saveAdmins(updatedList);
             });
@@ -192,10 +192,10 @@
                 adminEmails = newList;
                 renderAdmins();
                 
-                if (window.showToast) window.showToast('Liste des administrateurs mise à jour.', 'success', 'Sauvegardé');
+                if (window.showToast) window.showToast('Liste des administrateurs mise Ã  jour.', 'success', 'SauvegardÃ©');
             } catch (err) {
                 console.error('[Security] Save failed:', err);
-                if (window.showToast) window.showToast('Échec de la sauvegarde. Vérifiez votre connexion.', 'danger', 'Erreur');
+                if (window.showToast) window.showToast('Ã‰chec de la sauvegarde. VÃ©rifiez votre connexion.', 'danger', 'Erreur');
             }
         }
 
@@ -210,6 +210,7 @@
 </body>
 
 </html>
+
 
 
 

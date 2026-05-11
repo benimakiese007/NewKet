@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -12,7 +12,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#064734">
+    <meta name="theme-color" content="#013220">
     <title>Achat | NewKet</title>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="stylesheet" href="/src/assets/css/style.css">
@@ -96,7 +96,7 @@
             <div class="flex items-center gap-3">
                 <button id="btnLogout" data-logout-safe class="btn-ghost text-sm text-red-600 border-red-100 hover:bg-red-50 flex items-center gap-2">
                     <iconify-icon icon="solar:logout-2-bold" width="18"></iconify-icon>
-                    Déconnexion
+                    DÃ©connexion
                 </button>
             </div>
         </div>
@@ -152,13 +152,13 @@
                     </a>
                     <a href="#" class="sidebar-link" id="link-settings" onclick="goDashboard('settings')">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
-                        <span>Paramètres</span>
+                        <span>ParamÃ¨tres</span>
                     </a>
                 </nav>
                 <div class="mt-4 pt-4 border-t border-gray-100">
                     <button class="sidebar-logout" onclick="AuthManager.handleLogoutClick(this)">
                         <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
-                        <span>Se déconnecter</span>
+                        <span>Se dÃ©connecter</span>
                     </button>
                 </div>
             </div>
@@ -171,11 +171,11 @@
                     <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
                         <div>
                             <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Achat</h1>
-                            <p class="muted mt-1 text-sm sm:text-base">Finalisez votre paiement en toute sécurité (séquestre NewKet).</p>
+                            <p class="muted mt-1 text-sm sm:text-base">Finalisez votre paiement en toute sÃ©curitÃ© (sÃ©questre NewKet).</p>
                         </div>
                         <div id="orderBadge" class="badge hidden">
                             <iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon>
-                            <span>Prêt pour paiement</span>
+                            <span>PrÃªt pour paiement</span>
                         </div>
                     </div>
 
@@ -242,7 +242,7 @@
                                 <div class="mt-1 font-black text-gray-900 truncate">${safeText(productName)}</div>
                                 <div class="mt-1 text-sm muted flex flex-wrap items-center gap-x-3 gap-y-1">
                                     <span>${safeText(dateLabel)}</span>
-                                    <span class="text-gray-300">•</span>
+                                    <span class="text-gray-300">â€¢</span>
                                     <span class="font-semibold text-gray-700">${safeText(statusLabel)}</span>
                                 </div>
                             </div>
@@ -290,10 +290,10 @@
                         <div class="w-14 h-14 rounded-2xl bg-gray-100 mx-auto flex items-center justify-center text-gray-700">
                             <iconify-icon icon="solar:shop-2-bold" width="28"></iconify-icon>
                         </div>
-                        <div class="mt-4 font-black text-gray-900">Aucun achat prêt pour paiement</div>
+                        <div class="mt-4 font-black text-gray-900">Aucun achat prÃªt pour paiement</div>
                         <div class="mt-1 text-sm muted">Retournez dans votre espace client pour suivre vos demandes.</div>
                         <div class="mt-6">
-                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller à mon espace client</button>
+                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller Ã  mon espace client</button>
                         </div>
                     </div>
                 `;
@@ -304,8 +304,8 @@
                 <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-900 flex items-start gap-3">
                     <iconify-icon icon="solar:info-circle-bold" width="22"></iconify-icon>
                     <div>
-                        <div class="font-black">Sélectionnez une demande</div>
-                        <div class="mt-1 text-indigo-800">Vous serez redirigé vers le paiement sécurisé après confirmation.</div>
+                        <div class="font-black">SÃ©lectionnez une demande</div>
+                        <div class="mt-1 text-indigo-800">Vous serez redirigÃ© vers le paiement sÃ©curisÃ© aprÃ¨s confirmation.</div>
                     </div>
                 </div>
             `);
@@ -331,7 +331,7 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="text-[11px] font-black uppercase tracking-wider text-gray-400">Commande</div>
                                     <div class="mt-1 font-black text-gray-900 text-lg truncate">${safeText(productName)}</div>
-                                    <div class="mt-1 text-sm muted">Quantité: <span class="font-semibold text-gray-700">${qty}</span></div>
+                                    <div class="mt-1 text-sm muted">QuantitÃ©: <span class="font-semibold text-gray-700">${qty}</span></div>
                                     <div class="mt-2 text-sm muted">Statut: <span class="font-semibold text-gray-900">${safeText(statusLabel)}</span></div>
                                 </div>
                             </div>
@@ -340,15 +340,15 @@
                         <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-sm text-emerald-900 flex items-start gap-3">
                             <iconify-icon icon="solar:shield-check-bold" width="22"></iconify-icon>
                             <div>
-                                <div class="font-black">Paiement protégé</div>
-                                <div class="mt-1 text-emerald-800">Votre paiement passe en séquestre et ne sera libéré au vendeur qu'après confirmation de réception.</div>
+                                <div class="font-black">Paiement protÃ©gÃ©</div>
+                                <div class="mt-1 text-emerald-800">Votre paiement passe en sÃ©questre et ne sera libÃ©rÃ© au vendeur qu'aprÃ¨s confirmation de rÃ©ception.</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <div class="card-link">
-                            <div class="font-black text-gray-900">Récapitulatif</div>
+                            <div class="font-black text-gray-900">RÃ©capitulatif</div>
                             <div class="mt-4 space-y-3 text-sm">
                                 <div class="flex justify-between gap-3">
                                     <span class="muted">Sous-total</span>
@@ -369,7 +369,7 @@
                             <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                             Payer maintenant
                         </button>
-                        <button class="btn-ghost w-full" onclick="backToDashboard()">Retour à l'espace client</button>
+                        <button class="btn-ghost w-full" onclick="backToDashboard()">Retour Ã  l'espace client</button>
                         <div id="payError" class="text-xs text-red-600 font-semibold hidden"></div>
                     </div>
                 </div>
@@ -403,9 +403,9 @@
                             <iconify-icon icon="solar:danger-triangle-bold" width="28"></iconify-icon>
                         </div>
                         <div class="mt-4 font-black text-gray-900">Commande introuvable</div>
-                        <div class="mt-1 text-sm muted">Retournez à votre espace client et réessayez.</div>
+                        <div class="mt-1 text-sm muted">Retournez Ã  votre espace client et rÃ©essayez.</div>
                         <div class="mt-6">
-                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller à mon espace client</button>
+                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller Ã  mon espace client</button>
                         </div>
                     </div>
                 `;
@@ -439,7 +439,7 @@
                         window.location.href = data.payment_url;
                         return;
                     }
-                    payError.textContent = safeText(data?.error || 'Lien de paiement non reçu');
+                    payError.textContent = safeText(data?.error || 'Lien de paiement non reÃ§u');
                     payError.classList.remove('hidden');
                 } catch (e) {
                     payError.textContent = safeText(e?.message || "Erreur lors de l'ouverture du paiement");
@@ -500,3 +500,4 @@
 </body>
 
 </html>
+

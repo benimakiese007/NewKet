@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -12,12 +12,12 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#064734">
+    <meta name="theme-color" content="#013220">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Boutique à NewKet</title>
-    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <title>Boutique Ã  NewKet</title>
+    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
@@ -123,7 +123,7 @@
                     <div class="flex items-center gap-3 mb-2">
                         <span
                             class="px-3 py-1 bg-white/20  text-white text-[10px] font-black uppercase tracking-widest rounded-full">Partenaire
-                            Certifié</span>
+                            CertifiÃ©</span>
                     </div>
                     <h1 id="vendorName" class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase">
                         Chargement...</h1>
@@ -146,7 +146,7 @@
                         <div class="w-px h-8 bg-white/10"></div>
                         <div class="text-white">
                             <div class="text-xl font-black" id="vendor-shipping-value">24h</div>
-                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Expédition</div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">ExpÃ©dition</div>
                         </div>
                     </div>
                 </div>
@@ -164,10 +164,10 @@
                 <label for="sortProducts" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Trier</label>
                 <select id="sortProducts"
                     class="bg-white border border-gray-200 rounded-2xl px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-100">
-                    <option value="newest">Plus récents</option>
+                    <option value="newest">Plus rÃ©cents</option>
                     <option value="price_asc">Prix croissant</option>
-                    <option value="price_desc">Prix décroissant</option>
-                    <option value="name_asc">Nom A â†’ Z</option>
+                    <option value="price_desc">Prix dÃ©croissant</option>
+                    <option value="name_asc">Nom A Ã¢â€ â€™ Z</option>
                 </select>
             </div>
         </div>
@@ -271,12 +271,12 @@
 
             const joinDate = vendor.date_joined
                 ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
-                : 'récemment';
+                : 'rÃ©cemment';
             if (vendorMetaEl) {
                 vendorMetaEl.innerHTML = `<iconify-icon icon="solar:calendar-outline"></iconify-icon> Membre depuis ${joinDate}`;
             }
 
-            document.title = `${shopName} à NewKet`;
+            document.title = `${shopName} Ã  NewKet`;
 
             if (heroEl && vendor.cover_image) {
                 heroEl.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('${vendor.cover_image}')`;
@@ -523,14 +523,14 @@
 
             try {
                 if (navigator.share) {
-                    await navigator.share({ title: `${currentShopName} — NewKet`, url });
+                    await navigator.share({ title: `${currentShopName} â€” NewKet`, url });
                     return;
                 }
             } catch {
             }
 
             const ok = window.NewKetLinks?.copyTextToClipboard ? await window.NewKetLinks.copyTextToClipboard(url) : false;
-            if (window.showToast) showToast(ok ? 'Lien copié !' : 'Copie impossible', ok ? 'info' : 'error');
+            if (window.showToast) showToast(ok ? 'Lien copiÃ© !' : 'Copie impossible', ok ? 'info' : 'error');
         }
 
         function orderProduct(id) {
@@ -586,5 +586,6 @@
 </body>
 
 </html>
+
 
 

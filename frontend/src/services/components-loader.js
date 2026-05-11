@@ -6,25 +6,25 @@
  */
 const CATEGORY_NAV_HTML = `
         <!-- Category Nav -->
-        <div id="categoryNav" class="category-nav newket-category-nav bg-white flex sm:block transition-all duration-300 ease-in-out transform origin-top border-b border-gray-100">
+        <div id="categoryNav" class="category-nav newket-category-nav flex sm:block transition-all duration-300 ease-in-out transform origin-top border-b border-white/10">
             <div class="max-w-7xl mx-auto w-full px-4 sm:px-8">
                 <nav class="flex items-center gap-2 overflow-x-auto py-3 -mx-2 scroll-affordance" style="scrollbar-width:none;">
                     <a href="{{ROOT}}src/pages/catalog.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Toutes les pièces</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Toutes les pièces</a>
                     <a href="{{ROOT}}src/pages/shops.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Boutiques</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Boutiques</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Femme</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Femme</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Homme</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Homme</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
-                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Tech & Gadgets</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Tech & Gadgets</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
-                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">HIGH-TECH</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">HIGH-TECH</a>
                     <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
-                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors shrink-0">Art de vivre</a>
+                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Art de vivre</a>
                     <a href="{{ROOT}}src/pages/catalog.html?promo=true"
-                        class="nav-link px-4 py-2 text-sm font-medium text-black hover:text-black whitespace-nowrap rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-1 shrink-0">
+                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors flex items-center gap-1 shrink-0">
                         <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
                     </a>
                 </nav>
@@ -33,15 +33,15 @@ const CATEGORY_NAV_HTML = `
 
 const HEADER_HTML = `
     <!-- Main header container -->
-    <nav class="main-header dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300" data-header-shell="main">
+    <nav class="main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="main">
         <!-- Main header content (Logo, Search, Icons) -->
             <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
             <div class="header-brand-row flex items-center justify-between w-full sm:w-auto sm:flex-none h-12 sm:h-auto relative px-1 sm:px-0">
                 <!-- Hamburger Menu (Mobile) -->
-                <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-gray-100 transition-colors sm:hidden btn-active-scale"
+                <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors sm:hidden btn-active-scale"
                     title="Menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
-                    <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-gray-600"></iconify-icon>
+                    <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-white"></iconify-icon>
                 </button>
 
                 <!-- Logo Section -->
@@ -54,9 +54,9 @@ const HEADER_HTML = `
                 </div>
 
                 <!-- Account Icon (Mobile) -->
-                <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale sm:hidden"
+                <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale sm:hidden"
                     title="Compte" aria-label="Mon compte">
-                    <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
                 </a>
             </div>
 
@@ -131,34 +131,34 @@ const HEADER_HTML = `
 
                 <!-- Theme Toggle -->
                 <button data-theme-toggle
-                    class="header-icon-button p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale" 
+                    class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale" 
                     title="Changer le thème">
-                    <iconify-icon data-theme-icon icon="solar:moon-bold" width="22" class="text-gray-600"></iconify-icon>
+                    <iconify-icon data-theme-icon icon="solar:moon-bold" width="22" class="text-white"></iconify-icon>
                 </button>
 
                 <!-- Notifications -->
                 <a href="{{ROOT}}src/pages/notifications.html"
-                    class="header-icon-button relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                    class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Notifications" aria-label="Voir les notifications">
-                    <iconify-icon icon="solar:bell-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
                     <span
                         class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Favoris" aria-label="Voir les favoris">
-                    <iconify-icon icon="solar:heart-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
                     <span
                         class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="display:none; font-size:10px; width:18px; height:18px;">0</span>
                 </a>
 
                 <!-- Account -->
-                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative p-2 rounded-lg hover:bg-gray-50 transition-colors btn-active-scale"
+                <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Compte" id="accountLink" aria-label="Mon compte">
-                    <iconify-icon icon="solar:user-linear" width="22" class="text-gray-600"></iconify-icon>
+                    <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
                 </a>
             </div>
         </div>
@@ -379,12 +379,12 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
 </footer>`;
 
 const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
-<nav class="main-header dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300" data-header-shell="minimal">
+<nav class="main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="minimal">
     <div class="relative flex h-[64px] sm:h-[92px] items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
         <img src="{{ROOT}}Images/Logo_Header_Officiel_PNG.png" alt="NewKet" class="header-brand-image h-10 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105">
     </a>
-    <div class="absolute right-4 items-center hidden sm:flex text-gray-300">
+    <div class="absolute right-4 items-center hidden sm:flex text-white/40">
         <iconify-icon icon="solar:lock-password-bold" width="18"></iconify-icon>
         <span class="text-[10px] uppercase font-bold tracking-widest ml-1">Sécurisé</span>
     </div>

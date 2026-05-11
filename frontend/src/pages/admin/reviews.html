@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -8,11 +8,11 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#064734">
+    <meta name="theme-color" content="#013220">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Avis & évaluations | NewKet Admin</title>
+    <title>Avis & Ã©valuations | NewKet Admin</title>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="preconnect" href="https://code.iconify.design" crossorigin>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -73,17 +73,17 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Avis & Évaluations</h1>
-                    <p class="text-gray-500">Modérez et analysez les retours clients sur vos produits.</p>
+                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Avis & Ã‰valuations</h1>
+                    <p class="text-gray-500">ModÃ©rez et analysez les retours clients sur vos produits.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <select id="filterRating" onchange="renderReviews()"
                         class="text-xs font-black uppercase tracking-widest bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black cursor-pointer">
                         <option value="all">Toutes les notes</option>
-                        <option value="5">5 étoiles</option>
-                        <option value="4">4 étoiles</option>
-                        <option value="3">3 étoiles</option>
-                        <option value="low">1-2 étoiles</option>
+                        <option value="5">5 Ã©toiles</option>
+                        <option value="4">4 Ã©toiles</option>
+                        <option value="3">3 Ã©toiles</option>
+                        <option value="low">1-2 Ã©toiles</option>
                     </select>
                 </div>
             </div>
@@ -101,11 +101,11 @@
                     </div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Avis 5 étoiles</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Avis 5 Ã©toiles</div>
                     <div class="text-2xl font-black text-green-500" id="stat5Star">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">À modérer</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Ã€ modÃ©rer</div>
                     <div class="text-2xl font-black text-red-500" id="statLowStar">0</div>
                 </div>
             </div>
@@ -137,7 +137,7 @@
             else if (filterRating !== 'all') filtered = filtered.filter(r => r.rating == filterRating);
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouvé.</div>`;
+                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouvÃ©.</div>`;
                 return;
             }
 
@@ -174,10 +174,10 @@
         }
 
         async function deleteReview(id) {
-            if (!confirm('Supprimer définitivement cet avis ?')) return;
+            if (!confirm('Supprimer dÃ©finitivement cet avis ?')) return;
             const success = await ReviewManager.deleteReview(id);
             if (success) {
-                showToast('Avis supprimé du serveur', 'success');
+                showToast('Avis supprimÃ© du serveur', 'success');
             } else {
                 showToast('Erreur lors de la suppression', 'error');
             }
@@ -212,6 +212,7 @@
 </body>
 
 </html>
+
 
 
 

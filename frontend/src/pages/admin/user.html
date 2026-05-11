@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#064734">
+    <meta name="theme-color" content="#013220">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
@@ -84,7 +84,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
                     <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs</h1>
-                    <p class="text-gray-500 font-medium" id="pageSubtitle">Gérez l'ensemble des comptes et validez les nouveaux vendeurs.</p>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">GÃ©rez l'ensemble des comptes et validez les nouveaux vendeurs.</p>
                 </div>
             </div>
 
@@ -132,7 +132,7 @@
                     <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
                         <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
                     </div>
-                    <p class="text-gray-400 font-bold">Aucun utilisateur trouvé dans cette catégorie.</p>
+                    <p class="text-gray-400 font-bold">Aucun utilisateur trouvÃ© dans cette catÃ©gorie.</p>
                 </div>
             </div>
             
@@ -167,7 +167,7 @@
                                     <h3 id="modalUserName" class="text-2xl font-black text-gray-900 tracking-tight leading-none mb-2">Chargement...</h3>
                                     <div class="flex items-center gap-3">
                                         <p id="modalUserEmail" class="text-sm text-gray-400 font-bold">email@example.com</p>
-                                        <div id="modalUserRole" class="role-badge">Rôle</div>
+                                        <div id="modalUserRole" class="role-badge">RÃ´le</div>
                                     </div>
                                 </div>
                             </div>
@@ -198,7 +198,7 @@
                         <!-- Main Display Area -->
                         <div class="space-y-6">
                             <div class="flex items-center gap-4 border-b border-gray-100">
-                                <button onclick="switchTab('orders')" id="tabBtn-orders" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-black transition-all">Activités & Commandes</button>
+                                <button onclick="switchTab('orders')" id="tabBtn-orders" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-black transition-all">ActivitÃ©s & Commandes</button>
                                 <button onclick="switchTab('products')" id="tabBtn-products" class="hidden px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400 border-b-4 border-transparent hover:text-black transition-all">Catalogue Boutique</button>
                             </div>
 
@@ -215,7 +215,7 @@
                                         </thead>
                                         <tbody id="modalUserOrdersList"></tbody>
                                     </table>
-                                    <div id="modalUserOrdersEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Aucune interaction trouvée.</div>
+                                    <div id="modalUserOrdersEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Aucune interaction trouvÃ©e.</div>
                                 </div>
                             </div>
 
@@ -346,7 +346,7 @@
                         const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
                         const hasNoLogo = u.role === 'supplier' && !(u.avatar || u.cover_image);
 
-                        const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
+                        const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'RejetÃ©'));
                         const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
 
                         return `
@@ -423,7 +423,7 @@
                     if (window.LoaderManager) LoaderManager.show(`Activation de ${name}...`);
                     const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier' }).eq('id', id);
                     if (error) throw error;
-                    if (window.showToast) showToast(`Vendeur activé !`, "success");
+                    if (window.showToast) showToast(`Vendeur activÃ© !`, "success");
                     UserManager.init().then(() => renderUsers());
                     if (window.LoaderManager) LoaderManager.hide();
                 } catch (err) {
@@ -440,7 +440,7 @@
                     if (window.LoaderManager) LoaderManager.show(`Rejet...`);
                     const { error } = await window.supabaseClient.from('users').update({ status: 'rejected' }).eq('id', id);
                     if (error) throw error;
-                    if (window.showToast) showToast(`Rejeté.`, "warning");
+                    if (window.showToast) showToast(`RejetÃ©.`, "warning");
                     UserManager.init().then(() => renderUsers());
                     if (window.LoaderManager) LoaderManager.hide();
                 } catch (err) {
@@ -479,10 +479,10 @@
 
         async function confirmDelete(id, name) {
             if (window.showConfirm) {
-                showConfirm("Supprimer ?", `Voulez-vous supprimer définitivement ${name} ?`, async () => {
+                showConfirm("Supprimer ?", `Voulez-vous supprimer dÃ©finitivement ${name} ?`, async () => {
                     await UserManager.deleteUser(id);
                     renderUsers();
-                    showToast("Supprimé", "success");
+                    showToast("SupprimÃ©", "success");
                 });
             } else {
                 // Fallback for emergency
@@ -512,7 +512,7 @@
 
         // Note: initializeUsers and DOMContentLoaded are already defined above (lines 406-418).
 
-        // â”€â”€â”€ User Details Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ User Details Modal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
         function closeUserDetailsModal() {
             const modal = document.getElementById('userDetailsModal');
             const content = document.getElementById('userDetailsModalContent');
@@ -549,6 +549,7 @@
 </body>
 
 </html>
+
 
 
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#064734">
+    <meta name="theme-color" content="#013220">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
@@ -46,7 +46,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div class="min-w-0">
                     <h1 class="text-4xl font-black tracking-tight text-gray-900">Vue d'ensemble</h1>
-                    <p class="text-gray-500 font-medium">Performances et activité globales de la plateforme.</p>
+                    <p class="text-gray-500 font-medium">Performances et activitÃ© globales de la plateforme.</p>
                 </div>
 
                 <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
@@ -193,7 +193,7 @@
                             <h3 class="font-black text-gray-900 flex items-center gap-2">
                                 <iconify-icon icon="solar:history-bold-duotone" width="22"
                                     class="text-gray-400"></iconify-icon>
-                                 Historique des Intéractions
+                                 Historique des IntÃ©ractions
                             </h3>
                             <a href="orders.html"
                                 class="text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-400 hover:text-black hover:border-black transition-all">Tout
@@ -233,7 +233,7 @@
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:pie-chart-bold-duotone" width="20"
                                 class="text-purple-500"></iconify-icon>
-                            Par Catégorie
+                            Par CatÃ©gorie
                         </h3>
                         <div class="h-[200px]">
                             <canvas id="categoryChart"></canvas>
@@ -275,7 +275,7 @@
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:bell-bing-bold-duotone" width="20"
                                 class="text-blue-500"></iconify-icon>
-                            Activité
+                            ActivitÃ©
                         </h3>
                         <div id="activityFeed" class="space-y-6">
                             <!-- Activity items injected here -->
@@ -425,7 +425,7 @@
                 // Update label for clients to Health Score
                 const visitorsLabel = statsClients?.previousElementSibling;
                 if (visitorsLabel) {
-                    visitorsLabel.textContent = "Santé Plateforme";
+                    visitorsLabel.textContent = "SantÃ© Plateforme";
                     visitorsLabel.classList.remove('text-purple-400');
                     visitorsLabel.classList.add('text-green-500', 'font-black');
                 }
@@ -494,7 +494,7 @@
                 .slice(0, 3);
 
             if (topVendors.length === 0) {
-                grid.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic col-span-3">Pas encore de données de performance.</div>`;
+                grid.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic col-span-3">Pas encore de donnÃ©es de performance.</div>`;
                 return;
             }
 
@@ -522,7 +522,7 @@
             const recent = leads.slice(0, 5);
 
             if (recent.length === 0) {
-                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucun lead pour cette période.</div>`;
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucun lead pour cette pÃ©riode.</div>`;
                 return;
             }
 
@@ -627,7 +627,7 @@
                             yAxisID: 'y'
                         },
                         {
-                            label: 'Intéractions',
+                            label: 'IntÃ©ractions',
                             data: dataLeads,
                             borderColor: '#000000',
                             borderDash: [5, 5],
@@ -715,7 +715,7 @@
             const activities = ActivityManager.getActivities().slice(0, 5);
 
             if (activities.length === 0) {
-                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activité récente.</div>`;
+                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activitÃ© rÃ©cente.</div>`;
                 return;
             }
 
@@ -737,7 +737,7 @@
             const topProducts = stats.topProducts || [];
 
             if (topProducts.length === 0) {
-                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">Aucune vente pour cette période.</div>`;
+                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">Aucune vente pour cette pÃ©riode.</div>`;
                 return;
             }
 
@@ -934,6 +934,7 @@
 </body>
 
 </html>
+
 
 
 

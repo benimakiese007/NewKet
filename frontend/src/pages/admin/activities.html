@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#064734">
+    <meta name="theme-color" content="#013220">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
@@ -39,8 +39,8 @@
         <main class="flex-1 min-w-0 space-y-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
-                    <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Journal d'Activités</h1>
-                    <p class="text-gray-500 font-medium">Historique détaillé de toutes les actions sur la plateforme.</p>
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Journal d'ActivitÃ©s</h1>
+                    <p class="text-gray-500 font-medium">Historique dÃ©taillÃ© de toutes les actions sur la plateforme.</p>
                 </div>
                 <div class="flex items-center gap-3 w-full sm:w-auto">
                     <button onclick="refreshActivities()"
@@ -63,7 +63,7 @@
                             <tr>
                                 <th>Date/Heure</th>
                                 <th>Description de l'action</th>
-                                <th>Priorité / Type</th>
+                                <th>PrioritÃ© / Type</th>
                             </tr>
                         </thead>
                         <tbody id="activitiesBody">
@@ -75,7 +75,7 @@
                     <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
                         <iconify-icon icon="solar:history-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
                     </div>
-                    <p class="text-gray-400 font-bold">Aucune activité enregistrée pour le moment.</p>
+                    <p class="text-gray-400 font-bold">Aucune activitÃ© enregistrÃ©e pour le moment.</p>
                 </div>
             </div>
         </main>
@@ -111,7 +111,7 @@
                     iconStr = 'solar:danger-triangle-bold-duotone'; colorClass = 'text-red-500';
                 } else if (textLower.includes('notification') || textLower.includes('email')) {
                     iconStr = 'solar:bell-bing-bold-duotone'; colorClass = 'text-blue-500';
-                } else if (textLower.includes('admin') || textLower.includes('système')) {
+                } else if (textLower.includes('admin') || textLower.includes('systÃ¨me')) {
                     iconStr = 'solar:shield-keyhole-bold-duotone'; colorClass = 'text-purple-500';
                 }
 
@@ -134,7 +134,7 @@
                     </td>
                     <td class="p-4 w-40 align-top">
                         <div class="badge-premium bg-gray-50 text-gray-600 uppercase tracking-widest text-[10px]">
-                            ${act.type || 'Système'}
+                            ${act.type || 'SystÃ¨me'}
                         </div>
                     </td>
                 </tr>`;
@@ -146,7 +146,7 @@
                 if (window.showToast) showToast('Actualisation...', 'info');
                 await ActivityManager.init(true);
                 renderActivities();
-                if (window.showToast) showToast('Journal actualisé !', 'success');
+                if (window.showToast) showToast('Journal actualisÃ© !', 'success');
             }
         }
 
@@ -154,14 +154,14 @@
             if (!window.ActivityManager) return;
             const activities = ActivityManager.getActivities();
             if (!activities || activities.length === 0) {
-                if (window.showToast) showToast('Aucune donnée à exporter.', 'info');
+                if (window.showToast) showToast('Aucune donnÃ©e Ã  exporter.', 'info');
                 return;
             }
 
             const headers = ['Date/Heure', 'Type', 'Description'];
             const rows = activities.map(act => [
                 act.time || '',
-                act.type || 'Système',
+                act.type || 'SystÃ¨me',
                 (act.text || '').replace(/,/g, ' ') // protect CSV
             ]);
 
@@ -171,7 +171,7 @@
             link.href = URL.createObjectURL(blob);
             link.download = `newket-activities-${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
-            if (window.showToast) showToast('Exportation CSV générée !', 'success');
+            if (window.showToast) showToast('Exportation CSV gÃ©nÃ©rÃ©e !', 'success');
         }
 
         function initPage() {
@@ -191,5 +191,6 @@
     </script>
 </body>
 </html>
+
 
 

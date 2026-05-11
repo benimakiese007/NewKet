@@ -818,9 +818,9 @@
             const query = (searchInput?.value || urlQ).trim().toLowerCase();
 
             const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
-            const activeCatégories = [...selectedCategories];
-            if (selectedCategories.includes('Femme')) activeCatégories.push('Collections Femme');
-            if (selectedCategories.includes('Homme')) activeCatégories.push('Style Homme');
+            const activeCategories = [...selectedCategories];
+            if (selectedCategories.includes('Femme')) activeCategories.push('Collections Femme');
+            if (selectedCategories.includes('Homme')) activeCategories.push('Style Homme');
             const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
             const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
             const activePromo = document.querySelector('.promo-filter:checked') !== null;
@@ -866,8 +866,8 @@
                     }
 
                     // Category filter
-                    if (activeCatégories.length > 0) {
-                        options.in = [['category', activeCatégories]];
+                    if (activeCategories.length > 0) {
+                        options.in = [['category', activeCategories]];
                     }
 
                     // Price range
@@ -935,8 +935,8 @@
                         (p.category || '').toLowerCase().includes(query)
                     );
                 }
-                if (activeCatégories.length > 0) {
-                    allProducts = allProducts.filter(p => activeCatégories.includes(p.category));
+                if (activeCategories.length > 0) {
+                    allProducts = allProducts.filter(p => activeCategories.includes(p.category));
                 }
                 if (activeConditions.length === 1) {
                     allProducts = allProducts.filter(p => (p.is_new || p.isNew) === (activeConditions[0] === 'true'));

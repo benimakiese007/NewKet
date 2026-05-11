@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <meta name="theme-color" content="#064734">
+    <meta name="theme-color" content="#013220">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
@@ -41,7 +41,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
                     <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion du Catalogue</h1>
-                    <p class="text-gray-500 font-medium" id="pageSubtitle">Supervisez et modérez l'ensemble des articles de la plateforme.</p>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Supervisez et modÃ©rez l'ensemble des articles de la plateforme.</p>
                 </div>
                 <button onclick="openModal()"
                     class="bg-black text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20">
@@ -56,7 +56,7 @@
                 <div class="flex items-center gap-6">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-black" id="selectedCountText">0</div>
-                        <span class="text-[10px] font-black uppercase tracking-widest opacity-60">Sélectionnés</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest opacity-60">SÃ©lectionnÃ©s</span>
                     </div>
                     
                     <div class="h-6 w-px bg-white/10"></div>
@@ -64,7 +64,7 @@
                     <button onclick="deleteSelected()"
                         class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-all hover:scale-105">
                         <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
-                        Supprimer la sélection
+                        Supprimer la sÃ©lection
                     </button>
                     
                     <div class="h-6 w-px bg-white/10"></div>
@@ -73,13 +73,13 @@
                         <iconify-icon icon="solar:tag-bold" class="text-white/40" width="18"></iconify-icon>
                         <select onchange="updateSelectedCategory(this.value); this.value='';"
                             class="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer border-none focus:ring-0">
-                            <option value="" disabled selected class="bg-black">Déplacer vers...</option>
+                            <option value="" disabled selected class="bg-black">DÃ©placer vers...</option>
                             <option value="Femme" class="bg-black">Femme</option>
                             <option value="Homme" class="bg-black">Homme</option>
                             <option value="Tech & Gadgets" class="bg-black">Tech & Gadgets</option>
                             <option value="HIGH-TECH" class="bg-black">HIGH-TECH</option>
                             <option value="Art de vivre" class="bg-black">Art de vivre</option>
-                            <option value="Beauté" class="bg-black">Beauté</option>
+                            <option value="BeautÃ©" class="bg-black">BeautÃ©</option>
                         </select>
                     </div>
                 </div>
@@ -97,10 +97,10 @@
                                         class="rounded-md border-gray-300 text-black focus:ring-black">
                                 </th>
                                 <th>Produit</th>
-                                <th>Catégorie</th>
+                                <th>CatÃ©gorie</th>
                                 <th>Prix</th>
                                 <th>Stock</th>
-                                <th class="text-center">Épinglé</th>
+                                <th class="text-center">Ã‰pinglÃ©</th>
                                 <th class="text-right">Actions</th>
                             </tr>
                         </thead>
@@ -128,7 +128,7 @@
             <div class="p-8 border-b border-gray-100 flex items-center justify-between bg-gradient-to-br from-gray-50 to-white">
                 <div>
                     <h2 class="text-2xl font-black tracking-tight text-gray-900" id="modalTitle">Nouveau Produit</h2>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Configurez les détails de l'article</p>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Configurez les dÃ©tails de l'article</p>
                 </div>
                 <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-400 hover:text-black transition-all">
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
@@ -148,7 +148,7 @@
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Catégorie</label>
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">CatÃ©gorie</label>
                             <select id="pCategory" name="pCategory"
                                 class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold appearance-none cursor-pointer">
                                 <option>Femme</option>
@@ -156,7 +156,7 @@
                                 <option>Tech & Gadgets</option>
                                 <option>HIGH-TECH</option>
                                 <option>Art de vivre</option>
-                                <option>Beauté</option>
+                                <option>BeautÃ©</option>
                             </select>
                         </div>
                         <div class="space-y-2">
@@ -223,7 +223,7 @@
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 bg-gray-50 rounded-2xl p-2 relative overflow-hidden group-hover:scale-110 transition-transform">
                                 <img loading="lazy" src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}" class="w-full h-full object-contain" onerror="this.src='../../assets/Images/default.png'">
-                                ${isOut ? '<div class="absolute inset-0 bg-red-500/20 backdrop-blur-[1px] flex items-center justify-center text-[8px] font-black text-red-700 uppercase">Épuisé</div>' : ''}
+                                ${isOut ? '<div class="absolute inset-0 bg-red-500/20 backdrop-blur-[1px] flex items-center justify-center text-[8px] font-black text-red-700 uppercase">Ã‰puisÃ©</div>' : ''}
                             </div>
                             <div>
                                 <div class="font-black text-gray-900 leading-tight">${p.name}</div>
@@ -242,12 +242,12 @@
                     <td>
                         <div class="flex flex-col">
                             <span class="font-black ${isLowStock ? 'text-red-500' : 'text-gray-900'}">${p.stock || 0}</span>
-                            ${isLowStock ? `<span class="text-[9px] font-bold text-red-400 uppercase tracking-tighter">${isOut ? 'Vente stoppée' : 'Stock critique'}</span>` : ''}
+                            ${isLowStock ? `<span class="text-[9px] font-bold text-red-400 uppercase tracking-tighter">${isOut ? 'Vente stoppÃ©e' : 'Stock critique'}</span>` : ''}
                         </div>
                     </td>
                     <td class="text-center">
                         <button onclick="togglePin('${p.id}')" 
-                            class="w-10 h-10 rounded-xl transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-orange-50 text-orange-500 shadow-lg' : 'bg-gray-50 text-gray-300 hover:text-orange-500'}" title="${isPinned ? 'Désépingler' : 'Mettre en avant'}">
+                            class="w-10 h-10 rounded-xl transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-orange-50 text-orange-500 shadow-lg' : 'bg-gray-50 text-gray-300 hover:text-orange-500'}" title="${isPinned ? 'DÃ©sÃ©pingler' : 'Mettre en avant'}">
                             <iconify-icon icon="solar:star-bold-duotone" width="20"></iconify-icon>
                         </button>
                     </td>
@@ -328,7 +328,7 @@
             ProductManager.deleteBulk(selected);
             renderAdminProducts();
             updateSelectedUI();
-            if (window.showToast) showToast(`${selected.length} articles retirés.`, 'info');
+            if (window.showToast) showToast(`${selected.length} articles retirÃ©s.`, 'info');
         }
 
         function updateSelectedCategory(category) {
@@ -336,14 +336,14 @@
             ProductManager.updateCategoryBulk(selected, category);
             renderAdminProducts();
             updateSelectedUI();
-            if (window.showToast) showToast('Catégories mises à jour.', 'success');
+            if (window.showToast) showToast('CatÃ©gories mises Ã  jour.', 'success');
         }
 
         function deleteProduct(id) {
             if (!confirm('Supprimer cet article ?')) return;
             ProductManager.deleteProduct(id);
             renderAdminProducts();
-            if (window.showToast) showToast('Article retiré.', 'info');
+            if (window.showToast) showToast('Article retirÃ©.', 'info');
         }
 
         async function togglePin(id) {
@@ -352,7 +352,7 @@
             const newPinned = !p.pinned;
             await ProductManager.updateProduct(id, { pinned: newPinned });
             renderAdminProducts();
-            if (window.showToast) showToast(newPinned ? 'Produit épinglé !' : 'Décroché.', 'success');
+            if (window.showToast) showToast(newPinned ? 'Produit Ã©pinglÃ© !' : 'DÃ©crochÃ©.', 'success');
         }
 
         document.getElementById('productForm').addEventListener('submit', (e) => {
@@ -373,7 +373,7 @@
             }
             closeModal();
             renderAdminProducts();
-            if (window.showToast) showToast('Catalogue mis à jour.', 'success');
+            if (window.showToast) showToast('Catalogue mis Ã  jour.', 'success');
         });
 
         function initializeProducts() {
@@ -395,5 +395,6 @@
 </body>
 
 </html>
+
 
 
