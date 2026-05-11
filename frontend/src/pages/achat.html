@@ -79,7 +79,7 @@
 </head>
 
 <body>
-    <nav class="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-gray-100/50">
+    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
             <div class="flex items-center gap-3">
                 <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all" aria-label="Ouvrir le menu" onclick="SidebarManager.toggle()">
@@ -94,7 +94,7 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button id="btnLogout" class="btn-ghost text-sm text-red-600 border-red-100 hover:bg-red-50 flex items-center gap-2">
+                <button id="btnLogout" data-logout-safe class="btn-ghost text-sm text-red-600 border-red-100 hover:bg-red-50 flex items-center gap-2">
                     <iconify-icon icon="solar:logout-2-bold" width="18"></iconify-icon>
                     Déconnexion
                 </button>
@@ -165,7 +165,7 @@
         </aside>
 
         <!-- Content -->
-        <main class="flex-1 min-w-0 customer-main-content">
+        <section class="flex-1 min-w-0 customer-main-content">
             <div class="max-w-[1200px] mx-auto">
                 <div class="glass-panel p-6 sm:p-10">
                     <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
@@ -184,7 +184,7 @@
                     </div>
                 </div>
             </div>
-        </main>
+        </section>
     </main>
 
     <script>
@@ -207,6 +207,14 @@
                 return CurrencyManager.formatPrice(amount || 0);
             }
             return `${amount || 0}`;
+        }
+
+        async function waitForAppReady() {
+            if (window.newketInitialized) return;
+
+            await new Promise((resolve) => {
+                window.addEventListener('newketInitialized', resolve, { once: true });
+            });
         }
 
         function buildOrderCard(order, { showButton = true } = {}) {
@@ -256,6 +264,7 @@
 
         async function renderListMode() {
             const container = document.getElementById('achatContent');
+            if (!container) return;
             container.innerHTML = '';
 
             const email = localStorage.getItem('newketUserEmail');
@@ -384,6 +393,7 @@
         async function renderDetailMode(orderId) {
             const container = document.getElementById('achatContent');
             const badge = document.getElementById('orderBadge');
+            if (!container || !badge) return;
 
             const order = window.OrderManager ? OrderManager.getOrderById(orderId) : null;
             if (!order) {
@@ -451,12 +461,6 @@
                 window.location.href = (typeof window.resolvePath === 'function') ? window.resolvePath('login') : '/src/pages/login.html';
             });
 
-            // Wait a bit for services to attach to window
-            for (let i = 0; i < 50; i++) {
-                if (window.AuthManager && window.OrderManager && window.ApiClient) break;
-                await new Promise(r => setTimeout(r, 50));
-            }
-
             const initCustomerSidebar = () => {
                 if (window.SidebarManager) {
                     window.SidebarManager.init('customerSidebar', 'customer-main-content', 'customerSidebarOverlay');
@@ -464,6 +468,8 @@
             };
             if (window.SidebarManager) initCustomerSidebar();
             else window.addEventListener('newketInitialized', initCustomerSidebar, { once: true });
+
+            await waitForAppReady();
 
             try {
                 const profile = window.ProfileManager ? ProfileManager.getProfile() : {};
@@ -481,12 +487,6 @@
                 }
             } catch (e) {}
 
-            try {
-                if (window.OrderManager && typeof OrderManager.init === 'function') {
-                    await OrderManager.init();
-                }
-            } catch (e) {}
-
             const orderId = getQueryParam('order_id');
             if (orderId) {
                 await renderDetailMode(orderId);
@@ -500,5 +500,3 @@
 </body>
 
 </html>
-
-

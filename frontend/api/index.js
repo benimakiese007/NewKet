@@ -842,7 +842,12 @@ router.post('/payments/initiate', async (req, res) => {
 
         // 4. AvadaPay Payload
         if (!process.env.AVADAPAY_API_BASE_URL || !process.env.AVADAPAY_SECRET_KEY) {
-            throw new Error('AvadaPay n’est pas configuré (AVADAPAY_API_BASE_URL / AVADAPAY_SECRET_KEY)');
+            return res.status(503).json({
+                success: false,
+                code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
+                error: 'Paiement indisponible',
+                message: 'L’agrégateur de paiement n’est pas encore configuré. Ajoute les clés AvadaPay côté backend puis réessaie.'
+            });
         }
 
         const avadaPayload = {

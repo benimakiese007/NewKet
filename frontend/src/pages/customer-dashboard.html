@@ -554,7 +554,7 @@
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-500">Livraison</span>
-                        <span class="font-medium text-green-600">Gratuit</span>
+                        <span id="modalOrderDelivery" class="font-medium text-green-600"></span>
                     </div>
                     <div class="flex justify-between pt-3 border-t border-gray-200">
                         <span class="font-bold">Total</span>
@@ -662,58 +662,84 @@
 
     <!-- Hidden Invoice Template (for printing) -->
     <div id="invoiceTemplate" class="hidden">
-        <div style="padding: 40px; font-family: sans-serif; color: #333;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
-                <div>
-                    <h1 style="margin: 0; font-size: 24px; font-weight: 900;">NEWKET EMARKET</h1>
-                    <p style="color: #666; font-size: 14px;">Marketplace Premium</p>
+        <div class="invoice-sheet">
+            <div class="invoice-accent"></div>
+            <div class="invoice-body">
+                <div class="invoice-header">
+                    <div class="invoice-header-top">
+                        <div class="invoice-brand">
+                            <img id="invLogo" src="../../assets/Images/logo-newket.png" alt="NewKet" class="invoice-logo">
+                            <div class="invoice-brand-copy">
+                                <div class="invoice-title">FACTURE</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="invoice-meta-card invoice-meta-card--below">
+                        <div class="invoice-meta-row">
+                            <span>Facture N&deg;</span>
+                            <strong id="invId"></strong>
+                        </div>
+                        <div class="invoice-meta-row">
+                            <span>Date</span>
+                            <strong id="invDate"></strong>
+                        </div>
+                    </div>
                 </div>
-                <div style="text-align: right;">
-                    <h2 style="margin: 0; color: #999;">FACTURE</h2>
-                    <p id="invId" style="font-weight: bold; margin: 5px 0;"></p>
-                    <p id="invDate" style="color: #666; font-size: 12px;"></p>
+                <div class="invoice-parties">
+                    <div class="invoice-party-card">
+                        <div class="invoice-party-label">Factur&eacute; &agrave;</div>
+                        <div id="invClient" class="invoice-party-name"></div>
+                        <div id="invEmail" class="invoice-party-detail"></div>
+                    </div>
+                    <div class="invoice-party-card">
+                        <div class="invoice-party-label">Vendeur</div>
+                        <div id="invVendor" class="invoice-party-name"></div>
+                        <div class="invoice-party-detail">Partenaire NewKet</div>
+                    </div>
+                    <div class="invoice-party-card invoice-party-card--soft">
+                        <div class="invoice-party-label">R&egrave;glement</div>
+                        <div class="invoice-party-name">Paiement s&eacute;curis&eacute;</div>
+                        <div class="invoice-party-detail">S&eacute;questre NewKet jusqu&apos;&agrave; confirmation</div>
+                    </div>
                 </div>
-            </div>
-
-            <div style="margin-bottom: 40px;">
-                <h3 style="font-size: 12px; text-transform: uppercase; color: #999; margin-bottom: 10px;">Client</h3>
-                <p id="invClient" style="font-weight: bold; margin: 0;"></p>
-                <p id="invEmail" style="color: #666; margin: 5px 0;"></p>
-            </div>
-
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
-                <thead>
-                    <tr style="border-bottom: 2px solid #eee; text-align: left;">
-                        <th style="padding: 10px 0;">Description</th>
-                        <th style="padding: 10px 0; text-align: center;">Qté</th>
-                        <th style="padding: 10px 0; text-align: right;">Prix</th>
-                        <th style="padding: 10px 0; text-align: right;">Total</th>
-                    </tr>
-                </thead>
-                <tbody id="invItems"></tbody>
-            </table>
-
-            <div style="margin-left: auto; width: 250px;">
-                <div style="display: flex; justify-content: space-between; padding: 5px 0;">
-                    <span>Sous-total:</span>
-                    <span id="invSubtotal"></span>
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-center">Qt&eacute;</th>
+                            <th class="text-right">Prix unitaire</th>
+                            <th class="text-right">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invItems"></tbody>
+                </table>
+                <div class="invoice-totals">
+                    <div class="invoice-total-row">
+                        <span>Sous-total</span>
+                        <strong id="invSubtotal"></strong>
+                    </div>
+                    <div class="invoice-total-row">
+                        <span>Livraison</span>
+                        <strong id="invDelivery"></strong>
+                    </div>
+                    <div class="invoice-total-row invoice-total-row--grand">
+                        <span>Total</span>
+                        <strong id="invTotal"></strong>
+                    </div>
                 </div>
-                <div
-                    style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 2px solid #000; font-weight: 900; font-size: 18px; margin-top: 10px;">
-                    <span>Total:</span>
-                    <span id="invTotal"></span>
+                <div class="invoice-security">
+                    <div class="invoice-qr-card">
+                        <img id="invQrImage" alt="QR facture NewKet" class="invoice-qr-image">
+                        <div class="invoice-qr-copy">
+                            <div class="invoice-party-label">QR unique</div>
+                            <div id="invQrCode" class="invoice-qr-code"></div>
+                            <div class="invoice-party-detail">Scannez ce code pour retrouver la r&eacute;f&eacute;rence unique de cette facture.</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div style="margin-top: 80px; text-align: center; color: #999; font-size: 12px;">
-                Merci de votre confiance chez NewKet !<br>
-                Ceci est une facture générée automatiquement.
             </div>
         </div>
     </div>
-
-
-
 
     <script>
         let currentSelectedOrder = null;
@@ -1318,6 +1344,7 @@
             }
 
             const itemsList = document.getElementById('modalOrderItems');
+            const amounts = getOrderAmounts(order);
             itemsList.innerHTML = order.items.map(item => `
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-gray-50 rounded-xl border border-gray-100 p-2 flex-shrink-0">
@@ -1331,8 +1358,11 @@
                 </div>
             `).join('');
 
-            document.getElementById('modalOrderSubtotal').textContent = CurrencyManager.formatPrice(order.total);
-            document.getElementById('modalOrderTotal').textContent = CurrencyManager.formatPrice(order.total);
+            document.getElementById('modalOrderSubtotal').textContent = CurrencyManager.formatPrice(amounts.subtotal);
+            document.getElementById('modalOrderDelivery').textContent = amounts.deliveryFee > 0
+                ? CurrencyManager.formatPrice(amounts.deliveryFee)
+                : 'Gratuit';
+            document.getElementById('modalOrderTotal').textContent = CurrencyManager.formatPrice(amounts.total);
 
             // Escrow Logic UI
             const escrowSection = document.getElementById('modalEscrowSection');
@@ -1674,14 +1704,127 @@
             document.body.style.overflow = '';
         }
 
-        function downloadInvoice() {
+        function getOrderAmounts(order) {
+            const itemsSubtotal = Array.isArray(order?.items)
+                ? order.items.reduce((sum, item) => sum + (Number(item?.price || 0) * Number(item?.quantity || 0)), 0)
+                : 0;
+            const subtotal = Number(order?.merchandise_amount ?? itemsSubtotal ?? 0);
+            const deliveryFee = Number(order?.delivery_fee_amount ?? order?.latest_delivery_quote?.delivery_fee_amount ?? 0);
+            const total = Number(order?.total ?? order?.total_amount ?? (subtotal + deliveryFee));
+
+            return {
+                subtotal,
+                deliveryFee,
+                total
+            };
+        }
+
+        function getVendorDisplayName(order) {
+            const explicitName = order?.vendor_company_name || order?.vendor?.company_name || order?.vendor_name || order?.vendor?.name;
+            if (explicitName) return explicitName;
+
+            const vendorEmail = order?.vendor_email || order?._raw?.vendor_email || '';
+            if (vendorEmail) {
+                const localPart = vendorEmail.split('@')[0] || vendorEmail;
+                return localPart.replace(/[._-]+/g, ' ').trim();
+            }
+
+            return 'Vendeur NewKet';
+        }
+
+        async function buildInvoiceQrReference(order, amounts) {
+            const fingerprint = [
+                order?.id || '',
+                order?.date || '',
+                order?.customer?.email || '',
+                order?.customer?.name || '',
+                getVendorDisplayName(order),
+                amounts?.subtotal ?? 0,
+                amounts?.deliveryFee ?? 0,
+                amounts?.total ?? 0
+            ].join('|');
+
+            const fallbackHash = (() => {
+                let hash = 0;
+                for (let index = 0; index < fingerprint.length; index += 1) {
+                    hash = ((hash << 5) - hash) + fingerprint.charCodeAt(index);
+                    hash |= 0;
+                }
+                return Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+            })();
+
+            if (!window.crypto?.subtle || typeof TextEncoder === 'undefined') {
+                return `NK-${fallbackHash}`;
+            }
+
+            try {
+                const encoded = new TextEncoder().encode(fingerprint);
+                const digest = await window.crypto.subtle.digest('SHA-256', encoded);
+                const hex = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase();
+                return `NK-${hex.slice(0, 12)}`;
+            } catch (error) {
+                console.warn('Unable to create invoice QR reference:', error);
+                return `NK-${fallbackHash}`;
+            }
+        }
+
+        function buildInvoiceQrPayload(order, amounts, qrReference) {
+            return [
+                'NEWKET_INVOICE',
+                `reference=${qrReference}`,
+                `order=${order?.id || ''}`,
+                `date=${order?.date || ''}`,
+                `customer=${order?.customer?.email || order?.customer?.name || ''}`,
+                `vendor=${getVendorDisplayName(order)}`,
+                `subtotal=${amounts?.subtotal ?? 0}`,
+                `delivery=${amounts?.deliveryFee ?? 0}`,
+                `total=${amounts?.total ?? 0}`
+            ].join('\n');
+        }
+
+        function buildInvoiceQrUrl(payload) {
+            return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=${encodeURIComponent(payload)}`;
+        }
+
+        function waitForFrameAssets(printFrame) {
+            const frameDocument = printFrame.contentWindow?.document;
+            const images = Array.from(frameDocument?.images || []).filter(image => image.src);
+
+            if (!images.length) {
+                return Promise.resolve();
+            }
+
+            return Promise.race([
+                Promise.all(images.map(image => {
+                    if (image.complete) return Promise.resolve();
+                    return new Promise(resolve => {
+                        image.addEventListener('load', resolve, { once: true });
+                        image.addEventListener('error', resolve, { once: true });
+                    });
+                })),
+                new Promise(resolve => setTimeout(resolve, 4000))
+            ]);
+        }
+
+        async function downloadInvoice() {
             if (!currentSelectedOrder) return;
 
             const o = currentSelectedOrder;
+            const amounts = getOrderAmounts(o);
+            const qrReference = await buildInvoiceQrReference(o, amounts);
+            const qrPayload = buildInvoiceQrPayload(o, amounts, qrReference);
             document.getElementById('invId').textContent = '#' + o.id;
             document.getElementById('invDate').textContent = new Date(o.date).toLocaleDateString();
             document.getElementById('invClient').textContent = o.customer?.name || 'Client NewKet';
             document.getElementById('invEmail').textContent = o.customer?.email || '';
+            document.getElementById('invVendor').textContent = getVendorDisplayName(o);
+            document.getElementById('invQrCode').textContent = qrReference;
+            document.getElementById('invQrImage').src = buildInvoiceQrUrl(qrPayload);
+
+            const invoiceLogo = document.getElementById('invLogo');
+            if (invoiceLogo && typeof window.resolvePath === 'function') {
+                invoiceLogo.src = window.resolvePath('assets/Images/logo-newket.png');
+            }
 
             const invItems = document.getElementById('invItems');
             invItems.innerHTML = o.items.map(item => `
@@ -1693,8 +1836,11 @@
                 </tr>
             `).join('');
 
-            document.getElementById('invSubtotal').textContent = CurrencyManager.formatPrice(o.total);
-            document.getElementById('invTotal').textContent = CurrencyManager.formatPrice(o.total);
+            document.getElementById('invSubtotal').textContent = CurrencyManager.formatPrice(amounts.subtotal);
+            document.getElementById('invDelivery').textContent = amounts.deliveryFee > 0
+                ? CurrencyManager.formatPrice(amounts.deliveryFee)
+                : 'Gratuit';
+            document.getElementById('invTotal').textContent = CurrencyManager.formatPrice(amounts.total);
 
             // Trigger print dialog so the customer can save the invoice as PDF.
             const printContent = document.getElementById('invoiceTemplate').innerHTML;
@@ -1723,13 +1869,59 @@
                         <title>Facture NewKet</title>
                         <style>
                             @page { margin: 18mm; }
-                            body { margin: 0; font-family: Arial, sans-serif; color: #333; }
+                            html, body { width: 100%; }
+                            body { margin: 0; font-family: Arial, sans-serif; color: #1f2937; background: #ffffff; }
+                            .invoice-sheet { box-sizing: border-box; position: relative; overflow: hidden; width: 100%; max-width: 760px; min-height: 100%; background: #fff; margin: 0 auto; }
+                            .invoice-accent { position: absolute; inset: 0 auto 0 0; width: 108px; background:
+                                radial-gradient(circle at -8% 12%, rgba(183, 228, 199, 0.58) 0, rgba(183, 228, 199, 0.58) 34%, transparent 35%),
+                                radial-gradient(circle at 18% 34%, rgba(16, 185, 129, 0.16) 0, rgba(16, 185, 129, 0.16) 44%, transparent 45%),
+                                radial-gradient(circle at 2% 60%, rgba(74, 222, 128, 0.18) 0, rgba(74, 222, 128, 0.18) 38%, transparent 39%),
+                                linear-gradient(180deg, rgba(220, 252, 231, 0.95), rgba(255, 255, 255, 0.25)); }
+                            .invoice-body { position: relative; padding: 24px 28px 18px 74px; }
+                            .invoice-header { margin-bottom: 18px; }
+                            .invoice-header-top { display: flex; justify-content: flex-start; align-items: flex-start; gap: 24px; }
+                            .invoice-brand { display: flex; align-items: center; gap: 16px; }
+                            .invoice-logo { width: 92px; height: 92px; object-fit: contain; }
+                            .invoice-title { font-size: 42px; line-height: 0.92; font-weight: 900; letter-spacing: 0.02em; color: #065f46; }
+                            .invoice-subtitle { margin-top: 8px; font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; }
+                            .invoice-meta-card { min-width: 220px; padding: 14px 16px; border: 1px solid #d1fae5; border-radius: 16px; background: linear-gradient(180deg, #f0fdf4, #ffffff); }
+                            .invoice-meta-card--below { margin-top: 10px; margin-left: auto; max-width: 320px; }
+                            .invoice-meta-row { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; padding: 5px 0; }
+                            .invoice-meta-row span { color: #065f46; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+                            .invoice-meta-row strong { color: #111827; font-weight: 800; }
+                            .invoice-parties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 28px; }
+                            .invoice-party-card { padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 18px; background: #ffffff; }
+                            .invoice-party-card--soft { background: #f0fdf4; border-color: #bbf7d0; }
+                            .invoice-party-label { font-size: 11px; font-weight: 900; color: #047857; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+                            .invoice-party-name { font-size: 16px; font-weight: 800; color: #111827; }
+                            .invoice-party-detail { margin-top: 5px; font-size: 12px; line-height: 1.5; color: #6b7280; }
+                            .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+                            .invoice-table thead th { padding: 10px 12px; border-bottom: 2px solid #a7f3d0; font-size: 11px; font-weight: 900; color: #065f46; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; }
+                            .invoice-table td { padding: 12px; border-bottom: 1px solid #ecfdf5; font-size: 12px; color: #1f2937; }
+                            .invoice-table tbody tr:last-child td { border-bottom: 0; }
+                            .text-center { text-align: center !important; }
+                            .text-right { text-align: right !important; }
+                            .invoice-totals { margin-left: auto; width: 260px; padding: 16px 18px; border-radius: 18px; background: #f9fafb; border: 1px solid #e5e7eb; }
+                            .invoice-total-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 6px 0; font-size: 13px; color: #4b5563; }
+                            .invoice-total-row strong { color: #111827; font-weight: 800; }
+                            .invoice-total-row--grand { margin-top: 8px; padding-top: 12px; border-top: 2px solid #10b981; font-size: 18px; font-weight: 900; color: #065f46; }
+                            .invoice-total-row--grand strong { font-size: 22px; color: #065f46; }
+                            .invoice-security { margin-top: 20px; display: flex; justify-content: flex-end; }
+                            .invoice-qr-card { display: flex; align-items: center; gap: 16px; width: 100%; max-width: 360px; padding: 14px 16px; border-radius: 18px; background: #f0fdf4; border: 1px solid #bbf7d0; }
+                            .invoice-qr-image { width: 88px; height: 88px; object-fit: contain; background: #ffffff; border-radius: 12px; padding: 8px; border: 1px solid #d1fae5; }
+                            .invoice-qr-copy { min-width: 0; flex: 1; }
+                            .invoice-qr-code { margin-top: 4px; font-size: 15px; font-weight: 900; color: #065f46; letter-spacing: 0.08em; word-break: break-word; }
+                            .invoice-footer { margin-top: 34px; padding-top: 18px; border-top: 1px solid #d1fae5; }
+                            .invoice-footer-title { font-size: 13px; font-weight: 900; color: #065f46; text-transform: uppercase; letter-spacing: 0.08em; }
+                            .invoice-footer-copy { margin-top: 8px; font-size: 12px; color: #6b7280; }
                         </style>
                     </head>
                     <body>${printContent}</body>
                 </html>
             `);
             printDocument.close();
+
+            await waitForFrameAssets(printFrame);
 
             setTimeout(() => {
                 printFrame.contentWindow.focus();
@@ -1878,5 +2070,3 @@
 </body>
 
 </html>
-
-

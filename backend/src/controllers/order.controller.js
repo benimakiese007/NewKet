@@ -247,7 +247,22 @@ export const getOrders = async (req, res) => {
         }
 
         const orderIds = (data || []).map((order) => order.id);
+        const vendorIds = [...new Set((data || []).map((order) => order.vendor_id).filter(Boolean))];
         let quotesByOrderId = new Map();
+        let vendorsById = new Map();
+
+        if (vendorIds.length > 0) {
+            const { data: vendors, error: vendorsError } = await client
+                .from('users')
+                .select('id, name, company_name, email')
+                .in('id', vendorIds);
+
+            if (vendorsError) {
+                console.warn('⚠️ vendor users query failed:', vendorsError.message);
+            } else {
+                vendorsById = new Map((vendors || []).map((vendor) => [vendor.id, vendor]));
+            }
+        }
 
         if (orderIds.length > 0) {
             const { data: quotes } = await client
@@ -265,6 +280,7 @@ export const getOrders = async (req, res) => {
 
         return res.status(200).json((data || []).map((order) => ({
             ...order,
+            vendor: vendorsById.get(order.vendor_id) || null,
             status: mapLegacyOrderStatus(order.status),
             latest_delivery_quote: quotesByOrderId.get(order.id) || null
         })));

@@ -267,6 +267,13 @@ window.showMoreProducts = async function () {
 
 // Initialize: guard against DOMContentLoaded already fired (ES module behavior)
 const uiBootstrap = () => {
+    const hasHomeGrids =
+        document.getElementById('pinnedProductGrid') ||
+        document.getElementById('recentProductGrid') ||
+        document.getElementById('allProductGrid');
+
+    if (!hasHomeGrids) return;
+
     if (window.newketInitialized) {
         UI.init();
     } else {
