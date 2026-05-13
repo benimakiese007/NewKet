@@ -21,6 +21,7 @@ const ASSETS_TO_CACHE = [
     '/favicon-32x32.png',
     '/favicon.ico',
     '/Images/Logo_Header_Officiel_PNG.png',
+    '/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png',
     '/Images/Logo_Vert_Pour_Fond_Blanc.png'
 ];
 

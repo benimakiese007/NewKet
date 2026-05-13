@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -89,14 +89,14 @@
 
             <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <a href="/" class="flex items-center justify-center">
-                    <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain">
+                    <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                 </a>
             </div>
 
             <div class="flex items-center gap-3">
                 <button id="btnLogout" data-logout-safe class="btn-ghost text-sm text-red-600 border-red-100 hover:bg-red-50 flex items-center gap-2">
                     <iconify-icon icon="solar:logout-2-bold" width="18"></iconify-icon>
-                    DÃ©connexion
+                    Déconnexion
                 </button>
             </div>
         </div>
@@ -152,13 +152,13 @@
                     </a>
                     <a href="#" class="sidebar-link" id="link-settings" onclick="goDashboard('settings')">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
-                        <span>ParamÃ¨tres</span>
+                        <span>Paramètres</span>
                     </a>
                 </nav>
                 <div class="mt-4 pt-4 border-t border-gray-100">
                     <button class="sidebar-logout" onclick="AuthManager.handleLogoutClick(this)">
                         <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
-                        <span>Se dÃ©connecter</span>
+                        <span>Se déconnecter</span>
                     </button>
                 </div>
             </div>
@@ -171,11 +171,11 @@
                     <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
                         <div>
                             <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Achat</h1>
-                            <p class="muted mt-1 text-sm sm:text-base">Finalisez votre paiement en toute sÃ©curitÃ© (sÃ©questre NewKet).</p>
+                            <p class="muted mt-1 text-sm sm:text-base">Finalisez votre paiement en toute sécurité (séquestre NewKet).</p>
                         </div>
                         <div id="orderBadge" class="badge hidden">
                             <iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon>
-                            <span>PrÃªt pour paiement</span>
+                            <span>Prêt pour paiement</span>
                         </div>
                     </div>
 
@@ -242,7 +242,7 @@
                                 <div class="mt-1 font-black text-gray-900 truncate">${safeText(productName)}</div>
                                 <div class="mt-1 text-sm muted flex flex-wrap items-center gap-x-3 gap-y-1">
                                     <span>${safeText(dateLabel)}</span>
-                                    <span class="text-gray-300">â€¢</span>
+                                    <span class="text-gray-300">•</span>
                                     <span class="font-semibold text-gray-700">${safeText(statusLabel)}</span>
                                 </div>
                             </div>
@@ -290,10 +290,10 @@
                         <div class="w-14 h-14 rounded-2xl bg-gray-100 mx-auto flex items-center justify-center text-gray-700">
                             <iconify-icon icon="solar:shop-2-bold" width="28"></iconify-icon>
                         </div>
-                        <div class="mt-4 font-black text-gray-900">Aucun achat prÃªt pour paiement</div>
+                        <div class="mt-4 font-black text-gray-900">Aucun achat prêt pour paiement</div>
                         <div class="mt-1 text-sm muted">Retournez dans votre espace client pour suivre vos demandes.</div>
                         <div class="mt-6">
-                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller Ã  mon espace client</button>
+                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller à mon espace client</button>
                         </div>
                     </div>
                 `;
@@ -304,8 +304,8 @@
                 <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-900 flex items-start gap-3">
                     <iconify-icon icon="solar:info-circle-bold" width="22"></iconify-icon>
                     <div>
-                        <div class="font-black">SÃ©lectionnez une demande</div>
-                        <div class="mt-1 text-indigo-800">Vous serez redirigÃ© vers le paiement sÃ©curisÃ© aprÃ¨s confirmation.</div>
+                        <div class="font-black">Sélectionnez une demande</div>
+                        <div class="mt-1 text-indigo-800">Vous serez redirigé vers le paiement sécurisé après confirmation.</div>
                     </div>
                 </div>
             `);
@@ -317,10 +317,12 @@
             const img = (order?.items?.[0]?.image || order?.product_image || '').split(',')[0];
             const productName = order?.items?.[0]?.name || order?.product_name || 'Produit';
             const qty = order?.items?.[0]?.quantity || 1;
-            const subtotal = order?.merchandise_amount ?? order?.total ?? 0;
+            const subtotal = order?.subtotal_amount ?? order?.merchandise_amount ?? order?.total ?? 0;
             const deliveryFee = order?.delivery_fee_amount ?? 0;
-            const total = order?.total ?? 0;
+            const discount = order?.promo_discount_amount ?? 0;
+            const total = order?.final_total_amount ?? order?.total ?? 0;
             const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : (order.status || '');
+            const appliedCode = safeText(order?.promo_code || '');
 
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -331,7 +333,7 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="text-[11px] font-black uppercase tracking-wider text-gray-400">Commande</div>
                                     <div class="mt-1 font-black text-gray-900 text-lg truncate">${safeText(productName)}</div>
-                                    <div class="mt-1 text-sm muted">QuantitÃ©: <span class="font-semibold text-gray-700">${qty}</span></div>
+                                    <div class="mt-1 text-sm muted">Quantité: <span class="font-semibold text-gray-700">${qty}</span></div>
                                     <div class="mt-2 text-sm muted">Statut: <span class="font-semibold text-gray-900">${safeText(statusLabel)}</span></div>
                                 </div>
                             </div>
@@ -340,15 +342,15 @@
                         <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-sm text-emerald-900 flex items-start gap-3">
                             <iconify-icon icon="solar:shield-check-bold" width="22"></iconify-icon>
                             <div>
-                                <div class="font-black">Paiement protÃ©gÃ©</div>
-                                <div class="mt-1 text-emerald-800">Votre paiement passe en sÃ©questre et ne sera libÃ©rÃ© au vendeur qu'aprÃ¨s confirmation de rÃ©ception.</div>
+                                <div class="font-black">Paiement protégé</div>
+                                <div class="mt-1 text-emerald-800">Votre paiement passe en séquestre et ne sera libéré au vendeur qu'après confirmation de réception.</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <div class="card-link">
-                            <div class="font-black text-gray-900">RÃ©capitulatif</div>
+                            <div class="font-black text-gray-900">Récapitulatif</div>
                             <div class="mt-4 space-y-3 text-sm">
                                 <div class="flex justify-between gap-3">
                                     <span class="muted">Sous-total</span>
@@ -358,18 +360,36 @@
                                     <span class="muted">Livraison</span>
                                     <span class="font-bold text-gray-900">${formatAmount(deliveryFee)}</span>
                                 </div>
+                                <div class="flex justify-between gap-3">
+                                    <span class="muted">Remise promo</span>
+                                    <span id="promoDiscountValue" class="font-bold text-emerald-700">${discount > 0 ? '-' : ''}${formatAmount(discount)}</span>
+                                </div>
                                 <div class="border-t border-gray-100 pt-3 flex justify-between gap-3">
                                     <span class="font-black text-gray-900">Total</span>
-                                    <span class="font-black text-gray-900">${formatAmount(total)}</span>
+                                    <span id="promoTotalValue" class="font-black text-gray-900">${formatAmount(total)}</span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="card-link space-y-3">
+                            <div>
+                                <div class="font-black text-gray-900">Code promo</div>
+                                <p class="mt-1 text-xs muted">Appliquez une remise proposée par la boutique avant de payer.</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <input id="promoCodeInput" type="text" value="${appliedCode}" placeholder="Ex: MAMAN10" class="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
+                                <button id="btnApplyPromo" class="btn-ghost whitespace-nowrap">Appliquer</button>
+                            </div>
+                            <button id="btnRemovePromo" class="text-sm font-bold text-gray-500 hover:text-black text-left ${appliedCode ? '' : 'hidden'}">Retirer le code promo</button>
+                            <div id="promoSuccess" class="text-xs text-emerald-700 font-semibold ${appliedCode ? '' : 'hidden'}">${appliedCode ? `Code appliqué: ${appliedCode}` : ''}</div>
+                            <div id="promoError" class="text-xs text-red-600 font-semibold hidden"></div>
                         </div>
 
                         <button id="btnPayNow" class="btn-primary w-full flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                             Payer maintenant
                         </button>
-                        <button class="btn-ghost w-full" onclick="backToDashboard()">Retour Ã  l'espace client</button>
+                        <button class="btn-ghost w-full" onclick="backToDashboard()">Retour à l'espace client</button>
                         <div id="payError" class="text-xs text-red-600 font-semibold hidden"></div>
                     </div>
                 </div>
@@ -403,9 +423,9 @@
                             <iconify-icon icon="solar:danger-triangle-bold" width="28"></iconify-icon>
                         </div>
                         <div class="mt-4 font-black text-gray-900">Commande introuvable</div>
-                        <div class="mt-1 text-sm muted">Retournez Ã  votre espace client et rÃ©essayez.</div>
+                        <div class="mt-1 text-sm muted">Retournez à votre espace client et réessayez.</div>
                         <div class="mt-6">
-                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller Ã  mon espace client</button>
+                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller à mon espace client</button>
                         </div>
                     </div>
                 `;
@@ -422,6 +442,46 @@
 
             const btn = document.getElementById('btnPayNow');
             const payError = document.getElementById('payError');
+            const promoInput = document.getElementById('promoCodeInput');
+            const promoApplyBtn = document.getElementById('btnApplyPromo');
+            const promoRemoveBtn = document.getElementById('btnRemovePromo');
+            const promoError = document.getElementById('promoError');
+            const promoSuccess = document.getElementById('promoSuccess');
+            const promoDiscountValue = document.getElementById('promoDiscountValue');
+            const promoTotalValue = document.getElementById('promoTotalValue');
+
+            const syncPromoSummary = (pricing, promo) => {
+                const subtotalAmount = pricing?.subtotal_amount ?? order?.subtotal_amount ?? order?.merchandise_amount ?? 0;
+                const discountAmount = pricing?.promo_discount_amount ?? order?.promo_discount_amount ?? 0;
+                const totalAmount = pricing?.total_amount ?? order?.final_total_amount ?? order?.total ?? 0;
+
+                order.subtotal_amount = subtotalAmount;
+                order.promo_id = promo?.id || null;
+                order.promo_code = promo?.code || null;
+                order.promo_discount_amount = discountAmount;
+                order.final_total_amount = totalAmount;
+                order.total = totalAmount;
+
+                if (promoDiscountValue) {
+                    promoDiscountValue.textContent = `${discountAmount > 0 ? '-' : ''}${formatAmount(discountAmount)}`;
+                }
+                if (promoTotalValue) {
+                    promoTotalValue.textContent = formatAmount(totalAmount);
+                }
+                if (promoSuccess) {
+                    promoSuccess.textContent = promo?.code ? `Code appliqué: ${promo.code}` : '';
+                    promoSuccess.classList.toggle('hidden', !promo?.code);
+                }
+                if (promoRemoveBtn) {
+                    promoRemoveBtn.classList.toggle('hidden', !promo?.code);
+                }
+            };
+
+            const clearPromoFeedback = () => {
+                if (!promoError) return;
+                promoError.textContent = '';
+                promoError.classList.add('hidden');
+            };
 
             if (order.status !== 'READY_FOR_PAYMENT') {
                 btn.disabled = true;
@@ -429,17 +489,64 @@
                 return;
             }
 
+            syncPromoSummary({
+                subtotal_amount: order?.subtotal_amount ?? order?.merchandise_amount ?? 0,
+                promo_discount_amount: order?.promo_discount_amount ?? 0,
+                total_amount: order?.final_total_amount ?? order?.total ?? 0
+            }, order?.promo_code ? { id: order.promo_id, code: order.promo_code } : null);
+
+            promoApplyBtn?.addEventListener('click', async () => {
+                const promoCode = safeText(promoInput?.value).trim().toUpperCase();
+                clearPromoFeedback();
+
+                if (!promoCode) {
+                    promoError.textContent = 'Saisissez un code promo.';
+                    promoError.classList.remove('hidden');
+                    return;
+                }
+
+                promoApplyBtn.disabled = true;
+                promoApplyBtn.textContent = 'Vérification...';
+
+                try {
+                    const data = await window.ApiClient.post('/promos/validate', {
+                        order_id: orderId,
+                        promo_code: promoCode
+                    });
+                    syncPromoSummary(data?.pricing, data?.promo);
+                    promoInput.value = promoCode;
+                } catch (e) {
+                    promoError.textContent = safeText(e?.data?.error || e?.message || 'Impossible de valider ce code promo.');
+                    promoError.classList.remove('hidden');
+                } finally {
+                    promoApplyBtn.disabled = false;
+                    promoApplyBtn.textContent = 'Appliquer';
+                }
+            });
+
+            promoRemoveBtn?.addEventListener('click', () => {
+                clearPromoFeedback();
+                if (promoInput) promoInput.value = '';
+                syncPromoSummary({
+                    subtotal_amount: order?.subtotal_amount ?? order?.merchandise_amount ?? 0,
+                    promo_discount_amount: 0,
+                    total_amount: (order?.subtotal_amount ?? order?.merchandise_amount ?? 0) + (order?.delivery_fee_amount ?? 0)
+                }, null);
+            });
+
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
                 payError.classList.add('hidden');
                 btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Ouverture...';
                 try {
-                    const data = await OrderManager.initiatePayment(orderId);
+                    const data = await OrderManager.initiatePayment(orderId, {
+                        promo_code: safeText(promoInput?.value).trim().toUpperCase() || null
+                    });
                     if (data?.payment_url) {
                         window.location.href = data.payment_url;
                         return;
                     }
-                    payError.textContent = safeText(data?.error || 'Lien de paiement non reÃ§u');
+                    payError.textContent = safeText(data?.error || 'Lien de paiement non reçu');
                     payError.classList.remove('hidden');
                 } catch (e) {
                     payError.textContent = safeText(e?.message || "Erreur lors de l'ouverture du paiement");

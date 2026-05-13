@@ -13,6 +13,8 @@ import './security-page.js';
 import './auth.js';
 import './profile-manager.js';
 import './user-manager.js';
+import './presence-manager.js';
+import './behavior-tracking.js';
 import './products.js';
 import './orders.js';
 import './favorites.js';

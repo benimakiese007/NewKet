@@ -173,6 +173,9 @@ export const createOrder = async (req, res) => {
                 merchandise_amount: merchandiseAmount,
                 delivery_fee_amount: 0,
                 total_amount: merchandiseAmount,
+                subtotal_amount: merchandiseAmount,
+                promo_discount_amount: 0,
+                final_total_amount: merchandiseAmount,
                 status: ORDER_STATUSES.PENDING,
                 payment_status: 'UNPAID',
                 phone_number: customer_phone || null,
@@ -216,8 +219,9 @@ export const getOrders = async (req, res) => {
         let query = client
             .from('orders')
             .select(`
-                id, status, created_at, total, total_amount, merchandise_amount, 
-                delivery_fee_amount, customer_name, customer_email, customer_phone, 
+                id, status, created_at, total, total_amount, merchandise_amount, subtotal_amount,
+                delivery_fee_amount, promo_id, promo_code, promo_discount_amount, final_total_amount,
+                customer_name, customer_email, customer_phone, 
                 customer_city, customer_lat, customer_lng, phone_number, items, 
                 payment_status, transaction_id, user_id, customer_id, vendor_id, 
                 escrow_status, escrow_release_at, proof_status, otp_code, 
@@ -421,7 +425,13 @@ export const respondToDeliveryQuote = async (req, res) => {
             updatePayload.status = nextStatus;
             updatePayload.accepted_delivery_quote_id = quote.id;
             updatePayload.delivery_fee_amount = Number(quote.delivery_fee_amount || 0);
-            updatePayload.total_amount = Number(order.merchandise_amount || order.total || 0) + Number(quote.delivery_fee_amount || 0);
+            updatePayload.subtotal_amount = Number(order.merchandise_amount || order.subtotal_amount || order.total || 0);
+            updatePayload.promo_discount_amount = Number(order.promo_discount_amount || 0);
+            updatePayload.total_amount = Math.max(
+                0,
+                updatePayload.subtotal_amount + Number(quote.delivery_fee_amount || 0) - updatePayload.promo_discount_amount
+            );
+            updatePayload.final_total_amount = updatePayload.total_amount;
             updatePayload.total = updatePayload.total_amount;
             updatePayload.cancelled_at = null;
         }

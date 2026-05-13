@@ -12,6 +12,8 @@ const AdminLayout = {
         products: 'products',
         orders: 'orders',
         'otp-guide': 'otp-guide',
+        realtime: 'realtime',
+        analytics: 'analytics',
         activities: 'activities',
         diagnostics: 'diagnostics',
         reviews: 'reviews',
@@ -330,8 +332,8 @@ const AdminLayout = {
 
                     <!-- Center Logo -->
                     <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <a href="/" class="flex items-center justify-center group">
-                            <img src="/Images/Logo_Header_Officiel_PNG.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain">
+                        <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
+                            <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                         </a>
                     </div>
 
@@ -437,10 +439,12 @@ const AdminLayout = {
 
         const links = [
             { href: this.getShellHref('overview'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble", view: 'overview' },
+            { href: this.getShellHref('realtime'), icon: 'solar:users-group-two-rounded-bold-duotone', label: 'Temps reel', view: 'realtime' },
             { href: this.getShellHref('user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs", view: 'user' },
             { href: this.getShellHref('products'), icon: 'solar:box-bold', label: 'Controle Catalogue', view: 'products' },
             { href: this.getShellHref('orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits', view: 'orders' },
             { href: this.getShellHref('otp-guide'), icon: 'solar:password-bold', label: 'Guide', view: 'otp-guide' },
+            { href: this.getShellHref('analytics'), icon: 'solar:graph-up-bold', label: 'Comportements', view: 'analytics' },
             { href: this.getShellHref('activities'), icon: 'solar:history-bold', label: "Journal d'Activites", view: 'activities' },
             { href: this.getShellHref('diagnostics'), icon: 'solar:chart-square-bold', label: "Audit & Diagnostics", view: 'diagnostics' },
             { href: this.getShellHref('reviews'), icon: 'solar:star-bold', label: "Avis & Moderation", view: 'reviews' },

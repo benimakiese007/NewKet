@@ -1,4 +1,4 @@
-﻿?<!DOCTYPE html>
+?<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -17,7 +17,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Centre de Notifications | NewKet</title>
-    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
@@ -147,11 +147,11 @@
                 <iconify-icon icon="solar:bell-off-linear" width="32"></iconify-icon>
             </div>
             <h2 class="text-xl font-bold">Aucune notification</h2>
-            <p class="text-gray-500 text-sm mt-1 max-w-xs">Nous vous informerons dÃ¨s qu'il y aura du nouveau pour vous.
+            <p class="text-gray-500 text-sm mt-1 max-w-xs">Nous vous informerons dès qu'il y aura du nouveau pour vous.
             </p>
             <a href="./catalog"
                 class="mt-8 bg-black text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-gray-800 transition-all">Aller
-                Ã  la boutique</a>
+                à la boutique</a>
         </div>
     </main>
 
@@ -200,8 +200,8 @@
                 list.innerHTML = '';
                 empty.classList.remove('hidden');
                 empty.querySelector('p').textContent = currentFilter === 'all'
-                    ? "Nous vous informerons dÃ¨s qu'il y aura du nouveau pour vous."
-                    : "Aucune notification ne correspond Ã  ce filtre.";
+                    ? "Nous vous informerons dès qu'il y aura du nouveau pour vous."
+                    : "Aucune notification ne correspond à ce filtre.";
             } else {
                 empty.classList.add('hidden');
                 list.innerHTML = filteredNotifications.map((n, index) => {
@@ -239,7 +239,7 @@
                                     <div class="flex items-center justify-between mb-1">
                                         <h3 class="font-bold text-sm sm:text-base ${!n.read ? 'text-black' : 'text-gray-700'}">${n.title}</h3>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${dateStr} â€¢ ${timeStr}</span>
+                                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${dateStr} • ${timeStr}</span>
                                             ${!n.read ? '<span class="w-2 h-2 bg-black rounded-full"></span>' : ''}
                                         </div>
                                     </div>
@@ -278,7 +278,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Set loading state text early
             const unreadText = document.getElementById('unread-text');
-            if (unreadText) unreadText.textContent = "RÃ©cupÃ©ration de vos notifications...";
+            if (unreadText) unreadText.textContent = "Récupération de vos notifications...";
 
             if (window.newketInitialized) {
                 renderNotifications();

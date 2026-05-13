@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -46,7 +46,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div class="min-w-0">
                     <h1 class="text-4xl font-black tracking-tight text-gray-900">Vue d'ensemble</h1>
-                    <p class="text-gray-500 font-medium">Performances et activitÃ© globales de la plateforme.</p>
+                    <p class="text-gray-500 font-medium">Performances et activité globales de la plateforme.</p>
                 </div>
 
                 <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
@@ -137,15 +137,21 @@
                     <p class="text-[10px] text-white/40 mt-2 font-medium">Boutique en ligne</p>
                 </div>
 
-                <!-- Visitors Card -->
-                <div class="glass-panel p-6 flex flex-col gap-1 animate-premium stagger-5 group">
-                    <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mb-4 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <!-- Active Visitors Card (Real-time) -->
+                <div class="glass-panel p-6 flex flex-col gap-1 animate-premium stagger-5 group" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-bottom: 3px solid #7c3aed;">
+                    <div class="w-14 h-14 rounded-2xl bg-white text-purple-600 flex items-center justify-center mb-4 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-lg shadow-purple-500/20">
                         <iconify-icon icon="solar:users-group-rounded-bold" width="32"></iconify-icon>
                     </div>
-                    <p class="stat-card-label text-purple-400">Visiteurs</p>
+                    <div class="flex items-center gap-2 mb-1">
+                        <p class="stat-card-label text-purple-500">Visiteurs en Direct</p>
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                        </span>
+                    </div>
                     <div class="text-4xl font-black tracking-tight text-gray-900" id="statsClients">0</div>
                     <div class="flex items-center gap-1 mt-2">
-                        <span class="text-[10px] font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">En direct</span>
+                        <span class="text-[10px] font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full" id="presenceLiveLabel">Temps réel</span>
                     </div>
                 </div>
             </div>
@@ -175,17 +181,7 @@
                         </div>
                     </div>
 
-                    <!-- Top Boutiques (NEW) -->
-                    <div class="glass-panel p-8">
-                         <h3 class="font-black text-gray-900 mb-8 flex items-center gap-3 text-lg">
-                            <span class="w-2 h-8 bg-orange-500 rounded-full"></span>
-                            Top Boutiques du Moment
-                        </h3>
-                        <div id="topVendorsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                            <!-- Injected via JS -->
-                            <div class="p-12 text-center text-gray-400 text-sm italic col-span-3">Chargement des boutiques...</div>
-                        </div>
-                    </div>
+                    <!-- (Déplacé) Top Boutiques + Utilisateurs actifs -> page Temps réel -->
 
                     <!-- Recent Leads -->
                     <div class="glass-panel overflow-hidden border-b-4 border-black">
@@ -193,7 +189,7 @@
                             <h3 class="font-black text-gray-900 flex items-center gap-2">
                                 <iconify-icon icon="solar:history-bold-duotone" width="22"
                                     class="text-gray-400"></iconify-icon>
-                                 Historique des IntÃ©ractions
+                                 Historique des Intéractions
                             </h3>
                             <a href="orders.html"
                                 class="text-[10px] font-black uppercase tracking-widest px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-400 hover:text-black hover:border-black transition-all">Tout
@@ -233,7 +229,7 @@
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:pie-chart-bold-duotone" width="20"
                                 class="text-purple-500"></iconify-icon>
-                            Par CatÃ©gorie
+                            Par Catégorie
                         </h3>
                         <div class="h-[200px]">
                             <canvas id="categoryChart"></canvas>
@@ -252,7 +248,37 @@
                         </div>
                     </div>
 
-                    <div class="glass-panel p-6 border-b-4 border-amber-500">
+                    <!-- Live Active Users Feed -->
+                    <div class="glass-panel p-6 hidden" id="livePresencePanel">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                            </span>
+                            Utilisateurs actifs
+                        </h3>
+                        <div id="livePresenceList" class="space-y-3">
+                            <div class="text-xs text-gray-400 italic">Connexion au canal de présence...</div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="min-w-0">
+                                <h3 class="font-bold text-gray-900 mb-1 flex items-center gap-2">
+                                    <span class="relative flex h-2.5 w-2.5">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                                    </span>
+                                    Temps reel
+                                </h3>
+                                <div class="text-xs text-gray-500">Utilisateurs actifs + top boutiques (admin exclu).</div>
+                            </div>
+                            <a href="/src/pages/admin/index.html?view=realtime" class="px-3 py-2 rounded-xl bg-black text-white text-[10px] font-black uppercase tracking-widest">Ouvrir</a>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6">
                         <div class="flex items-start gap-4">
                             <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                                 <iconify-icon icon="solar:password-bold" width="24"></iconify-icon>
@@ -275,7 +301,7 @@
                         <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
                             <iconify-icon icon="solar:bell-bing-bold-duotone" width="20"
                                 class="text-blue-500"></iconify-icon>
-                            ActivitÃ©
+                            Activité
                         </h3>
                         <div id="activityFeed" class="space-y-6">
                             <!-- Activity items injected here -->
@@ -356,6 +382,25 @@
             window.addEventListener('currencyChanged', refreshDashboardData);
             window.addEventListener('ordersUpdated', refreshDashboardData);
             window.addEventListener('productsUpdated', refreshDashboardData);
+
+            // Real-time presence updates
+            window.addEventListener('presenceUpdated', (e) => {
+                const { count, users } = e.detail || {};
+                const countEl = document.getElementById('statsClients');
+                const filtered = (users || []).filter((u) => (u?.role || 'guest') !== 'admin');
+                if (countEl) countEl.textContent = filtered.length;
+                renderPresenceUsers(filtered);
+            });
+
+            // Seed immediately if presence data is already available
+            if (window.PresenceManager) {
+                const count = PresenceManager.getActiveUsersCount();
+                const users = PresenceManager.getActiveUsers();
+                const countEl = document.getElementById('statsClients');
+                const filtered = (users || []).filter((u) => (u?.role || 'guest') !== 'admin');
+                if (countEl) countEl.textContent = filtered.length;
+                renderPresenceUsers(filtered);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -420,16 +465,6 @@
                 if (funnelBar) funnelBar.style.width = Math.min(funnelRatio, 100) + '%';
                 
                 setTextIfPresent('statsNetSales', products.length);
-                const statsClients = setTextIfPresent('statsClients', stats.healthScore + "/100"); // Usant Clients field for Health Score in Admin
-                
-                // Update label for clients to Health Score
-                const visitorsLabel = statsClients?.previousElementSibling;
-                if (visitorsLabel) {
-                    visitorsLabel.textContent = "SantÃ© Plateforme";
-                    visitorsLabel.classList.remove('text-purple-400');
-                    visitorsLabel.classList.add('text-green-500', 'font-black');
-                }
-
                 // Charts
                 initCharts(filteredLeads);
                 
@@ -494,7 +529,7 @@
                 .slice(0, 3);
 
             if (topVendors.length === 0) {
-                grid.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic col-span-3">Pas encore de donnÃ©es de performance.</div>`;
+                grid.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic col-span-3">Pas encore de données de performance.</div>`;
                 return;
             }
 
@@ -522,7 +557,7 @@
             const recent = leads.slice(0, 5);
 
             if (recent.length === 0) {
-                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucun lead pour cette pÃ©riode.</div>`;
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm">Aucun lead pour cette période.</div>`;
                 return;
             }
 
@@ -627,7 +662,7 @@
                             yAxisID: 'y'
                         },
                         {
-                            label: 'IntÃ©ractions',
+                            label: 'Intéractions',
                             data: dataLeads,
                             borderColor: '#000000',
                             borderDash: [5, 5],
@@ -715,7 +750,7 @@
             const activities = ActivityManager.getActivities().slice(0, 5);
 
             if (activities.length === 0) {
-                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activitÃ© rÃ©cente.</div>`;
+                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucune activité récente.</div>`;
                 return;
             }
 
@@ -737,7 +772,7 @@
             const topProducts = stats.topProducts || [];
 
             if (topProducts.length === 0) {
-                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">Aucune vente pour cette pÃ©riode.</div>`;
+                list.innerHTML = `<div class="col-span-2 text-center py-6 text-gray-400 text-sm italic">Aucune vente pour cette période.</div>`;
                 return;
             }
 
@@ -751,6 +786,46 @@
                     <iconify-icon icon="solar:fire-bold" class="text-orange-500" width="16"></iconify-icon>
                 </div>
             `).join('');
+        }
+
+        /**
+         * Renders the live active users list in the sidebar presence panel.
+         * @param {Array} users - Array of presence user objects from PresenceManager.
+         */
+        function renderPresenceUsers(users) {
+            const list = document.getElementById('livePresenceList');
+            if (!list) return;
+
+            users = (users || []).filter((u) => (u?.role || 'guest') !== 'admin');
+
+            if (!users || users.length === 0) {
+                list.innerHTML = `<div class="text-xs text-gray-400 italic">Aucun utilisateur actif pour le moment.</div>`;
+                return;
+            }
+
+            const roleColors = {
+                supplier: { bg: 'bg-blue-100',   text: 'text-blue-600',   label: 'Vendeur' },
+                customer: { bg: 'bg-green-100',  text: 'text-green-600',  label: 'Acheteur' },
+                guest:    { bg: 'bg-gray-100',   text: 'text-gray-500',   label: 'Invité' },
+            };
+
+            list.innerHTML = users.map(u => {
+                const role = u.role || 'guest';
+                const colors = roleColors[role] || roleColors.guest;
+                const name = u.name || 'Anonyme';
+                const page = u.page ? u.page.split('/').pop().replace('.html', '') || 'accueil' : '—';
+                const initial = name.charAt(0).toUpperCase();
+
+                return `
+                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
+                    <div class="w-8 h-8 rounded-full ${colors.bg} ${colors.text} flex items-center justify-center text-xs font-black flex-shrink-0">${initial}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xs font-bold text-gray-900 truncate">${name}</div>
+                        <div class="text-[10px] text-gray-400 truncate">/${page}</div>
+                    </div>
+                    <span class="text-[9px] font-black uppercase tracking-wider ${colors.bg} ${colors.text} px-1.5 py-0.5 rounded-full flex-shrink-0">${colors.label}</span>
+                </div>`;
+            }).join('');
         }
 
         function initCategoryChart(stats) {
@@ -798,12 +873,14 @@
     </script>
     <script>
         (function() {
-            const shellViewSources = {
-                overview: null,
-                user: '/src/pages/admin/user.html?embedded=1',
-                products: '/src/pages/admin/products.html?embedded=1',
-                orders: '/src/pages/admin/orders.html?embedded=1',
-                'otp-guide': '/src/pages/admin/otp-guide.html?embedded=1',
+                const shellViewSources = {
+                    overview: null,
+                    realtime: '/src/pages/admin/realtime.html?embedded=1',
+                    user: '/src/pages/admin/user.html?embedded=1',
+                    products: '/src/pages/admin/products.html?embedded=1',
+                    orders: '/src/pages/admin/orders.html?embedded=1',
+                    'otp-guide': '/src/pages/admin/otp-guide.html?embedded=1',
+                    analytics: '/src/pages/admin/analytics.html?embedded=1',
                 activities: '/src/pages/admin/activities.html?embedded=1',
                 diagnostics: '/src/pages/admin/diagnostics.html?embedded=1',
                 reviews: '/src/pages/admin/reviews.html?embedded=1',
@@ -814,12 +891,14 @@
                 settings: '/src/pages/admin/settings.html?embedded=1'
             };
 
-            const viewTitles = {
-                overview: 'Tableau de bord | NewKet Admin',
-                user: 'Utilisateurs | NewKet Admin',
-                products: 'Catalogue | NewKet Admin',
-                orders: 'Commandes | NewKet Admin',
-                'otp-guide': 'Guide | NewKet Admin',
+                const viewTitles = {
+                    overview: 'Tableau de bord | NewKet Admin',
+                    realtime: 'Temps réel | NewKet Admin',
+                    user: 'Utilisateurs | NewKet Admin',
+                    products: 'Catalogue | NewKet Admin',
+                    orders: 'Commandes | NewKet Admin',
+                    'otp-guide': 'Guide | NewKet Admin',
+                    analytics: 'Comportements | NewKet Admin',
                 activities: 'Activites | NewKet Admin',
                 diagnostics: 'Diagnostics | NewKet Admin',
                 reviews: 'Avis | NewKet Admin',

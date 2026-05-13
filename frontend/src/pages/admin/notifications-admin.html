@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -121,7 +121,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 class="text-3xl font-black tracking-tight text-gray-900">Notifications</h1>
-                        <p class="text-gray-500">GÃ©rez et envoyez des alertes Ã  vos utilisateurs.</p>
+                        <p class="text-gray-500">Gérez et envoyez des alertes à vos utilisateurs.</p>
                     </div>
                     <div class="flex items-center gap-3">
                         <button onclick="forceRefresh()"
@@ -141,7 +141,7 @@
             <!-- Stats -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total envoyÃ©es</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total envoyées</div>
                     <div class="text-2xl font-black text-gray-900" id="statTotal">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
@@ -153,7 +153,7 @@
                     <div class="text-2xl font-black text-purple-500" id="statPromos">0</div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
-                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Alertes systÃ¨me</div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Alertes système</div>
                     <div class="text-2xl font-black text-red-500" id="statAlerts">0</div>
                 </div>
             </div>
@@ -177,7 +177,7 @@
                         <select id="notifType"
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors bg-white">
                             <option value="info">Information</option>
-                            <option value="success">SuccÃ¨s</option>
+                            <option value="success">Succès</option>
                             <option value="warning">Avertissement</option>
                             <option value="danger">Alerte</option>
                             <option value="promo">Promotion</option>
@@ -186,7 +186,7 @@
                     <div class="sm:col-span-2">
                         <label
                             class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Message</label>
-                        <textarea id="notifMessage" placeholder="RÃ©digez votre message ici..." rows="3"
+                        <textarea id="notifMessage" placeholder="Rédigez votre message ici..." rows="3"
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors resize-none"></textarea>
                     </div>
                     <div>
@@ -206,7 +206,7 @@
                         </label>
                         <div>
                             <span class="text-xs font-bold text-indigo-900 block">Diffuser (Broadcast)</span>
-                            <span class="text-[10px] text-indigo-600/70 font-medium">Affiche un Pop-up immÃ©diat Ã  tous</span>
+                            <span class="text-[10px] text-indigo-600/70 font-medium">Affiche un Pop-up immédiat à tous</span>
                         </div>
                     </div>
                     <div class="flex items-end">
@@ -231,7 +231,7 @@
                             class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black cursor-pointer">
                             <option value="all">Tous les types</option>
                             <option value="info">Information</option>
-                            <option value="success">SuccÃ¨s</option>
+                            <option value="success">Succès</option>
                             <option value="warning">Avertissement</option>
                             <option value="danger">Alerte</option>
                             <option value="promo">Promotion</option>
@@ -251,7 +251,7 @@
 
     <script>
         // =========================================================
-        // Notifications Admin Page Ã  Database-first approach
+        // Notifications Admin Page à Database-first approach
         // Local key kept only for display of sent-by-me tracking
         // =========================================================
         const SENT_KEY = 'newket_admin_sent_notifs'; // lightweight sent-log for this session
@@ -263,10 +263,10 @@
             localStorage.setItem(SENT_KEY, JSON.stringify(log.slice(0, 100)));
         }
 
-        /** Force les managers de rÃ©-interroger le serveur */
+        /** Force les managers de ré-interroger le serveur */
         async function forceRefresh() {
             const list = document.getElementById('notifList');
-            list.innerHTML = '<div class="p-12 text-center text-gray-400">RafraÃ®chissement...</div>';
+            list.innerHTML = '<div class="p-12 text-center text-gray-400">Rafraîchissement...</div>';
             // Purge cache timestamps so init() will re-fetch
             localStorage.removeItem('newket_notifications_sync_time');
             if (window.NotificationManager) {
@@ -309,8 +309,8 @@
 
             document.getElementById('notifTitle').value = '';
             document.getElementById('notifMessage').value = '';
-            showToast('Notification envoyÃ©e avec succÃ¨s !', 'success');
-            if (window.ActivityManager) ActivityManager.log(`Notification envoyÃ©e : "${title}"`, 'system');
+            showToast('Notification envoyée avec succès !', 'success');
+            if (window.ActivityManager) ActivityManager.log(`Notification envoyée : "${title}"`, 'system');
         }
 
         function getDisplayType(type) {
@@ -329,7 +329,7 @@
             const displayType = getDisplayType(type);
             const badges = {
                 'info': '<span class="badge badge-info">Info</span>',
-                'success': '<span class="badge badge-success">SuccÃ¨s</span>',
+                'success': '<span class="badge badge-success">Succès</span>',
                 'warning': '<span class="badge badge-warning">Avertiss.</span>',
                 'danger': '<span class="badge badge-danger">Alerte</span>',
                 'promo': '<span class="badge badge-promo">Promo</span>'
@@ -365,7 +365,7 @@
             if (filterType !== 'all') notifs = notifs.filter(n => getDisplayType(n.type) === filterType);
 
             if (notifs.length === 0) {
-                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucune notification trouvÃ©e.</div>`;
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucune notification trouvée.</div>`;
                 return;
             }
 
@@ -374,7 +374,14 @@
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-start gap-4 flex-1 min-w-0">
                             <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0 text-lg">
-                                ${{ 'info': 'ðŸ””', 'success': 'âœ…', 'warning': 'âš ï¸', 'danger': 'ðŸš¨', 'promo': 'ðŸŽ', 'broadcast': 'ðŸ“¢' }[n.type] || 'ðŸ””'}
+                                ${{
+                                    info: '\u{1F514}',
+                                    success: '\u2705',
+                                    warning: '\u26A0\uFE0F',
+                                    danger: '\u{1F6A8}',
+                                    promo: '\u{1F381}',
+                                    broadcast: '\u{1F4E2}'
+                                }[n.type] || '\u{1F514}'}
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -392,7 +399,7 @@
                         </div>
                         <button onclick="deleteNotification('${n.id}')" 
                                 class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" 
-                                title="Supprimer dÃ©finitivement">
+                                title="Supprimer définitivement">
                             <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                         </button>
                     </div>
@@ -409,12 +416,12 @@
         }
 
         async function deleteNotification(id) {
-            if (!confirm('Voulez-vous supprimer dÃ©finitivement cette notification ?')) return;
+            if (!confirm('Voulez-vous supprimer définitivement cette notification ?')) return;
             
             if (window.NotificationManager) {
                 const ok = await window.NotificationManager.deleteNotification(id);
                 if (ok) {
-                    showToast('Notification supprimÃ©e.', 'success');
+                    showToast('Notification supprimée.', 'success');
                     renderNotifications();
                     updateStats();
                 } else {
@@ -428,7 +435,7 @@
         }
 
         async function clearAllNotifications() {
-            if (!confirm('Effacer TOUTES les notifications dÃ©finitivement (BDD + local) ?')) return;
+            if (!confirm('Effacer TOUTES les notifications définitivement (BDD + local) ?')) return;
             
             if (window.NotificationManager) {
                 const ok = await window.NotificationManager.clearAll();
@@ -436,7 +443,7 @@
                     localStorage.removeItem(SENT_KEY);
                     renderNotifications();
                     updateStats();
-                    showToast('Historique effacÃ© avec succÃ¨s.', 'success');
+                    showToast('Historique effacé avec succès.', 'success');
                 } else {
                     showToast('Erreur lors du nettoyage.', 'error');
                 }

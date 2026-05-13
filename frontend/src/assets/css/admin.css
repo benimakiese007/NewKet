@@ -124,7 +124,7 @@ body {
 
 .newket-dashboard-header #adminMobileMenuBtn,
 .newket-dashboard-header [data-theme-toggle],
-.newket-dashboard-header a[href="/"] {
+.newket-dashboard-header a[href="/"]:not(.nk-header-logo-link) {
     background: rgba(255, 255, 255, 0.1) !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
     color: white !important;
@@ -132,7 +132,7 @@ body {
 
 .newket-dashboard-header #adminMobileMenuBtn:hover,
 .newket-dashboard-header [data-theme-toggle]:hover,
-.newket-dashboard-header a[href="/"]:hover {
+.newket-dashboard-header a[href="/"]:not(.nk-header-logo-link):hover {
     background: rgba(255, 255, 255, 0.2) !important;
     color: white !important;
 }

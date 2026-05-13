@@ -149,13 +149,18 @@ const OrderManager = {
             customer_lat: order.customer_lat || null,
             customer_lng: order.customer_lng || null,
             date: order.created_at || new Date().toISOString(),
-            total: order.total_amount || product?.price || product?.priceCDF || 0,
+            total: order.final_total_amount || order.total_amount || product?.price || product?.priceCDF || 0,
             status: order.status || 'PENDING',
             payment_status: order.payment_status || 'N/A',
             transaction_id: order.transaction_id || null,
             otp_code: order.otp_code || null,
             delivery_fee_amount: order.delivery_fee_amount || 0,
-            merchandise_amount: order.merchandise_amount || order.total_amount || order.total || 0,
+            merchandise_amount: order.merchandise_amount || order.subtotal_amount || order.total_amount || order.total || 0,
+            subtotal_amount: order.subtotal_amount || order.merchandise_amount || order.total_amount || order.total || 0,
+            promo_id: order.promo_id || null,
+            promo_code: order.promo_code || null,
+            promo_discount_amount: order.promo_discount_amount || 0,
+            final_total_amount: order.final_total_amount || order.total_amount || order.total || 0,
             latest_delivery_quote: order.latest_delivery_quote || null,
             payment_method: order.payment_status && order.payment_status !== 'N/A' ? 'Paiement en ligne' : 'N/A',
             type: 'order',
@@ -398,10 +403,13 @@ const OrderManager = {
         }
     },
 
-    async initiatePayment(orderId) {
+    async initiatePayment(orderId, options = {}) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
-            return await ApiClient.post('/payments/initiate', { order_id: orderId });
+            return await ApiClient.post('/payments/initiate', {
+                order_id: orderId,
+                promo_code: options.promo_code || null
+            });
         } catch (error) {
             if (error?.data?.code === 'PAYMENT_PROVIDER_NOT_CONFIGURED') {
                 throw new Error(error.data.message || 'Le paiement est temporairement indisponible.');

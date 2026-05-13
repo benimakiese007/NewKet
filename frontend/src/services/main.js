@@ -32,6 +32,10 @@ const App = {
         // AuthManager is critical for session state, we usually await it.
         if (window.AuthManager) await AuthManager.init();
 
+        // Initialize Presence Tracking (non-blocking — fire & forget)
+        if (window.PresenceManager) PresenceManager.init().catch(e => console.warn('[App] PresenceManager init failed:', e?.message));
+        if (window.BehaviorTracking) BehaviorTracking.init();
+
         // Product and Order managers now handle their own internal "immediate resolve" from cache
         const initPromises = [];
         if (window.ProductManager) initPromises.push(ProductManager.init());

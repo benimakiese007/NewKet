@@ -13,6 +13,11 @@ import {
     getOrderCustomerId,
     mapLegacyOrderStatus
 } from '../services/order-workflow.js';
+import {
+    calculateVendorPromoPricing,
+    normalizePromoCode,
+    recordVendorPromoUsage
+} from '../services/vendor-promo.service.js';
 
 const generateTxId = () => generateTransactionId();
 
@@ -131,6 +136,7 @@ export const initiatePayment = async (req, res) => {
         const {
             order_id,
             product_id,
+            promo_code,
             vendor_id,
             customer_phone,
             customer_name,
@@ -192,10 +198,24 @@ export const initiatePayment = async (req, res) => {
             return res.status(404).json({ error: 'Produit introuvable' });
         }
 
+        const pricingResult = await calculateVendorPromoPricing({
+            promoCode: normalizePromoCode(promo_code),
+            order,
+            product,
+            quantity: Number(firstItem.quantity || 1),
+            vendorId: vendor_id || order?.vendor_id || product.user_id || null,
+            customerId: req.user?.id || null,
+            dbClient: client
+        });
+
+        if (!pricingResult.valid) {
+            return res.status(400).json({ error: pricingResult.message });
+        }
+
+        const pricing = pricingResult.pricing;
+        const appliedPromo = pricingResult.promo;
         const conversionRate = parseFloat(product.custom_exchange_rate) || await loadExchangeRate(client);
-        const verifiedAmount = orderId
-            ? Number(order.total_amount || order.total || 0)
-            : Number(product.price || 0) * Number(firstItem.quantity || 1);
+        const verifiedAmount = Number(pricing.total_amount || 0);
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
         const txId = generateTxId();
         const provider = getActivePaymentProvider();
@@ -216,9 +236,14 @@ export const initiatePayment = async (req, res) => {
                     supplier_email: product.supplier_email || null
                 }],
                 total: verifiedAmount,
-                merchandise_amount: verifiedAmount,
-                delivery_fee_amount: 0,
+                merchandise_amount: Number(pricing.subtotal_amount || 0),
+                delivery_fee_amount: Number(pricing.delivery_fee_amount || 0),
                 total_amount: verifiedAmount,
+                subtotal_amount: Number(pricing.subtotal_amount || 0),
+                final_total_amount: verifiedAmount,
+                promo_id: appliedPromo?.id || null,
+                promo_code: appliedPromo?.code || null,
+                promo_discount_amount: Number(pricing.promo_discount_amount || 0),
                 status: ORDER_STATUSES.READY_FOR_PAYMENT,
                 payment_status: 'PENDING',
                 transaction_id: txId,
@@ -245,6 +270,13 @@ export const initiatePayment = async (req, res) => {
                 .from('orders')
                 .update({
                     transaction_id: txId,
+                    promo_id: appliedPromo?.id || null,
+                    promo_code: appliedPromo?.code || null,
+                    promo_discount_amount: Number(pricing.promo_discount_amount || 0),
+                    subtotal_amount: Number(pricing.subtotal_amount || order?.merchandise_amount || 0),
+                    total_amount: verifiedAmount,
+                    final_total_amount: verifiedAmount,
+                    total: verifiedAmount,
                     payment_status: 'PENDING',
                     updated_at: new Date().toISOString()
                 })
@@ -254,6 +286,13 @@ export const initiatePayment = async (req, res) => {
             order = {
                 ...order,
                 transaction_id: txId,
+                promo_id: appliedPromo?.id || null,
+                promo_code: appliedPromo?.code || null,
+                promo_discount_amount: Number(pricing.promo_discount_amount || 0),
+                subtotal_amount: Number(pricing.subtotal_amount || order?.merchandise_amount || 0),
+                total_amount: verifiedAmount,
+                final_total_amount: verifiedAmount,
+                total: verifiedAmount,
                 payment_status: 'PENDING'
             };
         }
@@ -512,11 +551,27 @@ export const avadaPayWebhook = async (req, res) => {
 
         if (paidOrderError) {
             console.error('[avadaPayWebhook] Could not reload paid order for OTP notification:', paidOrderError);
-        } else if (paidOrder?.otp_code && paidOrder?.customer_email) {
-            NotificationService.notifyCustomerOTP(paidOrder)
-                .catch((notifyError) => {
-                    console.error('[avadaPayWebhook] OTP notification failed:', notifyError);
-                });
+        } else {
+            if (paidOrder?.promo_id && Number(paidOrder?.promo_discount_amount || 0) > 0) {
+                try {
+                    await recordVendorPromoUsage({
+                        promoId: paidOrder.promo_id,
+                        orderId: paidOrder.id,
+                        customerId: paidOrder.customer_id || paidOrder.user_id || null,
+                        discountAmount: Number(paidOrder.promo_discount_amount || 0),
+                        dbClient: client
+                    });
+                } catch (usageError) {
+                    console.error('[avadaPayWebhook] Could not record promo usage:', usageError);
+                }
+            }
+
+            if (paidOrder?.otp_code && paidOrder?.customer_email) {
+                NotificationService.notifyCustomerOTP(paidOrder)
+                    .catch((notifyError) => {
+                        console.error('[avadaPayWebhook] OTP notification failed:', notifyError);
+                    });
+            }
         }
 
         return res.status(200).send('OK');

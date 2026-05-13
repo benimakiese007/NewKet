@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -41,22 +41,22 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
                 <div>
                     <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Suivi des Prospects</h1>
-                    <p class="text-gray-500 font-medium" id="pageSubtitle">Suivez les interactions et intentions d'achat gÃ©nÃ©rÃ©es par la plateforme.</p>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Suivez les interactions et intentions d'achat générées par la plateforme.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <select id="filterStatus" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
                         <option value="">Tous les statuts</option>
-                        <option value="PAID_HELD">Paiement SÃ©questre</option>
-                        <option value="DELIVERED">LivrÃ© (Attente confirmation)</option>
-                        <option value="COMPLETED">Conclu (Fonds libÃ©rÃ©s)</option>
+                        <option value="PAID_HELD">Paiement Séquestre</option>
+                        <option value="DELIVERED">Livré (Attente confirmation)</option>
+                        <option value="COMPLETED">Conclu (Fonds libérés)</option>
                         <option value="DISPUTE_OPEN">Litige ouvert</option>
-                        <option value="FROZEN">GelÃ© (Admin)</option>
+                        <option value="FROZEN">Gelé (Admin)</option>
                     </select>
                     <select id="filterPayment" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
                         <option value="">Paiements</option>
-                        <option value="SUCCESSFUL">PayÃ©</option>
+                        <option value="SUCCESSFUL">Payé</option>
                         <option value="PENDING">Attente</option>
-                        <option value="FAILED">Ã‰chouÃ©</option>
+                        <option value="FAILED">Échoué</option>
                     </select>
                     <div class="relative flex-1 sm:w-64">
                         <iconify-icon icon="solar:magnifer-linear" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
@@ -86,7 +86,7 @@
                     <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsSuccess">0</p>
                 </div>
                 <div class="glass-panel p-5 border-b-4 border-green-500">
-                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Valeur EstimÃ©e</p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Valeur Estimée</p>
                     <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsValue">$0</p>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                                 <th>Lead ID</th>
                                 <th>Client</th>
                                 <th>Provenance</th>
-                                <th>TÃ©lÃ©phone / Contact</th>
+                                <th>Téléphone / Contact</th>
                                 <th>Date</th>
                                 <th>Potentiel (Brut)</th>
                                 <th>Paiement</th>
@@ -116,7 +116,7 @@
                     <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
                         <iconify-icon icon="solar:chat-round-call-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
                     </div>
-                    <p class="text-gray-400 font-bold">Aucun prospect enregistrÃ© pour le moment.</p>
+                    <p class="text-gray-400 font-bold">Aucun prospect enregistré pour le moment.</p>
                 </div>
             </div>
         </main>
@@ -144,7 +144,7 @@
                 const phoneMatch = (o.phone_number || '').toLowerCase().includes(query);
                 const matchQuery = idMatch || nameMatch || txMatch || phoneMatch;
 
-                const matchStatus = statusFilter ? o.status === statusFilter || (statusFilter === 'LivrÃ©' && o.status === 'Conclu') : true;
+                const matchStatus = statusFilter ? o.status === statusFilter || (statusFilter === 'Livré' && o.status === 'Conclu') : true;
                 
                 let oPayment = (o.payment_status || '').toUpperCase();
                 if(oPayment === 'SUCCESS' || oPayment === 'PAID') oPayment = 'SUCCESSFUL';
@@ -221,14 +221,14 @@
                         <div class="flex flex-col items-end gap-2">
                             <select onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-black transition-all cursor-pointer">
                                 <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>Attente</option>
-                                <option value="PAID_HELD" ${o.status === 'PAID_HELD' ? 'selected' : ''}>SÃ©questre</option>
-                                <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>LivrÃ©</option>
+                                <option value="PAID_HELD" ${o.status === 'PAID_HELD' ? 'selected' : ''}>Séquestre</option>
+                                <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>Livré</option>
                                 <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>Conclu</option>
-                                <option value="RELEASED" ${o.status === 'RELEASED' ? 'selected' : ''}>ConfirmÃ© (legacy)</option>
-                                <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>AnnulÃ©</option>
+                                <option value="RELEASED" ${o.status === 'RELEASED' ? 'selected' : ''}>Confirmé (legacy)</option>
+                                <option value="CANCELLED" ${o.status === 'CANCELLED' ? 'selected' : ''}>Annulé</option>
                                 <option value="DISPUTE_OPEN" ${o.status === 'DISPUTE_OPEN' ? 'selected' : ''}>Litige</option>
                                 <option value="DISPUTED" ${o.status === 'DISPUTED' ? 'selected' : ''}>Litige (legacy)</option>
-                                <option value="FROZEN" ${o.status === 'FROZEN' ? 'selected' : ''}>GelÃ©</option>
+                                <option value="FROZEN" ${o.status === 'FROZEN' ? 'selected' : ''}>Gelé</option>
                             </select>
                             ${o.status === 'DISPUTE_OPEN' || o.status === 'DISPUTED' || o.status === 'FROZEN' ? `
                                   <button onclick="openAdminDisputeModal('${o.id}')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors">
@@ -282,13 +282,13 @@
         function updateStatus(id, newStatus) {
             OrderManager.updateStatus(id, newStatus);
             renderAdminOrders();
-            if (window.showToast) showToast('Statut prospect mis Ã  jour !', 'success');
+            if (window.showToast) showToast('Statut prospect mis à jour !', 'success');
         }
 
         function exportOrdersToCSV() {
             const orders = OrderManager.getOrders();
             if (orders.length === 0) {
-                if (window.showToast) showToast('Aucune donnÃ©e Ã  exporter.', 'info');
+                if (window.showToast) showToast('Aucune donnée à exporter.', 'info');
                 return;
             }
 
@@ -316,7 +316,7 @@
             link.setAttribute("download", `newket - leads - ${new Date().toISOString().split('T')[0]}.csv`);
             link.click();
 
-            if (window.showToast) showToast('Exportation CSV gÃ©nÃ©rÃ©e !', 'success');
+            if (window.showToast) showToast('Exportation CSV générée !', 'success');
         }
 
         function initializeOrders() {
@@ -351,11 +351,11 @@
             </div>
             
             <div class="p-6 overflow-y-auto space-y-6">
-                <!-- DÃ©tails du litige (chargÃ©s dynamiquement) -->
+                <!-- Détails du litige (chargés dynamiquement) -->
                 <div id="adminDisputeDetails" class="hidden space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-gray-50 rounded-xl p-4">
-                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Motif invoquÃ©</p>
+                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Motif invoqué</p>
                             <p id="adminDisputeReason" class="text-sm font-bold text-gray-900"></p>
                         </div>
                         <div class="bg-gray-50 rounded-xl p-4">
@@ -396,27 +396,27 @@
 
                 <hr class="border-gray-100">
 
-                <!-- Formulaire de RÃ©solution -->
+                <!-- Formulaire de Résolution -->
                 <div class="space-y-4">
-                    <h3 class="text-sm font-black text-gray-900 uppercase tracking-wide">Saisie de la dÃ©cision</h3>
+                    <h3 class="text-sm font-black text-gray-900 uppercase tracking-wide">Saisie de la décision</h3>
                     
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Explication de la dÃ©cision (visible client/vendeur)</label>
-                        <textarea id="adminResolutionDesc" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="Le remboursement a Ã©tÃ© approuvÃ© car..."></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Explication de la décision (visible client/vendeur)</label>
+                        <textarea id="adminResolutionDesc" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="Le remboursement a été approuvé car..."></textarea>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Action sur la Commande</label>
                             <select id="adminResolutionAction" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50">
-                                <option value="REFUNDED">Rembourser (REFUNDED) - Argent restituÃ©</option>
+                                <option value="REFUNDED">Rembourser (REFUNDED) - Argent restitué</option>
                                 <option value="COMPLETED">Rejeter le litige (COMPLETED) - Payer le vendeur</option>
                                 <option value="CANCELLED">Annuler (CANCELLED) - Retour au stock</option>
                                 <option value="PARTIAL_REFUND">Remboursement Partiel (PARTIAL_REFUND)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">Montant Ã  rembourser ($)</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Montant à rembourser ($)</label>
                             <input type="number" id="adminRefundAmount" min="0" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50" placeholder="0.00">
                         </div>
                     </div>
@@ -428,7 +428,7 @@
                     Annuler
                 </button>
                 <button id="btnResolveDispute" onclick="submitAdminDisputeResolution()" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-2 transition-colors">
-                    <iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon> ClÃ´turer et Appliquer
+                    <iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon> Clôturer et Appliquer
                 </button>
             </div>
         </div>
@@ -449,7 +449,7 @@
                 currentDispute = await OrderManager.getDisputeByOrder(orderId);
                 
                 if (!currentDispute) {
-                    alert('Ce litige est dÃ©jÃ  rÃ©solu ou introuvable.');
+                    alert('Ce litige est déjà résolu ou introuvable.');
                     closeAdminDisputeModal();
                     return;
                 }
@@ -477,7 +477,7 @@
                 loadAdminDisputeMessages(currentDispute.id);
             } catch (error) {
                 console.error("Erreur fetch dispute:", error);
-                alert("Impossible de charger les dÃ©tails du litige.");
+                alert("Impossible de charger les détails du litige.");
                 closeAdminDisputeModal();
             }
         }
@@ -503,7 +503,7 @@
                     const senderRole = (msg.payload && msg.payload.sender_role) || msg.sender_role || 'SYSTEM';
                     const isAdmin = senderRole === 'ADMIN';
                     const isVendor = senderRole === 'VENDOR' || senderRole === 'SELLER';
-                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise Ã  jour';
+                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
 
                     let roleBadge = '';
                     let bgColor = 'bg-gray-100';
@@ -597,7 +597,7 @@
             }
 
             if (!resolution_decision) {
-                alert("Vous devez fournir une explication textuelle (dÃ©cision).");
+                alert("Vous devez fournir une explication textuelle (décision).");
                 return;
             }
 
@@ -613,7 +613,7 @@
                     refund_amount
                 });
 
-                alert("Litige rÃ©solu et commande mise Ã  jour avec succÃ¨s.");
+                alert("Litige résolu et commande mise à jour avec succès.");
                 closeAdminDisputeModal();
                 localStorage.removeItem('newket_orders_sync_time');
                 await OrderManager.init();
@@ -624,7 +624,7 @@
             } finally {
                 const btn = document.getElementById('btnResolveDispute');
                 btn.disabled = false;
-                btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon> ClÃ´turer et Appliquer';
+                btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon> Clôturer et Appliquer';
             }
         }
     </script>

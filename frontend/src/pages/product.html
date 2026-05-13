@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -9,13 +9,13 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <meta name="theme-color" content="#013220">
-    <title>Chargement... â€” NewKet</title>
-    <meta name="description" content="DÃ©couvrez une sÃ©lection exclusive d'articles de luxe sur NewKet.">
+    <title>Chargement... — NewKet</title>
+    <meta name="description" content="Découvrez une sélection exclusive d'articles de luxe sur NewKet.">
     
     <!-- Open Graph -->
     <meta property="og:type" content="product">
-    <meta property="og:title" content="Produit d'exception â€” NewKet">
-    <meta property="og:description" content="Une piÃ¨ce unique sÃ©lectionnÃ©e pour son excellence.">
+    <meta property="og:title" content="Produit d'exception — NewKet">
+    <meta property="og:description" content="Une pièce unique sélectionnée pour son excellence.">
     <meta property="og:url" content="https://newket.vercel.app/src/pages/product.html">
     <meta property="og:image" content="https://newket.vercel.app/Images/Logo NewKet PNG.png">
     <meta id="og-price-amount" property="product:price:amount" content="0">
@@ -120,7 +120,7 @@
                 <div class="space-y-6">
                     <div>
                         <div class="flex items-center justify-between gap-4 mb-2">
-                            <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">CatÃ©gorie</div>
+                            <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">Catégorie</div>
                             <div class="flex items-center gap-2">
                                 <button data-share-product class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md" aria-label="Partager">
                                     <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
@@ -141,7 +141,7 @@
                                  <a href="#" id="vendorLink" class="text-sm font-black text-gray-900 hover:text-blue-600 transition-colors uppercase tracking-tight">Chargement...</a>
                              </div>
                              <div class="text-right">
-                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">ExpÃ©dition</div>
+                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Expédition</div>
                                  <div class="text-xs font-black text-gray-900 flex items-center justify-end gap-1">
                                      <iconify-icon icon="solar:delivery-bold" class="text-green-500"></iconify-icon>
                                      <span id="shippingValue">...</span>
@@ -157,11 +157,11 @@
 
                     <div class="space-y-4">
                         <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm w-fit">
-                            <button data-update-qty="-1" aria-label="RÃ©duire la quantitÃ©" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
+                            <button data-update-qty="-1" aria-label="Réduire la quantité" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
                                 <span aria-hidden="true">-</span>
                             </button>
                             <input type="number" id="qty-input" value="1" min="1" class="w-12 text-center font-bold text-gray-900 bg-transparent border-none outline-none">
-                            <button data-update-qty="1" aria-label="Augmenter la quantitÃ©" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
+                            <button data-update-qty="1" aria-label="Augmenter la quantité" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
                                 <span aria-hidden="true">+</span>
                             </button>
                         </div>
@@ -181,7 +181,7 @@
 
         <div class="mt-8 pt-8 border-t border-gray-100">
             <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tighter mb-4">Avis Clients</h2>
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-16" id="reviewCountText">0 avis vÃ©rifiÃ©s</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-16" id="reviewCountText">0 avis vérifiés</p>
             <div id="reviewsList" class="space-y-12"></div>
             <div id="reviewFormContainer" class="mt-10"></div>
         </div>
@@ -347,9 +347,9 @@
             favBtn.classList.toggle('bg-red-50/50', isFav);
 
             // SEO Dynamic Updates
-            document.title = `${p.name} Ã  NewKet`;
+            document.title = `${p.name} à NewKet`;
             const metaDesc = document.querySelector('meta[name="description"]');
-            if (metaDesc) metaDesc.content = p.description || `DÃ©couvrez ${p.name} sur NewKet.`;
+            if (metaDesc) metaDesc.content = p.description || `Découvrez ${p.name} sur NewKet.`;
             
             document.querySelector('meta[property="og:title"]').content = p.name;
             document.querySelector('meta[property="og:description"]').content = p.description || `Achetez ${p.name} sur NewKet.`;
@@ -444,8 +444,8 @@
                 const list = document.getElementById('reviewsList');
                 const countText = document.getElementById('reviewCountText');
                 if (!reviews || reviews.length === 0) {
-                    list.innerHTML = `<div class="text-center py-24 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100 text-gray-400 font-black uppercase tracking-widest text-[10px]">Soyez le premier Ã  donner votre avis</div>`;
-                    countText.textContent = "0 avis vÃ©rifiÃ©s";
+                    list.innerHTML = `<div class="text-center py-24 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100 text-gray-400 font-black uppercase tracking-widest text-[10px]">Soyez le premier à donner votre avis</div>`;
+                    countText.textContent = "0 avis vérifiés";
                     renderReviewForm(pid);
                     return;
                 }
@@ -468,7 +468,7 @@
                 document.getElementById('headerRating').classList.remove('invisible');
                 document.getElementById('headerStars').innerHTML = starsHTML;
                 document.getElementById('headerReviewCount').textContent = `${reviews.length} avis client${reviews.length > 1 ? 's' : ''}`;
-                countText.innerHTML = `<div class="flex items-center gap-3"><div class="flex gap-0.5">${starsHTML}</div><span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis vÃ©rifiÃ©s</span></div>`;
+                countText.innerHTML = `<div class="flex items-center gap-3"><div class="flex gap-0.5">${starsHTML}</div><span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis vérifiés</span></div>`;
                 list.innerHTML = reviews.map(r => {
                     const isAuthor = AuthManager.user && AuthManager.user.id === r.user_id;
                     const isAdmin = AuthManager.user && (AuthManager.user.user_metadata?.role === 'admin' || AuthManager.user.app_metadata?.role === 'admin');
@@ -531,7 +531,7 @@
                             <div>
                                 <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Votre note</div>
                                 <div class="flex flex-wrap gap-3" id="starSelector">${[1, 2, 3, 4, 5].map(i => `<button type="button" aria-label="Noter ${i} sur 5" data-star="${i}" class="flex h-12 w-12 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 transition-all hover:-translate-y-0.5 hover:border-amber-300 hover:bg-amber-50" onclick="window.setRating(${i})"><iconify-icon icon="solar:star-bold" width="24" class="pointer-events-none text-gray-300 transition-colors"></iconify-icon></button>`).join('')}</div>
-                                <p id="reviewRatingHint" class="mt-3 text-sm text-gray-500 font-medium">SÃ©lectionnez une note de 1 Ã  5 Ã©toiles.</p>
+                                <p id="reviewRatingHint" class="mt-3 text-sm text-gray-500 font-medium">Sélectionnez une note de 1 à 5 étoiles.</p>
                             </div>
 
                             <div>
@@ -574,23 +574,23 @@
             const hint = document.getElementById('reviewRatingHint');
             if (hint) {
                 const labels = {
-                    1: 'TrÃ¨s dÃ©cevant',
+                    1: 'Très décevant',
                     2: 'Peut mieux faire',
                     3: 'Correct',
-                    4: 'TrÃ¨s satisfaisant',
+                    4: 'Très satisfaisant',
                     5: 'Exceptionnel'
                 };
-                hint.textContent = `${v}/5 - ${labels[v] || 'SÃ©lectionnez une note de 1 Ã  5 Ã©toiles.'}`;
+                hint.textContent = `${v}/5 - ${labels[v] || 'Sélectionnez une note de 1 à 5 étoiles.'}`;
             }
         };
 
         window.submitReview = async (pid) => {
-            if (!currentRating) return showToast('Veuillez sÃ©lectionner une note', 'warning');
+            if (!currentRating) return showToast('Veuillez sélectionner une note', 'warning');
             const txt = document.getElementById('reviewText').value.trim();
-            if (!txt) return showToast('Veuillez Ã©crire un commentaire', 'warning');
+            if (!txt) return showToast('Veuillez écrire un commentaire', 'warning');
 
             if (currentProduct && AuthManager.user && AuthManager.user.id === currentProduct.user_id) {
-                return showToast('Vous ne pouvez pas Ã©valuer votre propre produit', 'error');
+                return showToast('Vous ne pouvez pas évaluer votre propre produit', 'error');
             }
 
             try {
@@ -606,7 +606,7 @@
                     rating: currentRating, 
                     comment: txt 
                 });
-                if (success) { showToast('Avis publiÃ© !', 'success'); loadReviews(pid); }
+                if (success) { showToast('Avis publié !', 'success'); loadReviews(pid); }
             } catch (e) { showToast('Erreur', 'error'); }
         };
 
@@ -620,16 +620,16 @@
                     prioritizeAvatar: idx === 0
                 })
             ).join('');
-            // Ã  Activer le lazy loading sur les images .lazy-img injectÃ©es
+            // à Activer le lazy loading sur les images .lazy-img injectées
             if (window.initLazyImages) window.initLazyImages(grid);
         }
 
         window.confirmDeleteReview = async (rid) => {
-            if (!confirm('ÃƒÅ tes-vous sÃ»r de vouloir supprimer cet avis ?')) return;
+            if (!confirm('ÃƒÅ tes-vous sûr de vouloir supprimer cet avis ?')) return;
             try {
                 const res = await ReviewManager.deleteReview(rid);
                 if (res.success) {
-                    showToast('Avis supprimÃ©', 'success');
+                    showToast('Avis supprimé', 'success');
                     loadReviews(productId);
                 } else {
                     showToast(res.error || 'Erreur lors de la suppression', 'error');
@@ -644,7 +644,7 @@
         window.changeImageByIndex = (idx, el) => { updateImageUI(parseInt(idx) || 0); if (el) { document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); } };
         window.openZoom = () => { document.getElementById('zoomModalImg').src = document.getElementById('mainImage').src; document.getElementById('zoomModal').classList.remove('invisible', 'opacity-0'); document.body.style.overflow = 'hidden'; };
         window.closeZoom = () => { document.getElementById('zoomModal').classList.add('invisible', 'opacity-0'); document.body.style.overflow = ''; };
-        window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copiÃ© !', 'info'); } };
+        window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copié !', 'info'); } };
         function initRecentlyViewed(p) { let list = JSON.parse(localStorage.getItem('newketRecentlyViewed') || '[]'); list = [p, ...list.filter(item => item.id !== p.id)].slice(0, 10); localStorage.setItem('newketRecentlyViewed', JSON.stringify(list)); }
 
         document.addEventListener('DOMContentLoaded', () => { if (window.newketInitialized) initPage(); else window.addEventListener('newketInitialized', initPage); });

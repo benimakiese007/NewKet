@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" data-theme-default="light">
 
 <head>
@@ -16,8 +16,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
-    <title>Favoris â€¢ NewKet</title>
-    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
+    <title>Favoris • NewKet</title>
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
@@ -52,7 +52,7 @@
         <div class="flex items-center justify-between mb-10">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Mes Favoris</h1>
-                <p id="fav-status" class="text-gray-500 text-sm mt-1">RÃ©cupÃ©ration de vos coups de cÃ…â€œur...</p>
+                <p id="fav-status" class="text-gray-500 text-sm mt-1">Récupération de vos coups de cÃ…“ur...</p>
             </div>
             <button id="clearAllBtn"
                 class="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-4 py-2 rounded-xl">
@@ -66,9 +66,9 @@
             <div class="w-24 h-24 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
                 <iconify-icon icon="solar:heart-broken-linear" width="48"></iconify-icon>
             </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre liste de dÃ©sirs est vide</h2>
-            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous sÃ©duire par nos piÃ¨ces d'exception et
-                enregistrez vos coups de cÃ…â€œur ici.</p>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</h2>
+            <p class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et
+                enregistrez vos coups de cÃ…“ur ici.</p>
             <a href="./catalog"
                 class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                 Voir le catalogue
@@ -143,7 +143,7 @@
                 return;
             }
 
-            if (statusText) statusText.textContent = "GÃ©rez vos articles coups de cÃ…â€œur";
+            if (statusText) statusText.textContent = "Gérez vos articles coups de cÃ…“ur";
             empty.classList.add('hidden');
             grid.classList.remove('hidden');
 
@@ -186,11 +186,11 @@
         document.getElementById('clearAllBtn').onclick = () => {
             showConfirm(
                 'Tout effacer ?',
-                'ÃƒÅ tes-vous sÃ»r de vouloir supprimer tous vos articles favoris ? Cette action est irrÃ©versible.',
+                'ÃƒÅ tes-vous sûr de vouloir supprimer tous vos articles favoris ? Cette action est irréversible.',
                 () => {
                     window.FavoritesManager.clearAll();
                     renderFavorites();
-                    showToast('Tous les favoris ont Ã©tÃ© effacÃ©s', 'info');
+                    showToast('Tous les favoris ont été effacés', 'info');
                 }
             );
         };
