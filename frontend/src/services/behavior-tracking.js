@@ -4,6 +4,7 @@ const BehaviorTracking = {
     _visibleSince: 0,
     _lastClickTs: 0,
     _analyticsCooldownUntil: 0,
+    _analyticsDisabled: false,
     _baseMetaCache: null,
     _baseMetaCacheTs: 0,
 
@@ -185,6 +186,7 @@ const BehaviorTracking = {
     track(eventType, payload = {}) {
         try {
             const now = Date.now();
+            if (this._analyticsDisabled) return;
             if (this._analyticsCooldownUntil && now < this._analyticsCooldownUntil) return;
 
             const mergedMeta = {
@@ -201,12 +203,21 @@ const BehaviorTracking = {
                 active_ms: payload.active_ms || null,
                 metadata: mergedMeta,
                 user_role: window.AuthManager?.role || localStorage.getItem('newketRole') || 'guest',
+            }, {
+                suppressErrorLogging: true,
             }).catch((err) => {
                 // If backend rate-limits, stop sending analytics for the same window
                 // to avoid flooding the console and the API.
                 const status = Number(err?.status || err?.data?.status || 0);
                 if (status === 429) {
                     this._analyticsCooldownUntil = Date.now() + (15 * 60 * 1000);
+                    return;
+                }
+
+                // If the deployment does not expose this optional endpoint,
+                // disable behavior tracking for the rest of the page session.
+                if (status === 404 || status === 405 || status === 501) {
+                    this._analyticsDisabled = true;
                 }
             });
         } catch (_) {}

@@ -1,6 +1,6 @@
 import { captureError } from './sentry.js';
 
-// En production (Vercel) et en développement (vercel dev), les appels /api/* sont routés vers les Serverless Functions.
+// En production (Vercel) et en developpement (vercel dev), les appels /api/* sont routes vers les Serverless Functions.
 let API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // If VITE_API_URL was set to the domain without /api (e.g. https://newket.vercel.app), append /api
@@ -74,7 +74,7 @@ export const ApiClient = {
 
     async fetch(endpoint, options = {}) {
         const url = `${API_BASE_URL}${endpoint}`;
-        
+
         let headers = {
             'Content-Type': 'application/json',
             ...(options.headers || {})
@@ -106,29 +106,29 @@ export const ApiClient = {
             const run = async () => {
                 const response = await fetch(url, config);
 
-            // Safe JSON parse — SW may return plain text (e.g. "Offline") on network failure
-            let data;
-            const contentType = response.headers.get('content-type') || '';
-            if (contentType.includes('application/json')) {
-                data = await response.json();
-            } else {
-                const text = await response.text();
-                try {
-                    data = JSON.parse(text);
-                } catch {
-                    // Plain text fallback (e.g. Service Worker offline response)
-                    data = { error: text || `Erreur réseau (${response.status})` };
+                // Safe JSON parse - SW may return plain text (e.g. "Offline") on network failure
+                let data;
+                const contentType = response.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    try {
+                        data = JSON.parse(text);
+                    } catch {
+                        // Plain text fallback (e.g. Service Worker offline response)
+                        data = { error: text || `Erreur reseau (${response.status})` };
+                    }
                 }
-            }
 
-            if (!response.ok) {
-                const baseMsg = data?.error || `Erreur API ${response.status}`;
-                const details = data?.details ? `: ${data.details}` : '';
-                const err = new Error(`${baseMsg}${details}`);
-                err.status = response.status;
-                err.data = data;
-                throw err;
-            }
+                if (!response.ok) {
+                    const baseMsg = data?.error || `Erreur API ${response.status}`;
+                    const details = data?.details ? `: ${data.details}` : '';
+                    const err = new Error(`${baseMsg}${details}`);
+                    err.status = response.status;
+                    err.data = data;
+                    throw err;
+                }
 
                 if (cacheKey && options.cacheTtlMs) {
                     this._setCachedResponse(cacheKey, data, options.cacheTtlMs);
@@ -149,9 +149,10 @@ export const ApiClient = {
                 return null;
             }
 
-            console.error(`[ApiClient] Error on ${endpoint}:`, error);
-            // Capturer toutes les erreurs d'API (délai, 500, etc) avec le contexte
-            captureError(error, { endpoint, method: options.method || 'GET' });
+            if (!options.suppressErrorLogging) {
+                console.error(`[ApiClient] Error on ${endpoint}:`, error);
+                captureError(error, { endpoint, method: options.method || 'GET' });
+            }
             throw error;
         }
     },

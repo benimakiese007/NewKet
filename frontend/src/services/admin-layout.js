@@ -439,20 +439,20 @@ const AdminLayout = {
 
         const links = [
             { href: this.getShellHref('overview'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble", view: 'overview' },
-            { href: this.getShellHref('realtime'), icon: 'solar:users-group-two-rounded-bold-duotone', label: 'Temps reel', view: 'realtime' },
+            { href: this.getShellHref('realtime'), icon: 'solar:users-group-two-rounded-bold-duotone', label: 'Temps réel', view: 'realtime' },
             { href: this.getShellHref('user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs", view: 'user' },
-            { href: this.getShellHref('products'), icon: 'solar:box-bold', label: 'Controle Catalogue', view: 'products' },
+            { href: this.getShellHref('products'), icon: 'solar:box-bold', label: 'Contrôle Catalogue', view: 'products' },
             { href: this.getShellHref('orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits', view: 'orders' },
             { href: this.getShellHref('otp-guide'), icon: 'solar:password-bold', label: 'Guide', view: 'otp-guide' },
             { href: this.getShellHref('analytics'), icon: 'solar:graph-up-bold', label: 'Comportements', view: 'analytics' },
-            { href: this.getShellHref('activities'), icon: 'solar:history-bold', label: "Journal d'Activites", view: 'activities' },
+            { href: this.getShellHref('activities'), icon: 'solar:history-bold', label: "Journal d'Activités", view: 'activities' },
             { href: this.getShellHref('diagnostics'), icon: 'solar:chart-square-bold', label: "Audit & Diagnostics", view: 'diagnostics' },
             { href: this.getShellHref('reviews'), icon: 'solar:star-bold', label: "Avis & Moderation", view: 'reviews' },
             { href: this.getShellHref('newsletter'), icon: 'solar:letter-bold', label: 'Newsletter', view: 'newsletter' },
             { href: this.getShellHref('notifications-admin'), icon: 'solar:bell-bing-bold', label: 'Notifications', view: 'notifications-admin' },
             { href: this.getShellHref('support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform', view: 'support' },
-            { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: "Securite & Admins", view: 'security' },
-            { href: this.getShellHref('settings'), icon: 'solar:settings-bold', label: 'Parametres', view: 'settings', sub: true }
+            { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins", view: 'security' },
+            { href: this.getShellHref('settings'), icon: 'solar:settings-bold', label: 'Paramètres', view: 'settings', sub: true }
         ];
 
         let sidebarHTML = `
