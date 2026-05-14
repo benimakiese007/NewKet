@@ -17,6 +17,7 @@ const AuthManager = {
     _syncInterval: null,
     _sessionUpdatePromise: null,
     _logoutInProgress: false,
+    _pendingRoleSelection: false,
 
     async init() {
         this._authChecking = true;
@@ -106,106 +107,91 @@ const AuthManager = {
             try {
                 this._logoutInProgress = false;
                 const email = user.email;
-        
-        // --- 🛡️ SECURE ROLE RESOLUTION ---
-        // Priority 1: app_metadata (Controlled strictly by server/admin)
-        // Priority 2: window.ADMIN_EMAILS (Hardcoded whitelist)
-        // Priority 3: user_metadata (Legacy/User-set - fallback only)
-        
-        let role = (user.app_metadata && user.app_metadata.role) || user.user_metadata.role || 'customer';
+                const explicitRole = this.resolveRoleFromUser(user);
 
-        const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-        if (email && admins.includes(email.toLowerCase())) {
-            role = 'admin';
-        }
+                this.user = user;
+                localStorage.setItem('newketUserEmail', email);
+                localStorage.setItem('newketUserId', user.id);
 
-        this.role = role;
-        localStorage.setItem('newketRole', role);
-        localStorage.setItem('newketUserEmail', email);
-        localStorage.setItem('newketUserId', user.id);
+                let profile = await this.getUserProfile(user.id);
 
-        // --- 🖼️ AVATAR RESOLUTION (Priority: DB > OAuth metadata) ---
-        // Always refresh the OAuth avatar URL from user metadata (Google may rotate URLs).
-        const oauthAvatar =
-            user.user_metadata.avatar_url ||
-            user.user_metadata.avatarUrl ||
-            user.user_metadata.picture ||
-            user.user_metadata.picture_url ||
-            user.user_metadata.photo_url ||
-            user.user_metadata.photoURL ||
-            user.user_metadata.avatar ||
-            user.identities?.[0]?.identity_data?.picture ||
-            user.identities?.[0]?.identity_data?.avatar_url ||
-            null;
-        try {
-            if (window.supabaseClient) {
-                const { data: profile } = await window.supabaseClient
-                    .from('users')
-                    .select('avatar')
-                    .eq('id', user.id)
-                    .maybeSingle();
-                const dbAvatar = profile?.avatar || null;
-                // If user has a custom DB avatar, use that. Otherwise always use fresh OAuth URL.
-                const resolvedAvatar = dbAvatar || oauthAvatar;
-                if (resolvedAvatar) {
-                    localStorage.setItem('newketUserAvatar', resolvedAvatar);
-                } else {
-                    localStorage.removeItem('newketUserAvatar');
+                const oauthAvatar =
+                    user.user_metadata.avatar_url ||
+                    user.user_metadata.avatarUrl ||
+                    user.user_metadata.picture ||
+                    user.user_metadata.picture_url ||
+                    user.user_metadata.photo_url ||
+                    user.user_metadata.photoURL ||
+                    user.user_metadata.avatar ||
+                    user.identities?.[0]?.identity_data?.picture ||
+                    user.identities?.[0]?.identity_data?.avatar_url ||
+                    null;
+
+                try {
+                    const dbAvatar = profile?.avatar || null;
+                    const resolvedAvatar = dbAvatar || oauthAvatar;
+                    if (resolvedAvatar) {
+                        localStorage.setItem('newketUserAvatar', resolvedAvatar);
+                    } else {
+                        localStorage.removeItem('newketUserAvatar');
+                    }
+
+                    if (window.supabaseClient && !dbAvatar && oauthAvatar && profile) {
+                        window.supabaseClient
+                            .from('users')
+                            .update({ avatar: oauthAvatar })
+                            .eq('id', user.id)
+                            .then(() => {})
+                            .catch(() => {});
+                    }
+                } catch (_) {
+                    if (oauthAvatar) localStorage.setItem('newketUserAvatar', oauthAvatar);
                 }
-                // Keep the DB avatar in sync with the latest OAuth picture (if no custom upload)
-                if (!dbAvatar && oauthAvatar && profile) {
-                    window.supabaseClient
-                        .from('users')
-                        .update({ avatar: oauthAvatar })
-                        .eq('id', user.id)
-                        .then(() => {})
-                        .catch(() => {});
+
+                if (!profile) {
+                    if (!explicitRole) {
+                        this.markPendingRoleSelection(true);
+                        this.role = null;
+                        this.status = null;
+                        localStorage.removeItem('newketRole');
+                        localStorage.removeItem('newketUserStatus');
+                        this.enforcePermissions();
+                        this.updateAccountLink();
+                        return;
+                    }
+
+                    console.log('[NewKet Auth] New user detected, creating database profile...');
+                    profile = await this.createUserProfile(user, explicitRole);
                 }
-            } else if (oauthAvatar) {
-                localStorage.setItem('newketUserAvatar', oauthAvatar);
-            }
-        } catch (_) {
-            if (oauthAvatar) localStorage.setItem('newketUserAvatar', oauthAvatar);
-        }
 
-        // --- 🛡️ AUTO-PROFILE CREATION (Skill 5 & 6) ---
-        // Verify if user exists in the 'users' table, if not, create it.
-        const profileExists = await this.checkProfile(user.id);
-        if (!profileExists) {
-            console.log('[NewKet Auth] New user detected, creating database profile...');
-            const fullName = user.user_metadata.full_name || user.user_metadata.name || email.split('@')[0];
-            const avatarUrl = localStorage.getItem('newketUserAvatar');
-            
-            const newProfile = {
-                id: user.id,
-                email: email,
-                name: fullName,
-                avatar: avatarUrl,
-                role: role,
-                status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending'
-            };
+                const role = explicitRole || profile?.role || null;
+                if (!role) {
+                    this.markPendingRoleSelection(true);
+                    this.role = null;
+                    this.status = null;
+                    localStorage.removeItem('newketRole');
+                    localStorage.removeItem('newketUserStatus');
+                    this.enforcePermissions();
+                    this.updateAccountLink();
+                    return;
+                }
 
-            const success = await window.SupabaseAdapter.upsert('users', newProfile);
-            if (!success) {
-                console.error('[NewKet Auth] Failed to create profile. User might have limited access.');
-            }
-        }
+                this.markPendingRoleSelection(false);
+                this.role = role;
+                localStorage.setItem('newketRole', role);
 
-            this.status = await this.fetchUserStatus(email);
-            localStorage.setItem('newketUserStatus', this.status);
+                this.status = profile?.status || await this.fetchUserStatus(email);
+                localStorage.setItem('newketUserStatus', this.status);
 
-            this.setupRealtimeSync(user.id);
-            this.enforcePermissions();
-            // Refresh avatar in the header now that DB data is loaded
-            this.updateAccountLink();
+                this.setupRealtimeSync(user.id);
+                this.enforcePermissions();
+                this.updateAccountLink();
 
-            if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
-            if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
-            
+                if (window.FavoritesManager) window.FavoritesManager.syncFromSupabase();
+                if (window.ProfileManager) window.ProfileManager.syncWithSupabase();
             } catch (err) {
                 console.error('[NewKet Auth] handleSessionUpdate error:', err);
             } finally {
-                // Finalize initialization
                 this._authChecking = false;
                 this._initialized = true;
                 document.documentElement.classList.remove('auth-loading');
@@ -257,25 +243,108 @@ const AuthManager = {
         document.documentElement.classList.remove('auth-loading');
     },
 
-    async checkProfile(userId) {
-        if (!window.supabaseClient || !userId) return false;
+    resolveRoleFromUser(user) {
+        if (!user) return null;
+        const email = String(user.email || '').trim().toLowerCase();
+        const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
+        if (email && admins.includes(email)) {
+            return 'admin';
+        }
+        return (user.app_metadata && user.app_metadata.role) || user.user_metadata.role || null;
+    },
+
+    markPendingRoleSelection(isPending) {
+        this._pendingRoleSelection = !!isPending;
+        if (isPending) {
+            localStorage.setItem('newketPendingRoleChoice', 'true');
+        } else {
+            localStorage.removeItem('newketPendingRoleChoice');
+        }
+    },
+
+    hasPendingRoleSelection() {
+        return this._pendingRoleSelection || localStorage.getItem('newketPendingRoleChoice') === 'true';
+    },
+
+    isRoleSelectionPage() {
+        return window.location.pathname.includes('choose-role');
+    },
+
+    getRoleSelectionPath() {
+        return window.resolvePath('choose-role');
+    },
+
+    getRedirectPathForRole(role, status) {
+        if (role === 'admin') return window.resolvePath('admin/');
+        if (role === 'supplier') {
+            return status === 'pending'
+                ? window.resolvePath('seller-onboarding')
+                : window.resolvePath('vendor-dashboard');
+        }
+        return window.resolvePath('customer-dashboard');
+    },
+
+    async getUserProfile(userId) {
+        if (!window.supabaseClient || !userId) return null;
         try {
             const { data, error } = await window.supabaseClient
                 .from('users')
-                .select('id')
+                .select('id, email, name, avatar, role, status')
                 .eq('id', userId)
                 .maybeSingle();
-            
+
             if (error) {
-                console.error('[NewKet Auth] Database error during profile check:', error);
-                return false;
+                console.error('[NewKet Auth] Database error during profile fetch:', error);
+                return null;
             }
-            
-            return !!data;
+
+            return data || null;
         } catch (err) {
-            console.error('[NewKet Auth] Unexpected error checking profile:', err);
-            return false;
+            console.error('[NewKet Auth] Unexpected error fetching profile:', err);
+            return null;
         }
+    },
+
+    async checkProfile(userId) {
+        const profile = await this.getUserProfile(userId);
+        return !!profile;
+    },
+
+    async createUserProfile(user, role) {
+        if (!window.SupabaseAdapter || !user?.id || !user?.email || !role) {
+            throw new Error('[NewKet Auth] Missing data to create user profile.');
+        }
+
+        const email = user.email;
+        const avatarUrl = localStorage.getItem('newketUserAvatar');
+        const profile = {
+            id: user.id,
+            email,
+            name: user.user_metadata.full_name || user.user_metadata.name || email.split('@')[0],
+            avatar: avatarUrl,
+            role,
+            status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending'
+        };
+
+        const success = await window.SupabaseAdapter.upsert('users', profile);
+        if (!success) {
+            throw new Error('[NewKet Auth] Failed to create database profile.');
+        }
+
+        if (window.supabaseClient) {
+            window.supabaseClient.auth.updateUser({
+                data: {
+                    ...user.user_metadata,
+                    role: profile.role,
+                    status: profile.status,
+                    full_name: profile.name
+                }
+            }).catch((error) => {
+                console.warn('[NewKet Auth] Unable to sync role metadata after profile creation:', error?.message || error);
+            });
+        }
+
+        return profile;
     },
 
     setupRealtimeSync(userId) {
@@ -524,32 +593,42 @@ const AuthManager = {
         if (!window.supabaseClient) return;
         
         try {
-            // getUser() always calls the server to get fresh data, unlike getSession()
-            // Use the adapter for a safer session check (includes retry and timeout)
             const session = window.SupabaseAdapter ? await window.SupabaseAdapter.getSession(5000) : null;
             
             if (!session) {
                 console.warn('[NewKet Auth] Session invalid or expired during refresh.');
-                this.logout(false, 'Session expirée');
+                this.logout(false, 'Session expiree');
                 return;
             }
 
-            // double check user object
             const { data: { user }, error } = await window.supabaseClient.auth.getUser();
             
             if (error || !user) {
-                // If it's a server error (5xx), we might want to wait instead of logging out
                 if (error && error.status >= 500) {
                     console.warn('[NewKet Auth] Supabase server error during refresh validation. Skipping logout for now.');
                     return;
                 }
                 console.warn('[NewKet Auth] User invalid or missing during refresh.');
-                this.logout(false, 'Session expirée ou invalide');
+                this.logout(false, 'Session expiree ou invalide');
                 return;
             }
 
-            const newRole = (user.app_metadata && user.app_metadata.role) || user.user_metadata.role || 'customer';
-            
+            const profile = await this.getUserProfile(user.id);
+            const newRole = this.resolveRoleFromUser(user) || profile?.role || null;
+
+            if (!profile && !newRole) {
+                this.markPendingRoleSelection(true);
+                this.role = null;
+                this.status = null;
+                localStorage.removeItem('newketRole');
+                localStorage.removeItem('newketUserStatus');
+                this.enforcePermissions();
+                return;
+            }
+
+            if (!newRole) return;
+
+            this.markPendingRoleSelection(false);
             if (newRole !== this.role) {
                 console.log(`[NewKet Auth] Role change detected: ${this.role} -> ${newRole}`);
                 this.setRole(newRole);
@@ -557,6 +636,42 @@ const AuthManager = {
         } catch (err) {
             console.error('[NewKet Auth] Periodic validation failed:', err);
         }
+    },
+
+    async completeRoleSelection(role) {
+        if (!['customer', 'supplier'].includes(role)) {
+            throw new Error('Role invalide.');
+        }
+
+        const session = window.SupabaseAdapter ? await window.SupabaseAdapter.getSession(5000) : null;
+        const user = session?.user || this.user;
+
+        if (!user?.id || !user?.email) {
+            throw new Error('Session introuvable. Veuillez vous reconnecter.');
+        }
+
+        const existingProfile = await this.getUserProfile(user.id);
+        if (existingProfile?.role) {
+            this.markPendingRoleSelection(false);
+            this.role = existingProfile.role;
+            this.status = existingProfile.status || ((existingProfile.role === 'customer' || existingProfile.role === 'admin') ? 'approved' : 'pending');
+            window.location.href = this.getRedirectPathForRole(this.role, this.status);
+            return;
+        }
+
+        const profile = await this.createUserProfile(user, role);
+        this.markPendingRoleSelection(false);
+        this.role = profile.role;
+        this.status = profile.status;
+        this.user = user;
+        localStorage.setItem('newketRole', this.role);
+        localStorage.setItem('newketUserEmail', user.email);
+        localStorage.setItem('newketUserId', user.id);
+        localStorage.setItem('newketUserStatus', this.status);
+        this.setupRealtimeSync(user.id);
+        this.enforcePermissions();
+        this.updateAccountLink();
+        window.location.href = this.getRedirectPathForRole(this.role, this.status);
     },
 
     redirectToOnboarding() {
@@ -594,18 +709,24 @@ const AuthManager = {
 
         const path = window.location.pathname;
         const isLoginPage = path.includes('login');
+        const isRoleSelectionPage = this.isRoleSelectionPage();
+        const hasPendingRoleSelection = this.hasPendingRoleSelection();
 
-        // --- NEW: Bounce logic for users already logged in ---
-        if (this.role && isLoginPage) {
-            let targetPath = window.resolvePath('customer-dashboard');
-            if (this.role === 'admin') {
-                targetPath = window.resolvePath('admin/');
-            } else if (this.role === 'supplier') {
-                targetPath = window.resolvePath('vendor-dashboard');
+        if (hasPendingRoleSelection) {
+            if (!isRoleSelectionPage) {
+                window.location.href = this.getRoleSelectionPath();
             }
+            return;
+        }
 
-            // Start redirect without freezing the login UI forever.
-            // If navigation fails/gets interrupted, we restore visibility.
+        if (!this.role && isRoleSelectionPage) {
+            window.location.href = window.resolvePath('login');
+            return;
+        }
+
+        if (this.role && (isLoginPage || isRoleSelectionPage)) {
+            const targetPath = this.getRedirectPathForRole(this.role, this.status);
+
             document.body.style.opacity = '0';
             document.body.style.pointerEvents = 'none';
 

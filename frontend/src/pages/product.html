@@ -625,7 +625,7 @@
         }
 
         window.confirmDeleteReview = async (rid) => {
-            if (!confirm('ÃƒÅ tes-vous sûr de vouloir supprimer cet avis ?')) return;
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
             try {
                 const res = await ReviewManager.deleteReview(rid);
                 if (res.success) {

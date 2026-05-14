@@ -6,6 +6,22 @@ from pathlib import Path
 # matching text files as strict UTF-8.
 
 REPLACEMENTS: dict[str, str] = {
+    # Extra mojibake observed in pages/dashboards (kept as Unicode escapes).
+    "\u00C3\u0082\u00C2\u00A9": "\u00A9",  # ???? -> ?
+    "\u00C3\u0082\u00C2\u00B7": "\u00B7",  # ???? -> ?
+    "\u00C3\u0085\u201C": "\u0153",  # ??? -> ?
+    "\u00C3\u2026\u201C": "\u0153",  # ??? (alt) -> ?
+    "\u00C3\u0083\u00C5\u00A0": "\u00CA",  # ???? -> ?
+    "\u00C3\u0083\u00CB\u02C6": "\u00C8",  # ???? -> ?
+
+    # Variants seen in some HTML after mixed cp1252/utf-8 conversions.
+    "\u00C3\u201A\u00C2\u00A9": "\u00A9",  # Ã‚© -> ©
+    "\u00C3\u201A\u00C2\u00B7": "\u00B7",  # Ã‚· -> ·
+    "\u00C3\u0192\u00C5\u00A0": "\u00CA",  # ÃŠ -> Ê
+    "\u00C3\u0192\u00CB\u2020": "\u00C8",  # Ãˆ -> È
+    "\u00E2\u00E2\u20AC\u00A0\u2019": "\u00E0",  # ââ€ ’ -> à
+
+
     # Double-encoded sequences that appear in some HTML titles/text.
     "ÃƒÂ©": "Ã©",
     "ÃƒÂ¨": "Ã¨",
@@ -157,4 +173,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

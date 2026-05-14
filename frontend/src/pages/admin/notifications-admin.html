@@ -393,7 +393,7 @@
                                 <p class="text-sm text-gray-600 mb-2">${n.message}</p>
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                     ${new Date(n.date || n.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                    ${n.sentBy ? 'Ã‚Â· Par ' + n.sentBy : ''}
+                                    ${n.sentBy ? '· Par ' + n.sentBy : ''}
                                 </div>
                             </div>
                         </div>

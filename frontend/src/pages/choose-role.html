@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <script type="module" src="/src/services/admin-config.js" defer></script>
+    <script>
+        (function(){try{localStorage.setItem('newket_theme','light');}catch(e){}document.documentElement.classList.remove('dark');})();
+    </script>
+    <script type="module" src="/src/services/app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <title>Choisir un rôle | NewKet Marketplace</title>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .role-card { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+        .role-card:hover { transform: translateY(-3px); box-shadow: 0 25px 60px rgba(17, 24, 39, .08); border-color: #111827; }
+    </style>
+</head>
+<body class="bg-[#f8f8f6] text-gray-900 antialiased min-h-screen">
+    <main class="min-h-screen flex items-center justify-center px-4 py-10">
+        <section class="w-full max-w-5xl bg-white border border-gray-100 rounded-[2.5rem] shadow-[0_25px_90px_rgba(15,23,42,0.08)] overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-[0.95fr_1.05fr]">
+                <div class="bg-black text-white p-8 md:p-10 flex flex-col justify-between">
+                    <div>
+                        <div class="w-16 h-16 rounded-3xl bg-white/10 flex items-center justify-center mb-6">
+                            <iconify-icon icon="solar:user-id-bold-duotone" width="32"></iconify-icon>
+                        </div>
+                        <p class="text-[11px] font-black uppercase tracking-[0.3em] text-white/55 mb-4">Première connexion</p>
+                        <h1 class="text-3xl md:text-4xl font-black leading-tight mb-5">Choisissez votre rôle pour continuer.</h1>
+                        <p class="text-sm md:text-base text-white/70 leading-7">
+                            La connexion Google est validée, mais l'accès à NewKet reste bloqué tant que vous n'avez pas choisi entre Acheteur et Vendeur.
+                        </p>
+                    </div>
+                    <div class="mt-8 rounded-[1.75rem] border border-white/10 bg-white/5 px-5 py-4">
+                        <p class="text-[11px] uppercase tracking-[0.28em] text-white/45 font-black mb-2">Règle appliquée</p>
+                        <p class="text-sm text-white/75 leading-6">
+                            Aucun profil métier n'est créé avant votre choix. Ce choix est obligatoire.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-8 md:p-10">
+                    <div class="mb-8">
+                        <p class="text-[11px] font-black uppercase tracking-[0.3em] text-gray-400 mb-3">Étape requise</p>
+                        <h2 class="text-2xl md:text-3xl font-black text-gray-900 mb-3">Qui êtes-vous sur NewKet&nbsp;?</h2>
+                        <p id="roleChoiceSubtitle" class="text-sm md:text-base text-gray-500 leading-7">
+                            Sélectionnez votre rôle pour finaliser votre première connexion.
+                        </p>
+                    </div>
+
+                    <div id="roleChoiceError" class="hidden mb-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-600"></div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <button id="chooseCustomerBtn" type="button" class="role-card text-left rounded-[2rem] border border-gray-100 bg-[#fafaf8] p-6">
+                            <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-sm mb-5">
+                                <iconify-icon icon="solar:user-bold-duotone" width="28" class="text-black"></iconify-icon>
+                            </div>
+                            <div class="text-xl font-black text-gray-900 mb-2">Acheteur</div>
+                            <p class="text-sm text-gray-500 leading-6 mb-5">
+                                Parcourez, commandez et gérez vos achats immédiatement.
+                            </p>
+                            <div class="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">
+                                <span>Accès direct</span>
+                                <iconify-icon icon="solar:arrow-right-up-linear" width="16"></iconify-icon>
+                            </div>
+                        </button>
+
+                        <button id="chooseSupplierBtn" type="button" class="role-card text-left rounded-[2rem] border border-gray-100 bg-[#fafaf8] p-6">
+                            <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-sm mb-5">
+                                <iconify-icon icon="solar:shop-bold-duotone" width="28" class="text-black"></iconify-icon>
+                            </div>
+                            <div class="text-xl font-black text-gray-900 mb-2">Vendeur</div>
+                            <p class="text-sm text-gray-500 leading-6 mb-5">
+                                Ouvrez votre boutique et complétez votre dossier vendeur.
+                            </p>
+                            <div class="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.22em] text-gray-400">
+                                <span>Onboarding requis</span>
+                                <iconify-icon icon="solar:document-add-linear" width="16"></iconify-icon>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="mt-8 rounded-[1.75rem] border border-gray-100 bg-gray-50 px-5 py-4">
+                        <p class="text-[11px] uppercase tracking-[0.28em] text-gray-400 font-black mb-2">Important</p>
+                        <p class="text-sm text-gray-500 leading-6">
+                            Si vous fermez cette page sans choisir, votre session restera bloquée ici jusqu'à ce que vous fassiez un choix.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        (function () {
+            const customerBtn = document.getElementById('chooseCustomerBtn');
+            const supplierBtn = document.getElementById('chooseSupplierBtn');
+            const errorBox = document.getElementById('roleChoiceError');
+            const subtitle = document.getElementById('roleChoiceSubtitle');
+
+            function setLoading(button, isLoading, label) {
+                if (!button) return;
+                button.disabled = isLoading;
+                button.classList.toggle('opacity-70', isLoading);
+                button.classList.toggle('pointer-events-none', isLoading);
+                if (isLoading) {
+                    button.dataset.originalHtml = button.innerHTML;
+                    button.innerHTML = `
+                        <div class="flex items-center gap-3 text-sm font-black text-gray-900">
+                            <span class="inline-block h-5 w-5 rounded-full border-2 border-gray-300 border-t-black animate-spin"></span>
+                            <span>${label}</span>
+                        </div>
+                    `;
+                } else if (button.dataset.originalHtml) {
+                    button.innerHTML = button.dataset.originalHtml;
+                    delete button.dataset.originalHtml;
+                }
+            }
+
+            function setButtonsLoading(isLoading, label) {
+                setLoading(customerBtn, isLoading, label);
+                setLoading(supplierBtn, isLoading, label);
+            }
+
+            async function ensurePendingRoleState() {
+                await new Promise((resolve) => {
+                    if (window.newketInitialized) {
+                        resolve();
+                        return;
+                    }
+                    window.addEventListener('newketInitialized', () => resolve(), { once: true });
+                });
+
+                if (!window.AuthManager) return;
+
+                if (window.AuthManager.role && !window.AuthManager.hasPendingRoleSelection()) {
+                    window.location.href = window.AuthManager.getRedirectPathForRole(window.AuthManager.role, window.AuthManager.status);
+                    return;
+                }
+
+                const session = window.SupabaseAdapter ? await window.SupabaseAdapter.getSession(5000) : null;
+                const user = session?.user || window.AuthManager.user;
+                if (!user) {
+                    window.location.href = window.resolvePath('login');
+                    return;
+                }
+
+                const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email;
+                if (subtitle && displayName) {
+                    subtitle.textContent = `${displayName}, sélectionnez votre rôle pour finaliser votre première connexion.`;
+                }
+            }
+
+            async function chooseRole(role) {
+                errorBox.classList.add('hidden');
+                setButtonsLoading(true, 'Validation...');
+                try {
+                    await window.AuthManager.completeRoleSelection(role);
+                } catch (error) {
+                    errorBox.textContent = error?.message || "Impossible d'enregistrer votre choix pour le moment.";
+                    errorBox.classList.remove('hidden');
+                    setButtonsLoading(false);
+                }
+            }
+
+            customerBtn?.addEventListener('click', () => chooseRole('customer'));
+            supplierBtn?.addEventListener('click', () => chooseRole('supplier'));
+
+            ensurePendingRoleState().catch((error) => {
+                errorBox.textContent = error?.message || "Impossible d'initialiser cet écran.";
+                errorBox.classList.remove('hidden');
+            });
+        })();
+    </script>
+</body>
+</html>

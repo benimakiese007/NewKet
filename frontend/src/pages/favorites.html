@@ -52,7 +52,7 @@
         <div class="flex items-center justify-between mb-10">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Mes Favoris</h1>
-                <p id="fav-status" class="text-gray-500 text-sm mt-1">Récupération de vos coups de cÃ…“ur...</p>
+                <p id="fav-status" class="text-gray-500 text-sm mt-1">Récupération de vos coups de cœur...</p>
             </div>
             <button id="clearAllBtn"
                 class="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-4 py-2 rounded-xl">
@@ -68,7 +68,7 @@
             </div>
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</h2>
             <p class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et
-                enregistrez vos coups de cÃ…“ur ici.</p>
+                enregistrez vos coups de cœur ici.</p>
             <a href="./catalog"
                 class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                 Voir le catalogue
@@ -143,7 +143,7 @@
                 return;
             }
 
-            if (statusText) statusText.textContent = "Gérez vos articles coups de cÃ…“ur";
+            if (statusText) statusText.textContent = "Gérez vos articles coups de cœur";
             empty.classList.add('hidden');
             grid.classList.remove('hidden');
 
@@ -186,7 +186,7 @@
         document.getElementById('clearAllBtn').onclick = () => {
             showConfirm(
                 'Tout effacer ?',
-                'ÃƒÅ tes-vous sûr de vouloir supprimer tous vos articles favoris ? Cette action est irréversible.',
+                'Êtes-vous sûr de vouloir supprimer tous vos articles favoris ? Cette action est irréversible.',
                 () => {
                     window.FavoritesManager.clearAll();
                     renderFavorites();
