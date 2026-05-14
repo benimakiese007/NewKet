@@ -1,7 +1,13 @@
 import { captureError } from './sentry.js';
 
 // En production (Vercel) et en développement (vercel dev), les appels /api/* sont routés vers les Serverless Functions.
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+let API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+
+// If VITE_API_URL was set to the domain without /api (e.g. https://newket.vercel.app), append /api
+// to ensure Vercel routes the request to the serverless functions instead of looking for static files.
+if (API_BASE_URL.startsWith('http') && !API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
+    API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+}
 
 function isNetworkFailure(error) {
     const message = error?.message || '';
