@@ -304,17 +304,21 @@
                 o.status
             ]);
 
-            const csvContent = [
-                headers.join(','),
-                ...rows.map(r => r.join(','))
-            ].join('\n');
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `newket - leads - ${new Date().toISOString().split('T')[0]}.csv`);
-            link.click();
+            const filename = `newket-leads-${new Date().toISOString().split('T')[0]}.csv`;
+            if (window.NewKetCsv?.download) {
+                window.NewKetCsv.download(filename, headers, rows);
+            } else {
+                const csvContent = [
+                    headers.join(','),
+                    ...rows.map(r => r.join(','))
+                ].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.click();
+            }
 
             if (window.showToast) showToast('Exportation CSV générée !', 'success');
         }

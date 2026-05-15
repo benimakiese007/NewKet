@@ -22,6 +22,7 @@ import './currency.js';
 import './managers.js';
 
 import './ui-helpers.js';
+import './csv-export.js';
 import './ui.js';
 import './pull-to-refresh.js';
 import './search.js';

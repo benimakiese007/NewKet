@@ -741,6 +741,10 @@
         }
 
         function exportBlob(filename, mime, content) {
+            if (window.NewKetCsv?.downloadBlob) {
+                window.NewKetCsv.downloadBlob(filename, mime, [content]);
+                return;
+            }
             const blob = new Blob([content], { type: mime });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -752,20 +756,13 @@
             setTimeout(() => URL.revokeObjectURL(url), 1000);
         }
 
-        function toCsvValue(value) {
-            const s = value == null ? '' : String(value);
-            if (/["\n,]/.test(s)) return `"${s.replace(/\"/g, '""')}"`;
-            return s;
-        }
-
         function exportCsv() {
             if (!lastResponse) return;
             const rows = Array.isArray(lastResponse.recent_events) ? lastResponse.recent_events : [];
             const header = ['created_at', 'event_type', 'path', 'target', 'user_role', 'session_id', 'user_id', 'device'];
-            const lines = [header.join(',')];
-            rows.forEach((r) => {
+            const csvRows = rows.map((r) => {
                 const device = r.metadata?.device || '';
-                const line = [
+                return [
                     r.created_at,
                     r.event_type,
                     r.path,
@@ -774,10 +771,17 @@
                     r.session_id,
                     r.user_id,
                     device,
-                ].map(toCsvValue).join(',');
-                lines.push(line);
+                ];
             });
-            exportBlob(`newket-comportements-${Date.now()}.csv`, 'text/csv;charset=utf-8', lines.join('\n'));
+
+            const filename = `newket-comportements-${Date.now()}.csv`;
+            if (window.NewKetCsv?.download) {
+                window.NewKetCsv.download(filename, header, csvRows);
+            } else {
+                // Legacy fallback
+                const lines = [header.join(','), ...csvRows.map((r) => r.join(','))];
+                exportBlob(filename, 'text/csv;charset=utf-8', lines.join('\n'));
+            }
         }
 
         function exportJson() {
