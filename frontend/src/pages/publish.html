@@ -606,7 +606,10 @@
                     updateEstimate();
                 } catch (error) {
                     console.error('Error loading product for edit:', error);
-                    if (typeof showToast === 'function') showToast("Erreur lors du chargement du produit", "error");
+                    const msg = (error && error.status === 404)
+                        ? "Erreur 404: l'API n'est pas joignable. VÃ©rifiez la config Vercel de `VITE_API_URL` (elle doit pointer vers /api)."
+                        : "Erreur lors du chargement du produit";
+                    if (typeof showToast === 'function') showToast(msg, "error");
                 }
             }
 
@@ -811,7 +814,10 @@
                     console.error('Publish error:', error);
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
-                    if (typeof showToast === 'function') showToast("Erreur lors de la publication : " + (error.message || "Erreur inconnue"), "error");
+                    const msg = (error && error.status === 404)
+                        ? "Erreur 404: l'API n'est pas joignable. VÃ©rifiez la config Vercel de `VITE_API_URL` (elle doit pointer vers /api) puis rÃ©essayez."
+                        : ("Erreur lors de la publication : " + (error.message || "Erreur inconnue"));
+                    if (typeof showToast === 'function') showToast(msg, "error");
                 }
             });
         });

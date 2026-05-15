@@ -1,12 +1,24 @@
 import { captureError } from './sentry.js';
 
-// En production (Vercel) et en developpement (vercel dev), les appels /api/* sont routes vers les Serverless Functions.
-let API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// En production (Vercel) et en developpement (vercel dev), les appels /api/* sont routés vers les Serverless Functions.
+let API_BASE_URL = (import.meta.env.VITE_API_URL ?? '').trim() || '/api';
 
 // If VITE_API_URL was set to the domain without /api (e.g. https://newket.vercel.app), append /api
 // to ensure Vercel routes the request to the serverless functions instead of looking for static files.
 if (API_BASE_URL.startsWith('http') && !API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
     API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+}
+
+// Common misconfig: VITE_API_URL="/". That would make calls like "/products/..." (404 on Vercel)
+// instead of "/api/products/...".
+if (API_BASE_URL === '/' || API_BASE_URL === '') {
+    API_BASE_URL = '/api';
+}
+
+// If someone configured a relative base that is not /api, force /api to match Vercel routing.
+// Examples: VITE_API_URL="." or "./" or "/src" (all wrong for serverless functions).
+if (!API_BASE_URL.startsWith('http') && !API_BASE_URL.startsWith('/api')) {
+    API_BASE_URL = '/api';
 }
 
 function isNetworkFailure(error) {
