@@ -36,6 +36,37 @@ const hashIp = (ip) => {
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isValidUuid = (id) => typeof id === 'string' && UUID_REGEX.test(id);
 
+const sanitizeText = (value, max = 255) => {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    return trimmed.slice(0, max);
+};
+
+const sanitizePath = (value) => {
+    if (typeof value !== 'string') return null;
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    return trimmed.slice(0, 500);
+};
+
+const sanitizeMetadata = (value) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    const entries = Object.entries(value).slice(0, 50);
+    return Object.fromEntries(entries.map(([key, item]) => {
+        const safeKey = String(key).slice(0, 64);
+        if (item == null) return [safeKey, null];
+        if (['string', 'number', 'boolean'].includes(typeof item)) {
+            return [safeKey, typeof item === 'string' ? item.slice(0, 300) : item];
+        }
+        try {
+            return [safeKey, JSON.parse(JSON.stringify(item))];
+        } catch {
+            return [safeKey, String(item).slice(0, 300)];
+        }
+    }));
+};
+
 // ── CONSTANTES ORDRES & LIVRAISON ────────────────────────────
 const ORDER_STATUSES = {
     PENDING: 'PENDING',
@@ -316,6 +347,43 @@ router.post('/analytics/shop-view', analyticsLimiter, async (req, res) => {
     } catch (err) {
         console.error('[Vercel API] analytics/shop-view:', err);
         return res.status(500).json({ error: 'Failed to record shop view.' });
+    }
+});
+
+router.post('/analytics/events', analyticsLimiter, async (req, res) => {
+    const allowedTypes = new Set(['page_view', 'click', 'heartbeat', 'admin_action']);
+    const eventType = sanitizeText(req.body?.event_type, 32);
+
+    if (!eventType || !allowedTypes.has(eventType)) {
+        return res.status(400).json({ error: 'event_type invalide.' });
+    }
+
+    const activeMsRaw = Number(req.body?.active_ms);
+    const activeMs = Number.isFinite(activeMsRaw)
+        ? Math.max(0, Math.min(60 * 60 * 1000, Math.round(activeMsRaw)))
+        : null;
+
+    try {
+        const sb = supabaseAdmin();
+        const { error } = await sb.from('analytics_events').insert({
+            event_type: eventType,
+            user_id: req.user?.id && isValidUuid(req.user.id) ? req.user.id : null,
+            user_role: sanitizeText(req.user?.app_metadata?.role || req.user?.user_metadata?.role || req.body?.user_role, 32),
+            session_id: sanitizeText(req.body?.session_id, 128),
+            path: sanitizePath(req.body?.path),
+            page_title: sanitizeText(req.body?.page_title, 180),
+            target: sanitizeText(req.body?.target, 180),
+            active_ms: activeMs,
+            metadata: sanitizeMetadata(req.body?.metadata),
+            ip_hash: hashIp(getClientIp(req)),
+            user_agent: typeof req.headers['user-agent'] === 'string' ? req.headers['user-agent'].slice(0, 300) : null,
+        });
+
+        if (error) throw error;
+        return res.json({ success: true });
+    } catch (err) {
+        console.error('[Vercel API] analytics/events:', err);
+        return res.status(500).json({ error: 'Failed to record analytics event.' });
     }
 });
 
