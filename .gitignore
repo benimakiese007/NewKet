@@ -24,5 +24,6 @@ npm-debug.log*
 
 # Build
 frontend/dist/
+frontend/api/_backend/
 
 .vercel
