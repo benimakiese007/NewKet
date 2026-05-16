@@ -260,30 +260,30 @@
                     </div>
                 </div>
                 <nav class="space-y-1">
-                    <a href="javascript:void(0)" data-switch-customer-tab="dashboard" class="sidebar-link active" id="link-dashboard">
+                    <a href="#dashboard" data-switch-customer-tab="dashboard" class="sidebar-link active" id="link-dashboard">
                         <iconify-icon icon="solar:home-2-bold" width="20"></iconify-icon>
                         <span>Accueil</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-customer-tab="orders" class="sidebar-link" id="link-orders">
+                    <a href="#orders" data-switch-customer-tab="orders" class="sidebar-link" id="link-orders">
                         <iconify-icon icon="solar:bag-bold" width="20"></iconify-icon>
                         <span>Mes demandes et devis</span>
                         <span id="customerOrdersBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-customer-tab="achat" class="sidebar-link" id="link-achat">
+                    <a href="#achat" data-switch-customer-tab="achat" class="sidebar-link" id="link-achat">
                         <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                         <span>Achat</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-customer-tab="favorites" class="sidebar-link" id="link-favorites">
+                    <a href="#favorites" data-switch-customer-tab="favorites" class="sidebar-link" id="link-favorites">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
                         <span>Mes Favoris</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-customer-tab="notifications" class="sidebar-link" id="link-notifications">
+                    <a href="#notifications" data-switch-customer-tab="notifications" class="sidebar-link" id="link-notifications">
                         <iconify-icon icon="solar:bell-bold" width="20"></iconify-icon>
                         <span>Notifications</span>
                         <span
                             class="notification-badge ml-auto bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-customer-tab="settings" class="sidebar-link" id="link-settings">
+                    <a href="#settings" data-switch-customer-tab="settings" class="sidebar-link" id="link-settings">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
                         <span>Paramètres</span>
                     </a>
@@ -295,7 +295,7 @@
                     <!-- Admin Link for Suppliers -->
                     <div id="supplier-link-container" class="hidden">
                         <div class="h-px bg-gray-100 my-4 mx-2"></div>
-                        <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('admin/')" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
+                        <a href="/src/pages/admin/index.html" class="sidebar-link bg-red-50 text-red-600 hover:bg-red-100">
                             <iconify-icon icon="solar:shield-user-bold" width="20"></iconify-icon>
                             <span>Espace Vendeur</span>
                         </a>
@@ -399,10 +399,10 @@
                 <div class="flex items-center justify-between">
                     <h1 class="text-2xl font-bold tracking-tight">Mes Notifications</h1>
                     <div class="flex gap-2">
-                        <button onclick="NotificationManager.markAllAsRead(); renderDashboardNotifications();"
+                        <button type="button" data-action="mark-all-notifications-read"
                             class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors">Tout
                             lire</button>
-                        <button onclick="NotificationManager.clearAll(); renderDashboardNotifications();"
+                        <button type="button" data-action="clear-all-notifications"
                             class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">Effacer</button>
                     </div>
                 </div>
@@ -440,11 +440,13 @@
                             <input type="text" id="profName"
                                 class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                         </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <input type="email" id="profEmail"
                                 class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                         </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
                             <input type="tel" id="profPhone"
@@ -495,11 +497,12 @@
                     <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Modifier le mot de passe
                     </h2>
                     <form class="space-y-5" id="passwordForm">
-                        <div>
+                        <div id="currentPasswordGroup">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
                             <input type="password" id="currentPassword" placeholder="••••••••" autocomplete="current-password"
                                 class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                         </div>
+                        <p id="passwordOauthHint" class="hidden text-xs text-gray-500">Compte Google detecte : vous pouvez definir un mot de passe sans saisir un mot de passe actuel.</p>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
                             <input type="password" id="newPassword" placeholder="Minimum 8 caractères" autocomplete="new-password"
@@ -527,7 +530,7 @@
                     <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
                     <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
                 </div>
-                <button onclick="closeOrderModal()"
+                <button type="button" data-action="close-order-modal"
                     class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                 </button>
@@ -601,27 +604,27 @@
 
                     <!-- Actions Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <button id="btnAcceptQuote" onclick="handleAcceptQuote()"
+                        <button id="btnAcceptQuote" type="button"
                             class="hidden flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
                             Accepter le devis
                         </button>
-                        <button id="btnRejectQuote" onclick="handleRejectQuote()"
+                        <button id="btnRejectQuote" type="button"
                             class="hidden flex-1 py-3 bg-white text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
                             Refuser le devis
                         </button>
-                        <button id="btnPayOrder" onclick="handlePayOrder()"
+                        <button id="btnPayOrder" type="button"
                             class="hidden flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:card-send-linear" width="20"></iconify-icon>
                             Passer au paiement
                         </button>
-                        <button id="btnValidateDelivery" onclick="handleValidateDelivery()" 
+                        <button id="btnValidateDelivery" type="button"
                             class="hidden flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
                             Valider la réception
                         </button>
-                        <button id="btnOpenDispute" onclick="showDisputeModal()" 
+                        <button id="btnOpenDispute" type="button"
                             class="hidden flex-1 py-3 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon>
                             Signaler un litige
@@ -647,24 +650,24 @@
                         <div class="flex-1 bg-white rounded-xl border border-gray-200 p-2 focus-within:border-black transition-all">
                             <textarea id="disputeMessageInput" rows="1" class="w-full bg-transparent border-none outline-none text-sm resize-none py-1 px-2" placeholder="Un message pour l'admin ou le vendeur ?"></textarea>
                         </div>
-                        <button onclick="sendDisputeMessage()" id="btnSendDisputeMessage" class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all flex-shrink-0">
+                        <button type="button" id="btnSendDisputeMessage" class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all flex-shrink-0">
                             <iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>
                         </button>
                     </div>
                     <div id="buyerDisputeActions" class="hidden grid grid-cols-2 gap-2">
-                        <button onclick="handleBuyerAcceptDisputeOffer()" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-[10px] font-black uppercase tracking-widest">Accepter l'offre</button>
-                        <button onclick="handleBuyerRejectDisputeOffer()" class="py-3 rounded-xl bg-white border border-orange-200 text-orange-700 hover:bg-orange-50 text-[10px] font-black uppercase tracking-widest">Refuser</button>
+                        <button type="button" data-action="buyer-accept-dispute-offer" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-[10px] font-black uppercase tracking-widest">Accepter l'offre</button>
+                        <button type="button" data-action="buyer-reject-dispute-offer" class="py-3 rounded-xl bg-white border border-orange-200 text-orange-700 hover:bg-orange-50 text-[10px] font-black uppercase tracking-widest">Refuser</button>
                     </div>
                 </div>
 
                 <!-- Actions -->
                 <div class="flex flex-col sm:flex-row gap-3 pt-4">
-                    <button onclick="downloadInvoice()"
+                    <button type="button" data-action="download-invoice"
                         class="flex-1 py-3 bg-gray-100 text-black rounded-xl font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                         <iconify-icon icon="solar:download-minimalistic-linear" width="20"></iconify-icon>
                         Facture PDF
                     </button>
-                    <button onclick="closeOrderModal()"
+                    <button type="button" data-action="close-order-modal"
                         class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors">
                         Fermer
                     </button>
@@ -811,6 +814,52 @@
             // Auto-close sidebar on mobile after selection
             if (window.SidebarManager) SidebarManager.close();
         }
+        window.switchTab = switchTab;
+
+        function bindCustomerDashboardActions() {
+            document.querySelectorAll('[data-switch-customer-tab]').forEach((link) => {
+                if (link.dataset.bound === 'true') return;
+                link.addEventListener('click', (event) => {
+                    const tabId = link.getAttribute('data-switch-customer-tab');
+                    if (tabId) switchTab(tabId, event);
+                });
+                link.dataset.bound = 'true';
+            });
+
+            document.querySelector('[data-action="mark-all-notifications-read"]')?.addEventListener('click', () => {
+                NotificationManager.markAllAsRead();
+                renderDashboardNotifications();
+            });
+
+            document.querySelector('[data-action="clear-all-notifications"]')?.addEventListener('click', () => {
+                NotificationManager.clearAll();
+                renderDashboardNotifications();
+            });
+
+            document.querySelectorAll('[data-action="close-order-modal"]').forEach((button) => {
+                if (button.dataset.bound === 'true') return;
+                button.addEventListener('click', closeOrderModal);
+                button.dataset.bound = 'true';
+            });
+
+            document.getElementById('btnAcceptQuote')?.addEventListener('click', handleAcceptQuote);
+            document.getElementById('btnRejectQuote')?.addEventListener('click', handleRejectQuote);
+            document.getElementById('btnPayOrder')?.addEventListener('click', handlePayOrder);
+            document.getElementById('btnValidateDelivery')?.addEventListener('click', handleValidateDelivery);
+            document.getElementById('btnOpenDispute')?.addEventListener('click', showDisputeModal);
+            document.getElementById('btnSendDisputeMessage')?.addEventListener('click', sendDisputeMessage);
+            document.querySelector('[data-action="buyer-accept-dispute-offer"]')?.addEventListener('click', handleBuyerAcceptDisputeOffer);
+            document.querySelector('[data-action="buyer-reject-dispute-offer"]')?.addEventListener('click', handleBuyerRejectDisputeOffer);
+            document.querySelector('[data-action="download-invoice"]')?.addEventListener('click', downloadInvoice);
+            document.querySelectorAll('[data-action="close-dispute-modal"]').forEach((button) => {
+                if (button.dataset.bound === 'true') return;
+                button.addEventListener('click', closeDisputeModal);
+                button.dataset.bound = 'true';
+            });
+            document.getElementById('btnSubmitDispute')?.addEventListener('click', submitDispute);
+        }
+
+        bindCustomerDashboardActions();
 
         let customerAvatarUploadInFlight = false;
 
@@ -1072,14 +1121,32 @@
             showToast('Adresse de livraison sauvegardée !', 'success');
         });
 
+        function syncPasswordFormMode() {
+            const currentPasswordGroup = document.getElementById('currentPasswordGroup');
+            const currentPasswordInput = document.getElementById('currentPassword');
+            const oauthHint = document.getElementById('passwordOauthHint');
+            const isOauthOnly = !!window.AuthManager?.isOAuthOnlyUser?.();
+
+            if (currentPasswordGroup) currentPasswordGroup.classList.toggle('hidden', isOauthOnly);
+            if (oauthHint) oauthHint.classList.toggle('hidden', !isOauthOnly);
+            if (currentPasswordInput) {
+                currentPasswordInput.required = !isOauthOnly;
+                if (isOauthOnly) currentPasswordInput.value = '';
+            }
+        }
+
+        syncPasswordFormMode();
+        window.addEventListener('newketInitialized', syncPasswordFormMode);
+
         // Password Form Submit
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const currentPass = (document.getElementById('currentPassword')?.value || '').trim();
             const np = (document.getElementById('newPassword')?.value || '').trim();
             const cp = (document.getElementById('confirmPassword')?.value || '').trim();
+            const requiresCurrentPassword = !window.AuthManager?.isOAuthOnlyUser?.();
 
-            if (!currentPass) { showToast('Veuillez saisir votre mot de passe actuel.', 'error'); return; }
+            if (requiresCurrentPassword && !currentPass) { showToast('Veuillez saisir votre mot de passe actuel.', 'error'); return; }
             if (!np) { showToast('Veuillez saisir un nouveau mot de passe.', 'error'); return; }
             if (np.length < 8) { showToast('Le mot de passe doit faire au moins 8 caractères.', 'error'); return; }
             if (np !== cp) { showToast('Les mots de passe ne correspondent pas.', 'error'); return; }
@@ -2416,7 +2483,7 @@
                         <p class="text-sm text-gray-500 font-medium">Commande <span id="disputeOrderId" class="text-indigo-600 font-bold"></span></p>
                     </div>
                 </div>
-                <button onclick="closeDisputeModal()" class="w-8 h-8 rounded-full bg-white hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors shadow-sm">
+                <button type="button" data-action="close-dispute-modal" class="w-8 h-8 rounded-full bg-white hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors shadow-sm">
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                 </button>
             </div>
@@ -2455,10 +2522,10 @@
             </div>
             
             <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
-                <button onclick="closeDisputeModal()" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
+                <button type="button" data-action="close-dispute-modal" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
                     Annuler
                 </button>
-                <button id="btnSubmitDispute" onclick="submitDispute()" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-medium flex items-center gap-2 transition-colors">
+                <button id="btnSubmitDispute" type="button" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-medium flex items-center gap-2 transition-colors">
                     <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Soumettre le litige
                 </button>
             </div>
@@ -2471,4 +2538,3 @@
 </body>
 
 </html>
-

@@ -322,7 +322,7 @@
                                     class="text-[11px] font-bold text-gray-500 group-hover:text-black transition-colors uppercase tracking-wider">Se
                                     souvenir de moi</span>
                             </label>
-                            <button type="button" onclick="handleForgotPassword()"
+                            <button type="button" id="forgotPasswordBtn"
                                 class="text-[11px] font-black uppercase tracking-widest text-black hover:underline decoration-2 underline-offset-4 bg-transparent border-none p-0 cursor-pointer">Oublié
                                 ?</button>
                         </div>
@@ -352,7 +352,7 @@
 
                     <!-- Oauth Providers -->
                     <div class="grid grid-cols-1 gap-4 animate-item">
-                        <button type="button" onclick="signInWithGoogle()" id="google-btn"
+                        <button type="button" id="google-btn"
                             class="social-btn h-12 flex items-center justify-center gap-3 border-2 border-gray-100 rounded-2xl bg-white text-[11px] font-black uppercase tracking-widest text-gray-700 hover:border-gray-200 hover:bg-gray-50 transition-all relative">
                             <iconify-icon icon="logos:google-icon" width="16" id="google-icon"></iconify-icon>
                             <span id="google-btn-text">Google</span>
@@ -435,6 +435,8 @@
         const togglePwdBtn = document.getElementById('togglePassword');
         const pwdInput = document.getElementById('password');
         const emailContainer = document.getElementById('emailContainer');
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+        const googleBtn = document.getElementById('google-btn');
 
         // Setup initial UI for recovery
         if (isRecovery) {
@@ -510,6 +512,8 @@
 
         tabLogin.addEventListener('click', () => switchTab(true));
         tabSignup.addEventListener('click', () => switchTab(false));
+        forgotPasswordBtn?.addEventListener('click', handleForgotPassword);
+        googleBtn?.addEventListener('click', signInWithGoogle);
 
         // --- 4. Password Strength Logic ---
         pwdInput.addEventListener('input', (e) => {

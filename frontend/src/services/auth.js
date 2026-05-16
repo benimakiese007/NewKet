@@ -148,8 +148,10 @@ const AuthManager = {
                     if (oauthAvatar) localStorage.setItem('newketUserAvatar', oauthAvatar);
                 }
 
+                const isOAuthOnlyUser = this.isOAuthOnlyUser(user);
+
                 if (!profile) {
-                    if (!explicitRole) {
+                    if (!explicitRole || (isOAuthOnlyUser && explicitRole !== 'admin')) {
                         this.markPendingRoleSelection(true);
                         this.role = null;
                         this.status = null;
@@ -251,6 +253,37 @@ const AuthManager = {
             return 'admin';
         }
         return (user.app_metadata && user.app_metadata.role) || user.user_metadata.role || null;
+    },
+
+    getAuthProviders(user = this.user) {
+        if (!user) return [];
+        const providers = new Set();
+        const appProviders = Array.isArray(user.app_metadata?.providers) ? user.app_metadata.providers : [];
+        const identities = Array.isArray(user.identities) ? user.identities : [];
+
+        appProviders.forEach((provider) => {
+            if (provider) providers.add(String(provider).toLowerCase());
+        });
+
+        identities.forEach((identity) => {
+            const provider =
+                identity?.provider ||
+                identity?.identity_data?.provider ||
+                identity?.identity_data?.iss;
+            if (provider) providers.add(String(provider).toLowerCase());
+        });
+
+        return Array.from(providers);
+    },
+
+    userHasLocalPassword(user = this.user) {
+        const providers = this.getAuthProviders(user);
+        return providers.includes('email') || providers.includes('password');
+    },
+
+    isOAuthOnlyUser(user = this.user) {
+        const providers = this.getAuthProviders(user);
+        return providers.length > 0 && !this.userHasLocalPassword(user);
     },
 
     markPendingRoleSelection(isPending) {
@@ -1092,7 +1125,7 @@ const AuthManager = {
 
     async changePassword(currentPassword, newPassword) {
         if (!window.supabaseClient) {
-            throw new Error('Supabase non initialisé.');
+            throw new Error('Supabase non initialise.');
         }
         let email = this.user?.email;
         if (!email) {
@@ -1101,10 +1134,22 @@ const AuthManager = {
             email = data?.user?.email || null;
         }
         if (!email) {
-            throw new Error('Utilisateur non authentifié.');
+            throw new Error('Utilisateur non authentifie.');
+        }
+        if (this.isOAuthOnlyUser()) {
+            if (!newPassword) {
+                throw new Error('Parametres invalides.');
+            }
+            const { error: updateError } = await window.supabaseClient.auth.updateUser({
+                password: newPassword
+            });
+            if (updateError) {
+                throw updateError;
+            }
+            return true;
         }
         if (!currentPassword || !newPassword) {
-            throw new Error('Paramètres invalides.');
+            throw new Error('Parametres invalides.');
         }
 
         // Re-authenticate to ensure the current password is correct

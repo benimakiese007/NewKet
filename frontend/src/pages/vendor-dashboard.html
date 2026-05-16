@@ -111,37 +111,37 @@
 
                 <!-- Navigation -->
                 <nav class="space-y-1.5">
-                    <a href="javascript:void(0)" data-switch-vendor-tab="dashboard" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
+                    <a href="#dashboard" data-switch-vendor-tab="dashboard" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
                         <iconify-icon icon="solar:chart-square-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Tableau de bord</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-vendor-tab="analytics" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
+                    <a href="#analytics" data-switch-vendor-tab="analytics" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
                         <iconify-icon icon="solar:graph-up-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Analyses & Stats</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/publish')" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
+                    <a href="/src/pages/publish.html" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
                         <iconify-icon icon="solar:add-circle-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Publier un article</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-vendor-tab="products" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
+                    <a href="#products" data-switch-vendor-tab="products" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
                         <iconify-icon icon="solar:box-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Mes Produits</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-vendor-tab="leads" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
+                    <a href="#leads" data-switch-vendor-tab="leads" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
                         <iconify-icon icon="solar:card-send-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Demandes et devis</span>
                         <span id="vendorLeadsBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-vendor-tab="purchases" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
+                    <a href="#purchases" data-switch-vendor-tab="purchases" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
                         <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Mes Achats</span>
                     </a>
-                    <a href="javascript:void(0)" data-switch-vendor-tab="promos" class="sidebar-link group btn-active-scale" aria-label="Codes promo">
+                    <a href="#promos" data-switch-vendor-tab="promos" class="sidebar-link group btn-active-scale" aria-label="Codes promo">
                         <iconify-icon icon="solar:ticket-sale-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Codes promo</span>
                     </a>
                     <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
-                        <a href="javascript:void(0)" data-switch-vendor-tab="settings" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
+                        <a href="#settings" data-switch-vendor-tab="settings" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
                             <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Paramètres</span>
                         </a>
@@ -179,7 +179,7 @@
                             <h1 class="text-fluid-h1 font-bold tracking-tight">Bonjour, <span id="vendorDisplay">Vendeur</span></h1>
                             <p class="text-gray-500 mt-1">Voici un aperçu de l'activité de votre boutique aujourd'hui.</p>
                         </div>
-                        <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/publish')"
+                        <a href="/src/pages/publish.html"
                             class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all btn-active-scale">Ajouter
                             un produit</a>
                     </div>
@@ -409,6 +409,7 @@
                                 <h3 class="font-bold text-gray-900">Évolution de l'Audience</h3>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Visites boutique par jour</p>
                             </div>
+
                             <div class="flex items-center gap-2">
                                 <div class="w-2 h-2 rounded-full bg-black"></div>
                                 <span class="text-[10px] font-black uppercase tracking-widest text-gray-600">Visites</span>
@@ -426,6 +427,7 @@
                                 <h3 class="font-bold text-gray-900">Top Produits</h3>
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Les plus consultés</p>
                             </div>
+
                         </div>
                         <div class="space-y-6" id="analyticsTopProducts">
                             <!-- Injected by JS -->
@@ -710,10 +712,11 @@
 
                         <form id="vendorPasswordForm" class="space-y-4 w-full">
                             <input type="text" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
-                            <div>
+                            <div id="vendorCurrentPasswordGroup">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Mot de passe actuel</label>
                                 <input id="vCurrentPassword" name="vCurrentPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="current-password">
                             </div>
+                            <p id="vendorPasswordOauthHint" class="hidden text-xs text-gray-500">Compte Google detecte : vous pouvez definir un mot de passe sans saisir un mot de passe actuel.</p>
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Nouveau mot de passe</label>
                                 <input id="vNewPassword" name="vNewPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="new-password">
@@ -810,7 +813,7 @@
                                     <div class="flex gap-2">
                                         <input type="text" id="vOtpInput" maxlength="6" placeholder="000000" 
                                             class="flex-1 bg-white border border-purple-200 rounded-xl px-4 py-3 text-center text-xl font-black tracking-[0.5em] focus:ring-2 focus:ring-purple-500 outline-none">
-                                        <button onclick="handleVerifyOTP()" 
+                                        <button id="btnVerifyVendorOtp"
                                             class="px-6 py-3 bg-purple-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-700 transition-all flex items-center gap-2">
                                             Vérifier
                                         </button>
@@ -831,11 +834,11 @@
                                             <iconify-icon icon="solar:hand-shake-bold" width="16"></iconify-icon>
                                             Refund total
                                         </button>
-                                        <button onclick="handleVendorPartialOffer()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                                        <button id="btnVendorPartialOffer" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
                                             <iconify-icon icon="solar:wallet-money-bold" width="16"></iconify-icon>
                                             Offre partielle
                                         </button>
-                                        <button onclick="handleVendorContest()" class="w-full py-3 bg-slate-900 hover:bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/20">
+                                        <button id="btnVendorContest" class="w-full py-3 bg-slate-900 hover:bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-900/20">
                                             <iconify-icon icon="solar:shield-cross-bold" width="16"></iconify-icon>
                                             Contester
                                         </button>
@@ -851,8 +854,8 @@
                                             <div class="text-center text-[10px] text-gray-400 italic mt-4">Chargement...</div>
                                         </div>
                                         <div class="flex gap-2">
-                                            <input type="text" id="vDisputeMessageInput" class="flex-1 bg-white border border-red-200 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-red-500 outline-none placeholder-gray-400 font-medium" placeholder="Votre message..." onkeydown="if(event.key === 'Enter') window.sendVendorDisputeMessage()">
-                                            <button onclick="window.sendVendorDisputeMessage()" class="px-5 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-md shadow-red-600/20 active:scale-95 group">
+                                            <input type="text" id="vDisputeMessageInput" class="flex-1 bg-white border border-red-200 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-red-500 outline-none placeholder-gray-400 font-medium" placeholder="Votre message...">
+                                            <button id="btnSendVendorDisputeMessage" class="px-5 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors shadow-md shadow-red-600/20 active:scale-95 group">
                                                 <iconify-icon icon="solar:plain-bold" width="16" class="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></iconify-icon>
                                             </button>
                                         </div>
@@ -1108,7 +1111,7 @@
                     if (tabEl) tabEl.classList.remove('hidden');
 
                     // Activer le lien du sidebar (null-safe)
-                    const activeLink = document.querySelector('a[onclick*="' + tabId + '"]');
+                    const activeLink = document.querySelector('[data-switch-vendor-tab="' + tabId + '"]');
                     if (activeLink) activeLink.classList.add('active');
 
                     // Charger les données de l'onglet
@@ -1182,6 +1185,25 @@
                             initVendorDashboard();
                         });
                     }
+
+                    document.querySelectorAll('[data-switch-vendor-tab]').forEach((link) => {
+                        link.addEventListener('click', (event) => {
+                            switchVendorTab(link.dataset.switchVendorTab, event);
+                        });
+                    });
+
+                    document.getElementById('btnVerifyVendorOtp')?.addEventListener('click', handleVerifyOTP);
+                    document.getElementById('btnVendorPartialOffer')?.addEventListener('click', handleVendorPartialOffer);
+                    document.getElementById('btnVendorContest')?.addEventListener('click', handleVendorContest);
+                    document.getElementById('btnSendVendorDisputeMessage')?.addEventListener('click', () => {
+                        window.sendVendorDisputeMessage();
+                    });
+                    document.getElementById('vDisputeMessageInput')?.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            window.sendVendorDisputeMessage();
+                        }
+                    });
 
                     // Update Sidebar Name & Settings
                     const updateVendorName = async () => {
@@ -1538,6 +1560,22 @@
 
                     // Handle Password Update
                     const passwordForm = document.getElementById('vendorPasswordForm');
+                    const syncVendorPasswordFormMode = () => {
+                        const currentPasswordGroup = document.getElementById('vendorCurrentPasswordGroup');
+                        const currentPasswordInput = document.getElementById('vCurrentPassword');
+                        const oauthHint = document.getElementById('vendorPasswordOauthHint');
+                        const isOauthOnly = !!window.AuthManager?.isOAuthOnlyUser?.();
+
+                        if (currentPasswordGroup) currentPasswordGroup.classList.toggle('hidden', isOauthOnly);
+                        if (oauthHint) oauthHint.classList.toggle('hidden', !isOauthOnly);
+                        if (currentPasswordInput) {
+                            currentPasswordInput.required = !isOauthOnly;
+                            if (isOauthOnly) currentPasswordInput.value = '';
+                        }
+                    };
+
+                    syncVendorPasswordFormMode();
+                    window.addEventListener('newketInitialized', syncVendorPasswordFormMode);
                     if (passwordForm) {
                         passwordForm.addEventListener('submit', async (e) => {
                             e.preventDefault();
@@ -1546,8 +1584,9 @@
                             const currentPass = (document.getElementById('vCurrentPassword')?.value || '').trim();
                             const newPass = (document.getElementById('vNewPassword')?.value || '').trim();
                             const confirmPass = (document.getElementById('vConfirmPassword')?.value || '').trim();
+                            const requiresCurrentPassword = !window.AuthManager?.isOAuthOnlyUser?.();
 
-                            if (!currentPass) {
+                            if (requiresCurrentPassword && !currentPass) {
                                 if (window.showToast) window.showToast('Veuillez saisir votre mot de passe actuel.', 'warning', 'Sécurité');
                                 return;
                             }
@@ -1895,7 +1934,7 @@
                                     </div>
                                     <p class="text-sm text-amber-700/80 leading-relaxed max-w-xl">Votre aventure NewKet commence ici. Soumettez vos informations pour que notre équipe puisse valider votre boutique exclusive.</p>
                                 </div>
-                                <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/seller-onboarding')" class="bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs hover:bg-black transition-all shadow-xl shadow-gray-200 flex items-center gap-2 group">
+                                <a href="/src/pages/seller-onboarding.html" class="bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs hover:bg-black transition-all shadow-xl shadow-gray-200 flex items-center gap-2 group">
                                     Compléter mon profil
                                     <iconify-icon icon="solar:arrow-right-linear" class="group-hover:translate-x-1 transition-transform"></iconify-icon>
                                 </a>
