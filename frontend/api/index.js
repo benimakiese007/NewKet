@@ -3,4 +3,8 @@
 // otherwise Vercel serverless functions fail with ERR_MODULE_NOT_FOUND.
 import app from './_backend/src/server.js';
 
-export default app;
+// Vercel Node functions expect a request handler. Express apps are callable,
+// but exporting an explicit handler is more reliable across bundlers/runtimes.
+export default function handler(req, res) {
+  return app(req, res);
+}
