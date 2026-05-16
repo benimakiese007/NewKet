@@ -54,6 +54,22 @@ const ALLOWED_ORIGINS = [
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
 ];
 
+function isAllowedVercelOrigin(origin) {
+  if (typeof origin !== 'string' || !origin) return false;
+
+  try {
+    const { protocol, hostname } = new URL(origin);
+    if (protocol !== 'https:') return false;
+
+    return hostname === 'newket.vercel.app'
+      || hostname === 'new-ket-benimakiese1234-8436s-projects.vercel.app'
+      || hostname === 'new-ket-git-main-benimakiese1234-8436s-projects.vercel.app'
+      || hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+}
+
 const cspDirectives = {
   defaultSrc: ["'self'"],
   baseUri: ["'self'"],
@@ -78,6 +94,10 @@ app.use(cors({
     }
 
     if (ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+
+    if (isAllowedVercelOrigin(origin)) {
       return callback(null, true);
     }
 

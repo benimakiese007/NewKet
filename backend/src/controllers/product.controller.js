@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '../config/supabase.js';
 import { flushCache } from '../middlewares/cache.js';
 
 // ─── Singleton Supabase client ─────────────────────────────────────────────
@@ -32,6 +33,47 @@ const getScopedClient = (req) => {
         });
     }
     return _publicClient; // Singleton réutilisé pour toutes les requêtes publiques
+};
+
+const normalizeEmail = (value) => (typeof value === 'string' ? value.trim().toLowerCase() : '');
+
+const isAdminUser = (req) => req?.user?.app_metadata?.role === 'admin';
+
+const assertProductOwnership = async (req, id) => {
+    const { data: product, error } = await supabaseAdmin
+        .from('products')
+        .select('id, user_id, supplier_email')
+        .eq('id', id)
+        .maybeSingle();
+
+    if (error) throw error;
+
+    if (!product) {
+        return {
+            ok: false,
+            status: 404,
+            error: 'Produit non trouvé'
+        };
+    }
+
+    const requestUserId = req?.user?.id || null;
+    const requestUserEmail = normalizeEmail(req?.user?.email);
+    const productUserId = product.user_id || null;
+    const productEmail = normalizeEmail(product.supplier_email);
+
+    const isOwner = isAdminUser(req)
+        || (requestUserId && productUserId && requestUserId === productUserId)
+        || (requestUserEmail && productEmail && requestUserEmail === productEmail);
+
+    if (!isOwner) {
+        return {
+            ok: false,
+            status: 403,
+            error: 'Accès refusé à ce produit.'
+        };
+    }
+
+    return { ok: true, product };
 };
 
 
@@ -157,10 +199,12 @@ export const updateProduct = async (req, res) => {
             return res.status(400).json({ error: 'Aucune donnée valide à mettre à jour.' });
         }
 
-        const supabase = getScopedClient(req);
+        const ownership = await assertProductOwnership(req, id);
+        if (!ownership.ok) {
+            return res.status(ownership.status).json({ error: ownership.error });
+        }
 
-        // La logique RLS de Supabase empêchera la mise à jour si ce n'est pas le propriétaire
-        const { data, error } = await supabase
+        const { data, error } = await supabaseAdmin
             .from('products')
             .update(updateData)
             .eq('id', id)
@@ -182,9 +226,12 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const supabase = getScopedClient(req);
+        const ownership = await assertProductOwnership(req, id);
+        if (!ownership.ok) {
+            return res.status(ownership.status).json({ error: ownership.error });
+        }
 
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
             .from('products')
             .delete()
             .eq('id', id);
