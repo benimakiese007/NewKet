@@ -6,6 +6,7 @@
  */
 // Admin email list is now centralized in admin-config.js (synchronous script)
 const ADMIN_EMAILS = window.ADMIN_EMAILS || [];
+const ALLOWED_ROLES = new Set(['customer', 'supplier', 'admin']);
 
 const AuthManager = {
     role: null,
@@ -250,7 +251,15 @@ const AuthManager = {
         if (email && admins.includes(email)) {
             return 'admin';
         }
-        return (user.app_metadata && user.app_metadata.role) || user.user_metadata.role || null;
+        const metadataRole =
+            (user.app_metadata && user.app_metadata.role) ||
+            user.user_metadata.role ||
+            null;
+
+        if (!metadataRole) return null;
+
+        const normalizedRole = String(metadataRole).trim().toLowerCase();
+        return ALLOWED_ROLES.has(normalizedRole) ? normalizedRole : null;
     },
 
     getAuthProviders(user = this.user) {
@@ -303,6 +312,7 @@ const AuthManager = {
         const explicitRole = this.resolveRoleFromUser(user);
         if (explicitRole === 'admin') return false;
         if (profile?.role) return false;
+        if (this.hasPendingRoleSelection()) return true;
 
         return this.isOAuthOnlyUser(user) || !explicitRole;
     },

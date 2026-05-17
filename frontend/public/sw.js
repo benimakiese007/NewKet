@@ -65,6 +65,13 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // Never proxy third-party assets through the service worker.
+    // This avoids CSP connect-src failures for Google Fonts, Google avatars,
+    // Unsplash images, and similar external resources.
+    if (url.origin !== self.location.origin) {
+        return;
+    }
+
     // Skip: non-http, Supabase, Iconify, and all backend API calls
     if (
         !event.request.url.startsWith('http') ||
