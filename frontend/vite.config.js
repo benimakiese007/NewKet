@@ -74,6 +74,7 @@ export default defineConfig({
         product: resolve(__dirname, 'src/pages/product.html'),
         publish: resolve(__dirname, 'src/pages/publish.html'),
         login: resolve(__dirname, 'src/pages/login.html'),
+        choose_role: resolve(__dirname, 'src/pages/choose-role.html'),
         dashboard: resolve(__dirname, 'src/pages/vendor-dashboard.html'),
         customer: resolve(__dirname, 'src/pages/customer-dashboard.html'),
         settings: resolve(__dirname, 'src/pages/settings.html'),
