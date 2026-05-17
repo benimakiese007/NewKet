@@ -1125,12 +1125,13 @@
             const currentPasswordGroup = document.getElementById('currentPasswordGroup');
             const currentPasswordInput = document.getElementById('currentPassword');
             const oauthHint = document.getElementById('passwordOauthHint');
-            const isOauthOnly = !!window.AuthManager?.isOAuthOnlyUser?.();
+            const requiresCurrentPassword = !!window.AuthManager?.requiresCurrentPassword?.();
+            const isOauthOnly = !requiresCurrentPassword;
 
             if (currentPasswordGroup) currentPasswordGroup.classList.toggle('hidden', isOauthOnly);
             if (oauthHint) oauthHint.classList.toggle('hidden', !isOauthOnly);
             if (currentPasswordInput) {
-                currentPasswordInput.required = !isOauthOnly;
+                currentPasswordInput.required = requiresCurrentPassword;
                 if (isOauthOnly) currentPasswordInput.value = '';
             }
         }
@@ -1144,7 +1145,7 @@
             const currentPass = (document.getElementById('currentPassword')?.value || '').trim();
             const np = (document.getElementById('newPassword')?.value || '').trim();
             const cp = (document.getElementById('confirmPassword')?.value || '').trim();
-            const requiresCurrentPassword = !window.AuthManager?.isOAuthOnlyUser?.();
+            const requiresCurrentPassword = !!window.AuthManager?.requiresCurrentPassword?.();
 
             if (requiresCurrentPassword && !currentPass) { showToast('Veuillez saisir votre mot de passe actuel.', 'error'); return; }
             if (!np) { showToast('Veuillez saisir un nouveau mot de passe.', 'error'); return; }

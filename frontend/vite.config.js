@@ -103,6 +103,7 @@ export default defineConfig({
         admin_diagnostics: resolve(__dirname, 'src/pages/admin/diagnostics.html'),
         admin_notifications: resolve(__dirname, 'src/pages/admin/notifications-admin.html'),
         admin_orders: resolve(__dirname, 'src/pages/admin/orders.html'),
+        admin_otp_guide: resolve(__dirname, 'src/pages/admin/otp-guide.html'),
         admin_products: resolve(__dirname, 'src/pages/admin/products.html'),
         admin_reviews: resolve(__dirname, 'src/pages/admin/reviews.html'),
         admin_settings: resolve(__dirname, 'src/pages/admin/settings.html'),

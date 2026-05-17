@@ -1564,12 +1564,13 @@
                         const currentPasswordGroup = document.getElementById('vendorCurrentPasswordGroup');
                         const currentPasswordInput = document.getElementById('vCurrentPassword');
                         const oauthHint = document.getElementById('vendorPasswordOauthHint');
-                        const isOauthOnly = !!window.AuthManager?.isOAuthOnlyUser?.();
+                        const requiresCurrentPassword = !!window.AuthManager?.requiresCurrentPassword?.();
+                        const isOauthOnly = !requiresCurrentPassword;
 
                         if (currentPasswordGroup) currentPasswordGroup.classList.toggle('hidden', isOauthOnly);
                         if (oauthHint) oauthHint.classList.toggle('hidden', !isOauthOnly);
                         if (currentPasswordInput) {
-                            currentPasswordInput.required = !isOauthOnly;
+                            currentPasswordInput.required = requiresCurrentPassword;
                             if (isOauthOnly) currentPasswordInput.value = '';
                         }
                     };
@@ -1584,7 +1585,7 @@
                             const currentPass = (document.getElementById('vCurrentPassword')?.value || '').trim();
                             const newPass = (document.getElementById('vNewPassword')?.value || '').trim();
                             const confirmPass = (document.getElementById('vConfirmPassword')?.value || '').trim();
-                            const requiresCurrentPassword = !window.AuthManager?.isOAuthOnlyUser?.();
+                            const requiresCurrentPassword = !!window.AuthManager?.requiresCurrentPassword?.();
 
                             if (requiresCurrentPassword && !currentPass) {
                                 if (window.showToast) window.showToast('Veuillez saisir votre mot de passe actuel.', 'warning', 'Sécurité');

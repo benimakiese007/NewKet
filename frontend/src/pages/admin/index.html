@@ -261,52 +261,6 @@
                             <div class="text-xs text-gray-400 italic">Connexion au canal de présence...</div>
                         </div>
                     </div>
-
-                    <div class="glass-panel p-6">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="min-w-0">
-                                <h3 class="font-bold text-gray-900 mb-1 flex items-center gap-2">
-                                    <span class="relative flex h-2.5 w-2.5">
-                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
-                                    </span>
-                                    Temps réel
-                                </h3>
-                                <div class="text-xs text-gray-500">Utilisateurs actifs + top boutiques (admin exclu).</div>
-                            </div>
-                            <a href="/src/pages/admin/index.html?view=realtime" class="px-3 py-2 rounded-xl bg-black text-white text-[10px] font-black uppercase tracking-widest">Ouvrir</a>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel p-6">
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                                <iconify-icon icon="solar:password-bold" width="24"></iconify-icon>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="text-[10px] font-black uppercase tracking-[0.24em] text-amber-600 mb-2">Livraison securisee</div>
-                                <h3 class="text-lg font-black text-gray-900 leading-tight">Comprendre le fonctionnement OTP</h3>
-                                <p class="text-sm text-gray-500 mt-2">Ouvre une page admin qui explique quand le code OTP est genere, ou il apparait, qui le saisit et ce qui se passe apres validation.</p>
-                                <a href="/src/pages/admin/index.html?view=otp-guide"
-                                    class="inline-flex items-center gap-2 mt-4 bg-black text-white px-4 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-xl shadow-black/10">
-                                    <iconify-icon icon="solar:arrow-right-up-bold" width="16"></iconify-icon>
-                                    Voir le guide
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- System Activity -->
-                    <div class="glass-panel p-6">
-                        <h3 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
-                            <iconify-icon icon="solar:bell-bing-bold-duotone" width="20"
-                                class="text-blue-500"></iconify-icon>
-                            Activité
-                        </h3>
-                        <div id="activityFeed" class="space-y-6">
-                            <!-- Activity items injected here -->
-                        </div>
-                    </div>
                 </div>
             </div>
             </div>
@@ -747,6 +701,7 @@
 
         function populateActivity() {
             const list = document.getElementById('activityFeed');
+            if (!list) return;
             const activities = ActivityManager.getActivities().slice(0, 5);
 
             if (activities.length === 0) {

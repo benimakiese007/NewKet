@@ -136,6 +136,7 @@ function parseBehaviorFilters(req) {
     const device = sanitizeText(req.query.device, 16);
     const auth = sanitizeText(req.query.auth, 16); // authenticated | guest | all
     const includeAdmin = String(req.query.include_admin || '').trim() === '1';
+    const userId = sanitizeText(req.query.user_id, 64);
 
     const pathContains = sanitizeText(req.query.path_contains, 180);
     const targetContains = sanitizeText(req.query.target_contains, 180);
@@ -146,6 +147,7 @@ function parseBehaviorFilters(req) {
         device: device && device !== 'all' ? device : null,
         auth: auth && auth !== 'all' ? auth : null,
         includeAdmin,
+        userId: isValidUuid(userId) ? userId : null,
         pathContains,
         targetContains,
     };
@@ -171,6 +173,10 @@ function applyBehaviorFilters(query, filters) {
         query = query.not('user_id', 'is', null);
     } else if (filters.auth === 'guest') {
         query = query.is('user_id', null);
+    }
+
+    if (filters.userId) {
+        query = query.eq('user_id', filters.userId);
     }
 
     if (filters.pathContains) {

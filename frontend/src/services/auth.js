@@ -148,26 +148,24 @@ const AuthManager = {
                     if (oauthAvatar) localStorage.setItem('newketUserAvatar', oauthAvatar);
                 }
 
-                const isOAuthOnlyUser = this.isOAuthOnlyUser(user);
+                if (!profile && this.shouldRequireRoleSelection(user, profile)) {
+                    this.markPendingRoleSelection(true);
+                    this.role = null;
+                    this.status = null;
+                    localStorage.removeItem('newketRole');
+                    localStorage.removeItem('newketUserStatus');
+                    this.enforcePermissions();
+                    this.updateAccountLink();
+                    return;
+                }
 
                 if (!profile) {
-                    if (!explicitRole || (isOAuthOnlyUser && explicitRole !== 'admin')) {
-                        this.markPendingRoleSelection(true);
-                        this.role = null;
-                        this.status = null;
-                        localStorage.removeItem('newketRole');
-                        localStorage.removeItem('newketUserStatus');
-                        this.enforcePermissions();
-                        this.updateAccountLink();
-                        return;
-                    }
-
                     console.log('[NewKet Auth] New user detected, creating database profile...');
                     profile = await this.createUserProfile(user, explicitRole);
                 }
 
                 const role = explicitRole || profile?.role || null;
-                if (!role) {
+                if (!role || this.shouldRequireRoleSelection(user, profile)) {
                     this.markPendingRoleSelection(true);
                     this.role = null;
                     this.status = null;
@@ -260,8 +258,17 @@ const AuthManager = {
         const providers = new Set();
         const appProviders = Array.isArray(user.app_metadata?.providers) ? user.app_metadata.providers : [];
         const identities = Array.isArray(user.identities) ? user.identities : [];
+        const singleProviders = [
+            user.app_metadata?.provider,
+            user.user_metadata?.provider,
+            user.user_metadata?.iss
+        ];
 
         appProviders.forEach((provider) => {
+            if (provider) providers.add(String(provider).toLowerCase());
+        });
+
+        singleProviders.forEach((provider) => {
             if (provider) providers.add(String(provider).toLowerCase());
         });
 
@@ -284,6 +291,20 @@ const AuthManager = {
     isOAuthOnlyUser(user = this.user) {
         const providers = this.getAuthProviders(user);
         return providers.length > 0 && !this.userHasLocalPassword(user);
+    },
+
+    requiresCurrentPassword(user = this.user) {
+        return !this.isOAuthOnlyUser(user);
+    },
+
+    shouldRequireRoleSelection(user = this.user, profile = null) {
+        if (!user) return false;
+
+        const explicitRole = this.resolveRoleFromUser(user);
+        if (explicitRole === 'admin') return false;
+        if (profile?.role) return false;
+
+        return this.isOAuthOnlyUser(user) || !explicitRole;
     },
 
     markPendingRoleSelection(isPending) {
@@ -649,7 +670,7 @@ const AuthManager = {
             const profile = await this.getUserProfile(user.id);
             const newRole = this.resolveRoleFromUser(user) || profile?.role || null;
 
-            if (!profile && !newRole) {
+            if (this.shouldRequireRoleSelection(user, profile) || (!profile && !newRole)) {
                 this.markPendingRoleSelection(true);
                 this.role = null;
                 this.status = null;
@@ -1136,7 +1157,7 @@ const AuthManager = {
         if (!email) {
             throw new Error('Utilisateur non authentifie.');
         }
-        if (this.isOAuthOnlyUser()) {
+        if (!this.requiresCurrentPassword()) {
             if (!newPassword) {
                 throw new Error('Parametres invalides.');
             }

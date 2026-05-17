@@ -753,6 +753,12 @@
             if (spinner) spinner.classList.remove('hidden');
 
             try {
+                localStorage.removeItem('newketRole');
+                localStorage.removeItem('newketUserStatus');
+                localStorage.setItem('newketPendingRoleChoice', 'true');
+            } catch (_) {}
+
+            try {
                 const { data, error } = await supabaseClient.auth.signInWithOAuth({
                     provider: provider,
                     options: {
@@ -763,6 +769,9 @@
                 // Redirect will be handled by browser
             } catch (e) {
                 console.error("OAuth Error:", e);
+                try {
+                    localStorage.removeItem('newketPendingRoleChoice');
+                } catch (_) {}
                 showError(`Erreur lors de la connexion via ${provider}.`);
                 
                 // Reset UI

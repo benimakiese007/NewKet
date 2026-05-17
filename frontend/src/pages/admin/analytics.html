@@ -51,6 +51,26 @@
                 </div>
             </div>
 
+            <section class="glass-panel p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    <div class="lg:col-span-5">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vue utilisateur</div>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input id="userSearchInput" list="userSearchList" type="text" placeholder="Nom, email ou ID utilisateur" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm" />
+                            <datalist id="userSearchList"></datalist>
+                            <button id="applyUserSearchBtn" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-black text-white">Voir</button>
+                            <button id="clearUserSearchBtn" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">Effacer</button>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-400">Choisis un compte connecte pour isoler son parcours sur la plateforme.</div>
+                    </div>
+                    <div class="lg:col-span-7">
+                        <div id="selectedUserCard" class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-4 text-sm text-gray-500">
+                            Aucun utilisateur selectionne. La page affiche actuellement le comportement global.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section id="filtersPanel" class="glass-panel p-6 hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                     <div class="lg:col-span-3">
@@ -279,6 +299,8 @@
     <script>
         let currentDays = 7;
         let lastResponse = null;
+        let usersDirectory = [];
+        let selectedUserRecord = null;
 
         const state = {
             days: 7,
@@ -294,6 +316,7 @@
             funnel: 'default',
             limit: 120,
             maxRows: 8000,
+            userId: null,
         };
 
         function formatCount(value) {
@@ -381,6 +404,7 @@
             if (state.device && state.device !== 'all') params.set('device', state.device);
             if (state.auth && state.auth !== 'all') params.set('auth', state.auth);
             if (state.includeAdmin) params.set('include_admin', '1');
+            if (state.userId) params.set('user_id', state.userId);
             if (state.pathContains) params.set('path_contains', state.pathContains);
             if (state.targetContains) params.set('target_contains', state.targetContains);
 
@@ -410,6 +434,7 @@
             if (state.device && state.device !== 'all') parts.push(`device=${state.device}`);
             if (state.auth && state.auth !== 'all') parts.push(`auth=${state.auth}`);
             if (state.includeAdmin) parts.push('admin=on');
+            if (state.userId) parts.push(`user=${selectedUserRecord?.email || selectedUserRecord?.name || state.userId}`);
             if (state.pathContains) parts.push(`page~"${state.pathContains}"`);
             if (state.targetContains) parts.push(`action~"${state.targetContains}"`);
             const types = (state.eventTypes || []).filter(Boolean);
@@ -458,6 +483,124 @@
             if (r === 'admin') return 'Admin';
             if (r === 'guest') return 'Invité';
             return r;
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function buildUserOptionLabel(user) {
+            const name = user?.name || user?.company_name || 'Utilisateur';
+            const email = user?.email || 'sans email';
+            return `${name} - ${email} - ${user.id}`;
+        }
+
+        function resolveUserFromInput(rawValue) {
+            const value = String(rawValue || '').trim().toLowerCase();
+            if (!value) return null;
+            return usersDirectory.find((user) => {
+                const haystacks = [
+                    user.id,
+                    user.email,
+                    user.name,
+                    user.company_name,
+                    buildUserOptionLabel(user),
+                ].filter(Boolean).map((entry) => String(entry).toLowerCase());
+                return haystacks.some((entry) => entry === value || entry.includes(value));
+            }) || null;
+        }
+
+        function renderSelectedUserCard() {
+            const card = document.getElementById('selectedUserCard');
+            if (!card) return;
+
+            if (!state.userId || !selectedUserRecord) {
+                card.className = 'rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-4 text-sm text-gray-500';
+                card.textContent = 'Aucun utilisateur selectionne. La page affiche actuellement le comportement global.';
+                return;
+            }
+
+            const label = escapeHtml(selectedUserRecord.name || selectedUserRecord.company_name || 'Utilisateur');
+            const email = escapeHtml(selectedUserRecord.email || 'sans email');
+            const role = escapeHtml(normalizeRoleLabel(selectedUserRecord.role));
+            const status = escapeHtml(selectedUserRecord.status || 'inconnu');
+            const joined = selectedUserRecord.created_at
+                ? new Date(selectedUserRecord.created_at).toLocaleDateString('fr-FR')
+                : '—';
+
+            card.className = 'rounded-3xl border border-blue-100 bg-blue-50/70 px-5 py-4';
+            card.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-blue-500">Mode separe</div>
+                        <div class="mt-1 text-lg font-black text-gray-900 truncate">${label}</div>
+                        <div class="text-sm text-gray-600 truncate">${email}</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest">
+                        <span class="px-3 py-1 rounded-full bg-white text-gray-700 border border-blue-100">${role}</span>
+                        <span class="px-3 py-1 rounded-full bg-white text-gray-700 border border-blue-100">${status}</span>
+                        <span class="px-3 py-1 rounded-full bg-white text-gray-700 border border-blue-100">Inscrit ${joined}</span>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-gray-500 break-all">ID: ${escapeHtml(selectedUserRecord.id)}</div>
+            `;
+        }
+
+        function syncUserSearchControl() {
+            const input = document.getElementById('userSearchInput');
+            if (!input) return;
+            input.value = state.userId && selectedUserRecord ? buildUserOptionLabel(selectedUserRecord) : '';
+            renderSelectedUserCard();
+        }
+
+        async function loadUsersDirectory() {
+            const data = await ApiClient.get('/users', {
+                cacheKey: 'admin-users-directory',
+                cacheTtlMs: 60000,
+                dedupe: true
+            });
+
+            usersDirectory = Array.isArray(data) ? data : [];
+            if (state.userId) {
+                selectedUserRecord = usersDirectory.find((user) => user.id === state.userId) || null;
+            }
+
+            const datalist = document.getElementById('userSearchList');
+            if (datalist) {
+                datalist.innerHTML = usersDirectory
+                    .map((user) => `<option value="${escapeHtml(buildUserOptionLabel(user))}"></option>`)
+                    .join('');
+            }
+
+            syncUserSearchControl();
+        }
+
+        function applyUserSelectionFromInput() {
+            const input = document.getElementById('userSearchInput');
+            const user = resolveUserFromInput(input?.value);
+            if (!user) {
+                alert('Utilisateur introuvable dans la liste admin.');
+                return false;
+            }
+
+            state.userId = user.id;
+            selectedUserRecord = user;
+            state.auth = 'authenticated';
+            syncControlsFromState();
+            syncUserSearchControl();
+            return true;
+        }
+
+        function clearUserSelection() {
+            state.userId = null;
+            selectedUserRecord = null;
+            if (state.auth === 'authenticated') state.auth = 'all';
+            syncUserSearchControl();
         }
 
         function renderKeyValueList(elementId, rows, emptyLabel, keyField, valueField, options = {}) {
@@ -636,6 +779,8 @@
             } else {
                 filtersLine.classList.add('hidden');
             }
+
+            renderSelectedUserCard();
         }
 
         function populateFilterOptionsFromData(data) {
@@ -834,6 +979,7 @@
                 state.device = params.get('device') || 'all';
                 state.auth = params.get('auth') || 'all';
                 state.includeAdmin = params.get('include_admin') === '1';
+                state.userId = params.get('user_id') || null;
                 state.pathContains = params.get('path_contains') || '';
                 state.targetContains = params.get('target_contains') || '';
                 state.funnel = params.get('funnel') || 'default';
@@ -856,6 +1002,7 @@
             document.querySelectorAll('.filterEventType').forEach((cb) => {
                 cb.checked = (state.eventTypes || []).includes(cb.value);
             });
+            syncUserSearchControl();
         }
 
         function applyStateFromControls() {
@@ -898,6 +1045,23 @@
                 loadBehaviorAnalytics();
             });
 
+            document.getElementById('applyUserSearchBtn').addEventListener('click', () => {
+                if (!applyUserSelectionFromInput()) return;
+                loadBehaviorAnalytics();
+            });
+
+            document.getElementById('userSearchInput').addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                if (!applyUserSelectionFromInput()) return;
+                loadBehaviorAnalytics();
+            });
+
+            document.getElementById('clearUserSearchBtn').addEventListener('click', () => {
+                clearUserSelection();
+                loadBehaviorAnalytics();
+            });
+
             document.getElementById('resetFiltersBtn').addEventListener('click', () => {
                 state.days = 7;
                 state.start = null;
@@ -907,10 +1071,12 @@
                 state.device = 'all';
                 state.auth = 'all';
                 state.includeAdmin = false;
+                state.userId = null;
                 state.pathContains = '';
                 state.targetContains = '';
                 state.funnel = 'default';
                 state.limit = 120;
+                selectedUserRecord = null;
                 syncControlsFromState();
                 loadBehaviorAnalytics();
             });
@@ -958,10 +1124,15 @@
             document.getElementById('drilldownCloseBtn').addEventListener('click', closeDrilldown);
             document.getElementById('drilldownBackdrop').addEventListener('click', closeDrilldown);
 
-            const boot = () => loadBehaviorAnalytics().catch((error) => {
-                const tbody = document.getElementById('recentEventsBody');
-                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Impossible de charger les comportements: ${error.message}</td></tr>`;
-            });
+            const boot = async () => {
+                try {
+                    await loadUsersDirectory();
+                    await loadBehaviorAnalytics();
+                } catch (error) {
+                    const tbody = document.getElementById('recentEventsBody');
+                    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Impossible de charger les comportements: ${error.message}</td></tr>`;
+                }
+            };
 
             if (window.newketInitialized) boot();
             else window.addEventListener('newketInitialized', boot, { once: true });
