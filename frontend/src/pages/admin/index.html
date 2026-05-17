@@ -832,6 +832,7 @@
                     overview: null,
                     realtime: '/src/pages/admin/realtime.html?embedded=1',
                     user: '/src/pages/admin/user.html?embedded=1',
+                    'user-details': '/src/pages/admin/user-details.html?embedded=1',
                     products: '/src/pages/admin/products.html?embedded=1',
                     orders: '/src/pages/admin/orders.html?embedded=1',
                     'otp-guide': '/src/pages/admin/otp-guide.html?embedded=1',
@@ -850,6 +851,7 @@
                     overview: 'Tableau de bord | NewKet Admin',
                     realtime: 'Temps réel | NewKet Admin',
                     user: 'Utilisateurs | NewKet Admin',
+                    'user-details': 'Profil Utilisateur | NewKet Admin',
                     products: 'Catalogue | NewKet Admin',
                     orders: 'Commandes | NewKet Admin',
                     'otp-guide': 'Guide | NewKet Admin',
@@ -876,10 +878,36 @@
                 return shellViewSources[raw] ? raw : 'overview';
             }
 
-            function buildUrl(view) {
-                return view === 'overview'
-                    ? '/src/pages/admin/index.html'
-                    : `/src/pages/admin/index.html?view=${encodeURIComponent(view)}`;
+            function getRequestedEmail() {
+                const params = new URLSearchParams(window.location.search);
+                return (params.get('email') || '').trim();
+            }
+
+            function buildUrl(view, options = {}) {
+                const url = new URL('/src/pages/admin/index.html', window.location.origin);
+                if (view !== 'overview') {
+                    url.searchParams.set('view', view);
+                }
+
+                const email = typeof options.email === 'string' ? options.email.trim() : getRequestedEmail();
+                if (view === 'user-details' && email) {
+                    url.searchParams.set('email', email);
+                }
+
+                return `${url.pathname}${url.search}`;
+            }
+
+            function buildFrameSrc(view, options = {}) {
+                const base = shellViewSources[view];
+                if (!base) return null;
+
+                const url = new URL(base, window.location.origin);
+                const email = typeof options.email === 'string' ? options.email.trim() : getRequestedEmail();
+                if (view === 'user-details' && email) {
+                    url.searchParams.set('email', email);
+                }
+
+                return `${url.pathname}${url.search}`;
             }
 
             function setActiveView(view) {
@@ -896,7 +924,7 @@
                 const targetView = shellViewSources[view] ? view : 'overview';
                 const pushState = options.pushState !== false;
 
-                const nextUrl = buildUrl(targetView);
+                const nextUrl = buildUrl(targetView, options);
                 if (pushState) {
                     if (nextUrl !== window.location.pathname + window.location.search) {
                         window.history.pushState({ view: targetView }, '', nextUrl);
@@ -908,7 +936,7 @@
                 setActiveView(targetView);
 
                 if (targetView !== 'overview') {
-                    const nextSrc = shellViewSources[targetView];
+                    const nextSrc = buildFrameSrc(targetView, options);
                     if (frame.dataset.currentView !== targetView || frame.getAttribute('src') !== nextSrc) {
                         frame.dataset.currentView = targetView;
                         frame.setAttribute('src', nextSrc);

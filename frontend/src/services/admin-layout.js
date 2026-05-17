@@ -9,6 +9,7 @@ const AdminLayout = {
     shellViewMap: {
         index: 'overview',
         user: 'user',
+        'user-details': 'user-details',
         products: 'products',
         orders: 'orders',
         'otp-guide': 'otp-guide',
@@ -104,12 +105,26 @@ const AdminLayout = {
     },
 
     getShellHrefForFile(file = 'index') {
-        return this.getShellHref(this.shellViewMap[file] || 'overview');
+        const view = this.shellViewMap[file] || 'overview';
+        if (view !== 'user-details') {
+            return this.getShellHref(view);
+        }
+
+        try {
+            const currentUrl = new URL(window.location.href);
+            const email = currentUrl.searchParams.get('email');
+            const shellUrl = new URL(this.getShellHref(view), window.location.origin);
+            if (email) {
+                shellUrl.searchParams.set('email', email);
+            }
+            return `${shellUrl.pathname}${shellUrl.search}`;
+        } catch (_) {
+            return this.getShellHref(view);
+        }
     },
 
     shouldRedirectLegacyPage() {
         if (!this.isAdminPageContext() || this.isEmbeddedPage()) return false;
-        if (this.getCurrentAdminFile() === 'user-details') return false;
         return this.getCurrentAdminFile() !== 'index';
     },
 
