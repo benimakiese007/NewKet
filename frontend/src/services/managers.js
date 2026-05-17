@@ -281,6 +281,10 @@ const NotificationManager = {
             console.error('[NotificationManager] Mark read error:', e);
         }
     },
+    async markAllAsRead() {
+        const unread = this.notifications.filter(n => !n.read);
+        await Promise.all(unread.map(n => this.markAsRead(n.id)));
+    },
     getUnreadCount() { return this.notifications.filter(n => !n.read).length; },
     async deleteNotification(id) {
         if (!window.ApiClient) return;

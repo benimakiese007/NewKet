@@ -278,6 +278,45 @@ button {
   }
 }
 
+/* Tablet/Small-desktop (1024–1100px): give the search bar more breathing room next to the logo. */
+@media (min-width: 1024px) and (max-width: 1100px) {
+  .header-content {
+    display: grid !important;
+    grid-template-columns: auto minmax(480px, 1fr) auto;
+    align-items: center;
+    column-gap: 1.25rem;
+    justify-content: stretch;
+  }
+
+  .header-brand-image {
+    height: 6rem !important;
+  }
+
+  /* Keep the search centered and prevent collisions with logo/actions in this tight range. */
+  .header-brand-row,
+  .header-actions {
+    flex: 0 0 auto;
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
+  }
+
+  .header-actions {
+    justify-self: end;
+  }
+
+  .header-search-row {
+    justify-self: center;
+    width: 100%;
+    flex: 1 1 560px;
+    max-width: 560px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+
 /* Entry Animations */
 .fade-in-up {
   opacity: 0;

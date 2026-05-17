@@ -64,6 +64,7 @@ const NotificationService = {
 
             await createDbNotification({
                 id: `notif-order-request-${order.id}-${vendor.id}`,
+                user_id: vendor.id,
                 user_email: vendor.email,
                 title: 'Nouvelle demande client',
                 message: `${order.customer_name || 'Un client'} demande ${productName}. Ville: ${locationText}.`,
@@ -103,8 +104,10 @@ const NotificationService = {
         if (!order?.customer_email || !quote) return;
 
         try {
+            const customerId = order.user_id || order.customer_id || null;
             await createDbNotification({
                 id: `notif-order-quote-${order.id}-${quote.id}`,
+                ...(customerId ? { user_id: customerId } : {}),
                 user_email: order.customer_email,
                 title: 'Votre devis de livraison est pret',
                 message: `Le vendeur a propose ${Number(quote.delivery_fee_amount || 0)} CDF de livraison pour la commande ${order.id}.`,
@@ -165,6 +168,7 @@ const NotificationService = {
 
                 await createDbNotification({
                     id: `notif-order-paid-${orderId}-${vendorId}`,
+                    user_id: vendorId,
                     user_email: vendor.email,
                     title: 'Nouvelle commande payee',
                     message: `Un paiement a ete recu pour la commande #${order.transaction_id}.`,
@@ -252,6 +256,7 @@ const NotificationService = {
 
             await createDbNotification({
                 id: `notif-manual-payout-${order.id}-${vendor.id}`,
+                user_id: vendor.id,
                 user_email: vendor.email,
                 title: 'Paiement vendeur en attente',
                 message: `La commande ${transactionId} a été libérée, mais le transfert vendeur reste à traiter manuellement.`,

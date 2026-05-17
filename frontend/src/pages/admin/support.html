@@ -134,6 +134,8 @@
             const dbFilter = statusMap[filterStatus] || 'all';
 
             const allTickets = SupportManager.getTickets();
+            // Always update stats even when the list is empty (otherwise skeleton stays).
+            updateStats();
             let filtered = allTickets;
             if (dbFilter !== 'all') filtered = filtered.filter(t => t.status === dbFilter);
 
@@ -163,7 +165,6 @@
                 </div>
             `}).join('');
 
-            updateStats();
         }
 
         async function resolveTicket(id) {

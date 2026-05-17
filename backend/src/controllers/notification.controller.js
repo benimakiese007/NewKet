@@ -89,22 +89,31 @@ export const markAsRead = async (req, res) => {
         
         if (!userId && !userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
-        let query = supabaseAdmin
-            .from('notifications')
-            .update({ read: true })
-            .eq('id', id);
+        const updateRead = async (filter) => {
+            let query = supabaseAdmin
+                .from('notifications')
+                .update({ read: true })
+                .eq('id', id);
 
-        // Filter by user_id (UUID) if available, else fallback to email
-        if (userId) {
-            query = query.eq('user_id', userId);
-        } else {
-            query = query.eq('user_email', userEmail);
+            if (filter?.user_id) query = query.eq('user_id', filter.user_id);
+            if (filter?.user_email) query = query.eq('user_email', filter.user_email);
+
+            const { data, error } = await query.select();
+            if (error) throw error;
+            return Array.isArray(data) && data.length > 0 ? data[0] : null;
+        };
+
+        // Compatibility: many notifications were stored with user_email but no user_id.
+        // Try user_id first (preferred), then fall back to user_email.
+        let updated = null;
+        if (userId) updated = await updateRead({ user_id: userId });
+        if (!updated && userEmail) updated = await updateRead({ user_email: userEmail });
+
+        if (!updated) {
+            return res.status(404).json({ error: 'Notification introuvable ou non autorisée.' });
         }
 
-        const { data, error } = await query.select().single();
-
-        if (error) throw error;
-        res.json(data);
+        res.json(updated);
     } catch (err) {
         console.error('Erreur markAsRead:', err);
         res.status(500).json({ error: 'Erreur lors de la mise à jour de la notification.' });
@@ -128,23 +137,35 @@ export const deleteNotification = async (req, res) => {
 
         const isAdmin = userData && userData.role === 'admin';
 
-        let query = supabaseAdmin
-            .from('notifications')
-            .delete()
-            .eq('id', id);
+        const deleteOne = async (filter) => {
+            let query = supabaseAdmin
+                .from('notifications')
+                .delete()
+                .eq('id', id);
+
+            if (filter?.user_id) query = query.eq('user_id', filter.user_id);
+            if (filter?.user_email) query = query.eq('user_email', filter.user_email);
+
+            const { data, error } = await query.select('id');
+            if (error) throw error;
+            return Array.isArray(data) && data.length > 0;
+        };
 
         // SÉCURITÉ : Les non-admins ne peuvent supprimer que leurs propres notifications
         if (!isAdmin) {
-            if (userId) {
-                query = query.eq('user_id', userId);
-            } else {
-                query = query.eq('user_email', userEmail);
+            // Compatibility: many notifications were stored with user_email but no user_id.
+            // Try user_id first (preferred), then fall back to user_email.
+            let deleted = false;
+            if (userId) deleted = await deleteOne({ user_id: userId });
+            if (!deleted && userEmail) deleted = await deleteOne({ user_email: userEmail });
+
+            if (!deleted) {
+                return res.status(404).json({ error: 'Notification introuvable ou non autorisée.' });
             }
+        } else {
+            const { error } = await supabaseAdmin.from('notifications').delete().eq('id', id);
+            if (error) throw error;
         }
-
-        const { error } = await query;
-
-        if (error) throw error;
         res.json({ success: true, message: 'Notification supprimée.' });
     } catch (err) {
         console.error('Erreur deleteNotification:', err);
