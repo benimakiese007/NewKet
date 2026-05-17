@@ -723,35 +723,38 @@ const AuthManager = {
 
         const existingProfile = await this.getUserProfile(user.id);
         if (existingProfile?.role) {
-            if (this.isOAuthOnlyUser(user) && !this.hasConfirmedRoleSelection(user)) {
-                this.markPendingRoleSelection(true);
-                this.role = null;
-                this.status = null;
-                localStorage.removeItem('newketRole');
-                localStorage.removeItem('newketUserStatus');
-                this.enforcePermissions();
-                this.updateAccountLink();
+            const requiresExplicitConfirmation = this.isOAuthOnlyUser(user) && !this.hasConfirmedRoleSelection(user);
+            if (!requiresExplicitConfirmation) {
+                this.markPendingRoleSelection(false);
+                localStorage.setItem('newketRoleSelectionConfirmed', 'true');
+                this.role = existingProfile.role;
+                this.status = existingProfile.status || ((existingProfile.role === 'customer' || existingProfile.role === 'admin') ? 'approved' : 'pending');
+                window.location.href = this.getRedirectPathForRole(this.role, this.status);
                 return;
             }
+
+            const resolvedStatus = role === 'supplier' ? 'pending' : 'approved';
+            const updatedProfile = await this.updateExistingProfileRole(user.id, role, resolvedStatus);
+            await this.syncRoleSelectionMetadata(user, role, resolvedStatus, updatedProfile?.name || existingProfile.name);
+
             this.markPendingRoleSelection(false);
             localStorage.setItem('newketRoleSelectionConfirmed', 'true');
-            this.role = existingProfile.role;
-            this.status = existingProfile.status || ((existingProfile.role === 'customer' || existingProfile.role === 'admin') ? 'approved' : 'pending');
+            this.role = role;
+            this.status = updatedProfile?.status || resolvedStatus;
+            this.user = user;
+            localStorage.setItem('newketRole', this.role);
+            localStorage.setItem('newketUserEmail', user.email);
+            localStorage.setItem('newketUserId', user.id);
+            localStorage.setItem('newketUserStatus', this.status);
+            this.setupRealtimeSync(user.id);
+            this.enforcePermissions();
+            this.updateAccountLink();
             window.location.href = this.getRedirectPathForRole(this.role, this.status);
             return;
         }
 
         const profile = await this.createUserProfile(user, role);
-        if (window.supabaseClient) {
-            await window.supabaseClient.auth.updateUser({
-                data: {
-                    ...user.user_metadata,
-                    role,
-                    status: profile.status,
-                    role_selected: true
-                }
-            });
-        }
+        await this.syncRoleSelectionMetadata(user, role, profile.status, profile.name);
         this.markPendingRoleSelection(false);
         localStorage.setItem('newketRoleSelectionConfirmed', 'true');
         this.role = profile.role;
@@ -765,6 +768,47 @@ const AuthManager = {
         this.enforcePermissions();
         this.updateAccountLink();
         window.location.href = this.getRedirectPathForRole(this.role, this.status);
+    },
+
+    async updateExistingProfileRole(userId, role, status) {
+        if (!window.supabaseClient || !userId) {
+            throw new Error('Profil introuvable pour enregistrer le rôle.');
+        }
+
+        const payload = { role, status };
+        const { data, error } = await window.supabaseClient
+            .from('users')
+            .update(payload)
+            .eq('id', userId)
+            .select('id, name, role, status')
+            .single();
+
+        if (error) {
+            throw new Error(error.message || "Impossible d'enregistrer votre choix de rôle.");
+        }
+
+        return data;
+    },
+
+    async syncRoleSelectionMetadata(user, role, status, fullName = null) {
+        if (!window.supabaseClient || !user) return;
+
+        const payload = {
+            ...user.user_metadata,
+            role,
+            status,
+            role_selected: true
+        };
+
+        if (fullName) payload.full_name = fullName;
+
+        const { error } = await window.supabaseClient.auth.updateUser({
+            data: payload
+        });
+
+        if (error) {
+            throw new Error(error.message || "Impossible de finaliser la confirmation du rôle.");
+        }
     },
 
     redirectToOnboarding() {
