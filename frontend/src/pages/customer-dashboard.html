@@ -319,7 +319,9 @@
             <div id="tab-orders" class="space-y-6 hidden">
                 <h1 class="text-fluid-h1 font-bold tracking-tight">Mes demandes, devis et paiements</h1>
                 <div id="orders-list" class="space-y-4">
-                    <!-- Orders/Leads injected here -->
+                    <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                 </div>
             </div>
 
@@ -332,7 +334,8 @@
                     </div>
                 </div>
                 <div id="achatContent" class="space-y-4">
-                    <div class="glass-panel p-6 text-gray-500">Chargement...</div>
+                    <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                 </div>
             </div>
 
@@ -341,7 +344,9 @@
                 <h1 class="text-2xl font-bold tracking-tight">Mes produits favoris</h1>
                 <div id="favorites-grid"
                     class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
-                    <!-- Favorites injected here -->
+                    <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
+                    <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
+                    <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
                 </div>
             </div>
 
@@ -389,7 +394,8 @@
                         <iconify-icon icon="solar:history-bold" width="20" class="text-gray-300"></iconify-icon>
                     </div>
                     <div id="customer-activity-feed" class="space-y-4">
-                        <!-- Activities injected here -->
+                        <div class="glass-panel p-4"><div class="flex items-start gap-4"><div class="skeleton skeleton-avatar flex-shrink-0"></div><div class="flex-1 min-w-0"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div></div></div>
+                        <div class="glass-panel p-4"><div class="flex items-start gap-4"><div class="skeleton skeleton-avatar flex-shrink-0"></div><div class="flex-1 min-w-0"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div></div></div>
                     </div>
                 </div>
             </div>
@@ -407,7 +413,8 @@
                     </div>
                 </div>
                 <div id="dashboard-notifications-list" class="space-y-3">
-                    <!-- Notifications injected here -->
+                    <div class="glass-card p-5 animate-pulse flex gap-4 opacity-60"><div class="w-12 h-12 rounded-2xl skeleton-shimmer flex-shrink-0"></div><div class="flex-1 min-w-0"><div class="flex items-center justify-between mb-2"><div class="h-4 w-32 skeleton-shimmer"></div><div class="h-3 w-16 skeleton-shimmer"></div></div><div class="h-3 w-full skeleton-shimmer mb-2"></div><div class="h-3 w-2/3 skeleton-shimmer"></div></div></div>
+                    <div class="glass-card p-5 animate-pulse flex gap-4 opacity-60"><div class="w-12 h-12 rounded-2xl skeleton-shimmer flex-shrink-0"></div><div class="flex-1 min-w-0"><div class="flex items-center justify-between mb-2"><div class="h-4 w-32 skeleton-shimmer"></div><div class="h-3 w-16 skeleton-shimmer"></div></div><div class="h-3 w-full skeleton-shimmer mb-2"></div><div class="h-3 w-2/3 skeleton-shimmer"></div></div></div>
                 </div>
             </div>
 
@@ -847,9 +854,19 @@
             document.getElementById('btnPayOrder')?.addEventListener('click', handlePayOrder);
             document.getElementById('btnValidateDelivery')?.addEventListener('click', handleValidateDelivery);
             document.getElementById('btnOpenDispute')?.addEventListener('click', showDisputeModal);
-            document.getElementById('btnSendDisputeMessage')?.addEventListener('click', sendDisputeMessage);
-            document.querySelector('[data-action="buyer-accept-dispute-offer"]')?.addEventListener('click', handleBuyerAcceptDisputeOffer);
-            document.querySelector('[data-action="buyer-reject-dispute-offer"]')?.addEventListener('click', handleBuyerRejectDisputeOffer);
+            document.getElementById('btnSendDisputeMessage')?.addEventListener('click', () => {
+                if (typeof window.sendDisputeMessage === 'function') return window.sendDisputeMessage();
+                // Avoid hard crash if the dispute module hasn't been loaded yet.
+                showToast('Messagerie indisponible. Veuillez r\u00e9essayer dans un instant.', 'error');
+            });
+            document.querySelector('[data-action="buyer-accept-dispute-offer"]')?.addEventListener('click', () => {
+                if (typeof window.handleBuyerAcceptDisputeOffer === 'function') return window.handleBuyerAcceptDisputeOffer();
+                showToast('Action indisponible. Veuillez r\u00e9essayer.', 'error');
+            });
+            document.querySelector('[data-action="buyer-reject-dispute-offer"]')?.addEventListener('click', () => {
+                if (typeof window.handleBuyerRejectDisputeOffer === 'function') return window.handleBuyerRejectDisputeOffer();
+                showToast('Action indisponible. Veuillez r\u00e9essayer.', 'error');
+            });
             document.querySelector('[data-action="download-invoice"]')?.addEventListener('click', downloadInvoice);
             document.querySelectorAll('[data-action="close-dispute-modal"]').forEach((button) => {
                 if (button.dataset.bound === 'true') return;
@@ -961,8 +978,15 @@
             } catch (_) {}
         }
 
+        function isCustomerOrdersDataPending() {
+            // We consider "pending" until we receive the first ordersUpdated event.
+            // This avoids relying on internal OrderManager flags that can drift.
+            return window.__newketCustomerOrdersReady !== true;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             await ensureCustomerIdentity();
+            window.__newketCustomerOrdersReady = false;
             renderOrders();
             renderFavorites();
             renderDashboardNotifications();
@@ -981,10 +1005,23 @@
             switchTab('dashboard');
 
             // Load Profile Settings
+            const applyCustomerProfileSettings = (profile = ProfileManager.getProfile()) => {
+                const nameInput = document.getElementById('profName');
+                const emailInput = document.getElementById('profEmail');
+                const phoneInput = document.getElementById('profPhone');
+                if (nameInput) nameInput.value = profile.name || '';
+                if (emailInput) emailInput.value = profile.email || '';
+                if (phoneInput) {
+                    phoneInput.value =
+                        profile.phone ||
+                        profile.store_phone ||
+                        localStorage.getItem('newketUserPhone') ||
+                        '';
+                }
+            };
+
             const profile = ProfileManager.getProfile();
-            document.getElementById('profName').value = profile.name || '';
-            document.getElementById('profEmail').value = profile.email || '';
-            document.getElementById('profPhone').value = profile.phone || '';
+            applyCustomerProfileSettings(profile);
             const avatarUploadBtn = document.getElementById('changeProfileAvatarBtn');
             const avatarUploadInput = document.getElementById('customerAvatarUploadInput');
             const initialAvatarName = profile.name || localStorage.getItem('newketUserName') || localStorage.getItem('newketUserEmail') || 'Utilisateur';
@@ -1054,6 +1091,9 @@
 
             refreshCustomerSidebarAvatar();
             window.addEventListener('profileUpdated', refreshCustomerSidebarAvatar);
+            window.addEventListener('profileUpdated', (event) => {
+                applyCustomerProfileSettings(event?.detail || ProfileManager.getProfile());
+            });
             window.addEventListener('profileUpdated', () => {
                 const updatedProfile = ProfileManager.getProfile();
                 renderCustomerProfileAvatarPreview(
@@ -1071,6 +1111,7 @@
 
             // Listen to data updates from Supabase
             window.addEventListener('ordersUpdated', () => {
+                window.__newketCustomerOrdersReady = true;
                 renderOrders();
                 renderCustomerDashboardStats();
             });
@@ -1173,6 +1214,21 @@
             const list = document.getElementById('dashboard-notifications-list');
             if (!list) return;
 
+            if (!window.NotificationManager || typeof NotificationManager.getNotifications !== 'function') {
+                // Show skeleton only while waiting on async orders/app boot (no forced/min duration).
+                if (isCustomerOrdersDataPending() && typeof window.buildSkeletonNotificationHTML === 'function') {
+                    list.innerHTML = window.buildSkeletonNotificationHTML(3);
+                } else {
+                    list.innerHTML = `
+                        <div class="glass-panel p-12 text-center text-gray-400">
+                            <iconify-icon icon="solar:bell-off-linear" width="48" class="mb-4 text-gray-200"></iconify-icon>
+                            <p>Notifications indisponibles</p>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
             const notifications = NotificationManager.getNotifications();
 
             if (notifications.length === 0) {
@@ -1220,6 +1276,39 @@
             const pointsEl = document.getElementById('customer-newket-points');
             const feed = document.getElementById('customer-activity-feed');
 
+            const isOrdersLoading = isCustomerOrdersDataPending();
+
+            function setInlineSkeleton(el, width) {
+                if (!el) return;
+                el.innerHTML = `<div class="skeleton skeleton-text" style="width:${width};height:1em;margin:0;"></div>`;
+            }
+
+            // Only show skeleton while waiting for async calls (no forced/min duration).
+            if (isOrdersLoading) {
+                setInlineSkeleton(countEl, '55%');
+                setInlineSkeleton(spentEl, '70%');
+                setInlineSkeleton(avgEl, '60%');
+                setInlineSkeleton(pointsEl, '50%');
+
+                if (feed && typeof window.buildSkeletonPanelListHTML === 'function') {
+                    feed.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, showAvatar: true, cardClass: 'glass-panel p-4' });
+                }
+                return;
+            }
+
+            if ((!window.ActivityManager || typeof ActivityManager.getRecentActivity !== 'function') && feed) {
+                feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Activit&eacute; indisponible pour le moment.</p>';
+            }
+
+            // If core managers are missing, don't leave skeletons stuck.
+            if (!window.OrderManager || typeof OrderManager.getCustomerStats !== 'function' || !window.CurrencyManager || typeof CurrencyManager.formatPrice !== 'function') {
+                if (spentEl) spentEl.textContent = '--';
+                if (countEl) countEl.textContent = '--';
+                if (avgEl) avgEl.textContent = '--';
+                if (pointsEl) pointsEl.textContent = '--';
+                return;
+            }
+
             if (!email && !userId) {
                 if (spentEl) spentEl.textContent = '0';
                 if (countEl) countEl.textContent = '0';
@@ -1240,6 +1329,7 @@
 
             // Render Activity Feed
             if (feed) {
+                if (!window.ActivityManager || typeof ActivityManager.getRecentActivity !== 'function') return;
                 const activities = ActivityManager.getRecentActivity(4);
                 if (activities.length === 0) {
                     feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activité pour le moment.</p>';
@@ -1278,6 +1368,35 @@
             const userId = localStorage.getItem('newketUserId');
             let orders = [];
 
+            const ordersList = document.getElementById('orders-list');
+            if (!ordersList) return;
+
+            if (!window.OrderManager || typeof OrderManager.getOrders !== 'function') {
+                ordersList.innerHTML = `
+                    <div class="glass-panel p-12 text-center text-gray-500">
+                        <iconify-icon icon="solar:shield-warning-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                        <p>Module commandes indisponible</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const isOrdersLoading = isCustomerOrdersDataPending();
+            if (isOrdersLoading && typeof window.buildSkeletonPanelListHTML === 'function') {
+                ordersList.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
+                return;
+            }
+
+            if (!window.CurrencyManager || typeof CurrencyManager.formatPrice !== 'function') {
+                ordersList.innerHTML = `
+                    <div class="glass-panel p-12 text-center text-gray-500">
+                        <iconify-icon icon="solar:shield-warning-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                        <p>Module devise indisponible</p>
+                    </div>
+                `;
+                return;
+            }
+
             if (email || userId) {
                 orders = OrderManager.getOrders().filter(o =>
                     (email && o.customer_email === email) ||
@@ -1285,7 +1404,6 @@
                 );
             }
 
-            const ordersList = document.getElementById('orders-list');
             const ordersBadge = document.getElementById('customerOrdersBadge');
             if (ordersBadge) {
                 if (orders.length > 0) {
@@ -1297,7 +1415,6 @@
             }
 
             if (!ordersList) return; // Safeguard if DOM is not ready or element is missing
-
             if (orders.length === 0) {
                 ordersList.innerHTML = `
                     <div class="glass-panel p-12 text-center text-gray-500">
@@ -1336,10 +1453,26 @@
         }
 
         function renderFavorites() {
-            const favorites = FavoritesManager.getFavorites();
             const favoritesGrid = document.getElementById('favorites-grid');
 
             if (!favoritesGrid) return; // Safeguard if DOM is not ready or element is missing
+
+            if (!window.FavoritesManager || typeof FavoritesManager.getFavorites !== 'function') {
+                // Skeleton only during app init / async load. Otherwise, show a stable empty state.
+                if (isCustomerOrdersDataPending() && typeof window.buildSkeletonCardHTML === 'function') {
+                    favoritesGrid.innerHTML = window.buildSkeletonCardHTML(3);
+                } else {
+                    favoritesGrid.innerHTML = `
+                        <div class="col-span-full glass-panel p-12 text-center text-gray-500">
+                            <iconify-icon icon="solar:heart-broken-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                            <p>Liste de d&eacute;sirs indisponible</p>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            const favorites = FavoritesManager.getFavorites();
 
             if (favorites.length === 0) {
                 favoritesGrid.innerHTML = `
@@ -1416,7 +1549,12 @@
 
             async function waitForAppReady() {
                 if (window.newketInitialized) return;
-                await new Promise((resolve) => window.addEventListener('newketInitialized', resolve, { once: true }));
+                if (!isCustomerOrdersDataPending()) return;
+                await new Promise((resolve) => {
+                    const timer = setTimeout(resolve, 4000);
+                    window.addEventListener('newketInitialized', () => { clearTimeout(timer); resolve(); }, { once: true });
+                    window.addEventListener('ordersUpdated', () => { clearTimeout(timer); resolve(); }, { once: true });
+                });
             }
 
             function getCustomerOrders() {

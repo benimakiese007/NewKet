@@ -73,7 +73,7 @@
                         <iconify-icon icon="solar:card-send-bold" width="32"></iconify-icon>
                     </div>
                     <p class="stat-card-label">Commandes</p>
-                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsOrders">0</div>
+                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsOrders"><div class="skeleton skeleton-text" style="width:45%;height:38px;margin:0;"></div></div>
                     <div class="flex items-center gap-1 mt-2">
                         <span class="text-[10px] font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">+12%</span>
                         <span class="text-[10px] text-gray-400 font-medium">vs hier</span>
@@ -86,7 +86,7 @@
                         <iconify-icon icon="solar:eye-bold" width="32"></iconify-icon>
                     </div>
                     <p class="stat-card-label">Vues Totales</p>
-                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsSales">0</div>
+                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsSales"><div class="skeleton skeleton-text" style="width:55%;height:38px;margin:0;"></div></div>
                     <div class="flex items-center gap-1 mt-2">
                         <span class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">+8%</span>
                         <span class="text-[10px] text-gray-400 font-medium">vs hier</span>
@@ -99,7 +99,7 @@
                         <div class="w-10 h-10 rounded-2xl bg-white shadow-xl shadow-orange-500/10 text-orange-500 flex items-center justify-center mb-2 transition-all duration-500 group-hover:scale-110">
                             <iconify-icon icon="solar:filter-bold-duotone" width="20"></iconify-icon>
                         </div>
-                        <div class="text-xs font-black text-orange-600 bg-orange-100 px-2 py-1 rounded-full" id="statsCommission">0%</div>
+                        <div class="text-xs font-black text-orange-600 bg-orange-100 px-2 py-1 rounded-full" id="statsCommission"><span class="skeleton skeleton-text" style="width:32px;height:10px;margin:0;display:inline-block;"></span></div>
                     </div>
                     <p class="stat-card-label">Funnel de Conversion</p>
                     
@@ -108,7 +108,7 @@
                         <div>
                             <div class="flex justify-between text-[10px] font-bold mb-1">
                                 <span class="text-gray-500 uppercase tracking-wider">Vues</span>
-                                <span class="text-gray-900" id="funnelViews">0</span>
+                                <span class="text-gray-900" id="funnelViews"><span class="skeleton skeleton-text" style="width:40px;height:10px;margin:0;display:inline-block;"></span></span>
                             </div>
                             <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
                                 <div class="h-full bg-gray-300 w-full"></div>
@@ -118,7 +118,7 @@
                         <div>
                             <div class="flex justify-between text-[10px] font-bold mb-1">
                                 <span class="text-orange-500 uppercase tracking-wider">Leads</span>
-                                <span class="text-gray-900" id="funnelLeads">0</span>
+                                <span class="text-gray-900" id="funnelLeads"><span class="skeleton skeleton-text" style="width:30px;height:10px;margin:0;display:inline-block;"></span></span>
                             </div>
                             <div class="h-1.5 w-full bg-orange-100 rounded-full overflow-hidden">
                                 <div class="h-full bg-orange-500 transition-all duration-1000" id="funnelBar" style="width: 0%"></div>
@@ -133,7 +133,7 @@
                         <iconify-icon icon="solar:stars-bold" width="32"></iconify-icon>
                     </div>
                     <p class="stat-card-label text-white/60">Articles Actifs</p>
-                    <div class="text-4xl font-black tracking-tight text-white" id="statsNetSales">0</div>
+                    <div class="text-4xl font-black tracking-tight text-white" id="statsNetSales"><div class="skeleton skeleton-text" style="width:35%;height:38px;margin:0;"></div></div>
                     <p class="text-[10px] text-white/40 mt-2 font-medium">Boutique en ligne</p>
                 </div>
 
@@ -149,7 +149,7 @@
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
                         </span>
                     </div>
-                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsClients">0</div>
+                    <div class="text-4xl font-black tracking-tight text-gray-900" id="statsClients"><div class="skeleton skeleton-text" style="width:30%;height:38px;margin:0;"></div></div>
                     <div class="flex items-center gap-1 mt-2">
                         <span class="text-[10px] font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full" id="presenceLiveLabel">Temps réel</span>
                     </div>
@@ -176,7 +176,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="h-[350px]">
+                        <div class="h-[350px] relative">
+                            <div id="adminSalesChartSkeleton" class="absolute inset-0 rounded-2xl skeleton skeleton-shimmer pointer-events-none"></div>
                             <canvas id="salesChart"></canvas>
                         </div>
                     </div>
@@ -196,9 +197,8 @@
                                 voir</a>
                         </div>
                         <div class="divide-y divide-gray-50" id="recentOrdersList">
-                            <div class="p-12 text-center text-gray-400">
-                                Chargement...
-                            </div>
+                            <div class="glass-panel p-4 mx-4 my-3"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                            <div class="glass-panel p-4 mx-4 my-3"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                         </div>
                     </div>
                 </div>
@@ -215,11 +215,11 @@
                         <div class="flex justify-between items-end">
                             <div>
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Inscrits</div>
-                                <div class="text-4xl font-black tracking-tight text-gray-900 mt-1" id="statsTotalUsers">0</div>
+                                <div class="text-4xl font-black tracking-tight text-gray-900 mt-1" id="statsTotalUsers"><div class="skeleton skeleton-text" style="width:45%;height:38px;margin:0;"></div></div>
                             </div>
                             <div class="flex flex-col items-end">
                                 <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Ce mois</div>
-                                <div class="text-sm font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md mt-1" id="statsNewUsers">+0</div>
+                                <div class="text-sm font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md mt-1" id="statsNewUsers"><span class="skeleton skeleton-text" style="width:32px;height:10px;margin:0;display:inline-block;"></span></div>
                             </div>
                         </div>
                     </div>
@@ -231,7 +231,8 @@
                                 class="text-purple-500"></iconify-icon>
                             Par Catégorie
                         </h3>
-                        <div class="h-[200px]">
+                        <div class="h-[200px] relative">
+                            <div id="adminCategoryChartSkeleton" class="absolute inset-0 rounded-2xl skeleton skeleton-shimmer pointer-events-none"></div>
                             <canvas id="categoryChart"></canvas>
                         </div>
                     </div>
@@ -244,7 +245,8 @@
                             Alertes Stock
                         </h3>
                         <div id="lowStockList" class="space-y-4">
-                            <!-- Low stock items injected here -->
+                            <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                            <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                         </div>
                     </div>
 
@@ -391,6 +393,11 @@
                 if (!user) return;
                 
                 // Use OrderManager for consistent advanced stats
+                // Keep skeletons until core managers have finished their first load.
+                if (!window.OrderManager || OrderManager._initialized !== true || OrderManager._fetchPromise) return;
+                if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
+                if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) return;
+
                 const stats = OrderManager.getAdvancedStats(currentTimeframe);
                 const products = ProductManager.getProducts();
                 
@@ -468,6 +475,13 @@
             const grid = document.getElementById('topVendorsGrid');
             if (!grid) return;
 
+            if (!window.SupabaseAdapter?.getClient) {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    grid.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
+                }
+                return;
+            }
+
             const client = window.SupabaseAdapter.getClient();
             const { data: users } = await client.from('users').select('*').eq('role', 'supplier');
             
@@ -479,6 +493,7 @@
 
             const topVendors = (users || [])
                 .map(u => ({ ...u, score: performance[u.id] || 0 }))
+                .filter(u => u.score > 0)
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 3);
 
@@ -508,6 +523,13 @@
 
         function renderRecentLeads(leads) {
             const list = document.getElementById('recentOrdersList');
+            if (!list) return;
+            if ((window.OrderManager && OrderManager.loading) || !window.newketInitialized) {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    list.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
+                }
+                return;
+            }
             const recent = leads.slice(0, 5);
 
             if (recent.length === 0) {
@@ -674,10 +696,19 @@
                     }
                 }
             });
+            const sk = document.getElementById('adminSalesChartSkeleton');
+            if (sk) sk.classList.add('hidden');
         }
 
         function populateLowStock(products) {
             const list = document.getElementById('lowStockList');
+            if (!list) return;
+            if ((window.ProductManager && ProductManager.loading) || !window.newketInitialized) {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    list.innerHTML = window.buildSkeletonPanelListHTML(2, { lines: 2, cardClass: 'glass-panel p-4' });
+                }
+                return;
+            }
             const lowStockItems = products.filter(p => (p.stock || 0) < 10).slice(0, 3);
 
             if (lowStockItems.length === 0) {
@@ -687,7 +718,7 @@
 
             list.innerHTML = lowStockItems.map(p => `
                 <div class="flex items-center gap-3">
-                    <img loading="lazy" src="../${p.image}" class="w-10 h-10 rounded-lg object-contain bg-gray-50 border border-gray-100 p-1">
+                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || window.resolvePath('assets/Images/default.png'))}" class="w-10 h-10 rounded-lg object-contain bg-gray-50 border border-gray-100 p-1" onerror="this.onerror=null; this.src=window.resolvePath('assets/Images/default.png')">
                     <div class="flex-1 min-w-0">
                         <div class="text-sm font-bold truncate">${p.name}</div>
                         <div class="h-1.5 w-full bg-gray-100 rounded-full mt-1.5 overflow-hidden">
@@ -702,6 +733,12 @@
         function populateActivity() {
             const list = document.getElementById('activityFeed');
             if (!list) return;
+            if (!window.ActivityManager || typeof ActivityManager.getActivities !== 'function') {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    list.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, showAvatar: true, cardClass: 'glass-panel p-4' });
+                }
+                return;
+            }
             const activities = ActivityManager.getActivities().slice(0, 5);
 
             if (activities.length === 0) {
@@ -724,6 +761,13 @@
 
         function renderTopProducts(stats) {
             const list = document.getElementById('topProductsList');
+            if (!list) return;
+            if ((window.ProductManager && ProductManager.loading) || !window.newketInitialized) {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    list.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
+                }
+                return;
+            }
             const topProducts = stats.topProducts || [];
 
             if (topProducts.length === 0) {
@@ -733,7 +777,7 @@
 
             list.innerHTML = topProducts.map(p => `
                 <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                    <img loading="lazy" src="../${p.image}" class="w-10 h-10 rounded-lg object-contain bg-white">
+                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || window.resolvePath('assets/Images/default.png'))}" class="w-10 h-10 rounded-lg object-contain bg-white" onerror="this.onerror=null; this.src=window.resolvePath('assets/Images/default.png')">
                     <div class="flex-1 min-w-0">
                         <div class="text-sm font-bold truncate">${p.name}</div>
                         <div class="text-[10px] text-gray-400 font-bold uppercase">${p.salesCount} ventes</div>
@@ -824,6 +868,8 @@
                     cutout: '70%'
                 }
             });
+            const sk = document.getElementById('adminCategoryChartSkeleton');
+            if (sk) sk.classList.add('hidden');
         }
     </script>
     <script>

@@ -42,6 +42,10 @@
                 <div>
                     <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion du Catalogue</h1>
                     <p class="text-gray-500 font-medium" id="pageSubtitle">Supervisez et modérez l'ensemble des articles de la plateforme.</p>
+                    <div id="productsTotalBadge" class="mt-3 inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-gray-600">
+                        <span>Produits</span>
+                        <span id="productsTotalCount"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                    </div>
                 </div>
                 <button onclick="openModal()"
                     class="bg-black text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20">
@@ -55,7 +59,7 @@
                 class="hidden sticky top-32 z-40 glass-panel p-4 mb-8 bg-black/90 backdrop-blur-xl text-white flex justify-between items-center animate-premium border-white/10 shadow-2xl shadow-black/40">
                 <div class="flex items-center gap-6">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-black" id="selectedCountText">0</div>
+                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-black" id="selectedCountText"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></div>
                         <span class="text-[10px] font-black uppercase tracking-widest opacity-60">Sélectionnés</span>
                     </div>
                     
@@ -197,10 +201,31 @@
     </div>
 
     <script>
+        function updateProductsTotal() {
+            const totalNode = document.getElementById('productsTotalCount');
+            if (!totalNode) return;
+            if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
+            if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) return;
+            const total = typeof ProductManager?.getTotalCount === 'function'
+                ? ProductManager.getTotalCount()
+                : (ProductManager?.getProducts?.() || []).length;
+            totalNode.textContent = total;
+        }
+
         function renderAdminProducts() {
             const tbody = document.getElementById('productsBody');
             const emptyState = document.getElementById('emptyState');
             const products = ProductManager.getProducts();
+
+            updateProductsTotal();
+
+            if (ProductManager.loading !== false && products.length === 0) {
+                if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    tbody.innerHTML = window.buildSkeletonTableRowsHTML(7, 7);
+                }
+                emptyState.classList.add('hidden');
+                return;
+            }
 
             if (products.length === 0) {
                 tbody.innerHTML = '';
@@ -378,6 +403,7 @@
 
         function initializeProducts() {
             renderAdminProducts();
+            window.addEventListener('productsUpdated', renderAdminProducts);
         }
 
         document.addEventListener('DOMContentLoaded', () => {

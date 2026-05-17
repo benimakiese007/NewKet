@@ -116,7 +116,16 @@ export const ApiClient = {
             }
 
             const run = async () => {
-                const response = await fetch(url, config);
+                let response;
+                for (let attempt = 0; attempt < 2; attempt++) {
+                    response = await fetch(url, config);
+                    const isGet = (config.method || 'GET').toUpperCase() === 'GET';
+                    if (attempt === 0 && isGet && response && [502, 503, 504].includes(response.status)) {
+                        await new Promise((resolve) => setTimeout(resolve, 500));
+                        continue;
+                    }
+                    break;
+                }
 
                 // Safe JSON parse - SW may return plain text (e.g. "Offline") on network failure
                 let data;

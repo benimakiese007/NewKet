@@ -191,27 +191,27 @@
                     <div class="vendor-stats-grid">
                         <div class="glass-panel p-8">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Paiements Initiés</p>
-                            <div class="text-3xl font-black text-gray-900" id="vendorTotalSales">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="vendorTotalSales"><div class="skeleton skeleton-text" style="width:55%;height:32px;margin:0;"></div></div>
                             <p class="text-xs text-green-500 mt-2 font-bold">+0 ce mois</p>
                         </div>
                         <div class="glass-panel p-8">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Prospects Uniques</p>
-                            <div class="text-3xl font-black text-gray-900" id="vendorOrders">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="vendorOrders"><div class="skeleton skeleton-text" style="width:35%;height:32px;margin:0;"></div></div>
                             <p class="text-xs text-gray-400 mt-2 font-bold pt-1">Activité récente</p>
                         </div>
                         <div class="glass-panel p-8">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Produits en ligne</p>
-                            <div class="text-3xl font-black text-gray-900" id="vendorProducts">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="vendorProducts"><div class="skeleton skeleton-text" style="width:30%;height:32px;margin:0;"></div></div>
                         </div>
                         <div class="glass-panel p-8 relative overflow-hidden group">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vues Produits</p>
-                            <div class="text-3xl font-black text-gray-900" id="vendorTotalViews">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="vendorTotalViews"><div class="skeleton skeleton-text" style="width:40%;height:32px;margin:0;"></div></div>
                             <p class="text-xs text-amber-500 mt-2 font-bold italic">Intérêt total</p>
                         </div>
                         <div class="glass-panel p-8">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Taux de Conversion</p>
                             <div class="flex items-center gap-2">
-                                <div class="text-3xl font-black text-gray-900" id="vendorConversionRate">0%</div>
+                                <div class="text-3xl font-black text-gray-900" id="vendorConversionRate"><div class="skeleton skeleton-text" style="width:60px;height:32px;margin:0;"></div></div>
                                 <iconify-icon icon="solar:graph-up-bold" class="text-blue-500 text-2xl"></iconify-icon>
                             </div>
                             <p class="text-xs text-gray-400 mt-2 font-bold">Vues vs Paiements</p>
@@ -219,7 +219,7 @@
                         <div class="glass-panel p-8">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Note Vendeur</p>
                             <div class="flex items-center gap-2">
-                                <div class="text-3xl font-black text-gray-900" id="vendorRating">-</div>
+                                <div class="text-3xl font-black text-gray-900" id="vendorRating"><div class="skeleton skeleton-text" style="width:48px;height:32px;margin:0;"></div></div>
                                 <iconify-icon icon="solar:star-bold" class="text-amber-400 text-2xl"></iconify-icon>
                             </div>
                             <p class="text-xs text-gray-400 mt-2 font-bold">Moyenne avis</p>
@@ -237,6 +237,7 @@
                             AvadaPay</div>
                     </div>
                     <div class="vendor-chart-shell" style="position:relative; width:100%; height:clamp(180px, 30vw, 320px);">
+                        <div id="vendorSalesChartSkeleton" class="absolute inset-0 rounded-2xl skeleton skeleton-shimmer"></div>
                         <canvas id="salesChart" style="position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
                     </div>
                 </div>
@@ -347,7 +348,10 @@
                         <iconify-icon icon="solar:history-bold" width="20" class="text-gray-300"></iconify-icon>
                     </div>
                     <div id="vendor-activity-feed" class="grid grid-cols-1 md:grid-cols-2 gap-4 vendor-activity-grid">
-                        <!-- Injected by JS -->
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                     </div>
                 </div>
                 </div>
@@ -370,7 +374,7 @@
                     <div class="glass-panel p-8 relative overflow-hidden group">
                         <div class="relative z-10">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vues Boutique</p>
-                            <div class="text-3xl font-black text-gray-900" id="analyticsShopViews">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="analyticsShopViews"><div class="skeleton skeleton-text" style="width:55%;height:32px;margin:0;"></div></div>
                             <p class="text-xs text-blue-500 mt-2 font-bold italic">Visites sur votre profil</p>
                         </div>
                         <iconify-icon icon="solar:shop-bold-duotone" class="absolute -right-4 -bottom-4 text-8xl text-gray-50 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"></iconify-icon>
@@ -378,7 +382,7 @@
                     <div class="glass-panel p-8 relative overflow-hidden group">
                         <div class="relative z-10">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Visiteurs Uniques</p>
-                            <div class="text-3xl font-black text-gray-900" id="analyticsUniqueVisitors">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="analyticsUniqueVisitors"><div class="skeleton skeleton-text" style="width:45%;height:32px;margin:0;"></div></div>
                             <p class="text-xs text-indigo-500 mt-2 font-bold italic">Clients distincts</p>
                         </div>
                         <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="absolute -right-4 -bottom-4 text-8xl text-gray-50 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"></iconify-icon>
@@ -386,7 +390,7 @@
                     <div class="glass-panel p-8 relative overflow-hidden group">
                         <div class="relative z-10">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vues Produits</p>
-                            <div class="text-3xl font-black text-gray-900" id="analyticsProductViews">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="analyticsProductViews"><div class="skeleton skeleton-text" style="width:60%;height:32px;margin:0;"></div></div>
                             <p class="text-xs text-amber-500 mt-2 font-bold italic">Cumul de vos articles</p>
                         </div>
                         <iconify-icon icon="solar:eye-bold-duotone" class="absolute -right-4 -bottom-4 text-8xl text-gray-50 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"></iconify-icon>
@@ -394,7 +398,7 @@
                     <div class="glass-panel p-8 relative overflow-hidden group">
                         <div class="relative z-10">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Taux d'Engagement</p>
-                            <div class="text-3xl font-black text-gray-900" id="analyticsEngagementRate">0%</div>
+                            <div class="text-3xl font-black text-gray-900" id="analyticsEngagementRate"><div class="skeleton skeleton-text" style="width:40%;height:32px;margin:0;"></div></div>
                             <p class="text-xs text-green-500 mt-2 font-bold italic">Intérêt des visiteurs</p>
                         </div>
                         <iconify-icon icon="solar:fire-bold-duotone" class="absolute -right-4 -bottom-4 text-8xl text-gray-50 opacity-[0.03] group-hover:scale-110 transition-transform duration-700"></iconify-icon>
@@ -429,12 +433,11 @@
                             </div>
 
                         </div>
-                        <div class="space-y-6" id="analyticsTopProducts">
-                            <!-- Injected by JS -->
-                            <div class="flex items-center justify-center py-12">
-                                <iconify-icon icon="line-md:loading-loop" class="text-gray-200 text-3xl"></iconify-icon>
-                            </div>
-                        </div>
+                    <div class="space-y-6" id="analyticsTopProducts">
+                        <!-- Injected by JS -->
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -451,7 +454,9 @@
                     </div>
                     <div id="vendor-products-grid"
                         class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
-                        <!-- Products injected here -->
+                        <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
+                        <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
+                        <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
                     </div>
                 </div>
             </div>
@@ -463,7 +468,8 @@
                         <h2 class="text-xl font-bold">Demandes clients</h2>
                     </div>
                     <div id="vendor-leads-list" class="space-y-4">
-                        <p class="text-center text-sm text-gray-400 py-12">Chargement des prospects...</p>
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                     </div>
                 </div>
             </div>
@@ -479,7 +485,8 @@
                         </div>
                     </div>
                     <div id="vendor-purchases-list" class="space-y-4">
-                        <p class="text-center text-sm text-gray-400 py-12">Chargement de vos achats...</p>
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                     </div>
                 </div>
             </div>
@@ -591,7 +598,8 @@
                                 </div>
                             </div>
                             <div id="vendorPromoList" class="space-y-4">
-                                <p class="text-center text-sm text-gray-400 py-12">Chargement des codes promo...</p>
+                                <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                                <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                             </div>
                         </div>
                     </div>
@@ -1138,6 +1146,14 @@
                     }
                 }
 
+                function isVendorOrdersDataPending() {
+                    return window.__newketVendorOrdersReady !== true;
+                }
+
+                function isVendorProductsDataPending() {
+                    return window.__newketVendorProductsReady !== true;
+                }
+
                 // Re-render visible tab when currency changes
                 (function bindVendorCurrencyRerender() {
                     if (window.__newketVendorCurrencyBound) return;
@@ -1160,48 +1176,94 @@
                         else if (tabId === 'promos' && typeof renderVendorPromos === 'function') renderVendorPromos();
                     }
 
+                    // Coalesce multiple triggers into a single render to reduce long handlers / forced reflow warnings.
+                    let rerenderQueued = false;
+                    const scheduleRerender = () => {
+                        if (rerenderQueued) return;
+                        rerenderQueued = true;
+                        requestAnimationFrame(() => {
+                            rerenderQueued = false;
+                            try { rerenderVisible(); } catch (e) {}
+                        });
+                    };
+
                     window.addEventListener('currencyChanged', () => {
-                        try { rerenderVisible(); } catch (e) {}
+                        scheduleRerender();
                     });
 
                     window.addEventListener('resize', () => {
                         clearTimeout(window.__vendorResizeTimeout);
                         window.__vendorResizeTimeout = setTimeout(() => {
-                            try { rerenderVisible(); } catch (e) {}
+                            scheduleRerender();
                         }, 250);
                     });
 
                     // Re-render when orders are re-normalized (e.g. after products load)
                     window.addEventListener('ordersUpdated', () => {
-                        try { rerenderVisible(); } catch (e) {}
+                        window.__newketVendorOrdersReady = true;
+                        scheduleRerender();
+                    });
+
+                    window.addEventListener('productsUpdated', () => {
+                        window.__newketVendorProductsReady = true;
+                        scheduleRerender();
                     });
                 })();
 
                 document.addEventListener('DOMContentLoaded', () => {
-                    if (window.newketInitialized) {
-                        initVendorDashboard();
-                    } else {
-                        window.addEventListener('newketInitialized', () => {
-                            initVendorDashboard();
-                        });
-                    }
+                    // In Vite dev/HMR, inline scripts can be evaluated multiple times.
+                    // Prevent duplicate listeners which cause 3x tab switching + extra renders.
+                    if (window.__newketVendorDashboardDomBound) return;
+                    window.__newketVendorDashboardDomBound = true;
+
+                    // Don't hard-block on `newketInitialized` (it may not fire in some dev flows).
+                    // We rely on `ordersUpdated` / `productsUpdated` to swap skeletons with real data.
+                    window.__newketVendorOrdersReady = false;
+                    window.__newketVendorProductsReady = false;
+
+                    // If managers are already warm (e.g. init ran before DOMContentLoaded), don't get stuck in skeleton.
+                    try {
+                        if (window.OrderManager && OrderManager._initialized === true && !OrderManager._fetchPromise) {
+                            window.__newketVendorOrdersReady = true;
+                        }
+                    } catch (e) {}
+                    try {
+                        if (window.ProductManager && Array.isArray(ProductManager.products)) {
+                            // Products can be served from cache immediately; treat as "ready" once present.
+                            if (ProductManager.products.length > 0 || ProductManager.loading === false) window.__newketVendorProductsReady = true;
+                        }
+                    } catch (e) {}
+
+                    initVendorDashboard();
 
                     document.querySelectorAll('[data-switch-vendor-tab]').forEach((link) => {
+                        // Avoid double-binding even if this block ever runs again.
+                        if (link.dataset.newketVendorTabBound === '1') return;
+                        link.dataset.newketVendorTabBound = '1';
+
                         link.addEventListener('click', (event) => {
                             switchVendorTab(link.dataset.switchVendorTab, event);
                         });
                     });
 
                     document.getElementById('btnVerifyVendorOtp')?.addEventListener('click', handleVerifyOTP);
-                    document.getElementById('btnVendorPartialOffer')?.addEventListener('click', handleVendorPartialOffer);
-                    document.getElementById('btnVendorContest')?.addEventListener('click', handleVendorContest);
+                    document.getElementById('btnVendorPartialOffer')?.addEventListener('click', () => {
+                        if (typeof window.handleVendorPartialOffer === 'function') return window.handleVendorPartialOffer();
+                        if (window.showToast) window.showToast("Action indisponible. Veuillez r\u00e9essayer.", 'error');
+                    });
+                    document.getElementById('btnVendorContest')?.addEventListener('click', () => {
+                        if (typeof window.handleVendorContest === 'function') return window.handleVendorContest();
+                        if (window.showToast) window.showToast("Action indisponible. Veuillez r\u00e9essayer.", 'error');
+                    });
                     document.getElementById('btnSendVendorDisputeMessage')?.addEventListener('click', () => {
-                        window.sendVendorDisputeMessage();
+                        if (typeof window.sendVendorDisputeMessage === 'function') return window.sendVendorDisputeMessage();
+                        if (window.showToast) window.showToast('Messagerie indisponible. Veuillez r\u00e9essayer.', 'error');
                     });
                     document.getElementById('vDisputeMessageInput')?.addEventListener('keydown', (event) => {
                         if (event.key === 'Enter') {
                             event.preventDefault();
-                            window.sendVendorDisputeMessage();
+                            if (typeof window.sendVendorDisputeMessage === 'function') return window.sendVendorDisputeMessage();
+                            if (window.showToast) window.showToast('Messagerie indisponible. Veuillez r\u00e9essayer.', 'error');
                         }
                     });
 
@@ -1251,15 +1313,38 @@
                         }
                         
                         // Populate Settings
+                        let resolvedPhone =
+                            profile.phone ||
+                            profile.store_phone ||
+                            localStorage.getItem('newketUserPhone') ||
+                            '';
+
+                        if (!resolvedPhone && window.SupabaseAdapter?.fetchWithFilters && window.SupabaseAdapter?.getClient) {
+                            try {
+                                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                                if (user?.id) {
+                                    const dbProfile = await window.SupabaseAdapter.fetchWithFilters('users', {
+                                        eq: [['id', user.id]],
+                                        select: '*',
+                                        single: true,
+                                        skipCache: true
+                                    });
+                                    resolvedPhone = dbProfile?.store_phone || '';
+                                    if (resolvedPhone) {
+                                        ProfileManager.saveProfile({
+                                            ...profile,
+                                            phone: resolvedPhone,
+                                            store_phone: dbProfile?.store_phone || resolvedPhone
+                                        });
+                                    }
+                                }
+                            } catch (_) {}
+                        }
+
                         if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = boutiqueName || '';
                         if (document.getElementById('vSetEmail')) document.getElementById('vSetEmail').value = localStorage.getItem('newketUserEmail') || profile.email;
                         if (document.getElementById('vSetPhone')) {
-                            document.getElementById('vSetPhone').value =
-                                profile.phone ||
-                                profile.store_phone ||
-                                profile.store_phone_whatsapp ||
-                                localStorage.getItem('newketUserPhone') ||
-                                '';
+                            document.getElementById('vSetPhone').value = resolvedPhone;
                         }
                         
                         // Load extra settings from profile (synced with Supabase)
@@ -1508,7 +1593,6 @@
                                 email: newEmail,
                                 phone: newPhone,
                                 store_phone: newPhone,
-                                store_phone_whatsapp: newPhone,
                                 shipping_time: newShipping,
                                 shop_slug: newShopSlug
                             };
@@ -1539,8 +1623,7 @@
                                             company_name: newName,
                                             shop_slug: newShopSlug,
                                             shipping_time: newShipping,
-                                            store_phone: newPhone || null,
-                                            store_phone_whatsapp: newPhone || null
+                                            store_phone: newPhone || null
                                         });
                                     }
                                 }
@@ -1792,6 +1875,12 @@
 
                 async function renderVendorPromos(force = false) {
                     try {
+                        const promoContainer = document.getElementById('vendorPromoList');
+                        if (promoContainer && (!window.vendorPromoState.loaded || force)) {
+                            if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                                promoContainer.innerHTML = window.buildSkeletonPanelListHTML(2, { lines: 2, cardClass: 'glass-panel p-4' });
+                            }
+                        }
                         await loadVendorPromos(force);
                         renderVendorPromoStats();
                         renderVendorPromoList();
@@ -1891,11 +1980,15 @@
                 }
 
                 function initVendorDashboard() {
+                    if (window.__newketVendorDashboardInited) return;
+                    window.__newketVendorDashboardInited = true;
+
                     updateStatusBanner();
-                    
+                    window.addEventListener('userStatusUpdated', updateStatusBanner);
+                      
                     // Sync tab from Hash
                     syncVendorTabFromHash();
-                    
+                     
                     // Listen for hash changes
                     window.addEventListener('hashchange', syncVendorTabFromHash);
 
@@ -1986,6 +2079,13 @@
                 }
 
                 function renderVendorDashboard() {
+                    // Keep the initial skeleton visible until we have at least one data refresh.
+                    if (isVendorOrdersDataPending() || isVendorProductsDataPending()) return;
+
+                    if (!window.OrderManager || typeof OrderManager.getVendorStats !== 'function' || !window.CurrencyManager || typeof CurrencyManager.formatPrice !== 'function') {
+                        return;
+                    }
+
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     const stats = OrderManager.getVendorStats(userId || email);
@@ -2141,7 +2241,9 @@
                     // Activity feed handled by main.js logic generally or locally:
                     const feed = document.getElementById('vendor-activity-feed');
                     if (feed) {
-                        const activities = ActivityManager.getRecentActivity(6);
+                        const activities = (window.ActivityManager && typeof ActivityManager.getRecentActivity === 'function')
+                            ? ActivityManager.getRecentActivity(6)
+                            : [];
                         feed.innerHTML = activities.length ? activities.map(a => `
                             <div class="flex items-start gap-4 p-4 border border-gray-50 rounded-2xl">
                                 <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-sm">
@@ -2154,11 +2256,7 @@
                             </div>
                         `).join('') : '<p class="text-sm text-gray-400 py-4 col-span-full text-center">Aucune activité.</p>';
                     }
-            updateStatusBanner();
-            window.addEventListener('userStatusUpdated', updateStatusBanner);
-            document.addEventListener('ordersUpdated', () => {
-                if (typeof renderVendorDashboard === 'function') renderVendorDashboard();
-            });
+                    // (moved out of render loop) status + orders listeners are bound once during init
                 }
 
                 function getStatusColor(status) {
@@ -2204,6 +2302,7 @@
                     }
                     const ctx = document.getElementById('salesChart');
                     if (!ctx) return;
+                    const skeleton = document.getElementById('vendorSalesChartSkeleton');
                     const isMobile = window.matchMedia('(max-width: 640px)').matches;
                     const rawLabels = Array.isArray(chartData?.labels) ? chartData.labels : [];
                     const rawData = Array.isArray(chartData?.data) ? chartData.data.map(value => Number(value) || 0) : [];
@@ -2293,6 +2392,7 @@
                             }
                         }
                     });
+                    if (skeleton) skeleton.classList.add('hidden');
                     // Force resize: ensures correct canvas sizing on mobile after DOM paint
                     requestAnimationFrame(() => { if (salesChart) salesChart.resize(); });
                 }
@@ -2341,6 +2441,29 @@
                 }
 
                 function renderVendorAnalytics() {
+                    // Skeleton during real async boot (orders/products). No forced/min duration.
+                    if (isVendorOrdersDataPending() || isVendorProductsDataPending()) {
+                        const setInlineSkeleton = (id, width = '70%') => {
+                            const el = document.getElementById(id);
+                            if (!el) return;
+                            el.innerHTML = `<div class="skeleton skeleton-text" style="width:${width};height:1em;margin:0 auto;"></div>`;
+                        };
+                        setInlineSkeleton('analyticsShopViews', '55%');
+                        setInlineSkeleton('analyticsUniqueVisitors', '45%');
+                        setInlineSkeleton('analyticsProductViews', '60%');
+                        setInlineSkeleton('analyticsEngagementRate', '40%');
+
+                        const top = document.getElementById('analyticsTopProducts');
+                        if (top && typeof window.buildSkeletonPanelListHTML === 'function') {
+                            top.innerHTML = window.buildSkeletonPanelListHTML(4, { lines: 2, cardClass: 'glass-panel p-4' });
+                        }
+                        return;
+                    }
+
+                    if (!window.ProductManager || typeof ProductManager.getProducts !== 'function' || !window.OrderManager || typeof OrderManager.getVendorStats !== 'function') {
+                        return;
+                    }
+
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     const allProducts = Array.isArray(ProductManager.getProducts()) ? ProductManager.getProducts() : [];
@@ -2532,6 +2655,23 @@
                 }
 
                 function renderVendorProducts() {
+                    const grid = document.getElementById('vendor-products-grid');
+                    if (!grid) return;
+                    if (isVendorProductsDataPending()) {
+                        if (typeof window.buildSkeletonCardHTML === 'function') grid.innerHTML = window.buildSkeletonCardHTML(3);
+                        return;
+                    }
+
+                    if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') {
+                        grid.innerHTML = `
+                            <div class="col-span-full glass-panel p-12 text-center text-gray-500">
+                                <iconify-icon icon="solar:shield-warning-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                                <p>Catalogue indisponible</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     const searchQuery = document.getElementById('dashboardSearch')?.value.toLowerCase() || '';
@@ -2548,7 +2688,6 @@
                         );
                     }
 
-                    const grid = document.getElementById('vendor-products-grid');
                     grid.innerHTML = myProducts.length ? myProducts.map(p => `
                         <div class="glass-panel p-4 flex flex-col group relative">
                             <div class="aspect-square bg-gray-50 rounded-xl mb-3 overflow-hidden relative">
@@ -2617,15 +2756,29 @@
                 }
 
                 function renderVendorPurchases() {
+                    const purchasesList = document.getElementById('vendor-purchases-list');
+                    if (!purchasesList) return;
+                    if (isVendorOrdersDataPending()) {
+                        if (typeof window.buildSkeletonPanelListHTML === 'function') purchasesList.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
+                        return;
+                    }
+
+                    if (!window.OrderManager || typeof OrderManager.getCustomerStats !== 'function' || !window.CurrencyManager || typeof CurrencyManager.formatPrice !== 'function') {
+                        purchasesList.innerHTML = `
+                            <div class="glass-panel p-12 text-center text-gray-500">
+                                <iconify-icon icon="solar:shield-warning-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                                <p>Donn&eacute;es indisponibles</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     
                     const stats = OrderManager.getCustomerStats(email, userId);
                     const myPurchases = stats.orders || [];
                     
-                    const purchasesList = document.getElementById('vendor-purchases-list');
-                    if (!purchasesList) return;
-
                     if (document.getElementById('vendorPurchasesTotal')) {
                         document.getElementById('vendorPurchasesTotal').textContent = CurrencyManager.formatPrice(stats.totalSpent || 0);
                     }
@@ -2690,6 +2843,18 @@
 
                 // Order Detail Modal Functions
                 function renderVendorLeads() {
+                    const leadsList = document.getElementById('vendor-leads-list');
+                    if (!leadsList) return;
+                    if (isVendorOrdersDataPending()) {
+                        if (typeof window.buildSkeletonPanelListHTML === 'function') leadsList.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
+                        return;
+                    }
+
+                    if (!window.OrderManager || typeof OrderManager.getVendorStats !== 'function') {
+                        leadsList.innerHTML = `<p class="col-span-full py-12 text-center text-sm text-gray-400">Donn&eacute;es indisponibles.</p>`;
+                        return;
+                    }
+
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
                     const stats = OrderManager.getVendorStats(userId || email);
@@ -2704,9 +2869,6 @@
                             leadsBadge.classList.add('hidden');
                         }
                     }
-                    const leadsList = document.getElementById('vendor-leads-list');
-                    if (!leadsList) return;
-
                     if (recentOrders.length === 0) {
                         leadsList.innerHTML = `<p class="col-span-full py-12 text-center text-sm text-gray-400">Aucune demande client ni devis pour le moment.</p>`;
                     } else {
@@ -3352,8 +3514,20 @@
             if (window.SidebarManager) {
                 initVendorSidebar();
             } else {
-                // Otherwise wait for app initialization
+                // Otherwise wait for DOM/component boot (newketInitialized isn't guaranteed in all dev flows)
+                window.addEventListener('componentsLoaded', initVendorSidebar, { once: true });
                 window.addEventListener('newketInitialized', initVendorSidebar, { once: true });
+                // Last-resort: tiny poll for late script load.
+                let attempts = 0;
+                const t = setInterval(() => {
+                    attempts++;
+                    if (window.SidebarManager) {
+                        clearInterval(t);
+                        initVendorSidebar();
+                    } else if (attempts >= 40) {
+                        clearInterval(t);
+                    }
+                }, 250);
             }
         })();
     </script>

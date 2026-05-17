@@ -177,10 +177,70 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8" id="shopsGrid">
             <!-- Loading Skeletons -->
-            <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
-            <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
-            <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
-            <div class="animate-pulse bg-gray-50 rounded-[2.5rem] p-8 h-64 border border-gray-100"></div>
+            <div class="shop-card bg-white rounded-[2.5rem] p-8 border border-gray-100 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+                <div class="skeleton w-16 h-6 rounded-full self-start"></div>
+                <div class="skeleton w-24 h-24 rounded-full"></div>
+                <div class="w-full space-y-3 flex flex-col items-center">
+                    <div class="skeleton h-6 w-3/4 rounded-xl"></div>
+                    <div class="skeleton h-3 w-2/3 rounded-full"></div>
+                    <div class="skeleton h-3 w-1/2 rounded-full"></div>
+                </div>
+                <div class="pt-6 border-t border-gray-50 w-full flex items-center justify-between">
+                    <div class="space-y-2">
+                        <div class="skeleton h-3 w-24 rounded-full"></div>
+                        <div class="skeleton h-3 w-20 rounded-full"></div>
+                    </div>
+                    <div class="skeleton w-10 h-10 rounded-full"></div>
+                </div>
+            </div>
+            <div class="shop-card bg-white rounded-[2.5rem] p-8 border border-gray-100 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+                <div class="skeleton w-16 h-6 rounded-full self-start"></div>
+                <div class="skeleton w-24 h-24 rounded-full"></div>
+                <div class="w-full space-y-3 flex flex-col items-center">
+                    <div class="skeleton h-6 w-3/4 rounded-xl"></div>
+                    <div class="skeleton h-3 w-2/3 rounded-full"></div>
+                    <div class="skeleton h-3 w-1/2 rounded-full"></div>
+                </div>
+                <div class="pt-6 border-t border-gray-50 w-full flex items-center justify-between">
+                    <div class="space-y-2">
+                        <div class="skeleton h-3 w-24 rounded-full"></div>
+                        <div class="skeleton h-3 w-20 rounded-full"></div>
+                    </div>
+                    <div class="skeleton w-10 h-10 rounded-full"></div>
+                </div>
+            </div>
+            <div class="shop-card bg-white rounded-[2.5rem] p-8 border border-gray-100 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+                <div class="skeleton w-16 h-6 rounded-full self-start"></div>
+                <div class="skeleton w-24 h-24 rounded-full"></div>
+                <div class="w-full space-y-3 flex flex-col items-center">
+                    <div class="skeleton h-6 w-3/4 rounded-xl"></div>
+                    <div class="skeleton h-3 w-2/3 rounded-full"></div>
+                    <div class="skeleton h-3 w-1/2 rounded-full"></div>
+                </div>
+                <div class="pt-6 border-t border-gray-50 w-full flex items-center justify-between">
+                    <div class="space-y-2">
+                        <div class="skeleton h-3 w-24 rounded-full"></div>
+                        <div class="skeleton h-3 w-20 rounded-full"></div>
+                    </div>
+                    <div class="skeleton w-10 h-10 rounded-full"></div>
+                </div>
+            </div>
+            <div class="shop-card bg-white rounded-[2.5rem] p-8 border border-gray-100 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+                <div class="skeleton w-16 h-6 rounded-full self-start"></div>
+                <div class="skeleton w-24 h-24 rounded-full"></div>
+                <div class="w-full space-y-3 flex flex-col items-center">
+                    <div class="skeleton h-6 w-3/4 rounded-xl"></div>
+                    <div class="skeleton h-3 w-2/3 rounded-full"></div>
+                    <div class="skeleton h-3 w-1/2 rounded-full"></div>
+                </div>
+                <div class="pt-6 border-t border-gray-50 w-full flex items-center justify-between">
+                    <div class="space-y-2">
+                        <div class="skeleton h-3 w-24 rounded-full"></div>
+                        <div class="skeleton h-3 w-20 rounded-full"></div>
+                    </div>
+                    <div class="skeleton w-10 h-10 rounded-full"></div>
+                </div>
+            </div>
         </div>
 
         <div id="noShopsMsg"
@@ -258,6 +318,10 @@
             const query = searchInput.value.toLowerCase();
 
             try {
+                if (typeof window.buildSkeletonShopCardHTML === 'function' && allSellers.length === 0) {
+                    grid.innerHTML = window.buildSkeletonShopCardHTML(4);
+                }
+
                 if (!window.SupabaseAdapter) {
                     console.error('SupabaseAdapter not loaded');
                     grid.innerHTML = '';

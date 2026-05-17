@@ -25,9 +25,12 @@ const AuthManager = {
 
         // --- GLOBAL FAIL-SAFE ---
         // Force-remove loading screen after 10s regardless of what happens
-        setTimeout(() => {
-            if (this._authChecking) {
-                console.warn('[NewKet Auth] Fail-safe: Forcefully removing loading screen.');
+        const failSafeTimer = setTimeout(() => {
+            // Only act if we are still stuck behind the loading gate.
+            if (this._authChecking && document.documentElement.classList.contains('auth-loading')) {
+                const isLocal = /^(localhost|127\\.0\\.0\\.1)$/i.test(window.location.hostname);
+                const log = isLocal ? console.info : console.warn;
+                log('[NewKet Auth] Fail-safe: Forcefully removing loading screen.');
                 document.documentElement.classList.remove('auth-loading');
                 this._authChecking = false;
             }
@@ -77,6 +80,7 @@ const AuthManager = {
             console.error('[NewKet Auth] Unexpected error during init:', err);
             this.handleLogoutCleanup();
         } finally {
+            clearTimeout(failSafeTimer);
             this._authChecking = false;
             this._initialized = true; // Mark as fully initialized
             this.enforcePermissions();
@@ -183,6 +187,14 @@ const AuthManager = {
 
                 this.status = profile?.status || await this.fetchUserStatus(email);
                 localStorage.setItem('newketUserStatus', this.status);
+
+                if (window.ProfileManager && profile) {
+                    window.ProfileManager.saveProfile({
+                        ...profile,
+                        email: user.email || profile.email || '',
+                        phone: profile.store_phone || ''
+                    });
+                }
 
                 this.setupRealtimeSync(user.id);
                 this.enforcePermissions();
@@ -360,7 +372,7 @@ const AuthManager = {
         try {
             const { data, error } = await window.supabaseClient
                 .from('users')
-                .select('id, email, name, avatar, role, status')
+                .select('*')
                 .eq('id', userId)
                 .maybeSingle();
 

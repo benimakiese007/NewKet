@@ -375,6 +375,70 @@ window.SupabaseAdapter = {
         }
     },
 
+    async countRows(table, options = {}) {
+        const client = this.getClient();
+        if (!client) return 0;
+
+        try {
+            const count = await this._withTimeout(
+                this._retry(async () => {
+                    let query = client.from(table).select(options.select || 'id', { count: 'exact', head: true });
+
+                    if (options.eq) {
+                        for (const [col, val] of options.eq) {
+                            query = query.eq(col, val);
+                        }
+                    }
+
+                    if (options.in) {
+                        for (const [col, vals] of options.in) {
+                            query = query.in(col, vals);
+                        }
+                    }
+
+                    if (options.ilike) {
+                        for (const [col, pattern] of options.ilike) {
+                            query = query.ilike(col, pattern);
+                        }
+                    }
+
+                    if (options.or) {
+                        if (Array.isArray(options.or)) {
+                            for (const orCond of options.or) {
+                                query = query.or(orCond);
+                            }
+                        } else {
+                            query = query.or(options.or);
+                        }
+                    }
+
+                    if (options.gte) {
+                        for (const [col, val] of options.gte) {
+                            query = query.gte(col, val);
+                        }
+                    }
+
+                    if (options.lte) {
+                        for (const [col, val] of options.lte) {
+                            query = query.lte(col, val);
+                        }
+                    }
+
+                    const { count, error } = await query;
+                    if (error) throw error;
+                    return count || 0;
+                }),
+                options.timeout || 7000,
+                `Count rows from ${table}`
+            );
+
+            return count || 0;
+        } catch (err) {
+            console.error(`[NewKet] Critical Error counting rows in ${table}:`, err);
+            return 0;
+        }
+    },
+
     /**
      * Subscribe to real-time changes on a table.
      * @param {string} table - Table name

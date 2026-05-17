@@ -59,6 +59,12 @@ const BehaviorTracking = {
             const target = event.target?.closest?.('a,button,[role="button"],[data-track-action]');
             if (!target) return;
 
+            // Ignore high-frequency internal dashboard tab navigation (prevents 429 spam in dev).
+            // We still track page views and meaningful actions elsewhere.
+            try {
+                if (target.matches?.('[data-switch-vendor-tab]') || target.closest?.('[data-switch-vendor-tab]')) return;
+            } catch (_) {}
+
             const now = Date.now();
             if (now - this._lastClickTs < 400) return;
             this._lastClickTs = now;

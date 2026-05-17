@@ -817,6 +817,113 @@ export function buildSkeletonNotificationHTML(count = 4) {
 }
 
 /**
+ * Builds Skeleton cards for shop directory pages.
+ */
+export function buildSkeletonShopCardHTML(count = 4) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        html += `
+            <div class="shop-card bg-white rounded-[2.5rem] p-8 border border-gray-100 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+                <div class="skeleton w-16 h-6 rounded-full self-start"></div>
+                <div class="skeleton w-24 h-24 rounded-full"></div>
+                <div class="w-full space-y-3 flex flex-col items-center">
+                    <div class="skeleton h-6 w-3/4 rounded-xl"></div>
+                    <div class="skeleton h-3 w-2/3 rounded-full"></div>
+                    <div class="skeleton h-3 w-1/2 rounded-full"></div>
+                </div>
+                <div class="pt-6 border-t border-gray-50 w-full flex items-center justify-between">
+                    <div class="space-y-2">
+                        <div class="skeleton h-3 w-24 rounded-full"></div>
+                        <div class="skeleton h-3 w-20 rounded-full"></div>
+                    </div>
+                    <div class="skeleton w-10 h-10 rounded-full"></div>
+                </div>
+            </div>
+        `;
+    }
+    return html;
+}
+
+/**
+ * Builds stacked Skeleton panels for feeds, lists, and dashboard cards.
+ */
+export function buildSkeletonPanelListHTML(count = 3, options = {}) {
+    const {
+        lines = 2,
+        showAvatar = false,
+        cardClass = 'glass-panel p-4',
+        rowClass = 'flex items-start gap-4'
+    } = options;
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        const lineHtml = Array.from({ length: lines }).map((_, index) => `
+            <div class="skeleton skeleton-text" style="width: ${index === 0 ? '70%' : index === lines - 1 ? '35%' : '90%'}; height: ${index === 0 ? '14px' : '12px'}; margin-bottom: ${index === lines - 1 ? '0' : '0.6rem'};"></div>
+        `).join('');
+        html += `
+            <div class="${cardClass}">
+                <div class="${rowClass}">
+                    ${showAvatar ? '<div class="skeleton skeleton-avatar flex-shrink-0"></div>' : ''}
+                    <div class="flex-1 min-w-0">
+                        ${lineHtml}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    return html;
+}
+
+/**
+ * Builds Skeleton table rows for admin tables.
+ */
+export function buildSkeletonTableRowsHTML(columnCount = 6, rowCount = 5) {
+    let html = '';
+    for (let row = 0; row < rowCount; row++) {
+        html += '<tr>';
+        for (let col = 0; col < columnCount; col++) {
+            const width = col === 0 ? '70%' : col === columnCount - 1 ? '85%' : col % 2 === 0 ? '90%' : '60%';
+            html += `
+                <td class="p-4">
+                    <div class="skeleton skeleton-text" style="width: ${width}; height: 14px; margin-bottom: 0;"></div>
+                </td>
+            `;
+        }
+        html += '</tr>';
+    }
+    return html;
+}
+
+/**
+ * Builds Skeleton rows for the system-health incidents list.
+ */
+export function buildSkeletonIncidentListHTML(count = 4) {
+    let html = '';
+    for (let i = 0; i < count; i++) {
+        html += `
+            <div class="p-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="skeleton h-6 w-12 rounded-full"></div>
+                            <div class="skeleton h-4 w-24 rounded-full"></div>
+                        </div>
+                        <div class="skeleton h-5 w-2/3 rounded-lg mb-3"></div>
+                        <div class="skeleton h-4 w-full rounded-full mb-2"></div>
+                        <div class="skeleton h-4 w-4/5 rounded-full mb-3"></div>
+                        <div class="skeleton h-3 w-48 rounded-full"></div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="skeleton h-10 w-16 rounded-lg"></div>
+                        <div class="skeleton h-10 w-20 rounded-lg"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    return html;
+}
+
+/**
  * Normalizes an image URL and returns the first entry when multiple are provided.
  * Supabase runtime transformations are disabled for this project, so URLs are left untouched.
  */
@@ -1005,7 +1112,6 @@ function showCheckoutModal(productName, productPrice) {
         let prefillPhone = (
             profile.phone ||
             profile.store_phone ||
-            profile.store_phone_whatsapp ||
             localStorage.getItem('newketUserPhone') ||
             ''
         ).trim();
@@ -1033,24 +1139,22 @@ function showCheckoutModal(productName, productPrice) {
                     (await window.SupabaseAdapter.getClient().auth.getUser())?.data?.user ||
                     null;
                 const userId = user?.id || localStorage.getItem('newketUserId');
-                if (userId) {
-                    const row = await window.SupabaseAdapter.fetchWithFilters('users', {
-                        eq: [['id', userId]],
-                        select: 'phone,store_phone,store_phone_whatsapp',
-                        single: true,
-                        skipCache: true
-                    });
+                    if (userId) {
+                        const row = await window.SupabaseAdapter.fetchWithFilters('users', {
+                            eq: [['id', userId]],
+                            select: '*',
+                            single: true,
+                            skipCache: true
+                        });
                     const resolved =
                         row?.store_phone ||
                         row?.phone ||
-                        row?.store_phone_whatsapp ||
                         '';
                     prefillPhone = String(resolved || '').trim();
                     if (prefillPhone && window.ProfileManager?.saveProfile) {
                         window.ProfileManager.saveProfile({
                             phone: prefillPhone,
-                            store_phone: row?.store_phone || prefillPhone,
-                            store_phone_whatsapp: row?.store_phone_whatsapp || prefillPhone
+                            store_phone: row?.store_phone || prefillPhone
                         });
                     }
                 }
@@ -2122,6 +2226,10 @@ window.buildSkeletonCardHTML = buildSkeletonCardHTML;
 window.buildSkeletonDashboardStatsHTML = buildSkeletonDashboardStatsHTML;
 window.buildSkeletonActivityHTML = buildSkeletonActivityHTML;
 window.buildSkeletonNotificationHTML = buildSkeletonNotificationHTML;
+window.buildSkeletonShopCardHTML = buildSkeletonShopCardHTML;
+window.buildSkeletonPanelListHTML = buildSkeletonPanelListHTML;
+window.buildSkeletonTableRowsHTML = buildSkeletonTableRowsHTML;
+window.buildSkeletonIncidentListHTML = buildSkeletonIncidentListHTML;
 window.buildStarsHTML = buildStarsHTML;
 window.getOptimizedImageUrl = getOptimizedImageUrl;
 window.initLazyImages = initLazyImages;

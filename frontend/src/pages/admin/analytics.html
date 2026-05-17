@@ -56,7 +56,7 @@
                     <div class="lg:col-span-5">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vue utilisateur</div>
                         <div class="flex flex-col sm:flex-row gap-2">
-                            <input id="userSearchInput" list="userSearchList" type="text" placeholder="Nom, email ou ID utilisateur" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm" />
+                            <input id="userSearchInput" list="userSearchList" type="text" placeholder="Nom, boutique, email, telephone ou ID utilisateur" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm" />
                             <datalist id="userSearchList"></datalist>
                             <button id="applyUserSearchBtn" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-black text-white">Voir</button>
                             <button id="clearUserSearchBtn" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">Effacer</button>
@@ -189,7 +189,7 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Pages vues</div>
-                            <div class="text-3xl font-black text-gray-900" id="metricPageViews">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="metricPageViews"><div class="skeleton skeleton-text" style="width:55%;height:32px;margin:0;"></div></div>
                             <div class="text-xs text-gray-500 mt-1" id="deltaPageViews">—</div>
                         </div>
                         <div class="w-24" id="sparkPageViews"></div>
@@ -199,7 +199,7 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Actions (clics + admin)</div>
-                            <div class="text-3xl font-black text-gray-900" id="metricClicks">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="metricClicks"><div class="skeleton skeleton-text" style="width:45%;height:32px;margin:0;"></div></div>
                             <div class="text-xs text-gray-500 mt-1" id="deltaClicks">—</div>
                         </div>
                         <div class="w-24" id="sparkClicks"></div>
@@ -209,7 +209,7 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Sessions uniques</div>
-                            <div class="text-3xl font-black text-gray-900" id="metricSessions">0</div>
+                            <div class="text-3xl font-black text-gray-900" id="metricSessions"><div class="skeleton skeleton-text" style="width:45%;height:32px;margin:0;"></div></div>
                             <div class="text-xs text-gray-500 mt-1" id="deltaSessions">—</div>
                         </div>
                         <div class="w-24" id="sparkSessions"></div>
@@ -219,7 +219,7 @@
                     <div class="flex items-start justify-between gap-3">
                         <div>
                             <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Temps actif cumulé</div>
-                            <div class="text-3xl font-black text-gray-900" id="metricActiveTime">0 min</div>
+                            <div class="text-3xl font-black text-gray-900" id="metricActiveTime"><div class="skeleton skeleton-text" style="width:60%;height:32px;margin:0;"></div></div>
                             <div class="text-xs text-gray-500 mt-1" id="deltaActiveTime">—</div>
                         </div>
                         <div class="w-24" id="sparkActiveTime"></div>
@@ -494,10 +494,38 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function getUserSearchTerms(user) {
+            if (!user) return [];
+
+            const email = user.email || '';
+            const emailPrefix = email.split('@')[0];
+
+            return [
+                user.id,
+                user.name,
+                user.full_name,
+                user.display_name,
+                user.username,
+                user.company_name,
+                user.store_name,
+                user.shop_name,
+                user.boutique_name,
+                user.business_name,
+                user.phone,
+                user.store_phone,
+                user.store_phone_whatsapp,
+                user.whatsapp,
+                email,
+                emailPrefix
+            ].filter(Boolean);
+        }
+
         function buildUserOptionLabel(user) {
-            const name = user?.name || user?.company_name || 'Utilisateur';
+            const name = user?.name || user?.company_name || user?.store_name || user?.shop_name || 'Utilisateur';
+            const boutique = user?.company_name || user?.store_name || user?.shop_name || user?.boutique_name || user?.business_name || '';
             const email = user?.email || 'sans email';
-            return `${name} - ${email} - ${user.id}`;
+            const phone = user?.phone || user?.store_phone || user?.store_phone_whatsapp || user?.whatsapp || '';
+            return [name, boutique, email, phone, user?.id].filter(Boolean).join(' - ');
         }
 
         function resolveUserFromInput(rawValue) {
@@ -505,10 +533,7 @@
             if (!value) return null;
             return usersDirectory.find((user) => {
                 const haystacks = [
-                    user.id,
-                    user.email,
-                    user.name,
-                    user.company_name,
+                    ...getUserSearchTerms(user),
                     buildUserOptionLabel(user),
                 ].filter(Boolean).map((entry) => String(entry).toLowerCase());
                 return haystacks.some((entry) => entry === value || entry.includes(value));
@@ -808,6 +833,21 @@
         }
 
         async function loadBehaviorAnalytics() {
+            // Skeleton KPIs while the request is in-flight (avoid "0" flashes).
+            const setKpiSkeleton = (id, width = '55%') => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = `<div class="skeleton skeleton-text" style="width:${width};height:32px;margin:0;"></div>`;
+            };
+            setKpiSkeleton('metricPageViews', '55%');
+            setKpiSkeleton('metricClicks', '45%');
+            setKpiSkeleton('metricSessions', '45%');
+            setKpiSkeleton('metricActiveTime', '60%');
+            const summaryList = document.getElementById('summaryList');
+            if (summaryList && typeof window.buildSkeletonPanelListHTML === 'function') {
+                summaryList.innerHTML = window.buildSkeletonPanelListHTML(5, { lines: 1, cardClass: 'p-3 rounded-2xl bg-gray-50' });
+            }
+
             setRangeButtons(state.days);
             updateShareUrl();
             const qs = buildQueryParams().toString();
@@ -831,7 +871,11 @@
 
             titleEl.textContent = kind === 'page' ? normalizeLabel(value) : value;
             metaEl.textContent = 'Chargement...';
-            listEl.innerHTML = '';
+            if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                listEl.innerHTML = window.buildSkeletonPanelListHTML(4, { lines: 1, cardClass: 'p-3 rounded-2xl bg-gray-50' });
+            } else {
+                listEl.innerHTML = '';
+            }
             tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400 italic">Chargement…</td></tr>`;
             modal.classList.remove('hidden');
 

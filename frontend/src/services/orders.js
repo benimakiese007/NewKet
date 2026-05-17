@@ -295,10 +295,22 @@ const OrderManager = {
         const totalRevenue = filtered.reduce((sum, o) => sum + (o.total || 0), 0);
         const products = window.ProductManager ? ProductManager.getProducts() : [];
         const totalLeads = filtered.length;
+        const aov = totalLeads > 0 ? totalRevenue / totalLeads : 0;
 
         // Conversion Rate Logic
         const totalViews = products.reduce((sum, p) => sum + (parseInt(p.views) || 0), 0);
         const conversionRate = totalViews > 0 ? (totalLeads / totalViews) * 100 : 0;
+
+        // Loyalty rate: % of unique customers that returned (>= 2 orders)
+        const customerOrderCounts = new Map();
+        filtered.forEach((order) => {
+            const key = order?.customer_id || order?.user_id || order?.customer_email || '';
+            if (!key) return;
+            customerOrderCounts.set(key, (customerOrderCounts.get(key) || 0) + 1);
+        });
+        const uniqueCustomers = customerOrderCounts.size;
+        const repeatCustomers = Array.from(customerOrderCounts.values()).filter((count) => count >= 2).length;
+        const loyaltyRate = uniqueCustomers > 0 ? (repeatCustomers / uniqueCustomers) * 100 : 0;
 
         // Category breakdown
         const categorySales = {};
@@ -307,6 +319,10 @@ const OrderManager = {
             const cat = p?.category || 'Autre';
             categorySales[cat] = (categorySales[cat] || 0) + (o.total || 0);
         });
+
+        // Dead stock: products in stock that have 0 orders in timeframe
+        const soldProductIds = new Set(filtered.map((order) => order?.product_id).filter(Boolean));
+        const deadStockCount = products.filter((product) => (product?.stock || 0) > 0 && !soldProductIds.has(product.id)).length;
 
         // Daily breakdown for charts
         const dailyData = {};
@@ -329,12 +345,15 @@ const OrderManager = {
             totalOrders: totalLeads,
             totalLeads,
             totalRevenue,
-            averageOrderValue: totalLeads > 0 ? totalRevenue / totalLeads : 0,
+            averageOrderValue: aov,
+            aov,
             categorySales,
             dailyData,
             topProducts: this._getTopProducts(filtered),
             conversionRate: conversionRate.toFixed(2),
             productsInDanger: products.filter(p => (p.stock || 0) < 10 && (p.stock || 0) > 0).length,
+            deadStockCount,
+            loyaltyRate: Number(loyaltyRate.toFixed(1)),
             healthScore
         };
     },

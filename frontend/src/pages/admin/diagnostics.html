@@ -67,7 +67,7 @@
                         <iconify-icon icon="solar:bag-bold" width="24"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Panier Moyen (AOV)</p>
-                    <div class="text-2xl font-black text-gray-900" id="statsAOV" data-price-cdf="0">0</div>
+                    <div class="text-2xl font-black text-gray-900" id="statsAOV" data-price-cdf="0"><div class="skeleton skeleton-text" style="width:60%;height:28px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
                     <div
@@ -75,21 +75,21 @@
                         <iconify-icon icon="solar:ranking-bold" width="24"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Top Catégorie</p>
-                    <div class="text-xl font-black text-gray-900" id="topCategoryDisplay">Chargement...</div>
+                    <div class="text-xl font-black text-gray-900" id="topCategoryDisplay"><span class="skeleton inline-block h-6 w-32 rounded-xl align-middle"></span></div>
                 </div>
                 <div class="glass-panel p-6 flex flex-col gap-1 bg-red-50 border-red-100">
                     <div class="w-10 h-10 rounded-xl bg-white text-red-500 flex items-center justify-center mb-4">
                         <iconify-icon icon="solar:archive-bold" width="24"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-red-400">Stock Mort (0 Ventes)</p>
-                    <div class="text-2xl font-black text-red-600" id="deadStockCount">0</div>
+                    <div class="text-2xl font-black text-red-600" id="deadStockCount"><div class="skeleton skeleton-text" style="width:35%;height:28px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
                     <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
                         <iconify-icon icon="solar:user-heart-bold" width="24"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Taux Fidélité</p>
-                    <div class="text-2xl font-black text-gray-900" id="loyaltyRate">85%</div>
+                    <div class="text-2xl font-black text-gray-900" id="loyaltyRate"><div class="skeleton skeleton-text" style="width:45%;height:28px;margin:0;"></div></div>
                 </div>
             </div>
 
@@ -118,7 +118,9 @@
                     Anatomie des meilleures ventes
                 </h3>
                 <div id="diagnosticsTopProducts" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Top products injected here -->
+                    <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
+                    <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
+                    <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
                 </div>
             </div>
 
@@ -128,7 +130,8 @@
                     <h3 class="font-bold text-gray-900">Journal d'audit système</h3>
                 </div>
                 <div class="divide-y divide-gray-50 max-h-[400px] overflow-y-auto" id="auditLog">
-                    <!-- Logs injected here -->
+                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                 </div>
             </div>
         </main>
@@ -136,8 +139,11 @@
 
     <script>
         const currentCharts = {};
+        let currentDiagnosticsTimeframe = 'all';
 
         function updateTimeframe(timeframe, btn) {
+            currentDiagnosticsTimeframe = timeframe;
+
             // Update active button styles
             document.querySelectorAll('.time-btn').forEach(b => {
                 b.classList.remove('bg-black', 'text-white');
@@ -149,15 +155,24 @@
             renderDiagnostics(timeframe);
         }
 
-        function renderDiagnostics(timeframe = 'all') {
+        function renderDiagnostics(timeframe = currentDiagnosticsTimeframe) {
+            if (!window.OrderManager || !window.CurrencyManager) {
+                return;
+            }
+            // Keep skeletons until orders/products have completed their first load.
+            if (OrderManager._initialized !== true || OrderManager._fetchPromise) return;
+            if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
+            if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) return;
+            currentDiagnosticsTimeframe = timeframe;
             const stats = OrderManager.getAdvancedStats(timeframe);
 
             // Stats Update
             const aovEl = document.getElementById('statsAOV');
             aovEl.dataset.priceCdf = stats.aov;
-            aovEl.innerHTML = CurrencyManager.formatPrice(stats.aov, 'CDF');
+            aovEl.innerHTML = CurrencyManager.formatPrice(stats.aov);
 
             document.getElementById('deadStockCount').textContent = stats.deadStockCount;
+            document.getElementById('loyaltyRate').textContent = `${Number(stats.loyaltyRate || 0).toFixed(1)}%`;
 
             // Top Category
             const cats = Object.entries(stats.categorySales).sort((a, b) => b[1] - a[1]);
@@ -182,6 +197,8 @@
             } else {
                 window.addEventListener('newketInitialized', renderDiagnostics);
             }
+
+            window.addEventListener('currencyChanged', () => renderDiagnostics(currentDiagnosticsTimeframe));
         });
 
         function initDiagnosticsCharts(stats) {
@@ -192,7 +209,14 @@
             if (currentCharts.category) currentCharts.category.destroy();
 
             const labels = Object.keys(stats.categorySales);
-            const data = Object.values(stats.categorySales);
+            const activeCurrency = window.CurrencyManager?.currentCurrency || 'CDF';
+            const data = Object.values(stats.categorySales).map(value => {
+                if (activeCurrency === 'USD' && window.CurrencyManager) {
+                    return CurrencyManager.convert(Number(value) || 0, true);
+                }
+                return Number(value) || 0;
+            });
+            const revenueLabel = activeCurrency === 'USD' ? 'Revenus (USD)' : 'Revenus (FC)';
 
             if (labels.length === 0) {
                 // Clear canvas or show message
@@ -205,7 +229,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Revenus (FC)',
+                        label: revenueLabel,
                         data: data,
                         backgroundColor: '#000000',
                         borderRadius: 8
@@ -216,7 +240,17 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: {
+                                font: { size: 10 },
+                                callback: (value) => {
+                                    if (!window.CurrencyManager) return value;
+                                    return CurrencyManager.formatPrice(value, activeCurrency, activeCurrency === 'CDF');
+                                }
+                            }
+                        },
                         x: { grid: { display: false }, ticks: { font: { size: 10 } } }
                     }
                 }

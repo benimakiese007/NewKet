@@ -142,19 +142,19 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total envoyées</div>
-                    <div class="text-2xl font-black text-gray-900" id="statTotal">0</div>
+                    <div class="text-2xl font-black text-gray-900" id="statTotal"><div class="skeleton skeleton-text" style="width:45%;height:24px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Non lues</div>
-                    <div class="text-2xl font-black text-blue-500" id="statUnread">0</div>
+                    <div class="text-2xl font-black text-blue-500" id="statUnread"><div class="skeleton skeleton-text" style="width:35%;height:24px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Promotions</div>
-                    <div class="text-2xl font-black text-purple-500" id="statPromos">0</div>
+                    <div class="text-2xl font-black text-purple-500" id="statPromos"><div class="skeleton skeleton-text" style="width:35%;height:24px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Alertes système</div>
-                    <div class="text-2xl font-black text-red-500" id="statAlerts">0</div>
+                    <div class="text-2xl font-black text-red-500" id="statAlerts"><div class="skeleton skeleton-text" style="width:35%;height:24px;margin:0;"></div></div>
                 </div>
             </div>
 
@@ -243,7 +243,8 @@
                     </div>
                 </div>
                 <div id="notifList" class="divide-y divide-gray-50">
-                    <div class="p-12 text-center text-gray-400">Chargement...</div>
+                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                 </div>
             </div>
         </main>
@@ -349,6 +350,13 @@
             const list = document.getElementById('notifList');
             const filterType = document.getElementById('filterType').value;
 
+            if (!window.NotificationManager || typeof window.NotificationManager.getNotifications !== 'function') {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    list.innerHTML = window.buildSkeletonPanelListHTML(2, { lines: 2, cardClass: 'glass-panel p-4 m-4' });
+                }
+                return;
+            }
+
             // Merge DB notifications with local sent-log (deduplicated by ID)
             let notifs = [];
             if (window.NotificationManager) {
@@ -408,6 +416,7 @@
         }
 
         function updateStats() {
+            if (!window.NotificationManager || typeof window.NotificationManager.getNotifications !== 'function') return;
             let notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
             document.getElementById('statTotal').textContent = notifs.length;
             document.getElementById('statUnread').textContent = notifs.filter(n => !n.read).length;

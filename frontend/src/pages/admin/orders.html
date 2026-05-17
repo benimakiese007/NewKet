@@ -75,19 +75,19 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-premium stagger-1">
                 <div class="glass-panel p-5">
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total Prospects</p>
-                    <p class="text-3xl font-black text-gray-900 mt-1 tracking-tight" id="statLeadsTotal">0</p>
+                    <p class="text-3xl font-black text-gray-900 mt-1 tracking-tight" id="statLeadsTotal"><div class="skeleton skeleton-text" style="width:40%;height:30px;margin:0;"></div></p>
                 </div>
                 <div class="glass-panel p-5">
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">En cours</p>
-                    <p class="text-3xl font-black text-amber-600 mt-1 tracking-tight" id="statLeadsPending">0</p>
+                    <p class="text-3xl font-black text-amber-600 mt-1 tracking-tight" id="statLeadsPending"><div class="skeleton skeleton-text" style="width:40%;height:30px;margin:0;"></div></p>
                 </div>
                 <div class="glass-panel p-5">
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Conclus</p>
-                    <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsSuccess">0</p>
+                    <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsSuccess"><div class="skeleton skeleton-text" style="width:40%;height:30px;margin:0;"></div></p>
                 </div>
                 <div class="glass-panel p-5 border-b-4 border-green-500">
                     <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Valeur Estimée</p>
-                    <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsValue">$0</p>
+                    <p class="text-3xl font-black text-green-600 mt-1 tracking-tight" id="statLeadsValue"><div class="skeleton skeleton-text" style="width:70%;height:30px;margin:0;"></div></p>
                 </div>
             </div>
 
@@ -108,7 +108,28 @@
                             </tr>
                         </thead>
                         <tbody id="ordersBody">
-                            <!-- Orders loaded via JS -->
+                            <tr>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 60%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 65%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 55%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 65%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 0;"></div></td>
+                            </tr>
+                            <tr>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 90%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 60%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 65%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 55%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 65%; height: 14px; margin-bottom: 0;"></div></td>
+                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 85%; height: 14px; margin-bottom: 0;"></div></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -135,7 +156,24 @@
             const query = document.getElementById('searchInput')?.value?.toLowerCase() || '';
             const statusFilter = document.getElementById('filterStatus')?.value || '';
             const paymentFilter = document.getElementById('filterPayment')?.value || '';
+
+            if (!window.OrderManager) {
+                if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    tbody.innerHTML = window.buildSkeletonTableRowsHTML(9, 6);
+                }
+                emptyState.classList.add('hidden');
+                return;
+            }
+
             const allOrders = OrderManager.getOrders();
+
+            if (OrderManager._initialized !== true || OrderManager._fetchPromise || !window.newketInitialized) {
+                if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    tbody.innerHTML = window.buildSkeletonTableRowsHTML(9, 6);
+                }
+                emptyState.classList.add('hidden');
+                return;
+            }
 
             filteredOrders = allOrders.filter(o => {
                 const idMatch = o.id.toLowerCase().includes(query);

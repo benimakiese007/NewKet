@@ -65,6 +65,7 @@ const ProfileManager = {
             data.store_phone_whatsapp ||
             '';
         if (resolvedPhone) localStorage.setItem('newketUserPhone', resolvedPhone);
+        else if ('phone' in data || 'store_phone' in data || 'store_phone_whatsapp' in data) localStorage.removeItem('newketUserPhone');
         if (data.city) localStorage.setItem('newketUserCity', data.city);
         if (data.company_name) localStorage.setItem('newketCompany', data.company_name);
         if (data.boutique_name) localStorage.setItem('newketBoutiqueName', data.boutique_name);

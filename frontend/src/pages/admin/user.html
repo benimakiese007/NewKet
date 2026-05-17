@@ -92,19 +92,25 @@
             <div class="glass-panel p-6 space-y-6 animate-premium stagger-1">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="filterUsers('all')" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">Tous</button>
-                        <button onclick="filterUsers('supplier')" id="btn-supplier" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">Vendeurs</button>
-                        <button onclick="filterUsers('customer')" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">Clients</button>
-                        <button onclick="filterUsers('pending')" id="btn-pending" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-orange-50 text-orange-600 border border-orange-100 flex items-center gap-2">
+                        <button onclick="filterUsers('all')" data-filter="all" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
+                            Tous <span id="count-all" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </button>
+                        <button onclick="filterUsers('supplier')" id="btn-supplier" data-filter="supplier" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">
+                            Vendeurs <span id="count-supplier" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </button>
+                        <button onclick="filterUsers('customer')" data-filter="customer" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
+                            Clients <span id="count-customer" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </button>
+                        <button onclick="filterUsers('pending')" id="btn-pending" data-filter="pending" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-orange-50 text-orange-600 border border-orange-100 flex items-center gap-2">
                             <iconify-icon icon="solar:shield-warning-bold" width="16"></iconify-icon>
-                            En Attente
+                            En Attente <span id="count-pending"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </button>
                     </div>
 
                     <div class="flex-1 max-w-md relative">
                         <iconify-icon icon="solar:magnifer-bold"
                             class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
-                        <input type="text" id="userSearch" placeholder="Rechercher un utilisateur..."
+                        <input type="text" id="userSearch" placeholder="Rechercher par profil, boutique ou email..."
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/5 transition-all text-sm font-medium">
                     </div>
                 </div>
@@ -187,11 +193,11 @@
                             </div>
                             <div class="glass-panel p-6 premium-gradient-orange border-none">
                                 <p class="stat-card-label">Commandes / Leads</p>
-                                <p id="modalUserOrderCount" class="stat-card-value">0</p>
+                                <p id="modalUserOrderCount" class="stat-card-value"><span class="skeleton skeleton-text" style="width:48px;height:14px;margin:0;display:inline-block;"></span></p>
                             </div>
                             <div class="glass-panel p-6 premium-gradient-green border-none">
                                 <p id="modalUserRevenueLabel" class="stat-card-label">Montant Global</p>
-                                <p id="modalUserRevenue" class="stat-card-value text-green-700">0 FC</p>
+                                <p id="modalUserRevenue" class="stat-card-value text-green-700"><span class="skeleton skeleton-text" style="width:90px;height:14px;margin:0;display:inline-block;"></span></p>
                             </div>
                         </div>
 
@@ -239,6 +245,60 @@
         let _renderLock = false;
         let _statsCache = null; // High-performance cache for sales totals
 
+        function getFilteredCounts(users) {
+            const visibleUsers = users.filter(u => u.role !== 'admin');
+            return {
+                all: visibleUsers.length,
+                supplier: visibleUsers.filter(u => u.role === 'supplier').length,
+                customer: visibleUsers.filter(u => u.role === 'customer').length,
+                pending: visibleUsers.filter(u => (u.status === 'pending' || u.status === 'submitted') && u.role === 'supplier').length
+            };
+        }
+
+        function updateFilterCounts(users) {
+            const counts = getFilteredCounts(users);
+            const mappings = {
+                all: 'count-all',
+                supplier: 'count-supplier',
+                customer: 'count-customer',
+                pending: 'count-pending'
+            };
+
+            Object.entries(mappings).forEach(([key, id]) => {
+                const node = document.getElementById(id);
+                if (node) node.textContent = counts[key];
+            });
+        }
+
+        function getUserSearchText(user) {
+            if (!user) return '';
+
+            const emailPrefix = (user.email || '').split('@')[0];
+            const candidates = [
+                user.name,
+                user.full_name,
+                user.display_name,
+                user.username,
+                user.company_name,
+                user.store_name,
+                user.shop_name,
+                user.boutique_name,
+                user.business_name,
+                user.phone,
+                user.store_phone,
+                user.store_phone_whatsapp,
+                user.whatsapp,
+                UserManager.getDisplayName(user),
+                user.email,
+                emailPrefix
+            ];
+
+            return candidates
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+        }
+
         // Debounce search to prevent UI stutters
         const debouncedSearch = (val) => {
             searchQuery = val;
@@ -254,12 +314,50 @@
 
         function renderUsers() {
             if (_renderLock) return;
-            if (!window.UserManager || !window.ProductManager || !window.OrderManager) return;
-
             const tbody = document.getElementById('usersBody');
             const emptyState = document.getElementById('emptyState');
             const pagControls = document.getElementById('paginationControls');
+
+            const setCountSkeletons = () => {
+                const ids = ['count-all', 'count-supplier', 'count-customer', 'count-pending'];
+                ids.forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.innerHTML = '<span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span>';
+                });
+            };
+
             if (!tbody || !emptyState) return;
+
+            if (!window.UserManager || !window.ProductManager || !window.OrderManager) {
+                setCountSkeletons();
+                if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    tbody.innerHTML = window.buildSkeletonTableRowsHTML(5, 6);
+                }
+                emptyState.classList.add('hidden');
+                if (pagControls) pagControls.classList.add('hidden');
+                return;
+            }
+
+            if (UserManager._initialized !== true || OrderManager._initialized !== true || OrderManager._fetchPromise) {
+                setCountSkeletons();
+                if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    tbody.innerHTML = window.buildSkeletonTableRowsHTML(5, 6);
+                }
+                emptyState.classList.add('hidden');
+                if (pagControls) pagControls.classList.add('hidden');
+                return;
+            }
+
+            if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) {
+                setCountSkeletons();
+                if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    tbody.innerHTML = window.buildSkeletonTableRowsHTML(5, 6);
+                }
+                emptyState.classList.add('hidden');
+                if (pagControls) pagControls.classList.add('hidden');
+                return;
+            }
 
             _renderLock = true;
 
@@ -268,6 +366,7 @@
                     const allUsers = UserManager.getUsers();
                     const allProducts = ProductManager.getProducts();
                     const allOrders = OrderManager.getOrders();
+                    updateFilterCounts(allUsers);
 
                     // 1. COMPUTE STATS ONLY ONCE (High-perf cache)
                     if (!_statsCache) {
@@ -301,9 +400,8 @@
                                                 ? (u.status === 'pending' || u.status === 'submitted') 
                                                 : u.role === currentFilter);
                         
-                        const matchesSearch = (u.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (u.store_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (u.email || '').toLowerCase().includes(searchQuery.toLowerCase());
+                        const normalizedQuery = searchQuery.trim().toLowerCase();
+                        const matchesSearch = !normalizedQuery || getUserSearchText(u).includes(normalizedQuery);
                         return matchesRole && matchesSearch;
                     });
 
@@ -344,7 +442,10 @@
                         const isSubmitted = u.status === 'submitted';
                         const isPending = u.status === 'pending';
                         const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
-                        const hasNoLogo = u.role === 'supplier' && !(u.avatar || u.cover_image);
+                        const avatarUrl = u.avatar || u.avatar_url || u.picture || u.photo_url || u.picture_url || u.cover_image || null;
+                        const initialsSource = u.name || UserManager.getDisplayName(u) || (u.email ? u.email.split('@')[0] : '');
+                        const initials = (window.getInitials ? window.getInitials(initialsSource) : (initialsSource || '?').trim().charAt(0).toUpperCase());
+                        const hasNoLogo = u.role === 'supplier' && !avatarUrl;
 
                         const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
                         const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
@@ -354,10 +455,11 @@
                             <td class="p-4 cursor-pointer" onclick="openUserDetails('${u.email}')">
                                 <div class="flex items-center gap-4">
                                     <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
-                                        ${(u.avatar || u.cover_image) 
-                                            ? `<img src="${u.avatar || u.cover_image}" class="w-full h-full object-cover">` 
-                                            : `<span class="text-lg opacity-30">${UserManager.getDisplayName(u).charAt(0)}</span>`
+                                        ${avatarUrl
+                                            ? `<img src="${avatarUrl}" class="w-full h-full object-cover" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; const s=this.parentElement.querySelector('span'); if(s){s.style.display='flex';}">`
+                                            : ''
                                         }
+                                        <span class="text-sm font-black" style="${avatarUrl ? 'display:none;' : 'display:flex;'}">${initials}</span>
                                     </div>
                                     <div>
                                         <div class="font-black text-gray-900 flex items-center gap-2">
@@ -476,9 +578,8 @@
             currentFilter = role;
             currentPage = 1; // Reset to page 1 on filter change
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                const text = btn.textContent.toLowerCase();
-                const target = getRoleLabel(role).toLowerCase();
-                if (text.includes(target) || (role === 'all' && text === 'tous') || (role === 'pending' && text.includes('attente'))) {
+                const buttonRole = btn.dataset.filter;
+                if (buttonRole === role) {
                     btn.classList.add('bg-black', 'text-white', 'shadow-lg');
                     btn.classList.remove('bg-gray-50', 'text-gray-500', 'bg-orange-50', 'text-orange-600');
                 } else {

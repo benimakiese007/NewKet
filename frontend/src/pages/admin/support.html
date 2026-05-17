@@ -90,15 +90,15 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Tickets</div>
-                    <div class="text-2xl font-black text-gray-900" id="statTotalTickets">0</div>
+                    <div class="text-2xl font-black text-gray-900" id="statTotalTickets"><div class="skeleton skeleton-text" style="width:45%;height:24px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Tickets Ouverts</div>
-                    <div class="text-2xl font-black text-red-500" id="statOpenTickets">0</div>
+                    <div class="text-2xl font-black text-red-500" id="statOpenTickets"><div class="skeleton skeleton-text" style="width:35%;height:24px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-5 flex flex-col gap-1">
                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Tickets Résolus</div>
-                    <div class="text-2xl font-black text-green-500" id="statResolvedTickets">0</div>
+                    <div class="text-2xl font-black text-green-500" id="statResolvedTickets"><div class="skeleton skeleton-text" style="width:35%;height:24px;margin:0;"></div></div>
                 </div>
             </div>
 
@@ -110,7 +110,8 @@
                     </h2>
                 </div>
                 <div id="ticketsContainer" class="divide-y divide-gray-50">
-                    <div class="p-12 text-center text-gray-400">Chargement...</div>
+                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                 </div>
             </div>
         </main>
@@ -120,6 +121,13 @@
         async function renderTickets() {
             const container = document.getElementById('ticketsContainer');
             const filterStatus = document.getElementById('filterStatus').value;
+
+            if (!window.SupportManager || typeof SupportManager.getTickets !== 'function') {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    container.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4 m-4' });
+                }
+                return;
+            }
 
             // Map UI values to DB values
             const statusMap = { 'ouvert': 'open', 'resolu': 'resolved' };
@@ -187,6 +195,7 @@
         }
 
         function updateStats() {
+            if (!window.SupportManager || typeof SupportManager.getTickets !== 'function') return;
             const allTickets = SupportManager.getTickets();
             document.getElementById('statTotalTickets').textContent = allTickets.length;
             document.getElementById('statOpenTickets').textContent = allTickets.filter(t => t.status === 'open').length;

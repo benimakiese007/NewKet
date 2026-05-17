@@ -47,7 +47,48 @@ export const getUsers = async (req, res) => {
 
         if (error) throw error;
 
-        return res.status(200).json(data);
+        // Best-effort enrichment: if `users.avatar` is missing, try reading Supabase Auth metadata
+        // (e.g. Google picture) when service role is available. Never fail the endpoint if this
+        // lookup fails; it's only for UI convenience.
+        let users = Array.isArray(data) ? data : [];
+        const canReadAuthUsers = Boolean(supabaseAdmin?.auth?.admin?.getUserById);
+
+        if (canReadAuthUsers) {
+            const missingAvatarIds = [
+                ...new Set(
+                    users
+                        .filter(u => u?.id && !u?.avatar)
+                        .map(u => u.id)
+                )
+            ];
+
+            if (missingAvatarIds.length) {
+                const authResults = await Promise.allSettled(
+                    missingAvatarIds.slice(0, 100).map((id) => supabaseAdmin.auth.admin.getUserById(id))
+                );
+
+                const avatarById = new Map();
+                for (const result of authResults) {
+                    if (result.status !== 'fulfilled') continue;
+                    const user = result.value?.data?.user;
+                    const id = user?.id;
+                    if (!id) continue;
+                    const meta = user.user_metadata || {};
+                    const identityAvatar = user.identities?.[0]?.identity_data?.avatar_url || null;
+                    const url = meta.avatar_url || meta.photo_url || meta.picture || meta.picture_url || identityAvatar || null;
+                    if (url) avatarById.set(id, url);
+                }
+
+                if (avatarById.size) {
+                    users = users.map(u => ({
+                        ...u,
+                        avatar: u.avatar || avatarById.get(u.id) || null
+                    }));
+                }
+            }
+        }
+
+        return res.status(200).json(users);
     } catch (err) {
         console.error('❌ Erreur getUsers:', err.message);
         return res.status(500).json({ error: 'Failed to fetch users' });

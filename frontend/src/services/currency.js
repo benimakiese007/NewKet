@@ -1,15 +1,35 @@
 /* newket EMarket Currency Manager */
 
 const CurrencyManager = {
-    currentCurrency: localStorage.getItem('newketCurrency') || 'CDF',
+    currentCurrency: 'CDF',
     defaultRate: 2500, // 1 USD = 2500 CDF
     _delegatedBound: false,
+    _lifecycleBound: false,
 
     init() {
+        this.syncFromStorage();
         this.updateCurrencyUI();
         this.bindEvents();
+        this.bindLifecycleSync();
         this.updateAllPrices();
         this.updatePriceFilter();
+    },
+
+    normalizeCurrency(currency) {
+        return currency === 'USD' || currency === 'CDF' ? currency : 'CDF';
+    },
+
+    getStoredCurrency() {
+        try {
+            return this.normalizeCurrency(localStorage.getItem('newketCurrency'));
+        } catch (_) {
+            return 'CDF';
+        }
+    },
+
+    syncFromStorage() {
+        this.currentCurrency = this.getStoredCurrency();
+        return this.currentCurrency;
     },
 
     bindEvents() {
@@ -78,15 +98,50 @@ const CurrencyManager = {
         });
     },
 
+    bindLifecycleSync() {
+        if (this._lifecycleBound) return;
+        this._lifecycleBound = true;
+
+        const syncRenderedCurrency = () => {
+            this.syncFromStorage();
+            this.updateCurrencyUI();
+            this.updateAllPrices();
+            this.updatePriceFilter();
+        };
+
+        window.addEventListener('componentsLoaded', syncRenderedCurrency);
+        window.addEventListener('newketInitialized', syncRenderedCurrency);
+        window.addEventListener('pageshow', syncRenderedCurrency);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) syncRenderedCurrency();
+        });
+
+        window.addEventListener('storage', (event) => {
+            if (event.key !== 'newketCurrency') return;
+            const nextCurrency = this.normalizeCurrency(event.newValue);
+            if (nextCurrency === this.currentCurrency) {
+                syncRenderedCurrency();
+                return;
+            }
+
+            this.currentCurrency = nextCurrency;
+            this.updateCurrencyUI();
+            this.updateAllPrices();
+            this.updatePriceFilter();
+            window.dispatchEvent(new CustomEvent('currencyChanged', { detail: { currency: nextCurrency } }));
+        });
+    },
+
     setCurrency(currency) {
-        this.currentCurrency = currency;
-        localStorage.setItem('newketCurrency', currency);
+        const nextCurrency = this.normalizeCurrency(currency);
+        this.currentCurrency = nextCurrency;
+        localStorage.setItem('newketCurrency', nextCurrency);
         this.updateCurrencyUI();
         this.updateAllPrices();
         this.updatePriceFilter();
 
         // Dispatch event for other components
-        window.dispatchEvent(new CustomEvent('currencyChanged', { detail: { currency } }));
+        window.dispatchEvent(new CustomEvent('currencyChanged', { detail: { currency: nextCurrency } }));
     },
 
     updateCurrencyUI() {
@@ -233,5 +288,22 @@ const CurrencyManager = {
         });
     }
 };
+
+CurrencyManager.syncFromStorage();
+CurrencyManager.bindEvents();
+CurrencyManager.bindLifecycleSync();
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        CurrencyManager.syncFromStorage();
+        CurrencyManager.updateCurrencyUI();
+        CurrencyManager.updateAllPrices();
+        CurrencyManager.updatePriceFilter();
+    });
+} else {
+    CurrencyManager.updateCurrencyUI();
+    CurrencyManager.updateAllPrices();
+    CurrencyManager.updatePriceFilter();
+}
 
 window.CurrencyManager = CurrencyManager;

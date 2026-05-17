@@ -111,23 +111,36 @@ const ProductManager = {
 
             if (window.SupabaseAdapter && window.supabaseClient) {
                 try {
-                    // Try with join first - explicit relationship check
-                    products = await window.SupabaseAdapter.fetchWithFilters('products', {
-                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
-                        order: ['created_at', { ascending: false }],
-                        limit: PRODUCTS_PAGE_SIZE,
-                        skipCache: true
-                    });
+                    const [fetchedProducts, totalCount] = await Promise.all([
+                        window.SupabaseAdapter.fetchWithFilters('products', {
+                            select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                            order: ['created_at', { ascending: false }],
+                            limit: PRODUCTS_PAGE_SIZE,
+                            skipCache: true
+                        }),
+                        window.SupabaseAdapter.countRows('products', {
+                            timeout: 7000
+                        })
+                    ]);
+                    products = fetchedProducts;
+                    this._totalCount = totalCount || products.length;
+                    this._hasMore = products.length < this._totalCount;
                 } catch (joinErr) {
-                    products = await window.SupabaseAdapter.fetchWithFilters('products', {
-                        select: '*',
-                        order: ['created_at', { ascending: false }],
-                        limit: PRODUCTS_PAGE_SIZE,
-                        skipCache: true
-                    });
+                    const [fetchedProducts, totalCount] = await Promise.all([
+                        window.SupabaseAdapter.fetchWithFilters('products', {
+                            select: '*',
+                            order: ['created_at', { ascending: false }],
+                            limit: PRODUCTS_PAGE_SIZE,
+                            skipCache: true
+                        }),
+                        window.SupabaseAdapter.countRows('products', {
+                            timeout: 7000
+                        })
+                    ]);
+                    products = fetchedProducts;
+                    this._totalCount = totalCount || products.length;
+                    this._hasMore = products.length < this._totalCount;
                 }
-                this._totalCount = products.length;
-                this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
             }
             else if (window.ApiClient) {
                 const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_PAGE_SIZE}`);
@@ -234,6 +247,10 @@ const ProductManager = {
 
     getProducts() {
         return this.products;
+    },
+
+    getTotalCount() {
+        return Math.max(this._totalCount || 0, this.products.length || 0);
     },
 
     getProduct(id) {
