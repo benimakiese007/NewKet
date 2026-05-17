@@ -149,6 +149,7 @@ const AdminLayout = {
 
         // 2. Inject CSS
         this.injectStyles();
+        this.promoteEmbeddedStyles();
 
         // Avoid visual jump: keep admin shell hidden until auth + SidebarManager settle.
         this.setLayoutLoading(true);
@@ -249,32 +250,40 @@ const AdminLayout = {
     setupEmbeddedMode() {
         if (!this.isEmbeddedPage() || document.getElementById('nk-admin-embedded-style')) return;
 
+        document.documentElement.classList.add('admin-embedded-mode');
+        document.body?.classList.add('admin-embedded-mode');
+
         const style = document.createElement('style');
         style.id = 'nk-admin-embedded-style';
         style.textContent = `
-            html, body {
+            html.admin-embedded-mode,
+            html.admin-embedded-mode body {
                 background: #f8fafc !important;
+                margin: 0 !important;
             }
 
-            #adminNavbarPlaceholder,
-            #adminSidebarPlaceholder,
-            #adminOverlay,
-            #adminSidebar,
-            #adminMobileMenuBtn {
+            html.admin-embedded-mode #adminNavbarPlaceholder,
+            html.admin-embedded-mode #adminSidebarPlaceholder,
+            html.admin-embedded-mode #adminOverlay,
+            html.admin-embedded-mode #adminSidebar,
+            html.admin-embedded-mode #adminMobileMenuBtn {
                 display: none !important;
             }
 
-            .admin-shell {
+            html.admin-embedded-mode .admin-shell {
                 max-width: none !important;
                 margin: 0 !important;
+                padding-top: 0 !important;
                 padding: 0 0.375rem 0.375rem !important;
                 display: block !important;
+                grid-template-columns: minmax(0, 1fr) !important;
                 gap: 0 !important;
                 overflow-x: visible !important;
             }
 
-            .admin-shell > main {
+            html.admin-embedded-mode .admin-shell > main {
                 width: 100% !important;
+                min-width: 0 !important;
                 max-width: none !important;
                 padding-top: 0 !important;
                 margin-top: 0 !important;
@@ -331,6 +340,18 @@ const AdminLayout = {
                 view: this.shellViewMap[this.getCurrentAdminFile(url.pathname)] || 'overview'
             }, window.location.origin);
         }, true);
+    },
+
+    promoteEmbeddedStyles() {
+        if (!this.isEmbeddedPage()) return;
+
+        document.documentElement.classList.add('admin-embedded-mode');
+        document.body?.classList.add('admin-embedded-mode');
+
+        const style = document.getElementById('nk-admin-embedded-style');
+        if (style?.parentNode) {
+            style.parentNode.appendChild(style);
+        }
     },
 
     renderNavbar() {
