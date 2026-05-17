@@ -311,16 +311,23 @@ const AuthManager = {
 
         const explicitRole = this.resolveRoleFromUser(user);
         if (explicitRole === 'admin') return false;
+        if (this.isOAuthOnlyUser(user) && !this.hasConfirmedRoleSelection(user)) return true;
         if (profile?.role) return false;
         if (this.hasPendingRoleSelection()) return true;
 
         return this.isOAuthOnlyUser(user) || !explicitRole;
     },
 
+    hasConfirmedRoleSelection(user = this.user) {
+        if (user?.user_metadata?.role_selected === true) return true;
+        return localStorage.getItem('newketRoleSelectionConfirmed') === 'true';
+    },
+
     markPendingRoleSelection(isPending) {
         this._pendingRoleSelection = !!isPending;
         if (isPending) {
             localStorage.setItem('newketPendingRoleChoice', 'true');
+            localStorage.removeItem('newketRoleSelectionConfirmed');
         } else {
             localStorage.removeItem('newketPendingRoleChoice');
         }
@@ -716,7 +723,18 @@ const AuthManager = {
 
         const existingProfile = await this.getUserProfile(user.id);
         if (existingProfile?.role) {
+            if (this.isOAuthOnlyUser(user) && !this.hasConfirmedRoleSelection(user)) {
+                this.markPendingRoleSelection(true);
+                this.role = null;
+                this.status = null;
+                localStorage.removeItem('newketRole');
+                localStorage.removeItem('newketUserStatus');
+                this.enforcePermissions();
+                this.updateAccountLink();
+                return;
+            }
             this.markPendingRoleSelection(false);
+            localStorage.setItem('newketRoleSelectionConfirmed', 'true');
             this.role = existingProfile.role;
             this.status = existingProfile.status || ((existingProfile.role === 'customer' || existingProfile.role === 'admin') ? 'approved' : 'pending');
             window.location.href = this.getRedirectPathForRole(this.role, this.status);
@@ -724,7 +742,18 @@ const AuthManager = {
         }
 
         const profile = await this.createUserProfile(user, role);
+        if (window.supabaseClient) {
+            await window.supabaseClient.auth.updateUser({
+                data: {
+                    ...user.user_metadata,
+                    role,
+                    status: profile.status,
+                    role_selected: true
+                }
+            });
+        }
         this.markPendingRoleSelection(false);
+        localStorage.setItem('newketRoleSelectionConfirmed', 'true');
         this.role = profile.role;
         this.status = profile.status;
         this.user = user;
@@ -753,7 +782,7 @@ const AuthManager = {
         if (error) return { error: error.message };
 
         const user = data.user;
-        let role = user.user_metadata.role || 'customer';
+        let role = this.resolveRoleFromUser(user);
 
         const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
         if (user.email && admins.includes(user.email.toLowerCase())) {

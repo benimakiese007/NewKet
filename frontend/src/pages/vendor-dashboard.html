@@ -2865,6 +2865,13 @@
                         document.getElementById('btnMarkCancelled').textContent = 'Annuler la demande';
                     } else if (order.status === 'PAID_HELD') {
                         actions.classList.remove('hidden');
+                        standardActions.classList.remove('hidden');
+                        document.getElementById('btnMarkDelivered').innerHTML = `<iconify-icon icon="solar:delivery-bold" width="16"></iconify-icon>Démarrer la livraison`;
+                        document.getElementById('btnMarkDelivered').onclick = () => startVendorDelivery(order.id);
+                        document.getElementById('btnMarkCancelled').onclick = () => showToast('La commande est déjà payée et sécurisée en séquestre.', 'info');
+                        document.getElementById('btnMarkCancelled').textContent = 'Paiement sécurisé';
+                    } else if (order.status === 'IN_DELIVERY') {
+                        actions.classList.remove('hidden');
                         otpSection.classList.remove('hidden');
                         document.getElementById('vOtpInput').value = '';
                         currentOrderIdForOtp = order.id;
@@ -2891,6 +2898,80 @@
                         document.documentElement.classList.remove('overflow-hidden');
                     }
                 };
+
+                let currentOrderIdForOtp = null;
+
+                async function startVendorDelivery(orderId, skipConfirm = false) {
+                    const confirmationText = 'Démarrer la livraison pour cette commande ?';
+                    if (!skipConfirm) {
+                        if (typeof window.showConfirm === 'function') {
+                            window.showConfirm(
+                                'Démarrer la livraison',
+                                confirmationText,
+                                () => startVendorDelivery(orderId, true)
+                            );
+                            return;
+                        }
+                        if (!confirm(confirmationText)) return;
+                    }
+
+                    try {
+                        await OrderManager.startDelivery(orderId);
+                        showToast('Livraison démarrée. Vous pouvez maintenant saisir l’OTP à la remise.', 'success');
+                        closeOrderDetailModal();
+                        renderVendorDashboard();
+
+                        if (window.ActivityManager) {
+                            ActivityManager.log(`Livraison démarrée pour la commande #${orderId.substring(0,6)}`, 'order');
+                        }
+                    } catch (error) {
+                        showToast(error?.message || 'Impossible de démarrer la livraison.', 'error');
+                    }
+                }
+
+                async function handleVerifyOTP() {
+                    const otpInput = document.getElementById('vOtpInput');
+                    const otp = String(otpInput?.value || '').trim();
+                    const orderId = currentOrderIdForOtp;
+
+                    if (!orderId) {
+                        showToast('Commande introuvable pour la vérification OTP.', 'error');
+                        return;
+                    }
+
+                    if (!/^\d{6}$/.test(otp)) {
+                        showToast('Le code OTP doit contenir exactement 6 chiffres.', 'warning');
+                        otpInput?.focus();
+                        return;
+                    }
+
+                    const verifyBtn = document.getElementById('btnVerifyVendorOtp');
+                    const originalHtml = verifyBtn?.innerHTML || 'Vérifier';
+
+                    if (verifyBtn) {
+                        verifyBtn.disabled = true;
+                        verifyBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="16"></iconify-icon> Vérification...';
+                    }
+
+                    try {
+                        await OrderManager.validateDelivery(orderId, otp);
+                        currentOrderIdForOtp = null;
+                        showToast('Livraison confirmée avec succès.', 'success');
+                        closeOrderDetailModal();
+                        await renderVendorDashboard();
+
+                        if (window.ActivityManager) {
+                            ActivityManager.log(`OTP validé pour la commande #${orderId.substring(0,6)}`, 'order');
+                        }
+                    } catch (error) {
+                        showToast(error?.message || 'Erreur lors de la vérification OTP.', 'error');
+                    } finally {
+                        if (verifyBtn) {
+                            verifyBtn.disabled = false;
+                            verifyBtn.innerHTML = originalHtml;
+                        }
+                    }
+                }
 
                 async function updateVendorOrderStatus(orderId, newStatus, skipConfirm = false) {
                     const confirmationText = `Passer cette commande en statut \"${newStatus}\" ?`;

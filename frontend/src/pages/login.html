@@ -34,32 +34,12 @@
     <link rel="stylesheet" href="/src/assets/css/input.css">
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     
     <link rel="stylesheet" href="/src/assets/css/style.css">
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            900: '#000000',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
             background-color: #ffffff;
@@ -160,7 +140,7 @@
     </style>
 </head>
 
-<body class="text-brand-900 antialiased h-screen flex flex-col relative">
+<body class="text-black antialiased h-screen flex flex-col relative">
 
     <div id="header-placeholder"></div>
 
@@ -410,6 +390,10 @@
             // Redirection logic for already logged in users (Skill 3)
             window.addEventListener('newketInitialized', () => {
                 if (window.AuthManager && window.AuthManager.user) {
+                    if (window.AuthManager.hasPendingRoleSelection?.()) {
+                        window.location.href = window.AuthManager.getRoleSelectionPath();
+                        return;
+                    }
                     console.log('[NewKet Login] Redirecting authenticated user...');
                     window.location.href = window.resolvePath('index');
                 }
@@ -701,14 +685,24 @@
         function finalizeAuth(user, email) {
             if (typeof showToast !== 'undefined') showToast("Authentification réussie", "success");
 
-            let role = user?.user_metadata?.role || 'customer';
+            let role = user?.user_metadata?.role || null;
             const adminEmails = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
             if (adminEmails.includes(email.toLowerCase())) role = 'admin';
+
+            if (!role) {
+                localStorage.removeItem('newketRole');
+                localStorage.removeItem('newketUserStatus');
+                localStorage.removeItem('newketRoleSelectionConfirmed');
+                localStorage.setItem('newketPendingRoleChoice', 'true');
+                window.location.href = window.resolvePath('choose-role');
+                return;
+            }
 
             const userStatus = user?.user_metadata?.status || localStorage.getItem('newketUserStatus') || null;
 
             localStorage.setItem('newketUserEmail', email);
             localStorage.setItem('newketRole', role);
+            localStorage.setItem('newketRoleSelectionConfirmed', 'true');
             if (userStatus) localStorage.setItem('newketUserStatus', userStatus);
 
             setTimeout(async () => {

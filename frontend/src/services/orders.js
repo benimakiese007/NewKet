@@ -419,6 +419,19 @@ const OrderManager = {
         }
     },
 
+    async startDelivery(orderId, payload = {}) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/orders/${orderId}/start-delivery`, payload);
+            this._initialized = false;
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur startDelivery:', error);
+            throw error;
+        }
+    },
+
     async validateDelivery(orderId, otpCode) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
