@@ -21,10 +21,28 @@ export const getPublicUserStats = async (req, res) => {
 export const getUsers = async (req, res) => {
     try {
         const client = supabaseAdmin || supabase;
-        // ✅ OPTIMISATION: Colonnes précises seulement (pas de select('*'))
+        // Return the fields the admin seller review screens actually use.
         const { data, error } = await client
             .from('users')
-            .select('id, email, name, role, status, avatar, company_name, created_at:date_joined')
+            .select(`
+                id,
+                email,
+                name,
+                role,
+                status,
+                avatar,
+                cover_image,
+                company_name,
+                store_description,
+                store_address,
+                store_phone,
+                shipping_time,
+                preferred_payout_method,
+                documents_url,
+                physical_shop_url,
+                shop_slug,
+                date_joined
+            `)
             .order('date_joined', { ascending: false });
 
         if (error) throw error;

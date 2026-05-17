@@ -246,7 +246,11 @@
             } else {
                 avatarEl.textContent = displayName.substring(0, 2).toUpperCase();
             }
-            document.getElementById('joinDate').textContent = new Date(user.dateJoined).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+            const joinedAt = user.dateJoined || user.date_joined || user.created_at;
+            const joinDateLabel = joinedAt
+                ? new Date(joinedAt).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })
+                : 'N/A';
+            document.getElementById('joinDate').textContent = joinDateLabel;
 
             const badge = document.getElementById('roleBadge');
             badge.textContent = role === 'supplier' ? 'Vendeur / Fournisseur' : 'Client / Acheteur';
@@ -294,6 +298,18 @@
 
         function renderSupplierView(user, allOrders) {
             const products = ProductManager.getProducts().filter(p => p.supplier_email === user.email);
+            const documentUrls = Array.isArray(user.documents_url)
+                ? user.documents_url
+                : (typeof user.documents_url === 'string' && user.documents_url.trim()
+                    ? (() => {
+                        try {
+                            const parsed = JSON.parse(user.documents_url);
+                            return Array.isArray(parsed) ? parsed : [];
+                        } catch (_) {
+                            return [];
+                        }
+                    })()
+                    : []);
 
             // Filter orders that contain this supplier's products
             const supplierRevenueOrders = allOrders.filter(o =>
@@ -316,16 +332,16 @@
             // Populate Vendor Details Panel
             const detailsPanel = document.getElementById('vendorDetailsPanel');
             const detailsContent = document.getElementById('vendorDetailsContent');
-            if (user.company_name || user.store_description || user.documents_url || user.status === 'submitted' || user.status === 'pending') {
+            if (user.company_name || user.store_description || documentUrls.length > 0 || user.status === 'submitted' || user.status === 'pending') {
                 detailsPanel.classList.remove('hidden');
 
                 let docsHtml = '';
-                if (user.documents_url && user.documents_url.length > 0) {
+                if (documentUrls.length > 0) {
                     docsHtml = `
                         <div class="mt-4 pt-4 border-t border-gray-100">
-                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Documents <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-1">${user.documents_url.length} fichier(s)</span></p>
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Documents <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-1">${documentUrls.length} fichier(s)</span></p>
                             <div class="flex flex-col gap-2">
-                                ${user.documents_url.map((url, idx) => {
+                                ${documentUrls.map((url, idx) => {
                         // S'assurer que l'URL est complète et pointe vers le bon domaine Supabase
                         const finalUrl = url.startsWith('http') ? url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-docs/${url}`;
                         return `
