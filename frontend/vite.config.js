@@ -110,6 +110,7 @@ export default defineConfig({
         admin_settings: resolve(__dirname, 'src/pages/admin/settings.html'),
         admin_support: resolve(__dirname, 'src/pages/admin/support.html'),
         admin_user: resolve(__dirname, 'src/pages/admin/user.html'),
+        admin_user_details: resolve(__dirname, 'src/pages/admin/user-details.html'),
         admin_security: resolve(__dirname, 'src/pages/admin/security.html'),
         admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html')
       },
