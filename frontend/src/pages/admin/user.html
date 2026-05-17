@@ -351,7 +351,7 @@
 
                         return `
                         <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
-                            <td class="p-4" onclick="window.open('user-details?email=' + encodeURIComponent('${u.email}'), '_blank')">
+                            <td class="p-4" onclick="window.open('user-details.html?email=' + encodeURIComponent('${u.email}'), '_blank')">
                                 <div class="flex items-center gap-4">
                                     <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
                                         ${(u.avatar || u.cover_image) 

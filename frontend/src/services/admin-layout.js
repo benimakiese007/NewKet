@@ -109,6 +109,7 @@ const AdminLayout = {
 
     shouldRedirectLegacyPage() {
         if (!this.isAdminPageContext() || this.isEmbeddedPage()) return false;
+        if (this.getCurrentAdminFile() === 'user-details') return false;
         return this.getCurrentAdminFile() !== 'index';
     },
 
