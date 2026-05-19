@@ -501,7 +501,7 @@ const AdminLayout = {
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                 </button>
 
-                <div class="min-h-screen p-6 pt-24 lg:min-h-0 lg:px-4 lg:py-8 lg:sticky lg:top-[64px]">
+                <div class="min-h-0 p-6 pt-24 lg:min-h-0 lg:px-4 lg:py-8 lg:sticky lg:top-[64px]">
                     <!-- Admin Profile Header -->
                     <div class="px-4 mb-6 hidden lg:block">
                         <div class="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">

@@ -33,7 +33,7 @@
 <body class="text-gray-900">
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 pb-12 flex flex-col lg:flex-row gap-6">
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
         <div id="adminSidebarPlaceholder"></div>
         <script type="module" src="/src/services/admin-layout.js"></script>
 
@@ -156,29 +156,86 @@
         }
 
         let diagnosticsRenderTimer = null;
+        let diagnosticsBootAt = Date.now();
+        let diagnosticsHasRenderedOnce = false;
+        let diagnosticsEmptyStateApplied = false;
+
+        function applyDiagnosticsEmptyState(reason = '') {
+            if (diagnosticsEmptyStateApplied) return;
+            diagnosticsEmptyStateApplied = true;
+            try { clearTimeout(diagnosticsRenderTimer); } catch (e) {}
+
+            const aovEl = document.getElementById('statsAOV');
+            if (aovEl) {
+                aovEl.dataset.priceCdf = '0';
+                aovEl.textContent = '—';
+            }
+
+            const deadStockEl = document.getElementById('deadStockCount');
+            if (deadStockEl) deadStockEl.textContent = '0';
+
+            const loyaltyEl = document.getElementById('loyaltyRate');
+            if (loyaltyEl) loyaltyEl.textContent = '0.0%';
+
+            const topCatEl = document.getElementById('topCategoryDisplay');
+            if (topCatEl) topCatEl.textContent = 'N/A';
+
+            const stockList = document.getElementById('stockHealthList');
+            if (stockList) stockList.innerHTML = '<div class="text-center py-8 text-gray-400 italic">Aucune donn\u00E9e de catalogue \u00E0 analyser.</div>';
+
+            const topProducts = document.getElementById('diagnosticsTopProducts');
+            if (topProducts) topProducts.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400 italic">Aucune vente \u00E0 analyser.</div>';
+
+            const auditLog = document.getElementById('auditLog');
+            if (auditLog) auditLog.innerHTML = '<div class="p-6 text-sm text-gray-400 italic">Aucune activit\u00E9 r\u00E9cente.</div>';
+
+            const canvas = document.getElementById('categoryRevenueChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const wrapper = canvas.parentElement;
+                if (wrapper && !document.getElementById('categoryRevenueChartEmpty')) {
+                    const msg = document.createElement('div');
+                    msg.id = 'categoryRevenueChartEmpty';
+                    msg.className = 'text-center text-sm text-gray-400 italic mt-3';
+                    msg.textContent = 'Aucune r\u00E9partition \u00E0 afficher.' + (reason ? ` (${reason})` : '');
+                    wrapper.appendChild(msg);
+                }
+            }
+        }
+
         function scheduleDiagnosticsRender(timeframe = currentDiagnosticsTimeframe) {
+            if (diagnosticsEmptyStateApplied) return;
             try { clearTimeout(diagnosticsRenderTimer); } catch (e) {}
             diagnosticsRenderTimer = setTimeout(() => renderDiagnostics(timeframe), 60);
         }
 
         function renderDiagnostics(timeframe = currentDiagnosticsTimeframe) {
+            if (diagnosticsEmptyStateApplied) return;
+            const loadingTooLong = (Date.now() - diagnosticsBootAt) > 3500;
             if (!window.OrderManager || !window.CurrencyManager) {
+                if (loadingTooLong) applyDiagnosticsEmptyState('chargement');
                 scheduleDiagnosticsRender(timeframe);
                 return;
             }
             // Keep skeletons until orders/products have completed their first load.
             if (OrderManager._initialized !== true || OrderManager._fetchPromise) {
+                if (loadingTooLong) applyDiagnosticsEmptyState('commandes');
                 scheduleDiagnosticsRender(timeframe);
                 return;
             }
             if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') {
+                if (loadingTooLong) applyDiagnosticsEmptyState('catalogue');
                 scheduleDiagnosticsRender(timeframe);
                 return;
             }
             if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) {
+                if (loadingTooLong) applyDiagnosticsEmptyState('produits');
                 scheduleDiagnosticsRender(timeframe);
                 return;
             }
+
+            diagnosticsHasRenderedOnce = true;
             currentDiagnosticsTimeframe = timeframe;
             const stats = OrderManager.getAdvancedStats(timeframe);
 
@@ -208,16 +265,27 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            diagnosticsBootAt = Date.now();
             if (window.newketInitialized) {
-                renderDiagnostics();
+                scheduleDiagnosticsRender();
             } else {
-                window.addEventListener('newketInitialized', renderDiagnostics);
+                window.addEventListener('newketInitialized', () => scheduleDiagnosticsRender());
             }
 
-            window.addEventListener('currencyChanged', () => renderDiagnostics(currentDiagnosticsTimeframe));
+            // Always attempt a render: avoids missing the event if it fired before this script ran.
+            scheduleDiagnosticsRender();
+
+            window.addEventListener('currencyChanged', () => scheduleDiagnosticsRender(currentDiagnosticsTimeframe));
             window.addEventListener('ordersUpdated', () => scheduleDiagnosticsRender(currentDiagnosticsTimeframe));
             window.addEventListener('productsUpdated', () => scheduleDiagnosticsRender(currentDiagnosticsTimeframe));
             window.addEventListener('activitiesUpdated', () => scheduleDiagnosticsRender(currentDiagnosticsTimeframe));
+
+            // If the app never becomes ready (offline, auth missing, API down), switch skeletons to a message.
+            setTimeout(() => {
+                if (!diagnosticsHasRenderedOnce && !diagnosticsEmptyStateApplied) {
+                    applyDiagnosticsEmptyState('indisponible');
+                }
+            }, 4000);
         });
 
         function initDiagnosticsCharts(stats) {

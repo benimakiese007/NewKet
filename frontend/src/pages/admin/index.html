@@ -56,7 +56,7 @@
 
     <script type="module" src="/src/services/admin-layout.js"></script>
 
-    <div class="admin-shell max-w-7xl mx-auto px-4 sm:px-8 pb-12 flex flex-col lg:flex-row gap-8 lg:gap-12 relative justify-start">
+    <div class="admin-shell max-w-7xl mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12 relative justify-start">
         <div id="adminSidebarPlaceholder" class="flex-shrink-0"></div>
 
         <!-- Main Content -->
@@ -1043,7 +1043,10 @@
 
                 if (event.data.type === 'newket-admin-embed-metrics') {
                     if (event.data.view && frame.dataset.currentView === event.data.view && event.data.height) {
-                        frame.style.height = `${Math.max(Number(event.data.height) || 0, 720)}px`;
+                        const contentHeight = Number(event.data.height) || 0;
+                        const rect = frame.getBoundingClientRect();
+                        const viewportMin = Math.max(0, window.innerHeight - rect.top);
+                        frame.style.height = `${Math.max(contentHeight, viewportMin)}px`;
                     }
                     if (event.data.title) {
                         document.title = event.data.title;
