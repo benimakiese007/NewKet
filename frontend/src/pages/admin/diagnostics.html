@@ -155,14 +155,30 @@
             renderDiagnostics(timeframe);
         }
 
+        let diagnosticsRenderTimer = null;
+        function scheduleDiagnosticsRender(timeframe = currentDiagnosticsTimeframe) {
+            try { clearTimeout(diagnosticsRenderTimer); } catch (e) {}
+            diagnosticsRenderTimer = setTimeout(() => renderDiagnostics(timeframe), 60);
+        }
+
         function renderDiagnostics(timeframe = currentDiagnosticsTimeframe) {
             if (!window.OrderManager || !window.CurrencyManager) {
+                scheduleDiagnosticsRender(timeframe);
                 return;
             }
             // Keep skeletons until orders/products have completed their first load.
-            if (OrderManager._initialized !== true || OrderManager._fetchPromise) return;
-            if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
-            if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) return;
+            if (OrderManager._initialized !== true || OrderManager._fetchPromise) {
+                scheduleDiagnosticsRender(timeframe);
+                return;
+            }
+            if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') {
+                scheduleDiagnosticsRender(timeframe);
+                return;
+            }
+            if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) {
+                scheduleDiagnosticsRender(timeframe);
+                return;
+            }
             currentDiagnosticsTimeframe = timeframe;
             const stats = OrderManager.getAdvancedStats(timeframe);
 
@@ -199,6 +215,9 @@
             }
 
             window.addEventListener('currencyChanged', () => renderDiagnostics(currentDiagnosticsTimeframe));
+            window.addEventListener('ordersUpdated', () => scheduleDiagnosticsRender(currentDiagnosticsTimeframe));
+            window.addEventListener('productsUpdated', () => scheduleDiagnosticsRender(currentDiagnosticsTimeframe));
+            window.addEventListener('activitiesUpdated', () => scheduleDiagnosticsRender(currentDiagnosticsTimeframe));
         });
 
         function initDiagnosticsCharts(stats) {
@@ -319,7 +338,16 @@
 
         function renderAuditLog() {
             const list = document.getElementById('auditLog');
-            const activities = ActivityManager.getActivities();
+            if (!window.ActivityManager || typeof ActivityManager.getActivities !== 'function') {
+                list.innerHTML = '<div class="p-4 text-sm text-gray-400 italic">Chargement du journal…</div>';
+                return;
+            }
+
+            const activities = ActivityManager.getActivities() || [];
+            if (activities.length === 0) {
+                list.innerHTML = '<div class="p-4 text-sm text-gray-400 italic">Aucune activité récente.</div>';
+                return;
+            }
 
             list.innerHTML = activities.map(a => `
                 <div class="p-4 flex gap-4 items-start">

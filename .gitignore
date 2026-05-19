@@ -27,3 +27,6 @@ frontend/dist/
 frontend/api/_backend/
 
 .vercel
+
+# Local sidecar app (do not commit)
+newket-ad/

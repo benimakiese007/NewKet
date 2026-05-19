@@ -28,6 +28,26 @@
     <link rel="stylesheet" href="/src/assets/css/style.css">
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <link rel="stylesheet" href="/src/assets/css/admin.css">
+    <style>
+        html.admin-shell-embedded-view .admin-shell {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            gap: 0 !important;
+        }
+
+        html.admin-shell-embedded-view .admin-shell > main {
+            padding-top: 0 !important;
+        }
+
+        html.admin-shell-embedded-view #adminEmbeddedPanel {
+            padding: 0 !important;
+        }
+
+        html.admin-shell-embedded-view #adminContentFrame {
+            border-radius: 0 !important;
+            min-height: calc(100vh - 8rem) !important;
+        }
+    </style>
 </head>
 
 <body class="text-gray-900">
@@ -268,14 +288,12 @@
             </div>
 
             <section id="adminEmbeddedPanel" class="hidden">
-                <div class="glass-panel p-4 sm:p-5">
-                    <iframe
-                        id="adminContentFrame"
-                        title="Vue admin"
-                        class="w-full border-0 rounded-[1.5rem] bg-transparent"
-                        style="min-height: 60vh;"
-                    ></iframe>
-                </div>
+                <iframe
+                    id="adminContentFrame"
+                    title="Vue admin"
+                    class="block w-full border-0 bg-transparent"
+                    style="min-height: 60vh;"
+                ></iframe>
             </section>
         </main>
     </div>
@@ -918,6 +936,26 @@
 
             if (!overviewPanel || !embeddedPanel || !frame) return;
 
+            // Admin shell swaps views with pushState without a full page load.
+            // Without a manual reset, the browser keeps the previous scroll position.
+            if ('scrollRestoration' in window.history) {
+                try { window.history.scrollRestoration = 'manual'; } catch (e) {}
+            }
+
+            function resetScroll(options = {}) {
+                if (options.preserveScroll) return;
+
+                try {
+                    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+                } catch (e) {
+                    window.scrollTo(0, 0);
+                }
+
+                // Defensive: some browsers/containers still use these for the root scroller.
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            }
+
             function getRequestedView() {
                 const params = new URLSearchParams(window.location.search);
                 const raw = params.get('view') || 'overview';
@@ -960,6 +998,7 @@
                 const isOverview = view === 'overview';
                 overviewPanel.classList.toggle('hidden', !isOverview);
                 embeddedPanel.classList.toggle('hidden', isOverview);
+                document.documentElement.classList.toggle('admin-shell-embedded-view', !isOverview);
                 document.title = viewTitles[view] || viewTitles.overview;
                 if (window.AdminLayout && typeof window.AdminLayout.renderSidebar === 'function') {
                     window.AdminLayout.renderSidebar();
@@ -980,6 +1019,7 @@
                 }
 
                 setActiveView(targetView);
+                resetScroll(options);
 
                 if (targetView !== 'overview') {
                     const nextSrc = buildFrameSrc(targetView, options);
