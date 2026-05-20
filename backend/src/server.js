@@ -36,6 +36,7 @@ import paymentRoutes from './routes/payment.routes.js';
 import disputeRoutes from './routes/dispute.routes.js';
 import cronRoutes from './routes/cron.routes.js';
 import systemHealthRoutes from './routes/systemHealth.routes.js';
+import manifestRoutes from './routes/manifest.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 
@@ -179,6 +180,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/disputes', disputeRoutes);
 app.use('/api/cron', cronRoutes);
 app.use('/api/system-health', systemHealthRoutes);
+app.use('/api', manifestRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({

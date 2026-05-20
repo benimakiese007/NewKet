@@ -94,6 +94,34 @@ html:not(.auth-loading) body {
   
   /* NewKet Branding */
   --newket-green: #013220;
+
+  /* Site-wide theming hooks (overwritten by BrandingManager) */
+  --newket-header-bg: var(--newket-green);
+  --newket-header-fg: #ffffff;
+  --newket-footer-bg: var(--newket-green);
+  --newket-footer-fg: #ffffff;
+  --newket-btn-radius: 9999px;
+}
+
+/* Header/Footer theming */
+.newket-header-shell {
+  background-color: var(--newket-header-bg);
+  color: var(--newket-header-fg);
+}
+
+.newket-header-shell .text-white,
+.newket-header-shell .text-white\/90,
+.newket-header-shell iconify-icon {
+  color: var(--newket-header-fg) !important;
+}
+
+.newket-category-nav {
+  background-color: var(--newket-header-bg);
+}
+
+.newket-footer-shell {
+  background-color: var(--newket-footer-bg);
+  color: var(--newket-footer-fg);
 }
 
 @media (max-width: 639px) {
@@ -423,7 +451,7 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
   align-items: center;
   justify-content: center;
   padding: var(--space-xs) var(--space-lg);
-  border-radius: 9999px;
+  border-radius: var(--newket-btn-radius, 9999px);
   /* Pill shape */
   font-weight: 600;
   transition: all 0.3s ease;

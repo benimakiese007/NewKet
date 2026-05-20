@@ -47,7 +47,8 @@ const HEADER_HTML = `
                 <!-- Logo Section -->
                 <div class="flex items-center sm:min-w-0">
                     <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
-                        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" 
+                        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet"
+                            data-site-logo="header"
                             class="header-brand-image h-8 sm:h-20 w-auto object-contain"
                             onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                     </a>
@@ -307,12 +308,12 @@ const HEADER_HTML = `
 </div>`;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="text-white mt-16 pt-10 pb-7 border-t border-[#0A4A2E]" style="background-color: #013220; margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
+<footer class="newket-footer-shell text-white mt-16 pt-10 pb-7 border-t border-[#0A4A2E]" style="margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-10">
             <div class="lg:col-span-4 space-y-4">
                 <div class="flex items-center justify-center lg:justify-start">
-                    <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" class="h-20 sm:h-24 lg:h-28 w-auto object-contain">
+                    <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" data-site-logo="footer" class="h-20 sm:h-24 lg:h-28 w-auto object-contain">
                 </div>
                 <p class="text-gray-400 text-sm leading-relaxed max-w-md">
                     L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.

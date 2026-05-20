@@ -22,6 +22,7 @@ const AdminLayout = {
         'notifications-admin': 'notifications-admin',
         support: 'support',
         security: 'security',
+        branding: 'branding',
         settings: 'settings'
     },
 
@@ -496,6 +497,7 @@ const AdminLayout = {
 
             { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: 'Sécurité & Admins', view: 'security', section: 'Système' },
             { href: this.getShellHref('otp-guide'), icon: 'solar:password-bold', label: 'Guide', view: 'otp-guide', section: 'Système' },
+            { href: this.getShellHref('branding'), icon: 'solar:palette-round-bold', label: 'Branding & Thème', view: 'branding', section: 'Système' },
             { href: this.getShellHref('settings'), icon: 'solar:settings-bold', label: 'Paramètres', view: 'settings', sub: true, section: 'Système' }
         ];
 

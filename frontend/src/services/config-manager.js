@@ -12,6 +12,26 @@ const ConfigManager = {
         shippingFee: 5,
         freeShippingThreshold: 50,
         maintenanceMode: false,
+
+        // Branding / Theme (site-wide)
+        primaryColor: '#050505',
+        primaryHover: '#1A1A1A',
+        secondaryColor: '#121212',
+        headerBg: '#013220',
+        headerFg: '#ffffff',
+        footerBg: '#013220',
+        footerFg: '#ffffff',
+        themeColor: '#064734',
+        fontHeading: "'Poppins', sans-serif",
+        fontBody: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif",
+        faviconUrl: '',
+        appleTouchIconUrl: '',
+        pwaIcon192Url: '',
+        pwaIcon512Url: '',
+        pwaIcon192MaskableUrl: '',
+        pwaIcon512MaskableUrl: '',
+        headerLogoUrl: '',
+        footerLogoUrl: '',
         socialLinks: {
             instagram: '',
             facebook: '',
@@ -34,6 +54,25 @@ const ConfigManager = {
         const freeShippingThreshold = row.freeShippingThreshold ?? row.free_shipping_threshold;
         const maintenanceMode = row.maintenanceMode ?? row.maintenance_mode;
 
+        // Branding / Theme (site-wide)
+        const primaryColor = row.primaryColor ?? row.primary_color;
+        const secondaryColor = row.secondaryColor ?? row.secondary_color;
+        const headerBg = row.headerBg ?? row.header_bg;
+        const headerFg = row.headerFg ?? row.header_fg;
+        const footerBg = row.footerBg ?? row.footer_bg;
+        const footerFg = row.footerFg ?? row.footer_fg;
+        const themeColor = row.themeColor ?? row.theme_color;
+        const fontHeading = row.fontHeading ?? row.font_heading;
+        const fontBody = row.fontBody ?? row.font_body;
+        const faviconUrl = row.faviconUrl ?? row.favicon_url;
+        const appleTouchIconUrl = row.appleTouchIconUrl ?? row.apple_touch_icon_url;
+        const pwaIcon192Url = row.pwaIcon192Url ?? row.pwa_icon_192_url;
+        const pwaIcon512Url = row.pwaIcon512Url ?? row.pwa_icon_512_url;
+        const pwaIcon192MaskableUrl = row.pwaIcon192MaskableUrl ?? row.pwa_icon_192_maskable_url;
+        const pwaIcon512MaskableUrl = row.pwaIcon512MaskableUrl ?? row.pwa_icon_512_maskable_url;
+        const headerLogoUrl = row.headerLogoUrl ?? row.header_logo_url;
+        const footerLogoUrl = row.footerLogoUrl ?? row.footer_logo_url;
+
         const instagram = row?.socialLinks?.instagram ?? row.instagram_link ?? row.instagram;
         const facebook = row?.socialLinks?.facebook ?? row.facebook_link ?? row.facebook;
         const x = row?.socialLinks?.x ?? row?.socialLinks?.twitter ?? row.twitter_link ?? row.twitter ?? row.x;
@@ -49,6 +88,23 @@ const ConfigManager = {
             ...(shippingFee !== undefined ? { shippingFee } : {}),
             ...(freeShippingThreshold !== undefined ? { freeShippingThreshold } : {}),
             ...(maintenanceMode !== undefined ? { maintenanceMode: !!maintenanceMode } : {}),
+            ...(primaryColor !== undefined ? { primaryColor } : {}),
+            ...(secondaryColor !== undefined ? { secondaryColor } : {}),
+            ...(headerBg !== undefined ? { headerBg } : {}),
+            ...(headerFg !== undefined ? { headerFg } : {}),
+            ...(footerBg !== undefined ? { footerBg } : {}),
+            ...(footerFg !== undefined ? { footerFg } : {}),
+            ...(themeColor !== undefined ? { themeColor } : {}),
+            ...(fontHeading !== undefined ? { fontHeading } : {}),
+            ...(fontBody !== undefined ? { fontBody } : {}),
+            ...(faviconUrl !== undefined ? { faviconUrl } : {}),
+            ...(appleTouchIconUrl !== undefined ? { appleTouchIconUrl } : {}),
+            ...(pwaIcon192Url !== undefined ? { pwaIcon192Url } : {}),
+            ...(pwaIcon512Url !== undefined ? { pwaIcon512Url } : {}),
+            ...(pwaIcon192MaskableUrl !== undefined ? { pwaIcon192MaskableUrl } : {}),
+            ...(pwaIcon512MaskableUrl !== undefined ? { pwaIcon512MaskableUrl } : {}),
+            ...(headerLogoUrl !== undefined ? { headerLogoUrl } : {}),
+            ...(footerLogoUrl !== undefined ? { footerLogoUrl } : {}),
             ...(instagram !== undefined || facebook !== undefined || x !== undefined || linkedin !== undefined
                 ? {
                     socialLinks: {
@@ -105,7 +161,23 @@ const ConfigManager = {
                 socialLinks,
                 sellerCommission: config.sellerCommission,
                 targetAOV: config.targetAOV,
-                primaryColor: config.primaryColor
+                primaryColor: config.primaryColor,
+                secondaryColor: config.secondaryColor,
+                headerBg: config.headerBg,
+                headerFg: config.headerFg,
+                footerBg: config.footerBg,
+                footerFg: config.footerFg,
+                themeColor: config.themeColor,
+                fontHeading: config.fontHeading,
+                fontBody: config.fontBody,
+                faviconUrl: config.faviconUrl,
+                appleTouchIconUrl: config.appleTouchIconUrl,
+                pwaIcon192Url: config.pwaIcon192Url,
+                pwaIcon512Url: config.pwaIcon512Url,
+                pwaIcon192MaskableUrl: config.pwaIcon192MaskableUrl,
+                pwaIcon512MaskableUrl: config.pwaIcon512MaskableUrl,
+                headerLogoUrl: config.headerLogoUrl,
+                footerLogoUrl: config.footerLogoUrl
             };
         }
 
@@ -119,6 +191,23 @@ const ConfigManager = {
             shipping_fee: config.shippingFee,
             free_shipping_threshold: config.freeShippingThreshold,
             maintenance_mode: !!config.maintenanceMode,
+            primary_color: config.primaryColor,
+            secondary_color: config.secondaryColor,
+            header_bg: config.headerBg,
+            header_fg: config.headerFg,
+            footer_bg: config.footerBg,
+            footer_fg: config.footerFg,
+            theme_color: config.themeColor,
+            font_heading: config.fontHeading,
+            font_body: config.fontBody,
+            favicon_url: config.faviconUrl,
+            apple_touch_icon_url: config.appleTouchIconUrl,
+            pwa_icon_192_url: config.pwaIcon192Url,
+            pwa_icon_512_url: config.pwaIcon512Url,
+            pwa_icon_192_maskable_url: config.pwaIcon192MaskableUrl,
+            pwa_icon_512_maskable_url: config.pwaIcon512MaskableUrl,
+            header_logo_url: config.headerLogoUrl,
+            footer_logo_url: config.footerLogoUrl,
             instagram_link: socialLinks.instagram,
             facebook_link: socialLinks.facebook,
             twitter_link: socialLinks.x,
