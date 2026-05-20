@@ -308,7 +308,7 @@ button {
 }
 
 /* Tablet/Small-desktop (1024–1100px): give the search bar more breathing room next to the logo. */
-@media (min-width: 1024px) and (max-width: 1100px) {
+@media (min-width: 1025px) and (max-width: 1100px) {
   .header-content {
     display: grid !important;
     grid-template-columns: auto minmax(480px, 1fr) auto;

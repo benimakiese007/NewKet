@@ -176,12 +176,10 @@ canvas {
         height: 40px !important;
     }
 
-        .category-nav,
+    /* Mobile/tablet: category nav stays desktop-only */
+    .category-nav,
     #categoryNav {
-        display: flex !important;
-        opacity: 1;
-        transform: translateY(0);
-        transition: transform 0.3s ease, opacity 0.3s ease;
+        display: none !important;
     }
 
     html.ios-native-category .mobile-search-category-shell {
@@ -251,13 +249,17 @@ canvas {
     }
 }
 
-@media (min-width: 640px) and (max-width: 1023px) {
+@media (min-width: 640px) and (max-width: 1024px) {
     .header-content {
-        flex-wrap: wrap !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
         align-items: center !important;
-        row-gap: 0.875rem !important;
+        row-gap: 0 !important;
+        column-gap: 0.75rem !important;
         padding-top: 0.75rem !important;
         padding-bottom: 0.875rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }
 
     .header-content > div:first-child {
@@ -267,40 +269,102 @@ canvas {
     }
 
     .header-actions {
-        order: 2 !important;
-        margin-left: auto !important;
+        display: none !important;
     }
 
     .header-icon-button {
         border-radius: 1rem !important;
     }
 
+    /* Tablet behaves like mobile (<= 1024px) */
+    #mobileMenuBtn,
+    #accountLinkMobile {
+        display: inline-flex !important;
+    }
+
+    #mobileOverlay {
+        display: block !important;
+    }
+
+    /* Tablet: mobile menu should fill the screen like on mobile */
+    #mobileMenu {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    /* Tablet: split "Catégories" + ("Personnel" + "Liens utiles") into 2 horizontal blocks */
+    .mobile-menu-sections-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.25rem !important;
+        align-items: start !important;
+    }
+
+    .mobile-menu-sections-left,
+    .mobile-menu-sections-right {
+        min-width: 0 !important;
+    }
+
+    .header-brand-row {
+        width: auto !important;
+        justify-content: flex-start !important;
+        position: relative !important;
+        gap: 0.75rem !important;
+    }
+
+    #accountLinkMobile {
+        margin-left: auto !important;
+    }
+
+    /* Tablet: logo sits next to burger (not centered absolute) */
+    .header-logo-link {
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+    }
+
     #mobileSearchContainer {
-        order: 3 !important;
-        flex: 1 1 100% !important;
-        max-width: 100% !important;
+        order: 2 !important;
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: none !important;
         margin: 0 !important;
+        min-width: 0 !important;
+    }
+
+    /* Inline style max-width:720px on the search row: remove it for tablet */
+    #mobileSearchContainer[style] {
+        max-width: none !important;
     }
 
     .search-bar {
         width: 100% !important;
+        min-width: 0 !important;
     }
 
-    .category-nav nav {
-        padding-top: 0.75rem !important;
-        padding-bottom: 0.75rem !important;
+    .header-search-row {
+        min-width: 0 !important;
+    }
+
+    /* Tablet header: keep everything on one line (make "Vendre" compact) */
+    .publish-btn {
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+        height: 44px !important;
+        border-radius: 14px !important;
+    }
+
+    .publish-btn span {
+        display: none !important;
+    }
+
+    .header-brand-image {
+        height: 3rem !important;
     }
 
     .category-nav,
     #categoryNav {
-        display: flex !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
-    }
-
-    .category-nav::-webkit-scrollbar,
-    #categoryNav::-webkit-scrollbar {
         display: none !important;
     }
 }
@@ -1602,7 +1666,7 @@ html.dark .glass-panel {
     }
 }
 
-@media (min-width: 1024px) and (max-width: 1324px) {
+@media (min-width: 1025px) and (max-width: 1324px) {
     .header-content {
         gap: 1rem !important;
         padding-left: 1.25rem !important;

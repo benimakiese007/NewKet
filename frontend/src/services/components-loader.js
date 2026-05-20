@@ -46,7 +46,7 @@ const HEADER_HTML = `
 
                 <!-- Logo Section -->
                 <div class="flex items-center sm:min-w-0">
-                    <a href="{{ROOT}}index.html" class="flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
+                    <a href="{{ROOT}}index.html" class="header-logo-link flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
                         <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet"
                             data-site-logo="header"
                             class="header-brand-image h-8 sm:h-20 w-auto object-contain"
@@ -225,7 +225,8 @@ const HEADER_HTML = `
             </div>
         </div>
 
-        <div class="px-4 mb-6">
+        <div class="mobile-menu-sections-grid px-4 mb-6">
+            <div class="mobile-menu-sections-left">
             <h3 class="mobile-menu-section-title">Catégories</h3>
             <nav class="flex flex-col gap-1">
                 <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
@@ -253,9 +254,11 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:fire-bold" width="20"></iconify-icon> Promos
                 </a>
             </nav>
-        </div>
+            </div>
 
-	        <div class="px-4 mb-6 border-t border-gray-50 pt-6">
+            <div class="mobile-menu-sections-right">
+
+	        <div class="mb-6">
 	            <h3 class="mobile-menu-section-title">Personnel</h3>
 	            <nav class="flex flex-col gap-1">
 	                <a href="{{ROOT}}src/pages/notifications.html"
@@ -272,7 +275,7 @@ const HEADER_HTML = `
                 </nav>
             </div>
 
-            <div class="header-quick-links px-4 mb-6 border-t border-gray-50 pt-6">
+            <div class="header-quick-links mb-6 border-t border-gray-50 pt-6">
                 <h3 class="mobile-menu-section-title">Liens utiles</h3>
                 <nav class="flex flex-col gap-1">
                     <a href="{{ROOT}}src/pages/support.html"
@@ -285,6 +288,8 @@ const HEADER_HTML = `
                     </a>
                 </nav>
             </div>
+            </div>
+        </div>
 
             <div class="px-4 mt-auto border-t border-gray-50 pt-5 pb-6">
                 <div class="p-4 bg-gray-50 rounded-2xl mb-4">
