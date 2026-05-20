@@ -1109,19 +1109,27 @@ body.search-focused .main-header {
 
 .newket-header-shell .search-icon,
 .newket-header-shell .search-bar .search-icon {
-  color: #15803d;
+  color: #16a34a !important;
 }
 
 .newket-header-shell .publish-btn {
-  background: #ffffff;
-  color: #166534;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  box-shadow: 0 12px 28px rgba(6, 78, 59, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(1, 50, 32, 0.18);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
 .newket-header-shell .publish-btn:hover {
-  background: #f0fdf4;
-  color: #14532d;
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff !important;
+  box-shadow: 0 14px 28px rgba(1, 50, 32, 0.24);
+}
+
+.newket-header-shell .publish-btn iconify-icon {
+  color: #ffffff !important;
 }
 
 .newket-header-shell[data-header-shell="minimal"] .text-gray-300,

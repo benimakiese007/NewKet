@@ -438,8 +438,10 @@ const ComponentLoader = {
         window.addEventListener('configUpdated', () => this.applyConfiguredSocialLinks());
 
         // Ensure the category nav is visually "merged" with the fixed header (no seam/gap),
+        // Disabled auto‑move of #categoryNav into the fixed header so it scrolls separately.
+        // this.attachCategoryNavToHeader();
         // regardless of whether the page provides a dedicated placeholder.
-        this.attachCategoryNavToHeader();
+        // this.attachCategoryNavToHeader();
 
         // Set global flag to avoid race conditions
         window.componentsLoaded = true;
