@@ -398,6 +398,11 @@ const ComponentLoader = {
         const currentPath = window.location.pathname;
         const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish');
 
+        // If there is no active Supabase session, do not let stale role/email values
+        // drive the UI (e.g. linking guests to vendor/admin surfaces). Keep buyer
+        // interface as the default for guests.
+        await this.sanitizeGuestAuthState();
+
         // Prevent double initialization
         if (window.componentsLoading) return;
         window.componentsLoading = true;
@@ -468,6 +473,31 @@ const ComponentLoader = {
         }
 
         setTimeout(() => this.setupHeaderSpacing(), 50);
+    },
+
+    async sanitizeGuestAuthState() {
+        try {
+            if (!window.SupabaseAdapter || typeof window.SupabaseAdapter.getSession !== 'function') return;
+
+            const session = await window.SupabaseAdapter.getSession(800);
+            this._initialHasSession = !!session;
+            if (session) return;
+
+            // Targeted cleanup: preserve non-auth state like cart or UI prefs.
+            const authKeysToRemove = [
+                'newketRole',
+                'newketUserEmail',
+                'newketUserStatus',
+                'newketPendingRoleChoice',
+                'newketRoleSelectionConfirmed',
+                'newketUserAvatar'
+            ];
+            authKeysToRemove.forEach((key) => {
+                try { localStorage.removeItem(key); } catch { /* ignore */ }
+            });
+        } catch {
+            // ignore (keep best-effort behavior)
+        }
     },
 
     /**
@@ -632,11 +662,11 @@ const ComponentLoader = {
         const rootPrefix = this.getAdjustedPath('');
         
         // --- NEW: Sync Account Path Resolution ---
-        const role = localStorage.getItem('newketRole');
-        const email = localStorage.getItem('newketUserEmail');
+        const hasSession = !!window.AuthManager?.user || !!this._initialHasSession;
+        const role = window.AuthManager?.role || (hasSession ? localStorage.getItem('newketRole') : null);
         let accountPath = 'src/pages/login.html';
         
-        if (role && email) {
+        if (hasSession && role) {
             if (role === 'admin') accountPath = 'src/pages/admin/index.html';
             else if (role === 'supplier') accountPath = 'src/pages/vendor-dashboard.html';
             else accountPath = 'src/pages/customer-dashboard.html';
