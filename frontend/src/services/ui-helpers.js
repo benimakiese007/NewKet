@@ -2131,80 +2131,22 @@ export const ThemeManager = {
     },
 
     init() {
-        // Au chargement, on vérifie le localStorage ou la préférence système
-        const storedTheme = localStorage.getItem('newket_theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const pageThemeDefault = this.getPageThemeDefault();
-        
-        if (storedTheme === 'dark' || (!storedTheme && pageThemeDefault !== 'light' && systemPrefersDark)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-
-        // Écouter les changements de préférence système
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (!localStorage.getItem('newket_theme') && this.getPageThemeDefault() !== 'light') {
-                if (e.matches) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-                this.updateUI();
-            }
-        });
-        
-        // Mettre à jour l'UI des boutons une fois le DOM chargé
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.updateUI());
-        } else {
-            this.updateUI();
-        }
-
-        this.bindToggleEvents();
+        // Dark mode removed: force light theme and clear any stored preference.
+        try { document.documentElement.classList.remove('dark'); } catch {}
+        try { localStorage.removeItem('newket_theme'); } catch {}
     },
     
     toggle() {
-        const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('newket_theme', isDark ? 'dark' : 'light');
-        this.updateUI();
+        // noop (dark mode removed)
+        this.init();
     },
     
     updateUI() {
-        const isDark = document.documentElement.classList.contains('dark');
-        // Mettre à jour tous les boutons avec l'attribut data-theme-toggle OU la classe .theme-toggle
-        document.querySelectorAll('[data-theme-toggle], .theme-toggle').forEach(btn => {
-            const icon = btn.querySelector('iconify-icon, [data-theme-icon]');
-            if (icon) {
-                icon.setAttribute('icon', isDark ? 'solar:sun-bold' : 'solar:moon-bold');
-            }
-
-            const textLabel = btn.querySelector('[data-theme-label], .theme-toggle-text');
-            if (textLabel) {
-                textLabel.textContent = isDark ? 'Mode clair' : 'Mode sombre';
-            }
-
-            const toggleTitle = isDark ? 'Passer en mode clair' : 'Passer en mode sombre';
-            btn.setAttribute('title', toggleTitle);
-            btn.setAttribute('aria-label', toggleTitle);
-        });
-        // Aussi mettre à jour les icônes standalone avec data-theme-icon
-        document.querySelectorAll('[data-theme-icon]').forEach(icon => {
-            icon.setAttribute('icon', isDark ? 'solar:sun-bold' : 'solar:moon-bold');
-        });
+        // noop (dark mode removed)
     },
 
     bindToggleEvents() {
-        if (this._boundToggleHandler) return;
-        this._boundToggleHandler = true;
-
-        document.addEventListener('click', (event) => {
-            const toggle = event.target.closest('[data-theme-toggle]');
-            if (!toggle) return;
-
-            event.preventDefault();
-            this.toggle();
-        });
+        // noop (dark mode removed)
     },
 
     // Alias pour components-loader.js

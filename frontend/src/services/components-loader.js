@@ -129,13 +129,6 @@ const HEADER_HTML = `
                     </div>
                 </div>
 
-                <!-- Theme Toggle -->
-                <button data-theme-toggle
-                    class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale" 
-                    title="Changer le thème">
-                    <iconify-icon data-theme-icon icon="solar:moon-bold" width="22" class="text-white"></iconify-icon>
-                </button>
-
                 <!-- Notifications -->
                 <a href="{{ROOT}}src/pages/notifications.html"
                     class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
@@ -271,10 +264,6 @@ const HEADER_HTML = `
                     <span
                         class="notification-badge bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
-                <button data-theme-toggle
-                    class="mobile-menu-link flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium w-full text-left transition-all active:scale-[0.98]" title="Changer le thème">
-                    <span class="flex items-center gap-3"><iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon> Mode Sombre</span>
-                </button>
                 <button data-action="install-app" id="pwa-install-btn"
                     class="hidden mobile-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium mt-2 transition-all">
                     <iconify-icon icon="solar:download-square-bold" width="20"></iconify-icon> Installer l'Application
@@ -686,10 +675,7 @@ const ComponentLoader = {
             oldScript.parentNode.replaceChild(newScript, oldScript);
         });
 
-        // Sync theme toggle UI state if ThemeManager is available
-        if (window.ThemeManager) {
-            ThemeManager._syncToggleUI();
-        }
+        // Dark mode removed: no theme sync required.
     },
 
     getAdjustedPath(path) {

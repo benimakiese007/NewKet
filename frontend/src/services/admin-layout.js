@@ -402,11 +402,6 @@ const AdminLayout = {
                                  Boutique
                             </a>
 
-                            <!-- Theme Toggle Desktop -->
-                            <button data-theme-toggle onclick="ThemeManager.toggle()" class="theme-toggle hidden sm:flex h-10 w-10 text-gray-500 hover:text-black bg-gray-50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50 items-center justify-center" aria-label="Basculer le thème">
-                                <iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon>
-                            </button>
-
                             <button onclick="AuthManager.handleLogoutClick(this)" class="h-10 w-10 sm:w-auto sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
                                 <iconify-icon icon="solar:logout-bold" width="16"></iconify-icon>
                                 <span class="hidden sm:inline">Quitter</span>
@@ -613,13 +608,6 @@ const AdminLayout = {
         });
 
         sidebarHTML += `
-                            <!-- Theme Toggle Mobile -->
-                            <button data-theme-toggle onclick="ThemeManager.toggle()" class="sidebar-link theme-toggle lg:hidden group/link relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 hover:bg-gray-50 w-full text-left">
-                                <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm">
-                                    <iconify-icon data-theme-icon icon="solar:moon-bold" width="20"></iconify-icon>
-                                </div>
-                                <span class="theme-toggle-text text-sm font-bold tracking-tight text-gray-500 group-hover/link:text-black">Mode Sombre</span>
-                            </button>
                         </nav>
                     </div>
                 </div>

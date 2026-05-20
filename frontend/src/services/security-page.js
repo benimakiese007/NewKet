@@ -83,10 +83,6 @@ onReady(() => {
     window.SidebarManager?.close?.();
   });
 
-  bindClick('[data-theme-toggle-safe]', () => {
-    window.ThemeManager?.toggle?.();
-  });
-
   bindClick('[data-logout-safe]', (event) => {
     window.AuthManager?.handleLogoutClick?.(event.currentTarget);
   });
