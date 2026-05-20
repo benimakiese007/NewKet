@@ -198,7 +198,7 @@
 <body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
-            <button id="customerMobileBtn" data-toggle-sidebar="customer" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex md:hidden items-center justify-center transition-all">
+            <button id="customerMobileBtn" data-toggle-sidebar="customer" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all">
                 <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
             </button>
             <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
@@ -233,21 +233,21 @@
     <!-- Overlay pour Mobile -->
     <div id="customerSidebarOverlay" class="fixed inset-0 bg-black/30 z-[9998] hidden transition-all duration-300"></div>
 
-    <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col md:flex-row gap-8 relative">
+    <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row gap-8 relative">
         <!-- Sidebar -->
-        <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full md:translate-x-0 md:sticky md:top-28 md:self-start md:inset-auto md:w-64 transition-transform duration-300 ease-in-out h-screen md:h-[calc(100vh-7rem)] overflow-y-auto border-0 md:border-r border-gray-100 flex-shrink-0">
+        <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-64 transition-transform duration-300 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
             <!-- Mobile Close Button -->
-            <button data-close-sidebar="customer" class="md:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
+            <button data-close-sidebar="customer" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
                 <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
             </button>
 
             <!-- Desktop/Tablet Collapse Toggle -->
-            <button type="button" class="sidebar-toggle-btn hidden md:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
+            <button type="button" class="sidebar-toggle-btn hidden lg:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
             </button>
 
-            <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 md:pt-6 md:min-h-0 md:rounded-[1.5rem] md:border md:shadow-sm">
+            <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 lg:pt-6 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
                 <div class="flex items-center gap-4 mb-8 p-3 rounded-2xl bg-gray-50/80 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
                     <div class="relative flex-shrink-0">
                         <div id="userAvatarDisplay" class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center font-black text-[11px] uppercase tracking-widest shadow-sm border border-white/15 overflow-hidden shrink-0">

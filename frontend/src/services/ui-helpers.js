@@ -342,7 +342,7 @@ window.debounce = debounce;
 export const SidebarManager = {
     state: {
         isCollapsed: localStorage.getItem('newketSidebarCollapsed') === 'true',
-        isMobile: window.innerWidth < 768,
+        isMobile: window.innerWidth < 1024,
         isDrawerOpen: false,
         initialized: false
     },
@@ -356,7 +356,7 @@ export const SidebarManager = {
         // IMPORTANT: SidebarManager.init() can run seconds after initial module load
         // (e.g. after `newketInitialized`). Recompute responsive/collapsed state at
         // init-time to avoid applying the wrong mode after the first paint.
-        this.state.isMobile = window.innerWidth < 768;
+        this.state.isMobile = window.innerWidth < 1024;
         this.state.isCollapsed = localStorage.getItem('newketSidebarCollapsed') === 'true';
          
         // Prevent transition flash on init
@@ -381,7 +381,7 @@ export const SidebarManager = {
         // Handle window resize
         const handleResize = debounce(() => {
             const wasMobile = this.state.isMobile;
-            this.state.isMobile = window.innerWidth < 768;
+            this.state.isMobile = window.innerWidth < 1024;
             
             if (wasMobile !== this.state.isMobile) {
                 if (!this.state.isMobile) this.state.isDrawerOpen = false;
