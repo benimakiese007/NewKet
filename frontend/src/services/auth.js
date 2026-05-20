@@ -495,12 +495,18 @@ const AuthManager = {
             if (key && key.startsWith('newket')) {
                 keysToRemove.push(key);
             }
+            // Supabase JS v2 persists sessions under keys like: sb-<project-ref>-auth-token
+            // When switching env/projects during dev, stale tokens here cause "Token invalide ou expiré" on the API.
+            if (key && /^sb-[a-z0-9]+-auth-token$/i.test(key)) {
+                keysToRemove.push(key);
+            }
         }
         keysToRemove.forEach(key => localStorage.removeItem(key));
         
         // Clear specific non-prefixed session keys
         sessionStorage.removeItem('adminAuth');
         localStorage.removeItem('supabase.auth.token'); // Fallback for old tokens if any
+        localStorage.removeItem('supabase.auth.refreshToken'); // Extra fallback (older builds)
     },
 
     checkWelcomeBonus() {

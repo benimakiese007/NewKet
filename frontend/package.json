@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
+    "dev:full": "node scripts/dev-full.mjs",
     "api": "node api/index.js",
     "prebuild": "node scripts/sync-backend-for-vercel.mjs",
     "build": "vite build",

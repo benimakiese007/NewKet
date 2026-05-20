@@ -84,23 +84,22 @@ export const ApiClient = {
         return {};
     },
 
+    _invalidateAuthCache() {
+        this._sessionCache.token = null;
+        this._sessionCache.expiresAt = 0;
+    },
+
     async fetch(endpoint, options = {}) {
         const url = `${API_BASE_URL}${endpoint}`;
 
-        let headers = {
+        const baseHeaders = {
             'Content-Type': 'application/json',
             ...(options.headers || {})
         };
 
-        // Auth header (cached) to reduce repeated async session lookups
-        try {
-            headers = { ...headers, ...(await this._getAuthHeaderCached()) };
-        } catch {
-        }
-
         const config = {
             ...options,
-            headers
+            headers: baseHeaders
         };
 
         try {
@@ -116,14 +115,48 @@ export const ApiClient = {
             }
 
             const run = async () => {
+                const method = (config.method || 'GET').toUpperCase();
+                const isGet = method === 'GET';
+
+                let didAuthRetry = false;
                 let response;
-                for (let attempt = 0; attempt < 2; attempt++) {
-                    response = await fetch(url, config);
-                    const isGet = (config.method || 'GET').toUpperCase() === 'GET';
+
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    // Auth header (cached) to reduce repeated async session lookups
+                    let authHeaders = {};
+                    try {
+                        authHeaders = await this._getAuthHeaderCached();
+                    } catch {
+                    }
+
+                    response = await fetch(url, { ...config, headers: { ...baseHeaders, ...authHeaders } });
+
+                    // If the API says the token is invalid/expired, clear cache and retry once.
+                    if (!didAuthRetry && response && response.status === 401) {
+                        didAuthRetry = true;
+                        this._invalidateAuthCache();
+
+                        // Also clear potentially stale Supabase persisted tokens to avoid endless 401 loops
+                        // after switching Supabase projects in dev.
+                        try {
+                            const keys = [];
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const key = localStorage.key(i);
+                                if (key && /^sb-[a-z0-9]+-auth-token$/i.test(key)) keys.push(key);
+                            }
+                            keys.forEach((k) => localStorage.removeItem(k));
+                        } catch {
+                        }
+
+                        continue;
+                    }
+
+                    // Retry transient gateway errors once for GET
                     if (attempt === 0 && isGet && response && [502, 503, 504].includes(response.status)) {
                         await new Promise((resolve) => setTimeout(resolve, 500));
                         continue;
                     }
+
                     break;
                 }
 

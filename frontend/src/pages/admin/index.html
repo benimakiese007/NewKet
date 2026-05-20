@@ -29,14 +29,10 @@
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <link rel="stylesheet" href="/src/assets/css/admin.css">
     <style>
-        html.admin-shell-embedded-view .admin-shell {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            gap: 0 !important;
-        }
-
         html.admin-shell-embedded-view .admin-shell > main {
             padding-top: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
         }
 
         html.admin-shell-embedded-view #adminEmbeddedPanel {
@@ -47,6 +43,29 @@
             border-radius: 0 !important;
             min-height: calc(100vh - 8rem) !important;
         }
+
+        html.admin-shell-embedded-view #adminEmbeddedPanel {
+            position: relative;
+        }
+
+        html.admin-shell-embedded-view #adminContentFrame[data-loading="1"] {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        html.admin-shell-embedded-view #adminFrameLoadingOverlay {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        html.admin-shell-embedded-view #adminFrameLoadingOverlay[data-visible="1"] {
+            display: flex;
+        }
     </style>
 </head>
 
@@ -56,11 +75,11 @@
 
     <script type="module" src="/src/services/admin-layout.js"></script>
 
-    <div class="admin-shell max-w-7xl mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12 relative justify-start">
+    <div class="admin-shell max-w-[1800px] mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 relative justify-start">
         <div id="adminSidebarPlaceholder" class="flex-shrink-0"></div>
 
         <!-- Main Content -->
-        <main class="flex-1 min-w-0 space-y-8 lg:pt-4">
+        <main class="flex-1 min-w-0 space-y-8 lg:pt-4 px-4 sm:px-8">
             <div id="adminOverviewPanel" class="space-y-8">
             <!-- Header Section -->
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
@@ -288,6 +307,12 @@
             </div>
 
             <section id="adminEmbeddedPanel" class="hidden">
+                <div id="adminFrameLoadingOverlay">
+                    <div class="glass-panel px-6 py-4 flex items-center gap-3 text-sm font-semibold text-gray-700 shadow-md">
+                        <iconify-icon icon="line-md:loading-twotone-loop" width="22" class="text-gray-400"></iconify-icon>
+                        Chargement...
+                    </div>
+                </div>
                 <iframe
                     id="adminContentFrame"
                     title="Vue admin"
@@ -578,7 +603,21 @@
 
         function initCharts(leads) {
             const canvas = document.getElementById('salesChart');
-            const ctx = canvas.getContext('2d');
+            if (!canvas) {
+                console.warn('[Dashboard] salesChart canvas not found; skipping charts init.');
+                return;
+            }
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : null;
+            if (!ctx) {
+                console.warn('[Dashboard] salesChart 2D context unavailable; skipping charts init.');
+                return;
+            }
+
+            if (typeof Chart === 'undefined') {
+                console.warn('[Dashboard] Chart.js not loaded; skipping charts init.');
+                return;
+            }
 
             if (currentCharts.sales) currentCharts.sales.destroy();
 
@@ -847,7 +886,21 @@
 
         function initCategoryChart(stats) {
             const canvas = document.getElementById('categoryChart');
-            const ctx = canvas.getContext('2d');
+            if (!canvas) {
+                console.warn('[Dashboard] categoryChart canvas not found; skipping category chart init.');
+                return;
+            }
+
+            const ctx = canvas.getContext ? canvas.getContext('2d') : null;
+            if (!ctx) {
+                console.warn('[Dashboard] categoryChart 2D context unavailable; skipping category chart init.');
+                return;
+            }
+
+            if (typeof Chart === 'undefined') {
+                console.warn('[Dashboard] Chart.js not loaded; skipping category chart init.');
+                return;
+            }
 
             if (currentCharts.category) currentCharts.category.destroy();
 
@@ -933,6 +986,7 @@
             const overviewPanel = document.getElementById('adminOverviewPanel');
             const embeddedPanel = document.getElementById('adminEmbeddedPanel');
             const frame = document.getElementById('adminContentFrame');
+            const frameOverlay = document.getElementById('adminFrameLoadingOverlay');
 
             if (!overviewPanel || !embeddedPanel || !frame) return;
 
@@ -1005,6 +1059,21 @@
                 }
             }
 
+            function setFrameLoading(isLoading, view) {
+                const loading = isLoading ? '1' : '0';
+                frame.dataset.loading = loading;
+                frame.setAttribute('data-loading', loading);
+                if (frameOverlay) {
+                    frameOverlay.dataset.visible = isLoading ? '1' : '0';
+                    frameOverlay.setAttribute('data-visible', isLoading ? '1' : '0');
+                }
+                if (isLoading && view) {
+                    frame.dataset.loadingView = view;
+                } else if (!isLoading) {
+                    delete frame.dataset.loadingView;
+                }
+            }
+
             function navigate(view, options = {}) {
                 const targetView = shellViewSources[view] ? view : 'overview';
                 const pushState = options.pushState !== false;
@@ -1024,6 +1093,7 @@
                 if (targetView !== 'overview') {
                     const nextSrc = buildFrameSrc(targetView, options);
                     if (frame.dataset.currentView !== targetView || frame.getAttribute('src') !== nextSrc) {
+                        setFrameLoading(true, targetView);
                         frame.dataset.currentView = targetView;
                         frame.setAttribute('src', nextSrc);
                     }
@@ -1047,6 +1117,9 @@
                         const rect = frame.getBoundingClientRect();
                         const viewportMin = Math.max(0, window.innerHeight - rect.top);
                         frame.style.height = `${Math.max(contentHeight, viewportMin)}px`;
+                        if (frame.dataset.loadingView === event.data.view) {
+                            setFrameLoading(false);
+                        }
                     }
                     if (event.data.title) {
                         document.title = event.data.title;
@@ -1078,6 +1151,15 @@
                 event.preventDefault();
                 navigate(view);
             }, true);
+
+            frame.addEventListener('load', () => {
+                // If the embedded page doesn't post metrics for any reason, do not keep the iframe hidden forever.
+                if (frame.dataset.loading === '1') {
+                    window.setTimeout(() => {
+                        if (frame.dataset.loading === '1') setFrameLoading(false);
+                    }, 800);
+                }
+            });
 
             navigate(getRequestedView(), { pushState: false });
         })();

@@ -4,7 +4,7 @@
   "private": true,
   "description": "NewKet - Plateforme e-commerce (Monorepo Fullstack)",
   "scripts": {
-    "dev": "npm run dev:frontend",
+    "dev": "node scripts/dev-all.mjs",
     "build": "npm run build:frontend",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",

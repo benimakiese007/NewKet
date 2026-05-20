@@ -13,6 +13,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Journal d'Activites | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
     <link rel="stylesheet" href="/src/assets/css/input.css">
     <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
@@ -67,7 +77,87 @@
                             </tr>
                         </thead>
                         <tbody id="activitiesBody">
-                            <!-- Activities loaded via JS -->
+                            <!-- Skeleton rows (rendered immediately, replaced by JS) -->
+                            <tr>
+                                <td class="p-4 w-48 align-top">
+                                    <div class="skeleton skeleton-text" style="width:75%;height:14px;margin:0 0 10px 0;"></div>
+                                    <div class="skeleton skeleton-text" style="width:55%;height:10px;margin:0;"></div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                                            <div class="skeleton skeleton-shimmer w-10 h-10 rounded-xl"></div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="skeleton skeleton-text" style="width:85%;height:12px;margin:0 0 10px 0;"></div>
+                                            <div class="skeleton skeleton-text" style="width:55%;height:10px;margin:0;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 w-40 align-top">
+                                    <div class="skeleton skeleton-text" style="width:80%;height:12px;margin:0;"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 w-48 align-top">
+                                    <div class="skeleton skeleton-text" style="width:70%;height:14px;margin:0 0 10px 0;"></div>
+                                    <div class="skeleton skeleton-text" style="width:50%;height:10px;margin:0;"></div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                                            <div class="skeleton skeleton-shimmer w-10 h-10 rounded-xl"></div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="skeleton skeleton-text" style="width:78%;height:12px;margin:0 0 10px 0;"></div>
+                                            <div class="skeleton skeleton-text" style="width:40%;height:10px;margin:0;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 w-40 align-top">
+                                    <div class="skeleton skeleton-text" style="width:65%;height:12px;margin:0;"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 w-48 align-top">
+                                    <div class="skeleton skeleton-text" style="width:68%;height:14px;margin:0 0 10px 0;"></div>
+                                    <div class="skeleton skeleton-text" style="width:48%;height:10px;margin:0;"></div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                                            <div class="skeleton skeleton-shimmer w-10 h-10 rounded-xl"></div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="skeleton skeleton-text" style="width:88%;height:12px;margin:0 0 10px 0;"></div>
+                                            <div class="skeleton skeleton-text" style="width:52%;height:10px;margin:0;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 w-40 align-top">
+                                    <div class="skeleton skeleton-text" style="width:72%;height:12px;margin:0;"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 w-48 align-top">
+                                    <div class="skeleton skeleton-text" style="width:74%;height:14px;margin:0 0 10px 0;"></div>
+                                    <div class="skeleton skeleton-text" style="width:60%;height:10px;margin:0;"></div>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
+                                            <div class="skeleton skeleton-shimmer w-10 h-10 rounded-xl"></div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="skeleton skeleton-text" style="width:80%;height:12px;margin:0 0 10px 0;"></div>
+                                            <div class="skeleton skeleton-text" style="width:45%;height:10px;margin:0;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 w-40 align-top">
+                                    <div class="skeleton skeleton-text" style="width:75%;height:12px;margin:0;"></div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -82,11 +172,43 @@
     </div>
 
     <script>
+        function renderActivitiesSkeleton() {
+            const tbody = document.getElementById('activitiesBody');
+            const emptyState = document.getElementById('emptyState');
+            if (emptyState) emptyState.classList.add('hidden');
+            if (!tbody) return;
+
+            // If skeleton rows are already present (initial HTML), keep them.
+            if ((tbody.children || []).length > 0) return;
+
+            if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                tbody.innerHTML = window.buildSkeletonTableRowsHTML(3, 6);
+                return;
+            }
+
+            // Minimal fallback if ui-helpers isn't ready yet.
+            tbody.innerHTML = Array.from({ length: 6 }).map(() => `
+                <tr>
+                    <td class="p-4 w-48 align-top"><div class="skeleton skeleton-text" style="width:75%;height:14px;margin:0 0 10px 0;"></div><div class="skeleton skeleton-text" style="width:55%;height:10px;margin:0;"></div></td>
+                    <td class="p-4"><div class="skeleton skeleton-text" style="width:90%;height:12px;margin:0 0 10px 0;"></div><div class="skeleton skeleton-text" style="width:60%;height:10px;margin:0;"></div></td>
+                    <td class="p-4 w-40 align-top"><div class="skeleton skeleton-text" style="width:70%;height:12px;margin:0;"></div></td>
+                </tr>
+            `).join('');
+        }
+
         function renderActivities() {
             const tbody = document.getElementById('activitiesBody');
             const emptyState = document.getElementById('emptyState');
             
-            if (!window.ActivityManager) return;
+            if (!window.ActivityManager) {
+                renderActivitiesSkeleton();
+                return;
+            }
+
+            if (ActivityManager._fetchPromise) {
+                renderActivitiesSkeleton();
+                return;
+            }
             const activities = ActivityManager.getActivities();
 
             if (!activities || activities.length === 0) {
@@ -181,8 +303,11 @@
 
         function initPage() {
             if (window.ActivityManager) {
+                renderActivitiesSkeleton();
                 ActivityManager.init().then(() => renderActivities());
                 window.addEventListener('activitiesUpdated', renderActivities);
+            } else {
+                renderActivitiesSkeleton();
             }
         }
 

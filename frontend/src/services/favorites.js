@@ -129,8 +129,9 @@ const FavoritesManager = {
 
     // Clear all favorites
     clearAll() {
-        localStorage.removeItem('newketFavorites');
-        this.updateUI();
+        // Clear locally AND sync empty state to backend (if logged in),
+        // so cleared favorites don't get re-pulled on next syncFromSupabase().
+        this.saveFavorites([]);
     },
 
     // Check if item is in favorites

@@ -1,5 +1,28 @@
 import { supabase } from '../config/supabase.js';
 
+function decodeJwtPayload(token) {
+    try {
+        const parts = String(token || '').split('.');
+        if (parts.length < 2) return null;
+        const payloadB64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+        const padded = payloadB64 + '='.repeat((4 - (payloadB64.length % 4)) % 4);
+        const json = Buffer.from(padded, 'base64').toString('utf8');
+        return JSON.parse(json);
+    } catch {
+        return null;
+    }
+}
+
+function getSupabaseRefFromUrl(url) {
+    try {
+        const host = new URL(url).host || '';
+        const match = host.match(/^([a-z0-9-]+)\\.supabase\\.co$/i);
+        return match ? match[1] : null;
+    } catch {
+        return null;
+    }
+}
+
 /**
  * Middleware pour valider le token JWT envoyé par le frontend.
  * Il s'assure que l'utilisateur est bien authentifié via Supabase.
@@ -19,6 +42,19 @@ export const requireAuth = async (req, res, next) => {
 
         if (error || !user) {
             console.error('Erreur authentification:', error);
+            // Dev diagnostics: help spot project-ref mismatch without logging the token itself.
+            try {
+                const isLocal = /^(localhost|127\\.0\\.0\\.1)$/i.test(req.hostname || '');
+                if (isLocal) {
+                    const payload = decodeJwtPayload(token);
+                    const tokenRef = payload?.ref || null;
+                    const expectedRef = getSupabaseRefFromUrl(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL);
+                    if (tokenRef || expectedRef) {
+                        console.warn('[Auth Debug] tokenRef=', tokenRef, 'expectedRef=', expectedRef);
+                    }
+                }
+            } catch {
+            }
             return res.status(401).json({ error: 'Non autorisé: Token invalide ou expiré.' });
         }
 

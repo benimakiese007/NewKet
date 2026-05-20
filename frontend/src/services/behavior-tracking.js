@@ -17,10 +17,33 @@ const BehaviorTracking = {
         this._initialized = true;
         this._visibleSince = document.visibilityState === 'visible' ? Date.now() : 0;
 
+        // In local dev, avoid Vite proxy spam when the API is not running.
+        // Behavior tracking is optional, so we disable it if the backend healthcheck is unreachable.
+        this._maybeDisableInDevIfApiDown();
+
         this.trackPageView();
         this.bindClicks();
         this.bindVisibility();
         this.startHeartbeat();
+    },
+
+    async _maybeDisableInDevIfApiDown() {
+        try {
+            const isLocal = /^(localhost|127\\.0\\.0\\.1)$/i.test(window.location.hostname || '');
+            if (!isLocal) return;
+
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 1200);
+            try {
+                // Call backend directly to bypass Vite proxy error logs.
+                const res = await fetch('http://localhost:3000/api/health', { signal: controller.signal });
+                if (!res.ok) this._analyticsDisabled = true;
+            } finally {
+                clearTimeout(timeout);
+            }
+        } catch (_) {
+            this._analyticsDisabled = true;
+        }
     },
 
     getOrCreateSessionId() {

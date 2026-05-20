@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewKet Admin Layout Manager
  * Centralizes the Sidebar and Navbar for all Admin pages.
  */
@@ -76,7 +76,15 @@ const AdminLayout = {
 
     isAdminPageContext() {
         const path = window.location.pathname || '';
-        return path.includes('/admin/') || path.endsWith('/admin');
+        // Admin pages live under multiple path layouts depending on dev/prod routing.
+        // Examples:
+        // - /admin/index.html
+        // - /src/pages/admin/index.html (Vite dev / direct file serving)
+        return (
+            path.includes('/admin/') ||
+            path.endsWith('/admin') ||
+            path.includes('/pages/admin/')
+        );
     },
 
     isEmbeddedPage() {
@@ -475,26 +483,35 @@ const AdminLayout = {
         }
 
         const links = [
-            { href: this.getShellHref('overview'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble", view: 'overview' },
-            { href: this.getShellHref('realtime'), icon: 'solar:users-group-two-rounded-bold-duotone', label: 'Temps réel', view: 'realtime' },
-            { href: this.getShellHref('user'), icon: 'solar:users-group-two-rounded-bold', label: "Gestion Vendeurs", view: 'user' },
-            { href: this.getShellHref('products'), icon: 'solar:box-bold', label: 'Contrôle Catalogue', view: 'products' },
-            { href: this.getShellHref('orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits', view: 'orders' },
-            { href: this.getShellHref('otp-guide'), icon: 'solar:password-bold', label: 'Guide', view: 'otp-guide' },
-            { href: this.getShellHref('analytics'), icon: 'solar:graph-up-bold', label: 'Comportements', view: 'analytics' },
-            { href: this.getShellHref('activities'), icon: 'solar:history-bold', label: "Journal d'Activités", view: 'activities' },
-            { href: this.getShellHref('diagnostics'), icon: 'solar:chart-square-bold', label: "Audit & Diagnostics", view: 'diagnostics' },
-            { href: this.getShellHref('reviews'), icon: 'solar:star-bold', label: "Avis & Moderation", view: 'reviews' },
-            { href: this.getShellHref('newsletter'), icon: 'solar:letter-bold', label: 'Newsletter', view: 'newsletter' },
-            { href: this.getShellHref('notifications-admin'), icon: 'solar:bell-bing-bold', label: 'Notifications', view: 'notifications-admin' },
-            { href: this.getShellHref('support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform', view: 'support' },
-            { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: "Sécurité & Admins", view: 'security' },
-            { href: this.getShellHref('settings'), icon: 'solar:settings-bold', label: 'Paramètres', view: 'settings', sub: true }
+            { href: this.getShellHref('overview'), icon: 'solar:home-smile-bold', label: "Vue d'ensemble", view: 'overview', section: 'Général' },
+            { href: this.getShellHref('realtime'), icon: 'solar:users-group-two-rounded-bold-duotone', label: 'Temps réel', view: 'realtime', section: 'Général' },
+
+            { href: this.getShellHref('analytics'), icon: 'solar:graph-up-bold', label: 'Comportements', view: 'analytics', section: 'Analytique' },
+            { href: this.getShellHref('activities'), icon: 'solar:history-bold', label: "Journal d'Activités", view: 'activities', section: 'Analytique' },
+            { href: this.getShellHref('diagnostics'), icon: 'solar:chart-square-bold', label: 'Audit & Diagnostics', view: 'diagnostics', section: 'Analytique' },
+
+            { href: this.getShellHref('user'), icon: 'solar:users-group-two-rounded-bold', label: 'Gestion Vendeurs', view: 'user', section: 'Catalogue' },
+            { href: this.getShellHref('products'), icon: 'solar:box-bold', label: 'Contrôle Catalogue', view: 'products', section: 'Catalogue' },
+            { href: this.getShellHref('reviews'), icon: 'solar:star-bold', label: 'Avis & Modération', view: 'reviews', section: 'Catalogue' },
+
+            { href: this.getShellHref('orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits', view: 'orders', section: 'Opérations' },
+            { href: this.getShellHref('notifications-admin'), icon: 'solar:bell-bing-bold', label: 'Notifications', view: 'notifications-admin', section: 'Opérations' },
+            { href: this.getShellHref('support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform', view: 'support', section: 'Opérations' },
+            { href: this.getShellHref('newsletter'), icon: 'solar:letter-bold', label: 'Newsletter', view: 'newsletter', section: 'Opérations' },
+
+            { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: 'Sécurité & Admins', view: 'security', section: 'Système' },
+            { href: this.getShellHref('otp-guide'), icon: 'solar:password-bold', label: 'Guide', view: 'otp-guide', section: 'Système' },
+            { href: this.getShellHref('settings'), icon: 'solar:settings-bold', label: 'Paramètres', view: 'settings', sub: true, section: 'Système' }
         ];
 
         let sidebarHTML = `
             <div id="adminOverlay" class="fixed inset-0 bg-black/50 z-[110] hidden transition-all duration-300"></div>
             <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
+                
+                <!-- Desktop Collapse Toggle -->
+                <button type="button" class="sidebar-toggle-btn hidden md:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
+                    <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
+                </button>
                 
                 <!-- Mobile Close Button -->
                 <button onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
@@ -520,10 +537,17 @@ const AdminLayout = {
                     </div>
 
                     <div class="md:glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
-                        <nav class="space-y-1">
+                        <nav class="space-y-1" aria-label="Navigation Admin">
         `;
 
+        let lastSection = null;
         links.forEach(link => {
+            if (link.section && link.section !== lastSection) {
+                lastSection = link.section;
+                sidebarHTML += `
+                    <div class="sidebar-section-title mt-4 mb-2 px-4 text-[10px] font-black tracking-widest text-gray-400 uppercase">${link.section}</div>
+                `;
+            }
             if (link.sub) sidebarHTML += `<div class="py-4"><div class="h-px bg-gray-100 mb-4"></div>`;
 
             // --- Dropdown / Accordion Link ---

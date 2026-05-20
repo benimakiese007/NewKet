@@ -8,10 +8,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') }); // Root .env
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });    // Backend .env (fallback)
+// Frontend .env (common in this monorepo when running Vite + API locally)
+dotenv.config({ path: path.resolve(__dirname, '../../../frontend/.env') });
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+// Support both server-side (SUPABASE_*) and Vite client env (VITE_SUPABASE_*)
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Detect common local misconfig: frontend and backend pointing to different Supabase projects.
+if (process.env.SUPABASE_URL && process.env.VITE_SUPABASE_URL && process.env.SUPABASE_URL !== process.env.VITE_SUPABASE_URL) {
+    console.warn('⚠️ Supabase URL mismatch: SUPABASE_URL != VITE_SUPABASE_URL. Tokens from the frontend may be rejected by the API.');
+}
 
 export const hasServiceRoleKey = Boolean(SUPABASE_SERVICE_ROLE_KEY);
 const hasBaseConfig = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
@@ -63,4 +71,3 @@ export function createUserSupabaseClient(accessToken) {
         }
     });
 }
-

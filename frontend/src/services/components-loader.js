@@ -442,6 +442,10 @@ const ComponentLoader = {
         this.applyConfiguredSocialLinks();
         window.addEventListener('configUpdated', () => this.applyConfiguredSocialLinks());
 
+        // Ensure the category nav is visually "merged" with the fixed header (no seam/gap),
+        // regardless of whether the page provides a dedicated placeholder.
+        this.attachCategoryNavToHeader();
+
         // Set global flag to avoid race conditions
         window.componentsLoaded = true;
 
@@ -464,6 +468,28 @@ const ComponentLoader = {
         }
 
         setTimeout(() => this.setupHeaderSpacing(), 50);
+    },
+
+    /**
+     * Moves the category nav inside the fixed header so the header + category nav behave like one block.
+     * This avoids visible gaps from shadows/rounding differences on light pages.
+     */
+    attachCategoryNavToHeader() {
+        const header = document.querySelector('.main-header');
+        const nav = document.getElementById('categoryNav');
+        if (!header || !nav) return;
+
+        if (nav.parentElement === header) return;
+
+        try {
+            header.appendChild(nav);
+            const placeholder = document.getElementById('category-nav-placeholder');
+            if (placeholder && placeholder.children.length === 0) {
+                placeholder.remove();
+            }
+        } catch {
+            // ignore
+        }
     },
 
     bindGlobalActions() {
@@ -537,7 +563,9 @@ const ComponentLoader = {
             // Separate read and write to avoid forced reflows
             requestAnimationFrame(() => {
                 // DOM READ
-                const height = header.offsetHeight;
+                const rect = header.getBoundingClientRect();
+                // Use rect.bottom instead of offsetHeight to account for transforms and subpixel rounding.
+                const height = Math.max(0, Math.round(rect.bottom));
                 if (height === 0) return;
 
                 requestAnimationFrame(() => {

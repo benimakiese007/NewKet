@@ -231,7 +231,8 @@ button {
 /* CLS Mitigation - Reserve space for injected components */
 #header-placeholder {
     width: 100%;
-    min-height: 112px; /* Fallback for desktop */
+    /* Fallback for desktop: use the CSS var (set by JS) when available to prevent extra gap. */
+    min-height: var(--header-height, 112px);
     transition: min-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
 }
@@ -1026,13 +1027,14 @@ body.search-focused .main-header {
 .newket-header-shell {
   background: var(--newket-green) !important;
   border-bottom-color: rgba(1, 50, 32, 0.6) !important;
-  box-shadow: 0 20px 44px rgba(1, 50, 32, 0.24) !important;
+  /* Shadow is applied to the combined header+category-nav block to avoid a visible "gap" between them. */
+  box-shadow: none !important;
 }
 
 .newket-header-shell.scrolled {
   background: var(--newket-green) !important;
   border-bottom-color: rgba(1, 50, 32, 0.72) !important;
-  box-shadow: 0 22px 48px rgba(1, 50, 32, 0.28) !important;
+  box-shadow: none !important;
 }
 
 .newket-header-shell .header-icon-button {
@@ -1102,6 +1104,9 @@ body.search-focused .main-header {
 .newket-category-nav {
   background: var(--newket-green) !important;
   border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+  /* Category nav is appended inside the fixed header; keep it flush. */
+  margin-top: 0;
+  box-shadow: 0 22px 48px -26px rgba(1, 50, 32, 0.32) !important;
 }
 
 .newket-category-nav .nav-link {
