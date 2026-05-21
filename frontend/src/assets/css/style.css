@@ -676,6 +676,7 @@ body.search-focused .main-header {
 .search-category-btn {
   display: flex !important;
   align-items: center;
+  flex-shrink: 0;
   gap: 6px;
   padding: 0 16px;
   height: 100%;
@@ -712,6 +713,7 @@ body.search-focused .main-header {
   position: relative;
   display: none;
   align-items: center;
+  flex-shrink: 0;
   height: 100%;
   min-width: 92px;
   border-right: 1.5px solid var(--border-color);
@@ -3830,6 +3832,7 @@ body.sidebar-resizing {
 #selectedCategoryName {
   color: #0f172a;
   opacity: 1;
+  display: inline-block;
 }
 
 .search-overlay.active {

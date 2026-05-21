@@ -51,6 +51,7 @@
     <script src="/security-bootstrap.js"></script>
     <script type="module" src="src/services/app.js"></script>
     <script type="module" src="src/services/HeroSlider.js"></script>
+    <script type="module" src="src/services/home-hero.js"></script>
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -155,17 +156,17 @@
         <div class="relative max-w-7xl mx-auto px-6 sm:px-10 py-16 sm:py-24 lg:py-32 flex flex-col lg:flex-row items-center gap-12 z-10">
             <div class="flex-1 text-center lg:text-left drop-shadow-xl">
                 <h1 class="text-4xl sm:text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
-                    SUBTILE <br><span class="text-gray-300">ÉLÉGANCE.</span>
+                    <span id="heroTitleLine1">SUBTILE</span> <br><span id="heroTitleLine2" class="text-gray-300">ÉLÉGANCE.</span>
                 </h1>
-                <p class="text-white/90 text-base sm:text-xl mb-10 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed drop-shadow-md">
+                <p id="heroDescription" class="text-white/90 text-base sm:text-xl mb-10 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed drop-shadow-md">
                     L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                    <a href="/src/pages/catalog.html"
+                    <a id="heroPrimaryCta" href="/src/pages/catalog.html"
                         class="bg-white text-black px-10 py-4 rounded-2xl text-sm font-bold hover:bg-gray-100 transition-all hover:scale-105 shadow-xl shadow-black/20 text-center uppercase tracking-widest">
                         Découvrir
                     </a>
-                    <a href="/src/pages/publish.html"
+                    <a id="heroSecondaryCta" href="/src/pages/publish.html"
                         class="bg-black/20 backdrop-blur-md border border-white/30 text-white px-10 py-4 rounded-2xl text-sm font-bold hover:bg-white/10 transition-all text-center publish-btn uppercase tracking-widest">
                         Vendre
                     </a>
@@ -176,9 +177,9 @@
                     <div class="w-96 h-[450px] bg-white/5 backdrop-blur-xl rounded-[40px] flex items-center justify-center border border-white/10 shadow-3xl overflow-hidden relative">
                         <div class="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent"></div>
                         <div class="text-center p-8 relative">
-                            <div class="text-7xl font-black text-white mb-4 tracking-tighter italic">-50%</div>
-                            <div class="text-white/60 text-xs font-bold uppercase tracking-widest">Sélection Premium</div>
-                            <div class="mt-8 pt-8 border-t border-white/10 text-white/40 text-[10px] uppercase font-bold tracking-[0.3em]">Code: NEWKET50</div>
+                            <div id="heroPromoHeadline" class="text-7xl font-black text-white mb-4 tracking-tighter italic">-50%</div>
+                            <div id="heroPromoCaption" class="text-white/60 text-xs font-bold uppercase tracking-widest">Sélection Premium</div>
+                            <div id="heroPromoCode" class="mt-8 pt-8 border-t border-white/10 text-white/40 text-[10px] uppercase font-bold tracking-[0.3em]">Code: NEWKET50</div>
                         </div>
                     </div>
                     <!-- Micro-animations elements -->

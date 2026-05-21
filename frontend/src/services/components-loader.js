@@ -113,6 +113,12 @@ const HEADER_HTML = `
                     <span class="hidden md:inline">Vendre</span>
                 </a>
 
+                <!-- Account Icon (Tablet) -->
+                <a id="accountLinkTablet" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative hidden items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Compte" aria-label="Mon compte">
+                    <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
+                </a>
+
                 <!-- Suggestions Dropdown -->
                 <div id="searchSuggestions" class="search-suggestions"></div>
             </div>

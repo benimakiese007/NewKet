@@ -1028,7 +1028,7 @@ const AuthManager = {
     },
 
     updateAccountLink() {
-        const accountLinks = document.querySelectorAll('#accountLink, #accountLinkMobile, #accountLinkFooter, #mobileBottomAccountCustomer, #mobileBottomAccountVendor');
+        const accountLinks = document.querySelectorAll('#accountLink, #accountLinkMobile, #accountLinkTablet, #accountLinkFooter, #mobileBottomAccountCustomer, #mobileBottomAccountVendor');
         if (accountLinks.length === 0) return;
 
         const avatarUrl = localStorage.getItem('newketUserAvatar');

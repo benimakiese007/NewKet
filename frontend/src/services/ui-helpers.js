@@ -586,13 +586,14 @@ export function buildProductCardHTML(p, options = {}) {
 
     // Badge
     let badgeHTML = '';
-    const isNew = p.isNew || p.is_new;
-    const isPromo = p.isPromo || p.is_promo;
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    const createdAtTime = new Date(p.created_at || p.createdAt || 0).getTime();
+    const isNew = Number.isFinite(createdAtTime)
+        && createdAtTime > 0
+        && Date.now() - createdAtTime <= THIRTY_DAYS_MS;
 
     if (isNew) {
-        badgeHTML = `<span class="badge badge-new"><iconify-icon icon="solar:star-bold" width="10"></iconify-icon> NOUVEAU</span>`;
-    } else if (isPromo) {
-        badgeHTML = `<span class="badge badge-sale"><iconify-icon icon="solar:fire-bold" width="10"></iconify-icon> PROMO</span>`;
+        badgeHTML = `<span class="badge badge-new"><iconify-icon icon="solar:star-bold" width="10"></iconify-icon> Nouveau</span>`;
     }
 
     // Stars
@@ -958,8 +959,8 @@ export function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
         return '/src/assets/' + firstImg;
     }
 
-    // Handle Supabase storage paths (product-images, vendor-covers, user-assets, vendor-docs)
-    const supabaseBuckets = ['product-images', 'vendor-covers', 'user-assets', 'vendor-docs'];
+    // Handle Supabase storage paths (product-images, vendor-covers, user-assets, vendor-docs, site-assets)
+    const supabaseBuckets = ['product-images', 'vendor-covers', 'user-assets', 'vendor-docs', 'site-assets'];
     const isSupabasePath = supabaseBuckets.some(b => firstImg.startsWith(b + '/'));
 
     if (isSupabasePath && !firstImg.startsWith('http')) {

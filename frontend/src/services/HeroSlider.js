@@ -7,6 +7,8 @@ const HeroSlider = {
     pauseOnHover: true,
 
     init() {
+        this.stopAutoPlay();
+        this.currentIndex = 0;
         this.slides = document.querySelectorAll('.hero-slide');
         if (this.slides.length < 2) {
             console.log('[HeroSlider] Not enough slides to start rotation');

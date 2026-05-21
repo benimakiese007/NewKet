@@ -14,7 +14,8 @@ window.SupabaseAdapter = {
         orders: 15000,        // 15s — orders update frequently
         activities: 15000,    // 15s
         notifications: 10000, // 10s — real-time feel
-        product_reviews: 20000 // 20s
+        product_reviews: 20000, // 20s
+        hero_content: 60000    // 60s — homepage hero changes infrequently
     },
     _defaultTTL: 30000, // 30s fallback
 
@@ -133,7 +134,8 @@ window.SupabaseAdapter = {
             'product-images': { maxWidth: 1600, maxHeight: 1600, quality: 0.78, mimeType: 'image/webp' },
             'vendor-covers': { maxWidth: 1800, maxHeight: 900, quality: 0.8, mimeType: 'image/webp' },
             'user-assets': { maxWidth: 1200, maxHeight: 1200, quality: 0.82, mimeType: 'image/webp' },
-            'vendor-docs': { maxWidth: 1600, maxHeight: 1600, quality: 0.8, mimeType: 'image/jpeg' }
+            'vendor-docs': { maxWidth: 1600, maxHeight: 1600, quality: 0.8, mimeType: 'image/jpeg' },
+            'site-assets': { maxWidth: 2000, maxHeight: 1200, quality: 0.82, mimeType: 'image/webp' }
         };
 
         return bucketProfiles[bucket] || { maxWidth: 1600, maxHeight: 1600, quality: 0.8, mimeType: 'image/webp' };

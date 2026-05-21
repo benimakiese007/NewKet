@@ -277,8 +277,16 @@ canvas {
     }
 
     /* Tablet behaves like mobile (<= 1024px) */
-    #mobileMenuBtn,
+    #mobileMenuBtn {
+        display: inline-flex !important;
+    }
+
+    /* Tablet header order: Menu, Logo, Search, Vendre, Compte */
     #accountLinkMobile {
+        display: none !important;
+    }
+
+    #accountLinkTablet {
         display: inline-flex !important;
     }
 
@@ -338,9 +346,36 @@ canvas {
         max-width: none !important;
     }
 
+    /* Tablet: keep search + (Vendre, Compte) on the same row */
+    #mobileSearchContainer {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto auto !important;
+        align-items: center !important;
+        column-gap: 0.625rem !important;
+    }
+
     .search-bar {
-        width: 100% !important;
+        width: auto !important; /* override mobile/tablet base rule width:100% */
         min-width: 0 !important;
+        order: 1 !important;
+        grid-column: 1 !important;
+    }
+
+    .publish-btn,
+    #accountLinkTablet {
+        flex: 0 0 auto !important;
+        justify-self: end !important;
+        white-space: nowrap !important;
+    }
+
+    .publish-btn {
+        order: 2 !important;
+        grid-column: 2 !important;
+    }
+
+    #accountLinkTablet {
+        order: 3 !important;
+        grid-column: 3 !important;
     }
 
     .header-search-row {
@@ -370,6 +405,30 @@ canvas {
 }
 
 /* ==========================================
+/* Narrow tablet edge (640–649px): prevent search icon overflow */
+@media (min-width: 640px) and (max-width: 649px) {
+    #mobileSearchContainer {
+        column-gap: 0.45rem !important;
+    }
+
+    .search-category-btn {
+        min-width: 68px !important;
+        padding-left: 0.6rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .search-input {
+        padding-left: 0.9rem !important;
+        padding-right: 0.6rem !important;
+        font-size: 15px !important;
+    }
+
+    .search-bar .search-icon {
+        margin-right: 6px !important;
+        flex-shrink: 0 !important;
+    }
+}
+
    4. HERO / BANNIÈRES — Hauteurs adaptatives
    ========================================== */
 

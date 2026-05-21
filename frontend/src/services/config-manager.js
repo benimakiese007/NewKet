@@ -218,8 +218,10 @@ const ConfigManager = {
     async init() {
         const saved = localStorage.getItem('newket_global_config');
         const fetchTime = localStorage.getItem('newket_global_config_time');
+        const maintenanceCheckTime = localStorage.getItem('newket_global_config_maintenance_check_time');
         const now = Date.now();
         const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+        const MAINTENANCE_CHECK_DURATION = 1000 * 60; // 60s (propagation rapide)
 
         if (saved) {
             try {
@@ -234,7 +236,14 @@ const ConfigManager = {
         const cacheExpired = !fetchTime || now - parseInt(fetchTime) > CACHE_DURATION;
         const forceRefresh = this.config.maintenanceMode === true;
         const socialLinksIncomplete = !this.config.socialLinks?.x || !this.config.socialLinks?.linkedin;
-        if (window.SupabaseAdapter && (cacheExpired || forceRefresh || socialLinksIncomplete)) {
+
+        // Même si le cache global est encore "frais", on veut pouvoir activer la maintenance rapidement.
+        // Sinon, un client peut garder `maintenanceMode=false` jusqu'à 1h.
+        const maintenanceCheckDue = !forceRefresh && (
+            !maintenanceCheckTime || now - parseInt(maintenanceCheckTime) > MAINTENANCE_CHECK_DURATION
+        );
+
+        if (window.SupabaseAdapter && (cacheExpired || forceRefresh || socialLinksIncomplete || maintenanceCheckDue)) {
             // Check if we are already fetching to prevent duplicate calls from multiple managers
             if (this._fetchPromise) {
                 await this._fetchPromise;
@@ -250,6 +259,7 @@ const ConfigManager = {
                         this.saveLocal();
                         window.dispatchEvent(new CustomEvent('configUpdated', { detail: this.config }));
                         localStorage.setItem('newket_global_config_time', now.toString());
+                        localStorage.setItem('newket_global_config_maintenance_check_time', now.toString());
                     }
                 } catch (err) {
                     console.warn('[NewKet] Failed to fetch settings from Supabase:', err);
@@ -258,6 +268,9 @@ const ConfigManager = {
             
             await this._fetchPromise;
             this._fetchPromise = null;
+        } else {
+            // Cache "frais": quand même rafraîchir l'horodatage maintenance pour éviter des fetchs trop fréquents.
+            localStorage.setItem('newket_global_config_maintenance_check_time', now.toString());
         }
 
         // Global export for legacy code
