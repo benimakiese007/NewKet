@@ -14,30 +14,87 @@
     <meta name="description" content="Rejoignez NewKet et vendez vos créations et articles de luxe à une audience exclusive. Finalisez votre profil vendeur certifié dès aujourd'hui.">
     <link rel="canonical" href="https://newket.cd/src/pages/seller-onboarding" />
     <link rel="stylesheet" href="/src/assets/css/input.css">
-        <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/assets/css/style.css">
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
-    
+
     <style>
         * { font-family: 'Inter', sans-serif; }
         .hero-gradient { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
+        .soft-ring { box-shadow: 0 0 0 1px rgba(17,24,39,.06), 0 10px 30px rgba(17,24,39,.06); }
     </style>
 </head>
 
 <body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
     <div id="header-placeholder"></div>
 
-
     <main class="max-w-2xl mx-auto px-4 pb-12 pt-6">
-        <div class="text-center mb-12">
+        <div class="flex items-start justify-between gap-4 mb-8">
+            <div></div>
+            <a id="backToDashboardTop" data-track-action="seller_onboarding:back_dashboard_top_click" href="javascript:void(0)"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border border-gray-100 text-gray-900 text-[11px] font-black uppercase tracking-widest hover:border-black transition-all soft-ring">
+                <iconify-icon icon="solar:arrow-left-linear" width="18"></iconify-icon>
+                Retour dashboard
+            </a>
+        </div>
+
+        <div class="text-center mb-10">
             <div class="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
                 <iconify-icon icon="solar:shop-bold" width="40" class="text-white"></iconify-icon>
             </div>
-            <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-4">Devenez Vendeur Certifié</h1>
+            <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-3">Devenez Vendeur Certifié</h1>
             <p class="text-gray-500 text-lg">Complétez votre dossier pour commencer à vendre sur NewKet.</p>
+        </div>
+
+        <!-- Status / Steps -->
+        <div id="statusCard" class="bg-white rounded-[2.5rem] p-8 border border-gray-100 soft-ring mb-8">
+            <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-200"></div>
+                        <div class="text-sm font-black text-gray-900">Statut du dossier</div>
+                        <span id="statusPill" class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-500">Chargement…</span>
+                    </div>
+                    <div id="statusMessage" class="text-[12px] text-gray-500 font-medium mt-2 leading-relaxed">
+                        Connexion requise pour afficher votre statut.
+                    </div>
+                </div>
+                <a id="backToDashboardStatus" data-track-action="seller_onboarding:back_dashboard_status_click" href="javascript:void(0)"
+                    class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-black text-white text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-gray-200">
+                    Dashboard
+                    <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
+                </a>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="rounded-[2rem] border border-gray-100 p-5 bg-gray-50/40">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center border border-gray-100">
+                            <iconify-icon icon="solar:shop-2-bold-duotone" width="18" class="text-gray-600"></iconify-icon>
+                        </div>
+                        <div class="font-black text-[12px] text-gray-900">Étape 1 — Boutique</div>
+                        <span id="step1State" class="ml-auto text-[10px] font-black uppercase tracking-widest text-gray-400">À compléter</span>
+                    </div>
+                    <div class="text-[11px] text-gray-500 font-medium leading-relaxed">
+                        Nom, téléphone, localisation, description et mode de paiement.
+                    </div>
+                </div>
+                <div class="rounded-[2rem] border border-gray-100 p-5 bg-gray-50/40">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center border border-gray-100">
+                            <iconify-icon icon="solar:shield-user-bold-duotone" width="18" class="text-gray-600"></iconify-icon>
+                        </div>
+                        <div class="font-black text-[12px] text-gray-900">Étape 2 — Documents</div>
+                        <span id="step2State" class="ml-auto text-[10px] font-black uppercase tracking-widest text-gray-400">À fournir</span>
+                    </div>
+                    <div class="text-[11px] text-gray-500 font-medium leading-relaxed">
+                        Ajoutez au moins 1 pièce. Plus votre dossier est complet, plus la validation est rapide.
+                    </div>
+                </div>
+            </div>
         </div>
 
         <form id="onboardingForm" class="space-y-8">
@@ -48,27 +105,27 @@
                         <iconify-icon icon="solar:shop-2-bold-duotone" width="20"></iconify-icon>
                     </div>
                     <div>
-                        <h2 class="font-black text-gray-900 leading-tight">Identité Commerciale</h2>
+                        <h2 class="font-black text-gray-900 leading-tight">Identité commerciale</h2>
                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Étape 01/02</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-2">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Nom de la Boutique</label>
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Nom de la boutique</label>
                         <input type="text" id="companyName" required placeholder="ex: Maison de Mode"
                             class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Téléphone Professionnel</label>
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Téléphone professionnel</label>
                         <input type="tel" id="phone" required placeholder="+243..."
                             class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
                     </div>
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Description & Spécialité</label>
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Description & spécialité</label>
                     <textarea id="storeDescription" required placeholder="Décrivez l'univers de votre boutique..."
                         class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300 min-h-[120px] resize-none"></textarea>
                 </div>
@@ -81,7 +138,7 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Mode de Paiement Préféré</label>
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Mode de paiement préféré</label>
                         <div class="relative">
                             <select id="payoutMethod" required
                                 class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium appearance-none">
@@ -108,18 +165,30 @@
                     </div>
                 </div>
 
+                <div class="rounded-[2rem] bg-gray-50/50 border border-gray-100 p-6">
+                    <div class="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-3">Pièces demandées</div>
+                    <ul class="space-y-2 text-[12px] text-gray-600 font-medium">
+                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:id-card-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Pièce d’identité (CNI ou passeport) — photo lisible.</span></li>
+                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:document-text-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Registre de commerce (ou document équivalent) si vous en disposez.</span></li>
+                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:map-point-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Justificatif de localisation (adresse / boutique) si possible.</span></li>
+                    </ul>
+                    <div class="mt-4 text-[11px] text-gray-500 font-medium leading-relaxed">
+                        Formats acceptés : PDF, JPG, PNG. Taille max : 10MB par fichier. Minimum : 1 document.
+                    </div>
+                </div>
+
                 <div class="space-y-6">
-                    <div id="uploadZone" onclick="document.getElementById('docUpload').click()"
+                    <div id="uploadZone" data-track-action="seller_onboarding:kyc_upload_click" onclick="document.getElementById('docUpload').click()"
                         class="group relative overflow-hidden border-2 border-dashed border-gray-100 rounded-[2rem] p-10 text-center hover:border-black hover:bg-gray-50/50 transition-all cursor-pointer bg-gray-50/30">
                         <div class="relative z-10">
                             <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform duration-500">
                                 <iconify-icon icon="solar:upload-minimalistic-bold-duotone" width="32" class="text-gray-400 group-hover:text-black transition-colors"></iconify-icon>
                             </div>
-                            <p class="text-sm font-black text-gray-900 mb-1">Documents d'Identité / Registre</p>
+                            <p class="text-sm font-black text-gray-900 mb-1">Documents d'identité / registre</p>
                             <p class="text-[10px] text-gray-400 uppercase tracking-widest">PDF, JPG, PNG (Max 10MB)</p>
                         </div>
                         <input type="file" id="docUpload" multiple accept="image/*,application/pdf" class="hidden">
-                        
+
                         <!-- Decorative bg -->
                         <div class="absolute inset-0 bg-gradient-to-tr from-gray-100/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
@@ -134,7 +203,7 @@
                         <iconify-icon icon="solar:camera-bold-duotone" width="20"></iconify-icon>
                     </div>
                     <div>
-                        <h3 class="font-black text-gray-900 leading-tight">Visuels Boutique</h3>
+                        <h3 class="font-black text-gray-900 leading-tight">Visuels boutique</h3>
                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Facultatif</p>
                     </div>
                 </div>
@@ -142,7 +211,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-4">
                         <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Logo / Avatar</label>
-                        <div id="shopAvatarUploadZone" onclick="document.getElementById('shopAvatarUpload').click()"
+                        <div id="shopAvatarUploadZone" data-track-action="seller_onboarding:logo_upload_click" onclick="document.getElementById('shopAvatarUpload').click()"
                             class="group relative h-40 border-2 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center bg-gray-50/30 hover:bg-gray-50 hover:border-black transition-all cursor-pointer">
                             <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform duration-500">
                                 <iconify-icon icon="solar:user-circle-bold-duotone" width="24" class="text-gray-400 group-hover:text-black"></iconify-icon>
@@ -154,16 +223,16 @@
                              <img src="" class="w-full h-full object-cover">
                              <div class="absolute inset-x-4 bottom-4 rounded-xl bg-black/70 px-3 py-2 text-[11px] font-bold text-white backdrop-blur-sm name-preview"></div>
                              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                 <button type="button" onclick="clearShopAvatar(event)" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl">
+                                 <button type="button" data-track-action="seller_onboarding:logo_clear_click" onclick="clearShopAvatar(event)" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl">
                                      <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                                  </button>
                              </div>
                         </div>
                     </div>
-                    
+
                     <div class="space-y-4">
-                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Photo de Vitrine</label>
-                        <div id="physicalUploadZone" onclick="document.getElementById('physicalUpload').click()"
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Photo de vitrine</label>
+                        <div id="physicalUploadZone" data-track-action="seller_onboarding:storefront_upload_click" onclick="document.getElementById('physicalUpload').click()"
                             class="group relative h-40 border-2 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center bg-gray-50/30 hover:bg-gray-50 hover:border-black transition-all cursor-pointer">
                             <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform duration-500">
                                 <iconify-icon icon="solar:shop-2-bold-duotone" width="24" class="text-gray-400 group-hover:text-black"></iconify-icon>
@@ -175,7 +244,7 @@
                              <img src="" class="w-full h-full object-cover">
                              <div class="absolute inset-x-4 bottom-4 rounded-xl bg-black/70 px-3 py-2 text-[11px] font-bold text-white backdrop-blur-sm name-preview"></div>
                              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                 <button type="button" onclick="clearPhysical(event)" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl">
+                                 <button type="button" data-track-action="seller_onboarding:storefront_clear_click" onclick="clearPhysical(event)" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl">
                                      <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                                  </button>
                              </div>
@@ -184,11 +253,17 @@
                 </div>
             </div>
 
-            <button type="submit"
+            <button type="submit" data-track-action="seller_onboarding:submit_click" id="submitBtn"
                 class="w-full hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
                 Soumettre mon dossier
                 <iconify-icon icon="solar:check-circle-linear" width="24"></iconify-icon>
             </button>
+
+            <a id="backToDashboardBottom" data-track-action="seller_onboarding:back_dashboard_bottom_click" href="javascript:void(0)"
+                class="w-full inline-flex items-center justify-center gap-3 bg-white border border-gray-100 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest text-gray-900 hover:border-black transition-all soft-ring">
+                Retour au dashboard
+                <iconify-icon icon="solar:arrow-right-linear" width="20"></iconify-icon>
+            </a>
         </form>
     </main>
 
@@ -203,29 +278,128 @@
             </div>
             <h2 class="text-3xl font-black text-gray-900 mb-3 tracking-tight">C'est envoyé !</h2>
             <p class="text-sm text-gray-500 mb-10 leading-relaxed font-medium">Votre dossier est entre les mains de notre équipe. Nous reviendrons vers vous très vite par email.</p>
-            <button onclick="window.location.href=window.resolvePath('')"
+            <button data-track-action="seller_onboarding:success_back_dashboard_click" onclick="window.location.href=typeof window.resolvePath === 'function' ? window.resolvePath('vendor-dashboard') : '/src/pages/vendor-dashboard.html'"
                 class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                Explorer NewKet
+                Retour au dashboard
             </button>
         </div>
     </div>
-
 
     <script>
         const docUpload = document.getElementById('docUpload');
         const fileList = document.getElementById('fileList');
         const onboardingForm = document.getElementById('onboardingForm');
+        const submitBtn = document.getElementById('submitBtn');
         let uploadedFiles = [];
-        
+
         let shopAvatarFile = null;
         let physicalShopFile = null;
+
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+        function getDashboardHref() {
+            if (typeof window.resolvePath === 'function') return window.resolvePath('vendor-dashboard');
+            return '/src/pages/vendor-dashboard.html';
+        }
+
+        function wireDashboardCtas() {
+            const href = getDashboardHref();
+            const ids = ['backToDashboardTop', 'backToDashboardStatus', 'backToDashboardBottom'];
+            ids.forEach((id) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.href = href;
+            });
+        }
+
+        function setStatusUI(status) {
+            const pill = document.getElementById('statusPill');
+            const dot = document.getElementById('statusDot');
+            const message = document.getElementById('statusMessage');
+            const step1 = document.getElementById('step1State');
+            const step2 = document.getElementById('step2State');
+
+            const map = {
+                pending: {
+                    pillText: 'Pending',
+                    pillClass: 'bg-yellow-50 text-yellow-700',
+                    dotClass: 'bg-yellow-400',
+                    message: "Votre dossier n'est pas encore soumis. Complétez les étapes puis envoyez votre dossier.",
+                    step1: 'À compléter',
+                    step2: 'À fournir'
+                },
+                submitted: {
+                    pillText: 'Submitted',
+                    pillClass: 'bg-blue-50 text-blue-700',
+                    dotClass: 'bg-blue-500',
+                    message: "Dossier soumis. Notre équipe le vérifie. Vous pouvez retourner au dashboard.",
+                    step1: 'Reçu',
+                    step2: 'Reçu'
+                },
+                rejected: {
+                    pillText: 'Rejected',
+                    pillClass: 'bg-red-50 text-red-700',
+                    dotClass: 'bg-red-500',
+                    message: "Dossier rejeté. Corrigez les informations et renvoyez votre dossier.",
+                    step1: 'À corriger',
+                    step2: 'À corriger'
+                },
+                approved: {
+                    pillText: 'Approuvé',
+                    pillClass: 'bg-green-50 text-green-700',
+                    dotClass: 'bg-green-500',
+                    message: "Profil vendeur approuvé. Vous pouvez vendre sur NewKet.",
+                    step1: 'Validé',
+                    step2: 'Validé'
+                }
+            };
+
+            const normalized = (status || 'pending').toString().trim();
+            const cfg = map[normalized] || map.pending;
+
+            pill.textContent = cfg.pillText;
+            pill.className = `inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${cfg.pillClass}`;
+            dot.className = `w-3 h-3 rounded-full ${cfg.dotClass}`;
+            message.textContent = cfg.message;
+            step1.textContent = cfg.step1;
+            step2.textContent = cfg.step2;
+
+            if (normalized === 'submitted' || normalized === 'approved') {
+                try {
+                    Array.from(onboardingForm.querySelectorAll('input, textarea, select')).forEach((el) => el.setAttribute('disabled', 'disabled'));
+                    submitBtn.setAttribute('disabled', 'disabled');
+                    submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `Dossier déjà soumis <iconify-icon icon="solar:clock-circle-linear" width="24"></iconify-icon>`;
+                } catch (_) {}
+            } else if (normalized === 'rejected') {
+                submitBtn.innerHTML = `Renvoyer mon dossier <iconify-icon icon="solar:refresh-linear" width="24"></iconify-icon>`;
+            }
+        }
+
+        async function initStatusFromProfile() {
+            try {
+                const sessionRes = await window.supabaseClient?.auth?.getSession?.();
+                const user = sessionRes?.data?.session?.user;
+                if (!user) {
+                    setStatusUI('pending');
+                    return;
+                }
+
+                const profile = await window.AuthManager?.getUserProfile?.(user.id);
+                const status = profile?.status || localStorage.getItem('newketUserStatus') || 'pending';
+                setStatusUI(status);
+            } catch (e) {
+                console.warn('[Seller Onboarding] Unable to load status:', e);
+                setStatusUI(localStorage.getItem('newketUserStatus') || 'pending');
+            }
+        }
 
         // --- PREVIEW LOGIC ---
         function setupPreview(inputId, zoneId, previewId) {
             const input = document.getElementById(inputId);
             const zone = document.getElementById(zoneId);
             const preview = document.getElementById(previewId);
-            
+
             input.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
@@ -237,13 +411,13 @@
                         preview.querySelector('.name-preview').textContent = file.name;
                     };
                     reader.readAsDataURL(file);
-                    
+
                     if (inputId === 'shopAvatarUpload') shopAvatarFile = file;
                     if (inputId === 'physicalUpload') physicalShopFile = file;
                 }
             });
         }
-        
+
         window.clearShopAvatar = (e) => {
             e.stopPropagation();
             shopAvatarFile = null;
@@ -251,7 +425,7 @@
             document.getElementById('shopAvatarPreview').classList.add('hidden');
             document.getElementById('shopAvatarUploadZone').classList.remove('hidden');
         };
-        
+
         window.clearPhysical = (e) => {
             e.stopPropagation();
             physicalShopFile = null;
@@ -263,10 +437,21 @@
         setupPreview('shopAvatarUpload', 'shopAvatarUploadZone', 'shopAvatarPreview');
         setupPreview('physicalUpload', 'physicalUploadZone', 'physicalPreview');
 
-
         docUpload.addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            files.forEach(file => {
+            const files = Array.from(e.target.files || []);
+            try {
+                window.BehaviorTracking?.track?.('click', {
+                    target: 'seller_onboarding:kyc_files_selected',
+                    metadata: { count: files.length }
+                });
+            } catch (_) {}
+
+            files.forEach((file) => {
+                if (!file) return;
+                if (file.size > MAX_FILE_SIZE) {
+                    if (window.showToast) window.showToast(`Fichier trop volumineux : ${file.name} (max 10MB)`, "info", "Documents");
+                    return;
+                }
                 uploadedFiles.push(file);
                 const tag = document.createElement('div');
                 tag.className = 'bg-gray-100 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2';
@@ -281,7 +466,7 @@
 
         onboardingForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             if (uploadedFiles.length === 0) {
                 if (window.showToast) window.showToast("Veuillez ajouter au moins un document justificatif.", "info", "Documents");
                 return;
@@ -296,13 +481,13 @@
                 const storeAddress = document.getElementById('storeAddress').value;
                 const pMethodElem = document.getElementById('payoutMethod');
                 const payoutMethod = pMethodElem ? pMethodElem.value : '';
-                
+
                 const sessionRes = await window.supabaseClient.auth.getSession();
                 const user = sessionRes?.data?.session?.user;
                 if (!user) throw new Error("Vous n'êtes pas connecté");
-                
+
                 const userId = user.id;
-                
+
                 let docUrls = [];
                 // Upload mandatory KYC files
                 for (let i = 0; i < uploadedFiles.length; i++) {
@@ -310,7 +495,7 @@
                     const sanitizedName = file.name
                         .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                         .replace(/[^a-zA-Z0-9.\-_]/g, "_");
-                        
+
                     const path = `kyc/${userId}/${Date.now()}_${sanitizedName}`;
                     const url = await window.SupabaseAdapter.uploadFile('vendor-docs', path, file);
                     if (url) docUrls.push(url);
@@ -326,7 +511,7 @@
                     const path = `avatars/${userId}/${Date.now()}_logo`;
                     avatarUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', path, shopAvatarFile);
                 }
-                
+
                 // Upload Optional Physical Shop Photo
                 let physicalUrl = null;
                 if (physicalShopFile) {
@@ -369,9 +554,9 @@
                     store_address: storeAddress,
                     preferred_payout_method: payoutMethod,
                     documents_url: docUrls,
-                    status: 'submitted' 
+                    status: 'submitted'
                 };
-                
+
                 // We map avatarUrl to 'avatar' column on the public.users table if it exists
                 if (avatarUrl) updateData.avatar = avatarUrl;
                 // We add physical shop photo url if any
@@ -392,25 +577,21 @@
                 }
 
                 localStorage.setItem('newketUserStatus', 'submitted');
+                setStatusUI('submitted');
                 if (window.LoaderManager) LoaderManager.hide();
-                
+
                 const overlay = document.getElementById('successOverlay');
                 overlay.classList.remove('invisible', 'opacity-0');
                 overlay.querySelector('div').classList.remove('scale-90');
-
             } catch (err) {
                 console.error(err);
                 if (window.LoaderManager) LoaderManager.hide();
                 if (window.showToast) window.showToast("Une erreur est survenue lors de l'envoi. Veuillez réessayer.", "error", "Erreur");
             }
         });
+
+        wireDashboardCtas();
+        initStatusFromProfile();
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
