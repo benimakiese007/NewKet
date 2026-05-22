@@ -9052,6 +9052,7 @@ html.dark .skeleton {
 
 .nk-toast-success { background-color: #10B981 !important; background: linear-gradient(135deg, #10B981, #059669) !important; }
 .nk-toast-error { background-color: #EF4444 !important; background: linear-gradient(135deg, #EF4444, #DC2626) !important; }
+.nk-toast-danger { background-color: #EF4444 !important; background: linear-gradient(135deg, #EF4444, #DC2626) !important; }
 .nk-toast-warning { background-color: #F59E0B !important; background: linear-gradient(135deg, #F59E0B, #D97706) !important; }
 .nk-toast-info { background-color: #111827 !important; background: linear-gradient(135deg, #111827, #1F2937) !important; }
 
@@ -9059,6 +9060,7 @@ html.dark .skeleton {
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .nk-toast-title {
@@ -9074,6 +9076,8 @@ html.dark .skeleton {
     flex: 1;
     line-height: 1.4;
     padding-right: 0.5rem;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .nk-toast-close {

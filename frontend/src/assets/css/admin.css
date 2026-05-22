@@ -336,8 +336,7 @@ body {
     }
 
     .sidebar-collapsed .sidebar-header-card {
-        padding: var(--space-sm) !important;
-        justify-content: center;
+        display: none !important;
     }
 
     /* Shift main content when sidebar is collapsed */

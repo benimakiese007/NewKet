@@ -11,7 +11,8 @@ let _isShowingToast = false;
  * Shows a toast message to the user using a central queue system.
  */
 export function showToast(message, type = 'info', title = null, iconOverride = null) {
-    _toastQueue.push({ message, type, title, iconOverride });
+    const normalizedType = (type === 'error') ? 'danger' : type;
+    _toastQueue.push({ message, type: normalizedType, title, iconOverride });
     if (!_isShowingToast) {
         _processToastQueue();
     }
@@ -350,6 +351,7 @@ export const SidebarManager = {
     init(sidebarId, mainContentClass, overlayId = null) {
         this.sidebarId = sidebarId;
         this.mainContentClass = mainContentClass;
+        this.storageKey = `newketSidebarCollapsed:${sidebarId}`;
         // Auto-detect overlay if not provided
         this.overlayId = overlayId || (sidebarId.includes('admin') ? 'adminOverlay' : (sidebarId.includes('vendor') ? 'vendorSidebarOverlay' : 'sidebarOverlay'));
 
@@ -357,7 +359,15 @@ export const SidebarManager = {
         // (e.g. after `newketInitialized`). Recompute responsive/collapsed state at
         // init-time to avoid applying the wrong mode after the first paint.
         this.state.isMobile = window.innerWidth < 1024;
-        this.state.isCollapsed = localStorage.getItem('newketSidebarCollapsed') === 'true';
+        // Per-dashboard collapse state (with legacy fallback).
+        const scoped = localStorage.getItem(this.storageKey);
+        const legacy = localStorage.getItem('newketSidebarCollapsed');
+        this.state.isCollapsed = (scoped ?? legacy) === 'true';
+        // If only legacy is present, migrate it to the scoped key (do not delete legacy; other tabs may still read it).
+        if (scoped === null && legacy !== null) {
+            localStorage.setItem(this.storageKey, legacy);
+        }
+        this.syncSidebarWidth(sidebarId);
          
         // Prevent transition flash on init
         const sidebar = document.getElementById(this.sidebarId);
@@ -385,6 +395,7 @@ export const SidebarManager = {
             
             if (wasMobile !== this.state.isMobile) {
                 if (!this.state.isMobile) this.state.isDrawerOpen = false;
+                this.syncSidebarWidth();
                 this.applyState();
             }
         }, 150);
@@ -455,8 +466,9 @@ export const SidebarManager = {
             this.state.isDrawerOpen = !this.state.isDrawerOpen;
         } else {
             this.state.isCollapsed = !this.state.isCollapsed;
-            localStorage.setItem('newketSidebarCollapsed', this.state.isCollapsed);
+            localStorage.setItem(this.storageKey || 'newketSidebarCollapsed', String(this.state.isCollapsed));
         }
+        this.syncSidebarWidth();
         this.applyState();
     },
 
@@ -536,6 +548,25 @@ export const SidebarManager = {
                 document.documentElement.classList.remove('sidebar-is-collapsed');
                 document.body.classList.remove('sidebar-is-collapsed');
             }
+        }
+    }
+    ,
+    /**
+     * Ensure the sidebar element's width reflects the collapsed state even when
+     * page-level CSS uses ID selectors (higher specificity) for widths.
+     */
+    syncSidebarWidth(sidebarIdOverride = null) {
+        const sidebarId = sidebarIdOverride || this.sidebarId;
+        if (!sidebarId) return;
+        const sidebar = document.getElementById(sidebarId);
+        if (!sidebar) return;
+
+        // Clear any previous inline override before re-applying.
+        sidebar.style.removeProperty('width');
+
+        if (!this.state.isMobile && this.state.isCollapsed) {
+            // Inline style beats ID-based width rules, keeping collapse reliable.
+            sidebar.style.setProperty('width', '80px', 'important');
         }
     }
 };

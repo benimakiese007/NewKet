@@ -88,6 +88,21 @@ const BehaviorTracking = {
                 if (target.matches?.('[data-switch-vendor-tab]') || target.closest?.('[data-switch-vendor-tab]')) return;
             } catch (_) {}
 
+            // Ignore sidebar UI toggles (burger / close / collapse): no need to track.
+            try {
+                const onclickAttr = target.getAttribute?.('onclick') || '';
+                if (
+                    target.matches?.('[data-toggle-sidebar],[data-close-sidebar]') ||
+                    target.closest?.('[data-toggle-sidebar],[data-close-sidebar]') ||
+                    target.classList?.contains?.('sidebar-toggle-btn') ||
+                    target.closest?.('.sidebar-toggle-btn') ||
+                    onclickAttr.includes('SidebarManager.toggle') ||
+                    onclickAttr.includes('SidebarManager.close')
+                ) {
+                    return;
+                }
+            } catch (_) {}
+
             const now = Date.now();
             if (now - this._lastClickTs < 400) return;
             this._lastClickTs = now;
@@ -234,6 +249,7 @@ const BehaviorTracking = {
                 user_role: window.AuthManager?.role || localStorage.getItem('newketRole') || 'guest',
             }, {
                 suppressErrorLogging: true,
+                suppressToast: true,
             }).catch((err) => {
                 // If backend rate-limits, stop sending analytics for the same window
                 // to avoid flooding the console and the API.

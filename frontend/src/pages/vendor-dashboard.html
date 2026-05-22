@@ -45,13 +45,17 @@
     <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
-            <button id="vendorMobileBtn" data-toggle-sidebar="vendor" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all">
+            <button id="vendorMobileBtn" data-toggle-sidebar="vendor" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                 <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
             </button>
-            <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
-                <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
-            </a>
         </div>
+
+            <!-- Center Logo -->
+            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
+                    <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+                </a>
+            </div>
 
             <div class="flex items-center gap-4">
                 <!-- Currency Toggle -->
@@ -77,7 +81,7 @@
 
     <!-- Sidebar moved back to main to act as a flex sibling, removing relative from main to preserve stacking context -->
     <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row gap-8 relative">
-        <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-72 transition-transform duration-400 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
+        <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-72 lg:relative transition-transform duration-400 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
             <!-- Mobile Close Button -->
             <button data-close-sidebar="vendor" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
@@ -92,7 +96,7 @@
             <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 lg:pt-6 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm space-y-8 relative">
 
                 <!-- Brand Section -->
-                <div class="flex items-center gap-4 px-2 pb-6 border-b border-gray-100/50">
+                <div class="sidebar-header-card flex items-center gap-4 px-2 pb-6 border-b border-gray-100/50">
                 <div class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center shadow-sm border border-white/15 shrink-0 overflow-hidden">
                     <img id="vendorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
                     <iconify-icon id="vendorAvatarPlaceholder" icon="solar:shop-bold" width="18"></iconify-icon>

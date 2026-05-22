@@ -372,7 +372,7 @@ const AdminLayout = {
             <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
                 <div class="dashboard-topbar-inner max-w-7xl mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
                     <div class="flex items-center gap-6">
-                        <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+                        <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                         </button>
                     </div>
@@ -505,7 +505,7 @@ const AdminLayout = {
 
         let sidebarHTML = `
             <div id="adminOverlay" class="fixed inset-0 bg-black/50 z-[110] hidden transition-all duration-300"></div>
-            <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
+            <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
                 
                 <!-- Desktop Collapse Toggle -->
                 <button type="button" class="sidebar-toggle-btn hidden md:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
