@@ -3,6 +3,11 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "cleanUrls": true,
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
@@ -31,6 +36,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/app?path=:path*" },
     { "source": "/api/orders/:orderId/quote", "destination": "/api/orders-quote?orderId=:orderId" },
     { "source": "/api/orders/:orderId/quote/respond", "destination": "/api/orders-quote-respond?orderId=:orderId" },
     { "source": "/api/orders/:orderId/status", "destination": "/api/orders-status?orderId=:orderId" },

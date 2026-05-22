@@ -176,7 +176,16 @@ export const ApiClient = {
                 }
 
                 if (!response.ok) {
-                    const baseMsg = data?.error || `Erreur API ${response.status}`;
+                    let baseMsg = data?.error || `Erreur API ${response.status}`;
+
+                    // Vercel generic 404 body (plain text) when the serverless function route is missing.
+                    // This often happens when `/api/*` functions are not deployed/registered.
+                    if (response.status === 404 && typeof baseMsg === 'string') {
+                        const msg = baseMsg.toLowerCase();
+                        if (msg.includes('the page could not be found') || msg.includes('not_found') || msg.includes('not found')) {
+                            baseMsg = "Erreur 404: l'API est introuvable. Vérifiez que Vercel déploie bien les routes `/api/*` (testez `/api/health`) puis réessayez.";
+                        }
+                    }
                     const details = data?.details ? `: ${data.details}` : '';
                     const err = new Error(`${baseMsg}${details}`);
                     err.status = response.status;
