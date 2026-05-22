@@ -207,6 +207,15 @@ export const ApiClient = {
                 console.error(`[ApiClient] Error on ${endpoint}:`, error);
                 captureError(error, { endpoint, method: options.method || 'GET' });
             }
+
+            if (!options.suppressToast && typeof window.showToast === 'function') {
+                if (isNetworkFailure(error)) {
+                    window.showToast("Une erreur réseau est survenue. Veuillez vérifier votre connexion.", "danger");
+                } else if (error.status !== 401 && error.status !== 403) {
+                    window.showToast(error.message || "Une erreur est survenue.", "danger");
+                }
+            }
+
             throw error;
         }
     },

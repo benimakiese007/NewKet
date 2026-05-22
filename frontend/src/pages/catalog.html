@@ -971,11 +971,17 @@
 
             if (products.length === 0 && !append) {
                 grid.innerHTML = `
-                    <div class="col-span-full py-20 text-center">
-                        <iconify-icon icon="solar:magnifer-zoom-out-linear" width="64" class="text-slate-200 mb-4"></iconify-icon>
-                        <h2 class="text-xl font-bold text-slate-900">Quête infructueuse</h2>
-                        <p class="text-slate-500">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</p>
-            <button data-reset-filters class="mt-6 text-sm font-bold border-b border-black uppercase tracking-widest">Réinitialiser l'horizon</button>
+                    <div class="col-span-full text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <iconify-icon icon="solar:magnifer-zoom-out-linear" width="48"></iconify-icon>
+                        </div>
+                        <div class="text-2xl font-bold text-gray-900 mb-2">Quête infructueuse</div>
+                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</div>
+                        <div class="mt-6">
+                            <button data-reset-filters class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                                Réinitialiser l'horizon
+                            </button>
+                        </div>
                     </div>
                 `;
                 removeLoadMoreButton();

@@ -1617,10 +1617,17 @@
             if (!ordersList) return; // Safeguard if DOM is not ready or element is missing
             if (orders.length === 0) {
                 ordersList.innerHTML = `
-                    <div class="glass-panel p-12 text-center text-gray-500">
-                        <iconify-icon icon="solar:chat-round-line-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
-                        <p>Vous n'avez pas encore envoyé de demande ni reçu de devis. L'exceptionnel vous attend.</p>
-                        <a href="/src/pages/catalog.html" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Voir les articles</a>
+                    <div class="text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <iconify-icon icon="solar:bag-broken" width="48"></iconify-icon>
+                        </div>
+                        <div class="text-2xl font-bold text-gray-900 mb-2">Aucune commande pour le moment</div>
+                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Vous n'avez pas encore envoyé de demande. L'exceptionnel vous attend, découvrez nos nouveautés.</div>
+                        <div class="mt-6">
+                            <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                                Voir nos produits
+                            </a>
+                        </div>
                     </div>
                 `;
             } else {
@@ -1705,10 +1712,17 @@
 
             if (favorites.length === 0) {
                 favoritesGrid.innerHTML = `
-                    <div class="col-span-full glass-panel p-12 text-center text-gray-500">
-                        <iconify-icon icon="solar:heart-broken-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
-                        <p>Votre liste de désirs est vide. Laissez-vous séduire par nos pièces d'exception.</p>
-                        <a href="/src/pages/catalog.html" class="inline-block mt-4 text-sm font-bold text-black border-b border-black uppercase tracking-widest">Explorer le catalogue</a>
+                    <div class="col-span-full text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <iconify-icon icon="solar:heart-broken-linear" width="48"></iconify-icon>
+                        </div>
+                        <div class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</div>
+                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et découvrez nos dernières nouveautés.</div>
+                        <div class="mt-6">
+                            <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                                Voir nos produits
+                            </a>
+                        </div>
                     </div>
                 `;
             } else {

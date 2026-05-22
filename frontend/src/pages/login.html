@@ -418,6 +418,16 @@
         const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
         const googleBtn = document.getElementById('google-btn');
 
+        // onBlur validation for email
+        const emailInput = document.getElementById('email');
+        emailInput.addEventListener('blur', () => {
+            if (emailInput.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+                showError("Veuillez entrer une adresse email valide.");
+            } else {
+                formError.classList.add('hidden');
+            }
+        });
+
         // Setup initial UI for recovery
         if (isRecovery) {
             tabsContainer.classList.add('hidden');
@@ -670,8 +680,11 @@
             } catch (err) {
                 console.error("Auth Error:", err);
                 let msg = err.message;
-                if (msg.includes("Invalid login credentials")) msg = "Email ou mot de passe incorrect.";
-                if (msg.includes("User already registered")) msg = "Cet utilisateur existe déjà.";
+                if (isLogin) {
+                    msg = "Identifiant Incorrect";
+                } else {
+                    if (msg.includes("User already registered")) msg = "Cet utilisateur existe déjà.";
+                }
                 showError(msg);
                 setBtnLoading(false);
             }
