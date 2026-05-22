@@ -382,6 +382,36 @@
                     </div>
                 </div>
 
+                <!-- Orders Focus (Client) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-3xl border border-gray-100 p-8 lg:col-span-2">
+                        <div class="flex items-center justify-between mb-6 gap-4">
+                            <div class="min-w-0">
+                                <h2 class="text-lg font-bold truncate">Commandes en cours</h2>
+                                <p class="text-sm text-gray-500 mt-1">Suivez l'état et passez à l'étape suivante.</p>
+                            </div>
+                            <button type="button"
+                                class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
+                                onclick="window.switchTab && window.switchTab('orders')">
+                                Voir tout
+                            </button>
+                        </div>
+                        <div id="customer-active-orders-list" class="space-y-3">
+                            <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 55%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                            <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 60%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 30%; height: 12px; margin-bottom: 0;"></div></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-3xl border border-gray-100 p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-lg font-bold">Actions requises</h2>
+                            <iconify-icon icon="solar:checklist-minimalistic-bold" width="20" class="text-gray-300"></iconify-icon>
+                        </div>
+                        <div id="customer-required-actions" class="space-y-3">
+                            <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 45%; height: 12px; margin-bottom: 0;"></div></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Recent Activity Feed -->
                 <div class="bg-white rounded-3xl border border-gray-100 p-8">
                     <div class="flex items-center justify-between mb-6">
@@ -556,6 +586,12 @@
                     </div>
                 </div>
 
+                <!-- Timeline -->
+                <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                    <div class="text-xs font-bold text-gray-400 uppercase mb-3">Suivi</div>
+                    <div id="modalOrderTimeline" class="grid grid-cols-1 sm:grid-cols-5 gap-2"></div>
+                </div>
+
                 <!-- Items -->
                 <div class="space-y-4">
                     <div class="text-xs font-bold text-gray-400 uppercase pb-2 border-b border-gray-100">Articles</div>
@@ -601,7 +637,7 @@
                     <div id="otpDisplaySection" class="hidden p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
                         <div class="text-xs font-bold text-purple-600 uppercase mb-2">Code de validation (OTP)</div>
                         <div id="otpValue" class="text-3xl font-black tracking-[0.5em] text-purple-900">------</div>
-                        <p class="text-[10px] text-purple-500 mt-2">Donnez ce code au livreur uniquement APRÈS avoir reçu et vérifié votre colis.</p>
+                        <p id="otpHint" class="mt-3 text-xs text-purple-800 font-semibold"></p>
                     </div>
 
                     <!-- Actions Buttons -->
@@ -982,6 +1018,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await ensureCustomerIdentity();
             window.__newketCustomerOrdersReady = false;
+            window.__newketCustomerOrdersFallbackReady = false;
             renderOrders();
             renderFavorites();
             renderDashboardNotifications();
@@ -1119,6 +1156,16 @@
             window.addEventListener('favoritesUpdated', () => {
                 renderFavorites();
             });
+
+            // Fallback: if orders never load (offline/dev/auth mismatch), stop skeletons and show empty states.
+            setTimeout(() => {
+                if (window.__newketCustomerOrdersReady !== true) {
+                    window.__newketCustomerOrdersReady = true;
+                    window.__newketCustomerOrdersFallbackReady = true;
+                    try { renderOrders(); } catch (_) {}
+                    try { renderCustomerDashboardStats(); } catch (_) {}
+                }
+            }, 5500);
         });
 
         // Profile Form Submit
@@ -1295,6 +1342,11 @@
                 feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Activit&eacute; indisponible pour le moment.</p>';
             }
 
+            // Orders focus panels (active orders + required actions)
+            if (typeof renderCustomerOrdersFocusPanels === 'function') {
+                renderCustomerOrdersFocusPanels();
+            }
+
             // If core managers are missing, don't leave skeletons stuck.
             if (!window.OrderManager || typeof OrderManager.getCustomerStats !== 'function' || !window.CurrencyManager || typeof CurrencyManager.formatPrice !== 'function') {
                 if (spentEl) spentEl.textContent = '--';
@@ -1344,6 +1396,157 @@
             }
         }
 
+        function getCustomerOrdersForDashboard() {
+            const email = localStorage.getItem('newketUserEmail');
+            const userId = localStorage.getItem('newketUserId');
+            if (!window.OrderManager || typeof OrderManager.getOrders !== 'function') return [];
+            const all = (OrderManager.getOrders() || []).filter(Boolean);
+            if (!email && !userId) return [];
+            return all.filter(o =>
+                (email && o.customer_email === email) ||
+                (userId && (o.user_id === userId || o.customer_id === userId))
+            );
+        }
+
+        function safeTextLite(v) {
+            if (v === null || v === undefined) return '';
+            return String(v);
+        }
+
+        function isCustomerOrderActive(status) {
+            const s = String(status || '').toUpperCase();
+            if (!s) return false;
+            return !['CANCELLED', 'REFUNDED', 'COMPLETED', 'RELEASED'].includes(s);
+        }
+
+        function getCustomerNextAction(order) {
+            const status = String(order?.status || '').toUpperCase();
+            const hasDispute = status === 'DISPUTED' || status === 'DISPUTE_OPEN';
+
+            if (hasDispute) {
+                return { label: 'Voir le litige', icon: 'solar:shield-warning-bold', required: true, kind: 'achat' };
+            }
+            if (status === 'QUOTE') {
+                return { label: 'Voir le devis', icon: 'solar:bill-list-bold', required: true, kind: 'achat' };
+            }
+            if (status === 'READY_FOR_PAYMENT') {
+                return { label: 'Payer maintenant', icon: 'solar:card-send-bold', required: true, kind: 'achat' };
+            }
+            if (status === 'DELIVERED') {
+                return { label: 'Valider la réception', icon: 'solar:check-read-bold', required: true, kind: 'achat' };
+            }
+            if (['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'PROCESSING'].includes(status)) {
+                return { label: 'Suivre la commande', icon: 'solar:map-point-wave-bold', required: false, kind: 'achat' };
+            }
+            return { label: 'Voir les détails', icon: 'solar:eye-bold', required: false, kind: 'modal' };
+        }
+
+        function renderCustomerOrdersFocusPanels() {
+            const listEl = document.getElementById('customer-active-orders-list');
+            const actionsEl = document.getElementById('customer-required-actions');
+            if (!listEl || !actionsEl) return;
+
+            const orders = getCustomerOrdersForDashboard()
+                .slice()
+                .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+
+            const isOrdersLoading = isCustomerOrdersDataPending() && orders.length === 0 && window.__newketCustomerOrdersFallbackReady !== true;
+            if (isOrdersLoading && typeof window.buildSkeletonPanelListHTML === 'function') {
+                listEl.innerHTML = window.buildSkeletonPanelListHTML(2, { lines: 2, cardClass: 'glass-panel p-4' });
+                actionsEl.innerHTML = window.buildSkeletonPanelListHTML(1, { lines: 2, cardClass: 'glass-panel p-4' });
+                return;
+            }
+
+            const active = orders.filter(o => isCustomerOrderActive(o.status));
+            const topActive = active.slice(0, 3);
+
+            if (topActive.length === 0) {
+                listEl.innerHTML = `
+                    <div class="glass-panel p-8 text-center text-gray-500">
+                        <iconify-icon icon="solar:bag-2-bold" width="44" class="mb-3 text-gray-300"></iconify-icon>
+                        <p class="font-bold text-gray-900">Aucune commande en cours</p>
+                        <p class="mt-2 text-sm">Explorez le catalogue et lancez une demande.</p>
+                        <a href="/src/pages/catalog.html" class="inline-block mt-4 text-xs font-black tracking-widest uppercase text-black border-b border-black">Voir le catalogue</a>
+                    </div>
+                `;
+            } else {
+                listEl.innerHTML = topActive.map(order => {
+                    const id = safeTextLite(order?.id);
+                    const productName = safeTextLite(order?.items?.[0]?.name || order?.product_name || 'Produit');
+                    const statusLabel = window.OrderManager ? safeTextLite(OrderManager.getStatusLabel(order?.status)) : safeTextLite(order?.status);
+                    const amount = (window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function')
+                        ? CurrencyManager.formatPrice(Number(order?.final_total_amount ?? order?.total ?? 0))
+                        : String(order?.final_total_amount ?? order?.total ?? 0);
+                    const next = getCustomerNextAction(order);
+                    const dateLabel = order?.date ? new Date(order.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
+
+                    const onClick = next.kind === 'achat'
+                        ? `window.goToAchatOrder && window.goToAchatOrder('${id}')`
+                        : `(typeof openOrderModal === 'function') && openOrderModal('${id}')`;
+
+                    return `
+                        <div class="glass-panel p-4 hover:border-black/20 transition-all">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="min-w-0">
+                                    <div class="text-xs font-black uppercase tracking-widest text-gray-400">Commande #${id}${dateLabel ? ` • ${dateLabel}` : ''}</div>
+                                    <div class="mt-1 font-black text-gray-900 truncate">${productName}</div>
+                                    <div class="mt-1 text-sm text-gray-500 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                        <span class="font-semibold text-gray-700">${statusLabel}</span>
+                                        <span class="text-gray-300">•</span>
+                                        <span>${safeTextLite(amount)}</span>
+                                    </div>
+                                </div>
+                                <button type="button"
+                                    class="px-4 py-2 rounded-xl bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors whitespace-nowrap"
+                                    onclick="${onClick}">
+                                    <iconify-icon icon="${next.icon}" width="16"></iconify-icon>
+                                    ${next.label}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const required = active
+                .map(o => ({ order: o, next: getCustomerNextAction(o) }))
+                .filter(x => x.next.required)
+                .slice(0, 4);
+
+            if (required.length === 0) {
+                actionsEl.innerHTML = `
+                    <div class="glass-panel p-6 text-center text-gray-500">
+                        <iconify-icon icon="solar:check-circle-bold" width="40" class="mb-3 text-gray-300"></iconify-icon>
+                        <p class="font-bold text-gray-900">Rien d'urgent</p>
+                        <p class="mt-1 text-sm">Vos commandes avancent normalement.</p>
+                    </div>
+                `;
+            } else {
+                actionsEl.innerHTML = required.map(({ order, next }) => {
+                    const id = safeTextLite(order?.id);
+                    const productName = safeTextLite(order?.items?.[0]?.name || order?.product_name || 'Produit');
+                    const onClick = next.kind === 'achat'
+                        ? `window.goToAchatOrder && window.goToAchatOrder('${id}')`
+                        : `(typeof openOrderModal === 'function') && openOrderModal('${id}')`;
+                    return `
+                        <div class="glass-panel p-4 flex items-center justify-between gap-3 hover:border-black/20 transition-all">
+                            <div class="min-w-0">
+                                <div class="text-xs font-black uppercase tracking-widest text-gray-400 truncate">#${id}</div>
+                                <div class="mt-1 text-sm font-bold text-gray-900 truncate">${productName}</div>
+                                <div class="mt-1 text-xs text-gray-500 font-semibold">${next.label}</div>
+                            </div>
+                            <button type="button"
+                                class="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100 transition-colors flex items-center justify-center shrink-0"
+                                aria-label="${next.label}"
+                                onclick="${onClick}">
+                                <iconify-icon icon="${next.icon}" width="18"></iconify-icon>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
         // Re-render dashboard values when currency changes
         (function bindCustomerCurrencyRerender() {
             if (window.__newketCustomerCurrencyBound) return;
@@ -1352,6 +1555,7 @@
             window.addEventListener('currencyChanged', () => {
                 try {
                     if (typeof renderCustomerDashboardStats === 'function') renderCustomerDashboardStats();
+                    if (typeof renderCustomerOrdersFocusPanels === 'function') renderCustomerOrdersFocusPanels();
                     if (typeof renderOrders === 'function') renderOrders();
                     if (typeof renderFavorites === 'function') renderFavorites();
                 } catch (e) {}
@@ -1398,6 +1602,7 @@
                     (userId && (o.user_id === userId || o.customer_id === userId))
                 );
             }
+            orders = orders.slice().sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
 
             const ordersBadge = document.getElementById('customerOrdersBadge');
             if (ordersBadge) {
@@ -1419,31 +1624,60 @@
                     </div>
                 `;
             } else {
-                ordersList.innerHTML = orders.map(order => `
-                    <div class="glass-panel p-6 cursor-pointer hover:border-black transition-all group" onclick="openOrderModal('${order.id}')">
-                        <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-gray-100">
-                            <div>
-                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${order.id}</div>
-                                <div class="text-sm text-gray-500">${new Date(order.date).toLocaleDateString()}</div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}">
-                                    ${window.OrderManager ? OrderManager.getStatusLabel(order.status) : order.status}
+                ordersList.innerHTML = orders.map(order => {
+                    const next = (typeof getCustomerNextAction === 'function')
+                        ? getCustomerNextAction(order)
+                        : { label: 'Voir les details', icon: 'solar:eye-bold', required: false, kind: 'modal' };
+                    const actionOnClick = next.kind === 'achat'
+                        ? `event.stopPropagation(); window.goToAchatOrder && window.goToAchatOrder('${order.id}')`
+                        : `event.stopPropagation(); (typeof openOrderModal === 'function') && openOrderModal('${order.id}')`;
+                    const timelineHTML = (typeof buildCustomerOrderTimelineHTML === 'function')
+                        ? buildCustomerOrderTimelineHTML(order)
+                        : '';
+
+                    return `
+                        <div class="glass-panel p-6 cursor-pointer hover:border-black transition-all group" onclick="openOrderModal('${order.id}')">
+                            <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-gray-100">
+                                <div>
+                                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${order.id}</div>
+                                    <div class="text-sm text-gray-500">${new Date(order.date).toLocaleDateString()}</div>
                                 </div>
-                                <iconify-icon icon="solar:alt-arrow-right-linear" width="20" class="text-gray-300 group-hover:text-black transition-colors"></iconify-icon>
+                                <div class="flex items-center gap-3">
+                                    <div class="px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}">
+                                        ${window.OrderManager ? OrderManager.getStatusLabel(order.status) : order.status}
+                                    </div>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" width="20" class="text-gray-300 group-hover:text-black transition-colors"></iconify-icon>
+                                </div>
+                            </div>
+
+                            ${timelineHTML ? `
+                                <div class="mb-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                                        ${timelineHTML}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                                ${order.items.slice(0, 3).map(item => `
+                                    <div class="w-10 h-10 bg-gray-50 rounded border border-gray-100 flex-shrink-0 p-1">
+                                        <img src="${window.getOptimizedImageUrl(item.image)}" alt="${item.name || 'Produit'}" loading="lazy" class="w-full h-full object-contain" onerror="this.src=window.resolvePath('assets/Images/default.png')">
+                                    </div>
+                                `).join('')}
+                                ${order.items.length > 3 ? `<div class="text-xs font-bold text-gray-400">+${order.items.length - 3}</div>` : ''}
+                                <div class="ml-auto flex items-center gap-3">
+                                    <button type="button"
+                                        class="px-4 py-2 rounded-xl bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors whitespace-nowrap"
+                                        onclick="${actionOnClick}">
+                                        <iconify-icon icon="${next.icon}" width="16"></iconify-icon>
+                                        ${next.label}
+                                    </button>
+                                    <div class="text-lg font-black text-gray-900">${CurrencyManager.formatPrice(order.total)}</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                            ${order.items.slice(0, 3).map(item => `
-                                <div class="w-10 h-10 bg-gray-50 rounded border border-gray-100 flex-shrink-0 p-1">
-                                    <img src="${window.getOptimizedImageUrl(item.image)}" alt="${item.name || 'Produit'}" loading="lazy" class="w-full h-full object-contain" onerror="this.src=window.resolvePath('assets/Images/default.png')">
-                                </div>
-                            `).join('')}
-                            ${order.items.length > 3 ? `<div class="text-xs font-bold text-gray-400">+${order.items.length - 3}</div>` : ''}
-                            <div class="ml-auto text-lg font-black text-gray-900">${CurrencyManager.formatPrice(order.total)}</div>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
         }
 
@@ -1490,9 +1724,9 @@
                         <div class="text-[9px] sm:text-sm text-gray-500 mb-4">${CurrencyManager.formatPrice(item.price)}</div>
                         <button onclick="if(window.contactSeller) window.contactSeller('${item.id}', this)"
                             class="w-full py-2 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-bold tracking-normal sm:tracking-widest uppercase flex items-center justify-center gap-1 sm:gap-2 transition-colors shadow-sm hover:shadow-md"
-                            aria-label="Acheter ${String(item.name || 'produit').replace(/\"/g, '&quot;')}">
+                            aria-label="Commander ${String(item.name || 'produit').replace(/\"/g, '&quot;')}">
                             <iconify-icon icon="solar:cart-large-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
-                            <span class="truncate">Acheter</span>
+                            <span class="truncate">Commander</span>
                         </button>
                     </div>
                 `).join('');
@@ -1965,9 +2199,15 @@
                 : 'Gratuit';
             document.getElementById('modalOrderTotal').textContent = CurrencyManager.formatPrice(amounts.total);
 
+            const timelineEl = document.getElementById('modalOrderTimeline');
+            if (timelineEl) {
+                timelineEl.innerHTML = buildCustomerOrderTimelineHTML(order);
+            }
+
             // Escrow Logic UI
             const escrowSection = document.getElementById('modalEscrowSection');
             const otpSection = document.getElementById('otpDisplaySection');
+            const otpHintEl = document.getElementById('otpHint');
             const quoteSummarySection = document.getElementById('quoteSummarySection');
             const btnValidate = document.getElementById('btnValidateDelivery');
             const btnDispute = document.getElementById('btnOpenDispute');
@@ -1983,6 +2223,7 @@
             btnAcceptQuote.classList.add('hidden');
             btnRejectQuote.classList.add('hidden');
             btnPayOrder.classList.add('hidden');
+            if (otpHintEl) otpHintEl.textContent = '';
 
             currentSelectedDispute = null;
 
@@ -2013,12 +2254,25 @@
                 escrowSection.classList.remove('hidden');
                 otpSection.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
+                if (otpHintEl) {
+                    otpHintEl.textContent = "Donnez ce code uniquement au livreur APRES avoir recu et verifie le produit. Ne le partagez pas par message.";
+                }
             } else if (order.status === 'DELIVERED') {
                 escrowSection.classList.remove('hidden');
                 btnValidate.classList.remove('hidden');
                 btnDispute.classList.remove('hidden');
+                otpSection.classList.remove('hidden');
+                document.getElementById('otpValue').textContent = '------';
+                if (otpHintEl) {
+                    otpHintEl.textContent = "Si tout est OK, validez la reception pour liberer les fonds au vendeur. Sinon, ouvrez un litige.";
+                }
             } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
                 escrowSection.classList.remove('hidden');
+                otpSection.classList.remove('hidden');
+                document.getElementById('otpValue').textContent = '------';
+                if (otpHintEl) {
+                    otpHintEl.textContent = "Le code OTP s'affichera ici au moment de la reception. Ne donnez aucun code avant d'avoir le produit.";
+                }
             }
 
 
@@ -2032,6 +2286,56 @@
             document.getElementById('orderModal').classList.remove('hidden');
             document.getElementById('orderModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
+        }
+
+        function buildCustomerOrderTimelineHTML(order) {
+            const status = String(order?.status || '').toUpperCase();
+            const pay = String(order?.payment_status || '').toUpperCase();
+
+            const isPaid =
+                ['SUCCESS', 'SUCCESSFUL', 'PAID'].includes(pay) ||
+                ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
+
+            const isShippingDone = ['IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
+            const isShippingCurrent = ['IN_DELIVERY', 'SHIPPED'].includes(status);
+            const isOtpCurrent = ['PAID_HELD', 'DELIVERED'].includes(status);
+            const isOtpDone = ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
+            const isDone = ['COMPLETED', 'RELEASED'].includes(status);
+
+            const special = ['CANCELLED', 'REFUNDED'].includes(status)
+                ? 'cancel'
+                : (['DISPUTE_OPEN', 'DISPUTED', 'FROZEN'].includes(status) ? 'dispute' : '');
+
+            const steps = [
+                { label: 'Commandee', done: true, current: false },
+                { label: 'Payee', done: isPaid, current: !isPaid && status === 'READY_FOR_PAYMENT' },
+                { label: 'En livraison', done: isShippingDone, current: isShippingCurrent },
+                { label: 'Reception OTP', done: isOtpDone, current: isOtpCurrent },
+                { label: 'Terminee', done: isDone, current: false }
+            ];
+
+            function chipClass(s) {
+                if (special === 'cancel') return 'bg-gray-200 text-gray-600 border-gray-200';
+                if (special === 'dispute') return s.done ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-white text-orange-800 border-orange-200';
+                if (s.done) return 'bg-black text-white border-black';
+                if (s.current) return 'bg-white text-black border-black';
+                return 'bg-white text-gray-500 border-gray-200';
+            }
+
+            function iconFor(s) {
+                if (special === 'cancel') return 'solar:close-circle-bold';
+                if (special === 'dispute') return 'solar:danger-circle-bold';
+                if (s.done) return 'solar:check-circle-bold';
+                if (s.current) return 'solar:clock-circle-bold';
+                return 'solar:minus-circle-linear';
+            }
+
+            return steps.map((s) => `
+                <div class="flex items-center gap-2 p-3 rounded-2xl border ${chipClass(s)}">
+                    <iconify-icon icon="${iconFor(s)}" width="18"></iconify-icon>
+                    <div class="text-[10px] font-black uppercase tracking-widest leading-tight">${s.label}</div>
+                </div>
+            `).join('');
         }
 
         async function handleValidateDelivery() {

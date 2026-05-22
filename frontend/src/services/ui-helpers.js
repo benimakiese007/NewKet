@@ -596,6 +596,12 @@ export function buildProductCardHTML(p, options = {}) {
         badgeHTML = `<span class="badge badge-new"><iconify-icon icon="solar:star-bold" width="10"></iconify-icon> Nouveau</span>`;
     }
 
+    const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
+    const isAvailable = Number.isFinite(stock) && stock > 0;
+    const availabilityBadge = isAvailable
+        ? `<span class="badge" style="background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;display:inline-flex;align-items:center;gap:4px;"><iconify-icon icon="solar:check-circle-bold" width="10"></iconify-icon> En stock</span>`
+        : `<span class="badge" style="background:#f3f4f6;color:#4b5563;border:1px solid #e5e7eb;display:inline-flex;align-items:center;gap:4px;"><iconify-icon icon="solar:close-circle-bold" width="10"></iconify-icon> Indisponible</span>`;
+
     // Stars
     const starsHTML = buildStarsHTML(p.rating || 4.5);
     const reviewCount = p.reviews || 0;
@@ -627,6 +633,9 @@ export function buildProductCardHTML(p, options = {}) {
         <div class="product-card card-active-scale ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${String(p.name || 'Produit NewKet').replace(/"/g, '&quot;')}">
             <div class="product-image">
                 ${badgeHTML}
+                <div style="position:absolute;left:12px;bottom:12px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none;">
+                    ${availabilityBadge}
+                </div>
                 <button onclick="addToWishlist('${p.id}', event)" 
                     class="wishlist-btn btn-active-scale ${isFavorite ? 'active' : ''}" 
                     aria-label="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}"
@@ -673,17 +682,17 @@ export function buildProductCardHTML(p, options = {}) {
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 2px;">
                     <button 
                         onclick="if(window.initCheckout) window.initCheckout('${p.id}', this)"
-                        class="flex-1 btn-active-scale bg-green-600 hover:bg-green-700 text-white py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
+                        class="flex-1 btn-active-scale ${isAvailable ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-500'} py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
                         style="border:none; cursor:pointer; min-width: 0;"
-                        aria-label="Acheter ${p.name.replace(/"/g, '&quot;')}"
-                        data-product-id="${p.id}">
+                        aria-label="Commander ${p.name.replace(/"/g, '&quot;')}"
+                        data-product-id="${p.id}" ${isAvailable ? '' : 'disabled'}>
                         <iconify-icon icon="solar:cart-large-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
-                        <span class="truncate">Acheter</span>
+                        <span class="truncate">${isAvailable ? 'Commander' : 'Indisponible'}</span>
                     </button>
                     <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + resolvePath('pages/product') + '?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
                         style="width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280; background:white; cursor:pointer; flex-shrink:0; transition: all 0.2s ease;"
                         onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'"
-                        aria-label="Partager ce produit"
+                        aria-label="Partager ce produit" hidden
                         title="Partager">
                         <iconify-icon icon="solar:share-linear" width="16"></iconify-icon>
                     </button>
@@ -1957,6 +1966,37 @@ window.showPromptModal = ({
           btnElement.disabled = false;
       }
   };
+
+  // Backward-compat: some pages still call `window.contactSeller(...)` for the "Commander" button.
+  // Map it to the new checkout flow so ordering works everywhere (catalog/shop/favorites/dashboard).
+  if (!window.contactSeller) {
+      window.contactSeller = (productId, btnElement) => {
+          const fromEvent =
+              window.event?.target?.closest?.('button') ||
+              window.event?.target?.closest?.('[role=\"button\"]') ||
+              null;
+
+          let resolvedBtn = btnElement || fromEvent;
+          if (!resolvedBtn && productId) {
+              const esc = (s) => {
+                  try { return window.CSS?.escape ? window.CSS.escape(String(s)) : String(s).replace(/\"/g, '\\\"'); }
+                  catch (_) { return String(s).replace(/\"/g, '\\\"'); }
+              };
+              resolvedBtn = document.querySelector(`button[data-product-id="${esc(productId)}"]`);
+          }
+
+          if (!window.initCheckout) {
+              window.showToast?.('Checkout non initialisé.', 'error');
+              return;
+          }
+          if (!resolvedBtn) {
+              window.showToast?.("Impossible de lancer la commande (bouton introuvable).", 'error');
+              return;
+          }
+
+          return window.initCheckout(productId, resolvedBtn);
+      };
+  }
 
 /**
  * ✅ LAZY LOADING via IntersectionObserver
