@@ -103,7 +103,8 @@
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
             </button>
 
-            <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 lg:pt-6 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm space-y-8 relative">
+            <div class="min-h-0 p-6 pt-24 lg:min-h-0 lg:px-4 lg:py-8">
+                <div class="glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm space-y-8 relative">
 
                 <!-- Brand Section -->
                 <div class="sidebar-header-card flex items-center gap-4 px-2 pb-6 border-b border-gray-100/50">
@@ -175,7 +176,8 @@
                     </div>
                 </div>
             </div>
-        </aside>
+        </div>
+    </aside>
 
         <!-- Main Content -->
         <div class="vendor-main-content flex-1 min-w-0 lg:px-8">
@@ -1170,6 +1172,7 @@
                         window.SidebarManager.close();
                     }
                 }
+                window.switchVendorTab = switchVendorTab;
 
                 function syncVendorTabFromHash() {
                     const hash = window.location.hash.replace('#', '');

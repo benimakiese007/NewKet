@@ -496,8 +496,10 @@
                     setTextIfPresent('statsTotalUsers', allUsers.length);
                     
                     const newUsers = allUsers.filter(u => {
-                        if(!u.created_at) return false;
-                        const d = new Date(u.created_at);
+                        // date_joined is the column in public.users; created_at is only in auth.users
+                        const joinedAt = u.date_joined || u.created_at;
+                        if (!joinedAt) return false;
+                        const d = new Date(joinedAt);
                         return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                     }).length;
                     setTextIfPresent('statsNewUsers', `+${newUsers}`);

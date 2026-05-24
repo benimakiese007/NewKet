@@ -233,39 +233,45 @@
                 scheduleDiagnosticsRender(timeframe);
                 return;
             }
-            if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) {
+            const isProductLoading = ProductManager.loading === true || ProductManager._loading === true;
+            if (isProductLoading && (ProductManager.getProducts() || []).length === 0) {
                 if (loadingTooLong) applyDiagnosticsEmptyState('produits');
                 scheduleDiagnosticsRender(timeframe);
                 return;
             }
 
-            diagnosticsHasRenderedOnce = true;
-            currentDiagnosticsTimeframe = timeframe;
-            const stats = OrderManager.getAdvancedStats(timeframe);
+            try {
+                diagnosticsHasRenderedOnce = true;
+                currentDiagnosticsTimeframe = timeframe;
+                const stats = OrderManager.getAdvancedStats(timeframe);
 
-            // Stats Update
-            const aovEl = document.getElementById('statsAOV');
-            aovEl.dataset.priceCdf = stats.aov;
-            aovEl.innerHTML = CurrencyManager.formatPrice(stats.aov);
+                // Stats Update
+                const aovEl = document.getElementById('statsAOV');
+                aovEl.dataset.priceCdf = stats.aov;
+                aovEl.innerHTML = CurrencyManager.formatPrice(stats.aov);
 
-            document.getElementById('deadStockCount').textContent = stats.deadStockCount;
-            document.getElementById('loyaltyRate').textContent = `${Number(stats.loyaltyRate || 0).toFixed(1)}%`;
+                document.getElementById('deadStockCount').textContent = stats.deadStockCount;
+                document.getElementById('loyaltyRate').textContent = `${Number(stats.loyaltyRate || 0).toFixed(1)}%`;
 
-            // Top Category
-            const cats = Object.entries(stats.categorySales).sort((a, b) => b[1] - a[1]);
-            document.getElementById('topCategoryDisplay').textContent = cats.length > 0 ? cats[0][0] : 'N/A';
+                // Top Category
+                const cats = Object.entries(stats.categorySales).sort((a, b) => b[1] - a[1]);
+                document.getElementById('topCategoryDisplay').textContent = cats.length > 0 ? cats[0][0] : 'N/A';
 
-            // Charts
-            initDiagnosticsCharts(stats);
+                // Charts
+                initDiagnosticsCharts(stats);
 
-            // Stock Health
-            renderStockHealth(stats);
+                // Stock Health
+                renderStockHealth(stats);
 
-            // Top Products
-            renderAdvancedTopProducts(stats);
+                // Top Products
+                renderAdvancedTopProducts(stats);
 
-            // Audit Log
-            renderAuditLog();
+                // Audit Log
+                renderAuditLog();
+            } catch (err) {
+                console.error('[Diagnostics] Error rendering:', err);
+                applyDiagnosticsEmptyState('Erreur');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -381,6 +387,42 @@
                                 <span class="text-[10px] font-black uppercase">0 Vente</span>
                             </div>
                         `).join('')}
+            });
+        }
+
+        function renderStockHealth(stats) {
+            const list = document.getElementById('stockHealthList');
+            const products = ProductManager.getProducts();
+
+            const criticalStock = products.filter(p => (p.stock || 0) < 5);
+            const deadStock = stats.deadStockList;
+
+            let html = '';
+
+            if (criticalStock.length > 0) {
+                html += `<div class="p-4 bg-red-50 rounded-2xl">
+                    <div class="text-[10px] font-black text-red-600 uppercase mb-2">CRITIQUE : Rupture imminente</div>
+                    <div class="space-y-2">
+                        ${criticalStock.slice(0, 3).map(p => `
+                            <div class="flex justify-between text-sm font-bold text-gray-900">
+                                <span>${p.name}</span>
+                                <span class="text-red-600">${p.stock} pces</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }
+
+            if (deadStock.length > 0) {
+                html += `<div class="p-4 bg-gray-50 rounded-2xl">
+                    <div class="text-[10px] font-black text-gray-400 uppercase mb-2">ALERTE : Produit dormant</div>
+                    <div class="space-y-2">
+                        ${deadStock.slice(0, 3).map(p => `
+                            <div class="flex justify-between text-sm font-medium text-gray-500">
+                                <span>${p.name}</span>
+                                <span class="text-[10px] font-black uppercase">0 Vente</span>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>`;
             }
@@ -398,11 +440,11 @@
 
             list.innerHTML = stats.topProducts.map(p => `
                 <div class="glass-panel p-4 flex gap-4 items-center">
-                    <img loading="lazy" src="../${p.image}" class="w-16 h-16 rounded-xl object-contain bg-gray-50 p-2">
+                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || '/assets/Images/default.png')}" class="w-16 h-16 rounded-xl object-contain bg-gray-50 p-2" onerror="this.src='/assets/Images/default.png'">
                     <div class="flex-1 min-w-0">
                         <h4 class="font-bold text-gray-900 truncate">${p.name}</h4>
                         <div class="text-[10px] font-black text-gray-400 uppercase">${p.salesCount} ventes régulières</div>
-                        <div class="mt-2 text-sm font-black text-black">${CurrencyManager.formatPrice(p.price * p.salesCount)} de revenus générés</div>
+                        <div class="mt-2 text-sm font-black text-black">${CurrencyManager.formatPrice(p.revenue)} de revenus générés</div>
                     </div>
                 </div>
             `).join('');

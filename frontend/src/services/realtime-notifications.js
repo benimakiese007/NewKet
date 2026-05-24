@@ -51,13 +51,17 @@ const AppNotifications = {
             })
             .subscribe();
 
-        // Listen for order status updates for the current user safely
+        // Listen for order status updates and notifications robustly
         if (window.SupabaseAdapter) {
             window.SupabaseAdapter.getSession().then(session => {
+                let userId = null;
+                let userEmail = null;
+
                 if (session && session.user) {
-                    const userId = session.user.id;
-                    const userEmail = session.user.email;
+                    userId = session.user.id;
+                    userEmail = session.user.email;
                     
+                    // Listen for order status updates for the current user safely
                     client.channel(`public:orders:${userId}`)
                         .on('postgres_changes', { 
                             event: 'UPDATE', 
@@ -75,49 +79,95 @@ const AppNotifications = {
                             }
                         })
                         .subscribe();
-
-                    // Listen for real-time notifications from admin
-                    // Use a single global channel so broadcasts (no user_id) are received
-                    client.channel('admin-notifications-broadcast')
-                        .on('postgres_changes', {
-                            event: 'INSERT',
-                            schema: 'public',
-                            table: 'notifications'
-                        }, payload => {
-                            const notif = payload.new;
-                            const role = localStorage.getItem('newketRole') === 'supplier' ? 'suppliers' : 'customers';
-                            const resolvedType = typeof window.normalizeNotificationType === 'function'
-                                ? window.normalizeNotificationType(notif.type)
-                                : (notif.type === 'broadcast' ? 'info' : notif.type);
-                            const shouldOpenPopup = typeof window.isPopupNotification === 'function'
-                                ? window.isPopupNotification(notif.type)
-                                : notif.type === 'broadcast';
-                            
-                            const isForMe = notif.target_role === 'all' || 
-                                            notif.target_role === role || 
-                                            notif.user_id === userId || 
-                                            notif.user_email === userEmail;
-
-                            if (isForMe) {
-                                // If type is broadcast → premium modal popup
-                                if (shouldOpenPopup) {
-                                    if (window.showAnnouncementModal) {
-                                        window.showAnnouncementModal(notif.title, notif.message, resolvedType, true);
-                                    } else {
-                                        this.showToast(notif.title, notif.message, resolvedType, 'solar:bell-bold');
-                                    }
-                                } else {
-                                    this.showToast(notif.title, notif.message, resolvedType || 'info', 'solar:bell-bold');
-                                }
-
-                                // Refresh NotificationManager to update badge count
-                                if (window.NotificationManager) {
-                                    window.NotificationManager.init(true);
-                                }
-                            }
-                        })
-                        .subscribe();
                 }
+
+                // Listen for real-time notifications from admin (broadcast & targeted)
+                // Always active even for guests/anonymous visitors to ensure robust broadcast delivery
+                client.channel('admin-notifications-broadcast')
+                    .on('postgres_changes', {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'notifications'
+                    }, payload => {
+                        const notif = payload.new;
+                        const role = localStorage.getItem('newketRole') === 'supplier' ? 'suppliers' : 'customers';
+                        const resolvedType = typeof window.normalizeNotificationType === 'function'
+                            ? window.normalizeNotificationType(notif.type)
+                            : (notif.type === 'broadcast' ? 'info' : notif.type);
+                        
+                        const isBroadcast = notif.type === 'broadcast' || String(notif.type || '').startsWith('broadcast:');
+                        const isPopupNotification = typeof window.isPopupNotification === 'function'
+                            ? window.isPopupNotification(notif.type)
+                            : isBroadcast;
+
+                        const isForMe = notif.target_role === 'all' || 
+                                        notif.target_role === role || 
+                                        (userId && notif.user_id === userId) || 
+                                        (userEmail && notif.user_email === userEmail);
+
+                        if (isForMe) {
+                            const isDashboardPage = window.location.pathname.includes('customer-dashboard') || 
+                                                    window.location.pathname.includes('vendor-dashboard') ||
+                                                    window.location.pathname.includes('admin/');
+
+                            // Premium modal announcement directly on platforms
+                            if (isPopupNotification || isDashboardPage) {
+                                if (window.showAnnouncementModal) {
+                                    const options = {};
+                                    const lowerTitle = String(notif.title || '').toLowerCase();
+                                    
+                                    // Contextual action button for customer dashboard
+                                    if (window.location.pathname.includes('customer-dashboard')) {
+                                        if (lowerTitle.includes('devis') || lowerTitle.includes('commande')) {
+                                            options.actionText = 'Voir mes demandes';
+                                            options.actionCallback = () => {
+                                                if (typeof window.switchTab === 'function') {
+                                                    window.switchTab('orders');
+                                                }
+                                            };
+                                        } else if (lowerTitle.includes('achat') || lowerTitle.includes('paiement')) {
+                                            options.actionText = 'Mes achats';
+                                            options.actionCallback = () => {
+                                                if (typeof window.switchTab === 'function') {
+                                                    window.switchTab('achat');
+                                                }
+                                            };
+                                        }
+                                    } 
+                                    // Contextual action button for vendor dashboard
+                                    else if (window.location.pathname.includes('vendor-dashboard')) {
+                                        if (lowerTitle.includes('demande') || lowerTitle.includes('prospect') || lowerTitle.includes('client')) {
+                                            options.actionText = 'Voir les demandes';
+                                            options.actionCallback = () => {
+                                                if (typeof window.switchVendorTab === 'function') {
+                                                    window.switchVendorTab('leads');
+                                                }
+                                            };
+                                        } else if (lowerTitle.includes('paiement') || lowerTitle.includes('payout') || lowerTitle.includes('commande')) {
+                                            options.actionText = 'Voir le tableau';
+                                            options.actionCallback = () => {
+                                                if (typeof window.switchVendorTab === 'function') {
+                                                    window.switchVendorTab('dashboard');
+                                                }
+                                            };
+                                        }
+                                    }
+                                    
+                                    window.showAnnouncementModal(notif.title, notif.message, resolvedType, true, options);
+                                } else {
+                                    this.showToast(notif.title, notif.message, resolvedType, 'solar:bell-bold');
+                                }
+                            } else {
+                                this.showToast(notif.title, notif.message, resolvedType || 'info', 'solar:bell-bold');
+                            }
+
+                            // Refresh NotificationManager to update badge count
+                            if (window.NotificationManager) {
+                                window.NotificationManager.init(true);
+                            }
+                        }
+                    })
+                    .subscribe();
             });
         }
     },

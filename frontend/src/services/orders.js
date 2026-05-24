@@ -353,6 +353,7 @@ const OrderManager = {
             conversionRate: conversionRate.toFixed(2),
             productsInDanger: products.filter(p => (p.stock || 0) < 10 && (p.stock || 0) > 0).length,
             deadStockCount,
+            deadStockList: products.filter((product) => (product?.stock || 0) > 0 && !soldProductIds.has(product.id)),
             loyaltyRate: Number(loyaltyRate.toFixed(1)),
             healthScore
         };

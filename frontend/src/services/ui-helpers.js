@@ -1624,7 +1624,7 @@ function showCheckoutModal(productName, productPrice) {
  * High-visibility announcement modal for admin broadcasts.
  * Anchored to the top-center, following the platform-wide notification pattern.
  */
-window.showAnnouncementModal = (title, message, type = 'info', force = false) => {
+window.showAnnouncementModal = (title, message, type = 'info', force = false, options = {}) => {
     // Check if showing one already
     if (document.getElementById('nk-announcement-modal')) return;
     
@@ -1665,13 +1665,23 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false) =>
                     </div>
 
                     <div class="w-full flex flex-col sm:flex-row gap-3">
-                        <button onclick="window.dismissAnnouncement('${title}')" class="flex-1 px-8 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95">
-                            Ne plus afficher
-                        </button>
-                        <button onclick="document.getElementById('nk-announcement-modal').remove()" class="flex-[2] px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95 flex items-center justify-center gap-2">
-                            Compris
-                            <iconify-icon icon="solar:arrow-right-up-bold" width="18"></iconify-icon>
-                        </button>
+                        ${options && options.actionText && options.actionCallback ? `
+                            <button id="nk-announcement-action-btn" class="flex-[2] px-8 py-4 bg-indigo-600 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-indigo-600/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                ${options.actionText}
+                                <iconify-icon icon="solar:arrow-right-up-bold" width="18"></iconify-icon>
+                            </button>
+                            <button onclick="document.getElementById('nk-announcement-modal').remove()" class="flex-1 px-8 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95">
+                                Fermer
+                            </button>
+                        ` : `
+                            <button onclick="window.dismissAnnouncement('${title}')" class="flex-1 px-8 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95">
+                                Ne plus afficher
+                            </button>
+                            <button onclick="document.getElementById('nk-announcement-modal').remove()" class="flex-[2] px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                Compris
+                                <iconify-icon icon="solar:arrow-right-up-bold" width="18"></iconify-icon>
+                            </button>
+                        `}
                     </div>
                 </div>
             </div>
@@ -1684,6 +1694,18 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false) =>
     `;
 
     document.body.appendChild(modal);
+    
+    if (options && options.actionText && typeof options.actionCallback === 'function') {
+        setTimeout(() => {
+            const btn = document.getElementById('nk-announcement-action-btn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    options.actionCallback();
+                    document.getElementById('nk-announcement-modal')?.remove();
+                });
+            }
+        }, 50);
+    }
     
     window.dismissAnnouncement = (title) => {
         sessionStorage.setItem(`dismissed_${title}`, 'true');

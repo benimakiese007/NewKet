@@ -235,14 +235,16 @@ body {
 }
 
 /* Lift the sidebar: remove the extra visual gap under the fixed navbar */
-#adminSidebar > div {
+#adminSidebar > div,
+#customerSidebar > div,
+#vendorSidebar > div {
     padding-top: 0.75rem !important;
 }
 
 @media (min-width: 768px) {
     #adminSidebar > div,
-    #customerSidebar .glass-panel,
-    #vendorSidebar .glass-panel {
+    #customerSidebar > div,
+    #vendorSidebar > div {
         margin-top: 1rem;
     }
 }
@@ -304,16 +306,11 @@ body {
         min-height: auto !important;
     }
 
-    /* Glass panel visual fixes */
-    #vendorSidebar .glass-panel, #customerSidebar .glass-panel {
-        padding-top: 1.5rem !important;
-        min-height: 0 !important;
-        /* Make vendor/customer sidebars flush with the left edge like the admin sidebar. */
-        border-radius: 0 !important;
-        border-width: 0 !important;
-        box-shadow: none !important;
-        background: transparent !important;
-        margin-top: 0 !important;
+    /* Prevent hover translate animation on sidebars to keep layout stable */
+    #adminSidebar .glass-panel:hover,
+    #customerSidebar .glass-panel:hover,
+    #vendorSidebar .glass-panel:hover {
+        transform: none !important;
     }
 
     /* Hide close button, show collapse toggle */
@@ -955,8 +952,8 @@ html.admin-embedded-mode .stagger-5 {
 
 @media (max-width: 1023px) {
     #adminSidebar > div,
-    #customerSidebar .glass-panel,
-    #vendorSidebar .glass-panel {
+    #customerSidebar > div,
+    #vendorSidebar > div {
         padding-top: calc(var(--dashboard-topbar-height) + 1.25rem) !important;
     }
 }
