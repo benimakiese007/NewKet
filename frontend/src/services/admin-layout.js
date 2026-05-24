@@ -370,7 +370,7 @@ const AdminLayout = {
 
         navbarPlaceholder.innerHTML = `
             <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
-                <div class="dashboard-topbar-inner max-w-7xl mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
+                <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
                     <div class="flex items-center gap-6">
                         <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
@@ -380,7 +380,7 @@ const AdminLayout = {
                     <!-- Center Logo -->
                     <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
-                            <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-16 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+                            <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                         </a>
                     </div>
 
@@ -396,7 +396,7 @@ const AdminLayout = {
                             </div>
                         </div>
 
-                        <div class="h-8 w-px bg-gray-100 mx-1 hidden sm:block"></div>
+                        <div class="h-8 w-px bg-white/15 mx-1 hidden sm:block"></div>
 
                         <div class="flex items-center gap-3">
                             <a href="/" class="hidden sm:flex h-10 px-4 items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-black bg-gray-50/50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50">

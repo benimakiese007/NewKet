@@ -252,10 +252,6 @@ body {
    We only override the drawer sizing to be narrower than full-screen. */
 @media (min-width: 768px) and (max-width: 1023px) {
     /* Hide the X close button — replaced by tapping outside or burger */
-    button[data-close-sidebar] {
-        display: none !important;
-    }
-
     /* Show the collapse toggle only on tablet+ */
     .sidebar-toggle-btn.hidden.lg\:flex {
         display: flex !important;
@@ -264,8 +260,8 @@ body {
     /* On tablet, drawer is narrower (not full-screen) */
     #vendorSidebar,
     #customerSidebar {
-        width: 18rem !important;
-        max-width: 18rem !important;
+        width: 100vw !important;
+        max-width: none !important;
     }
 }
 
@@ -312,9 +308,12 @@ body {
     #vendorSidebar .glass-panel, #customerSidebar .glass-panel {
         padding-top: 1.5rem !important;
         min-height: 0 !important;
-        border-radius: 1.5rem !important;
-        border-width: 1px !important;
-        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+        /* Make vendor/customer sidebars flush with the left edge like the admin sidebar. */
+        border-radius: 0 !important;
+        border-width: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        margin-top: 0 !important;
     }
 
     /* Hide close button, show collapse toggle */

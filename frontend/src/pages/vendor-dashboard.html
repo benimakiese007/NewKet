@@ -68,10 +68,20 @@
                         </div>
                     </div>
                 </div>
-                <button data-logout-safe class="h-10 w-10 sm:w-auto sm:px-4 text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
-                    <iconify-icon icon="solar:logout-bold" width="20"></iconify-icon>
-                    <span class="hidden sm:inline text-[10px] font-black uppercase tracking-widest">Quitter</span>
-                </button>
+
+                <div class="h-8 w-px bg-white/15 mx-1 hidden sm:block"></div>
+
+                <div class="flex items-center gap-3">
+                    <a href="/" class="hidden sm:flex h-10 px-4 items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-black bg-gray-50/50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50">
+                        <iconify-icon icon="solar:globus-bold" width="16"></iconify-icon>
+                        Boutique
+                    </a>
+
+                    <button data-logout-safe class="h-10 w-10 sm:w-auto sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
+                        <iconify-icon icon="solar:logout-bold" width="16"></iconify-icon>
+                        <span class="hidden sm:inline">Quitter</span>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -80,7 +90,7 @@
     <div id="vendorSidebarOverlay" onclick="SidebarManager.close()" class="fixed inset-0 bg-black/30 z-[9998] hidden transition-all duration-300"></div>
 
     <!-- Sidebar moved back to main to act as a flex sibling, removing relative from main to preserve stacking context -->
-    <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row gap-8 relative">
+    <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-0 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row gap-8 relative">
         <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-72 lg:relative transition-transform duration-400 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
             <!-- Mobile Close Button -->
@@ -168,7 +178,7 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="vendor-main-content flex-1 min-w-0">
+        <div class="vendor-main-content flex-1 min-w-0 lg:px-8">
                 <!-- Dashboard Navbar is now global at the top -->
 
                 <!-- Dashboard Tab Container -->
