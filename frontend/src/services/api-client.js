@@ -3,10 +3,19 @@ import { captureError } from './sentry.js';
 // En production (Vercel) et en developpement (vercel dev), les appels /api/* sont routés vers les Serverless Functions.
 let API_BASE_URL = (import.meta.env.VITE_API_URL ?? '').trim() || '/api';
 
-// If VITE_API_URL was set to the domain without /api (e.g. https://newket.vercel.app), append /api
-// to ensure Vercel routes the request to the serverless functions instead of looking for static files.
-if (API_BASE_URL.startsWith('http') && !API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
-    API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+// If VITE_API_URL is an absolute URL, always normalize to "<origin>/api".
+// This prevents common misconfigs like:
+// - https://newket.vercel.app/src/pages/admin  (would become .../src/pages/admin/api => 404)
+// - https://newket.vercel.app/anything         (should still be .../api)
+if (API_BASE_URL.startsWith('http')) {
+    try {
+        const url = new URL(API_BASE_URL);
+        API_BASE_URL = `${url.origin}/api`;
+    } catch {
+        if (!API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
+            API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+        }
+    }
 }
 
 // Common misconfig: VITE_API_URL="/". That would make calls like "/products/..." (404 on Vercel)
