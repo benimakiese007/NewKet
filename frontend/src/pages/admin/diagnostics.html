@@ -387,42 +387,6 @@
                                 <span class="text-[10px] font-black uppercase">0 Vente</span>
                             </div>
                         `).join('')}
-            });
-        }
-
-        function renderStockHealth(stats) {
-            const list = document.getElementById('stockHealthList');
-            const products = ProductManager.getProducts();
-
-            const criticalStock = products.filter(p => (p.stock || 0) < 5);
-            const deadStock = stats.deadStockList;
-
-            let html = '';
-
-            if (criticalStock.length > 0) {
-                html += `<div class="p-4 bg-red-50 rounded-2xl">
-                    <div class="text-[10px] font-black text-red-600 uppercase mb-2">CRITIQUE : Rupture imminente</div>
-                    <div class="space-y-2">
-                        ${criticalStock.slice(0, 3).map(p => `
-                            <div class="flex justify-between text-sm font-bold text-gray-900">
-                                <span>${p.name}</span>
-                                <span class="text-red-600">${p.stock} pces</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>`;
-            }
-
-            if (deadStock.length > 0) {
-                html += `<div class="p-4 bg-gray-50 rounded-2xl">
-                    <div class="text-[10px] font-black text-gray-400 uppercase mb-2">ALERTE : Produit dormant</div>
-                    <div class="space-y-2">
-                        ${deadStock.slice(0, 3).map(p => `
-                            <div class="flex justify-between text-sm font-medium text-gray-500">
-                                <span>${p.name}</span>
-                                <span class="text-[10px] font-black uppercase">0 Vente</span>
-                            </div>
-                        `).join('')}
                     </div>
                 </div>`;
             }

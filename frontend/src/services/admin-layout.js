@@ -187,21 +187,34 @@ const AdminLayout = {
     checkAccess() {
         if (!this.isAdminPageContext()) return;
 
-        // Wait for AuthManager to be ready before checking role.
-        // AuthManager.role may be null at parse time — always read from localStorage as fallback.
-        const role = window.AuthManager?.role || localStorage.getItem('newketRole');
+        const authReady = window.newketInitialized === true;
+        const liveRole = window.AuthManager?.role || null;
+        const storedRole = localStorage.getItem('newketRole');
+        const role = authReady ? liveRole : (liveRole || storedRole);
 
         if (!role) {
-            // No role found. If we're here fromDOMContentLoaded without newketInitialized, we wait.
-            // If newketInitialized has already fired and we STILL have no role, redirect.
-            if (window.newketInitialized) {
+            if (authReady) {
+                try {
+                    localStorage.removeItem('newketRole');
+                } catch (_) {}
                 console.error('[NewKet] No role found after initialization.');
                 window.location.href = this.resolveAppPath('login');
             }
             return;
         }
 
-        if (role !== 'admin') {
+        if (authReady && liveRole !== 'admin') {
+            try {
+                if (storedRole && storedRole !== liveRole) {
+                    localStorage.removeItem('newketRole');
+                }
+            } catch (_) {}
+            console.error('[NewKet] Unauthorized access to Admin CMS after auth resolution. Role:', liveRole);
+            window.location.href = this.resolveAppPath('login');
+            return;
+        }
+
+        if (!authReady && role !== 'admin') {
             console.error('[NewKet] Unauthorized access to Admin CMS. Role:', role);
             window.location.href = this.resolveAppPath('login');
         }
