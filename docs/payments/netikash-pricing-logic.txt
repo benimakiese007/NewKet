@@ -1,0 +1,64 @@
+Paiements - Netikash (Standard vs Securise, OTP, 48h)
+====================================================
+
+Contexte
+--------
+- Marketplace NewKet
+- Livraison = OTP validee (le client donne une OTP au vendeur; le vendeur la saisit;
+  une fois validee, la livraison est consideree confirmee).
+
+Modes
+-----
+1) Paiement standard
+   - OTP validee => liberation immediate du payout vendeur.
+   - Pas de delai / pas de garantie apres OTP (regle produit).
+
+2) Paiement securise (garantie 48h)
+   - OTP validee => demarrage d'un hold de 48h.
+   - Pendant 48h: le client peut ouvrir une reclamation (qualite + quantite) qui
+     bloque la liberation.
+   - Sans reclamation: liberation automatique a +48h.
+   - Si le client confirme "OK" avant: liberation immediate.
+
+Logique des frais (a formaliser)
+-------------------------------
+Hypotheses (a faire confirmer par Netikash):
+- Netikash preleve 3% (payin) sur le montant paye par le client et reverse le net.
+- La plateforme deduit 2% du prix produit P au moment du payout vendeur.
+
+Politique (version actuelle):
+- Standard: client paie P; vendeur supporte 2% plateforme; les 3% Netikash sont un
+  cout du payin (donc reduisent le net disponible).
+- Securise: client paie P * 1.03 (surcharge pour couvrir Netikash); vendeur supporte
+  2% plateforme; payout apres 48h (ou plus tot si OK).
+
+Exemple chiffre (P = 50 USD)
+----------------------------
+Standard
+- Client paie: 50.00
+- Frais Netikash (3% de 50.00): 1.50
+- Net recu plateforme: 48.50
+- Commission plateforme (2% de 50.00): 1.00
+- Payout vendeur possible (net recu - commission): 47.50
+
+Securise 48h
+- Client paie: 51.50
+- Frais Netikash (3% de 51.50): 1.545
+- Net recu plateforme: 49.955
+- Commission plateforme (2% de 50.00): 1.00
+- Payout vendeur possible: 48.955
+
+Note
+----
+Si l'objectif produit est "vendeur recoit exactement P*0.98 en securise", il faut
+ajuster la surcharge ou confirmer la base de calcul des 3% (ex: 3% calcule sur P
+et non sur P*1.03).
+
+Questions a poser a Netikash (bloquantes)
+----------------------------------------
+- Escrow natif via API: hold/release/cancel/partial release + statuts dedies (oui/non) ?
+- Sandbox ?
+- Webhooks signes (HMAC/secret), idempotency, liste statuts payin/payout ?
+- Base de calcul des 3% (sur quel montant) + settlement/payout delais + limites +
+  devises (USD/CDF) + operateurs RDC.
+

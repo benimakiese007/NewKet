@@ -43,7 +43,6 @@
             border-radius: 1.5rem;
         }
 
-        /* admin.css sets .glass-panel:hover to rgba(255,255,255,0.85) — reads as transparent over modal/backdrop */
         .glass-panel:hover {
             background: white;
         }
@@ -74,31 +73,21 @@
             color: white;
         }
 
-        /* Tab transitions */
         .tab-content {
             animation: tabFadeIn 0.25s ease forwards;
         }
 
         @keyframes tabFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Avatar initials */
         .user-avatar-display {
             font-weight: 800;
             font-size: 1.1rem;
             letter-spacing: -0.5px;
         }
 
-        /* Status badge */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -111,22 +100,10 @@
             border-radius: 9999px;
         }
 
-        .status-standard {
-            background: #f1f5f9;
-            color: #64748b;
-        }
+        .status-standard { background: #f1f5f9; color: #64748b; }
+        .status-premium { background: #fef9c3; color: #92400e; }
+        .status-vip { background: #0f172a; color: #fbbf24; }
 
-        .status-premium {
-            background: #fef9c3;
-            color: #92400e;
-        }
-
-        .status-vip {
-            background: #0f172a;
-            color: #fbbf24;
-        }
-
-        /* Logout button */
         .sidebar-logout {
             display: flex;
             align-items: center;
@@ -143,14 +120,9 @@
             border: none;
             text-align: left;
         }
-        .sidebar-logout:hover {
-            background: #fef2f2;
-        }
+        .sidebar-logout:hover { background: #fef2f2; }
 
-        /* ---- Dark Mode Overrides ---- */
-        html.dark body {
-            background-color: #0a0f1a !important;
-        }
+        html.dark body { background-color: #0a0f1a !important; }
 
         html.dark .glass-panel {
             background: #1e293b !important;
@@ -158,47 +130,25 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
         }
 
-        html.dark .glass-panel:hover {
-            background: #1e293b !important;
-        }
-
-        html.dark .sidebar-link {
-            color: #94a3b8;
-        }
+        html.dark .glass-panel:hover { background: #1e293b !important; }
+        html.dark .sidebar-link { color: #94a3b8; }
 
         html.dark .sidebar-link:hover {
             background: rgba(99, 102, 241, 0.1);
             color: #e2e8f0;
         }
 
-        html.dark .sidebar-link.active {
-            background: #e2e8f0;
-            color: #0f172a;
-        }
+        html.dark .sidebar-link.active { background: #e2e8f0; color: #0f172a; }
+        html.dark .sidebar-logout { color: #f87171; }
+        html.dark .sidebar-logout:hover { background: rgba(239, 68, 68, 0.1); }
 
-        html.dark .sidebar-logout {
-            color: #f87171;
-        }
-
-        html.dark .sidebar-logout:hover {
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        html.dark .status-standard {
-            background: #1e293b;
-            color: #94a3b8;
-        }
-
-        html.dark .status-premium {
-            background: rgba(245, 158, 11, 0.15);
-            color: #fbbf24;
-        }
+        html.dark .status-standard { background: #1e293b; color: #94a3b8; }
+        html.dark .status-premium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
     </style>
-</head>
-<body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
+</head><body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
-            <button id="customerMobileBtn" data-toggle-sidebar="customer" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+            <button id="customerMobileBtn" data-toggle-sidebar="customer" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
                 <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
             </button>
         </div>
@@ -230,19 +180,19 @@
     </nav>
 
     <!-- Overlay pour Mobile -->
-    <div id="customerSidebarOverlay" class="fixed inset-0 bg-black/30 z-[9998] hidden transition-all duration-300"></div>
+    <div id="customerSidebarOverlay" onclick="SidebarManager.close()" class="fixed inset-0 bg-black/50 z-[110] hidden transition-all duration-300"></div>
 
     <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-8 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row gap-8 relative">
         <!-- Sidebar -->
-        <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-64 lg:relative transition-transform duration-300 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
+        <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-64 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
             <!-- Mobile Close Button -->
-            <button data-close-sidebar="customer" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
+            <button onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
                 <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
             </button>
 
             <!-- Desktop/Tablet Collapse Toggle -->
-            <button type="button" class="sidebar-toggle-btn hidden lg:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
+            <button type="button" class="sidebar-toggle-btn hidden lg:flex" data-toggle-sidebar="customer" aria-label="Réduire le menu" data-no-close>
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
             </button>
 
@@ -533,6 +483,7 @@
                     <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Modifier le mot de passe
                     </h2>
                     <form class="space-y-5" id="passwordForm">
+                        <input type="text" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
                         <div id="currentPasswordGroup">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
                             <input type="password" id="currentPassword" placeholder="••••••••" autocomplete="current-password"
@@ -2916,8 +2867,19 @@
             if (window.SidebarManager) {
                 initCustomerSidebar();
             } else {
-                // Otherwise wait for app initialization
+                // Match vendor fallback paths so sidebar init is not missed in partial boot flows.
+                window.addEventListener('componentsLoaded', initCustomerSidebar, { once: true });
                 window.addEventListener('newketInitialized', initCustomerSidebar, { once: true });
+                let attempts = 0;
+                const timer = setInterval(() => {
+                    attempts++;
+                    if (window.SidebarManager) {
+                        clearInterval(timer);
+                        initCustomerSidebar();
+                    } else if (attempts >= 40) {
+                        clearInterval(timer);
+                    }
+                }, 250);
             }
 
             // Allow deep-link to a tab via URL hash (e.g. #orders)

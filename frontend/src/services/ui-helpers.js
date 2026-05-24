@@ -430,15 +430,18 @@ export const SidebarManager = {
             // Ensure e.target is an Element to safely use .closest()
             if (!e.target || typeof e.target.closest !== 'function') return;
 
-            // 2. Handle Toggle Button clicks (Hamburger/Burger/Collapse)
+                    // 2. Handle Toggle Button clicks (Hamburger/Burger/Collapse)
             const toggleBtn = e.target.closest('button');
             if (toggleBtn) {
-                const hasToggleInOnclick = toggleBtn.onclick?.toString().includes('SidebarManager.toggle') || 
-                                         toggleBtn.getAttribute('onclick')?.includes('SidebarManager.toggle');
-                
-                if (toggleBtn.id === this.toggleBtnId || hasToggleInOnclick) {
-                    if (toggleBtn.onclick || toggleBtn.getAttribute('onclick')) return;
+                const hasToggleAttr = toggleBtn.getAttribute('data-toggle-sidebar');
+                if (hasToggleAttr) {
+                    // Only the capture listener calls toggle() — no onclick on these buttons.
+                    // Stop propagation so no other listener fires toggle() again.
+                    e.stopPropagation();
                     this.toggle();
+                    return;
+                } else if (toggleBtn.getAttribute('onclick')) {
+                    // Let the onclick handler run normally (e.g. close button).
                     return;
                 }
             }

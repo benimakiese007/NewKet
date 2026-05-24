@@ -1,4 +1,4 @@
-﻿/* NewKet Admin CMS Styles - Premium Redesign */
+/* NewKet Admin CMS Styles - Premium Redesign */
 
 /* ── CRITICAL: Reset global body padding-top (set to 115px in style.css) ─── */
 /* Admin pages use a fixed navbar injected by admin-layout.js.                 */
@@ -239,7 +239,7 @@ body {
     padding-top: 0.75rem !important;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
     #adminSidebar > div,
     #customerSidebar .glass-panel,
     #vendorSidebar .glass-panel {
@@ -247,31 +247,54 @@ body {
     }
 }
 
-/* ── CRITICAL: Desktop sidebar layout fixes ──────────────────────────────── */
+/* ── TABLET: Sidebar as a drawer (768-1023px) ─────────────────────────────── */
+/* On tablet the sidebar stays as a mobile drawer (isMobile=true in JS).
+   We only override the drawer sizing to be narrower than full-screen. */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Hide the X close button — replaced by tapping outside or burger */
+    button[data-close-sidebar] {
+        display: none !important;
+    }
+
+    /* Show the collapse toggle only on tablet+ */
+    .sidebar-toggle-btn.hidden.lg\:flex {
+        display: flex !important;
+    }
+
+    /* On tablet, drawer is narrower (not full-screen) */
+    #vendorSidebar,
+    #customerSidebar {
+        width: 18rem !important;
+        max-width: 18rem !important;
+    }
+}
+
+/* ── CRITICAL: Desktop sidebar layout (>= 1024px) ─────────────────────────── */
 /* These rules ensure the sidebar participates in the flex flow on desktop.  */
 @media (min-width: 1024px) {
+    /* Force main to flex-row on desktop */
+    main.dashboard-main-offset {
+        flex-direction: row !important;
+    }
+
     #adminSidebar, #customerSidebar, #vendorSidebar {
-        /* Dashboards may ship base mobile-drawer classes (`fixed inset-0 z-[9999]`)
-           on the sidebar element. On >= md screens the sidebar becomes part of the
-           page layout and must not cover the fixed header. */
+        /* Override mobile-drawer classes (fixed inset-0 z-[9999]):
+           on desktop the sidebar is part of page layout, not an overlay. */
         position: sticky !important;
         top: calc(var(--dashboard-topbar-height) + 1rem) !important;
         inset: auto !important;
         transform: none !important;
-        height: auto !important;
+        height: calc(100vh - var(--dashboard-topbar-height) - 2rem) !important;
         max-height: none !important;
-        overflow-y: visible !important;
+        overflow-y: auto !important;
         z-index: 20 !important;
-    }
-}
-
-@media (min-width: 1024px) {
-    #adminSidebar, #customerSidebar, #vendorSidebar {
         align-self: flex-start;
     }
+
     #customerSidebar {
         width: 16rem !important; /* w-64 = 256px */
     }
+
     /* Do not force the expanded width when the sidebar is in collapsed mode */
     #adminSidebar:not(.sidebar-collapsed),
     #vendorSidebar:not(.sidebar-collapsed) {
@@ -283,6 +306,24 @@ body {
     #vendorSidebar .glass-panel,
     #adminSidebar .glass-panel {
         min-height: auto !important;
+    }
+
+    /* Glass panel visual fixes */
+    #vendorSidebar .glass-panel, #customerSidebar .glass-panel {
+        padding-top: 1.5rem !important;
+        min-height: 0 !important;
+        border-radius: 1.5rem !important;
+        border-width: 1px !important;
+        box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05) !important;
+    }
+
+    /* Hide close button, show collapse toggle */
+    button[data-close-sidebar] {
+        display: none !important;
+    }
+
+    .sidebar-toggle-btn.hidden.lg\:flex {
+        display: flex !important;
     }
 }
 
@@ -308,7 +349,7 @@ body {
 }
 
 /* Sidebar Collapsed State (Desktop) */
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
     .sidebar-collapsed {
         width: 80px !important;
     }
@@ -328,6 +369,66 @@ body {
         justify-content: center;
         padding: var(--space-md) !important;
         gap: 0;
+    }
+
+    /* Admin, Vendor, Customer sidebars: in collapsed mode, keep links as compact icon buttons.
+       Without this, the active "pill" styles and indicators look broken when
+       text is hidden (desktop collapse). */
+    .sidebar-collapsed #adminSidebar .sidebar-link,
+    .sidebar-collapsed #customerSidebar .sidebar-link,
+    .sidebar-collapsed #vendorSidebar .sidebar-link {
+        width: 56px;
+        height: 56px;
+        padding: 0 !important;
+        margin: 0.35rem auto;
+        border-radius: 18px;
+    }
+
+    .sidebar-collapsed #adminSidebar .sidebar-link.active,
+    .sidebar-collapsed #customerSidebar .sidebar-link.active,
+    .sidebar-collapsed #vendorSidebar .sidebar-link.active {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .sidebar-collapsed #adminSidebar .sidebar-link.active::before,
+    .sidebar-collapsed #customerSidebar .sidebar-link.active::before,
+    .sidebar-collapsed #vendorSidebar .sidebar-link.active::before {
+        content: none !important;
+    }
+
+    .sidebar-collapsed #adminSidebar .sidebar-link > .absolute,
+    .sidebar-collapsed #customerSidebar .sidebar-link > .absolute,
+    .sidebar-collapsed #vendorSidebar .sidebar-link > .absolute {
+        display: none !important;
+    }
+
+    /* When the sidebar is only 80px wide, the original wrappers keep large
+       horizontal paddings which makes the background and icon pills look
+       misaligned. Tighten the container and center the nav. */
+    .sidebar-collapsed#adminSidebar > div,
+    .sidebar-collapsed#customerSidebar > div,
+    .sidebar-collapsed#vendorSidebar > div {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .sidebar-collapsed#adminSidebar [class*="glass-panel"],
+    .sidebar-collapsed#customerSidebar [class*="glass-panel"],
+    .sidebar-collapsed#vendorSidebar [class*="glass-panel"] {
+        padding: 0.5rem !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    .sidebar-collapsed#adminSidebar nav,
+    .sidebar-collapsed#customerSidebar nav,
+    .sidebar-collapsed#vendorSidebar nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     
     .sidebar-collapsed .sidebar-link iconify-icon {
@@ -871,7 +972,7 @@ html.admin-embedded-mode .stagger-5 {
 }
 
 /* Ensure fixed sidebars dont scroll background on iOS */
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
     #vendorSidebar, 
     #adminSidebar, 
     #customerSidebar,
@@ -884,7 +985,7 @@ html.admin-embedded-mode .stagger-5 {
 }
 
 /* Mobile Sidebar Overrides */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     #vendorSidebar,
     #customerSidebar {
         will-change: transform;

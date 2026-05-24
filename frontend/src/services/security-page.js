@@ -67,21 +67,6 @@ onReady(() => {
     }
   });
 
-  bindClick('[data-toggle-sidebar="customer"]', () => {
-    window.SidebarManager?.toggle?.();
-  });
-
-  bindClick('[data-close-sidebar="customer"]', () => {
-    window.SidebarManager?.close?.();
-  });
-
-  bindClick('[data-toggle-sidebar="vendor"]', () => {
-    window.SidebarManager?.toggle?.();
-  });
-
-  bindClick('[data-close-sidebar="vendor"]', () => {
-    window.SidebarManager?.close?.();
-  });
 
   bindClick('[data-logout-safe]', (event) => {
     window.AuthManager?.handleLogoutClick?.(event.currentTarget);

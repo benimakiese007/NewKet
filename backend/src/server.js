@@ -136,6 +136,7 @@ app.use(helmet({
   }
 }));
 app.use(compression());
+app.use(express.static(path.join(__dirname, '../../frontend/public')));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

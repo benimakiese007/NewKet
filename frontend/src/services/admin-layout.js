@@ -508,7 +508,7 @@ const AdminLayout = {
             <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
                 
                 <!-- Desktop Collapse Toggle -->
-                <button type="button" class="sidebar-toggle-btn hidden md:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
+                <button type="button" class="sidebar-toggle-btn hidden lg:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
                     <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
                 </button>
                 
