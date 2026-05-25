@@ -36,6 +36,9 @@
     }
   },
   "rewrites": [
+    { "source": "/api/analytics/admin/behavior", "destination": "/api/admin-behavior" },
+    { "source": "/api/analytics/admin/behavior/drilldown", "destination": "/api/admin-behavior-drilldown" },
+    { "source": "/api/analytics/admin/behavior/reset", "destination": "/api/admin-behavior-reset" },
     { "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet", "destination": "/src/pages/product?id=:productSlug" },
     { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
     { "source": "/boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
@@ -53,4 +56,3 @@
     }
   ]
 }
-

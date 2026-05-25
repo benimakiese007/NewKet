@@ -1044,6 +1044,7 @@ async function loadLeaflet() {
         }
     });
 }
+window.loadLeaflet = loadLeaflet;
 
 function nkNormalizeCheckoutNameCandidate(raw) {
     return String(raw || '').replace(/\s+/g, ' ').trim();
@@ -1116,6 +1117,38 @@ function nkGetPlatformSupportPhoneForCheckout() {
     return '';
 }
 
+function nkNormalizeHomeLocation(location) {
+    if (!location || typeof location !== 'object') return null;
+
+    const lat = Number(location.lat);
+    const lng = Number(location.lng);
+    const city = String(location.city || '').trim();
+
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+    return {
+        lat,
+        lng,
+        city,
+        updated_at: location.updated_at || new Date().toISOString()
+    };
+}
+
+function nkGetSavedHomeLocation() {
+    try {
+        const fromProfile = window.ProfileManager?.getHomeLocation?.();
+        if (fromProfile) return nkNormalizeHomeLocation(fromProfile);
+    } catch (_) {}
+
+    try {
+        const saved = localStorage.getItem('newketHomeLocation');
+        if (!saved) return null;
+        return nkNormalizeHomeLocation(JSON.parse(saved));
+    } catch (_) {
+        return null;
+    }
+}
+
 /**
  * Shows a checkout modal to collect customer details before payment.
  * Returns a Promise that resolves to { phone, name, city, lat, lng } or null if cancelled.
@@ -1130,6 +1163,7 @@ function showCheckoutModal(productName, productPrice) {
                 .replace(/>/g, '&gt;');
 
         const profile = window.ProfileManager?.getProfile?.() || {};
+        const savedHomeLocation = nkGetSavedHomeLocation();
         const role =
             window.AuthManager?.role ||
             localStorage.getItem('newketRole') ||
@@ -1160,7 +1194,15 @@ function showCheckoutModal(productName, productPrice) {
             ''
         ).trim();
         let prefillEmail = (profile.email || localStorage.getItem('newketUserEmail') || '').trim();
-        const prefillCity = (profile.city || localStorage.getItem('newketUserCity') || 'Kinshasa').trim();
+        const prefillCity = (
+            savedHomeLocation?.city ||
+            profile.city ||
+            localStorage.getItem('newketUserCity') ||
+            'Kinshasa'
+        ).trim();
+        const defaultMapCenter = savedHomeLocation
+            ? [savedHomeLocation.lat, savedHomeLocation.lng]
+            : [-4.4419, 15.2663];
 
         if (!prefillEmail && window.SupabaseAdapter?.getClient) {
             try {
@@ -1332,15 +1374,15 @@ function showCheckoutModal(productName, productPrice) {
                             <div class="mt-4 pt-4 border-t border-gray-100">
                                 <div class="flex items-center justify-between mb-2.5">
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Position de livraison</label>
-                                    <div id="${modalId}-loc-badge" class="hidden px-2 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full uppercase tracking-tighter animate-pulse">Position capturée</div>
+                                    <div id="${modalId}-loc-badge" class="${savedHomeLocation ? '' : 'hidden '}px-2 py-0.5 bg-green-100 text-green-700 text-[9px] font-bold rounded-full uppercase tracking-tighter animate-pulse">Residence chargee</div>
                                 </div>
-                                <p class="text-[10px] text-gray-400 mb-3 leading-snug">Touchez le bouton ou l'icône sur la carte pour une détection GPS précise.</p>
+                                <p class="text-[10px] text-gray-400 mb-3 leading-snug">La commande part de votre residence enregistree. Utilisez la geolocalisation seulement si vous voulez livrer ailleurs cette fois.</p>
                                 
                                 <!-- Locate Me Button -->
                                 <button type="button" id="${modalId}-locate-btn" onclick="window._locateMe && window._locateMe('${modalId}')"
                                     class="w-full mb-3 px-4 py-3 bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 text-white font-bold rounded-2xl text-sm hover:shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center justify-center gap-3 active:scale-[0.97] border border-white/10 ring-1 ring-indigo-400/20">
                                     <iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon>
-                                    <span id="${modalId}-locate-text">Me localiser maintenant</span>
+                                    <span id="${modalId}-locate-text">Utiliser ma position actuelle</span>
                                 </button>
                                 
                                 <div id="${modalId}-map" class="w-full h-36 sm:h-44 rounded-2xl border border-gray-100 overflow-hidden z-10 shadow-sm block relative">
@@ -1357,7 +1399,7 @@ function showCheckoutModal(productName, productPrice) {
                                 <!-- Location status text -->
                                 <div id="${modalId}-loc-status" class="text-[10px] text-gray-500 mt-2.5 px-3 py-2 bg-gray-50 rounded-xl leading-tight flex items-center gap-2 min-h-[16px] break-words border border-gray-100">
                                     <iconify-icon icon="solar:info-circle-bold" width="14" class="text-gray-400"></iconify-icon>
-                                    <span>Prêt pour la localisation</span>
+                                    <span>${savedHomeLocation ? 'Residence enregistree chargee dans la commande.' : 'Aucune residence enregistree. Localisez-vous ou deplacez le repere pour cette commande.'}</span>
                                 </div>
                             </div>
                         </div>
@@ -1383,8 +1425,8 @@ function showCheckoutModal(productName, productPrice) {
         
         // Init Leaflet map if loaded
         let marker = null;
-        let selectedLat = null;
-        let selectedLng = null;
+        let selectedLat = savedHomeLocation?.lat ?? null;
+        let selectedLng = savedHomeLocation?.lng ?? null;
         
         requestAnimationFrame(() => {
             modalEl.classList.remove('opacity-0');
@@ -1394,15 +1436,15 @@ function showCheckoutModal(productName, productPrice) {
             setTimeout(() => {
                 const mapContainer = document.getElementById(`${modalId}-map`);
                 if (window.L && mapContainer) {
-                    // Kinshasa default center: -4.4419, 15.2663
-                    const map = L.map(mapContainer).setView([-4.4419, 15.2663], 12);
+                    const initialZoom = savedHomeLocation ? 16 : 12;
+                    const map = L.map(mapContainer).setView(defaultMapCenter, initialZoom);
                     
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         maxZoom: 18,
                         attribution: '© OpenStreetMap'
                     }).addTo(map);
 
-                    marker = L.marker([-4.4419, 15.2663], { draggable: true }).addTo(map);
+                    marker = L.marker(defaultMapCenter, { draggable: true }).addTo(map);
 
                     // Realign map after render
                     map.invalidateSize();
@@ -1414,7 +1456,7 @@ function showCheckoutModal(productName, productPrice) {
                         // Update status text
                         const statusEl = document.getElementById(`${modalId}-loc-status`);
                         if (statusEl) {
-                            statusEl.innerHTML = `<iconify-icon icon="solar:map-point-bold" width="12" style="color:#22c55e"></iconify-icon> <span style="color:#22c55e; font-weight:700;">Position ajustée manuellement</span>`;
+                            statusEl.innerHTML = `<iconify-icon icon="solar:map-point-bold" width="12" style="color:#22c55e"></iconify-icon> <span style="color:#22c55e; font-weight:700;">Position ajustee manuellement pour cette commande</span>`;
                         }
                     });
 
@@ -1567,6 +1609,11 @@ function showCheckoutModal(productName, productPrice) {
                     showToast("L'adresse email est obligatoire", "warning");
                     return;
                 }
+            }
+
+            if (!Number.isFinite(selectedLat) || !Number.isFinite(selectedLng)) {
+                showToast("Definissez d'abord la position de livraison sur la carte.", "warning");
+                return;
             }
 
             // Persist checkout user inputs for next purchases.

@@ -460,6 +460,12 @@
             });
         }
 
+        function getBehaviorApiBase() {
+            const host = window.location.hostname || '';
+            const isLocal = host === 'localhost' || host === '127.0.0.1';
+            return isLocal ? '/analytics/admin/behavior' : '/admin-behavior';
+        }
+
         function normalizeLabel(value) {
             const v = String(value || '').trim();
             if (!v) return '-';
@@ -858,7 +864,7 @@
             updateShareUrl();
             const qs = buildQueryParams().toString();
             const cacheKey = `admin-behavior-${qs}`;
-            const data = await ApiClient.get(`/analytics/admin/behavior?${qs}`, {
+            const data = await ApiClient.get(`${getBehaviorApiBase()}?${qs}`, {
                 cacheKey,
                 cacheTtlMs: 5000,
                 dedupe: true
@@ -892,7 +898,7 @@
             base.set('max_rows', '6000');
 
             try {
-                const data = await ApiClient.get(`/analytics/admin/behavior/drilldown?${base.toString()}`, {
+                const data = await ApiClient.get(`${getBehaviorApiBase()}/drilldown?${base.toString()}`, {
                     cacheKey: `admin-drill-${kind}-${value}-${base.toString()}`,
                     cacheTtlMs: 5000,
                     dedupe: true
@@ -992,7 +998,7 @@
             if (String(phrase || '').trim().toUpperCase() !== 'RESET') return;
 
             try {
-                await ApiClient.post('/analytics/admin/behavior/reset', { mode: 'all' });
+                await ApiClient.post(`${getBehaviorApiBase()}/reset`, { mode: 'all' });
                 try {
                     localStorage.removeItem('newket_session_id');
                     sessionStorage.clear();

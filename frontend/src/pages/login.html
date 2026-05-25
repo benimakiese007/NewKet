@@ -385,6 +385,9 @@
 
             // Redirection logic for already logged in users (Skill 3)
             window.addEventListener('newketInitialized', () => {
+                if (isRecovery) {
+                    return;
+                }
                 if (window.AuthManager && window.AuthManager.user) {
                     if (window.AuthManager.hasPendingRoleSelection?.()) {
                         window.location.href = window.AuthManager.getRoleSelectionPath();
@@ -397,8 +400,8 @@
         });
 
         // --- 2. State & Elements ---
-        let isLogin = true;
         let isRecovery = window.location.hash.includes('type=recovery');
+        let isLogin = !isRecovery;
 
         const tabLogin = document.getElementById('tabLogin');
         const tabSignup = document.getElementById('tabSignup');
@@ -441,6 +444,7 @@
             formTitle.textContent = "Nouveau mot de passe";
             formSubtitle.textContent = "Veuillez entrer votre nouveau mot de passe.";
             submitBtnSpan.textContent = "Mettre à jour";
+            pwdInput.setAttribute('autocomplete', 'new-password');
         }
 
         // --- 3. UI Interactions ---

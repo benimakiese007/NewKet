@@ -5,6 +5,23 @@
 const ProfileManager = {
     _profile: null,
 
+    _normalizeHomeLocation(location) {
+        if (!location || typeof location !== 'object') return null;
+
+        const lat = Number(location.lat);
+        const lng = Number(location.lng);
+        const city = String(location.city || '').trim();
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+        return {
+            lat,
+            lng,
+            city,
+            updated_at: location.updated_at || new Date().toISOString()
+        };
+    },
+
     async _getCurrentUser() {
         if (window.AuthManager?.user?.id) return window.AuthManager.user;
 
@@ -41,6 +58,15 @@ const ProfileManager = {
                     avatar: localStorage.getItem('newketUserAvatar') || ''
                 };
             }
+
+            const savedHomeLocation = this._normalizeHomeLocation(
+                this._profile?.home_location ||
+                JSON.parse(localStorage.getItem('newketHomeLocation') || 'null')
+            );
+            if (savedHomeLocation) {
+                this._profile.home_location = savedHomeLocation;
+                if (savedHomeLocation.city) localStorage.setItem('newketUserCity', savedHomeLocation.city);
+            }
         } catch (e) {
             console.error('[ProfileManager] Error loading profile:', e);
             this._profile = {};
@@ -53,7 +79,14 @@ const ProfileManager = {
     },
 
     saveProfile(data) {
-        this._profile = { ...this._profile, ...data };
+        const nextProfile = { ...this._profile, ...data };
+        const normalizedHomeLocation = this._normalizeHomeLocation(data?.home_location);
+        if ('home_location' in (data || {})) {
+            if (normalizedHomeLocation) nextProfile.home_location = normalizedHomeLocation;
+            else delete nextProfile.home_location;
+        }
+
+        this._profile = nextProfile;
         localStorage.setItem('newketProfile', JSON.stringify(this._profile));
         
         // Also update individual keys for compatibility
@@ -71,10 +104,41 @@ const ProfileManager = {
         if (data.boutique_name) localStorage.setItem('newketBoutiqueName', data.boutique_name);
         const avatar = data.avatar || data.avatar_url || data.picture || data.photo_url || data.picture_url;
         if (avatar) localStorage.setItem('newketUserAvatar', avatar);
+        if ('home_location' in (data || {})) {
+            if (normalizedHomeLocation) {
+                localStorage.setItem('newketHomeLocation', JSON.stringify(normalizedHomeLocation));
+                if (normalizedHomeLocation.city) localStorage.setItem('newketUserCity', normalizedHomeLocation.city);
+            } else {
+                localStorage.removeItem('newketHomeLocation');
+            }
+        }
         
         // Trigger event for UI updates
         window.dispatchEvent(new CustomEvent('profileUpdated', { detail: this._profile }));
         
+        return true;
+    },
+
+    getHomeLocation() {
+        if (!this._profile) this.loadLocalProfile();
+        try {
+            return this._normalizeHomeLocation(
+                this._profile?.home_location ||
+                JSON.parse(localStorage.getItem('newketHomeLocation') || 'null')
+            );
+        } catch {
+            return this._normalizeHomeLocation(this._profile?.home_location);
+        }
+    },
+
+    saveHomeLocation(location) {
+        const normalizedHomeLocation = this._normalizeHomeLocation(location);
+        if (!normalizedHomeLocation) return false;
+
+        this.saveProfile({
+            home_location: normalizedHomeLocation,
+            city: normalizedHomeLocation.city || this._profile?.city || ''
+        });
         return true;
     },
 
@@ -99,7 +163,8 @@ const ProfileManager = {
                     phone: profile.phone || profile.store_phone || this._profile.phone,
                     avatar: profile.avatar || profile.avatar_url || profile.photo_url || profile.picture || this._profile.avatar,
                     role: profile.role || user.role,
-                    shipping_time: profile.shipping_time || this._profile.shipping_time
+                    shipping_time: profile.shipping_time || this._profile.shipping_time,
+                    home_location: this._profile.home_location
                 });
             }
         } catch (error) {

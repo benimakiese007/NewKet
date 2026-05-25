@@ -220,7 +220,6 @@
                         <h2 id="userDisplayName" class="font-bold text-gray-900 truncate text-sm">Mon Compte</h2>
                         <div class="flex items-center gap-1.5 mt-0.5">
                             <span id="userStatusBadge" class="status-badge status-standard">Standard</span>
-                            <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">En ligne</span>
                         </div>
                     </div>
                 </div>
@@ -455,38 +454,40 @@
                     </form>
                 </div>
 
-                <!-- Delivery Address -->
+                <!-- Home Location -->
                 <div class="glass-panel p-8 w-full">
-                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Adresse de livraison
+                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-2">Residence de livraison
                     </h2>
-                    <form class="space-y-5" id="addressForm">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Rue / Avenue</label>
-                            <input type="text" id="addrStreet" placeholder="Ex: Av. du 24 Novembre"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Quartier</label>
-                                <input type="text" id="addrQuartier" placeholder="Ex: Gombe"
+                    <p class="text-sm text-gray-500 mb-6">Enregistrez la localisation de votre maison une fois. Les prochaines commandes partiront de cette residence par defaut.</p>
+                    <div class="space-y-5" id="residenceSection">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ville de residence</label>
+                                <input type="text" id="residenceCity" placeholder="Ex: Kinshasa"
                                     class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Ville</label>
-                                <input type="text" id="addrCity" placeholder="Ex: Kinshasa"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                            </div>
+                            <div id="customerResidenceBadge" class="hidden px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest self-start mt-8">Residence active</div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Tél. secondaire
-                                (livraison)</label>
-                            <input type="tel" id="addrPhone" placeholder="Ex: +243 8XX XXX XXX"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                        <div class="rounded-[1.25rem] border border-gray-100 overflow-hidden bg-gray-50">
+                            <div id="customerResidenceMap" class="w-full h-64"></div>
                         </div>
-                        <button type="submit"
-                            class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">Sauvegarder
-                            l'adresse</button>
-                    </form>
+                        <div id="customerResidenceStatus" class="text-xs text-gray-600 px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 flex items-center gap-2">
+                            <iconify-icon icon="solar:info-circle-bold" width="16" class="text-gray-400"></iconify-icon>
+                            <span>Chargez votre residence puis sauvegardez-la pour le checkout.</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button type="button" id="residenceLocateBtn"
+                                class="w-full bg-white border border-gray-200 text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:map-arrow-square-bold" width="18"></iconify-icon>
+                                Utiliser ma position actuelle
+                            </button>
+                            <button type="button" id="saveResidenceBtn"
+                                class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:diskette-bold" width="18"></iconify-icon>
+                                Sauvegarder ma residence
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 </div>
 
@@ -815,6 +816,11 @@
             if (targetLink) targetLink.classList.add('active');
             if (tabId === 'notifications') renderDashboardNotifications();
             if (tabId === 'achat' && typeof window.renderAchatTab === 'function') window.renderAchatTab();
+            if (tabId === 'settings') {
+                setTimeout(() => {
+                    if (typeof initCustomerResidenceMap === 'function') initCustomerResidenceMap();
+                }, 120);
+            }
 
             // Auto-close sidebar on mobile after selection
             if (window.SidebarManager) SidebarManager.close();
@@ -960,6 +966,228 @@
             badge.textContent = (icon ? icon + ' ' : '') + label;
         }
 
+        let customerResidenceMap = null;
+        let customerResidenceMarker = null;
+        let customerResidenceSelection = null;
+        let customerResidenceMapInitPromise = null;
+
+        function getSavedCustomerResidence() {
+            try {
+                return window.ProfileManager?.getHomeLocation?.() || null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function setCustomerResidenceBadge(visible) {
+            const badge = document.getElementById('customerResidenceBadge');
+            if (!badge) return;
+            badge.classList.toggle('hidden', !visible);
+        }
+
+        function setCustomerResidenceStatus(message, tone = 'info') {
+            const status = document.getElementById('customerResidenceStatus');
+            if (!status) return;
+
+            const tones = {
+                info: {
+                    icon: 'solar:info-circle-bold',
+                    iconClass: 'text-gray-400',
+                    textClass: 'text-gray-600',
+                    boxClass: 'bg-gray-50 border-gray-100'
+                },
+                success: {
+                    icon: 'solar:check-circle-bold',
+                    iconClass: 'text-green-600',
+                    textClass: 'text-green-700',
+                    boxClass: 'bg-green-50 border-green-100'
+                },
+                warning: {
+                    icon: 'solar:danger-triangle-bold',
+                    iconClass: 'text-amber-500',
+                    textClass: 'text-amber-700',
+                    boxClass: 'bg-amber-50 border-amber-100'
+                },
+                error: {
+                    icon: 'solar:danger-circle-bold',
+                    iconClass: 'text-red-500',
+                    textClass: 'text-red-600',
+                    boxClass: 'bg-red-50 border-red-100'
+                }
+            };
+
+            const ui = tones[tone] || tones.info;
+            status.className = `text-xs px-4 py-3 rounded-2xl border flex items-center gap-2 ${ui.boxClass}`;
+            status.innerHTML = `
+                <iconify-icon icon="${ui.icon}" width="16" class="${ui.iconClass}"></iconify-icon>
+                <span class="${ui.textClass}">${message}</span>
+            `;
+        }
+
+        async function initCustomerResidenceMap() {
+            const mapEl = document.getElementById('customerResidenceMap');
+            const cityInput = document.getElementById('residenceCity');
+            const locateBtn = document.getElementById('residenceLocateBtn');
+            const saveBtn = document.getElementById('saveResidenceBtn');
+
+            if (!mapEl || !cityInput || !locateBtn || !saveBtn) return;
+
+            const savedResidence = getSavedCustomerResidence();
+            if (!cityInput.value) {
+                cityInput.value = savedResidence?.city || localStorage.getItem('newketUserCity') || 'Kinshasa';
+            }
+
+            if (locateBtn.dataset.bound !== 'true') {
+                locateBtn.addEventListener('click', () => {
+                    if (!navigator.geolocation) {
+                        setCustomerResidenceStatus('La geolocalisation est indisponible sur ce navigateur.', 'error');
+                        showToast('Geolocalisation indisponible.', 'warning');
+                        return;
+                    }
+
+                    locateBtn.disabled = true;
+                    setCustomerResidenceStatus('Recherche de votre position actuelle...', 'info');
+
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            customerResidenceSelection = {
+                                lat,
+                                lng,
+                                city: cityInput.value.trim() || savedResidence?.city || 'Kinshasa'
+                            };
+
+                            if (customerResidenceMarker) customerResidenceMarker.setLatLng([lat, lng]);
+                            if (customerResidenceMap) {
+                                customerResidenceMap.setView([lat, lng], 16, { animate: true });
+                                customerResidenceMap.invalidateSize();
+                            }
+
+                            setCustomerResidenceBadge(false);
+                            setCustomerResidenceStatus('Position actuelle chargee. Sauvegardez-la si c est votre residence.', 'success');
+                            locateBtn.disabled = false;
+                        },
+                        (error) => {
+                            let message = 'Impossible de recuperer votre position.';
+                            if (error?.code === 1) message = 'Permission refusee. Activez la geolocalisation.';
+                            if (error?.code === 2) message = 'Position non disponible.';
+                            setCustomerResidenceStatus(message, 'error');
+                            locateBtn.disabled = false;
+                        },
+                        { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+                    );
+                });
+                locateBtn.dataset.bound = 'true';
+            }
+
+            if (saveBtn.dataset.bound !== 'true') {
+                saveBtn.addEventListener('click', () => {
+                    const city = cityInput.value.trim() || 'Kinshasa';
+                    if (!Number.isFinite(customerResidenceSelection?.lat) || !Number.isFinite(customerResidenceSelection?.lng)) {
+                        setCustomerResidenceStatus('Choisissez votre residence sur la carte avant de sauvegarder.', 'warning');
+                        showToast('Selectionnez votre residence sur la carte.', 'warning');
+                        return;
+                    }
+
+                    const payload = {
+                        lat: customerResidenceSelection.lat,
+                        lng: customerResidenceSelection.lng,
+                        city
+                    };
+
+                    const saved = window.ProfileManager?.saveHomeLocation?.(payload);
+                    if (!saved) {
+                        localStorage.setItem('newketHomeLocation', JSON.stringify({
+                            ...payload,
+                            updated_at: new Date().toISOString()
+                        }));
+                    }
+
+                    cityInput.value = city;
+                    customerResidenceSelection = payload;
+                    setCustomerResidenceBadge(true);
+                    setCustomerResidenceStatus('Residence sauvegardee. Le checkout utilisera cette position par defaut.', 'success');
+                    showToast('Residence de livraison sauvegardee.', 'success');
+                });
+                saveBtn.dataset.bound = 'true';
+            }
+
+            if (customerResidenceMap) {
+                setTimeout(() => customerResidenceMap.invalidateSize(), 120);
+                return;
+            }
+
+            if (customerResidenceMapInitPromise) {
+                await customerResidenceMapInitPromise;
+                if (customerResidenceMap) setTimeout(() => customerResidenceMap.invalidateSize(), 120);
+                return;
+            }
+
+            customerResidenceMapInitPromise = (async () => {
+                try {
+                    await window.loadLeaflet?.();
+                } catch (error) {
+                    console.error('[Customer Residence] Leaflet load error:', error);
+                    setCustomerResidenceStatus('Impossible de charger la carte de residence.', 'error');
+                    return;
+                }
+
+                if (!window.L) {
+                    setCustomerResidenceStatus('Leaflet est indisponible pour cette page.', 'error');
+                    return;
+                }
+
+                if (customerResidenceMap || mapEl.dataset.leafletReady === 'true' || mapEl._leaflet_id) {
+                    if (customerResidenceMap) customerResidenceMap.invalidateSize();
+                    return;
+                }
+
+                const defaultCenter = savedResidence
+                    ? [savedResidence.lat, savedResidence.lng]
+                    : [-4.4419, 15.2663];
+                const defaultZoom = savedResidence ? 16 : 12;
+
+                customerResidenceMap = L.map(mapEl).setView(defaultCenter, defaultZoom);
+                mapEl.dataset.leafletReady = 'true';
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '© OpenStreetMap'
+                }).addTo(customerResidenceMap);
+
+                customerResidenceMarker = L.marker(defaultCenter, { draggable: true }).addTo(customerResidenceMap);
+                customerResidenceMap.invalidateSize();
+
+                customerResidenceSelection = savedResidence
+                    ? { lat: savedResidence.lat, lng: savedResidence.lng, city: savedResidence.city || cityInput.value.trim() || 'Kinshasa' }
+                    : null;
+
+                customerResidenceMarker.on('dragend', () => {
+                    const pos = customerResidenceMarker.getLatLng();
+                    customerResidenceSelection = {
+                        lat: pos.lat,
+                        lng: pos.lng,
+                        city: cityInput.value.trim() || 'Kinshasa'
+                    };
+                    setCustomerResidenceBadge(false);
+                    setCustomerResidenceStatus('Repere deplace. Sauvegardez pour enregistrer cette residence.', 'warning');
+                });
+
+                if (savedResidence) {
+                    setCustomerResidenceBadge(true);
+                    setCustomerResidenceStatus('Residence sauvegardee chargee. Vous pouvez la reajuster si necessaire.', 'success');
+                } else {
+                    setCustomerResidenceStatus('Placez votre residence sur la carte puis sauvegardez-la pour vos prochaines commandes.', 'info');
+                }
+            })();
+
+            try {
+                await customerResidenceMapInitPromise;
+            } finally {
+                customerResidenceMapInitPromise = null;
+            }
+        }
+
 
         async function ensureCustomerIdentity() {
             const existingEmail = localStorage.getItem('newketUserEmail');
@@ -1037,12 +1265,7 @@
                 });
             }
 
-            // Load Address
-            const addr = JSON.parse(localStorage.getItem('newketAddress') || '{}');
-            if (document.getElementById('addrStreet')) document.getElementById('addrStreet').value = addr.street || '';
-            if (document.getElementById('addrQuartier')) document.getElementById('addrQuartier').value = addr.quartier || '';
-            if (document.getElementById('addrCity')) document.getElementById('addrCity').value = addr.city || '';
-            if (document.getElementById('addrPhone')) document.getElementById('addrPhone').value = addr.phone || '';
+            initCustomerResidenceMap();
 
             // Avatar & name
             const userName = profile.name || localStorage.getItem('newketUserName');
@@ -1156,19 +1379,6 @@
                 console.error('[Customer Profile] Update error:', err);
                 showToast('Erreur lors de la mise à jour du profil.', 'error');
             }
-        });
-
-        // Address Form Submit
-        document.getElementById('addressForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const addr = {
-                street: document.getElementById('addrStreet').value,
-                quartier: document.getElementById('addrQuartier').value,
-                city: document.getElementById('addrCity').value,
-                phone: document.getElementById('addrPhone').value
-            };
-            localStorage.setItem('newketAddress', JSON.stringify(addr));
-            showToast('Adresse de livraison sauvegardée !', 'success');
         });
 
         function syncPasswordFormMode() {
@@ -2839,7 +3049,7 @@
 
         // Intercept form submissions for loading state
         document.addEventListener('DOMContentLoaded', () => {
-            const forms = ['profileForm', 'addressForm', 'passwordForm'];
+            const forms = ['profileForm', 'passwordForm'];
             forms.forEach(id => {
                 const form = document.getElementById(id);
                 if (!form) return;

@@ -740,6 +740,44 @@
                         </form>
                     </div>
 
+                    <!-- Vendor Residence Card -->
+                    <div class="glass-panel p-8">
+                        <h2 class="text-xl font-bold mb-2">Residence de livraison</h2>
+                        <p class="text-sm text-gray-400 mb-6">Comme les vendeurs peuvent aussi acheter, enregistrez ici la residence utilisee par defaut lors de vos achats.</p>
+
+                        <div class="space-y-5" id="vendorResidenceSection">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex-1">
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Ville de residence</label>
+                                    <input id="vendorResidenceCity" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Kinshasa">
+                                </div>
+                                <div id="vendorResidenceBadge" class="hidden px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest self-start mt-8">Residence active</div>
+                            </div>
+
+                            <div class="rounded-[1.25rem] border border-gray-100 overflow-hidden bg-gray-50">
+                                <div id="vendorResidenceMap" class="w-full h-64"></div>
+                            </div>
+
+                            <div id="vendorResidenceStatus" class="text-xs text-gray-600 px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 flex items-center gap-2">
+                                <iconify-icon icon="solar:info-circle-bold" width="16" class="text-gray-400"></iconify-icon>
+                                <span>Chargez votre residence puis sauvegardez-la pour vos futurs achats.</span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button type="button" id="vendorResidenceLocateBtn"
+                                    class="w-full bg-white border border-gray-200 text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:map-arrow-square-bold" width="18"></iconify-icon>
+                                    Utiliser ma position actuelle
+                                </button>
+                                <button type="button" id="vendorSaveResidenceBtn"
+                                    class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:diskette-bold" width="18"></iconify-icon>
+                                    Sauvegarder ma residence
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Security Card -->
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-2">Sécurité</h2>
@@ -1166,6 +1204,11 @@
                     else if (tabId === 'leads') renderVendorLeads();
                     else if (tabId === 'purchases') renderVendorPurchases();
                     else if (tabId === 'promos') renderVendorPromos();
+                    else if (tabId === 'settings') {
+                        setTimeout(() => {
+                            if (typeof initVendorResidenceMap === 'function') initVendorResidenceMap();
+                        }, 120);
+                    }
 
                     // Close sidebar on mobile
                     if (window.SidebarManager && window.SidebarManager.state.isMobile && window.SidebarManager.state.isDrawerOpen) {
@@ -1190,6 +1233,228 @@
 
                 function isVendorProductsDataPending() {
                     return window.__newketVendorProductsReady !== true;
+                }
+
+                let vendorResidenceMap = null;
+                let vendorResidenceMarker = null;
+                let vendorResidenceSelection = null;
+                let vendorResidenceMapInitPromise = null;
+
+                function getSavedVendorResidence() {
+                    try {
+                        return window.ProfileManager?.getHomeLocation?.() || null;
+                    } catch (_) {
+                        return null;
+                    }
+                }
+
+                function setVendorResidenceBadge(visible) {
+                    const badge = document.getElementById('vendorResidenceBadge');
+                    if (!badge) return;
+                    badge.classList.toggle('hidden', !visible);
+                }
+
+                function setVendorResidenceStatus(message, tone = 'info') {
+                    const status = document.getElementById('vendorResidenceStatus');
+                    if (!status) return;
+
+                    const tones = {
+                        info: {
+                            icon: 'solar:info-circle-bold',
+                            iconClass: 'text-gray-400',
+                            textClass: 'text-gray-600',
+                            boxClass: 'bg-gray-50 border-gray-100'
+                        },
+                        success: {
+                            icon: 'solar:check-circle-bold',
+                            iconClass: 'text-green-600',
+                            textClass: 'text-green-700',
+                            boxClass: 'bg-green-50 border-green-100'
+                        },
+                        warning: {
+                            icon: 'solar:danger-triangle-bold',
+                            iconClass: 'text-amber-500',
+                            textClass: 'text-amber-700',
+                            boxClass: 'bg-amber-50 border-amber-100'
+                        },
+                        error: {
+                            icon: 'solar:danger-circle-bold',
+                            iconClass: 'text-red-500',
+                            textClass: 'text-red-600',
+                            boxClass: 'bg-red-50 border-red-100'
+                        }
+                    };
+
+                    const ui = tones[tone] || tones.info;
+                    status.className = `text-xs px-4 py-3 rounded-2xl border flex items-center gap-2 ${ui.boxClass}`;
+                    status.innerHTML = `
+                        <iconify-icon icon="${ui.icon}" width="16" class="${ui.iconClass}"></iconify-icon>
+                        <span class="${ui.textClass}">${message}</span>
+                    `;
+                }
+
+                async function initVendorResidenceMap() {
+                    const mapEl = document.getElementById('vendorResidenceMap');
+                    const cityInput = document.getElementById('vendorResidenceCity');
+                    const locateBtn = document.getElementById('vendorResidenceLocateBtn');
+                    const saveBtn = document.getElementById('vendorSaveResidenceBtn');
+
+                    if (!mapEl || !cityInput || !locateBtn || !saveBtn) return;
+
+                    const savedResidence = getSavedVendorResidence();
+                    if (!cityInput.value) {
+                        cityInput.value = savedResidence?.city || localStorage.getItem('newketUserCity') || 'Kinshasa';
+                    }
+
+                    if (locateBtn.dataset.bound !== 'true') {
+                        locateBtn.addEventListener('click', () => {
+                            if (!navigator.geolocation) {
+                                setVendorResidenceStatus('La geolocalisation est indisponible sur ce navigateur.', 'error');
+                                showToast('Geolocalisation indisponible.', 'warning');
+                                return;
+                            }
+
+                            locateBtn.disabled = true;
+                            setVendorResidenceStatus('Recherche de votre position actuelle...', 'info');
+
+                            navigator.geolocation.getCurrentPosition(
+                                (position) => {
+                                    const lat = position.coords.latitude;
+                                    const lng = position.coords.longitude;
+                                    vendorResidenceSelection = {
+                                        lat,
+                                        lng,
+                                        city: cityInput.value.trim() || savedResidence?.city || 'Kinshasa'
+                                    };
+
+                                    if (vendorResidenceMarker) vendorResidenceMarker.setLatLng([lat, lng]);
+                                    if (vendorResidenceMap) {
+                                        vendorResidenceMap.setView([lat, lng], 16, { animate: true });
+                                        vendorResidenceMap.invalidateSize();
+                                    }
+
+                                    setVendorResidenceBadge(false);
+                                    setVendorResidenceStatus('Position actuelle chargee. Sauvegardez-la si c est votre residence.', 'success');
+                                    locateBtn.disabled = false;
+                                },
+                                (error) => {
+                                    let message = 'Impossible de recuperer votre position.';
+                                    if (error?.code === 1) message = 'Permission refusee. Activez la geolocalisation.';
+                                    if (error?.code === 2) message = 'Position non disponible.';
+                                    setVendorResidenceStatus(message, 'error');
+                                    locateBtn.disabled = false;
+                                },
+                                { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+                            );
+                        });
+                        locateBtn.dataset.bound = 'true';
+                    }
+
+                    if (saveBtn.dataset.bound !== 'true') {
+                        saveBtn.addEventListener('click', () => {
+                            const city = cityInput.value.trim() || 'Kinshasa';
+                            if (!Number.isFinite(vendorResidenceSelection?.lat) || !Number.isFinite(vendorResidenceSelection?.lng)) {
+                                setVendorResidenceStatus('Choisissez votre residence sur la carte avant de sauvegarder.', 'warning');
+                                showToast('Selectionnez votre residence sur la carte.', 'warning');
+                                return;
+                            }
+
+                            const payload = {
+                                lat: vendorResidenceSelection.lat,
+                                lng: vendorResidenceSelection.lng,
+                                city
+                            };
+
+                            const saved = window.ProfileManager?.saveHomeLocation?.(payload);
+                            if (!saved) {
+                                localStorage.setItem('newketHomeLocation', JSON.stringify({
+                                    ...payload,
+                                    updated_at: new Date().toISOString()
+                                }));
+                            }
+
+                            cityInput.value = city;
+                            vendorResidenceSelection = payload;
+                            setVendorResidenceBadge(true);
+                            setVendorResidenceStatus('Residence sauvegardee. Vos futurs achats utiliseront cette position par defaut.', 'success');
+                            showToast('Residence de livraison sauvegardee.', 'success');
+                        });
+                        saveBtn.dataset.bound = 'true';
+                    }
+
+                    if (vendorResidenceMap) {
+                        setTimeout(() => vendorResidenceMap.invalidateSize(), 120);
+                        return;
+                    }
+
+                    if (vendorResidenceMapInitPromise) {
+                        await vendorResidenceMapInitPromise;
+                        if (vendorResidenceMap) setTimeout(() => vendorResidenceMap.invalidateSize(), 120);
+                        return;
+                    }
+
+                    vendorResidenceMapInitPromise = (async () => {
+                        try {
+                            await window.loadLeaflet?.();
+                        } catch (error) {
+                            console.error('[Vendor Residence] Leaflet load error:', error);
+                            setVendorResidenceStatus('Impossible de charger la carte de residence.', 'error');
+                            return;
+                        }
+
+                        if (!window.L) {
+                            setVendorResidenceStatus('Leaflet est indisponible pour cette page.', 'error');
+                            return;
+                        }
+
+                        if (vendorResidenceMap || mapEl.dataset.leafletReady === 'true' || mapEl._leaflet_id) {
+                            if (vendorResidenceMap) vendorResidenceMap.invalidateSize();
+                            return;
+                        }
+
+                        const defaultCenter = savedResidence
+                            ? [savedResidence.lat, savedResidence.lng]
+                            : [-4.4419, 15.2663];
+                        const defaultZoom = savedResidence ? 16 : 12;
+
+                        vendorResidenceMap = L.map(mapEl).setView(defaultCenter, defaultZoom);
+                        mapEl.dataset.leafletReady = 'true';
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 18,
+                            attribution: '© OpenStreetMap'
+                        }).addTo(vendorResidenceMap);
+
+                        vendorResidenceMarker = L.marker(defaultCenter, { draggable: true }).addTo(vendorResidenceMap);
+                        vendorResidenceMap.invalidateSize();
+
+                        vendorResidenceSelection = savedResidence
+                            ? { lat: savedResidence.lat, lng: savedResidence.lng, city: savedResidence.city || cityInput.value.trim() || 'Kinshasa' }
+                            : null;
+
+                        vendorResidenceMarker.on('dragend', () => {
+                            const pos = vendorResidenceMarker.getLatLng();
+                            vendorResidenceSelection = {
+                                lat: pos.lat,
+                                lng: pos.lng,
+                                city: cityInput.value.trim() || 'Kinshasa'
+                            };
+                            setVendorResidenceBadge(false);
+                            setVendorResidenceStatus('Repere deplace. Sauvegardez pour enregistrer cette residence.', 'warning');
+                        });
+
+                        if (savedResidence) {
+                            setVendorResidenceBadge(true);
+                            setVendorResidenceStatus('Residence sauvegardee chargee. Vous pouvez la reajuster si necessaire.', 'success');
+                        } else {
+                            setVendorResidenceStatus('Placez votre residence sur la carte puis sauvegardez-la pour vos futures commandes.', 'info');
+                        }
+                    })();
+
+                    try {
+                        await vendorResidenceMapInitPromise;
+                    } finally {
+                        vendorResidenceMapInitPromise = null;
+                    }
                 }
 
                 // Re-render visible tab when currency changes
@@ -1273,6 +1538,7 @@
                     } catch (e) {}
 
                     initVendorDashboard();
+                    initVendorResidenceMap();
 
                     document.querySelectorAll('[data-switch-vendor-tab]').forEach((link) => {
                         // Avoid double-binding even if this block ever runs again.

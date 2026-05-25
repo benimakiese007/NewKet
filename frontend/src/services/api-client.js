@@ -36,6 +36,14 @@ function isNetworkFailure(error) {
         || /Failed to fetch|NetworkError|ERR_CONNECTION_REFUSED|Load failed/i.test(message);
 }
 
+function isLocalDevHost() {
+    try {
+        return /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
+    } catch {
+        return false;
+    }
+}
+
 /**
  * Fetch wrapper for connecting to the Express Backend.
  * Automatically injects the Supabase user session token into the 'Authorization' header.
@@ -47,6 +55,7 @@ export const ApiClient = {
     },
     _inflight: new Map(),
     _responseCache: new Map(),
+    _localApiReadyPromise: null,
 
     _getCachedResponse(cacheKey) {
         if (!cacheKey) return null;
@@ -98,6 +107,50 @@ export const ApiClient = {
         this._sessionCache.expiresAt = 0;
     },
 
+    _wait(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    },
+
+    async _probeLocalApiHealth(timeoutMs = 1200) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            const response = await fetch('http://localhost:3000/api/health', {
+                method: 'GET',
+                cache: 'no-store',
+                signal: controller.signal
+            });
+            return response.ok;
+        } catch {
+            return false;
+        } finally {
+            clearTimeout(timeout);
+        }
+    },
+
+    async _waitForLocalApiReady(maxWaitMs = 4500) {
+        if (!isLocalDevHost()) return false;
+        if (this._localApiReadyPromise) return await this._localApiReadyPromise;
+
+        this._localApiReadyPromise = (async () => {
+            const deadline = Date.now() + maxWaitMs;
+            while (Date.now() < deadline) {
+                if (await this._probeLocalApiHealth()) {
+                    return true;
+                }
+                await this._wait(350);
+            }
+            return false;
+        })();
+
+        try {
+            return await this._localApiReadyPromise;
+        } finally {
+            this._localApiReadyPromise = null;
+        }
+    },
+
     async fetch(endpoint, options = {}) {
         const url = `${API_BASE_URL}${endpoint}`;
 
@@ -138,7 +191,17 @@ export const ApiClient = {
                     } catch {
                     }
 
-                    response = await fetch(url, { ...config, headers: { ...baseHeaders, ...authHeaders } });
+                    try {
+                        response = await fetch(url, { ...config, headers: { ...baseHeaders, ...authHeaders } });
+                    } catch (error) {
+                        if (isGet && attempt < 2 && isLocalDevHost() && isNetworkFailure(error)) {
+                            const apiReady = await this._waitForLocalApiReady();
+                            if (apiReady) {
+                                continue;
+                            }
+                        }
+                        throw error;
+                    }
 
                     // If the API says the token is invalid/expired, clear cache and retry once.
                     if (!didAuthRetry && response && response.status === 401) {
@@ -160,9 +223,16 @@ export const ApiClient = {
                         continue;
                     }
 
-                    // Retry transient gateway errors once for GET
-                    if (attempt === 0 && isGet && response && [502, 503, 504].includes(response.status)) {
-                        await new Promise((resolve) => setTimeout(resolve, 500));
+                    // In local dev, Vite may come up before the backend. Wait for /api/health
+                    // before retrying transient gateway responses during startup.
+                    if (isGet && attempt < 2 && response && [502, 503, 504].includes(response.status)) {
+                        if (isLocalDevHost()) {
+                            const apiReady = await this._waitForLocalApiReady();
+                            if (apiReady) {
+                                continue;
+                            }
+                        }
+                        await this._wait(500);
                         continue;
                     }
 

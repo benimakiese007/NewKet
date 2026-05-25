@@ -161,6 +161,31 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  if (typeof req.url !== 'string') {
+    next();
+    return;
+  }
+
+  const aliasMap = new Map([
+    ['/api/admin-behavior-drilldown', '/api/analytics/admin/behavior/drilldown'],
+    ['/api/admin-behavior-reset', '/api/analytics/admin/behavior/reset'],
+    ['/api/admin-behavior', '/api/analytics/admin/behavior'],
+  ]);
+
+  for (const [from, to] of aliasMap.entries()) {
+    if (!req.url.startsWith(from)) continue;
+
+    req.url = `${to}${req.url.slice(from.length)}`;
+    req.originalUrl = req.url;
+    delete req._parsedUrl;
+    delete req._query;
+    break;
+  }
+
+  next();
+});
+
 app.use(optionalAuth);
 app.use(maintenanceMiddleware);
 
