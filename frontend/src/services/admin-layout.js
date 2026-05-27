@@ -13,6 +13,7 @@ const AdminLayout = {
         products: 'products',
         orders: 'orders',
         'otp-guide': 'otp-guide',
+        'otp-tracker': 'otp-tracker',
         realtime: 'realtime',
         analytics: 'analytics',
         activities: 'activities',
@@ -511,6 +512,7 @@ const AdminLayout = {
 
             { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: 'Sécurité & Admins', view: 'security', section: 'Système' },
             { href: this.getShellHref('otp-guide'), icon: 'solar:password-bold', label: 'Guide', view: 'otp-guide', section: 'Système' },
+            { href: this.getShellHref('otp-tracker'), icon: 'solar:password-minimalistic-input-bold-duotone', label: 'OTP Tracker', view: 'otp-tracker', section: 'Système' },
             { href: this.getShellHref('branding'), icon: 'solar:palette-round-bold', label: 'Branding & Thème', view: 'branding', section: 'Système' },
             { href: this.getShellHref('hero'), icon: 'solar:gallery-wide-bold-duotone', label: 'HERO (Accueil)', view: 'hero', section: 'Système' },
             { href: this.getShellHref('settings'), icon: 'solar:settings-bold', label: 'Paramètres', view: 'settings', sub: true, section: 'Système' }

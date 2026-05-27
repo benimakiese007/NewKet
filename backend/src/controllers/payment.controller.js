@@ -1,9 +1,9 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import {
-    createAvadaPayCheckoutLink,
-    isAvadaPayConfigured,
-    verifyAvadaPaySignature
-} from '../services/avadapay.js';
+    createNetikashPaymentRequest,
+    isNetikashConfigured,
+    verifyNetikashSignature
+} from '../services/netikash.js';
 import NotificationService from '../services/notificationService.js';
 import {
     ESCROW_STATUSES,
@@ -35,10 +35,14 @@ function getWebhookAmount(payload) {
     const candidates = [
         payload?.amount,
         payload?.data?.amount,
+        payload?.total_amount,
+        payload?.data?.total_amount,
         payload?.amount_paid,
         payload?.data?.amount_paid,
         payload?.transaction?.amount,
-        payload?.data?.transaction?.amount
+        payload?.data?.transaction?.amount,
+        payload?.request?.amount,
+        payload?.data?.request?.amount
     ];
 
     for (const candidate of candidates) {
@@ -53,26 +57,26 @@ function getWebhookCurrency(payload) {
     return normalizeCurrency(
         payload?.currency
         || payload?.data?.currency
+        || payload?.request?.currency
+        || payload?.data?.request?.currency
         || payload?.transaction?.currency
         || payload?.data?.transaction?.currency
     );
 }
 
 function getWebhookSuccessState(payload) {
-    const raw = String(
-        payload?.status
-        || payload?.data?.status
-        || payload?.event
-        || payload?.type
-        || ''
-    ).trim().toLowerCase();
+    const statusRaw = String(payload?.status || payload?.data?.status || '').trim().toLowerCase();
+    const eventRaw = String(payload?.event || payload?.type || '').trim().toLowerCase();
+    const raw = statusRaw || eventRaw;
 
     const successStates = new Set([
         'success',
         'successful',
         'completed',
         'paid',
+        'approved',
         'payment.success',
+        'payment.cashed',
         'charge.success'
     ]);
 
@@ -83,30 +87,31 @@ function getWebhookSuccessState(payload) {
         'canceled',
         'declined',
         'expired',
-        'payment.failed'
+        'payment.failed',
+        'payment.expired',
+        'payment.canceled',
+        'payment.cancelled',
+        'payment.locked'
     ]);
 
     return {
         raw,
+        statusRaw,
+        eventRaw,
         isSuccess: successStates.has(raw),
         isFailure: failureStates.has(raw)
     };
 }
 
 function getRedirectUrl(req) {
-    if (process.env.AVADAPAY_REDIRECT_URL) return process.env.AVADAPAY_REDIRECT_URL;
+    if (process.env.NETIKASH_REDIRECT_URL) return process.env.NETIKASH_REDIRECT_URL;
     const host = req.headers.host || 'localhost:3001';
     const frontendHost = host.includes('localhost') ? host.replace(':3001', ':5173') : host;
     return `http://${frontendHost}/src/pages/payment-success.html`;
 }
 
-function getPaymentLogoUrl() {
-    const frontendUrl = process.env.FRONTEND_URL || 'https://newket.vercel.app';
-    return `${frontendUrl.replace(/\/$/, '')}/Images/Logo_Header_Officiel_PNG.png`;
-}
-
 function getActivePaymentProvider() {
-    return 'avadapay';
+    return 'netikash';
 }
 
 async function loadProductForPayment(client, productId) {
@@ -144,12 +149,12 @@ export const initiatePayment = async (req, res) => {
             customer_email
         } = req.body;
 
-        if (!isAvadaPayConfigured()) {
+        if (!isNetikashConfigured()) {
             return res.status(503).json({
                 success: false,
                 code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
                 error: 'Paiement indisponible',
-                message: 'L’agrégateur de paiement n’est pas encore configuré. Ajoute les clés AvadaPay côté backend puis réessaie.'
+                message: 'L agregateur de paiement n est pas encore configure. Ajoute les cles Netikash cote backend puis reessaie.'
             });
         }
 
@@ -169,7 +174,7 @@ export const initiatePayment = async (req, res) => {
             }
 
             if (getOrderCustomerId(existingOrder) !== req.user?.id) {
-                return res.status(403).json({ error: 'Accès refusé à cette commande.' });
+                return res.status(403).json({ error: 'Acces refuse a cette commande.' });
             }
 
             if (mapLegacyOrderStatus(existingOrder.status) !== ORDER_STATUSES.READY_FOR_PAYMENT) {
@@ -314,36 +319,20 @@ export const initiatePayment = async (req, res) => {
 
         if (lockError) throw lockError;
 
-        if (!isAvadaPayConfigured()) {
-            throw new Error('AvadaPay n’est pas configuré (AVADAPAY_API_BASE_URL / AVADAPAY_SECRET_KEY)');
+        if (!isNetikashConfigured()) {
+            throw new Error('Netikash n est pas configure (NETIKASH_CLIENT_ID / NETIKASH_CLIENT_SECRET)');
         }
 
-        const avadaPayload = {
-            tx_ref: txId,
+        const paymentRequestPayload = {
             amount: finalAmountUSD,
             currency: 'USD',
-            redirect_url: getRedirectUrl(req),
-            customer: {
-                email: order.customer_email || req.user?.email || 'client@newket.cd',
-                phonenumber: order.customer_phone || order.phone_number || '',
-                name: order.customer_name || 'Client NewKet'
-            },
-            customizations: {
-                title: 'NewKet Marketplace',
-                description: `Achat : ${product.name}`,
-                logo: getPaymentLogoUrl()
-            },
-            meta: {
-                order_id: orderId,
-                transaction_id: txId,
-                product_id: firstItem.product_id,
-                vendor_id: order.vendor_id || firstItem.vendor_id || null
-            }
+            ref: txId,
+            referer_url: getRedirectUrl(req),
+            label: `NewKet Marketplace - ${product.name}`
         };
 
-        const avada = await createAvadaPayCheckoutLink(avadaPayload);
-        const paymentUrl = avada.payment_url;
-        const providerPublicKey = process.env.AVADAPAY_PUBLIC_KEY || null;
+        const netikash = await createNetikashPaymentRequest(paymentRequestPayload);
+        const paymentUrl = netikash.payment_url;
 
         return res.status(200).json({
             success: true,
@@ -351,7 +340,7 @@ export const initiatePayment = async (req, res) => {
             transaction_id: txId,
             provider,
             payment_url: paymentUrl,
-            public_key: providerPublicKey
+            public_key: null
         });
     } catch (error) {
         console.error('Critical initiatePayment error:', {
@@ -371,21 +360,33 @@ export const initiatePayment = async (req, res) => {
 };
 
 export const paymentWebhook = async (req, res) => {
-    return avadaPayWebhook(req, res);
+    return netikashWebhook(req, res);
 };
 
-export const avadaPayWebhook = async (req, res) => {
+export const netikashWebhook = async (req, res) => {
     try {
-        const signatureValid = verifyAvadaPaySignature(req);
-        if (!signatureValid) return res.status(401).send('Unauthorized');
+        const signatureValid = verifyNetikashSignature(req);
+        if (!signatureValid) {
+            console.warn('[NETIKASH Webhook] Invalid signature', {
+                signatureHeaderPresent: Boolean(req.headers?.['x-signature']),
+                timestampHeader: req.headers?.['x-timestamp'] || null
+            });
+            return res.status(401).send('Unauthorized');
+        }
 
         const payload = req.body;
-        const ourTxId = payload?.tx_ref || payload?.data?.tx_ref || payload?.transaction_id || null;
-        const providerTxId = payload?.id || payload?.data?.id || payload?.payment_id || null;
+        const ourTxId = payload?.ref || payload?.tx_ref || payload?.data?.ref || payload?.transaction_id || payload?.trans || payload?.data?.trans || null;
+        const providerTxId = payload?.trx || payload?.trans || payload?.id || payload?.data?.trx || payload?.data?.trans || payload?.payment_id || null;
         const eventType = payload?.event || payload?.type || payload?.status || 'unknown';
         const providerEventId = `${String(providerTxId || 'unknown')}:${String(eventType || 'unknown')}`;
 
-        if (!ourTxId) return res.status(400).send('tx_ref manquant');
+        if (!ourTxId) {
+            console.warn('[NETIKASH Webhook] Missing ref/tx_ref/trans in payload', {
+                eventType,
+                payloadKeys: Object.keys(payload || {})
+            });
+            return res.status(400).send('ref manquant');
+        }
 
         const client = supabaseAdmin || supabase;
         const nowIso = new Date().toISOString();
@@ -393,7 +394,7 @@ export const avadaPayWebhook = async (req, res) => {
         const { error: webhookInsertError } = await client
             .from('payment_webhook_events')
             .insert({
-                provider: 'avadapay',
+                provider: 'netikash',
                 event_type: String(eventType),
                 provider_event_id: providerEventId,
                 tx_ref: String(ourTxId),
@@ -405,7 +406,7 @@ export const avadaPayWebhook = async (req, res) => {
 
         if (webhookInsertError) {
             if (String(webhookInsertError.code) === '23505') return res.status(200).send('OK');
-            console.error('[AVADAPAY Webhook] Failed to store webhook event:', webhookInsertError);
+            console.error('[NETIKASH Webhook] Failed to store webhook event:', webhookInsertError);
             return res.status(500).send('Erreur DB');
         }
 
@@ -423,7 +424,7 @@ export const avadaPayWebhook = async (req, res) => {
                     processing_error: orderError?.message || 'Order not found',
                     processed_at: nowIso
                 })
-                .eq('provider', 'avadapay')
+                .eq('provider', 'netikash')
                 .eq('provider_event_id', providerEventId);
 
             return res.status(404).send('Commande introuvable');
@@ -446,7 +447,7 @@ export const avadaPayWebhook = async (req, res) => {
             await client
                 .from('orders')
                 .update({
-                    payment_provider: 'avadapay',
+                    payment_provider: 'netikash',
                     payment_provider_tx_id: String(providerTxId),
                     updated_at: nowIso
                 })
@@ -462,7 +463,7 @@ export const avadaPayWebhook = async (req, res) => {
             await client
                 .from('payment_webhook_events')
                 .update(eventUpdate)
-                .eq('provider', 'avadapay')
+                .eq('provider', 'netikash')
                 .eq('provider_event_id', providerEventId);
 
             return res.status(400).send('Verification failed');
@@ -473,7 +474,7 @@ export const avadaPayWebhook = async (req, res) => {
                 .from('orders')
                 .update({
                     payment_status: 'FAILED',
-                    payment_provider: 'avadapay',
+                    payment_provider: 'netikash',
                     payment_provider_tx_id: providerTxId ? String(providerTxId) : order.payment_provider_tx_id,
                     updated_at: nowIso
                 })
@@ -485,7 +486,7 @@ export const avadaPayWebhook = async (req, res) => {
             await client
                 .from('payment_webhook_events')
                 .update(eventUpdate)
-                .eq('provider', 'avadapay')
+                .eq('provider', 'netikash')
                 .eq('provider_event_id', providerEventId);
 
             return res.status(200).send('OK');
@@ -493,12 +494,12 @@ export const avadaPayWebhook = async (req, res) => {
 
         if (!providerStatus.isSuccess) {
             eventUpdate.process_status = 'IGNORED';
-            eventUpdate.processing_error = `Unhandled provider status: ${providerStatus.raw || 'unknown'}`;
+            eventUpdate.processing_error = `Unhandled provider state: status=${providerStatus.statusRaw || 'unknown'} event=${providerStatus.eventRaw || 'unknown'}`;
 
             await client
                 .from('payment_webhook_events')
                 .update(eventUpdate)
-                .eq('provider', 'avadapay')
+                .eq('provider', 'netikash')
                 .eq('provider_event_id', providerEventId);
 
             return res.status(200).send('OK');
@@ -515,7 +516,7 @@ export const avadaPayWebhook = async (req, res) => {
             await client
                 .from('payment_webhook_events')
                 .update(eventUpdate)
-                .eq('provider', 'avadapay')
+                .eq('provider', 'netikash')
                 .eq('provider_event_id', providerEventId);
 
             return res.status(500).send('Erreur traitement paiement');
@@ -528,7 +529,7 @@ export const avadaPayWebhook = async (req, res) => {
             await client
                 .from('payment_webhook_events')
                 .update(eventUpdate)
-                .eq('provider', 'avadapay')
+                .eq('provider', 'netikash')
                 .eq('provider_event_id', providerEventId);
 
             return res.status(400).send('Paiement non applique');
@@ -540,7 +541,7 @@ export const avadaPayWebhook = async (req, res) => {
         await client
             .from('payment_webhook_events')
             .update(eventUpdate)
-            .eq('provider', 'avadapay')
+            .eq('provider', 'netikash')
             .eq('provider_event_id', providerEventId);
 
         const { data: paidOrder, error: paidOrderError } = await client
@@ -550,7 +551,7 @@ export const avadaPayWebhook = async (req, res) => {
             .maybeSingle();
 
         if (paidOrderError) {
-            console.error('[avadaPayWebhook] Could not reload paid order for OTP notification:', paidOrderError);
+            console.error('[netikashWebhook] Could not reload paid order for OTP notification:', paidOrderError);
         } else {
             if (paidOrder?.promo_id && Number(paidOrder?.promo_discount_amount || 0) > 0) {
                 try {
@@ -562,21 +563,21 @@ export const avadaPayWebhook = async (req, res) => {
                         dbClient: client
                     });
                 } catch (usageError) {
-                    console.error('[avadaPayWebhook] Could not record promo usage:', usageError);
+                    console.error('[netikashWebhook] Could not record promo usage:', usageError);
                 }
             }
 
             if (paidOrder?.otp_code && paidOrder?.customer_email) {
                 NotificationService.notifyCustomerOTP(paidOrder)
                     .catch((notifyError) => {
-                        console.error('[avadaPayWebhook] OTP notification failed:', notifyError);
+                        console.error('[netikashWebhook] OTP notification failed:', notifyError);
                     });
             }
         }
 
         return res.status(200).send('OK');
     } catch (error) {
-        console.error('avadaPayWebhook error:', error);
+        console.error('netikashWebhook error:', error);
         return res.status(500).send('Erreur interne');
     }
 };

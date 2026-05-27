@@ -611,7 +611,7 @@ export function buildProductCardHTML(p, options = {}) {
     const images = (p.image || '').split(',');
     const rawImg = images[0].trim() || 'Images/default.png';
     const mainImg = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(rawImg, { width: 400, quality: 80 }) : rawImg;
-    const fallbackImg = '/src/assets/Images/default.png';
+    const fallbackImg = '/Images/default.png';
 
     // Format price
     const priceDisplay = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : `${(p.price || 0).toLocaleString()} FC`;
@@ -681,6 +681,8 @@ export function buildProductCardHTML(p, options = {}) {
                         ${productImgAttrs}
                         alt="${p.name}"
                         decoding="async"
+                        width="400"
+                        height="400"
                         class="${productImgClass}"
                         style="background:#f3f4f6; transition: opacity 0.3s ease;"
                         onerror="this.src='${fallbackImg}'"
@@ -692,7 +694,7 @@ export function buildProductCardHTML(p, options = {}) {
                 <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
                         ${avatar
-                            ? `<img ${avatarImgAttrs} alt="Avatar Vendeur" decoding="async" class="${avatarImgClass}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                            ? `<img ${avatarImgAttrs} alt="Avatar Vendeur" decoding="async" width="36" height="36" class="${avatarImgClass}" style="width: 100%; height: 100%; object-fit: cover;">` 
                             : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
                         }
                     </div>
@@ -972,7 +974,7 @@ export function buildSkeletonIncidentListHTML(count = 4) {
  * Supabase runtime transformations are disabled for this project, so URLs are left untouched.
  */
 export function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
-    if (!url) return '/src/assets/Images/default.png';
+    if (!url) return '/Images/default.png';
     
     let target = url;
     // If it's an array, take the first element
@@ -981,7 +983,7 @@ export function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
     }
     
     if (typeof target !== 'string') {
-        return '/src/assets/Images/default.png';
+        return '/Images/default.png';
     }
 
     // Handle comma-separated list of images
@@ -989,7 +991,7 @@ export function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
     const firstImg = (images[0] || '').trim();
     
     if (!firstImg || firstImg === 'Images/default.png') {
-        return '/src/assets/Images/default.png';
+        return '/Images/default.png';
     }
 
     // If it's a local preview (Data URL) return it as is
@@ -999,7 +1001,7 @@ export function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
 
     // Handle relative local paths (Images/...)
     if (firstImg.startsWith('Images/')) {
-        return '/src/assets/' + firstImg;
+        return '/' + firstImg;
     }
 
     // Handle Supabase storage paths (product-images, vendor-covers, user-assets, vendor-docs, site-assets)
@@ -2003,7 +2005,7 @@ window.showPromptModal = ({
             return;
         }
 
-        // Show a quick modal to collect customer info (Phone & City & Email for AvadaPay)
+        // Show a quick modal to collect customer info (Phone & City & Email for Netikash)
         const customerInfo = await showCheckoutModal(p.name, p.price);
         if (!customerInfo) {
             btnElement.innerHTML = originalHtml;

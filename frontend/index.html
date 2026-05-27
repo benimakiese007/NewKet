@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="auth-loading">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -49,17 +49,15 @@
     <link rel="stylesheet" href="src/assets/css/input.css">
     <!-- Theme FOUC prevention — synchronous, blocks rendering -->
     <script src="/security-bootstrap.js"></script>
-    <script type="module" src="src/services/app.js"></script>
-    <script type="module" src="src/services/HeroSlider.js"></script>
+    <script type="module" src="src/services/app-home.js"></script>
     <script type="module" src="src/services/home-hero.js"></script>
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="preload" as="image" href="src/assets/Images/marketplace-hero.jpg" type="image/jpeg">
+    <link rel="preload" as="image" href="/Images/marketplace-hero.jpg" type="image/jpeg" fetchpriority="high">
 
 
-    <link rel="stylesheet" href="src/assets/css/style.css">
     <link rel="stylesheet" href="src/assets/css/responsive.css">
     <style>
         * {
@@ -117,6 +115,8 @@
     <div id="header-placeholder"></div>
     <div id="category-nav-placeholder"></div>
 
+    <main id="main-content">
+
     <!-- The header component handles its own spacing if needed -->
 
     <!-- ========== PRODUITS ÉPINGLÉS ========== -->
@@ -146,9 +146,7 @@
     <section id="heroSection" class="relative overflow-hidden mx-4 sm:mx-6 lg:mx-8 rounded-3xl shadow-2xl shadow-black/20">
         <!-- Background Slider Container -->
         <div id="heroSlider" class="absolute inset-0 z-0">
-            <div class="hero-slide active" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/src/assets/Images/marketplace-hero.jpg');"></div>
-            <div class="hero-slide" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/src/assets/Images/hero-black-friday.png');"></div>
-            <div class="hero-slide" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/src/assets/Images/hero-bf-definition.webp');"></div>
+            <div class="hero-slide active" style="background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/Images/marketplace-hero.jpg');"></div>
         </div>
 
         <div class="absolute inset-0 bg-black/50 backdrop-blur-[4px] z-[1]"></div>
@@ -262,17 +260,26 @@
     <!-- Script pour dupliquer les éléments afin de garantir le scroll infini -->
     <script>
         (function() {
-            const container = document.querySelector('.animate-scroll');
-            if (container) {
+            const run = function() {
+                const container = document.querySelector('.animate-scroll');
+                if (!container || container.dataset.enhanced === 'true') return;
+
                 const children = Array.from(container.children);
-                // Duplicate elements multiple times for infinite scroll effect
                 const fragment = document.createDocumentFragment();
                 for (let i = 0; i < 11; i++) {
                     children.forEach(child => {
                         fragment.appendChild(child.cloneNode(true));
                     });
                 }
+
                 container.appendChild(fragment);
+                container.dataset.enhanced = 'true';
+            };
+
+            if ('requestIdleCallback' in window) {
+                window.requestIdleCallback(run, { timeout: 2000 });
+            } else {
+                window.setTimeout(run, 800);
             }
         })();
     </script>
@@ -326,6 +333,8 @@
             <div id="recently-viewed-container" class="flex gap-6 overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0" style="scrollbar-width:none;"></div>
         </div>
     </section>
+
+    </main>
 
     <div id="footer-placeholder"></div>
     <div id="mobile-nav-placeholder"></div>

@@ -215,7 +215,7 @@ async function fetchVendorPayoutDetails(client, vendorId) {
 }
 
 async function attemptVendorPayoutTransfer(vendor) {
-    // Legacy payout provider removed: keep escrow release working with manual payout until AvadaPay payouts are integrated.
+    // Provider payout is still not wired: keep escrow release working with manual payout until NewKet decides to automate vendor transfers.
     if (!vendor || (!vendor.account_number && !vendor.mobile_money_number)) {
         return { status: 'manual', message: 'Transfert automatique non disponible (coordonnées vendeur manquantes).' };
     }

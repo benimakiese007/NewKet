@@ -16,8 +16,9 @@ function renderHero(config) {
     if (!heroSection) return;
 
     const slider = document.getElementById('heroSlider');
-    if (slider && Array.isArray(config?.slides)) {
-        slider.innerHTML = config.slides.map((s, idx) => {
+    const slides = Array.isArray(config?.slides) ? config.slides.slice(0, 2) : [];
+    if (slider && slides.length > 0) {
+        slider.innerHTML = slides.map((s, idx) => {
             const overlay = typeof s.overlay === 'number' ? s.overlay : 0.4;
             const imageUrl = s.imageUrl || '';
             const active = idx === 0 ? ' active' : '';
@@ -59,4 +60,3 @@ if (document.readyState === 'loading') {
 } else {
     boot();
 }
-

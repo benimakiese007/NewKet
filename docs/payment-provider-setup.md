@@ -3,7 +3,7 @@
 ## Current state
 
 - Checkout initialization is implemented.
-- AvadaPay webhook storage and idempotence are implemented.
+- Netikash pay-in webhook storage and idempotence are implemented.
 - Vendor payout remains manual until the aggregator payout credentials and final API contract are available.
 
 ## Required backend variables
@@ -11,12 +11,14 @@
 Add these values in `backend/.env`:
 
 ```env
-AVADAPAY_API_BASE_URL=
-AVADAPAY_PUBLIC_KEY=
-AVADAPAY_SECRET_KEY=
-AVADAPAY_WEBHOOK_SECRET=
-AVADAPAY_SIGNATURE_HEADER=x-avadapay-signature
-AVADAPAY_REDIRECT_URL=http://localhost:5173/pages/payment-success.html
+NETIKASH_ACCOUNTS_BASE_URL=https://accounts.netikash.com
+NETIKASH_API_BASE_URL=https://api.netikash.com/api/v1/trs
+NETIKASH_CLIENT_ID=
+NETIKASH_CLIENT_SECRET=
+NETIKASH_WEBHOOK_SIGNING_KEY=
+NETIKASH_SIGNATURE_HEADER=x-signature
+NETIKASH_TIMESTAMP_HEADER=x-timestamp
+NETIKASH_REDIRECT_URL=http://localhost:5173/pages/payment-success.html
 ```
 
 ## Behavior without keys
@@ -27,7 +29,7 @@ AVADAPAY_REDIRECT_URL=http://localhost:5173/pages/payment-success.html
 
 ## Remaining work after keys arrive
 
-1. Confirm the exact checkout endpoint path and response shape with the aggregator docs.
-2. Validate the real signature header and HMAC format.
+1. Create the callback destination in Netikash and store the returned signing key in `NETIKASH_WEBHOOK_SIGNING_KEY`.
+2. Validate the live webhook payload shape for amount/currency fields and keep `ref = transaction_id`.
 3. Validate end-to-end flow: checkout, webhook, order payment processing.
-4. Replace manual vendor payout with the provider payout API when available.
+4. Keep vendor payout manual unless NewKet later decides to automate that part separately.

@@ -6,6 +6,11 @@
 const HERO_ROW_ID = 'homepage-hero';
 const HERO_LOCAL_KEY = 'newket_homepage_hero_content_v1';
 const HERO_LOCAL_TIME_KEY = 'newket_homepage_hero_content_time_v1';
+const HERO_PUBLIC_IMAGE_MAP = {
+    'marketplace-hero.jpg': '/Images/marketplace-hero.jpg',
+    'hero-black-friday.png': '/Images/hero-black-friday.png',
+    'hero-bf-definition.webp': '/Images/hero-bf-definition.webp'
+};
 
 function nowIso() {
     return new Date().toISOString();
@@ -21,13 +26,26 @@ function clampNumber(v, min, max, fallback) {
     return Math.min(max, Math.max(min, n));
 }
 
+function normalizeHeroImageUrl(value) {
+    const raw = safeString(value).trim();
+    if (!raw) return '';
+
+    const match = raw.match(/([^/?#]+)$/);
+    const fileName = match ? match[1] : '';
+    if (fileName && HERO_PUBLIC_IMAGE_MAP[fileName]) {
+        return HERO_PUBLIC_IMAGE_MAP[fileName];
+    }
+
+    return raw;
+}
+
 const HeroContentManager = {
     defaults: {
         id: HERO_ROW_ID,
         slides: [
-            { imageUrl: '/src/assets/Images/marketplace-hero.jpg', overlay: 0.4 },
-            { imageUrl: '/src/assets/Images/hero-black-friday.png', overlay: 0.4 },
-            { imageUrl: '/src/assets/Images/hero-bf-definition.webp', overlay: 0.4 }
+            { imageUrl: '/Images/marketplace-hero.jpg', overlay: 0.4 },
+            { imageUrl: '/Images/hero-black-friday.png', overlay: 0.4 },
+            { imageUrl: '/Images/hero-bf-definition.webp', overlay: 0.4 }
         ],
         content: {
             titleLine1: 'SUBTILE',
@@ -50,7 +68,7 @@ const HeroContentManager = {
         const normalizedSlides = slides
             .filter(s => s && typeof s === 'object')
             .map(s => ({
-                imageUrl: safeString(s.imageUrl || s.url || ''),
+                imageUrl: normalizeHeroImageUrl(s.imageUrl || s.url || ''),
                 overlay: clampNumber(s.overlay, 0, 0.85, 0.4)
             }))
             .filter(s => !!s.imageUrl);

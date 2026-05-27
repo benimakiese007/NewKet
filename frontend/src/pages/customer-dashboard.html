@@ -550,7 +550,7 @@
                     </div>
                     <div class="space-y-1 text-right">
                         <div class="text-xs font-bold text-gray-400 uppercase">Mode de paiement</div>
-                        <div id="modalContactMethod" class="text-sm font-medium">AvadaPay</div>
+                        <div id="modalContactMethod" class="text-sm font-medium">Netikash</div>
                     </div>
                 </div>
 
@@ -2366,7 +2366,7 @@
                 transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id.substring(0, 16)}...` : '';
             }
             if (contactMethodEl) {
-                contactMethodEl.textContent = order.payment_status && order.payment_status !== 'N/A' ? 'AvadaPay Online' : 'Paiement en cours';
+                contactMethodEl.textContent = order.payment_status && order.payment_status !== 'N/A' ? 'Netikash Online' : 'Paiement en cours';
             }
 
             const itemsList = document.getElementById('modalOrderItems');

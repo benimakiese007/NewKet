@@ -7,7 +7,7 @@ const router = express.Router();
 // Route pour initialiser un paiement depuis le frontend - Protégée
 router.post('/initiate', requireAuth, paymentController.initiatePayment);
 
-// Webhook AvadaPay
+// Webhook Netikash
 router.post('/notify', paymentController.paymentWebhook);
 
 router.get('/status/:tx_ref', optionalAuth, paymentController.getPaymentStatus);

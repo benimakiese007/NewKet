@@ -73,9 +73,9 @@ const UI = {
             window.buildProductCardHTML(p, {
                 animationClass: 'animate-fade-in',
                 delay: `${idx * 0.05}s`,
-                imageLoading: 'eager',
-                prioritizeImage: true,
-                prioritizeAvatar: true
+                imageLoading: idx === 0 ? 'eager' : 'lazy',
+                prioritizeImage: idx === 0,
+                prioritizeAvatar: idx === 0
             })
         ).join('');
         // ✅ Activer le lazy loading sur les nouvelles images
@@ -98,9 +98,9 @@ const UI = {
             window.buildProductCardHTML(p, {
                 animationClass: 'animate-fade-in',
                 delay: `${idx * 0.05}s`,
-                imageLoading: idx < 4 ? 'eager' : 'lazy',
-                prioritizeImage: idx < 4,
-                prioritizeAvatar: idx < 2
+                imageLoading: idx === 0 ? 'eager' : 'lazy',
+                prioritizeImage: idx === 0,
+                prioritizeAvatar: idx === 0
             })
         ).join('');
         // ✅ Activer le lazy loading sur les nouvelles images
@@ -175,9 +175,9 @@ const UI = {
             window.buildProductCardHTML(p, {
                 animationClass: 'animate-fade-in',
                 delay: `${idx * 0.05}s`,
-                imageLoading: !append && idx < 4 ? 'eager' : 'lazy',
-                prioritizeImage: !append && idx < 4,
-                prioritizeAvatar: !append && idx < 2
+                imageLoading: !append && idx === 0 ? 'eager' : 'lazy',
+                prioritizeImage: !append && idx === 0,
+                prioritizeAvatar: !append && idx === 0
             })
         ).join('');
 
