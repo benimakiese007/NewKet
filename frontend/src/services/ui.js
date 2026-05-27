@@ -69,7 +69,9 @@ const UI = {
 
         if (section) section.classList.remove('hidden');
 
-        grid.innerHTML = pinned.map((p, idx) =>
+        const isMobile = window.matchMedia('(max-width: 767px)').matches;
+        const limit = isMobile ? 4 : 12;
+        grid.innerHTML = pinned.slice(0, limit).map((p, idx) =>
             window.buildProductCardHTML(p, {
                 animationClass: 'animate-fade-in',
                 delay: `${idx * 0.05}s`,
@@ -92,7 +94,8 @@ const UI = {
         }
 
         // products are already sorted by created_at desc from manager
-        const recent = products.slice(0, 10);
+        const recentLimit = window.matchMedia('(max-width: 767px)').matches ? 6 : 10;
+        const recent = products.slice(0, recentLimit);
 
         grid.innerHTML = recent.map((p, idx) =>
             window.buildProductCardHTML(p, {
@@ -117,7 +120,10 @@ const UI = {
         }
 
         // Initial render: always clear if called directly (e.g. on filter change)
-        this.renderFilteredBatch(products, grid, ProductManager.getBatchSize?.() || 8, false);
+        const batchSize = window.matchMedia('(max-width: 767px)').matches
+            ? Math.min(ProductManager.getBatchSize?.() || 8, 6)
+            : (ProductManager.getBatchSize?.() || 8);
+        this.renderFilteredBatch(products, grid, batchSize, false);
     },
 
     /**
