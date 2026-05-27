@@ -97,8 +97,6 @@ const HEADER_HTML = `
                     <input type="text" id="searchInput" name="search" placeholder="Rechercher sur NewKet..." aria-label="Rechercher des produits"
                         class="search-input" autocomplete="off" spellcheck="false">
                         
-                    <iconify-icon icon="solar:magnifer-linear" width="20" class="search-icon"></iconify-icon>
-                    
                     <button id="searchBtn" aria-label="Lancer la recherche"
                         class="bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800 transition-all hidden md:flex items-center justify-center btn-active-scale">
                         <iconify-icon icon="solar:magnifer-linear" width="18"></iconify-icon>

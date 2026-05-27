@@ -321,7 +321,16 @@ const ProductManager = {
         try {
             // Send to Express Backend (which increments Supabase)
             // We use a fire-and-forget style to not slow down the UI
-            window.ApiClient.post(`/analytics/view/${id}`).catch(() => {});
+            window.ApiClient.post(
+                `/analytics/view/${id}`,
+                {},
+                {
+                    suppressNetworkError: true,
+                    suppressErrorLogging: true,
+                    suppressToast: true,
+                    dedupe: false
+                }
+            ).catch(() => {});
         } catch (err) {
         }
     },

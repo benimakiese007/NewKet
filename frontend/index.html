@@ -108,30 +108,27 @@
             mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
 
+        body.home-page .newket-header-shell .publish-btn span,
+        body.home-page .newket-header-shell #searchBtn {
+            display: none !important;
+        }
+
+        body.home-page .newket-header-shell .publish-btn {
+            min-width: 44px;
+            width: 44px;
+            padding-left: 0.85rem;
+            padding-right: 0.85rem;
+            justify-content: center;
+        }
+
+        body.home-page .newket-header-shell .publish-btn iconify-icon {
+            margin-right: 0;
+        }
+
     </style>
 </head>
 
-<body class="bg-white text-gray-900 antialiased">
-    <style>
-        #header-placeholder {
-            min-height: 92px;
-        }
-
-        #category-nav-placeholder {
-            min-height: 44px;
-        }
-
-        @media (max-width: 640px) {
-            #header-placeholder {
-                min-height: 64px;
-            }
-
-            #category-nav-placeholder {
-                min-height: 40px;
-            }
-        }
-    </style>
-
+<body class="bg-white text-gray-900 antialiased home-page">
     <div id="header-placeholder"></div>
     <div id="category-nav-placeholder"></div>
 
