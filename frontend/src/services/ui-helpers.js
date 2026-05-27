@@ -684,7 +684,7 @@ export function buildProductCardHTML(p, options = {}) {
                         width="400"
                         height="400"
                         class="${productImgClass}"
-                        style="background:#f3f4f6; transition: opacity 0.3s ease;"
+                        style="background:#f3f4f6; transition: opacity 0.3s ease; aspect-ratio: 1 / 1;"
                         onerror="this.src='${fallbackImg}'"
                     >
                 </a>
@@ -694,7 +694,7 @@ export function buildProductCardHTML(p, options = {}) {
                 <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
                         ${avatar
-                            ? `<img ${avatarImgAttrs} alt="Avatar Vendeur" decoding="async" width="36" height="36" class="${avatarImgClass}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                            ? `<img ${avatarImgAttrs} alt="Avatar Vendeur" decoding="async" width="36" height="36" class="${avatarImgClass}" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 1 / 1;">` 
                             : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
                         }
                     </div>

@@ -11,6 +11,14 @@ function setLink(el, label, href) {
     if (href != null) el.setAttribute('href', href || '#');
 }
 
+function sameHeroConfig(a, b) {
+    try {
+        return JSON.stringify(a) === JSON.stringify(b);
+    } catch {
+        return false;
+    }
+}
+
 function renderHero(config) {
     const heroSection = document.getElementById('heroSection');
     if (!heroSection) return;
@@ -53,14 +61,21 @@ async function boot() {
     // without waiting for the remote fetch path.
     renderHero(HeroContentManager.getConfig());
 
+    const current = HeroContentManager.getConfig();
     HeroContentManager.init()
-        .then((config) => renderHero(config))
+        .then((config) => {
+            if (!sameHeroConfig(current, config)) {
+                renderHero(config);
+            }
+        })
         .catch((err) => {
             console.warn('[NewKet Home] Hero config init failed:', err?.message || err);
         });
 
     window.addEventListener('heroContentUpdated', (e) => {
-        if (e?.detail) renderHero(e.detail);
+        if (e?.detail && !sameHeroConfig(HeroContentManager.getConfig(), e.detail)) {
+            renderHero(e.detail);
+        }
     });
 }
 
