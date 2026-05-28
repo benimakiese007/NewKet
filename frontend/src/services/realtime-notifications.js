@@ -7,6 +7,7 @@
 const AppNotifications = {
     toastContainer: null,
     deferredPrompt: null,
+    pushPublicKey: null,
 
     init() {
         this._setupPWA();
@@ -14,6 +15,9 @@ const AppNotifications = {
         // Wait for Supabase client
         document.addEventListener('newketInitialized', () => {
             this._setupRealtime();
+            this.syncDevicePushSubscription().catch(err => {
+                console.warn('[NewKet] Device push sync skipped:', err?.message || err);
+            });
         });
     },
 
@@ -200,6 +204,110 @@ const AppNotifications = {
             }
             this.deferredPrompt = null;
         });
+    },
+
+    _urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+    },
+
+    async _getServiceWorkerRegistration() {
+        if (!('serviceWorker' in navigator)) return null;
+        const existing = await navigator.serviceWorker.getRegistration('/');
+        return existing || navigator.serviceWorker.register('/sw.js');
+    },
+
+    async _getPushPublicKey() {
+        if (this.pushPublicKey) return this.pushPublicKey;
+        if (!window.ApiClient) return null;
+
+        const config = await window.ApiClient.get('/push/public-key', {
+            suppressToast: true,
+            suppressErrorLogging: true
+        });
+
+        if (!config?.enabled || !config?.publicKey) return null;
+        this.pushPublicKey = config.publicKey;
+        return this.pushPublicKey;
+    },
+
+    isDevicePushSupported() {
+        return Boolean('Notification' in window && 'PushManager' in window && 'serviceWorker' in navigator);
+    },
+
+    async syncDevicePushSubscription() {
+        if (!this.isDevicePushSupported() || Notification.permission !== 'granted') return false;
+        if (!window.ApiClient) return false;
+
+        const publicKey = await this._getPushPublicKey();
+        if (!publicKey) return false;
+
+        const registration = await this._getServiceWorkerRegistration();
+        if (!registration?.pushManager) return false;
+
+        let subscription = await registration.pushManager.getSubscription();
+        if (!subscription) {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: this._urlBase64ToUint8Array(publicKey)
+            });
+        }
+
+        await window.ApiClient.post('/push/subscribe', { subscription: subscription.toJSON() }, {
+            suppressToast: true
+        });
+
+        return true;
+    },
+
+    async enableDeviceNotifications() {
+        if (!this.isDevicePushSupported()) {
+            this.showToast('Notifications appareil', 'Ce navigateur ne supporte pas les notifications PWA.', 'warning');
+            return false;
+        }
+
+        const publicKey = await this._getPushPublicKey();
+        if (!publicKey) {
+            this.showToast('Notifications appareil', 'Les notifications appareil ne sont pas encore configurees cote serveur.', 'warning');
+            return false;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            this.showToast('Notifications appareil', 'Autorisation refusee ou ignoree.', 'warning');
+            return false;
+        }
+
+        await this.syncDevicePushSubscription();
+        this.showToast('Notifications appareil', 'Les notifications appareil sont activees.', 'success');
+        return true;
+    },
+
+    async disableDeviceNotifications() {
+        if (!this.isDevicePushSupported() || !window.ApiClient) return false;
+
+        const registration = await this._getServiceWorkerRegistration();
+        const subscription = await registration?.pushManager?.getSubscription();
+        if (!subscription) return true;
+
+        await window.ApiClient.delete('/push/subscribe', { endpoint: subscription.endpoint }, {
+            suppressToast: true
+        });
+        await subscription.unsubscribe();
+        this.showToast('Notifications appareil', 'Les notifications appareil sont desactivees.', 'info');
+        return true;
+    },
+
+    async getDeviceNotificationStatus() {
+        if (!this.isDevicePushSupported()) return 'unsupported';
+        if (Notification.permission === 'denied') return 'denied';
+        if (Notification.permission !== 'granted') return 'default';
+
+        const registration = await this._getServiceWorkerRegistration();
+        const subscription = await registration?.pushManager?.getSubscription();
+        return subscription ? 'enabled' : 'default';
     }
 };
 

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '../config/supabase.js';
+import WebPushService from '../services/webPushService.js';
 
 export const getNotifications = async (req, res) => {
     try {
@@ -59,11 +60,7 @@ export const addNotification = async (req, res) => {
             date: new Date().toISOString()
         };
 
-        // For broadcasts, don't bind to a specific user so all users receive it
-        if (!isBroadcast) {
-            if (userId) insertPayload.user_id = userId;
-            insertPayload.user_email = userEmail;
-        }
+        // Admin-created notifications target a role/group, not the admin who sent them.
 
         const { data, error } = await supabaseAdmin
             .from('notifications')
@@ -72,6 +69,8 @@ export const addNotification = async (req, res) => {
             .single();
 
         if (error) throw error;
+        WebPushService.sendForNotification(data)
+            .catch(err => console.error('Erreur web push notification:', err));
         res.json(data);
     } catch (err) {
         console.error('Erreur addNotification:', err);

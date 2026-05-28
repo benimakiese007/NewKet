@@ -1,4 +1,4 @@
-const CACHE_NAME = 'newket-cache-v10'; // Increment version
+const CACHE_NAME = 'newket-cache-v11'; // Increment version
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -51,8 +51,50 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim())
     );
+});
+
+self.addEventListener('push', (event) => {
+    let payload = {
+        title: 'NewKet',
+        body: 'Vous avez une nouvelle notification.',
+        icon: '/Images/Logo NewKet PNG-192.png',
+        badge: '/favicon-32x32.png',
+        data: { url: '/' }
+    };
+
+    try {
+        if (event.data) {
+            payload = { ...payload, ...event.data.json() };
+        }
+    } catch {
+        payload.body = event.data ? event.data.text() : payload.body;
+    }
+
+    const { title, ...options } = payload;
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const targetUrl = new URL(event.notification.data?.url || '/', self.location.origin).href;
+
+    event.waitUntil((async () => {
+        const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        for (const client of clientList) {
+            if ('focus' in client && client.url.startsWith(self.location.origin)) {
+                await client.focus();
+                if ('navigate' in client) return client.navigate(targetUrl);
+                return;
+            }
+        }
+
+        if (self.clients.openWindow) {
+            return self.clients.openWindow(targetUrl);
+        }
+    })());
 });
 
 // Fetch Event

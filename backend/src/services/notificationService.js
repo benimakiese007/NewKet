@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import EmailService from './emailService.js';
+import WebPushService from './webPushService.js';
 
 function getFrontendBaseUrl() {
     return (process.env.FRONTEND_URL || 'https://newket.vercel.app').replace(/\/+$/, '');
@@ -12,7 +13,11 @@ async function createDbNotification(payload) {
 
     if (error) {
         console.error('[NotificationService] Error creating DB notification:', error);
+        return;
     }
+
+    WebPushService.sendForNotification(payload)
+        .catch(err => console.error('[NotificationService] Web push error:', err));
 }
 
 async function fetchOrder(orderId) {

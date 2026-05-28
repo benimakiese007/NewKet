@@ -250,6 +250,18 @@
                                     </div>
                                 </label>
                             </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 text-sm">Notifications appareil</h3>
+                                    <p id="notifDeviceStatus" class="text-xs text-gray-500">Alertes PWA hors application.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input id="notifDevice" name="notifDevice" type="checkbox" value="" class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
+                                    </div>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -294,6 +306,7 @@
                     this.loadProfile(user);
                     this.bindEvents();
                     this.customizeByRole(AuthManager.role);
+                    this.refreshDeviceNotificationStatus();
                 },
 
                 loadProfile(user) {
@@ -353,6 +366,66 @@
                     
                     avatarContainer.addEventListener('click', () => avatarInput.click());
                     avatarInput.addEventListener('change', (e) => this.handleAvatarChange(e));
+
+                    const deviceToggle = document.getElementById('notifDevice');
+                    if (deviceToggle) {
+                        deviceToggle.addEventListener('change', async (event) => {
+                            await this.toggleDeviceNotifications(event.target.checked);
+                        });
+                    }
+                },
+
+                async refreshDeviceNotificationStatus() {
+                    const deviceToggle = document.getElementById('notifDevice');
+                    const statusText = document.getElementById('notifDeviceStatus');
+                    if (!deviceToggle || !statusText) return;
+
+                    if (!window.AppNotifications) {
+                        deviceToggle.disabled = true;
+                        statusText.textContent = 'Indisponible sur cette page.';
+                        return;
+                    }
+
+                    try {
+                        const status = await AppNotifications.getDeviceNotificationStatus();
+                        deviceToggle.checked = status === 'enabled';
+                        deviceToggle.disabled = status === 'unsupported' || status === 'denied';
+
+                        const labels = {
+                            enabled: 'Actives sur cet appareil.',
+                            default: 'Activez pour recevoir les alertes hors app.',
+                            denied: 'Bloquees dans les reglages du navigateur.',
+                            unsupported: 'Non supportees par ce navigateur.'
+                        };
+                        statusText.textContent = labels[status] || labels.default;
+                    } catch {
+                        deviceToggle.checked = false;
+                        statusText.textContent = 'Etat impossible a verifier.';
+                    }
+                },
+
+                async toggleDeviceNotifications(enable) {
+                    const deviceToggle = document.getElementById('notifDevice');
+                    const statusText = document.getElementById('notifDeviceStatus');
+                    if (!window.AppNotifications || !deviceToggle) return;
+
+                    deviceToggle.disabled = true;
+                    if (statusText) statusText.textContent = enable ? 'Activation...' : 'Desactivation...';
+
+                    try {
+                        const ok = enable
+                            ? await AppNotifications.enableDeviceNotifications()
+                            : await AppNotifications.disableDeviceNotifications();
+
+                        if (!ok) deviceToggle.checked = false;
+                    } catch (error) {
+                        console.error('Device notification toggle error:', error);
+                        deviceToggle.checked = !enable;
+                        showToast("Impossible de modifier les notifications appareil.", 'error');
+                    } finally {
+                        deviceToggle.disabled = false;
+                        await this.refreshDeviceNotificationStatus();
+                    }
                 },
 
                 async saveProfile() {
