@@ -318,6 +318,33 @@
             if (window.ActivityManager) ActivityManager.log(`Notification envoyée : "${title}"`, 'system');
         }
 
+        function prefillNotificationComposer(encodedNotification) {
+            if (!encodedNotification) return;
+
+            let notification = null;
+            try {
+                notification = JSON.parse(decodeURIComponent(encodedNotification));
+            } catch (err) {
+                console.error('Unable to restore notification for resend', err);
+                showToast('Impossible de charger cette notification.', 'error');
+                return;
+            }
+
+            const displayType = getDisplayType(notification.type);
+            const isBroadcast = isPopupType(notification.type) || String(notification.type || '').startsWith('broadcast:');
+            const target = notification.target_role || notification.target || 'all';
+
+            document.getElementById('notifTitle').value = notification.title || '';
+            document.getElementById('notifMessage').value = notification.message || '';
+            document.getElementById('notifType').value = ['info', 'success', 'warning', 'danger', 'promo'].includes(displayType) ? displayType : 'info';
+            document.getElementById('notifTarget').value = ['all', 'customers', 'suppliers'].includes(target) ? target : 'all';
+            document.getElementById('broadcastToggle').checked = isBroadcast;
+
+            document.querySelector('.glass-panel.p-6')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('notifTitle')?.focus();
+            showToast('Notification chargée dans le composeur.', 'success');
+        }
+
         function getDisplayType(type) {
             if (window.normalizeNotificationType) return window.normalizeNotificationType(type);
             if (!type) return 'info';
@@ -330,8 +357,28 @@
             return type === 'broadcast' || String(type || '').startsWith('broadcast:');
         }
 
+        function getNotificationIcon(type) {
+            if (isPopupType(type)) return '\u{1F4E2}';
+
+            const displayType = getDisplayType(type);
+            const icons = {
+                info: '\u{1F514}',
+                success: '\u2705',
+                warning: '\u26A0\uFE0F',
+                danger: '\u{1F6A8}',
+                promo: '\u{1F381}'
+            };
+
+            return icons[displayType] || '\u{1F514}';
+        }
+
         function getTypeBadge(type) {
             const displayType = getDisplayType(type);
+            if (isPopupType(type)) {
+                return '<span class="badge" style="background:#312e81;color:white;">Broadcast</span>' +
+                    '<span class="badge" style="background:#ddd6fe;color:#5b21b6;">Pop-up</span>';
+            }
+
             const badges = {
                 'info': '<span class="badge badge-info">Info</span>',
                 'success': '<span class="badge badge-success">Succès</span>',
@@ -386,14 +433,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex items-start gap-4 flex-1 min-w-0">
                             <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0 text-lg">
-                                ${{
-                                    info: '\u{1F514}',
-                                    success: '\u2705',
-                                    warning: '\u26A0\uFE0F',
-                                    danger: '\u{1F6A8}',
-                                    promo: '\u{1F381}',
-                                    broadcast: '\u{1F4E2}'
-                                }[n.type] || '\u{1F514}'}
+                                ${getNotificationIcon(n.type)}
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -409,11 +449,18 @@
                                 </div>
                             </div>
                         </div>
-                        <button onclick="deleteNotification('${n.id}')" 
-                                class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" 
-                                title="Supprimer définitivement">
-                            <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
-                        </button>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <button onclick="prefillNotificationComposer('${encodeURIComponent(JSON.stringify(n))}')"
+                                    class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                    title="Reprendre cette notification">
+                                <iconify-icon icon="solar:refresh-bold" width="18"></iconify-icon>
+                            </button>
+                            <button onclick="deleteNotification('${n.id}')" 
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" 
+                                    title="Supprimer définitivement">
+                                <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join('');
