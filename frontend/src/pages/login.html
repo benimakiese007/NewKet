@@ -103,6 +103,17 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-text-fill-color: #111827 !important;
+            caret-color: #111827;
+            box-shadow: 0 0 0 1000px #f9fafb inset !important;
+            -webkit-box-shadow: 0 0 0 1000px #f9fafb inset !important;
+            transition: background-color 9999s ease-in-out 0s;
+        }
+
         .tab-btn {
             position: relative;
         }
@@ -245,7 +256,7 @@
 
                         <!-- Email Input -->
                         <div id="emailContainer" class="relative floating-input animate-item">
-                            <input type="email" id="email" name="email" required placeholder=" " autocomplete="email"
+                            <input type="email" id="email" name="email" required placeholder=" " autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"
                                 class="peer w-full h-14 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-5 pb-1 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="email"
                                 class="absolute left-5 top-4.5 text-gray-400 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Adresse
@@ -282,7 +293,7 @@
 
                         <!-- Confirm Password Input (Signup Only) -->
                         <div id="confirmPasswordContainer" class="hidden relative floating-input animate-item">
-                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" "
+                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" " autocomplete="new-password"
                                 class="peer w-full h-14 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl pl-5 pr-12 pt-5 pb-1 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="confirmPassword"
                                 class="absolute left-5 top-4.5 text-gray-400 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Confirmer
@@ -417,9 +428,12 @@
         const formError = document.getElementById('formError');
         const togglePwdBtn = document.getElementById('togglePassword');
         const pwdInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const rememberMeInput = document.getElementById('rememberMe');
         const emailContainer = document.getElementById('emailContainer');
         const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
         const googleBtn = document.getElementById('google-btn');
+        const rememberedEmailKey = 'newketRememberedEmail';
 
         // onBlur validation for email
         const emailInput = document.getElementById('email');
@@ -430,6 +444,77 @@
                 formError.classList.add('hidden');
             }
         });
+
+        function syncAutofillHints() {
+            authForm.setAttribute('autocomplete', 'on');
+            emailInput.setAttribute('autocapitalize', 'none');
+            emailInput.setAttribute('autocorrect', 'off');
+            emailInput.setAttribute('spellcheck', 'false');
+            emailInput.setAttribute('inputmode', 'email');
+
+            if (isRecovery) {
+                emailInput.setAttribute('autocomplete', 'off');
+                pwdInput.setAttribute('autocomplete', 'new-password');
+                if (confirmPasswordInput) confirmPasswordInput.setAttribute('autocomplete', 'new-password');
+                return;
+            }
+
+            if (isLogin) {
+                emailInput.setAttribute('autocomplete', 'username');
+                emailInput.setAttribute('name', 'username');
+                pwdInput.setAttribute('autocomplete', 'current-password');
+                return;
+            }
+
+            emailInput.setAttribute('autocomplete', 'email');
+            emailInput.setAttribute('name', 'email');
+            pwdInput.setAttribute('autocomplete', 'new-password');
+            if (confirmPasswordInput) confirmPasswordInput.setAttribute('autocomplete', 'new-password');
+        }
+
+        function restoreLoginPrefill() {
+            if (isRecovery || !isLogin) return;
+            if (emailInput.value) return;
+
+            const savedEmail = localStorage.getItem(rememberedEmailKey) ||
+                localStorage.getItem('newketUserEmail') ||
+                '';
+
+            if (savedEmail) {
+                emailInput.value = savedEmail;
+                if (rememberMeInput) rememberMeInput.checked = true;
+            }
+        }
+
+        function preserveFormValuesAfterModeChange({
+            keepEmail = true,
+            keepPassword = true,
+            keepConfirmPassword = true,
+            keepRememberMe = true
+        } = {}) {
+            const currentEmail = emailInput.value;
+            const currentPassword = pwdInput.value;
+            const currentConfirmPassword = confirmPasswordInput?.value || '';
+            const currentRememberState = rememberMeInput?.checked ?? false;
+
+            authForm.reset();
+
+            if (keepEmail && currentEmail) {
+                emailInput.value = currentEmail;
+            }
+
+            if (keepPassword && currentPassword) {
+                pwdInput.value = currentPassword;
+            }
+
+            if (keepConfirmPassword && confirmPasswordInput && currentConfirmPassword) {
+                confirmPasswordInput.value = currentConfirmPassword;
+            }
+
+            if (keepRememberMe && rememberMeInput) {
+                rememberMeInput.checked = currentRememberState;
+            }
+        }
 
         // Setup initial UI for recovery
         if (isRecovery) {
@@ -446,6 +531,9 @@
             submitBtnSpan.textContent = "Mettre à jour";
             pwdInput.setAttribute('autocomplete', 'new-password');
         }
+
+        syncAutofillHints();
+        restoreLoginPrefill();
 
         // --- 3. UI Interactions ---
         // Toggle Password
@@ -497,7 +585,13 @@
                         loginActions.classList.add('hidden');
                     }
 
-                    authForm.reset();
+                    syncAutofillHints();
+                    preserveFormValuesAfterModeChange({
+                        keepEmail: true,
+                        keepPassword: true,
+                        keepConfirmPassword: true,
+                        keepRememberMe: true
+                    });
                     resetPasswordStrength();
 
                 }
@@ -636,6 +730,12 @@
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email: loginEmail, password });
                     if (error) throw error;
 
+                    if (rememberMeInput?.checked) {
+                        localStorage.setItem(rememberedEmailKey, loginEmail);
+                    } else {
+                        localStorage.removeItem(rememberedEmailKey);
+                    }
+
                     // AuthManager.handleSessionUpdate will handle the redirect via onAuthStateChange
                     // but we can also trigger it manually for speed if needed.
                     if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
@@ -714,6 +814,11 @@
             const userStatus = user?.user_metadata?.status || localStorage.getItem('newketUserStatus') || null;
 
             localStorage.setItem('newketUserEmail', email);
+            if (rememberMeInput?.checked) {
+                localStorage.setItem(rememberedEmailKey, email);
+            } else {
+                localStorage.removeItem(rememberedEmailKey);
+            }
             localStorage.setItem('newketRole', role);
             localStorage.setItem('newketRoleSelectionConfirmed', 'true');
             if (userStatus) localStorage.setItem('newketUserStatus', userStatus);
