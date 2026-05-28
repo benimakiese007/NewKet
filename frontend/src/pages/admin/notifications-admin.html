@@ -213,6 +213,16 @@
                             <span class="text-[10px] text-indigo-600/70 font-medium">Affiche un Pop-up immédiat à tous</span>
                         </div>
                     </div>
+                    <div class="flex items-center gap-3 bg-violet-50/70 p-4 rounded-xl border border-violet-100">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="broadcastModalToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                        </label>
+                        <div>
+                            <span class="text-xs font-bold text-violet-900 block">Broadcast modale</span>
+                            <span class="text-[10px] text-violet-600/70 font-medium">Force un modale immédiat chez chaque utilisateur</span>
+                        </div>
+                    </div>
                     <div class="flex items-end">
                         <button onclick="sendNotification()"
                             class="w-full bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
@@ -286,7 +296,11 @@
             const title = document.getElementById('notifTitle').value.trim();
             const message = document.getElementById('notifMessage').value.trim();
             const baseType = document.getElementById('notifType').value;
-            const type = document.getElementById('broadcastToggle').checked ? `broadcast:${baseType}` : baseType;
+            const isBroadcast = document.getElementById('broadcastToggle').checked || document.getElementById('broadcastModalToggle').checked;
+            const isBroadcastModal = document.getElementById('broadcastModalToggle').checked;
+            const type = isBroadcast
+                ? `${isBroadcastModal ? 'broadcast-modal' : 'broadcast'}:${baseType}`
+                : baseType;
             const target = document.getElementById('notifTarget').value;
 
             if (!title || !message) {
@@ -332,6 +346,7 @@
 
             const displayType = getDisplayType(notification.type);
             const isBroadcast = isPopupType(notification.type) || String(notification.type || '').startsWith('broadcast:');
+            const isBroadcastModal = String(notification.type || '').startsWith('broadcast-modal:');
             const target = notification.target_role || notification.target || 'all';
 
             document.getElementById('notifTitle').value = notification.title || '';
@@ -339,6 +354,7 @@
             document.getElementById('notifType').value = ['info', 'success', 'warning', 'danger', 'promo'].includes(displayType) ? displayType : 'info';
             document.getElementById('notifTarget').value = ['all', 'customers', 'suppliers'].includes(target) ? target : 'all';
             document.getElementById('broadcastToggle').checked = isBroadcast;
+            document.getElementById('broadcastModalToggle').checked = isBroadcastModal || isBroadcast;
 
             document.querySelector('.glass-panel.p-6')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             document.getElementById('notifTitle')?.focus();
@@ -349,12 +365,15 @@
             if (window.normalizeNotificationType) return window.normalizeNotificationType(type);
             if (!type) return 'info';
             if (type === 'broadcast') return 'info';
+            if (String(type || '').startsWith('broadcast-modal:')) return (type.split(':').slice(1).join(':') || 'info');
             return type.startsWith('broadcast:') ? (type.split(':')[1] || 'info') : type;
         }
 
         function isPopupType(type) {
             if (window.isPopupNotification) return window.isPopupNotification(type);
-            return type === 'broadcast' || String(type || '').startsWith('broadcast:');
+            return type === 'broadcast'
+                || String(type || '').startsWith('broadcast:')
+                || String(type || '').startsWith('broadcast-modal:');
         }
 
         function getNotificationIcon(type) {
@@ -374,7 +393,11 @@
 
         function getTypeBadge(type) {
             const displayType = getDisplayType(type);
-            if (isPopupType(type)) {
+            if (String(type || '').startsWith('broadcast-modal:')) {
+                return '<span class="badge" style="background:#6d28d9;color:white;">Broadcast modal</span>' +
+                    '<span class="badge" style="background:#ede9fe;color:#6d28d9;">Pop-up forcé</span>';
+            }
+            if (String(type || '').startsWith('broadcast:') || type === 'broadcast') {
                 return '<span class="badge" style="background:#312e81;color:white;">Broadcast</span>' +
                     '<span class="badge" style="background:#ddd6fe;color:#5b21b6;">Pop-up</span>';
             }
@@ -520,6 +543,21 @@
                 renderNotifications();
                 updateStats();
             });
+
+            const broadcastToggle = document.getElementById('broadcastToggle');
+            const broadcastModalToggle = document.getElementById('broadcastModalToggle');
+            if (broadcastModalToggle && broadcastToggle) {
+                broadcastToggle.addEventListener('change', () => {
+                    if (!broadcastToggle.checked) {
+                        broadcastModalToggle.checked = false;
+                    }
+                });
+                broadcastModalToggle.addEventListener('change', () => {
+                    if (broadcastModalToggle.checked) {
+                        broadcastToggle.checked = true;
+                    }
+                });
+            }
 
             renderNotifications();
             updateStats();

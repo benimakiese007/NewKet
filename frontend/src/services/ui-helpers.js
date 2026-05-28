@@ -21,13 +21,16 @@ export function showToast(message, type = 'info', title = null, iconOverride = n
 export function normalizeNotificationType(rawType) {
     if (!rawType) return 'info';
     if (rawType === 'broadcast') return 'info';
+    if (rawType.startsWith('broadcast-modal:')) return rawType.split(':').slice(1).join(':') || 'info';
     if (rawType.startsWith('broadcast:')) return rawType.split(':')[1] || 'info';
     if (rawType === 'error') return 'danger';
     return rawType;
 }
 
 export function isPopupNotification(rawType) {
-    return rawType === 'broadcast' || String(rawType || '').startsWith('broadcast:');
+    return rawType === 'broadcast'
+        || String(rawType || '').startsWith('broadcast:')
+        || String(rawType || '').startsWith('broadcast-modal:');
 }
 
 async function _processToastQueue() {

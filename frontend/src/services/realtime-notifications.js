@@ -97,9 +97,11 @@ const AppNotifications = {
                         const role = localStorage.getItem('newketRole') === 'supplier' ? 'suppliers' : 'customers';
                         const resolvedType = typeof window.normalizeNotificationType === 'function'
                             ? window.normalizeNotificationType(notif.type)
-                            : (notif.type === 'broadcast' ? 'info' : notif.type);
+                            : ((notif.type === 'broadcast' || String(notif.type || '').startsWith('broadcast-modal:')) ? 'info' : notif.type);
                         
-                        const isBroadcast = notif.type === 'broadcast' || String(notif.type || '').startsWith('broadcast:');
+                        const isBroadcast = notif.type === 'broadcast'
+                            || String(notif.type || '').startsWith('broadcast:')
+                            || String(notif.type || '').startsWith('broadcast-modal:');
                         const isPopupNotification = typeof window.isPopupNotification === 'function'
                             ? window.isPopupNotification(notif.type)
                             : isBroadcast;
