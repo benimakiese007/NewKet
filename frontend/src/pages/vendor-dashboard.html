@@ -637,6 +637,24 @@
             <div id="tab-settings" class="hidden">
                 <div class="space-y-6">
 
+                    <div class="glass-panel p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-2xl bg-black text-white flex items-center justify-center shrink-0">
+                                    <iconify-icon icon="solar:bell-bing-bold" width="20"></iconify-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-900">Notifications appareil</h2>
+                                    <p id="vendorDevicePushStatus" class="text-xs text-gray-500 mt-1">Recevoir les alertes vendeur hors application.</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer self-start sm:self-center">
+                                <input id="vendorDevicePushToggle" type="checkbox" class="sr-only peer">
+                                <div class="w-12 h-7 bg-gray-200 rounded-full peer peer-checked:bg-black peer-focus:outline-none after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Profile Photo Card -->
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-2">Photo de Profil (Logo)</h2>
@@ -1205,6 +1223,7 @@
                     else if (tabId === 'purchases') renderVendorPurchases();
                     else if (tabId === 'promos') renderVendorPromos();
                     else if (tabId === 'settings') {
+                        refreshVendorDevicePushStatus();
                         setTimeout(() => {
                             if (typeof initVendorResidenceMap === 'function') initVendorResidenceMap();
                         }, 120);
@@ -1233,6 +1252,57 @@
 
                 function isVendorProductsDataPending() {
                     return window.__newketVendorProductsReady !== true;
+                }
+
+                async function refreshVendorDevicePushStatus() {
+                    const toggle = document.getElementById('vendorDevicePushToggle');
+                    const status = document.getElementById('vendorDevicePushStatus');
+                    if (!toggle || !status) return;
+
+                    if (!window.AppNotifications) {
+                        toggle.disabled = true;
+                        status.textContent = 'Indisponible sur cette page.';
+                        return;
+                    }
+
+                    try {
+                        const state = await AppNotifications.getDeviceNotificationStatus();
+                        toggle.checked = state === 'enabled';
+                        toggle.disabled = state === 'unsupported' || state === 'denied';
+                        const labels = {
+                            enabled: 'Actives sur cet appareil.',
+                            default: 'Activez pour recevoir les alertes vendeur hors app.',
+                            denied: 'Bloquees dans les reglages du navigateur.',
+                            unsupported: 'Non supportees par ce navigateur.'
+                        };
+                        status.textContent = labels[state] || labels.default;
+                    } catch (error) {
+                        toggle.checked = false;
+                        status.textContent = 'Etat impossible a verifier.';
+                    }
+                }
+
+                async function toggleVendorDevicePush(enable) {
+                    const toggle = document.getElementById('vendorDevicePushToggle');
+                    const status = document.getElementById('vendorDevicePushStatus');
+                    if (!toggle || !window.AppNotifications) return;
+
+                    toggle.disabled = true;
+                    if (status) status.textContent = enable ? 'Activation...' : 'Desactivation...';
+
+                    try {
+                        const ok = enable
+                            ? await AppNotifications.enableDeviceNotifications()
+                            : await AppNotifications.disableDeviceNotifications();
+                        if (!ok) toggle.checked = false;
+                    } catch (error) {
+                        console.error('Vendor device push toggle error:', error);
+                        toggle.checked = !enable;
+                        if (window.showToast) window.showToast("Impossible de modifier les notifications appareil.", 'error');
+                    } finally {
+                        toggle.disabled = false;
+                        await refreshVendorDevicePushStatus();
+                    }
                 }
 
                 let vendorResidenceMap = null;
@@ -1570,6 +1640,14 @@
                             if (window.showToast) window.showToast('Messagerie indisponible. Veuillez r\u00e9essayer.', 'error');
                         }
                     });
+
+                    const vendorPushToggle = document.getElementById('vendorDevicePushToggle');
+                    if (vendorPushToggle && vendorPushToggle.dataset.bound !== 'true') {
+                        vendorPushToggle.addEventListener('change', async (event) => {
+                            await toggleVendorDevicePush(event.target.checked);
+                        });
+                        vendorPushToggle.dataset.bound = 'true';
+                    }
 
                     // Update Sidebar Name & Settings
                     const updateVendorName = async () => {

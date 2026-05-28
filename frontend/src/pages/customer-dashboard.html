@@ -412,6 +412,26 @@
             <div id="tab-settings" class="space-y-8 hidden">
                 <h1 class="text-2xl font-bold tracking-tight">Mon Profil</h1>
 
+                <div class="glass-panel p-6 w-full">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-black text-white flex items-center justify-center shrink-0">
+                                    <iconify-icon icon="solar:bell-bing-bold" width="20"></iconify-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-900">Notifications appareil</h2>
+                                    <p id="customerDevicePushStatus" class="text-xs text-gray-500 mt-1">Recevoir les alertes NewKet hors application.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer self-start sm:self-center">
+                            <input id="customerDevicePushToggle" type="checkbox" class="sr-only peer">
+                            <div class="w-12 h-7 bg-gray-200 rounded-full peer peer-checked:bg-black peer-focus:outline-none after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="customer-settings-grid grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
                 <!-- Profile Info -->
                 <div class="glass-panel p-8 w-full">
@@ -817,6 +837,7 @@
             if (tabId === 'notifications') renderDashboardNotifications();
             if (tabId === 'achat' && typeof window.renderAchatTab === 'function') window.renderAchatTab();
             if (tabId === 'settings') {
+                refreshCustomerDevicePushStatus();
                 setTimeout(() => {
                     if (typeof initCustomerResidenceMap === 'function') initCustomerResidenceMap();
                 }, 120);
@@ -846,6 +867,14 @@
                 NotificationManager.clearAll();
                 renderDashboardNotifications();
             });
+
+            const customerPushToggle = document.getElementById('customerDevicePushToggle');
+            if (customerPushToggle && customerPushToggle.dataset.bound !== 'true') {
+                customerPushToggle.addEventListener('change', async (event) => {
+                    await toggleCustomerDevicePush(event.target.checked);
+                });
+                customerPushToggle.dataset.bound = 'true';
+            }
 
             document.querySelectorAll('[data-action="close-order-modal"]').forEach((button) => {
                 if (button.dataset.bound === 'true') return;
@@ -1208,6 +1237,57 @@
             // We consider "pending" until we receive the first ordersUpdated event.
             // This avoids relying on internal OrderManager flags that can drift.
             return window.__newketCustomerOrdersReady !== true;
+        }
+
+        async function refreshCustomerDevicePushStatus() {
+            const toggle = document.getElementById('customerDevicePushToggle');
+            const status = document.getElementById('customerDevicePushStatus');
+            if (!toggle || !status) return;
+
+            if (!window.AppNotifications) {
+                toggle.disabled = true;
+                status.textContent = 'Indisponible sur cette page.';
+                return;
+            }
+
+            try {
+                const state = await AppNotifications.getDeviceNotificationStatus();
+                toggle.checked = state === 'enabled';
+                toggle.disabled = state === 'unsupported' || state === 'denied';
+                const labels = {
+                    enabled: 'Actives sur cet appareil.',
+                    default: 'Activez pour recevoir les alertes NewKet hors app.',
+                    denied: 'Bloquees dans les reglages du navigateur.',
+                    unsupported: 'Non supportees par ce navigateur.'
+                };
+                status.textContent = labels[state] || labels.default;
+            } catch (error) {
+                toggle.checked = false;
+                status.textContent = 'Etat impossible a verifier.';
+            }
+        }
+
+        async function toggleCustomerDevicePush(enable) {
+            const toggle = document.getElementById('customerDevicePushToggle');
+            const status = document.getElementById('customerDevicePushStatus');
+            if (!toggle || !window.AppNotifications) return;
+
+            toggle.disabled = true;
+            if (status) status.textContent = enable ? 'Activation...' : 'Desactivation...';
+
+            try {
+                const ok = enable
+                    ? await AppNotifications.enableDeviceNotifications()
+                    : await AppNotifications.disableDeviceNotifications();
+                if (!ok) toggle.checked = false;
+            } catch (error) {
+                console.error('Customer device push toggle error:', error);
+                toggle.checked = !enable;
+                if (window.showToast) showToast("Impossible de modifier les notifications appareil.", 'error');
+            } finally {
+                toggle.disabled = false;
+                await refreshCustomerDevicePushStatus();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
