@@ -69,8 +69,12 @@ export const addNotification = async (req, res) => {
             .single();
 
         if (error) throw error;
-        WebPushService.sendForNotification(data)
-            .catch(err => console.error('Erreur web push notification:', err));
+        try {
+            const pushResult = await WebPushService.sendForNotification(data);
+            console.log(`[Notifications] Web push sent: ${pushResult?.sent || 0}`);
+        } catch (pushError) {
+            console.error('Erreur web push notification:', pushError);
+        }
         res.json(data);
     } catch (err) {
         console.error('Erreur addNotification:', err);

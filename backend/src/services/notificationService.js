@@ -16,8 +16,14 @@ async function createDbNotification(payload) {
         return;
     }
 
-    WebPushService.sendForNotification(payload)
-        .catch(err => console.error('[NotificationService] Web push error:', err));
+    try {
+        const result = await WebPushService.sendForNotification(payload);
+        if (result?.sent != null) {
+            console.log(`[NotificationService] Web push sent: ${result.sent}`);
+        }
+    } catch (err) {
+        console.error('[NotificationService] Web push error:', err);
+    }
 }
 
 async function fetchOrder(orderId) {
