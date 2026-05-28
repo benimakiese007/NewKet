@@ -162,6 +162,14 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'NewKet Backend API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use((req, res, next) => {
   if (typeof req.url !== 'string') {
     next();
@@ -209,14 +217,6 @@ app.use('/api/disputes', disputeRoutes);
 app.use('/api/cron', cronRoutes);
 app.use('/api/system-health', systemHealthRoutes);
 app.use('/api', manifestRoutes);
-
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'NewKet Backend API is running',
-    timestamp: new Date().toISOString()
-  });
-});
 
 app.use(sentryErrorHandler);
 

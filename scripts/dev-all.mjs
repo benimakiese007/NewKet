@@ -3,6 +3,9 @@ import { fileURLToPath } from 'node:url';
 import http from 'node:http';
 import https from 'node:https';
 
+const BACKEND_DIR = fileURLToPath(new URL('../backend/', import.meta.url));
+const FRONTEND_DIR = fileURLToPath(new URL('../frontend/', import.meta.url));
+
 const FRONTEND_HEALTH = 'http://localhost:5173/@vite/client';
 const BACKEND_HEALTH = 'http://localhost:3000/api/health';
 
@@ -82,13 +85,13 @@ async function main() {
   const children = [];
 
   if (!backendAlreadyUp) {
-    children.push(runNpmScript({ name: 'dev', cwd: fileURLToPath(new URL('./backend/', import.meta.url)) }));
+    children.push(runNpmScript({ name: 'dev', cwd: BACKEND_DIR }));
   } else {
     console.log(`[dev] Backend already running (${BACKEND_HEALTH})`);
   }
 
   if (!frontendAlreadyUp) {
-    children.push(runNpmScript({ name: 'dev', cwd: fileURLToPath(new URL('./frontend/', import.meta.url)) }));
+    children.push(runNpmScript({ name: 'dev', cwd: FRONTEND_DIR }));
   } else {
     console.log(`[dev] Frontend already running (${FRONTEND_HEALTH})`);
   }

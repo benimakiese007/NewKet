@@ -8,6 +8,7 @@ const AppNotifications = {
     toastContainer: null,
     deferredPrompt: null,
     pushPublicKey: null,
+    serviceWorkerUpdateTimer: null,
 
     init() {
         this._setupPWA();
@@ -187,11 +188,56 @@ const AppNotifications = {
             window.dispatchEvent(new CustomEvent('pwaInstallAvailable'));
         });
 
-        // Optionally, register a service worker if not already done by standard html
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .catch(err => console.error('[NewKet] SW registration failed', err));
+            this._setupServiceWorkerUpdates();
         }
+    },
+
+    _setupServiceWorkerUpdates() {
+        const reloadKey = 'newket-sw-reloading';
+        sessionStorage.removeItem(reloadKey);
+
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (sessionStorage.getItem(reloadKey) === '1') return;
+            sessionStorage.setItem(reloadKey, '1');
+            window.location.reload();
+        });
+
+        navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+            .then((registration) => {
+                const activateWaitingWorker = () => {
+                    if (registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                };
+
+                registration.addEventListener('updatefound', () => {
+                    const installingWorker = registration.installing;
+                    if (!installingWorker) return;
+
+                    installingWorker.addEventListener('statechange', () => {
+                        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            activateWaitingWorker();
+                        }
+                    });
+                });
+
+                activateWaitingWorker();
+                registration.update().catch(() => {});
+
+                window.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        registration.update().catch(() => {});
+                    }
+                });
+
+                if (!this.serviceWorkerUpdateTimer) {
+                    this.serviceWorkerUpdateTimer = window.setInterval(() => {
+                        registration.update().catch(() => {});
+                    }, 30 * 60 * 1000);
+                }
+            })
+            .catch(err => console.error('[NewKet] SW registration failed', err));
     },
 
     promptInstall() {
@@ -218,7 +264,7 @@ const AppNotifications = {
     async _getServiceWorkerRegistration() {
         if (!('serviceWorker' in navigator)) return null;
         const existing = await navigator.serviceWorker.getRegistration('/');
-        return existing || navigator.serviceWorker.register('/sw.js');
+        return existing || navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
     },
 
     async _getPushPublicKey() {

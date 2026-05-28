@@ -1,8 +1,29 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { readFileSync, writeFileSync } from 'fs';
+
+const buildVersion = process.env.VERCEL_DEPLOYMENT_ID
+  || process.env.VERCEL_GIT_COMMIT_SHA
+  || `${process.env.npm_package_version || 'local'}-${Date.now()}`;
 
 export default defineConfig({
   plugins: [
+    {
+      name: 'newket-service-worker-build-version',
+      closeBundle() {
+        const swPath = resolve(__dirname, 'dist/sw.js');
+        try {
+          const source = readFileSync(swPath, 'utf8');
+          writeFileSync(
+            swPath,
+            source.replaceAll('__NEWKET_BUILD_VERSION__', buildVersion),
+            'utf8'
+          );
+        } catch (err) {
+          console.warn('[NewKet] Unable to stamp service worker build version:', err?.message || err);
+        }
+      }
+    },
     {
       name: 'newket-pretty-url-rewrites',
       configureServer(server) {

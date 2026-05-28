@@ -1,4 +1,5 @@
-const CACHE_NAME = 'newket-cache-v11'; // Increment version
+const BUILD_VERSION = '__NEWKET_BUILD_VERSION__';
+const CACHE_NAME = `newket-cache-${BUILD_VERSION}`;
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -37,6 +38,12 @@ self.addEventListener('install', (event) => {
             );
         })
     );
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data?.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
 // Activate Event
@@ -135,7 +142,7 @@ self.addEventListener('fetch', (event) => {
     if (isHTML) {
         // Network First (fallback to cache) for HTML pages
         event.respondWith(
-            fetch(event.request).then((networkResponse) => {
+            fetch(event.request, { cache: 'no-store' }).then((networkResponse) => {
                 if (networkResponse && networkResponse.ok) {
                     const responseClone = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
@@ -153,33 +160,40 @@ self.addEventListener('fetch', (event) => {
             })
         );
     } else if (isImageOrStatic) {
-        // Stale-While-Revalidate for images, CSS, JS
+        // Network First keeps deployed UI changes fresh, while still falling back offline.
         event.respondWith(
-            caches.match(event.request).then((cachedResponse) => {
-                const fetchPromise = fetch(event.request).then((networkResponse) => {
-                    if (networkResponse && networkResponse.ok) {
-                        const responseClone = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-                    }
-                    return networkResponse;
-                }).catch(err => {
-                    console.warn('[Service Worker] background fetch failed', err);
+            fetch(event.request, { cache: 'no-cache' }).then((networkResponse) => {
+                if (networkResponse && networkResponse.ok) {
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                }
+                return networkResponse;
+            }).catch(() => {
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) return cachedResponse;
+                    throw new Error('Offline asset unavailable');
                 });
-                
-                return cachedResponse || fetchPromise; // Return cached immediately, fetch updates in background
             })
         );
     } else {
-        // Cache First for other assets
+        // Network First for same-origin app assets. API calls are excluded above.
         event.respondWith(
-            caches.match(event.request).then((cachedResponse) => {
-                if (cachedResponse) return cachedResponse;
-                return fetch(event.request).then((networkResponse) => {
-                    if (networkResponse && networkResponse.ok) {
-                        const responseClone = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-                    }
-                    return networkResponse;
+            fetch(event.request, { cache: 'no-cache' }).then((networkResponse) => {
+                if (networkResponse && networkResponse.ok) {
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                }
+                return networkResponse;
+            }).catch(() => {
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) return cachedResponse;
+                    return fetch(event.request).then((networkResponse) => {
+                        if (networkResponse && networkResponse.ok) {
+                            const responseClone = networkResponse.clone();
+                            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                        }
+                        return networkResponse;
+                    });
                 });
             })
         );
