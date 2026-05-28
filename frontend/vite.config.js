@@ -108,6 +108,7 @@ export default defineConfig({
         admin_otp_tracker: resolve(__dirname, 'src/pages/admin/otp-tracker.html'),
         admin_products: resolve(__dirname, 'src/pages/admin/products.html'),
         admin_reviews: resolve(__dirname, 'src/pages/admin/reviews.html'),
+        admin_branding: resolve(__dirname, 'src/pages/admin/branding.html'),
         admin_hero: resolve(__dirname, 'src/pages/admin/hero.html'),
         admin_settings: resolve(__dirname, 'src/pages/admin/settings.html'),
         admin_support: resolve(__dirname, 'src/pages/admin/support.html'),
