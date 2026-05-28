@@ -253,7 +253,7 @@
                             <div class="flex items-center justify-between gap-4">
                                 <div>
                                     <h3 class="font-semibold text-gray-900 text-sm">Notifications appareil</h3>
-                                    <p id="notifDeviceStatus" class="text-xs text-gray-500">Alertes PWA hors application.</p>
+                                    <p id="notifDeviceStatus" class="text-xs text-gray-500">PWA installee recommandee pour recevoir les alertes hors app.</p>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input id="notifDevice" name="notifDevice" type="checkbox" value="" class="sr-only peer">
@@ -391,13 +391,9 @@
                         deviceToggle.checked = status === 'enabled';
                         deviceToggle.disabled = status === 'unsupported' || status === 'denied';
 
-                        const labels = {
-                            enabled: 'Actives sur cet appareil.',
-                            default: 'Activez pour recevoir les alertes hors app.',
-                            denied: 'Bloquees dans les reglages du navigateur.',
-                            unsupported: 'Non supportees par ce navigateur.'
-                        };
-                        statusText.textContent = labels[status] || labels.default;
+                        statusText.textContent = AppNotifications.getDeviceNotificationGuidance
+                            ? AppNotifications.getDeviceNotificationGuidance(status)
+                            : 'PWA installee recommandee. Navigateur normal: support variable.';
                     } catch {
                         deviceToggle.checked = false;
                         statusText.textContent = 'Etat impossible a verifier.';

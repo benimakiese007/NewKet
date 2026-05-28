@@ -237,6 +237,25 @@ const AppNotifications = {
         return Boolean('Notification' in window && 'PushManager' in window && 'serviceWorker' in navigator);
     },
 
+    getDeviceNotificationGuidance(status = 'default') {
+        const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent || '')
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isStandalone = window.matchMedia?.('(display-mode: standalone)')?.matches
+            || window.navigator.standalone === true;
+
+        if (status === 'enabled') return 'Actives sur cet appareil.';
+        if (status === 'denied') return 'Bloquees dans les reglages du navigateur ou du systeme.';
+        if (status === 'unsupported') {
+            return isIos && !isStandalone
+                ? "Sur iPhone, installez NewKet sur l'ecran d'accueil puis ouvrez l'app installee."
+                : 'Navigateur non supporte. Utilisez la PWA installee ou Chrome/Edge/Samsung Internet.';
+        }
+
+        return isIos && !isStandalone
+            ? "Installez NewKet en PWA pour une reception fiable sur iPhone."
+            : 'PWA installee recommandee. Navigateur normal: support variable; navigateur integre: generalement non.';
+    },
+
     async syncDevicePushSubscription() {
         if (!this.isDevicePushSupported() || Notification.permission !== 'granted') return false;
         if (!window.ApiClient) return false;
@@ -264,7 +283,7 @@ const AppNotifications = {
 
     async enableDeviceNotifications() {
         if (!this.isDevicePushSupported()) {
-            this.showToast('Notifications appareil', 'Ce navigateur ne supporte pas les notifications PWA.', 'warning');
+            this.showToast('Notifications appareil', this.getDeviceNotificationGuidance('unsupported'), 'warning');
             return false;
         }
 

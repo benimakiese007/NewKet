@@ -421,7 +421,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <h2 class="text-sm font-black uppercase tracking-widest text-gray-900">Notifications appareil</h2>
-                                    <p id="customerDevicePushStatus" class="text-xs text-gray-500 mt-1">Recevoir les alertes NewKet hors application.</p>
+                                    <p id="customerDevicePushStatus" class="text-xs text-gray-500 mt-1">PWA installee recommandee pour recevoir les alertes hors app.</p>
                                 </div>
                             </div>
                         </div>
@@ -1254,13 +1254,9 @@
                 const state = await AppNotifications.getDeviceNotificationStatus();
                 toggle.checked = state === 'enabled';
                 toggle.disabled = state === 'unsupported' || state === 'denied';
-                const labels = {
-                    enabled: 'Actives sur cet appareil.',
-                    default: 'Activez pour recevoir les alertes NewKet hors app.',
-                    denied: 'Bloquees dans les reglages du navigateur.',
-                    unsupported: 'Non supportees par ce navigateur.'
-                };
-                status.textContent = labels[state] || labels.default;
+                status.textContent = AppNotifications.getDeviceNotificationGuidance
+                    ? AppNotifications.getDeviceNotificationGuidance(state)
+                    : 'PWA installee recommandee. Navigateur normal: support variable.';
             } catch (error) {
                 toggle.checked = false;
                 status.textContent = 'Etat impossible a verifier.';
