@@ -279,7 +279,7 @@
             }
         }
 
-        document.getElementById('saveAllBtn').addEventListener('click', () => {
+        document.getElementById('saveAllBtn').addEventListener('click', async () => {
             const btn = document.getElementById('saveAllBtn');
             const status = document.getElementById('saveStatus');
             const originalText = btn.innerHTML;
@@ -305,21 +305,35 @@
             };
 
             if (window.ConfigManager) {
-                ConfigManager.saveConfig(newConfig);
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="22"></iconify-icon> Sauvegarde...';
 
-                btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="22"></iconify-icon> Configuration Enregistrée';
-                btn.classList.add('bg-green-600');
-                status.classList.remove('hidden');
+                try {
+                    await ConfigManager.saveConfig(newConfig);
+                    window.CurrencyManager?.setCurrency?.(newConfig.currencySymbol);
 
-                if (typeof showToast === 'function') {
-                    showToast('Configuration sauvegardée avec succès', 'success');
-                }
+                    btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="22"></iconify-icon> Configuration Enregistrée';
+                    btn.classList.add('bg-green-600');
+                    status.classList.remove('hidden');
 
-                setTimeout(() => {
+                    if (typeof showToast === 'function') {
+                        showToast('Configuration sauvegardée avec succès', 'success');
+                    }
+                } catch (error) {
+                    console.error('[NewKet] Settings save failed:', error);
                     btn.innerHTML = originalText;
-                    btn.classList.remove('bg-green-600');
-                    status.classList.add('hidden');
-                }, 3000);
+                    btn.classList.add('bg-red-600');
+                    if (typeof showToast === 'function') {
+                        showToast("La sauvegarde distante a échoué. Vérifiez la connexion Supabase puis réessayez.", "error");
+                    }
+                } finally {
+                    btn.disabled = false;
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.classList.remove('bg-green-600', 'bg-red-600');
+                        status.classList.add('hidden');
+                    }, 3000);
+                }
             }
         });
 
@@ -361,11 +375,21 @@
         document.getElementById('maintenanceMode').addEventListener('change', async (e) => {
             if (window.ConfigManager) {
                 const config = ConfigManager.getConfig();
+                const previousMaintenanceMode = !!config.maintenanceMode;
                 config.maintenanceMode = e.target.checked;
-                await ConfigManager.saveConfig(config);
-                
-                if (typeof showToast === 'function') {
-                    showToast(e.target.checked ? "Mode Maintenance Activé : Accès public désactivé" : "Mode Maintenance Désactivé : Accès public rétabli", "success");
+                try {
+                    await ConfigManager.saveConfig(config);
+
+                    if (typeof showToast === 'function') {
+                        showToast(e.target.checked ? "Mode Maintenance Activé : Accès public désactivé" : "Mode Maintenance Désactivé : Accès public rétabli", "success");
+                    }
+                } catch (error) {
+                    console.error('[NewKet] Maintenance mode save failed:', error);
+                    config.maintenanceMode = previousMaintenanceMode;
+                    e.target.checked = previousMaintenanceMode;
+                    if (typeof showToast === 'function') {
+                        showToast("Impossible de sauvegarder le mode maintenance.", "error");
+                    }
                 }
             }
         });

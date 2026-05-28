@@ -133,9 +133,19 @@
                 <div class="p-6 border-b border-gray-100">
                     <h3 class="font-bold text-gray-900">Journal d'audit système</h3>
                 </div>
-                <div class="divide-y divide-gray-50 max-h-[400px] overflow-y-auto" id="auditLog">
-                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
-                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                <div class="max-h-[400px] overflow-y-auto p-4" id="auditLog">
+                    <div class="grid gap-3">
+                        <div class="glass-panel p-4">
+                            <div class="skeleton skeleton-text" style="width: 22%; height: 10px; margin-bottom: 0.8rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 72%; height: 14px; margin-bottom: 0.5rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 48%; height: 12px; margin-bottom: 0;"></div>
+                        </div>
+                        <div class="glass-panel p-4">
+                            <div class="skeleton skeleton-text" style="width: 18%; height: 10px; margin-bottom: 0.8rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 66%; height: 14px; margin-bottom: 0.5rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 42%; height: 12px; margin-bottom: 0;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -185,13 +195,13 @@
             if (topCatEl) topCatEl.textContent = 'N/A';
 
             const stockList = document.getElementById('stockHealthList');
-            if (stockList) stockList.innerHTML = '<div class="text-center py-8 text-gray-400 italic">Aucune donn\u00E9e de catalogue \u00E0 analyser.</div>';
+            if (stockList) stockList.innerHTML = '<div class="glass-panel p-4 text-center text-gray-400 italic">Aucune donn\u00E9e de catalogue \u00E0 analyser.</div>';
 
             const topProducts = document.getElementById('diagnosticsTopProducts');
-            if (topProducts) topProducts.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400 italic">Aucune vente \u00E0 analyser.</div>';
+            if (topProducts) topProducts.innerHTML = '<div class="glass-panel p-4 col-span-full text-center text-gray-400 italic">Aucune vente \u00E0 analyser.</div>';
 
             const auditLog = document.getElementById('auditLog');
-            if (auditLog) auditLog.innerHTML = '<div class="p-6 text-sm text-gray-400 italic">Aucune activit\u00E9 r\u00E9cente.</div>';
+            if (auditLog) auditLog.innerHTML = '<div class="glass-panel p-4 text-sm text-gray-400 italic">Aucune activit\u00E9 r\u00E9cente.</div>';
 
             const canvas = document.getElementById('categoryRevenueChart');
             if (canvas) {
@@ -417,13 +427,30 @@
         function renderAuditLog() {
             const list = document.getElementById('auditLog');
             if (!window.ActivityManager || typeof ActivityManager.getActivities !== 'function') {
-                list.innerHTML = '<div class="p-4 text-sm text-gray-400 italic">Chargement du journal…</div>';
+                list.innerHTML = `
+                    <div class="grid gap-3">
+                        <div class="glass-panel p-4">
+                            <div class="skeleton skeleton-text" style="width: 22%; height: 10px; margin-bottom: 0.8rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 72%; height: 14px; margin-bottom: 0.5rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 48%; height: 12px; margin-bottom: 0;"></div>
+                        </div>
+                        <div class="glass-panel p-4">
+                            <div class="skeleton skeleton-text" style="width: 18%; height: 10px; margin-bottom: 0.8rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 66%; height: 14px; margin-bottom: 0.5rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 42%; height: 12px; margin-bottom: 0;"></div>
+                        </div>
+                        <div class="glass-panel p-4">
+                            <div class="skeleton skeleton-text" style="width: 16%; height: 10px; margin-bottom: 0.8rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 58%; height: 14px; margin-bottom: 0.5rem;"></div>
+                            <div class="skeleton skeleton-text" style="width: 36%; height: 12px; margin-bottom: 0;"></div>
+                        </div>
+                    </div>`;
                 return;
             }
 
             const activities = ActivityManager.getActivities() || [];
             if (activities.length === 0) {
-                list.innerHTML = '<div class="p-4 text-sm text-gray-400 italic">Aucune activité récente.</div>';
+                list.innerHTML = '<div class="glass-panel p-4 text-sm text-gray-400 italic">Aucune activité récente.</div>';
                 return;
             }
 

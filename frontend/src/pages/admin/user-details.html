@@ -79,7 +79,7 @@
                     <div class="w-24 h-24 rounded-full bg-black mx-auto flex items-center justify-center text-3xl font-black text-white shadow-2xl"
                         id="userAvatar">U</div>
                     <div>
-                        <h2 class="text-2xl font-black text-gray-900 tracking-tight" id="userName">Chargement...</h2>
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight" id="userName"><span class="skeleton skeleton-title inline-block" style="width:220px;height:24px;margin:0 auto;"></span></h2>
                         <div class="mt-2 flex flex-wrap items-center justify-center gap-2">
                             <p class="text-gray-500 font-medium" id="userEmail">email@example.com</p>
                             <span id="roleBadge" class="px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500">Profil</span>
@@ -197,7 +197,11 @@
     </div>
 
     <script>
+        let userDetailsBootStarted = false;
+
         async function loadUserDetails() {
+            if (userDetailsBootStarted) return;
+            userDetailsBootStarted = true;
             const urlParams = new URLSearchParams(window.location.search);
             const email = urlParams.get('email');
 
@@ -250,9 +254,9 @@
             } else {
                 avatarEl.textContent = displayName.substring(0, 2).toUpperCase();
             }
-            const joinedAt = user.dateJoined || user.date_joined || user.created_at;
+            const joinedAt = getValidDate(getUserJoinedAt(user));
             const joinDateLabel = joinedAt
-                ? new Date(joinedAt).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })
+                ? joinedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
                 : 'N/A';
             document.getElementById('joinDate').textContent = joinDateLabel;
 
@@ -429,16 +433,27 @@
             `).join('');
         }
 
+        function getUserJoinedAt(user) {
+            return user.dateJoined || user.date_joined || user.created_at || null;
+        }
+
+        function getValidDate(value) {
+            if (!value) return null;
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
         function renderActivityFeed(user, orders) {
             const feed = document.getElementById('activityFeed');
             const items = [];
+            const joinedAt = getUserJoinedAt(user);
 
             // 1. Join
             items.push({
                 type: 'join',
                 title: 'Inscription sur la plateforme',
                 desc: 'Compte créé avec succès.',
-                date: user.dateJoined,
+                date: joinedAt,
                 icon: 'solar:user-plus-bold',
                 color: 'text-blue-500'
             });
@@ -449,13 +464,18 @@
                     type: 'order',
                     title: `Commande #${o.id}`,
                     desc: user.role === 'supplier' ? 'Vendu un ou plusieurs articles.' : 'Achat effectué.',
+                    date: o.date || o.created_at,
                     icon: 'solar:bag-large-bold',
                     color: 'text-green-500'
                 });
             });
 
             // Sort desc
-            items.sort((a, b) => new Date(b.date) - new Date(a.date));
+            items.sort((a, b) => {
+                const dateA = getValidDate(a.date);
+                const dateB = getValidDate(b.date);
+                return (dateB ? dateB.getTime() : 0) - (dateA ? dateA.getTime() : 0);
+            });
 
             feed.innerHTML = items.map(item => `
                 <div class="activity-item flex gap-4">
@@ -467,7 +487,7 @@
                     <div class="flex-1 pb-4">
                         <p class="text-sm font-bold text-gray-900">${item.title}</p>
                         <p class="text-[11px] text-gray-500 font-medium">${item.desc}</p>
-                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-300 mt-1">${new Date(item.date).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-300 mt-1">${getValidDate(item.date)?.toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) || 'Date indisponible'}</p>
                     </div>
                 </div>
             `).join('');
@@ -538,10 +558,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.newketInitialized) {
-                loadUserDetails();
-            } else {
-                window.addEventListener('newketInitialized', loadUserDetails);
+            loadUserDetails();
+            if (!window.newketInitialized) {
+                window.addEventListener('newketInitialized', loadUserDetails, { once: true });
             }
         });
     </script>

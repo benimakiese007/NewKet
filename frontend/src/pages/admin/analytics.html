@@ -50,6 +50,10 @@
                     <button class="analytics-range-btn bg-black text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest" data-days="7">7j</button>
                     <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30">30j</button>
                     <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90">90j</button>
+                    <button id="refreshBehaviorBtn" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700 inline-flex items-center gap-2" title="Actualiser sans changer les filtres">
+                        <iconify-icon icon="solar:refresh-bold" width="14"></iconify-icon>
+                        <span>Actualiser</span>
+                    </button>
                     <button id="toggleFiltersBtn" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">Filtres</button>
                     <button id="resetBehaviorBtn" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-red-200 text-red-700">Réinitialiser</button>
                     <button id="exportCsvBtn" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">CSV</button>
@@ -303,10 +307,12 @@
     </div>
 
     <script>
+        let analyticsBootStarted = false;
         let currentDays = 7;
         let lastResponse = null;
         let usersDirectory = [];
         let selectedUserRecord = null;
+        const ANALYTICS_STATE_STORAGE_KEY = 'newket_admin_behavior_filters';
 
         const state = {
             days: 7,
@@ -421,10 +427,44 @@
             return params;
         }
 
+        function hasAnalyticsFilterParams(params) {
+            if (!params) return false;
+            return [
+                'days',
+                'start',
+                'end',
+                'event_types',
+                'role',
+                'device',
+                'auth',
+                'include_admin',
+                'user_id',
+                'path_contains',
+                'target_contains',
+                'funnel',
+                'limit',
+                'max_rows'
+            ].some((key) => params.has(key));
+        }
+
+        function getStoredAnalyticsParams() {
+            try {
+                const raw = sessionStorage.getItem(ANALYTICS_STATE_STORAGE_KEY);
+                if (!raw) return null;
+                const params = new URLSearchParams(raw);
+                return hasAnalyticsFilterParams(params) ? params : null;
+            } catch (_) {
+                return null;
+            }
+        }
+
         function updateShareUrl() {
             try {
                 const url = new URL(window.location.href);
                 const params = buildQueryParams();
+                try {
+                    sessionStorage.setItem(ANALYTICS_STATE_STORAGE_KEY, params.toString());
+                } catch (_) {}
                 // keep embedded=1 if present
                 const embedded = url.searchParams.get('embedded');
                 url.search = params.toString();
@@ -844,7 +884,7 @@
             roleSelect.value = finalRoles.includes(current) ? current : 'all';
         }
 
-        async function loadBehaviorAnalytics() {
+        async function loadBehaviorAnalytics(options = {}) {
             // Skeleton KPIs while the request is in-flight (avoid "0" flashes).
             const setKpiSkeleton = (id, width = '55%') => {
                 const el = document.getElementById(id);
@@ -863,15 +903,33 @@
             setRangeButtons(state.days);
             updateShareUrl();
             const qs = buildQueryParams().toString();
-            const cacheKey = `admin-behavior-${qs}`;
+            const forceRefresh = Boolean(options.forceRefresh);
+            const cacheKey = forceRefresh ? `admin-behavior-${qs}-${Date.now()}` : `admin-behavior-${qs}`;
             const data = await ApiClient.get(`${getBehaviorApiBase()}?${qs}`, {
                 cacheKey,
                 cacheTtlMs: 5000,
-                dedupe: true
+                dedupe: !forceRefresh
             });
             lastResponse = data || null;
             populateFilterOptionsFromData(data || {});
             renderSummary(data || {});
+        }
+
+        async function refreshBehaviorAnalytics() {
+            const input = document.getElementById('userSearchInput');
+            const typedValue = String(input?.value || '').trim();
+            if (typedValue) {
+                const typedUser = resolveUserFromInput(typedValue);
+                if (typedUser) {
+                    state.userId = typedUser.id;
+                    selectedUserRecord = typedUser;
+                    state.auth = 'authenticated';
+                    syncControlsFromState();
+                    syncUserSearchControl();
+                }
+            }
+
+            await loadBehaviorAnalytics({ forceRefresh: true });
         }
 
         async function openDrilldown(kind, value) {
@@ -882,13 +940,29 @@
             const tbody = document.getElementById('drilldownEventsBody');
 
             titleEl.textContent = kind === 'page' ? normalizeLabel(value) : value;
-            metaEl.textContent = 'Chargement...';
+            metaEl.innerHTML = '<span class="skeleton skeleton-text inline-block align-middle" style="width:140px;height:10px;margin:0;"></span>';
             if (typeof window.buildSkeletonPanelListHTML === 'function') {
                 listEl.innerHTML = window.buildSkeletonPanelListHTML(4, { lines: 1, cardClass: 'p-3 rounded-2xl bg-gray-50' });
             } else {
                 listEl.innerHTML = '';
             }
-            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400 italic">Chargement…</td></tr>`;
+            tbody.innerHTML = Array.from({ length: 3 }, (_, index) => `
+                <tr>
+                    <td colspan="5" class="px-6 py-4">
+                        <div class="glass-panel p-4">
+                            <div class="flex items-center justify-between gap-4 mb-3">
+                                <div class="skeleton skeleton-text" style="width:${72 - index * 8}%;height:14px;margin:0;"></div>
+                                <div class="skeleton skeleton-text" style="width:14%;height:10px;margin:0;"></div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div class="skeleton skeleton-text" style="width:100%;height:12px;margin:0;"></div>
+                                <div class="skeleton skeleton-text" style="width:100%;height:12px;margin:0;"></div>
+                                <div class="skeleton skeleton-text" style="width:100%;height:12px;margin:0;"></div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
             modal.classList.remove('hidden');
 
             const base = buildQueryParams();
@@ -1013,7 +1087,9 @@
         function readStateFromUrl() {
             try {
                 const url = new URL(window.location.href);
-                const params = url.searchParams;
+                const params = hasAnalyticsFilterParams(url.searchParams)
+                    ? url.searchParams
+                    : (getStoredAnalyticsParams() || url.searchParams);
 
                 const days = Number(params.get('days'));
                 if (days) state.days = days;
@@ -1077,6 +1153,8 @@
                 .map((cb) => cb.value);
         }
 
+        window.NewKetPageRefresh = refreshBehaviorAnalytics;
+
         document.addEventListener('DOMContentLoaded', () => {
             readStateFromUrl();
             syncControlsFromState();
@@ -1095,6 +1173,8 @@
             document.getElementById('toggleFiltersBtn').addEventListener('click', () => {
                 document.getElementById('filtersPanel').classList.toggle('hidden');
             });
+
+            document.getElementById('refreshBehaviorBtn').addEventListener('click', refreshBehaviorAnalytics);
 
             document.getElementById('applyFiltersBtn').addEventListener('click', () => {
                 applyStateFromControls();
@@ -1181,6 +1261,8 @@
             document.getElementById('drilldownBackdrop').addEventListener('click', closeDrilldown);
 
             const boot = async () => {
+                if (analyticsBootStarted) return;
+                analyticsBootStarted = true;
                 try {
                     await loadUsersDirectory();
                     await loadBehaviorAnalytics();
@@ -1190,8 +1272,8 @@
                 }
             };
 
-            if (window.newketInitialized) boot();
-            else window.addEventListener('newketInitialized', boot, { once: true });
+            boot();
+            if (!window.newketInitialized) window.addEventListener('newketInitialized', boot, { once: true });
         });
     </script>
 

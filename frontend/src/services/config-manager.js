@@ -9,6 +9,7 @@ const ConfigManager = {
         supportPhone: '+243 000 000 000',
         exchangeRate: 2800,
         currencySymbol: 'CDF',
+        targetAOV: 0,
         shippingFee: 5,
         freeShippingThreshold: 50,
         maintenanceMode: false,
@@ -41,6 +42,8 @@ const ConfigManager = {
         }
     },
 
+    _realtimeChannel: null,
+
     _normalizeRemoteSettingsRow(row) {
         if (!row || typeof row !== 'object') return null;
 
@@ -50,6 +53,7 @@ const ConfigManager = {
         const supportPhone = row.supportPhone ?? row.support_phone;
         const exchangeRate = row.exchangeRate ?? row.exchange_rate;
         const currencySymbol = row.currencySymbol ?? row.currency_symbol;
+        const targetAOV = row.targetAOV ?? row.target_aov;
         const shippingFee = row.shippingFee ?? row.shipping_fee;
         const freeShippingThreshold = row.freeShippingThreshold ?? row.free_shipping_threshold;
         const maintenanceMode = row.maintenanceMode ?? row.maintenance_mode;
@@ -85,6 +89,7 @@ const ConfigManager = {
             ...(supportPhone !== undefined ? { supportPhone } : {}),
             ...(exchangeRate !== undefined ? { exchangeRate } : {}),
             ...(currencySymbol !== undefined ? { currencySymbol } : {}),
+            ...(targetAOV !== undefined ? { targetAOV } : {}),
             ...(shippingFee !== undefined ? { shippingFee } : {}),
             ...(freeShippingThreshold !== undefined ? { freeShippingThreshold } : {}),
             ...(maintenanceMode !== undefined ? { maintenanceMode: !!maintenanceMode } : {}),
@@ -143,6 +148,42 @@ const ConfigManager = {
         };
     },
 
+    _applyRemoteSettingsRow(row, source = 'remote') {
+        const normalized = this._normalizeRemoteSettingsRow(row);
+        if (!normalized) return false;
+
+        const previousMaintenanceMode = !!this.config.maintenanceMode;
+        this.config = { ...this.config, ...normalized };
+        this.saveLocal();
+        window.dispatchEvent(new CustomEvent('configUpdated', { detail: this.config }));
+
+        const nextMaintenanceMode = !!this.config.maintenanceMode;
+        if (previousMaintenanceMode !== nextMaintenanceMode) {
+            window.dispatchEvent(new CustomEvent('maintenanceModeChanged', {
+                detail: { maintenanceMode: nextMaintenanceMode, source }
+            }));
+        }
+
+        return true;
+    },
+
+    _startRealtimeSync() {
+        if (this._realtimeChannel) return;
+        if (!window.SupabaseAdapter?.getClient) return;
+
+        const client = window.SupabaseAdapter.getClient();
+        if (!client) return;
+
+        this._realtimeChannel = client
+            .channel('settings:realtime-sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, (payload) => {
+                const row = payload?.new || payload?.record || null;
+                if (!row) return;
+                this._applyRemoteSettingsRow(row, 'realtime');
+            })
+            .subscribe();
+    },
+
     _toRemoteSettingsPayload(config, existingRow = null) {
         const socialLinks = this._getSocialLinks(config);
         const usesCamelSchema = !existingRow || ('shopName' in existingRow) || ('socialLinks' in existingRow);
@@ -188,6 +229,7 @@ const ConfigManager = {
             support_phone: config.supportPhone,
             exchange_rate: config.exchangeRate,
             currency_symbol: config.currencySymbol,
+            target_aov: config.targetAOV,
             shipping_fee: config.shippingFee,
             free_shipping_threshold: config.freeShippingThreshold,
             maintenance_mode: !!config.maintenanceMode,
@@ -218,10 +260,8 @@ const ConfigManager = {
     async init() {
         const saved = localStorage.getItem('newket_global_config');
         const fetchTime = localStorage.getItem('newket_global_config_time');
-        const maintenanceCheckTime = localStorage.getItem('newket_global_config_maintenance_check_time');
         const now = Date.now();
         const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
-        const MAINTENANCE_CHECK_DURATION = 1000 * 60; // 60s (propagation rapide)
 
         if (saved) {
             try {
@@ -232,18 +272,10 @@ const ConfigManager = {
         }
 
         // Try to fetch from backend if cache is expired or missing.
-        // Also force-refresh when maintenance is ON to avoid "stuck maintenance" from stale cache.
         const cacheExpired = !fetchTime || now - parseInt(fetchTime) > CACHE_DURATION;
-        const forceRefresh = this.config.maintenanceMode === true;
         const socialLinksIncomplete = !this.config.socialLinks?.x || !this.config.socialLinks?.linkedin;
 
-        // Même si le cache global est encore "frais", on veut pouvoir activer la maintenance rapidement.
-        // Sinon, un client peut garder `maintenanceMode=false` jusqu'à 1h.
-        const maintenanceCheckDue = !forceRefresh && (
-            !maintenanceCheckTime || now - parseInt(maintenanceCheckTime) > MAINTENANCE_CHECK_DURATION
-        );
-
-        if (window.SupabaseAdapter && (cacheExpired || forceRefresh || socialLinksIncomplete || maintenanceCheckDue)) {
+        if (window.SupabaseAdapter && (cacheExpired || socialLinksIncomplete)) {
             // Check if we are already fetching to prevent duplicate calls from multiple managers
             if (this._fetchPromise) {
                 await this._fetchPromise;
@@ -254,12 +286,8 @@ const ConfigManager = {
                 try {
                     const remoteConfig = await window.SupabaseAdapter.fetch('settings');
                     if (remoteConfig && remoteConfig.length > 0) {
-                        const normalized = this._normalizeRemoteSettingsRow(remoteConfig[0]);
-                        if (normalized) this.config = { ...this.config, ...normalized };
-                        this.saveLocal();
-                        window.dispatchEvent(new CustomEvent('configUpdated', { detail: this.config }));
+                        this._applyRemoteSettingsRow(remoteConfig[0], 'fetch');
                         localStorage.setItem('newket_global_config_time', now.toString());
-                        localStorage.setItem('newket_global_config_maintenance_check_time', now.toString());
                     }
                 } catch (err) {
                     console.warn('[NewKet] Failed to fetch settings from Supabase:', err);
@@ -269,9 +297,10 @@ const ConfigManager = {
             await this._fetchPromise;
             this._fetchPromise = null;
         } else {
-            // Cache "frais": quand même rafraîchir l'horodatage maintenance pour éviter des fetchs trop fréquents.
-            localStorage.setItem('newket_global_config_maintenance_check_time', now.toString());
+            localStorage.setItem('newket_global_config_time', now.toString());
         }
+
+        this._startRealtimeSync();
 
         // Global export for legacy code
         window.newketConfig = this.config;
@@ -289,6 +318,7 @@ const ConfigManager = {
         this.config = { ...this.config, ...newConfig };
         this.config.socialLinks = this._getSocialLinks(this.config);
         this.saveLocal();
+        let remoteError = null;
 
         if (window.SupabaseAdapter) {
             try {
@@ -306,10 +336,15 @@ const ConfigManager = {
                 }
             } catch (err) {
                 console.error('[NewKet] Error saving remote settings to Supabase:', err);
+                remoteError = err;
             }
         }
         
         window.dispatchEvent(new CustomEvent('configUpdated', { detail: this.config }));
+
+        if (remoteError) {
+            throw remoteError;
+        }
     },
 
     saveLocal() {

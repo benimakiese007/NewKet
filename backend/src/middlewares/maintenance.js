@@ -1,9 +1,5 @@
 import { hasServiceRoleKey, supabase, supabaseAdmin } from '../config/supabase.js';
 
-let isMaintenanceCached = null;
-let lastCheck = 0;
-const CACHE_DURATION = 30000; // 30 secondes
-
 async function readMaintenanceFlag() {
   // En prod, on veut pouvoir lire le flag même si la table est protégée par RLS.
   // Donc on privilégie le service-role quand il est présent.
@@ -43,26 +39,17 @@ export const maintenanceMiddleware = async (req, res, next) => {
   }
 
   try {
-    const now = Date.now();
+    // 2) Lire le flag à chaque requête non-GET pour rendre la bascule immédiate.
+    const { value, error } = await readMaintenanceFlag();
 
-    // 2) Vérifier le cache pour éviter de surcharger Supabase
-    if (isMaintenanceCached === null || now - lastCheck > CACHE_DURATION) {
-      const { value, error } = await readMaintenanceFlag();
-
-      // Mettre à jour le cache même en cas d'erreur pour éviter le spam (logs + DB).
-      lastCheck = now;
-
-      if (!error) {
-        isMaintenanceCached = value;
-      } else {
-        console.error('❌ Erreur vérification maintenance:', error);
-        // En cas d'erreur de vérification, on laisse passer pour ne pas bloquer le site indéfiniment.
-        isMaintenanceCached = false;
-      }
+    if (error) {
+      console.error('❌ Erreur vérification maintenance:', error);
+      // En cas d'erreur de vérification, on laisse passer pour ne pas bloquer le site indéfiniment.
+      return next();
     }
 
     // 3) Appliquer le blocage
-    if (isMaintenanceCached === true) {
+    if (value === true) {
       console.log(`🚧 Blocage maintenance pour: ${req.method} ${req.path}`);
       return res.status(503).json({
         error: 'Service en maintenance',
@@ -79,4 +66,3 @@ export const maintenanceMiddleware = async (req, res, next) => {
     next();
   }
 };
-

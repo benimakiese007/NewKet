@@ -36,6 +36,12 @@ function isNetworkFailure(error) {
         || /Failed to fetch|NetworkError|ERR_CONNECTION_REFUSED|Load failed/i.test(message);
 }
 
+function isLocalTransientGatewayFailure(error) {
+    if (!isLocalDevHost()) return false;
+    const status = Number(error?.status || 0);
+    return [502, 503, 504].includes(status);
+}
+
 function isLocalDevHost() {
     try {
         return /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
@@ -287,16 +293,18 @@ export const ApiClient = {
 
             return await run();
         } catch (error) {
-            if (options.suppressNetworkError && isNetworkFailure(error)) {
+            const isTransientLocalGateway = isLocalTransientGatewayFailure(error);
+
+            if (options.suppressNetworkError && (isNetworkFailure(error) || isTransientLocalGateway)) {
                 return null;
             }
 
-            if (!options.suppressErrorLogging) {
+            if (!options.suppressErrorLogging && !isTransientLocalGateway) {
                 console.error(`[ApiClient] Error on ${endpoint}:`, error);
                 captureError(error, { endpoint, method: options.method || 'GET' });
             }
 
-            if (!options.suppressToast && typeof window.showToast === 'function') {
+            if (!options.suppressToast && typeof window.showToast === 'function' && !isTransientLocalGateway) {
                 if (isNetworkFailure(error)) {
                     window.showToast("Une erreur réseau est survenue. Veuillez vérifier votre connexion.", "danger");
                 } else if (error.status !== 401 && error.status !== 403) {

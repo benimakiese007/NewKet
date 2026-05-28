@@ -21,7 +21,14 @@ const CurrencyManager = {
 
     getStoredCurrency() {
         try {
-            return this.normalizeCurrency(localStorage.getItem('newketCurrency'));
+            const storedCurrency = localStorage.getItem('newketCurrency');
+            if (storedCurrency === 'USD' || storedCurrency === 'CDF') {
+                return storedCurrency;
+            }
+
+            const configuredCurrency = window.ConfigManager?.getConfig?.()?.currencySymbol
+                || window.newketConfig?.currencySymbol;
+            return this.normalizeCurrency(configuredCurrency);
         } catch (_) {
             return 'CDF';
         }
@@ -111,6 +118,7 @@ const CurrencyManager = {
 
         window.addEventListener('componentsLoaded', syncRenderedCurrency);
         window.addEventListener('newketInitialized', syncRenderedCurrency);
+        window.addEventListener('configUpdated', syncRenderedCurrency);
         window.addEventListener('pageshow', syncRenderedCurrency);
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) syncRenderedCurrency();

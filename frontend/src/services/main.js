@@ -45,6 +45,51 @@ const App = {
         const isLoggedIn = !!currentRole;
         const isAdmin = currentRole === 'admin';
         const isSupplier = currentRole === 'supplier';
+        const isMaintenanceViewActive = () => document.body?.dataset?.newketMaintenanceView === '1';
+        const renderMaintenanceView = () => {
+            document.documentElement.classList.remove('auth-loading');
+            document.body.dataset.newketMaintenanceView = '1';
+            document.body.innerHTML = `
+                <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at top, #1f2937 0%, #0b1220 52%, #050816 100%); color:#fff; font-family:'Inter', sans-serif; text-align:center; padding:24px;">
+                    <div style="width:min(560px, 100%); padding:40px 32px; border-radius:28px; background:rgba(17,24,39,0.72); border:1px solid rgba(255,255,255,0.08); box-shadow:0 30px 80px rgba(0,0,0,0.35); backdrop-filter:blur(18px);">
+                        <div style="width:84px; height:84px; margin:0 auto 20px; border-radius:28px; display:flex; align-items:center; justify-content:center; background:rgba(239,68,68,0.14); border:1px solid rgba(239,68,68,0.28);">
+                            <iconify-icon icon="solar:shield-warning-bold-duotone" width="42" style="color:#fb7185;"></iconify-icon>
+                        </div>
+                        <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:8px 14px; border-radius:999px; background:rgba(255,255,255,0.06); color:#cbd5e1; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;">
+                            Maintenance en cours
+                        </div>
+                        <h1 style="font-size:clamp(1.9rem, 4vw, 2.6rem); font-weight:900; line-height:1.1; margin:0 0 14px;">Accès public suspendu</h1>
+                        <p style="color:#cbd5e1; max-width:460px; margin:0 auto; line-height:1.7; font-size:15px;">
+                            Les clients, vendeurs et invités ne peuvent pas utiliser la plateforme pendant cette fenêtre de maintenance.
+                            L’espace administrateur reste disponible pour la connexion et la supervision.
+                        </p>
+                        <div style="margin-top:28px; display:flex; justify-content:center;">
+                            <a href="login.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; text-decoration:none; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
+                                Se connecter en admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+        const syncMaintenanceState = () => {
+            const shouldBlockPublic = window.newketConfig?.maintenanceMode === true && !isAdmin;
+            const currentPath = window.location.pathname;
+            const isAdminPath = currentPath.includes('/admin/');
+            const isLoginPath = currentPath.includes('login.html');
+
+            if (shouldBlockPublic && !isAdminPath && !isLoginPath) {
+                renderMaintenanceView();
+                return;
+            }
+
+            if (!shouldBlockPublic && isMaintenanceViewActive()) {
+                window.location.reload();
+            }
+        };
+
+        window.addEventListener('configUpdated', syncMaintenanceState);
+        window.addEventListener('maintenanceModeChanged', syncMaintenanceState);
 
         // Set Sentry user for context if logged in
         if (isLoggedIn && currentUser) {
@@ -52,22 +97,9 @@ const App = {
         }
 
         // Check Maintenance Mode
-        if (window.newketConfig && window.newketConfig.maintenanceMode === true && !isAdmin) {
-            const currentPath = window.location.pathname;
-            if (!currentPath.includes('/admin/') && !currentPath.includes('login.html')) {
-                // Remove loading screen immediately
-                document.documentElement.classList.remove('auth-loading');
-                // Replace entire body with maintenance view
-                document.body.innerHTML = `
-                    <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#111827; color:#fff; font-family:'Inter', sans-serif; text-align:center; padding:20px;">
-                        <iconify-icon icon="solar:shield-warning-bold-duotone" width="80" style="color:#ef4444; margin-bottom:20px;"></iconify-icon>
-                        <h1 style="font-size:2rem; font-weight:900; margin-bottom:10px;">NewKet en Maintenance</h1>
-                        <p style="color:#9ca3af; max-width:400px; line-height:1.6;">Notre plateforme fait actuellement l'objet d'une maintenance technique afin d'améliorer vos services. Nous serons de retour très rapidement !</p>
-                        <a href="login.html" style="margin-top:30px; font-size:12px; font-weight:bold; color:#4b5563; text-decoration:none;">Accès Administrateur</a>
-                    </div>
-                `;
-                return; // Halt further initialization
-            }
+        syncMaintenanceState();
+        if (window.newketConfig?.maintenanceMode === true && !isAdmin && isMaintenanceViewActive()) {
+            return; // Halt further initialization
         }
 
         // Orders are needed for customer + vendor dashboards too.
