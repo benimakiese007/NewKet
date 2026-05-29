@@ -613,7 +613,13 @@ export function buildProductCardHTML(p, options = {}) {
     // Handle image (could be comma separated) — optimize first image for thumbnails
     const images = (p.image || '').split(',');
     const rawImg = images[0].trim() || 'Images/default.png';
-    const mainImg = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(rawImg, { width: 400, quality: 80 }) : rawImg;
+    const mainImg = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(rawImg, { width: 320, quality: 75 }) : rawImg;
+    const mainImgSrcSet = window.buildResponsiveImageSrcSet
+        ? buildResponsiveImageSrcSet(rawImg, prioritizeImage ? [320, 480, 640] : [240, 320, 480], { quality: 75 })
+        : '';
+    const mainImgSizes = prioritizeImage
+        ? '(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 240px'
+        : '(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 200px';
     const fallbackImg = '/Images/default.png';
 
     // Format price
@@ -644,14 +650,16 @@ export function buildProductCardHTML(p, options = {}) {
     const reviewCount = p.reviews || 0;
 
     const productImgAttrs = prioritizeImage
-        ? `src="${mainImg}" loading="${imageLoading}" fetchpriority="high"`
-        : `data-src="${mainImg}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" loading="${imageLoading}"`;
+        ? `src="${mainImg}"${mainImgSrcSet ? ` srcset="${mainImgSrcSet}" sizes="${mainImgSizes}"` : ''} loading="${imageLoading}" fetchpriority="high"`
+        : `data-src="${mainImg}"${mainImgSrcSet ? ` data-srcset="${mainImgSrcSet}" data-sizes="${mainImgSizes}"` : ''} src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" loading="${imageLoading}"`;
     const productImgClass = prioritizeImage ? '' : 'lazy-img';
     const avatar = (Array.isArray(p.users) ? p.users[0] : p.users)?.avatar;
-    const avatarImgAttrs = prioritizeAvatar && avatar
-        ? `src="${avatar}" loading="eager" fetchpriority="high"`
-        : avatar
-            ? `data-src="${avatar}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" loading="lazy"`
+    const avatarUrl = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(avatar, { width: 72, quality: 70 }) : avatar;
+    const avatarSrcSet = window.buildResponsiveImageSrcSet ? buildResponsiveImageSrcSet(avatar, [48, 72, 96], { quality: 70 }) : '';
+    const avatarImgAttrs = prioritizeAvatar && avatarUrl
+        ? `src="${avatarUrl}"${avatarSrcSet ? ` srcset="${avatarSrcSet}" sizes="36px"` : ''} loading="eager" fetchpriority="high"`
+        : avatarUrl
+            ? `data-src="${avatarUrl}"${avatarSrcSet ? ` data-srcset="${avatarSrcSet}" data-sizes="36px"` : ''} src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" loading="lazy"`
             : '';
     const avatarImgClass = prioritizeAvatar ? '' : 'lazy-img';
     const vendor = Array.isArray(p.users) ? p.users[0] : p.users;
@@ -972,51 +980,123 @@ export function buildSkeletonIncidentListHTML(count = 4) {
     return html;
 }
 
+function buildSupabaseTransformedImageUrl(source) {
+    const baseUrl = String(window.supabaseClient?.supabaseUrl || 'https://kuygjocnnlvjtoaquicq.supabase.co').replace(/\/+$/, '');
+    const match = String(source || '').trim().match(
+        /^(?:https?:\/\/[^/]+)?\/storage\/v1\/(?:object\/public|render\/image\/public)\/([^/]+)\/([^?#]+)(?:[?#].*)?$/i
+    );
+
+    let bucket = '';
+    let objectPath = '';
+
+    if (match) {
+        bucket = match[1];
+        objectPath = match[2];
+    } else {
+        const parts = String(source || '').trim().split('/');
+        if (parts.length < 2) return source;
+        bucket = parts.shift();
+        objectPath = parts.join('/');
+    }
+
+    if (!bucket || !objectPath) return source;
+
+    const encodedObjectPath = objectPath
+        .split('/')
+        .map(segment => encodeURIComponent(segment))
+        .join('/');
+
+    return `${baseUrl}/storage/v1/object/public/${encodeURIComponent(bucket)}/${encodedObjectPath}`;
+}
+
+function isSupabaseImageSource(source) {
+    const value = String(source || '').trim();
+    return /^(?:https?:\/\/[^/]+\/storage\/v1\/(?:object\/public|render\/image\/public)\/|(?:product-images|vendor-covers|user-assets|vendor-docs|site-assets)\/)/i.test(value);
+}
+
+function extractPrimaryImageToken(source) {
+    if (Array.isArray(source)) {
+        return String(source[0] || '').trim();
+    }
+    const value = String(source || '').trim();
+    if (!value) return '';
+    return value.split(',')[0].trim();
+}
+
+function parseImageVariantToken(token) {
+    const value = String(token || '').trim();
+    if (!value) return { thumb: '', full: '', primary: '' };
+
+    if (value.includes('||')) {
+        const [thumb, full] = value.split('||').map(part => part.trim()).filter(Boolean);
+        const normalizedThumb = thumb ? (isSupabaseImageSource(thumb) ? buildSupabaseTransformedImageUrl(thumb) : thumb) : '';
+        const normalizedFull = full ? (isSupabaseImageSource(full) ? buildSupabaseTransformedImageUrl(full) : full) : '';
+        return {
+            thumb: normalizedThumb,
+            full: normalizedFull,
+            primary: normalizedFull || normalizedThumb || value
+        };
+    }
+
+    const normalized = isSupabaseImageSource(value) ? buildSupabaseTransformedImageUrl(value) : value;
+    return { thumb: '', full: normalized, primary: normalized };
+}
+
+function selectResponsiveImageUrl(source, opts = {}) {
+    const token = extractPrimaryImageToken(source);
+    if (!token || token === 'Images/default.png') return '/Images/default.png';
+
+    if (token.startsWith('data:') || token.startsWith('blob:')) {
+        return token;
+    }
+
+    if (token.startsWith('Images/')) {
+        return '/' + token;
+    }
+
+    const parsed = parseImageVariantToken(token);
+    if (parsed.thumb && parsed.full) {
+        const requestedWidth = Number(opts.width) || 0;
+        return requestedWidth >= 640 ? parsed.full : parsed.thumb;
+    }
+
+    return parsed.primary || token;
+}
+
+export function buildResponsiveImageSrcSet(source, widths = [240, 320, 480], opts = {}) {
+    const token = extractPrimaryImageToken(source);
+    if (!token || token === 'Images/default.png') return '';
+    if (token.startsWith('data:') || token.startsWith('blob:') || token.startsWith('Images/')) return '';
+
+    const parsed = parseImageVariantToken(token);
+    if (parsed.thumb && parsed.full) {
+        return `${parsed.thumb} 360w, ${parsed.full} 1600w`;
+    }
+
+    return '';
+}
+
 /**
- * Normalizes an image URL and returns the first entry when multiple are provided.
- * Supabase runtime transformations are disabled for this project, so URLs are left untouched.
+ * Normalizes an image URL and applies Supabase image transformations when possible.
  */
-export function getOptimizedImageUrl(url, opts = { width: 400, quality: 80 }) {
+export function getOptimizedImageUrl(url, opts = { width: 320, quality: 75 }) {
     if (!url) return '/Images/default.png';
     
-    let target = url;
-    // If it's an array, take the first element
-    if (Array.isArray(url)) {
-        target = url[0];
-    }
-    
-    if (typeof target !== 'string') {
+    if (Array.isArray(url) && url.length === 0) {
         return '/Images/default.png';
     }
 
-    // Handle comma-separated list of images
-    const images = target.split(',');
-    const firstImg = (images[0] || '').trim();
-    
+    const firstImg = extractPrimaryImageToken(url);
     if (!firstImg || firstImg === 'Images/default.png') {
         return '/Images/default.png';
     }
 
-    // If it's a local preview (Data URL) return it as is
-    if (firstImg.startsWith('data:') || firstImg.startsWith('blob:')) {
-        return firstImg;
+    const selectedVariant = selectResponsiveImageUrl(firstImg, opts);
+    if (selectedVariant && selectedVariant !== firstImg) {
+        return selectedVariant;
     }
 
-    // Handle relative local paths (Images/...)
-    if (firstImg.startsWith('Images/')) {
-        return '/' + firstImg;
-    }
-
-    // Handle Supabase storage paths (product-images, vendor-covers, user-assets, vendor-docs, site-assets)
-    const supabaseBuckets = ['product-images', 'vendor-covers', 'user-assets', 'vendor-docs', 'site-assets'];
-    const isSupabasePath = supabaseBuckets.some(b => firstImg.startsWith(b + '/'));
-
-    if (isSupabasePath && !firstImg.startsWith('http')) {
-        const baseUrl = window.supabaseClient?.supabaseUrl || 'https://kuygjocnnlvjtoaquicq.supabase.co';
-        return `${baseUrl}/storage/v1/object/public/${firstImg}`;
-    }
-
-    return firstImg;
+    return selectedVariant;
 }
 
 
@@ -2134,6 +2214,11 @@ export function initLazyImages(root = document) {
                     const src = img.dataset.src;
                     if (!src) return;
 
+                    const srcset = img.dataset.srcset;
+                    const sizes = img.dataset.sizes;
+                    if (srcset) img.srcset = srcset;
+                    if (sizes) img.sizes = sizes;
+
                     // Swap the src
                     img.src = src;
                     img.style.opacity = '0';
@@ -2141,10 +2226,14 @@ export function initLazyImages(root = document) {
                     img.onload = () => {
                         img.style.opacity = '1';
                         img.removeAttribute('data-src');
+                        img.removeAttribute('data-srcset');
+                        img.removeAttribute('data-sizes');
                     };
                     img.onerror = () => {
                         img.style.opacity = '1';
                         img.removeAttribute('data-src');
+                        img.removeAttribute('data-srcset');
+                        img.removeAttribute('data-sizes');
                     };
 
                     _lazyObserver.unobserve(img);
@@ -2160,8 +2249,12 @@ export function initLazyImages(root = document) {
         // Fallback: load all immediately (rare, old browsers)
         lazyImages.forEach(img => {
             if (img.dataset.src) {
+                if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+                if (img.dataset.sizes) img.sizes = img.dataset.sizes;
                 img.src = img.dataset.src;
                 img.removeAttribute('data-src');
+                img.removeAttribute('data-srcset');
+                img.removeAttribute('data-sizes');
             }
         });
     }
@@ -2323,6 +2416,7 @@ window.buildSkeletonTableRowsHTML = buildSkeletonTableRowsHTML;
 window.buildSkeletonIncidentListHTML = buildSkeletonIncidentListHTML;
 window.buildStarsHTML = buildStarsHTML;
 window.getOptimizedImageUrl = getOptimizedImageUrl;
+window.buildResponsiveImageSrcSet = buildResponsiveImageSrcSet;
 window.initLazyImages = initLazyImages;
 window.getAvatarColor = getAvatarColor;
 window.getInitials = getInitials;

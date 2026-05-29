@@ -755,9 +755,18 @@
                         for (let i = 0; i < selectedFileBlobs.length; i++) {
                             const file = selectedFileBlobs[i];
                             const fileName = `${Date.now()}_${i}.${file.name.split('.').pop()}`;
-                            const publicUrl = await SupabaseAdapter.uploadFile('product-images', fileName, file);
-                            if (publicUrl) {
-                                finalImagePaths.push(publicUrl);
+                            if (typeof SupabaseAdapter.uploadImageBundle === 'function') {
+                                const bundle = await SupabaseAdapter.uploadImageBundle('product-images', fileName, file);
+                                if (bundle?.compositeUrl) {
+                                    finalImagePaths.push(bundle.compositeUrl);
+                                } else if (bundle?.publicUrl) {
+                                    finalImagePaths.push(bundle.publicUrl);
+                                }
+                            } else {
+                                const publicUrl = await SupabaseAdapter.uploadFile('product-images', fileName, file);
+                                if (publicUrl) {
+                                    finalImagePaths.push(publicUrl);
+                                }
                             }
                         }
                     } else {

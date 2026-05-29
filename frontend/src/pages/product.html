@@ -340,7 +340,11 @@
                     ? window.NewKetLinks.buildShopShareUrl({ shopName, shopSlug: vendor.shop_slug })
                     : `${window.resolvePath('shop')}?email=${p.supplier_email || ''}`;
                 const avatar = document.getElementById('vendorAvatarDetail');
-                if (vendor.avatar) avatar.innerHTML = `<img src="${vendor.avatar}" class="w-full h-full object-cover" alt="${shopName}">`;
+                if (vendor.avatar) {
+                    const avatarUrl = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(vendor.avatar, { width: 80, quality: 70 }) : vendor.avatar;
+                    const avatarSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(vendor.avatar, [40, 80, 120], { quality: 70 }) : '';
+                    avatar.innerHTML = `<img src="${avatarUrl}"${avatarSrcSet ? ` srcset="${avatarSrcSet}" sizes="40px"` : ''} class="w-full h-full object-cover" alt="${shopName}">`;
+                }
                 else avatar.textContent = shopName.charAt(0).toUpperCase();
                 document.getElementById('shippingValue').textContent = vendor.shipping_time || '24h';
             }
@@ -372,12 +376,21 @@
             currentProductImages = images.length ? images : [window.resolvePath('assets/Images/default.png')];
             currentProductImageIndex = 0;
             const mainImgUrl = currentProductImages[0];
-            document.getElementById('mainImage').src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mainImgUrl) : mainImgUrl;
+            const mainImageEl = document.getElementById('mainImage');
+            const mainImageUrl = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(mainImgUrl, { width: 800, quality: 80 }) : mainImgUrl;
+            const mainImageSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(mainImgUrl, [480, 800, 1200], { quality: 80 }) : '';
+            if (mainImageEl) {
+                mainImageEl.src = mainImageUrl;
+                if (mainImageSrcSet) {
+                    mainImageEl.srcset = mainImageSrcSet;
+                    mainImageEl.sizes = '(max-width: 768px) 100vw, 50vw';
+                }
+            }
 
             const thumbs = document.getElementById('thumbnailGrid');
             thumbs.innerHTML = currentProductImages.map((img, i) => `
                 <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900 shadow-sm' : 'border-transparent'} hover:border-gray-300 transition-all p-1 glass-card" data-img-index="${i}" onclick="window.changeImageByIndex(${i}, this)">
-                    <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200 }) : img}" class="w-full h-full object-contain mix-blend-multiply" alt="Vue produit ${i + 1}">
+                    <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200, quality: 75 }) : img}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(img, [120, 200, 300], { quality: 75 })}" sizes="80px"` : ''} class="w-full h-full object-contain mix-blend-multiply" alt="Vue produit ${i + 1}">
                 </div>
             `).join('');
 
@@ -426,7 +439,13 @@
             currentProductImageIndex = (index + currentProductImages.length) % currentProductImages.length;
             const url = currentProductImages[currentProductImageIndex];
             const mainImage = document.getElementById('mainImage');
-            if (mainImage) mainImage.src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(url) : url;
+            if (mainImage) {
+                mainImage.src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(url, { width: 800, quality: 80 }) : url;
+                if (window.buildResponsiveImageSrcSet) {
+                    mainImage.srcset = window.buildResponsiveImageSrcSet(url, [480, 800, 1200], { quality: 80 });
+                    mainImage.sizes = '(max-width: 768px) 100vw, 50vw';
+                }
+            }
 
             document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900'));
             const active = document.querySelector(`#thumbnailGrid > div[data-img-index="${currentProductImageIndex}"]`);

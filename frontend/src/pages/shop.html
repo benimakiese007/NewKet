@@ -372,7 +372,13 @@
                     users: p.users || vendorSummary
                 };
                 return typeof window.buildProductCardHTML === 'function'
-                    ? window.buildProductCardHTML(productWithVendor, index)
+                    ? window.buildProductCardHTML(productWithVendor, {
+                        animationClass: 'animate-fade-in',
+                        delay: `${index * 0.05}s`,
+                        imageLoading: index < 2 ? 'eager' : 'lazy',
+                        prioritizeImage: index < 2,
+                        prioritizeAvatar: index < 2
+                    })
                     : '';
             }).join('');
 

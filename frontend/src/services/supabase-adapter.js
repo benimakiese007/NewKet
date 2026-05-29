@@ -145,6 +145,12 @@ window.SupabaseAdapter = {
         const profile = this._getImageUploadProfile(bucket, file);
         if (!profile) return file;
 
+        return await this._resizeImageForUpload(file, profile);
+    },
+
+    async _resizeImageForUpload(file, profile, options = {}) {
+        const { suffix = '', allowLarger = false } = options;
+
         try {
             const dataUrl = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -179,7 +185,7 @@ window.SupabaseAdapter = {
                 canvas.toBlob(resolve, profile.mimeType, profile.quality);
             });
 
-            if (!optimizedBlob || optimizedBlob.size >= file.size) {
+            if (!optimizedBlob || (!allowLarger && optimizedBlob.size >= file.size)) {
                 return file;
             }
 
@@ -191,7 +197,7 @@ window.SupabaseAdapter = {
             const extension = extensionMap[profile.mimeType] || file.name.split('.').pop() || 'bin';
             const baseName = file.name.replace(/\.[^.]+$/, '');
 
-            return new File([optimizedBlob], `${baseName}.${extension}`, {
+            return new File([optimizedBlob], `${baseName}${suffix}.${extension}`, {
                 type: profile.mimeType,
                 lastModified: Date.now()
             });
@@ -488,6 +494,83 @@ window.SupabaseAdapter = {
         } catch (err) {
             this._lastUploadError = err;
             console.error(`[NewKet] Error uploading file to ${bucket}:`, err);
+            return null;
+        }
+    },
+
+    async uploadImageBundle(bucket, filePath, file) {
+        const client = this.getClient();
+        if (!client) return null;
+
+        try {
+            this._lastUploadError = null;
+
+            return await this._retry(async () => {
+                const profile = this._getImageUploadProfile(bucket, file);
+                if (!profile) {
+                    const publicUrl = await this.uploadFile(bucket, filePath, file);
+                    if (!publicUrl) return null;
+                    return {
+                        thumbUrl: publicUrl,
+                        fullUrl: publicUrl,
+                        publicUrl,
+                        compositeUrl: `${publicUrl}||${publicUrl}`
+                    };
+                }
+
+                const fullUploadFile = await this._resizeImageForUpload(file, profile);
+                const thumbProfile = {
+                    maxWidth: 360,
+                    maxHeight: 360,
+                    quality: Math.min(profile.quality, 0.7),
+                    mimeType: profile.mimeType
+                };
+                const thumbUploadFile = await this._resizeImageForUpload(file, thumbProfile, { suffix: '__thumb' });
+
+                const safePath = String(filePath || '').trim();
+                const [folder, ...rest] = safePath.split('/');
+                const lastSegment = rest.length ? rest.join('/') : safePath;
+                const pathParts = lastSegment.split('/');
+                const fileName = pathParts.pop() || lastSegment;
+                const baseName = fileName.replace(/\.[^.]+$/, '');
+                const extension = fileName.includes('.') ? fileName.split('.').pop() : (fullUploadFile.name.split('.').pop() || 'bin');
+                const thumbPath = pathParts.length
+                    ? `${pathParts.join('/')}/${baseName}__thumb.${extension}`
+                    : `${baseName}__thumb.${extension}`;
+                const fullPath = safePath || `${baseName}.${extension}`;
+
+                const { error: thumbError } = await client.storage
+                    .from(bucket)
+                    .upload(thumbPath, thumbUploadFile, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
+                if (thumbError) throw thumbError;
+
+                const { error: fullError } = await client.storage
+                    .from(bucket)
+                    .upload(fullPath, fullUploadFile, {
+                        cacheControl: '3600',
+                        upsert: true
+                    });
+                if (fullError) throw fullError;
+
+                const { data: thumbUrlData } = client.storage.from(bucket).getPublicUrl(thumbPath);
+                const { data: fullUrlData } = client.storage.from(bucket).getPublicUrl(fullPath);
+
+                const thumbUrl = thumbUrlData.publicUrl;
+                const fullUrl = fullUrlData.publicUrl;
+
+                return {
+                    thumbUrl,
+                    fullUrl,
+                    publicUrl: fullUrl,
+                    compositeUrl: `${thumbUrl}||${fullUrl}`
+                };
+            });
+        } catch (err) {
+            this._lastUploadError = err;
+            console.error(`[NewKet] Error uploading image bundle to ${bucket}:`, err);
             return null;
         }
     },

@@ -992,9 +992,9 @@
                 window.buildProductCardHTML(p, {
                     animationClass: 'animate-fade-in',
                     delay: `${idx * 0.05}s`,
-                    imageLoading: !append && idx < 6 ? 'eager' : 'lazy',
-                    prioritizeImage: !append && idx < 6,
-                    prioritizeAvatar: !append && idx < 3
+                    imageLoading: !append && idx < 2 ? 'eager' : 'lazy',
+                    prioritizeImage: !append && idx < 2,
+                    prioritizeAvatar: !append && idx < 2
                 })
             ).join('');
 

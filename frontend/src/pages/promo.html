@@ -314,9 +314,9 @@
                 window.buildProductCardHTML(p, {
                     animationClass: 'animate-fade-in',
                     delay: `${idx * 0.05}s`,
-                    imageLoading: idx < 6 ? 'eager' : 'lazy',
-                    prioritizeImage: idx < 6,
-                    prioritizeAvatar: idx < 3
+                    imageLoading: idx < 2 ? 'eager' : 'lazy',
+                    prioritizeImage: idx < 2,
+                    prioritizeAvatar: idx < 2
                 })
             ).join('');
             // Activer le lazy loading sur les images .lazy-img injectées

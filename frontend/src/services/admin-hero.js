@@ -1,5 +1,5 @@
 import HeroContentManager from './hero-content-manager.js';
-import { getOptimizedImageUrl } from './ui-helpers.js';
+import { buildResponsiveImageSrcSet, getOptimizedImageUrl } from './ui-helpers.js';
 
 function $(id) { return document.getElementById(id); }
 
@@ -22,6 +22,7 @@ function sanitizePathSegment(name) {
 
 function makeSlideRow(slide, index, total) {
     const img = getOptimizedImageUrl(slide.imageUrl || '');
+    const imgSrcSet = buildResponsiveImageSrcSet(slide.imageUrl || '', [120, 180, 240], { quality: 75 });
     const overlay = typeof slide.overlay === 'number' ? slide.overlay : 0.4;
 
     const disabledUp = index === 0 ? 'disabled opacity-40 cursor-not-allowed' : '';
@@ -31,7 +32,7 @@ function makeSlideRow(slide, index, total) {
         <div class="p-5 rounded-3xl bg-white border border-gray-100 shadow-sm space-y-4" data-slide-index="${index}">
             <div class="flex items-center gap-4">
                 <div class="w-20 h-16 rounded-2xl overflow-hidden bg-gray-100 border border-gray-100 flex-shrink-0">
-                    <img src="${img}" alt="" class="w-full h-full object-cover" referrerpolicy="no-referrer" crossorigin="anonymous">
+                    <img src="${img}"${imgSrcSet ? ` srcset="${imgSrcSet}" sizes="80px"` : ''} alt="" class="w-full h-full object-cover" referrerpolicy="no-referrer" crossorigin="anonymous">
                 </div>
                 <div class="flex-1 min-w-0 space-y-2">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -192,7 +193,13 @@ function bindSlideEvents() {
 
         // Refresh preview quickly
         const imgEl = row.querySelector('img');
-        if (imgEl) imgEl.src = getOptimizedImageUrl(publicUrl);
+        if (imgEl) {
+            imgEl.src = getOptimizedImageUrl(publicUrl, { width: 180, quality: 75 });
+            if (buildResponsiveImageSrcSet) {
+                imgEl.srcset = buildResponsiveImageSrcSet(publicUrl, [120, 180, 240], { quality: 75 });
+                imgEl.sizes = '80px';
+            }
+        }
     });
 }
 

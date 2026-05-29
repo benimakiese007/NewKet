@@ -402,11 +402,12 @@ const SearchManager = {
                 html += filtered.map(p => {
                     const firstImg = (p.image || '').split(',')[0];
                     const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(firstImg, { width: 120, quality: 70 }) : firstImg) || firstImg;
+                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(firstImg, [48, 72, 120], { quality: 70 }) : '';
                         
                     return `
                     <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden">
-                            <img src="${escapeHTML(optImg)}" loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">
+                            <img src="${escapeHTML(optImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>
