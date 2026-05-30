@@ -617,7 +617,7 @@ const AdminLayout = {
                         <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-slate-900 text-white shadow-lg' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
                             <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
                         </div>
-                        <span class="text-sm font-bold tracking-tight ${isActive ? 'text-slate-900' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
+                        <span class="text-sm font-bold tracking-tight ${isActive ? 'text-slate-900 whitespace-nowrap' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
                         ${isActive ? '<div class="absolute right-3 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>' : ''}
                     </a>
                 `;

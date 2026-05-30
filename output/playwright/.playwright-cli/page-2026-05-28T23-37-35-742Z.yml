@@ -1,0 +1,292 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - link "NewKet" [ref=e7] [cursor=pointer]:
+        - /url: /index.html
+        - img "NewKet" [ref=e8]
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic "Choisir une catégorie" [ref=e11] [cursor=pointer]:
+            - generic [ref=e12]: Tout
+            - img [ref=e14]
+          - textbox "Rechercher des produits" [ref=e16]:
+            - /placeholder: Rechercher sur NewKet...
+        - link "Vendre un article" [ref=e17] [cursor=pointer]:
+          - /url: /src/pages/publish.html
+          - img [ref=e19]
+      - generic [ref=e21]:
+        - generic "Devise d'affichage" [ref=e23] [cursor=pointer]:
+          - generic [ref=e24]:
+            - generic [ref=e26]: USD
+            - generic [ref=e27]: CDF
+        - link "Voir les notifications" [ref=e28] [cursor=pointer]:
+          - /url: /src/pages/notifications.html
+          - img [ref=e30]
+        - link "Voir les favoris" [ref=e34] [cursor=pointer]:
+          - /url: /src/pages/favorites.html
+          - img [ref=e36]
+        - link "Mon compte" [ref=e38] [cursor=pointer]:
+          - /url: /src/pages/login.html
+          - img [ref=e40]
+  - navigation [ref=e47]:
+    - link "Toutes les pièces" [ref=e48] [cursor=pointer]:
+      - /url: /src/pages/catalog.html
+    - link "Boutiques" [ref=e49] [cursor=pointer]:
+      - /url: /src/pages/shops.html
+    - link "Femme" [ref=e50] [cursor=pointer]:
+      - /url: /src/pages/catalog.html?category=Femme
+    - link "Homme" [ref=e51] [cursor=pointer]:
+      - /url: /src/pages/catalog.html?category=Homme
+    - link "Tech & Gadgets" [ref=e52] [cursor=pointer]:
+      - /url: /src/pages/catalog.html?category=Tech & Gadgets
+    - link "HIGH-TECH" [ref=e53] [cursor=pointer]:
+      - /url: /src/pages/catalog.html?category=HIGH-TECH
+    - link "Art de vivre" [ref=e54] [cursor=pointer]:
+      - /url: /src/pages/catalog.html?category=Art de vivre
+    - link "Promos" [ref=e55] [cursor=pointer]:
+      - /url: /src/pages/catalog.html?promo=true
+      - img [ref=e57]
+      - text: Promos
+  - main [ref=e59]:
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - img [ref=e65]
+        - heading "Produits épinglés" [level=2] [ref=e67]
+      - link "Voir tout" [ref=e68] [cursor=pointer]:
+        - /url: /src/pages/catalog.html
+        - text: Voir tout
+        - img [ref=e70]
+    - generic [ref=e80]:
+      - generic [ref=e81]:
+        - heading "SUBTILE ÉLÉGANCE." [level=1] [ref=e82]:
+          - text: SUBTILE
+          - text: ÉLÉGANCE.
+        - paragraph [ref=e83]: L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment.
+        - generic [ref=e84]:
+          - link "Découvrir" [ref=e85] [cursor=pointer]:
+            - /url: /src/pages/catalog.html
+          - link "Vendre" [ref=e86] [cursor=pointer]:
+            - /url: /src/pages/publish.html
+      - generic [ref=e91]:
+        - generic [ref=e92]: "-50%"
+        - generic [ref=e93]: Sélection Premium
+        - generic [ref=e94]: "Code: NEWKET50"
+    - generic [ref=e98]:
+      - generic [ref=e99]:
+        - heading "Récemment publiés" [level=2] [ref=e100]
+        - paragraph [ref=e105]: Nouveaux arrivages
+      - link "Voir tout" [ref=e106] [cursor=pointer]:
+        - /url: /src/pages/catalog.html
+        - text: Voir tout
+    - generic [ref=e118]:
+      - generic:
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+        - generic:
+          - generic:
+            - generic: Livraison rapide
+            - generic: Dès 125 000 FC d'achat
+        - generic:
+          - generic:
+            - generic: Paiement sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel
+    - generic [ref=e120]:
+      - heading "Tous les produits" [level=2] [ref=e121]
+      - generic [ref=e122]:
+        - button "Toutes les pièces" [ref=e123] [cursor=pointer]
+        - button "Femme" [ref=e124] [cursor=pointer]
+        - button "Homme" [ref=e125] [cursor=pointer]
+        - button "Tech & Gadgets" [ref=e126] [cursor=pointer]
+        - button "Art de vivre" [ref=e127] [cursor=pointer]
+        - button "Promos" [ref=e128] [cursor=pointer]
+        - combobox "Trier les produits par" [ref=e130] [cursor=pointer]:
+          - option "Plus récents" [selected]
+          - option "Prix croissant"
+          - option "Prix décroissant"
+  - contentinfo [ref=e141]:
+    - generic [ref=e142]:
+      - generic [ref=e143]:
+        - generic [ref=e144]:
+          - img "NewKet" [ref=e146]
+          - paragraph [ref=e147]: L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
+          - generic [ref=e148]:
+            - link "+243990924254" [ref=e149] [cursor=pointer]:
+              - /url: tel:+243990924254
+              - generic [ref=e150]: "+243990924254"
+            - link "benimakiese1234@gmail.com" [ref=e151] [cursor=pointer]:
+              - /url: mailto:benimakiese1234@gmail.com
+              - generic [ref=e152]: benimakiese1234@gmail.com
+          - generic [ref=e153]:
+            - link "NewKet sur Instagram" [ref=e154] [cursor=pointer]:
+              - /url: https://www.instagram.com/benimakiese007
+            - link "NewKet sur Facebook" [ref=e155] [cursor=pointer]:
+              - /url: https://www.facebook.com/Benimakiese007
+            - link "NewKet sur X" [ref=e156] [cursor=pointer]:
+              - /url: https://x.com/lephoenixman
+            - link "NewKet sur LinkedIn" [ref=e157] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/newket
+        - generic [ref=e158]:
+          - heading "Services" [level=4] [ref=e159]
+          - list [ref=e160]:
+            - listitem [ref=e161]:
+              - link "Mon Compte" [ref=e162] [cursor=pointer]:
+                - /url: /src/pages/login.html
+            - listitem [ref=e163]:
+              - link "Support Technique" [ref=e164] [cursor=pointer]:
+                - /url: /src/pages/support.html
+            - listitem [ref=e165]:
+              - link "FAQ" [ref=e166] [cursor=pointer]:
+                - /url: /src/pages/faq.html
+            - listitem [ref=e167]:
+              - link "Vendre un article" [ref=e168] [cursor=pointer]:
+                - /url: /src/pages/publish.html
+        - generic [ref=e169]:
+          - heading "Inspiration & Offres" [level=4] [ref=e170]
+          - paragraph [ref=e171]: Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.
+          - generic [ref=e172]:
+            - textbox "Votre email" [ref=e173]
+            - button "S'inscrire" [ref=e174] [cursor=pointer]
+      - generic [ref=e175]:
+        - paragraph [ref=e176]: © 2026 NEWKET — Expérience Luxe
+        - generic [ref=e177]:
+          - link "Confidentialité" [ref=e178] [cursor=pointer]:
+            - /url: /src/pages/privacy.html
+          - link "Conditions" [ref=e179] [cursor=pointer]:
+            - /url: /src/pages/terms.html
+        - generic [ref=e180]:
+          - generic [ref=e181]: Designed by
+          - generic [ref=e182] [cursor=pointer]: SITYZEN
