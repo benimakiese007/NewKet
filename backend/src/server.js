@@ -40,10 +40,12 @@ import systemHealthRoutes from './routes/systemHealth.routes.js';
 import manifestRoutes from './routes/manifest.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
+import { processDuePushNotificationJobsJob } from './services/push-queue.service.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ESCROW_JOB_INTERVAL_MS = 15 * 60 * 1000;
+const PUSH_JOB_INTERVAL_MS = 60 * 1000;
 const IS_VERCEL = String(process.env.VERCEL || '').toLowerCase() === '1' || Boolean(process.env.VERCEL);
 
 app.disable('x-powered-by');
@@ -269,6 +271,18 @@ if (!IS_VERCEL) {
       console.error('[DisputeJob] Scheduled run failed:', error.message);
     });
   }, 15 * 60 * 1000);
+
+  setTimeout(() => {
+    processDuePushNotificationJobsJob().catch((error) => {
+      console.error('[PushJob] Startup run failed:', error.message);
+    });
+  }, 20000);
+
+  setInterval(() => {
+    processDuePushNotificationJobsJob().catch((error) => {
+      console.error('[PushJob] Scheduled run failed:', error.message);
+    });
+  }, PUSH_JOB_INTERVAL_MS);
 } else {
   console.log('[Jobs] Vercel detected: background intervals disabled. Use /api/cron/* endpoints with Vercel Cron Jobs.');
 }

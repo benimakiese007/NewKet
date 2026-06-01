@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import EmailService from './emailService.js';
-import WebPushService from './webPushService.js';
+import { enqueuePushNotification } from './push-queue.service.js';
 
 function getFrontendBaseUrl() {
     return (process.env.FRONTEND_URL || 'https://newket.vercel.app').replace(/\/+$/, '');
@@ -17,9 +17,9 @@ async function createDbNotification(payload) {
     }
 
     try {
-        const result = await WebPushService.sendForNotification(payload);
-        if (result?.sent != null) {
-            console.log(`[NotificationService] Web push sent: ${result.sent}`);
+        const job = await enqueuePushNotification(payload);
+        if (job?.id) {
+            console.log(`[NotificationService] Web push queued: ${job.id}`);
         }
     } catch (err) {
         console.error('[NotificationService] Web push error:', err);

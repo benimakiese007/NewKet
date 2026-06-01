@@ -2,6 +2,7 @@ import express from 'express';
 import { requireCronAuth } from '../middlewares/cronAuth.js';
 import { releaseDueEscrowsJob } from '../services/order-workflow.js';
 import { processDueDisputesJob } from '../controllers/dispute.controller.js';
+import { processDuePushNotificationJobsJob } from '../services/push-queue.service.js';
 
 const router = express.Router();
 
@@ -24,5 +25,13 @@ router.get('/disputes/process-due', requireCronAuth, async (req, res) => {
   }
 });
 
-export default router;
+router.get('/push/process-due', requireCronAuth, async (req, res) => {
+  try {
+    const result = await processDuePushNotificationJobsJob();
+    res.json({ ok: true, job: 'processDuePushNotificationJobsJob', ...result });
+  } catch (error) {
+    res.status(500).json({ ok: false, job: 'processDuePushNotificationJobsJob', error: error.message });
+  }
+});
 
+export default router;

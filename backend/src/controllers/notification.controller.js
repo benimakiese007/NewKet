@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../config/supabase.js';
-import WebPushService from '../services/webPushService.js';
+import { enqueuePushNotification } from '../services/push-queue.service.js';
 
 export const getNotifications = async (req, res) => {
     try {
@@ -72,8 +72,8 @@ export const addNotification = async (req, res) => {
 
         if (error) throw error;
         try {
-            const pushResult = await WebPushService.sendForNotification(data);
-            console.log(`[Notifications] Web push sent: ${pushResult?.sent || 0}`);
+            const pushJob = await enqueuePushNotification(data);
+            console.log(`[Notifications] Web push queued: ${pushJob?.id || 'unknown'}`);
         } catch (pushError) {
             console.error('Erreur web push notification:', pushError);
         }

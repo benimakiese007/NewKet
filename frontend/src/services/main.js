@@ -244,6 +244,7 @@ const App = {
         const scrollThreshold = 96;
         const compactThreshold = 72;
         const retractThreshold = 148;
+        const isDesktopViewport = () => window.matchMedia('(min-width: 1024px)').matches;
 
         const syncHeaderLayoutState = () => {
             if (!mobileSearch || !mainHeader || !headerLeadRow) {
@@ -263,6 +264,17 @@ const App = {
 
             // Catalog: keep header/menu stable like Index (no retract/compact hiding).
             if (isCatalogPage) {
+                mainHeader.classList.toggle('scrolled', shouldElevate);
+                mobileSearch?.classList.remove('search-bar-hidden');
+                mainHeader.classList.remove('header-compact', 'header-retracted');
+                accumulatedDelta = 0;
+                lastScrollTop = clampedScrollTop;
+                return;
+            }
+
+            // Desktop keeps the full header visible. The compact/retracted behavior
+            // is reserved for smaller screens where vertical space is tighter.
+            if (isDesktopViewport()) {
                 mainHeader.classList.toggle('scrolled', shouldElevate);
                 mobileSearch?.classList.remove('search-bar-hidden');
                 mainHeader.classList.remove('header-compact', 'header-retracted');

@@ -6,6 +6,7 @@ const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || process.env.WEB_PUSH_
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || process.env.WEB_PUSH_SUBJECT || 'mailto:support@newket.app';
 
 const isConfigured = Boolean(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);
+const PUSH_BATCH_SIZE = 500;
 
 if (isConfigured) {
     webPush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
@@ -74,6 +75,69 @@ async function sendRow(row, payload) {
     }
 }
 
+async function fetchAllPushSubscriptions(buildQuery) {
+    const rows = [];
+    let offset = 0;
+
+    while (true) {
+        const { data, error } = await buildQuery()
+            .order('endpoint', { ascending: true })
+            .range(offset, offset + PUSH_BATCH_SIZE - 1);
+
+        if (error) throw error;
+
+        const batch = Array.isArray(data) ? data : [];
+        rows.push(...batch);
+
+        if (batch.length < PUSH_BATCH_SIZE) break;
+        offset += PUSH_BATCH_SIZE;
+    }
+
+    return rows;
+}
+
+async function sendNotificationNow(notification) {
+    if (!isConfigured || !notification?.title || !notification?.message) return { sent: 0 };
+
+    const isBroadcast = notification.type === 'broadcast'
+        || String(notification.type || '').startsWith('broadcast:')
+        || String(notification.type || '').startsWith('broadcast-modal:');
+    // Broadcasts are meant to surface as in-app announcement modals only.
+    // They should not trigger a system/device push notification.
+    if (isBroadcast) return { sent: 0 };
+
+    let data;
+    try {
+        data = await fetchAllPushSubscriptions(() => buildPushSubscriptionQuery(notification));
+    } catch (error) {
+        console.error('[WebPush] Subscription lookup failed:', error);
+        throw error;
+    }
+
+    const payload = buildPayload(notification);
+    const results = await Promise.all(data.map((row) => sendRow(row, payload)));
+    return { sent: results.filter(Boolean).length };
+}
+
+function buildPushSubscriptionQuery(notification) {
+    let query = supabaseAdmin
+        .from('push_subscriptions')
+        .select('endpoint, subscription')
+        .is('revoked_at', null);
+
+    const targetRole = normalizeRole(notification.target_role);
+    if (notification.user_id || notification.user_email) {
+        const filters = [];
+        if (notification.user_id) filters.push(`user_id.eq.${notification.user_id}`);
+        if (notification.user_email) filters.push(`user_email.eq.${notification.user_email}`);
+        query = query.or(filters.join(','));
+    } else if (targetRole !== 'all') {
+        query = query.eq('user_role', targetRole);
+    }
+
+    return query;
+}
+
 const WebPushService = {
     isConfigured() {
         return isConfigured;
@@ -132,40 +196,8 @@ const WebPushService = {
         return true;
     },
 
-    async sendForNotification(notification) {
-        if (!isConfigured || !notification?.title || !notification?.message) return { sent: 0 };
-
-        const isBroadcast = notification.type === 'broadcast'
-            || String(notification.type || '').startsWith('broadcast:')
-            || String(notification.type || '').startsWith('broadcast-modal:');
-        // Broadcasts are meant to surface as in-app announcement modals only.
-        // They should not trigger a system/device push notification.
-        if (isBroadcast) return { sent: 0 };
-
-        let query = supabaseAdmin
-            .from('push_subscriptions')
-            .select('endpoint, subscription')
-            .is('revoked_at', null);
-
-        const targetRole = normalizeRole(notification.target_role);
-        if (notification.user_id || notification.user_email) {
-            const filters = [];
-            if (notification.user_id) filters.push(`user_id.eq.${notification.user_id}`);
-            if (notification.user_email) filters.push(`user_email.eq.${notification.user_email}`);
-            query = query.or(filters.join(','));
-        } else if (targetRole !== 'all') {
-            query = query.eq('user_role', targetRole);
-        }
-
-        const { data, error } = await query.limit(500);
-        if (error) {
-            console.error('[WebPush] Subscription lookup failed:', error);
-            return { sent: 0 };
-        }
-
-        const payload = buildPayload(notification);
-        const results = await Promise.all((data || []).map((row) => sendRow(row, payload)));
-        return { sent: results.filter(Boolean).length };
+    sendForNotification(notification) {
+        return sendNotificationNow(notification);
     }
 };
 
