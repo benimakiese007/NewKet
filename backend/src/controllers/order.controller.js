@@ -8,7 +8,6 @@ import {
     ESCROW_EVENT_TYPES,
     MAX_OTP_ATTEMPTS,
     canTransitionOrder,
-    computeEscrowReleaseAt,
     createEscrowEvent,
     generateOrderId,
     getOrderCustomerId,
@@ -47,6 +46,8 @@ function assertOrderMutableOrFail({ order, user, res, actionLabel }) {
 }
 
 async function restoreStockIfNeeded(order) {
+    if (!order?.stock_deducted_at) return;
+
     const items = order?.items || [];
     for (const item of items) {
         if (!item?.product_id) continue;
@@ -627,7 +628,19 @@ export const verifyDelivery = async (req, res) => {
             return res.status(400).json({ error: `Code OTP invalide. ${remaining} tentative(s) restante(s).` });
         }
 
-        const nowIso = new Date().toISOString();
+        const { data: rpcResult, error: rpcError } = await client.rpc('finalize_delivery_confirmation', {
+            p_order_id: id,
+            p_otp: otp
+        });
+
+        if (rpcError) throw rpcError;
+        if (rpcResult?.success === false) {
+            return res.status(400).json({ error: rpcResult.message || 'Impossible de confirmer la livraison.' });
+        }
+
+        const updatedOrder = rpcResult?.order || order;
+        const nowIso = updatedOrder?.delivered_at || new Date().toISOString();
+
         await createOrUpdateDeliveryRecord(id, getOrderVendorId(order), {
             status: DELIVERY_STATUSES.DELIVERED,
             otp_attempts: 0,
@@ -635,22 +648,6 @@ export const verifyDelivery = async (req, res) => {
             otp_validated_at: nowIso,
             proof_status: 'OTP_VALIDATED'
         });
-
-        const { data: updatedOrder, error } = await client
-            .from('orders')
-            .update({
-                status: ORDER_STATUSES.DELIVERED,
-                delivered_at: nowIso,
-                proof_status: 'OTP_VALIDATED',
-                escrow_status: ESCROW_STATUSES.HELD,
-                escrow_release_at: computeEscrowReleaseAt(nowIso),
-                updated_at: nowIso
-            })
-            .eq('id', id)
-            .select('*')
-            .single();
-
-        if (error) throw error;
 
         await createEscrowEvent(client, {
             orderId: id,

@@ -52,7 +52,7 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-6" id="main-content">
         <!-- Breadcrumbs -->
-        <nav class="flex flex-nowrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs" style="flex-wrap: nowrap; white-space: nowrap;">
+        <nav class="flex flex-nowrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs">
             <a href="/index.html" class="hover:text-gray-900 transition-colors" style="flex: 0 0 auto;">Accueil</a>
             <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
             <a href="/src/pages/catalog.html" class="hover:text-gray-900 transition-colors" style="flex: 0 0 auto;">Catalogue</a>
@@ -489,11 +489,17 @@
         function setupListeners(p) {
             document.getElementById('mainOrderBtn').onclick = () => {
                 const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
+                const qtyInput = document.getElementById('qty-input');
+                const quantity = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
                 if (!(Number.isFinite(stock) && stock > 0)) {
                     if (window.showToast) showToast('Produit indisponible pour le moment.', 'warning');
                     return;
                 }
-                if (window.initCheckout) window.initCheckout(p.id, document.getElementById('mainOrderBtn'));
+                if (quantity > stock) {
+                    if (window.showToast) showToast(`Quantite indisponible. Stock actuel: ${stock}.`, 'warning');
+                    return;
+                }
+                if (window.initCheckout) window.initCheckout(p.id, document.getElementById('mainOrderBtn'), quantity);
             };
             document.getElementById('mainWishlistBtn').onclick = () => {
                 if (FavoritesManager.isInFavorites(p.id)) FavoritesManager.removeItem(p.id);
@@ -707,7 +713,13 @@
             }
         };
 
-        window.updateQty = (val) => { const inp = document.getElementById('qty-input'); inp.value = Math.max(1, (parseInt(inp.value) || 1) + val); };
+        window.updateQty = (val) => {
+            const inp = document.getElementById('qty-input');
+            if (!inp) return;
+            const stock = Number(currentProduct?.stock ?? currentProduct?.stock_quantity ?? currentProduct?.quantity ?? 0);
+            const next = Math.max(1, (parseInt(inp.value, 10) || 1) + val);
+            inp.value = (Number.isFinite(stock) && stock > 0) ? String(Math.min(next, stock)) : String(next);
+        };
         window.changeImageByIndex = (idx, el) => { updateImageUI(parseInt(idx) || 0); if (el) { document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); } };
         window.openZoom = () => { document.getElementById('zoomModalImg').src = document.getElementById('mainImage').src; document.getElementById('zoomModal').classList.remove('invisible', 'opacity-0'); document.body.style.overflow = 'hidden'; };
         window.closeZoom = () => { document.getElementById('zoomModal').classList.add('invisible', 'opacity-0'); document.body.style.overflow = ''; };

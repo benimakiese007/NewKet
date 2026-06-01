@@ -2073,7 +2073,7 @@ window.showPromptModal = ({
    * Initiates the order creation flow.
    * Payment now happens only after the vendor sends a delivery quote and the client accepts it.
    */
-  window.initCheckout = async (productId, btnElement) => {
+  window.initCheckout = async (productId, btnElement, quantity = 1) => {
     let originalHtml = '';
     try {
         originalHtml = btnElement.innerHTML;
@@ -2116,10 +2116,12 @@ window.showPromptModal = ({
             }
         }
 
+          const requestedQuantity = Math.max(1, parseInt(quantity, 10) || 1);
+
           const data = await window.ApiClient.post('/orders', {
               product_id: p.id,
               vendor_id: p.user_id,
-              quantity: 1,
+              quantity: requestedQuantity,
               customer_phone: customerPhone,
               customer_name: customerName,
               customer_city: customerCity,

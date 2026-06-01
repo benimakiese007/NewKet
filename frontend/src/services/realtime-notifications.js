@@ -9,6 +9,8 @@ const AppNotifications = {
     deferredPrompt: null,
     pushPublicKey: null,
     serviceWorkerUpdateTimer: null,
+    broadcastModalSeenKey: 'newket_seen_broadcast_modal_ids',
+    _broadcastModalListenerBound: false,
 
     init() {
         this._setupPWA();
@@ -16,6 +18,7 @@ const AppNotifications = {
         // Wait for Supabase client
         document.addEventListener('newketInitialized', () => {
             this._setupRealtime();
+            this._setupBroadcastModalRecovery();
             this.syncDevicePushSubscription().catch(err => {
                 console.warn('[NewKet] Device push sync skipped:', err?.message || err);
             });
@@ -161,6 +164,9 @@ const AppNotifications = {
                                     }
                                     
                                     window.showAnnouncementModal(notif.title, notif.message, resolvedType, true, options);
+                                    if (this._isBroadcastModalType(notif.type)) {
+                                        this._markBroadcastModalShown(notif.id);
+                                    }
                                 } else {
                                     this.showToast(notif.title, notif.message, resolvedType, 'solar:bell-bold');
                                 }
@@ -174,9 +180,79 @@ const AppNotifications = {
                             }
                         }
                     })
-                    .subscribe();
+                        .subscribe();
             });
         }
+    },
+
+    _loadSeenBroadcastModalIds() {
+        try {
+            const raw = localStorage.getItem(this.broadcastModalSeenKey);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return new Set(Array.isArray(parsed) ? parsed : []);
+        } catch {
+            return new Set();
+        }
+    },
+
+    _saveSeenBroadcastModalIds(seenIds) {
+        try {
+            localStorage.setItem(this.broadcastModalSeenKey, JSON.stringify([...seenIds].slice(-200)));
+        } catch (err) {
+            console.warn('[NewKet] Unable to persist broadcast modal ids:', err?.message || err);
+        }
+    },
+
+    _isBroadcastModalType(type) {
+        return String(type || '').startsWith('broadcast-modal:');
+    },
+
+    _markBroadcastModalShown(notificationId) {
+        if (!notificationId) return;
+        const seen = this._loadSeenBroadcastModalIds();
+        if (seen.has(notificationId)) return;
+        seen.add(notificationId);
+        this._saveSeenBroadcastModalIds(seen);
+    },
+
+    _hasBroadcastModalBeenShown(notificationId) {
+        if (!notificationId) return false;
+        return this._loadSeenBroadcastModalIds().has(notificationId);
+    },
+
+    _showBroadcastModalNotification(notif, options = {}) {
+        if (!notif || !notif.id || !window.showAnnouncementModal) return false;
+        if (this._hasBroadcastModalBeenShown(notif.id) && !options.forceReplay) return false;
+
+        const resolvedType = typeof window.normalizeNotificationType === 'function'
+            ? window.normalizeNotificationType(notif.type)
+            : (String(notif.type || '').startsWith('broadcast-modal:') ? 'info' : notif.type);
+
+        window.showAnnouncementModal(notif.title, notif.message, resolvedType || 'info', true, options);
+        this._markBroadcastModalShown(notif.id);
+        return true;
+    },
+
+    _setupBroadcastModalRecovery() {
+        if (this._broadcastModalListenerBound) return;
+        this._broadcastModalListenerBound = true;
+
+        const processPendingBroadcastModals = () => {
+            if (!window.NotificationManager || typeof window.NotificationManager.getNotifications !== 'function') return;
+            const notifications = window.NotificationManager.getNotifications() || [];
+            notifications
+                .filter((notif) => this._isBroadcastModalType(notif.type))
+                .forEach((notif) => {
+                    this._showBroadcastModalNotification(notif);
+                });
+        };
+
+        window.addEventListener('notificationsUpdated', processPendingBroadcastModals);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) processPendingBroadcastModals();
+        });
+
+        processPendingBroadcastModals();
     },
 
     _setupPWA() {

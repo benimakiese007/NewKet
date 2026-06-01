@@ -39,6 +39,20 @@ BEGIN
         RETURN jsonb_build_object('success', false, 'message', 'Commande non trouvée, déjà traitée ou transaction ID invalide');
     END IF;
 
+    v_message := 'Paiement traité avec succès';
+
+    UPDATE public.orders
+    SET
+        payment_status = 'PAID',
+        status = 'PAID'
+    WHERE id = v_order_id;
+
+    INSERT INTO public.activities (user_email, text, type, time)
+    SELECT customer_email, 'Paiement confirmé pour la commande ' || transaction_id, 'payment', NOW()
+    FROM public.orders WHERE id = v_order_id;
+
+    RETURN jsonb_build_object('success', true, 'message', v_message);
+
     -- Boucler sur les items de la commande (stockés en JSONB)
     -- Format attendu: [{"product_id": "...", "quantity": 1, ...}]
     FOR v_item IN SELECT * FROM jsonb_to_recordset((SELECT items FROM public.orders WHERE id = v_order_id)) 

@@ -707,8 +707,13 @@ canvas {
     #breadcrumbs {
         display: flex !important;
         flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
         white-space: nowrap !important;
         overflow-x: auto !important;
+        overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         scrollbar-width: none !important;
     }
@@ -719,7 +724,16 @@ canvas {
 
     #breadcrumbs > * {
         flex: 0 0 auto !important;
+        min-width: max-content !important;
         white-space: nowrap !important;
+    }
+
+    #breadcrumbs a {
+        min-width: auto !important;
+        min-height: auto !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        line-height: 1.2 !important;
     }
 
     #breadcrumbs iconify-icon {
