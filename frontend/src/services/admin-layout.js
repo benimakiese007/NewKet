@@ -384,9 +384,9 @@ const AdminLayout = {
 
         navbarPlaceholder.innerHTML = `
             <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
-                <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
-                    <div class="flex items-center gap-6">
-                        <button id="adminMobileMenuBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all" onclick="SidebarManager.toggle()">
+                <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        <button id="adminMobileMenuBtn" data-toggle-sidebar="admin" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                         </button>
                     </div>
@@ -398,7 +398,7 @@ const AdminLayout = {
                         </a>
                     </div>
 
-                    <div class="flex items-center gap-2 sm:gap-6">
+                    <div class="flex items-center gap-4">
                         <!-- Currency Toggle (interrupteur) -->
                         <div class="flex items-center">
                             <div class="currency-switch-segmented scale-90 origin-right" id="currencyToggle" data-active="CDF" title="Devise d'affichage">
@@ -418,7 +418,7 @@ const AdminLayout = {
                                  Boutique
                             </a>
 
-                            <button onclick="AuthManager.handleLogoutClick(this)" class="h-10 w-10 sm:w-auto sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
+                            <button data-logout-safe class="h-10 w-10 sm:w-auto sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
                                 <iconify-icon icon="solar:logout-bold" width="16"></iconify-icon>
                                 <span class="hidden sm:inline">Quitter</span>
                             </button>
@@ -468,6 +468,10 @@ const AdminLayout = {
         const currentPath = window.location.pathname;
         const currentFile = this.getCurrentAdminFile(currentPath);
         const currentView = this.getCurrentShellView();
+        const getSidebarLabelClass = (label) => {
+            const text = String(label || '').trim();
+            return text.length > 14 ? 'sidebar-link-label--compact' : '';
+        };
 
         // Optimization: If already rendered, just update the active state to prevent flicker
         if (sidebarPlaceholder.dataset.rendered === 'true') {
@@ -598,7 +602,7 @@ const AdminLayout = {
                             <div class="flex items-center justify-center w-6 h-6 rounded-lg transition-all duration-200 ${isChildActive ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400 group-hover/child:bg-gray-200 group-hover/child:text-black'}">
                                 <iconify-icon icon="${child.icon}" width="14"></iconify-icon>
                             </div>
-                            <span class="text-xs font-bold tracking-tight ${isChildActive ? 'text-blue-600' : 'text-gray-400 group-hover/child:text-black'}">${child.label}</span>
+                            <span class="text-xs font-bold tracking-tight ${getSidebarLabelClass(child.label)} ${isChildActive ? 'text-blue-600' : 'text-gray-400 group-hover/child:text-black'}">${child.label}</span>
                         </a>
                     `;
                 });
@@ -617,7 +621,7 @@ const AdminLayout = {
                         <div class="sidebar-icon-container flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${isActive ? 'bg-slate-900 text-white shadow-lg' : 'bg-gray-100/50 text-gray-400 group-hover/link:bg-white group-hover/link:text-black group-hover/link:shadow-sm'}">
                             <iconify-icon icon="${link.icon}" width="20"></iconify-icon>
                         </div>
-                        <span class="text-sm font-bold tracking-tight ${isActive ? 'text-slate-900 whitespace-nowrap' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
+                        <span class="text-sm font-bold tracking-tight ${getSidebarLabelClass(link.label)} ${isActive ? 'text-slate-900' : 'text-gray-500 group-hover/link:text-black'}">${link.label}</span>
                         ${isActive ? '<div class="absolute right-3 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>' : ''}
                     </a>
                 `;
@@ -774,7 +778,15 @@ const AdminLayout = {
     async updateAdminProfile() {
         const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
         const name = profile.name || localStorage.getItem('newketUserName') || 'Admin';
-        let avatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar');
+        let avatarUrl =
+            profile.avatar ||
+            profile.avatar_url ||
+            profile.picture ||
+            profile.picture_url ||
+            profile.photo_url ||
+            profile.photoURL ||
+            profile.avatarUrl ||
+            localStorage.getItem('newketUserAvatar');
 
         if (!avatarUrl && window.SupabaseAdapter?.getClient) {
             try {
@@ -782,12 +794,16 @@ const AdminLayout = {
                 avatarUrl =
                     user?.user_metadata?.avatar_url ||
                     user?.user_metadata?.avatarUrl ||
+                    user?.user_metadata?.pictureUrl ||
+                    user?.user_metadata?.pictureURL ||
                     user?.user_metadata?.picture ||
                     user?.user_metadata?.picture_url ||
                     user?.user_metadata?.photo_url ||
                     user?.user_metadata?.photoURL ||
                     user?.user_metadata?.avatar ||
+                    user?.identities?.[0]?.identity_data?.avatar ||
                     user?.identities?.[0]?.identity_data?.picture ||
+                    user?.identities?.[0]?.identity_data?.picture_url ||
                     user?.identities?.[0]?.identity_data?.avatar_url ||
                     avatarUrl;
 
@@ -797,7 +813,15 @@ const AdminLayout = {
                         single: true,
                         skipCache: true
                     });
-                    avatarUrl = dbProfile?.avatar || dbProfile?.avatar_url || dbProfile?.picture || dbProfile?.photo_url || avatarUrl;
+                    avatarUrl =
+                        dbProfile?.avatar ||
+                        dbProfile?.avatar_url ||
+                        dbProfile?.picture ||
+                        dbProfile?.picture_url ||
+                        dbProfile?.photo_url ||
+                        dbProfile?.photoURL ||
+                        dbProfile?.avatarUrl ||
+                        avatarUrl;
                 }
             } catch (_) {}
         }

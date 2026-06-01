@@ -854,7 +854,7 @@ export function buildSkeletonNotificationHTML(count = 4) {
                     .skeleton-shimmer {
                         background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%);
                         background-size: 200% 100%;
-                        animation: shimmer 1.5s infinite linear;
+                        animation: shimmer 3s infinite linear;
                         border-radius: 0.5rem;
                     }
                 </style>

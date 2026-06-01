@@ -43,23 +43,43 @@
 
         <!-- Main Content -->
         <main class="flex-1 min-w-0 space-y-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900" id="pageTitle">Analyses Médicales Plateforme</h1>
-                    <p class="text-gray-500" id="pageSubtitle">Diagnostic complet des performances globales et du catalogue mondial.</p>
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Analyses Médicales Plateforme</h1>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Diagnostic complet des performances globales et du catalogue mondial.</p>
                 </div>
                 <!-- Timeframe Selector -->
-                <div class="flex items-center bg-white border border-gray-200 rounded-xl p-1 shadow-sm">
-                    <button onclick="updateTimeframe('day', this)"
-                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Jour</button>
-                    <button onclick="updateTimeframe('week', this)"
-                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
-                    <button onclick="updateTimeframe('month', this)"
-                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Mois</button>
-                    <button onclick="updateTimeframe('year', this)"
-                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all hover:bg-gray-50 text-gray-400">Année</button>
-                    <button onclick="updateTimeframe('all', this)"
-                        class="time-btn px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-lg transition-all bg-black text-white">Tout</button>
+                <div class="flex w-full flex-col gap-3 lg:w-auto lg:max-w-[820px] lg:ml-auto lg:items-end">
+                    <div class="grid w-full gap-3 lg:w-auto">
+                        <div class="flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
+                            <div class="grid flex-1 grid-cols-4 gap-2">
+                            <button data-timeframe="day" onclick="updateTimeframe('day', this)"
+                                class="time-btn min-w-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Jour</button>
+                            <button data-timeframe="week" onclick="updateTimeframe('week', this)"
+                                class="time-btn min-w-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
+                            <button data-timeframe="month" onclick="updateTimeframe('month', this)"
+                                class="time-btn min-w-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Mois</button>
+                            <button data-timeframe="all" onclick="updateTimeframe('all', this)"
+                                class="time-btn min-w-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white">Tout</button>
+                            </div>
+                            <button id="toggleDiagnosticsDateFiltersBtn" type="button" aria-expanded="false"
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black sm:w-auto">
+                                Filtres
+                            </button>
+                        </div>
+                        <div id="diagnosticsDateFilters" hidden class="grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Du</span>
+                                <input id="diagnosticsDateStart" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Au</span>
+                                <input id="diagnosticsDateEnd" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <button id="applyDiagnosticsDateBtn" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
+                            <button id="clearDiagnosticsDateBtn" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -154,18 +174,66 @@
     <script>
         const currentCharts = {};
         let currentDiagnosticsTimeframe = 'all';
+        let currentDiagnosticsDateRange = { start: null, end: null };
+
+        function setDiagnosticsDateFiltersVisible(isVisible) {
+            const panel = document.getElementById('diagnosticsDateFilters');
+            const button = document.getElementById('toggleDiagnosticsDateFiltersBtn');
+            if (panel) panel.hidden = !isVisible;
+            if (button) button.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
+        }
+
+        function toggleDiagnosticsDateFilters() {
+            const panel = document.getElementById('diagnosticsDateFilters');
+            setDiagnosticsDateFiltersVisible(!(panel && !panel.hidden));
+        }
+
+        function setDiagnosticsTimeButtons(activeTimeframe) {
+            document.querySelectorAll('.time-btn').forEach((btn) => {
+                const active = activeTimeframe && btn.dataset.timeframe === activeTimeframe;
+                btn.classList.toggle('bg-black', active);
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('text-gray-400', !active);
+            });
+        }
+
+        function syncDiagnosticsDateInputs() {
+            const start = document.getElementById('diagnosticsDateStart');
+            const end = document.getElementById('diagnosticsDateEnd');
+            if (start) start.value = currentDiagnosticsDateRange.start || '';
+            if (end) end.value = currentDiagnosticsDateRange.end || '';
+        }
+
+        function getDiagnosticsDateRangeFromInputs() {
+            return {
+                start: document.getElementById('diagnosticsDateStart')?.value || null,
+                end: document.getElementById('diagnosticsDateEnd')?.value || null
+            };
+        }
+
+        function applyDiagnosticsDateRange() {
+            currentDiagnosticsDateRange = getDiagnosticsDateRangeFromInputs();
+            currentDiagnosticsTimeframe = (currentDiagnosticsDateRange.start || currentDiagnosticsDateRange.end) ? 'custom' : 'all';
+            setDiagnosticsTimeButtons(currentDiagnosticsTimeframe === 'custom' ? null : currentDiagnosticsTimeframe);
+            setDiagnosticsDateFiltersVisible(true);
+            scheduleDiagnosticsRender(currentDiagnosticsTimeframe);
+        }
+
+        function clearDiagnosticsDateRange() {
+            currentDiagnosticsDateRange = { start: null, end: null };
+            currentDiagnosticsTimeframe = 'all';
+            syncDiagnosticsDateInputs();
+            setDiagnosticsTimeButtons(currentDiagnosticsTimeframe);
+            setDiagnosticsDateFiltersVisible(false);
+            scheduleDiagnosticsRender(currentDiagnosticsTimeframe);
+        }
 
         function updateTimeframe(timeframe, btn) {
             currentDiagnosticsTimeframe = timeframe;
-
-            // Update active button styles
-            document.querySelectorAll('.time-btn').forEach(b => {
-                b.classList.remove('bg-black', 'text-white');
-                b.classList.add('text-gray-400');
-            });
-            btn.classList.remove('text-gray-400');
-            btn.classList.add('bg-black', 'text-white');
-
+            currentDiagnosticsDateRange = { start: null, end: null };
+            syncDiagnosticsDateInputs();
+            setDiagnosticsTimeButtons(timeframe);
+            setDiagnosticsDateFiltersVisible(false);
             renderDiagnostics(timeframe);
         }
 
@@ -253,7 +321,7 @@
             try {
                 diagnosticsHasRenderedOnce = true;
                 currentDiagnosticsTimeframe = timeframe;
-                const stats = OrderManager.getAdvancedStats(timeframe);
+                const stats = OrderManager.getAdvancedStats(timeframe, currentDiagnosticsDateRange);
 
                 // Stats Update
                 const aovEl = document.getElementById('statsAOV');
@@ -286,6 +354,25 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             diagnosticsBootAt = Date.now();
+            syncDiagnosticsDateInputs();
+            setDiagnosticsTimeButtons(currentDiagnosticsTimeframe);
+            setDiagnosticsDateFiltersVisible(false);
+
+            const toggleFiltersBtn = document.getElementById('toggleDiagnosticsDateFiltersBtn');
+            if (toggleFiltersBtn) {
+                toggleFiltersBtn.addEventListener('click', toggleDiagnosticsDateFilters);
+            }
+
+            const applyBtn = document.getElementById('applyDiagnosticsDateBtn');
+            if (applyBtn) {
+                applyBtn.addEventListener('click', applyDiagnosticsDateRange);
+            }
+
+            const clearBtn = document.getElementById('clearDiagnosticsDateBtn');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', clearDiagnosticsDateRange);
+            }
+
             if (window.newketInitialized) {
                 scheduleDiagnosticsRender();
             } else {

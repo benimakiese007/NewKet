@@ -38,21 +38,40 @@
         <script type="module" src="/src/services/admin-layout.js"></script>
 
         <main class="flex-1 min-w-0 space-y-8">
-            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div class="min-w-0">
-                    <h1 class="text-3xl font-black tracking-tight text-gray-900">Temps réel</h1>
-                    <p class="text-gray-500">Utilisateurs actifs + top boutiques (sans jamais compter l'admin).</p>
+                    <h1 class="text-4xl font-black tracking-tight text-gray-900">Temps réel</h1>
+                    <p class="text-gray-500 font-medium">Utilisateurs actifs + top boutiques (sans jamais compter l'admin).</p>
                     <div class="mt-2 text-xs text-gray-400" id="realtimeMeta">Connexion...</div>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button class="rt-range-btn bg-black text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest" data-days="7">7j</button>
-                    <button class="rt-range-btn text-gray-500 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30">30j</button>
-                    <button class="rt-range-btn text-gray-500 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90">90j</button>
+                <div class="flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+                    <div class="grid w-full gap-3">
+                        <div class="flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
+                            <div class="grid flex-1 grid-cols-3 gap-2">
+                                <button class="rt-range-btn bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest" data-days="7">7j</button>
+                                <button class="rt-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30">30j</button>
+                                <button class="rt-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90">90j</button>
+                            </div>
+                            <button id="toggleRealtimeDateFiltersBtn" type="button" aria-expanded="false" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black sm:w-auto">Filtres</button>
+                        </div>
+                        <div id="realtimeDateFilters" hidden class="grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Du</span>
+                                <input id="realtimeDateStart" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Au</span>
+                                <input id="realtimeDateEnd" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <button id="applyRealtimeDateBtn" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
+                            <button id="clearRealtimeDateBtn" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <article class="glass-panel p-6 lg:col-span-1" id="livePresencePanel">
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <article class="glass-panel p-6" id="livePresencePanel">
                     <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <span class="relative flex h-2.5 w-2.5">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
@@ -91,7 +110,7 @@
                     </div>
                 </article>
 
-                <article class="glass-panel p-6 lg:col-span-2">
+                <article class="glass-panel p-6">
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <h2 class="font-bold text-gray-900">Top Boutiques du moment</h2>
@@ -125,7 +144,82 @@
 
     <script>
         let currentDays = 7;
+        let currentRealtimeDateRange = { start: null, end: null };
         const realtimeProfileCache = new Map();
+
+        function setRealtimeDateFiltersVisible(isVisible) {
+            const panel = document.getElementById('realtimeDateFilters');
+            const button = document.getElementById('toggleRealtimeDateFiltersBtn');
+            if (panel) panel.hidden = !isVisible;
+            if (button) button.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
+        }
+
+        function toggleRealtimeDateFilters() {
+            const panel = document.getElementById('realtimeDateFilters');
+            setRealtimeDateFiltersVisible(!(panel && !panel.hidden));
+        }
+
+        function setRealtimeRangeButtons(days) {
+            document.querySelectorAll('.rt-range-btn').forEach((btn) => {
+                const active = days != null && Number(btn.dataset.days) === Number(days);
+                btn.classList.toggle('bg-black', active);
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('bg-white', !active);
+                btn.classList.toggle('border', !active);
+                btn.classList.toggle('border-gray-200', !active);
+                btn.classList.toggle('text-gray-500', !active);
+            });
+        }
+
+        function syncRealtimeDateInputs() {
+            const start = document.getElementById('realtimeDateStart');
+            const end = document.getElementById('realtimeDateEnd');
+            if (start) start.value = currentRealtimeDateRange.start || '';
+            if (end) end.value = currentRealtimeDateRange.end || '';
+        }
+
+        function getRealtimeDateRangeFromInputs() {
+            return {
+                start: document.getElementById('realtimeDateStart')?.value || null,
+                end: document.getElementById('realtimeDateEnd')?.value || null,
+            };
+        }
+
+        function isLeadInRealtimeRange(lead, range = currentRealtimeDateRange) {
+            if (!range || (!range.start && !range.end)) return true;
+            const timestamp = new Date(lead?.date || lead?.created_at || 0).getTime();
+            if (!timestamp) return false;
+            if (range.start) {
+                const startTime = new Date(`${range.start}T00:00:00`).getTime();
+                if (!Number.isNaN(startTime) && timestamp < startTime) return false;
+            }
+            if (range.end) {
+                const endTime = new Date(`${range.end}T23:59:59.999`).getTime();
+                if (!Number.isNaN(endTime) && timestamp > endTime) return false;
+            }
+            return true;
+        }
+
+        function applyRealtimeDateRange() {
+            currentRealtimeDateRange = getRealtimeDateRangeFromInputs();
+            currentDays = (currentRealtimeDateRange.start || currentRealtimeDateRange.end) ? null : 7;
+            setRealtimeRangeButtons(currentDays);
+            setRealtimeDateFiltersVisible(true);
+            renderTopVendors(
+                (currentRealtimeDateRange.start || currentRealtimeDateRange.end)
+                    ? { range: currentRealtimeDateRange }
+                    : { days: currentDays }
+            ).catch(() => { });
+        }
+
+        function clearRealtimeDateRange() {
+            currentRealtimeDateRange = { start: null, end: null };
+            currentDays = 7;
+            syncRealtimeDateInputs();
+            setRealtimeRangeButtons(currentDays);
+            setRealtimeDateFiltersVisible(false);
+            renderTopVendors({ days: currentDays }).catch(() => { });
+        }
 
         function buildTopVendorsSkeletonHTML() {
             return `
@@ -280,7 +374,7 @@
             }).join('');
         }
 
-        async function renderTopVendors({ days }) {
+        async function renderTopVendors({ days, range } = {}) {
             const grid = document.getElementById('topVendorsGrid');
             const meta = document.getElementById('topVendorsMeta');
             if (!grid) return;
@@ -297,8 +391,11 @@
             }
 
             const now = Date.now();
-            const sinceMs = Math.max(1, Number(days || 7)) * 24 * 60 * 60 * 1000;
             const leads = (window.OrderManager?.data || []).filter((lead) => {
+                if (range && (range.start || range.end)) {
+                    return isLeadInRealtimeRange(lead, range);
+                }
+                const sinceMs = Math.max(1, Number(days || 7)) * 24 * 60 * 60 * 1000;
                 const timestamp = new Date(lead?.date || lead?.created_at || 0).getTime();
                 return timestamp && (now - timestamp) <= sinceMs;
             });
@@ -328,7 +425,11 @@
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 3);
 
-            if (meta) meta.textContent = `${formatCount(leads.length)} leads • ${days}j`;
+            if (meta) {
+                meta.textContent = (range && (range.start || range.end))
+                    ? `${formatCount(leads.length)} leads • ${range.start || '...'} → ${range.end || '...'}`
+                    : `${formatCount(leads.length)} leads • ${days}j`;
+            }
 
             if (!topVendors.length) {
                 grid.innerHTML = `<div class="p-10 text-center text-gray-400 text-sm italic col-span-3">Aucune boutique sur la période.</div>`;
@@ -351,7 +452,8 @@
         }
 
         async function boot() {
-            setRangeButtons(currentDays);
+            syncRealtimeDateInputs();
+            setRealtimeRangeButtons(currentDays);
             const meta = document.getElementById('realtimeMeta');
             if (meta) meta.textContent = `Fuseau: ${getLocalTimezone()} • Mise à jour: ${new Date().toLocaleString('fr-FR')}`;
 
@@ -375,10 +477,30 @@
             document.querySelectorAll('.rt-range-btn').forEach((btn) => {
                 btn.addEventListener('click', () => {
                     currentDays = Number(btn.dataset.days) || 7;
-                    setRangeButtons(currentDays);
+                    currentRealtimeDateRange = { start: null, end: null };
+                    syncRealtimeDateInputs();
+                    setRealtimeRangeButtons(currentDays);
+                    setRealtimeDateFiltersVisible(false);
                     renderTopVendors({ days: currentDays }).catch(() => { });
                 });
             });
+
+            setRealtimeDateFiltersVisible(false);
+
+            const toggleFiltersBtn = document.getElementById('toggleRealtimeDateFiltersBtn');
+            if (toggleFiltersBtn) {
+                toggleFiltersBtn.addEventListener('click', toggleRealtimeDateFilters);
+            }
+
+            const applyBtn = document.getElementById('applyRealtimeDateBtn');
+            if (applyBtn) {
+                applyBtn.addEventListener('click', applyRealtimeDateRange);
+            }
+
+            const clearBtn = document.getElementById('clearRealtimeDateBtn');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', clearRealtimeDateRange);
+            }
 
             const run = () => boot().catch((err) => console.error('[Admin realtime] boot error:', err));
             if (window.newketInitialized) run();

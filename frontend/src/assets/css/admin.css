@@ -228,10 +228,12 @@ body {
 
 .dashboard-topbar-inner {
     min-height: var(--dashboard-topbar-height);
+    padding-left: clamp(1rem, 2vw, 1.75rem);
+    padding-right: clamp(1rem, 2vw, 1.75rem);
 }
 
 .dashboard-main-offset {
-    padding-top: calc(var(--dashboard-topbar-height) + 1.75rem) !important;
+    padding-top: var(--dashboard-topbar-height) !important;
 }
 
 /* Lift the sidebar: remove the extra visual gap under the fixed navbar */
@@ -354,6 +356,7 @@ body {
     .sidebar-collapsed .sidebar-logout span,
     .sidebar-collapsed #userDisplayName,
     .sidebar-collapsed #userStatusBadge,
+    .sidebar-collapsed .sidebar-link > .sidebar-link-badge,
     .sidebar-collapsed .sidebar-reminder-box,
     .sidebar-collapsed .sidebar-footer-info,
     .sidebar-collapsed .sidebar-header-text {
@@ -521,7 +524,7 @@ body {
 
 /* Premium Sidebar */
 .sidebar-link {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-md) var(--space-lg);
@@ -532,6 +535,55 @@ body {
     font-size: 0.875rem;
     letter-spacing: -0.01em;
     position: relative;
+}
+
+.sidebar-link-child {
+    display: grid !important;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.75rem;
+}
+
+.sidebar-link span,
+.sidebar-link-child span {
+    white-space: normal;
+    line-height: 1.1;
+    text-align: left;
+}
+
+.sidebar-link-label--compact {
+    max-width: 12ch;
+    text-wrap: balance;
+}
+
+.sidebar-link-label-with-badge {
+    min-width: 0;
+    line-height: 1.1;
+}
+
+.sidebar-link-label-tail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.sidebar-link > iconify-icon,
+.sidebar-link > .sidebar-icon-container,
+.sidebar-link-child > div:first-child {
+    margin-top: 0;
+}
+
+.sidebar-link > span {
+    min-width: 0;
+}
+
+.sidebar-link > .sidebar-link-badge {
+    display: inline-flex;
+    align-self: center;
+    flex: 0 0 auto;
+    margin-left: 0;
+    margin-top: 0 !important;
 }
 
 .sidebar-link:hover {
@@ -635,6 +687,50 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
 .glass-panel.premium-gradient-blue { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
 .glass-panel.premium-gradient-green { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
 .glass-panel.premium-gradient-orange { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
+
+.admin-period-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 540px;
+}
+
+.admin-period-toolbar > * {
+    min-width: 0;
+    width: 100%;
+    justify-content: center;
+}
+
+.admin-period-toolbar > div:first-child {
+    grid-column: 1 / -1;
+}
+
+.admin-date-range-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+@media (min-width: 640px) {
+    .admin-date-range-card {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+        align-items: end;
+    }
+}
+
+@media (max-width: 639px) {
+    .admin-period-toolbar {
+        grid-template-columns: 1fr;
+        max-width: none;
+    }
+}
 .glass-panel.premium-gradient-purple { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); }
 .glass-panel.premium-gradient-dark { background: linear-gradient(135deg, #111827 0%, #1f2937 100%) !important; }
 .glass-panel.premium-gradient-dark:hover { background: linear-gradient(135deg, #1f2937 0%, #374151 100%) !important; }

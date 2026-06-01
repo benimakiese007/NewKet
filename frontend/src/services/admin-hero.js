@@ -73,6 +73,11 @@ function makeSlideRow(slide, index, total) {
 }
 
 function readFormIntoConfig(currentConfig, slides) {
+    const slideIntervalSecondsRaw = Number($('heroSlideIntervalSecondsInput')?.value);
+    const slideIntervalSeconds = Number.isFinite(slideIntervalSecondsRaw)
+        ? Math.min(30, Math.max(2, slideIntervalSecondsRaw))
+        : 5;
+
     const content = {
         titleLine1: ($('heroTitleLine1Input')?.value || '').trim(),
         titleLine2: ($('heroTitleLine2Input')?.value || '').trim(),
@@ -89,7 +94,8 @@ function readFormIntoConfig(currentConfig, slides) {
             headline: ($('heroPromoHeadlineInput')?.value || '').trim(),
             caption: ($('heroPromoCaptionInput')?.value || '').trim(),
             code: ($('heroPromoCodeInput')?.value || '').trim()
-        }
+        },
+        slideIntervalSeconds
     };
 
     return {
@@ -124,6 +130,7 @@ async function render(config) {
     $('heroPromoHeadlineInput').value = config?.content?.promo?.headline || '';
     $('heroPromoCaptionInput').value = config?.content?.promo?.caption || '';
     $('heroPromoCodeInput').value = config?.content?.promo?.code || '';
+    $('heroSlideIntervalSecondsInput').value = config?.content?.slideIntervalSeconds || 5;
 
     const slides = Array.isArray(config?.slides) ? config.slides : [];
     const list = $('heroSlidesList');

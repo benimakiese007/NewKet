@@ -281,16 +281,53 @@ const OrderManager = {
         };
     },
 
-    getAdvancedStats(timeframe = 'all') {
+    _normalizeDateRange(range) {
+        if (!range) return null;
+
+        const rawStart = range.start || range.startDate || range.from || null;
+        const rawEnd = range.end || range.endDate || range.to || null;
+
+        const startTime = rawStart ? new Date(`${rawStart}T00:00:00`).getTime() : null;
+        const endTime = rawEnd ? new Date(`${rawEnd}T23:59:59.999`).getTime() : null;
+
+        if (Number.isNaN(startTime) || Number.isNaN(endTime)) {
+            return null;
+        }
+
+        if (startTime == null && endTime == null) return null;
+        return { startTime, endTime };
+    },
+
+    _isOrderInNormalizedRange(orderDate, normalizedRange) {
+        if (!normalizedRange) return true;
+        const timestamp = new Date(orderDate).getTime();
+        if (Number.isNaN(timestamp)) return false;
+
+        if (normalizedRange.startTime != null && timestamp < normalizedRange.startTime) return false;
+        if (normalizedRange.endTime != null && timestamp > normalizedRange.endTime) return false;
+        return true;
+    },
+
+    _filterOrdersByPeriod(orders, timeframe = 'all', range = null) {
+        const normalizedRange = this._normalizeDateRange(range);
         const now = new Date();
-        const filtered = this.data.filter(o => {
-            const d = new Date(o.date);
+
+        if (normalizedRange) {
+            return orders.filter((order) => this._isOrderInNormalizedRange(order?.date, normalizedRange));
+        }
+
+        return orders.filter((order) => {
+            const d = new Date(order.date);
             if (timeframe === 'day') return d.toDateString() === now.toDateString();
             if (timeframe === 'week') return (now - d) / 86400000 <= 7;
             if (timeframe === 'month') return (now - d) / 86400000 <= 30;
             if (timeframe === 'year') return d.getFullYear() === now.getFullYear();
             return true; // 'all'
         });
+    },
+
+    getAdvancedStats(timeframe = 'all', range = null) {
+        const filtered = this._filterOrdersByPeriod(this.data, timeframe, range);
 
         const totalRevenue = filtered.reduce((sum, o) => sum + (o.total || 0), 0);
         const products = window.ProductManager ? ProductManager.getProducts() : [];

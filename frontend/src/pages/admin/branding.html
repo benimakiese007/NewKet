@@ -340,7 +340,7 @@
             }
         }
 
-        (function init() {
+        async function init() {
             syncColor($('primaryColor'), $('primaryColorText'));
             syncColor($('secondaryColor'), $('secondaryColorText'));
             syncColor($('headerBg'), $('headerBgText'));
@@ -349,14 +349,28 @@
             syncColor($('footerFg'), $('footerFgText'));
             syncColor($('themeColor'), $('themeColorText'));
 
+            if (window.ConfigManager?.init) {
+                try {
+                    await window.ConfigManager.init();
+                } catch (err) {
+                    console.warn('[Branding] ConfigManager init failed, using current config snapshot.', err);
+                }
+            }
+
             const cfg = window.ConfigManager?.getConfig?.();
             fillForm(cfg);
 
             $('saveBtn')?.addEventListener('click', saveAll);
             $('previewBtn')?.addEventListener('click', previewLocal);
-        })();
+        }
+
+        window.addEventListener('configUpdated', () => {
+            const cfg = window.ConfigManager?.getConfig?.();
+            if (cfg) fillForm(cfg);
+        });
+
+        init();
     </script>
 </body>
 
 </html>
-

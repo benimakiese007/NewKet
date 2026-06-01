@@ -163,7 +163,7 @@ html.dark body {
         rgba(226, 232, 240, 0.5) 75%
     );
     background-size: 200% 100%;
-    animation: skeleton-loading 1.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    animation: skeleton-loading 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 8px;
     pointer-events: none;
     user-select: none;
@@ -442,6 +442,47 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
   font-weight: 700;
   position: relative;
   display: inline-block;
+}
+
+.dashboard-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem 1.5rem;
+  margin: 0 0 clamp(1.5rem, 2.5vw, 2rem);
+  flex-wrap: wrap;
+}
+
+.dashboard-page-header--stacked {
+  align-items: flex-start;
+}
+
+.dashboard-page-header__content {
+  min-width: 0;
+}
+
+.dashboard-page-title {
+  margin: 0;
+  color: var(--secondary-color);
+  font-size: clamp(2rem, 1.5vw + 1.4rem, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.dashboard-page-subtitle {
+  margin: 0.5rem 0 0;
+  color: #6b7280;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.dashboard-page-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-left: auto;
 }
 
 /* UI Components */
@@ -2252,7 +2293,7 @@ body.mobile-menu-open {
 .skeleton {
   background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
   background-size: 200% 100%;
-  animation: skeleton-loading 1.5s infinite ease-in-out;
+  animation: skeleton-loading 3s infinite ease-in-out;
   border-radius: 8px;
 }
 
@@ -8986,7 +9027,7 @@ html.dark #confirmModal .btn-confirm-cancel {
     background-size: 200% 100%; 
     display: inline-block; 
     position: relative; 
-    animation: skeleton-shimmer 2s infinite linear; 
+    animation: skeleton-shimmer 3s infinite linear; 
     border-radius: 6px; 
     background-color: #f1f5f9; /* Base color fallback */
 } 
@@ -9664,4 +9705,94 @@ html.dark #searchCategoryMenu {
     background-color: #0f172a !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
+}
+
+/* Final global skeleton override */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #e2e8f0;
+    background-image: linear-gradient(
+        90deg,
+        rgba(226, 232, 240, 0.88) 0%,
+        rgba(255, 255, 255, 0.95) 45%,
+        rgba(203, 213, 225, 0.92) 50%,
+        rgba(255, 255, 255, 0.95) 55%,
+        rgba(226, 232, 240, 0.88) 100%
+    ) !important;
+    background-size: 260% 100% !important;
+    animation:
+        skeleton-shimmer 3s linear infinite,
+        skeleton-pulse 3s ease-in-out infinite !important;
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.12);
+    will-change: background-position, opacity;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%);
+    background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 35%,
+        rgba(255, 255, 255, 0.75) 50%,
+        rgba(255, 255, 255, 0.08) 65%,
+        transparent 100%
+    );
+    animation: skeleton-sweep 3s linear infinite;
+    pointer-events: none;
+}
+
+html.dark .skeleton {
+    background-color: #334155;
+    background-image: linear-gradient(
+        90deg,
+        rgba(51, 65, 85, 0.92) 0%,
+        rgba(148, 163, 184, 0.95) 45%,
+        rgba(71, 85, 105, 0.96) 50%,
+        rgba(148, 163, 184, 0.95) 55%,
+        rgba(51, 65, 85, 0.92) 100%
+    ) !important;
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+html.dark .skeleton::after {
+    background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 35%,
+        rgba(255, 255, 255, 0.22) 50%,
+        rgba(255, 255, 255, 0.04) 65%,
+        transparent 100%
+    );
+}
+
+@keyframes skeleton-sweep {
+    0% {
+        transform: translateX(-120%);
+    }
+
+    100% {
+        transform: translateX(120%);
+    }
+}
+
+@keyframes skeleton-pulse {
+    0%,
+    100% {
+        opacity: 0.85;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton,
+    .skeleton::after {
+        animation: none !important;
+    }
 }

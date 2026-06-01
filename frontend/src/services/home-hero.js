@@ -49,6 +49,10 @@ function renderHero(config) {
     const promoCodeEl = document.getElementById('heroPromoCode');
     if (promoCodeEl) promoCodeEl.textContent = c?.promo?.code ? `Code: ${c.promo.code}` : '';
 
+    if (window.HeroSlider && typeof window.HeroSlider.setIntervalSeconds === 'function') {
+        window.HeroSlider.setIntervalSeconds(c?.slideIntervalSeconds);
+    }
+
     if (window.HeroSlider && typeof window.HeroSlider.init === 'function') {
         // Re-init after we injected slides
         window.HeroSlider.init();

@@ -70,36 +70,55 @@
     </style>
 </head>
 
-<body class="text-gray-900">
+<body class="text-gray-900 bg-[#f8fafc]">
 
     <div id="adminNavbarPlaceholder"></div>
 
-    <div class="admin-shell max-w-[1800px] mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 relative justify-start">
+    <div class="admin-shell max-w-[1800px] mx-auto flex flex-col lg:flex-row gap-8 relative justify-start">
         <div id="adminSidebarPlaceholder" class="flex-shrink-0"></div>
 
         <!-- Main Content -->
-        <main class="flex-1 min-w-0 space-y-8 lg:pt-4 px-4 sm:px-8">
+        <main class="flex-1 min-w-0 space-y-8">
             <div id="adminOverviewPanel" class="space-y-8">
             <!-- Header Section -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
-                <div class="min-w-0">
-                    <h1 class="text-4xl font-black tracking-tight text-gray-900">Vue d'ensemble</h1>
-                    <p class="text-gray-500 font-medium">Performances et activité globales de la plateforme.</p>
+            <div class="dashboard-page-header animate-premium">
+                <div class="dashboard-page-header__content">
+                    <h1 class="dashboard-page-title">Vue d'ensemble</h1>
+                    <p class="dashboard-page-subtitle font-medium">Performances et activité globales de la plateforme.</p>
                 </div>
 
-                <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
-                    <!-- Timeframe Selector -->
-                    <div class="flex w-full min-w-0 items-center overflow-x-auto bg-white border border-gray-100 rounded-2xl p-1 shadow-sm sm:w-auto">
-                        <button onclick="updateTimeframe('day', this)"
-                            class="time-btn flex-1 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Jour</button>
-                        <button onclick="updateTimeframe('week', this)"
-                            class="time-btn flex-1 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
-                        <button onclick="updateTimeframe('month', this)"
-                            class="time-btn flex-1 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all hover:bg-gray-50 text-gray-400">Mois</button>
-                        <button onclick="updateTimeframe('all', this)"
-                            class="time-btn flex-1 whitespace-nowrap px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-black text-white shadow-lg">Tout</button>
+                <div class="dashboard-page-actions w-full flex-col gap-3 lg:w-auto lg:items-end">
+                    <div class="grid w-full gap-3">
+                        <!-- Timeframe Selector -->
+                        <div class="flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
+                            <div class="grid flex-1 grid-cols-2 gap-2 sm:grid-cols-4">
+                            <button data-timeframe="day" onclick="updateTimeframe('day', this)"
+                                class="time-btn min-w-0 whitespace-nowrap rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Jour</button>
+                            <button data-timeframe="week" onclick="updateTimeframe('week', this)"
+                                class="time-btn min-w-0 whitespace-nowrap rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
+                            <button data-timeframe="month" onclick="updateTimeframe('month', this)"
+                                class="time-btn min-w-0 whitespace-nowrap rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Mois</button>
+                            <button data-timeframe="all" onclick="updateTimeframe('all', this)"
+                                class="time-btn min-w-0 whitespace-nowrap rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">Tout</button>
+                            </div>
+                            <button id="toggleDashboardDateFiltersBtn" type="button" aria-expanded="false"
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black sm:w-auto">
+                                Filtres
+                            </button>
+                        </div>
+                        <div id="dashboardDateFilters" hidden class="grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Du</span>
+                                <input id="dashboardDateStart" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Au</span>
+                                <input id="dashboardDateEnd" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <button id="applyDashboardDateBtn" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
+                            <button id="clearDashboardDateBtn" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
+                        </div>
                     </div>
-
                 </div>
             </div>
 
@@ -404,28 +423,82 @@
 
     <script>
         let currentTimeframe = 'all';
+        let currentDateRange = { start: null, end: null };
         const currentCharts = {};
+
+        function setDashboardDateFiltersVisible(isVisible) {
+            const panel = document.getElementById('dashboardDateFilters');
+            const button = document.getElementById('toggleDashboardDateFiltersBtn');
+            if (panel) panel.hidden = !isVisible;
+            if (button) button.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
+        }
+
+        function toggleDashboardDateFilters() {
+            const panel = document.getElementById('dashboardDateFilters');
+            setDashboardDateFiltersVisible(!(panel && !panel.hidden));
+        }
+
+        function setDashboardTimeButtons(activeTimeframe) {
+            document.querySelectorAll('.time-btn').forEach((btn) => {
+                const isActive = activeTimeframe && btn.dataset.timeframe === activeTimeframe;
+                btn.classList.toggle('bg-black', isActive);
+                btn.classList.toggle('text-white', isActive);
+                btn.classList.toggle('text-gray-400', !isActive);
+            });
+        }
+
+        function getDashboardDateRangeFromInputs() {
+            const start = document.getElementById('dashboardDateStart')?.value || null;
+            const end = document.getElementById('dashboardDateEnd')?.value || null;
+            return { start, end };
+        }
+
+        function isOrderInDashboardRange(orderDate, range = currentDateRange) {
+            if (!range || (!range.start && !range.end)) return true;
+            const timestamp = new Date(orderDate).getTime();
+            if (Number.isNaN(timestamp)) return false;
+            if (range.start) {
+                const startTime = new Date(`${range.start}T00:00:00`).getTime();
+                if (!Number.isNaN(startTime) && timestamp < startTime) return false;
+            }
+            if (range.end) {
+                const endTime = new Date(`${range.end}T23:59:59.999`).getTime();
+                if (!Number.isNaN(endTime) && timestamp > endTime) return false;
+            }
+            return true;
+        }
+
+        function syncDashboardDateInputs() {
+            const startInput = document.getElementById('dashboardDateStart');
+            const endInput = document.getElementById('dashboardDateEnd');
+            if (startInput) startInput.value = currentDateRange.start || '';
+            if (endInput) endInput.value = currentDateRange.end || '';
+        }
+
+        function applyDashboardDateRange() {
+            const { start, end } = getDashboardDateRangeFromInputs();
+            currentDateRange = { start, end };
+            currentTimeframe = (start || end) ? 'custom' : 'all';
+            setDashboardTimeButtons(currentTimeframe === 'custom' ? null : currentTimeframe);
+            setDashboardDateFiltersVisible(true);
+            refreshDashboardData();
+        }
+
+        function clearDashboardDateRange() {
+            currentDateRange = { start: null, end: null };
+            currentTimeframe = 'all';
+            syncDashboardDateInputs();
+            setDashboardTimeButtons(currentTimeframe);
+            setDashboardDateFiltersVisible(false);
+            refreshDashboardData();
+        }
 
         function updateTimeframe(timeframe, btn) {
             currentTimeframe = timeframe;
-            // Update active button styles
-            document.querySelectorAll('.time-btn').forEach(b => {
-                b.classList.remove('bg-black', 'text-white');
-                b.classList.add('text-gray-400');
-            });
-            if (btn) {
-                btn.classList.remove('text-gray-400');
-                btn.classList.add('bg-black', 'text-white');
-            } else {
-                // Find by text or data if needed, but usually btn is provided
-                document.querySelectorAll('.time-btn').forEach(b => {
-                    if (b.textContent.toLowerCase().includes(timeframe.replace('all', 'tout'))) {
-                        b.classList.remove('text-gray-400');
-                        b.classList.add('bg-black', 'text-white');
-                    }
-                });
-            }
-
+            currentDateRange = { start: null, end: null };
+            syncDashboardDateInputs();
+            setDashboardTimeButtons(timeframe);
+            setDashboardDateFiltersVisible(false);
             refreshDashboardData();
         }
 
@@ -482,6 +555,34 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            syncDashboardDateInputs();
+            setDashboardTimeButtons(currentTimeframe);
+            setDashboardDateFiltersVisible(false);
+
+            const toggleFiltersBtn = document.getElementById('toggleDashboardDateFiltersBtn');
+            if (toggleFiltersBtn) {
+                toggleFiltersBtn.addEventListener('click', toggleDashboardDateFilters);
+            }
+
+            const applyDateBtn = document.getElementById('applyDashboardDateBtn');
+            if (applyDateBtn) {
+                applyDateBtn.addEventListener('click', applyDashboardDateRange);
+            }
+
+            const clearDateBtn = document.getElementById('clearDashboardDateBtn');
+            if (clearDateBtn) {
+                clearDateBtn.addEventListener('click', clearDashboardDateRange);
+            }
+
+            ['dashboardDateStart', 'dashboardDateEnd'].forEach((id) => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('change', () => {
+                        currentDateRange = getDashboardDateRangeFromInputs();
+                    });
+                }
+            });
+
             if (window.newketInitialized) {
                 initializeDashboard();
             } else {
@@ -495,6 +596,10 @@
 
         function isOverviewViewActive() {
             return getAdminShellView() === 'overview';
+        }
+
+        function getDashboardFilteredLeads() {
+            return (OrderManager.data || []).filter((lead) => isOrderInDashboardRange(lead?.date));
         }
 
         function setTextIfPresent(id, value) {
@@ -520,18 +625,12 @@
                 if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
                 if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) return;
 
-                const stats = OrderManager.getAdvancedStats(currentTimeframe);
+                const stats = OrderManager.getAdvancedStats(currentTimeframe, currentDateRange);
                 const products = ProductManager.getProducts();
                 
                 // Get filtered leads for charts and recent list
                 const now = new Date();
-                const filteredLeads = OrderManager.data.filter(l => {
-                    const d = new Date(l.date);
-                    if (currentTimeframe === 'day') return d.toDateString() === now.toDateString();
-                    if (currentTimeframe === 'week') return (now - d) / 86400000 <= 7;
-                    if (currentTimeframe === 'month') return (now - d) / 86400000 <= 30;
-                    return true;
-                });
+                const filteredLeads = getDashboardFilteredLeads();
 
                 // Update Stats UI
                 setTextIfPresent('statsOrders', stats.totalLeads);
@@ -549,7 +648,7 @@
                 
                 setTextIfPresent('statsNetSales', products.length);
                 // Charts
-                initCharts(filteredLeads);
+                initCharts(filteredLeads, currentTimeframe, currentDateRange);
                 
                 // Recent Leads
                 renderRecentLeads(filteredLeads);
@@ -682,7 +781,18 @@
             `}).join('');
         }
 
-        function initCharts(leads) {
+        function getDashboardRangeSpanDays(range) {
+            if (!range || (!range.start && !range.end)) return null;
+            const start = range.start ? new Date(`${range.start}T00:00:00`) : null;
+            const end = range.end ? new Date(`${range.end}T23:59:59.999`) : null;
+            if ((start && Number.isNaN(start.getTime())) || (end && Number.isNaN(end.getTime()))) return null;
+            const startTime = start ? start.getTime() : end.getTime();
+            const endTime = end ? end.getTime() : start.getTime();
+            if (!startTime || !endTime) return null;
+            return Math.max(1, Math.ceil((endTime - startTime) / 86400000) + 1);
+        }
+
+        function initCharts(leads, timeframe = currentTimeframe, range = currentDateRange) {
             const canvas = document.getElementById('salesChart');
             if (!canvas) {
                 console.warn('[Dashboard] salesChart canvas not found; skipping charts init.');
@@ -706,16 +816,25 @@
             const dataLeads = [];
             const dataRevenue = [];
             const now = new Date();
+            const customRangeDays = timeframe === 'custom' ? getDashboardRangeSpanDays(range) : null;
+            const chartMode = timeframe === 'custom'
+                ? (customRangeDays && customRangeDays <= 2 ? 'hour' : (customRangeDays && customRangeDays > 45 ? 'month' : 'day'))
+                : timeframe;
 
-            const calculatePoints = (i, d) => {
-                labels.push(currentTimeframe === 'day' ? d.getHours() + 'h' :
-                    (currentTimeframe === 'year' ? d.toLocaleDateString('fr-FR', { month: 'short' }) :
-                        d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' })));
+            const formatLabel = (date) => {
+                if (chartMode === 'hour') return date.getHours() + 'h';
+                if (chartMode === 'month') return date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+                if (chartMode === 'year') return date.toLocaleDateString('fr-FR', { month: 'short' });
+                return date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+            };
 
+            const calculatePoints = (d) => {
+                labels.push(formatLabel(d));
                 const filtered = leads.filter(l => {
                     const leadDate = new Date(l.created_at || l.date);
-                    if (currentTimeframe === 'day') return leadDate.toDateString() === d.toDateString() && leadDate.getHours() === d.getHours();
-                    if (currentTimeframe === 'year') return leadDate.getMonth() === d.getMonth() && leadDate.getFullYear() === d.getFullYear();
+                    if (chartMode === 'hour') return leadDate.toDateString() === d.toDateString() && leadDate.getHours() === d.getHours();
+                    if (chartMode === 'month') return leadDate.getMonth() === d.getMonth() && leadDate.getFullYear() === d.getFullYear();
+                    if (chartMode === 'year') return leadDate.getMonth() === d.getMonth() && leadDate.getFullYear() === d.getFullYear();
                     return leadDate.toDateString() === d.toDateString();
                 });
 
@@ -727,26 +846,32 @@
                 dataRevenue.push(revenueUSD.toFixed(2));
             };
             
-            if (currentTimeframe === 'day') {
+            if (chartMode === 'hour') {
                 for (let i = 23; i >= 0; i--) {
                     const d = new Date(now.getTime() - i * 3600000);
-                    calculatePoints(i, d);
+                    calculatePoints(d);
                 }
-            } else if (currentTimeframe === 'week' || currentTimeframe === 'month') {
-                const days = currentTimeframe === 'week' ? 7 : 30;
+            } else if (chartMode === 'day') {
+                const days = timeframe === 'custom' && customRangeDays ? Math.min(customRangeDays, 30) : (timeframe === 'week' ? 7 : 30);
                 for (let i = days - 1; i >= 0; i--) {
                     const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-                    calculatePoints(i, d);
+                    calculatePoints(d);
                 }
-            } else if (currentTimeframe === 'year') {
+            } else if (chartMode === 'month') {
+                const months = timeframe === 'custom' && customRangeDays ? Math.min(12, Math.max(3, Math.ceil(customRangeDays / 30))) : 12;
+                for (let i = months - 1; i >= 0; i--) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    calculatePoints(d);
+                }
+            } else if (chartMode === 'year') {
                 for (let i = 11; i >= 0; i--) {
                     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                    calculatePoints(i, d);
+                    calculatePoints(d);
                 }
             } else {
                 for (let i = 6; i >= 0; i--) {
                     const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-                    calculatePoints(i, d);
+                    calculatePoints(d);
                 }
             }
 

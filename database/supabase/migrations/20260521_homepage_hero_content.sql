@@ -41,8 +41,8 @@ VALUES (
     "description": "L''excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment.",
     "primaryCta": { "label": "Découvrir", "href": "/src/pages/catalog.html" },
     "secondaryCta": { "label": "Vendre", "href": "/src/pages/publish.html" },
+    "slideIntervalSeconds": 5,
     "promo": { "headline": "-50%", "caption": "Sélection Premium", "code": "NEWKET50" }
   }'::jsonb
 )
 ON CONFLICT (id) DO NOTHING;
-

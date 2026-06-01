@@ -5,6 +5,14 @@ const HeroSlider = {
     slides: [],
     interval: null,
     pauseOnHover: true,
+    intervalMs: 5000,
+
+    setIntervalSeconds(seconds) {
+        const value = Number(seconds);
+        if (!Number.isFinite(value)) return;
+        const clamped = Math.min(30, Math.max(2, value));
+        this.intervalMs = clamped * 1000;
+    },
 
     init() {
         this.stopAutoPlay();
@@ -37,7 +45,7 @@ const HeroSlider = {
 
     startAutoPlay() {
         this.stopAutoPlay();
-        this.interval = setInterval(() => this.nextSlide(), 5000);
+        this.interval = setInterval(() => this.nextSlide(), this.intervalMs || 5000);
     },
 
     stopAutoPlay() {

@@ -6,6 +6,7 @@
 const HERO_ROW_ID = 'homepage-hero';
 const HERO_LOCAL_KEY = 'newket_homepage_hero_content_v1';
 const HERO_LOCAL_TIME_KEY = 'newket_homepage_hero_content_time_v1';
+const HERO_DEFAULT_SWITCH_INTERVAL_SECONDS = 5;
 const HERO_PUBLIC_IMAGE_MAP = {
     'marketplace-hero.jpg': '/Images/marketplace-hero.jpg',
     'hero-black-friday.png': '/Images/hero-black-friday.png',
@@ -53,6 +54,7 @@ const HeroContentManager = {
             description: "L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment.",
             primaryCta: { label: 'Découvrir', href: '/src/pages/catalog.html' },
             secondaryCta: { label: 'Vendre', href: '/src/pages/publish.html' },
+            slideIntervalSeconds: HERO_DEFAULT_SWITCH_INTERVAL_SECONDS,
             promo: { headline: '-50%', caption: 'Sélection Premium', code: 'NEWKET50' }
         }
     },
@@ -76,6 +78,12 @@ const HeroContentManager = {
         const primaryCta = content.primaryCta && typeof content.primaryCta === 'object' ? content.primaryCta : {};
         const secondaryCta = content.secondaryCta && typeof content.secondaryCta === 'object' ? content.secondaryCta : {};
         const promo = content.promo && typeof content.promo === 'object' ? content.promo : {};
+        const slideIntervalSeconds = clampNumber(
+            content.slideIntervalSeconds ?? raw?.slideIntervalSeconds,
+            2,
+            30,
+            HERO_DEFAULT_SWITCH_INTERVAL_SECONDS
+        );
 
         return {
             id: safeString(raw?.id || HERO_ROW_ID) || HERO_ROW_ID,
@@ -96,7 +104,8 @@ const HeroContentManager = {
                     headline: safeString(promo.headline || base.content.promo.headline),
                     caption: safeString(promo.caption || base.content.promo.caption),
                     code: safeString(promo.code || base.content.promo.code)
-                }
+                },
+                slideIntervalSeconds
             }
         };
     },

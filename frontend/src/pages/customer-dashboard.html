@@ -146,7 +146,7 @@
         html.dark .status-premium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
     </style>
 </head><body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
-        <div class="dashboard-topbar-inner max-w-[1800px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
+        <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
             <button id="customerMobileBtn" data-toggle-sidebar="customer" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
                 <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
@@ -192,7 +192,7 @@
     <!-- Overlay pour Mobile -->
     <div id="customerSidebarOverlay" onclick="SidebarManager.close()" class="fixed inset-0 bg-black/50 z-[110] hidden transition-all duration-300"></div>
 
-    <main class="dashboard-main-offset w-full max-w-none px-4 sm:px-6 lg:px-0 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row relative">
+    <main class="dashboard-main-offset w-full max-w-none lg:px-0 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row relative">
         <!-- Sidebar -->
         <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-64 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
@@ -230,8 +230,7 @@
                     </a>
                     <a href="#orders" data-switch-customer-tab="orders" class="sidebar-link" id="link-orders">
                         <iconify-icon icon="solar:bag-bold" width="20"></iconify-icon>
-                        <span>Mes demandes et devis</span>
-                        <span id="customerOrdersBadge" class="ml-auto bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span>
+                        <span class="sidebar-link-label-with-badge">Mes demandes et <span class="sidebar-link-label-tail">devis <span id="customerOrdersBadge" class="sidebar-link-badge shrink-0 whitespace-nowrap bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span></span></span>
                     </a>
                     <a href="#achat" data-switch-customer-tab="achat" class="sidebar-link" id="link-achat">
                         <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
@@ -244,8 +243,7 @@
                     <a href="#notifications" data-switch-customer-tab="notifications" class="sidebar-link" id="link-notifications">
                         <iconify-icon icon="solar:bell-bold" width="20"></iconify-icon>
                         <span>Notifications</span>
-                        <span
-                            class="notification-badge ml-auto bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                        <span class="sidebar-link-badge notification-badge shrink-0 whitespace-nowrap bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                     </a>
                     <a href="#settings" data-switch-customer-tab="settings" class="sidebar-link" id="link-settings">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
@@ -277,7 +275,11 @@
 
             <!-- Orders Tab -->
             <div id="tab-orders" class="space-y-6 hidden">
-                <h1 class="text-fluid-h1 font-bold tracking-tight">Mes demandes, devis et paiements</h1>
+                <div class="dashboard-page-header dashboard-page-header--stacked">
+                    <div class="dashboard-page-header__content">
+                        <h1 class="dashboard-page-title">Mes demandes, devis et paiements</h1>
+                    </div>
+                </div>
                 <div id="orders-list" class="space-y-4">
                     <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                     <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
@@ -287,10 +289,10 @@
 
             <!-- Achat Tab -->
             <div id="tab-achat" class="space-y-6 hidden">
-                <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
-                    <div>
-                        <h1 class="text-fluid-h1 font-bold tracking-tight">Achat</h1>
-                        <p class="text-sm sm:text-base text-gray-500 mt-1">Finalisez votre paiement en toute sécurité (séquestre NewKet).</p>
+                <div class="dashboard-page-header dashboard-page-header--stacked">
+                    <div class="dashboard-page-header__content">
+                        <h1 class="dashboard-page-title">Achat</h1>
+                        <p class="dashboard-page-subtitle text-sm sm:text-base">Finalisez votre paiement en toute sécurité (séquestre NewKet).</p>
                     </div>
                 </div>
                 <div id="achatContent" class="space-y-4">
@@ -301,7 +303,11 @@
 
             <!-- Favorites Tab -->
             <div id="tab-favorites" class="space-y-6 hidden">
-                <h1 class="text-2xl font-bold tracking-tight">Mes produits favoris</h1>
+                <div class="dashboard-page-header dashboard-page-header--stacked">
+                    <div class="dashboard-page-header__content">
+                        <h1 class="dashboard-page-title">Mes produits favoris</h1>
+                    </div>
+                </div>
                 <div id="favorites-grid"
                     class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
                     <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
@@ -392,9 +398,11 @@
 
             <!-- Notifications Tab -->
             <div id="tab-notifications" class="space-y-6 hidden">
-                <div class="flex items-center justify-between">
-                    <h1 class="text-2xl font-bold tracking-tight">Mes Notifications</h1>
-                    <div class="flex gap-2">
+                <div class="dashboard-page-header dashboard-page-header--stacked">
+                    <div class="dashboard-page-header__content">
+                        <h1 class="dashboard-page-title">Mes Notifications</h1>
+                    </div>
+                    <div class="dashboard-page-actions">
                         <button type="button" data-action="mark-all-notifications-read"
                             class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors">Tout
                             lire</button>
@@ -410,7 +418,11 @@
 
             <!-- Settings Tab -->
             <div id="tab-settings" class="space-y-8 hidden">
-                <h1 class="text-2xl font-bold tracking-tight">Mon Profil</h1>
+                <div class="dashboard-page-header dashboard-page-header--stacked">
+                    <div class="dashboard-page-header__content">
+                        <h1 class="dashboard-page-title">Mon Profil</h1>
+                    </div>
+                </div>
 
                 <div class="glass-panel p-6 w-full">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -144,6 +144,122 @@
     <!-- Scripts -->
     <script>
         let adminEmails = [];
+        let adminProfilesByEmail = {};
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function normalizeAvatarUrl(profile = {}) {
+            return profile.avatar ||
+                profile.avatar_url ||
+                profile.picture ||
+                profile.picture_url ||
+                profile.photo_url ||
+                profile.photoURL ||
+                profile.avatarUrl ||
+                null;
+        }
+
+        function normalizeUserAvatar(user = {}) {
+            return user?.user_metadata?.avatar_url ||
+                user?.user_metadata?.avatarUrl ||
+                user?.user_metadata?.pictureUrl ||
+                user?.user_metadata?.pictureURL ||
+                user?.user_metadata?.picture ||
+                user?.user_metadata?.picture_url ||
+                user?.user_metadata?.photo_url ||
+                user?.user_metadata?.photoURL ||
+                user?.user_metadata?.avatar ||
+                user?.identities?.[0]?.identity_data?.avatar ||
+                user?.identities?.[0]?.identity_data?.avatar_url ||
+                user?.identities?.[0]?.identity_data?.picture ||
+                user?.identities?.[0]?.identity_data?.picture_url ||
+                null;
+        }
+
+        function getCurrentAuthContext() {
+            const user = window.AuthManager?.user || null;
+            const email = String(user?.email || localStorage.getItem('newketUserEmail') || '').trim().toLowerCase();
+            const profile = window.ProfileManager?.getProfile?.() || {};
+            const name = profile.name || user?.user_metadata?.full_name || user?.user_metadata?.name || localStorage.getItem('newketUserName') || '';
+            const avatar = profile.avatar || localStorage.getItem('newketUserAvatar') || normalizeUserAvatar(user);
+            return { email, name, avatar, user };
+        }
+
+        function getAdminInitials(email, profile = {}) {
+            const raw = String(profile.name || profile.full_name || email || 'A').trim();
+            const base = raw.includes('@') ? raw.split('@')[0] : raw;
+            const cleaned = base.replace(/[^a-zA-Z0-9\s_-]/g, ' ').trim();
+            const parts = cleaned.split(/\s+/).filter(Boolean);
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return cleaned.slice(0, 2).toUpperCase() || 'A';
+        }
+
+        function avatarMarkup(email) {
+            const key = String(email || '').trim().toLowerCase();
+            const current = getCurrentAuthContext();
+            const profile = {
+                ...(adminProfilesByEmail[key] || {}),
+                ...(current.email && current.email === key ? { name: current.name, avatar: current.avatar } : {})
+            };
+            const avatarUrl = normalizeAvatarUrl(profile);
+            const initials = getAdminInitials(email, profile);
+            const bg = window.getAvatarColor ? window.getAvatarColor(email) : '#d1d5db';
+
+            if (avatarUrl) {
+                return `
+                    <img
+                        src="${escapeHtml(avatarUrl)}"
+                        alt="${escapeHtml(profile.name || email)}"
+                        class="w-full h-full object-cover"
+                        referrerpolicy="no-referrer"
+                        crossorigin="anonymous"
+                        onerror="this.style.display='none'; const fallback = this.nextElementSibling; if (fallback) fallback.style.display='flex';"
+                    >
+                    <span class="w-full h-full hidden items-center justify-center font-black text-[11px] uppercase tracking-widest" style="background:${bg}; color:#fff;">${escapeHtml(initials)}</span>
+                `;
+            }
+
+            return `
+                <span class="w-full h-full flex items-center justify-center font-black text-[11px] uppercase tracking-widest" style="background:${bg}; color:#fff;">${escapeHtml(initials)}</span>
+            `;
+        }
+
+        async function loadAdminProfiles() {
+            adminProfilesByEmail = {};
+            if (!window.supabaseClient || adminEmails.length === 0) return;
+
+            try {
+                const emails = adminEmails
+                    .map(email => String(email || '').trim().toLowerCase())
+                    .filter(Boolean);
+
+                if (emails.length === 0) return;
+
+                const { data, error } = await window.supabaseClient
+                    .from('users')
+                    .select('email, name, full_name, avatar, avatar_url, picture, picture_url, photo_url, photoURL, avatarUrl')
+                    .in('email', emails);
+
+                if (error) throw error;
+
+                (data || []).forEach(profile => {
+                    const email = String(profile.email || '').trim().toLowerCase();
+                    if (!email) return;
+                    adminProfilesByEmail[email] = profile;
+                });
+            } catch (err) {
+                console.warn('[Security] Failed to load admin profiles:', err);
+            }
+        }
 
         function renderAdminsSkeleton() {
             const listContainer = document.getElementById('adminList');
@@ -181,6 +297,7 @@
 
                 if (error) throw error;
                 adminEmails = data?.admin_emails || [];
+                await loadAdminProfiles();
                 renderAdmins();
             } catch (err) {
                 console.error('[Security] Failed to load admins:', err);
@@ -197,13 +314,16 @@
 
             listContainer.innerHTML = adminEmails.map(email => `
                 <div class="admin-item group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-all">
-                            <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-all shrink-0">
+                            ${avatarMarkup(email)}
                         </div>
-                        <span class="font-bold text-gray-700">${email}</span>
+                        <div class="min-w-0">
+                            <span class="block font-bold text-gray-700 truncate">${escapeHtml(adminProfilesByEmail[String(email || '').trim().toLowerCase()]?.name || email)}</span>
+                            <span class="block text-[11px] text-gray-400 truncate">${escapeHtml(email)}</span>
+                        </div>
                     </div>
-                    <button onclick="removeAdmin('${email}')" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all rounded-lg">
+                    <button onclick="removeAdmin('${escapeHtml(email)}')" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all rounded-lg">
                         <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
                     </button>
                 </div>
@@ -249,6 +369,7 @@
                 if (error) throw error;
                 
                 adminEmails = newList;
+                await loadAdminProfiles();
                 renderAdmins();
                 
                 if (window.showToast) window.showToast('Liste des administrateurs mise à jour.', 'success', 'Sauvegardé');
