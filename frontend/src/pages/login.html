@@ -412,7 +412,16 @@
 
         // --- 2. State & Elements ---
         let isRecovery = window.location.hash.includes('type=recovery');
-        let isLogin = !isRecovery;
+        const loginSearchParams = new URLSearchParams(window.location.search || '');
+        const shouldOpenSignup = Boolean(
+            loginSearchParams.get('ref') ||
+            loginSearchParams.get('invite') ||
+            loginSearchParams.get('parrain') ||
+            loginSearchParams.get('signup') === '1' ||
+            loginSearchParams.get('tab') === 'signup' ||
+            loginSearchParams.get('mode') === 'signup'
+        );
+        let isLogin = !isRecovery && !shouldOpenSignup;
 
         const tabLogin = document.getElementById('tabLogin');
         const tabSignup = document.getElementById('tabSignup');
@@ -530,6 +539,11 @@
             formSubtitle.textContent = "Veuillez entrer votre nouveau mot de passe.";
             submitBtnSpan.textContent = "Mettre à jour";
             pwdInput.setAttribute('autocomplete', 'new-password');
+        }
+
+        if (!isRecovery && !isLogin) {
+            isLogin = true;
+            switchTab(false);
         }
 
         syncAutofillHints();
@@ -751,11 +765,19 @@
 
                     // Determine initial status: customers are approved immediately, suppliers must go through KYC
                     const initialStatus = (role === 'customer') ? 'approved' : 'pending';
+                    const referralCode = localStorage.getItem('newketReferralCode') || '';
 
                     const { data, error } = await supabaseClient.auth.signUp({
                         email,
                         password,
-                        options: { data: { full_name: email.split('@')[0], role, status: initialStatus } }
+                        options: {
+                            data: {
+                                full_name: email.split('@')[0],
+                                role,
+                                status: initialStatus,
+                                referral_code_from: referralCode || null
+                            }
+                        }
                     });
 
                     if (error) throw error;

@@ -27,30 +27,73 @@ async function readMaintenanceFlag() {
   return { value: false, error: snake.error };
 }
 
+function isMaintenanceExemptRequest(req) {
+  const method = String(req.method || '').toUpperCase();
+  const path = String(req.path || req.originalUrl || '');
+
+  if (method === 'OPTIONS') {
+    return true;
+  }
+
+  if (path === '/api/health') {
+    return true;
+  }
+
+  if (method === 'GET' && path === '/api/settings') {
+    return true;
+  }
+
+  if (method === 'GET' && path === '/api/manifest') {
+    return true;
+  }
+
+  if (method === 'POST' && path === '/api/payments/notify') {
+    return true;
+  }
+
+  if (path.startsWith('/api/cron/')) {
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * Middleware de Maintenance
- * Bloque les opérations d'écriture (POST, PUT, DELETE) si le mode maintenance est actif,
- * sauf pour les administrateurs.
+ * Bloque les opérations non-admin si le mode maintenance est actif.
  */
 export const maintenanceMiddleware = async (req, res, next) => {
-  // 1) Autoriser la lecture, et autoriser les admins au-delà de la maintenance
-  if (req.method === 'GET' || (req.user && req.user.role === 'admin')) {
+  // 1) Autoriser les admins et quelques endpoints techniques indispensables.
+  if ((req.user && req.user.role === 'admin') || isMaintenanceExemptRequest(req)) {
     return next();
   }
 
   try {
-    // 2) Lire le flag à chaque requête non-GET pour rendre la bascule immédiate.
-    const { value, error } = await readMaintenanceFlag();
+  // 2) Lire le flag à chaque requête non-admin pour rendre la bascule immédiate.
+  const { value, error } = await readMaintenanceFlag();
 
-    if (error) {
-      console.error('❌ Erreur vérification maintenance:', error);
-      // En cas d'erreur de vérification, on laisse passer pour ne pas bloquer le site indéfiniment.
-      return next();
-    }
+  if (error) {
+    console.error('❌ Erreur vérification maintenance:', error);
+    // En cas d'erreur de vérification, on bloque côté public pour éviter un faux "open".
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Retry-After', '300');
+    return res.status(503).json({
+      error: 'Service en maintenance',
+      message:
+        "Le site est actuellement en cours de mise à jour. Les transactions et modifications sont temporairement désactivées.",
+      retryAfter: 300,
+    });
+  }
 
     // 3) Appliquer le blocage
     if (value === true) {
       console.log(`🚧 Blocage maintenance pour: ${req.method} ${req.path}`);
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.setHeader('Retry-After', '300');
       return res.status(503).json({
         error: 'Service en maintenance',
         message:
@@ -62,7 +105,15 @@ export const maintenanceMiddleware = async (req, res, next) => {
     next();
   } catch (err) {
     console.error('❌ Erreur MaintenanceMiddleware:', err);
-    // En cas d'erreur de vérification, on laisse passer pour ne pas bloquer le site indéfiniment
-    next();
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Retry-After', '300');
+    res.status(503).json({
+      error: 'Service en maintenance',
+      message:
+        "Le site est actuellement en cours de mise à jour. Les transactions et modifications sont temporairement désactivées.",
+      retryAfter: 300,
+    });
   }
 };

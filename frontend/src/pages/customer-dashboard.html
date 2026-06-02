@@ -521,6 +521,72 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="glass-panel p-8 w-full">
+                    <div class="flex items-start justify-between gap-4 mb-6">
+                        <div>
+                            <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-2">Parrainage</h2>
+                            <p class="text-sm text-gray-500">Partage ton lien pour faire venir de nouveaux clients et suivre ceux qui s'inscrivent avec ton code.</p>
+                        </div>
+                        <div class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest shrink-0">Actif</div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Ton code</label>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <input id="referralCodeDisplay" type="text" readonly
+                                    class="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none font-black tracking-[0.18em] text-sm text-gray-900 uppercase">
+                                <button type="button" id="copyReferralCodeBtn"
+                                    class="px-4 py-3 rounded-xl bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-gray-800 transition-colors">
+                                    Copier
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Ton lien</label>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <input id="referralLinkDisplay" type="text" readonly
+                                    class="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none text-sm text-gray-700">
+                                <button type="button" id="copyReferralLinkBtn"
+                                    class="px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-colors">
+                                    Copier
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Invitations</div>
+                                <div id="referralTotalCount" class="text-2xl font-black text-gray-900">0</div>
+                            </div>
+                            <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">En attente</div>
+                                <div id="referralPendingCount" class="text-2xl font-black text-gray-900">0</div>
+                            </div>
+                            <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Confirmés</div>
+                                <div id="referralQualifiedCount" class="text-2xl font-black text-gray-900">0</div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-4 space-y-4">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Tu as reçu un code ?</label>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <input id="referralClaimCode" type="text" placeholder="Ex: NEWKET-ABC123"
+                                        class="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none text-sm text-gray-900 uppercase">
+                                    <button type="button" id="claimReferralBtn"
+                                        class="px-4 py-3 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-colors">
+                                        Valider
+                                    </button>
+                                </div>
+                            </div>
+                            <p id="referralHint" class="text-xs text-gray-500">Si tu arrives avec un lien de parrainage, le code est enregistré automatiquement. Tu peux aussi le coller ici plus tard.</p>
+                        </div>
+                    </div>
+                </div>
                 </div>
 
                 <!-- Change Password -->
@@ -1337,6 +1403,8 @@
 
             const profile = ProfileManager.getProfile();
             applyCustomerProfileSettings(profile);
+            bindReferralPanelActions();
+            await refreshReferralPanel();
             const avatarUploadBtn = document.getElementById('changeProfileAvatarBtn');
             const avatarUploadInput = document.getElementById('customerAvatarUploadInput');
             const initialAvatarName = profile.name || localStorage.getItem('newketUserName') || localStorage.getItem('newketUserEmail') || 'Utilisateur';
@@ -1481,6 +1549,113 @@
             if (currentPasswordInput) {
                 currentPasswordInput.required = requiresCurrentPassword;
                 if (isOauthOnly) currentPasswordInput.value = '';
+            }
+        }
+
+        function getReferralLoginLink(code) {
+            const loginPath = typeof window.resolvePath === 'function' ? window.resolvePath('login') : '/pages/login';
+            const url = new URL(loginPath, window.location.origin);
+            url.searchParams.set('signup', '1');
+            url.searchParams.set('ref', code);
+            return url.toString();
+        }
+
+        async function refreshReferralPanel() {
+            const codeInput = document.getElementById('referralCodeDisplay');
+            const linkInput = document.getElementById('referralLinkDisplay');
+            const totalEl = document.getElementById('referralTotalCount');
+            const pendingEl = document.getElementById('referralPendingCount');
+            const qualifiedEl = document.getElementById('referralQualifiedCount');
+            const claimInput = document.getElementById('referralClaimCode');
+
+            if (!codeInput || !linkInput) return;
+
+            try {
+                const data = await window.ApiClient.get('/referrals/me', {
+                    suppressToast: true,
+                    suppressErrorLogging: true,
+                    suppressNetworkError: true
+                });
+
+                const code = data?.referral_code || '';
+                const link = code ? getReferralLoginLink(code) : '';
+                const stats = data?.stats || {};
+
+                codeInput.value = code;
+                linkInput.value = link;
+                if (totalEl) totalEl.textContent = String(stats.total || 0);
+                if (pendingEl) pendingEl.textContent = String(stats.pending || 0);
+                if (qualifiedEl) qualifiedEl.textContent = String((stats.qualified || 0) + (stats.rewarded || 0));
+
+                if (claimInput && data?.referred_by_code && !claimInput.value) {
+                    claimInput.value = data.referred_by_code;
+                }
+            } catch (error) {
+                console.warn('[Customer Referral] Unable to load referral summary:', error?.message || error);
+            }
+        }
+
+        async function claimReferralCode() {
+            const claimInput = document.getElementById('referralClaimCode');
+            const hint = document.getElementById('referralHint');
+            const button = document.getElementById('claimReferralBtn');
+            if (!claimInput || !button) return;
+
+            const code = claimInput.value.trim();
+            if (!code) {
+                showToast('Colle un code de parrainage avant de valider.', 'warning');
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = '...';
+
+            try {
+                await window.ApiClient.post('/referrals/claim', { code }, {
+                    suppressToast: true,
+                    suppressErrorLogging: true
+                });
+
+                localStorage.removeItem('newketReferralCode');
+                if (hint) hint.textContent = 'Code validé. Le parrainage est maintenant rattaché à ton compte.';
+                showToast('Code de parrainage validé.', 'success');
+                await refreshReferralPanel();
+            } catch (error) {
+                console.error('[Customer Referral] Claim error:', error);
+                showToast(error?.message || 'Impossible de valider ce code.', 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Valider';
+            }
+        }
+
+        function bindReferralPanelActions() {
+            const codeBtn = document.getElementById('copyReferralCodeBtn');
+            const linkBtn = document.getElementById('copyReferralLinkBtn');
+            const claimBtn = document.getElementById('claimReferralBtn');
+            const codeInput = document.getElementById('referralCodeDisplay');
+            const linkInput = document.getElementById('referralLinkDisplay');
+
+            const copyValue = async (value, label) => {
+                if (!value) return;
+                try {
+                    await navigator.clipboard.writeText(value);
+                    showToast(`${label} copié.`, 'success');
+                } catch {
+                    showToast('Impossible de copier automatiquement.', 'warning');
+                }
+            };
+
+            if (codeBtn && codeInput) {
+                codeBtn.addEventListener('click', () => copyValue(codeInput.value, 'Code'));
+            }
+
+            if (linkBtn && linkInput) {
+                linkBtn.addEventListener('click', () => copyValue(linkInput.value, 'Lien'));
+            }
+
+            if (claimBtn) {
+                claimBtn.addEventListener('click', claimReferralCode);
             }
         }
 

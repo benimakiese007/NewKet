@@ -36,15 +36,66 @@ const App = {
         if (window.PresenceManager) PresenceManager.init().catch(e => console.warn('[App] PresenceManager init failed:', e?.message));
         if (window.BehaviorTracking) BehaviorTracking.init();
 
-        // Product and Order managers now handle their own internal "immediate resolve" from cache
-        const initPromises = [];
-        if (window.ProductManager) initPromises.push(ProductManager.init());
-        
         const currentRole = window.AuthManager?.role;
         const currentUser = window.AuthManager?.user;
         const isLoggedIn = !!currentRole;
         const isAdmin = currentRole === 'admin';
         const isSupplier = currentRole === 'supplier';
+        const MAINTENANCE_MODAL_ID = 'newket-maintenance-modal';
+        const removeMaintenanceOverlay = () => {
+            if (!document.body) return;
+
+            document.body.classList.remove('newket-maintenance-active');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('touch-action');
+            delete document.body.dataset.newketMaintenanceView;
+
+            const existingModal = document.getElementById(MAINTENANCE_MODAL_ID);
+            if (existingModal) existingModal.remove();
+        };
+        const renderMaintenanceOverlay = () => {
+            document.documentElement.classList.remove('auth-loading');
+            if (!document.body) return;
+
+            removeMaintenanceOverlay();
+            document.body.dataset.newketMaintenanceView = '1';
+            document.body.classList.add('newket-maintenance-active');
+            document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'none';
+
+            const modal = document.createElement('div');
+            modal.id = MAINTENANCE_MODAL_ID;
+            modal.setAttribute('role', 'dialog');
+            modal.setAttribute('aria-modal', 'true');
+            modal.setAttribute('aria-labelledby', 'newket-maintenance-title');
+            modal.setAttribute('aria-describedby', 'newket-maintenance-description');
+            modal.innerHTML = `
+                <div style="position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center; padding:24px; background:rgba(2,6,23,0.78); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);">
+                    <div style="position:relative; width:min(620px, 100%); overflow:hidden; border-radius:32px; border:1px solid rgba(255,255,255,0.12); background:linear-gradient(180deg, rgba(15,23,42,0.96) 0%, rgba(3,7,18,0.98) 100%); box-shadow:0 40px 120px rgba(0,0,0,0.45); color:#fff; text-align:center; padding:44px 32px;">
+                        <div style="width:92px; height:92px; margin:0 auto 22px; border-radius:30px; display:flex; align-items:center; justify-content:center; background:rgba(239,68,68,0.14); border:1px solid rgba(239,68,68,0.28);">
+                            <iconify-icon icon="solar:shield-warning-bold-duotone" width="46" style="color:#fb7185;"></iconify-icon>
+                        </div>
+                        <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:8px 14px; border-radius:999px; background:rgba(255,255,255,0.07); color:#cbd5e1; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;">
+                            Maintenance en cours
+                        </div>
+                        <h1 id="newket-maintenance-title" style="font-size:clamp(2rem, 4vw, 2.8rem); font-weight:950; line-height:1.05; margin:0 0 14px;">Le site est en Maintenance</h1>
+                        <p id="newket-maintenance-description" style="color:#cbd5e1; max-width:500px; margin:0 auto; line-height:1.75; font-size:15px;">
+                            L&apos;acc&egrave;s public est temporairement suspendu. Les clients, vendeurs et invit&eacute;s ne peuvent pas naviguer ni effectuer d&apos;actions pendant cette p&eacute;riode.
+                        </p>
+                        <p style="color:#94a3b8; max-width:440px; margin:12px auto 0; line-height:1.65; font-size:13px;">
+                            L&apos;&eacute;quipe admin garde l&apos;acc&egrave;s pour la supervision et le r&eacute;tablissement du service.
+                        </p>
+                        <div style="margin-top:30px; display:flex; justify-content:center;">
+                            <a href="login.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; text-decoration:none; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
+                                Acc&egrave;s admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
         const isMaintenanceViewActive = () => document.body?.dataset?.newketMaintenanceView === '1';
         const renderMaintenanceView = () => {
             document.documentElement.classList.remove('auth-loading');
@@ -79,11 +130,12 @@ const App = {
             const isLoginPath = currentPath.includes('login.html');
 
             if (shouldBlockPublic && !isAdminPath && !isLoginPath) {
-                renderMaintenanceView();
+                renderMaintenanceOverlay();
                 return;
             }
 
             if (!shouldBlockPublic && isMaintenanceViewActive()) {
+                removeMaintenanceOverlay();
                 window.location.reload();
             }
         };
@@ -101,6 +153,10 @@ const App = {
         if (window.newketConfig?.maintenanceMode === true && !isAdmin && isMaintenanceViewActive()) {
             return; // Halt further initialization
         }
+
+        // Product and Order managers now handle their own internal "immediate resolve" from cache
+        const initPromises = [];
+        if (window.ProductManager) initPromises.push(ProductManager.init());
 
         // Orders are needed for customer + vendor dashboards too.
         if (window.OrderManager && isLoggedIn) initPromises.push(OrderManager.init());

@@ -7,6 +7,36 @@
 // Admin email list is now centralized in admin-config.js (synchronous script)
 const ADMIN_EMAILS = window.ADMIN_EMAILS || [];
 const ALLOWED_ROLES = new Set(['customer', 'supplier', 'admin']);
+const REFERRAL_CODE_STORAGE_KEY = 'newketReferralCode';
+
+function normalizeReferralCode(value) {
+    return String(value || '')
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9-]/g, '');
+}
+
+function captureReferralCodeFromUrl() {
+    try {
+        const params = new URLSearchParams(window.location.search || '');
+        const code = normalizeReferralCode(
+            params.get('ref') ||
+            params.get('invite') ||
+            params.get('parrain') ||
+            ''
+        );
+
+        if (code) {
+            localStorage.setItem(REFERRAL_CODE_STORAGE_KEY, code);
+        }
+
+        return code;
+    } catch {
+        return '';
+    }
+}
+
+captureReferralCodeFromUrl();
 
 const AuthManager = {
     role: null,
@@ -400,18 +430,36 @@ const AuthManager = {
 
         const email = user.email;
         const avatarUrl = localStorage.getItem('newketUserAvatar');
+        const referralCode = normalizeReferralCode(
+            user.user_metadata?.referral_code_from ||
+            user.user_metadata?.referralCode ||
+            localStorage.getItem(REFERRAL_CODE_STORAGE_KEY)
+        );
         const profile = {
             id: user.id,
             email,
             name: user.user_metadata.full_name || user.user_metadata.name || email.split('@')[0],
             avatar: avatarUrl,
             role,
-            status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending'
+            status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending',
+            referred_by_code: referralCode || null
         };
 
         const success = await window.SupabaseAdapter.upsert('users', profile);
         if (!success) {
             throw new Error('[NewKet Auth] Failed to create database profile.');
+        }
+
+        if (referralCode && window.ApiClient) {
+            try {
+                await window.ApiClient.post('/referrals/claim', { code: referralCode }, {
+                    suppressToast: true,
+                    suppressErrorLogging: true
+                });
+                localStorage.removeItem(REFERRAL_CODE_STORAGE_KEY);
+            } catch (error) {
+                console.warn('[NewKet Auth] Referral claim skipped:', error?.message || error);
+            }
         }
 
         if (window.supabaseClient) {
@@ -420,7 +468,8 @@ const AuthManager = {
                     ...user.user_metadata,
                     role: profile.role,
                     status: profile.status,
-                    full_name: profile.name
+                    full_name: profile.name,
+                    referral_code_from: referralCode || user.user_metadata?.referral_code_from || null
                 }
             }).catch((error) => {
                 console.warn('[NewKet Auth] Unable to sync role metadata after profile creation:', error?.message || error);

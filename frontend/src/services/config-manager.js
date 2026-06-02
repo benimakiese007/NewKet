@@ -43,6 +43,52 @@ const ConfigManager = {
     },
 
     _realtimeChannel: null,
+    _maintenancePollTimer: null,
+
+    _maintenanceCheckKey: 'newket_global_config_maintenance_check_time',
+
+    _markMaintenanceCheck(now = Date.now()) {
+        localStorage.setItem(this._maintenanceCheckKey, String(now));
+    },
+
+    async _fetchRemoteSettings(source = 'fetch') {
+        if (!window.SupabaseAdapter) return null;
+
+        if (this._fetchPromise) {
+            return this._fetchPromise;
+        }
+
+        this._fetchPromise = (async () => {
+            try {
+                const remoteConfig = await window.SupabaseAdapter.fetch('settings');
+                if (remoteConfig && remoteConfig.length > 0) {
+                    this._applyRemoteSettingsRow(remoteConfig[0], source);
+                    this._markMaintenanceCheck();
+                    return remoteConfig[0];
+                }
+                return null;
+            } catch (err) {
+                console.warn('[NewKet] Failed to fetch settings from Supabase:', err);
+                return null;
+            }
+        })();
+
+        try {
+            return await this._fetchPromise;
+        } finally {
+            this._fetchPromise = null;
+        }
+    },
+
+    _startMaintenancePolling() {
+        if (this._maintenancePollTimer || !window.SupabaseAdapter) return;
+
+        this._maintenancePollTimer = window.setInterval(() => {
+            this._fetchRemoteSettings('poll').catch((err) => {
+                console.warn('[NewKet] Maintenance poll failed:', err?.message || err);
+            });
+        }, 60_000);
+    },
 
     _normalizeRemoteSettingsRow(row) {
         if (!row || typeof row !== 'object') return null;
@@ -155,6 +201,7 @@ const ConfigManager = {
         const previousMaintenanceMode = !!this.config.maintenanceMode;
         this.config = { ...this.config, ...normalized };
         this.saveLocal();
+        this._markMaintenanceCheck();
         window.dispatchEvent(new CustomEvent('configUpdated', { detail: this.config }));
 
         const nextMaintenanceMode = !!this.config.maintenanceMode;
@@ -260,8 +307,10 @@ const ConfigManager = {
     async init() {
         const saved = localStorage.getItem('newket_global_config');
         const fetchTime = localStorage.getItem('newket_global_config_time');
+        const maintenanceCheckTime = localStorage.getItem(this._maintenanceCheckKey);
         const now = Date.now();
         const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
+        const MAINTENANCE_CHECK_DURATION = 1000 * 60; // 60 seconds
 
         if (saved) {
             try {
@@ -274,33 +323,21 @@ const ConfigManager = {
         // Try to fetch from backend if cache is expired or missing.
         const cacheExpired = !fetchTime || now - parseInt(fetchTime) > CACHE_DURATION;
         const socialLinksIncomplete = !this.config.socialLinks?.x || !this.config.socialLinks?.linkedin;
+        const maintenanceCheckExpired =
+            !maintenanceCheckTime || now - parseInt(maintenanceCheckTime) > MAINTENANCE_CHECK_DURATION;
+        const shouldRefreshForMaintenance = !!this.config.maintenanceMode || maintenanceCheckExpired;
 
-        if (window.SupabaseAdapter && (cacheExpired || socialLinksIncomplete)) {
-            // Check if we are already fetching to prevent duplicate calls from multiple managers
-            if (this._fetchPromise) {
-                await this._fetchPromise;
-                return;
-            }
-            
-            this._fetchPromise = (async () => {
-                try {
-                    const remoteConfig = await window.SupabaseAdapter.fetch('settings');
-                    if (remoteConfig && remoteConfig.length > 0) {
-                        this._applyRemoteSettingsRow(remoteConfig[0], 'fetch');
-                        localStorage.setItem('newket_global_config_time', now.toString());
-                    }
-                } catch (err) {
-                    console.warn('[NewKet] Failed to fetch settings from Supabase:', err);
-                }
-            })();
-            
-            await this._fetchPromise;
-            this._fetchPromise = null;
+        if (window.SupabaseAdapter && (cacheExpired || socialLinksIncomplete || shouldRefreshForMaintenance)) {
+            await this._fetchRemoteSettings('fetch');
+            localStorage.setItem('newket_global_config_time', now.toString());
+            this._markMaintenanceCheck(now);
         } else {
             localStorage.setItem('newket_global_config_time', now.toString());
+            this._markMaintenanceCheck(now);
         }
 
         this._startRealtimeSync();
+        this._startMaintenancePolling();
 
         // Global export for legacy code
         window.newketConfig = this.config;
@@ -334,6 +371,7 @@ const ConfigManager = {
                 } else {
                     await window.SupabaseAdapter.insert('settings', payload);
                 }
+                this._markMaintenanceCheck();
             } catch (err) {
                 console.error('[NewKet] Error saving remote settings to Supabase:', err);
                 remoteError = err;
