@@ -67,6 +67,13 @@ const ProfileManager = {
                 this._profile.home_location = savedHomeLocation;
                 if (savedHomeLocation.city) localStorage.setItem('newketUserCity', savedHomeLocation.city);
             }
+
+            if (!this._profile.seller_type) {
+                const storedSellerType = localStorage.getItem('newketSellerType');
+                if (storedSellerType) {
+                    this._profile.seller_type = storedSellerType;
+                }
+            }
         } catch (e) {
             console.error('[ProfileManager] Error loading profile:', e);
             this._profile = {};
@@ -102,6 +109,8 @@ const ProfileManager = {
         if (data.city) localStorage.setItem('newketUserCity', data.city);
         if (data.company_name) localStorage.setItem('newketCompany', data.company_name);
         if (data.boutique_name) localStorage.setItem('newketBoutiqueName', data.boutique_name);
+        if (data.seller_type) localStorage.setItem('newketSellerType', data.seller_type);
+        else if ('seller_type' in data) localStorage.removeItem('newketSellerType');
         const avatar = data.avatar || data.avatar_url || data.picture || data.photo_url || data.picture_url;
         if (avatar) localStorage.setItem('newketUserAvatar', avatar);
         if ('home_location' in (data || {})) {
@@ -163,6 +172,7 @@ const ProfileManager = {
                     phone: profile.phone || profile.store_phone || this._profile.phone,
                     avatar: profile.avatar || profile.avatar_url || profile.photo_url || profile.picture || this._profile.avatar,
                     role: profile.role || user.role,
+                    seller_type: profile.seller_type || this._profile.seller_type,
                     shipping_time: profile.shipping_time || this._profile.shipping_time,
                     home_location: this._profile.home_location
                 });

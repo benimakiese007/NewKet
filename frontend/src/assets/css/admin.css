@@ -236,6 +236,17 @@ body {
     padding-top: var(--dashboard-topbar-height) !important;
 }
 
+/* Shared admin page breathing room below the header bar. */
+.admin-shell > main {
+    padding-top: clamp(1rem, 2vw, 2rem);
+}
+
+/* Match the same vertical alignment on vendor and customer dashboards. */
+.vendor-main-content,
+.customer-main-content {
+    padding-top: clamp(1rem, 2vw, 2rem);
+}
+
 /* Lift the sidebar: remove the extra visual gap under the fixed navbar */
 #adminSidebar > div,
 #customerSidebar > div,

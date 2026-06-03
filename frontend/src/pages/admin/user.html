@@ -44,6 +44,21 @@
         .role-supplier { background-color: #eff6ff; color: #2563eb; }
         .role-admin { background-color: #fff7ed; color: #ea580c; }
 
+        .seller-type-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .seller-type-normal { background-color: #f8fafc; color: #64748b; }
+        .seller-type-certified { background-color: #dbeafe; color: #1d4ed8; }
+
         .branding-alert {
             position: relative;
         }
@@ -489,6 +504,9 @@
                         const initialsSource = u.name || UserManager.getDisplayName(u) || (u.email ? u.email.split('@')[0] : '');
                         const initials = (window.getInitials ? window.getInitials(initialsSource) : (initialsSource || '?').trim().charAt(0).toUpperCase());
                         const hasNoLogo = u.role === 'supplier' && !avatarUrl;
+                        const sellerType = String(u.seller_type || (u.role === 'supplier' ? 'normal' : '')).toLowerCase();
+                        const sellerTypeLabel = sellerType === 'certified' ? 'Vendeur certifié' : (u.role === 'supplier' ? 'Vendeur normal' : '');
+                        const sellerTypeClass = sellerType === 'certified' ? 'seller-type-certified' : 'seller-type-normal';
 
                         const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
                         const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
@@ -510,6 +528,7 @@
                                             ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping"></span>' : ''}
                                         </div>
                                         <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${u.email}</div>
+                                        ${sellerTypeLabel ? `<div class="mt-2"><span class="seller-type-badge ${sellerTypeClass}">${sellerTypeLabel}</span></div>` : ''}
                                     </div>
                                 </div>
                             </td>
@@ -579,7 +598,7 @@
             window.showConfirm("Approuver", `Approuver le vendeur ${name} ?`, async () => {
                 try {
                     if (window.LoaderManager) LoaderManager.show(`Activation de ${name}...`);
-                    const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier' }).eq('id', id);
+                    const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier', seller_type: 'certified' }).eq('id', id);
                     if (error) throw error;
                     if (window.showToast) showToast(`Vendeur activé !`, "success");
                     UserManager.init().then(() => renderUsers());
@@ -596,7 +615,7 @@
             window.showConfirm("Rejeter", `Refuser le dossier de ${name} ?`, async () => {
                 try {
                     if (window.LoaderManager) LoaderManager.show(`Rejet...`);
-                    const { error } = await window.supabaseClient.from('users').update({ status: 'rejected' }).eq('id', id);
+                    const { error } = await window.supabaseClient.from('users').update({ status: 'rejected', seller_type: 'normal' }).eq('id', id);
                     if (error) throw error;
                     if (window.showToast) showToast(`Rejeté.`, "warning");
                     UserManager.init().then(() => renderUsers());

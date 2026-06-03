@@ -41,6 +41,7 @@ captureReferralCodeFromUrl();
 const AuthManager = {
     role: null,
     status: null, // Status KYC : pending (jamais soumis), submitted (en attente validation), approved, rejected
+    sellerType: null,
     user: null, // Supabase user object for pages like settings.html
     _authChecking: true, // Start as true to block UI
     _initialized: false,
@@ -189,6 +190,8 @@ const AuthManager = {
                     this.status = null;
                     localStorage.removeItem('newketRole');
                     localStorage.removeItem('newketUserStatus');
+                    localStorage.removeItem('newketSellerType');
+                    this.sellerType = null;
                     this.enforcePermissions();
                     this.updateAccountLink();
                     return;
@@ -206,6 +209,8 @@ const AuthManager = {
                     this.status = null;
                     localStorage.removeItem('newketRole');
                     localStorage.removeItem('newketUserStatus');
+                    localStorage.removeItem('newketSellerType');
+                    this.sellerType = null;
                     this.enforcePermissions();
                     this.updateAccountLink();
                     return;
@@ -214,6 +219,10 @@ const AuthManager = {
                 this.markPendingRoleSelection(false);
                 this.role = role;
                 localStorage.setItem('newketRole', role);
+
+                this.sellerType = profile?.seller_type || (role === 'supplier' ? 'normal' : null);
+                if (this.sellerType) localStorage.setItem('newketSellerType', this.sellerType);
+                else localStorage.removeItem('newketSellerType');
 
                 this.status = profile?.status || await this.fetchUserStatus(email);
                 localStorage.setItem('newketUserStatus', this.status);
@@ -442,6 +451,7 @@ const AuthManager = {
             avatar: avatarUrl,
             role,
             status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending',
+            seller_type: role === 'supplier' ? 'normal' : null,
             referred_by_code: referralCode || null
         };
 
@@ -468,6 +478,7 @@ const AuthManager = {
                     ...user.user_metadata,
                     role: profile.role,
                     status: profile.status,
+                    seller_type: profile.seller_type,
                     full_name: profile.name,
                     referral_code_from: referralCode || user.user_metadata?.referral_code_from || null
                 }
@@ -505,16 +516,23 @@ const AuthManager = {
                     const oldRole = this.role;
 
                     // Update local state
-                    if (newData.status) {
-                        this.status = newData.status;
-                        localStorage.setItem('newketUserStatus', this.status);
-                        window.dispatchEvent(new CustomEvent('userStatusUpdated', { detail: { status: this.status } }));
-                    }
-                    
-                    if (newData.role) {
-                        this.role = newData.role;
-                        localStorage.setItem('newketRole', this.role);
-                    }
+                if (newData.status) {
+                    this.status = newData.status;
+                    localStorage.setItem('newketUserStatus', this.status);
+                    window.dispatchEvent(new CustomEvent('userStatusUpdated', { detail: { status: this.status } }));
+                }
+
+                if ('seller_type' in newData) {
+                    this.sellerType = newData.seller_type || null;
+                    if (this.sellerType) localStorage.setItem('newketSellerType', this.sellerType);
+                    else localStorage.removeItem('newketSellerType');
+                    window.dispatchEvent(new CustomEvent('sellerTypeUpdated', { detail: { sellerType: this.sellerType } }));
+                }
+                
+                if (newData.role) {
+                    this.role = newData.role;
+                    localStorage.setItem('newketRole', this.role);
+                }
 
                     // Re-enforce UI
                     this.enforcePermissions();
@@ -760,6 +778,8 @@ const AuthManager = {
                 this.status = null;
                 localStorage.removeItem('newketRole');
                 localStorage.removeItem('newketUserStatus');
+                localStorage.removeItem('newketSellerType');
+                this.sellerType = null;
                 this.enforcePermissions();
                 return;
             }
@@ -796,6 +816,9 @@ const AuthManager = {
                 localStorage.setItem('newketRoleSelectionConfirmed', 'true');
                 this.role = existingProfile.role;
                 this.status = existingProfile.status || ((existingProfile.role === 'customer' || existingProfile.role === 'admin') ? 'approved' : 'pending');
+                this.sellerType = existingProfile.seller_type || (existingProfile.role === 'supplier' ? 'normal' : null);
+                if (this.sellerType) localStorage.setItem('newketSellerType', this.sellerType);
+                else localStorage.removeItem('newketSellerType');
                 window.location.href = this.getRedirectPathForRole(this.role, this.status);
                 return;
             }
@@ -808,11 +831,14 @@ const AuthManager = {
             localStorage.setItem('newketRoleSelectionConfirmed', 'true');
             this.role = role;
             this.status = updatedProfile?.status || resolvedStatus;
+            this.sellerType = updatedProfile?.seller_type || (role === 'supplier' ? 'normal' : null);
             this.user = user;
             localStorage.setItem('newketRole', this.role);
             localStorage.setItem('newketUserEmail', user.email);
             localStorage.setItem('newketUserId', user.id);
             localStorage.setItem('newketUserStatus', this.status);
+            if (this.sellerType) localStorage.setItem('newketSellerType', this.sellerType);
+            else localStorage.removeItem('newketSellerType');
             this.setupRealtimeSync(user.id);
             this.enforcePermissions();
             this.updateAccountLink();
@@ -826,11 +852,14 @@ const AuthManager = {
         localStorage.setItem('newketRoleSelectionConfirmed', 'true');
         this.role = profile.role;
         this.status = profile.status;
+        this.sellerType = profile.seller_type || (profile.role === 'supplier' ? 'normal' : null);
         this.user = user;
         localStorage.setItem('newketRole', this.role);
         localStorage.setItem('newketUserEmail', user.email);
         localStorage.setItem('newketUserId', user.id);
         localStorage.setItem('newketUserStatus', this.status);
+        if (this.sellerType) localStorage.setItem('newketSellerType', this.sellerType);
+        else localStorage.removeItem('newketSellerType');
         this.setupRealtimeSync(user.id);
         this.enforcePermissions();
         this.updateAccountLink();
@@ -842,12 +871,16 @@ const AuthManager = {
             throw new Error('Profil introuvable pour enregistrer le rôle.');
         }
 
-        const payload = { role, status };
+        const payload = {
+            role,
+            status,
+            seller_type: role === 'supplier' ? 'normal' : null
+        };
         const { data, error } = await window.supabaseClient
             .from('users')
             .update(payload)
             .eq('id', userId)
-            .select('id, name, role, status')
+            .select('id, name, role, status, seller_type')
             .single();
 
         if (error) {
@@ -864,6 +897,7 @@ const AuthManager = {
             ...user.user_metadata,
             role,
             status,
+            seller_type: role === 'supplier' ? 'normal' : null,
             role_selected: true
         };
 

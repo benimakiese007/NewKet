@@ -284,7 +284,7 @@ const App = {
         const deltaThreshold = 18;
         const categoryNav = document.getElementById('categoryNav');
         const mobileSearch = document.getElementById('mobileSearchContainer');
-        const mainHeader = document.querySelector('.main-header');
+        const mainHeader = document.querySelector('.main-header[data-header-shell="main"]');
         const headerLeadRow = mainHeader?.querySelector('.header-content > div:first-child');
         const isCatalogPage = (() => {
             try {

@@ -58,17 +58,6 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- Currency Toggle -->
-                <div class="flex items-center">
-                    <div class="currency-switch-segmented scale-90 origin-right" id="vendorCurrencyToggle" data-active="CDF" title="Devise d'affichage">
-                        <div class="segmented-track">
-                            <div class="segmented-handle"></div>
-                            <span class="segmented-label" data-currency="USD">USD</span>
-                            <span class="segmented-label" data-currency="CDF">CDF</span>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="h-8 w-px bg-white/15 mx-1 hidden sm:block"></div>
 
                 <div class="flex items-center gap-3">
@@ -90,7 +79,7 @@
     <div id="vendorSidebarOverlay" onclick="SidebarManager.close()" class="fixed inset-0 bg-black/30 z-[9998] hidden transition-all duration-300"></div>
 
     <!-- Sidebar moved back to main to act as a flex sibling, removing relative from main to preserve stacking context -->
-    <main class="dashboard-main-offset w-full max-w-none lg:px-0 pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row relative">
+    <main class="dashboard-main-offset w-full max-w-none pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row lg:gap-8 relative">
         <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-72 lg:relative transition-transform duration-400 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
             <!-- Mobile Close Button -->
@@ -121,6 +110,7 @@
                             <span>Chargement...</span>
                             <iconify-icon icon="solar:verified-check-bold" class="text-blue-500 hidden" id="vendorVerifiedBadge" width="14"></iconify-icon>
                         </h2>
+                        <div id="vendorTypeBadge" class="mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 hidden">Vendeur normal</div>
                     </div>
                 </div>
 
@@ -165,12 +155,23 @@
                         </button>
                     </div>
                 </nav>
+
+                <div class="mt-6 pt-5 border-t border-gray-100/50 lg:hidden">
+                    <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
+                    <div class="currency-switch-segmented scale-90 origin-left w-fit" id="vendorCurrencyToggle" data-active="CDF" title="Devise d'affichage">
+                        <div class="segmented-track">
+                            <div class="segmented-handle"></div>
+                            <span class="segmented-label" data-currency="USD">USD</span>
+                            <span class="segmented-label" data-currency="CDF">CDF</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </aside>
 
         <!-- Main Content -->
-        <div class="vendor-main-content flex-1 min-w-0 lg:px-8">
+        <div class="vendor-main-content flex-1 min-w-0 px-4 sm:px-6 lg:px-8">
                 <!-- Dashboard Navbar is now global at the top -->
 
                 <!-- Dashboard Tab Container -->
@@ -1645,6 +1646,8 @@
                         const boutiqueName = profile.boutique_name || profile.company_name;
                         const fallbackName = profile.name || localStorage.getItem('newketUserName') || localStorage.getItem('newketUserEmail') || 'Vendeur';
                         const finalName = boutiqueName || fallbackName;
+                        const sellerType = String(profile.seller_type || localStorage.getItem('newketSellerType') || 'normal').toLowerCase();
+                        const isCertified = sellerType === 'certified';
                         
                         // Update Sidebar Name
                         const vendorNameEl = document.getElementById('vendorName');
@@ -1654,8 +1657,18 @@
                             
                             // Show verified badge if applicable
                             const badge = document.getElementById('vendorVerifiedBadge');
-                            if (badge && profile.is_verified) badge.classList.remove('hidden');
-                            else if (badge) badge.classList.add('hidden');
+                            if (badge) {
+                                badge.classList.toggle('hidden', !isCertified);
+                            }
+                        }
+
+                        const typeBadge = document.getElementById('vendorTypeBadge');
+                        if (typeBadge) {
+                            typeBadge.textContent = isCertified ? 'Vendeur certifié' : 'Vendeur normal';
+                            typeBadge.className = isCertified
+                                ? 'mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-50 text-blue-700'
+                                : 'mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500';
+                            typeBadge.classList.remove('hidden');
                         }
 
                         // Update Greeting Name

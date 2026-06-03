@@ -399,17 +399,6 @@ const AdminLayout = {
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <!-- Currency Toggle (interrupteur) -->
-                        <div class="flex items-center">
-                            <div class="currency-switch-segmented scale-90 origin-right" id="currencyToggle" data-active="CDF" title="Devise d'affichage">
-                                <div class="segmented-track">
-                                    <div class="segmented-handle"></div>
-                                    <span class="segmented-label" data-currency="USD">USD</span>
-                                    <span class="segmented-label" data-currency="CDF">CDF</span>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="h-8 w-px bg-white/15 mx-1 hidden sm:block"></div>
 
                         <div class="flex items-center gap-3">
@@ -632,6 +621,16 @@ const AdminLayout = {
 
         sidebarHTML += `
                         </nav>
+                        <div class="mt-6 pt-5 border-t border-gray-100 lg:hidden">
+                            <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
+                            <div class="currency-switch-segmented scale-90 origin-left w-fit" id="currencyToggle" data-active="CDF" title="Devise d'affichage">
+                                <div class="segmented-track">
+                                    <div class="segmented-handle"></div>
+                                    <span class="segmented-label" data-currency="USD">USD</span>
+                                    <span class="segmented-label" data-currency="CDF">CDF</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </aside>

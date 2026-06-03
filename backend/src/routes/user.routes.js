@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPublicUserStats, getUsers, updateStatus, deleteUser } from '../controllers/user.controller.js';
+import { getPublicUserStats, getUsers, updateStatus, updateSellerType, deleteUser } from '../controllers/user.controller.js';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
 import { body } from 'express-validator';
 import { validate } from '../middlewares/validation.js';
@@ -16,6 +16,15 @@ router.put('/:id/status',
     ],
     validate, 
     updateStatus
+);
+router.put('/:id/seller-type',
+    requireAuth,
+    requireAdmin,
+    [
+        body('seller_type').trim().notEmpty().isIn(['normal', 'certified']).withMessage('Seller type invalide')
+    ],
+    validate,
+    updateSellerType
 );
 router.delete('/:id', requireAuth, requireAdmin, deleteUser);
 

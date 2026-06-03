@@ -30,6 +30,7 @@ export const getUsers = async (req, res) => {
                 name,
                 role,
                 status,
+                seller_type,
                 avatar,
                 cover_image,
                 company_name,
@@ -118,6 +119,34 @@ export const updateStatus = async (req, res) => {
     } catch (err) {
         console.error('❌ Erreur updateStatus:', err.message);
         return res.status(500).json({ error: 'Failed to update user status' });
+    }
+};
+
+export const updateSellerType = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { seller_type } = req.body;
+        const normalizedType = String(seller_type || '').trim().toLowerCase();
+
+        if (!['normal', 'certified'].includes(normalizedType)) {
+            return res.status(400).json({ error: 'Seller type invalide' });
+        }
+
+        const client = supabaseAdmin || supabase;
+
+        const { data, error } = await client
+            .from('users')
+            .update({ seller_type: normalizedType })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        return res.status(200).json({ success: true, user: data });
+    } catch (err) {
+        console.error('âŒ Erreur updateSellerType:', err.message);
+        return res.status(500).json({ error: 'Failed to update user seller type' });
     }
 };
 

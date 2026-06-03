@@ -83,6 +83,7 @@
                         <div class="mt-2 flex flex-wrap items-center justify-center gap-2">
                             <p class="text-gray-500 font-medium" id="userEmail">email@example.com</p>
                             <span id="roleBadge" class="px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500">Profil</span>
+                            <span id="sellerTypeBadge" class="hidden px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500">Vendeur normal</span>
                         </div>
                     </div>
                     <div class="pt-4 flex justify-center gap-4 border-t border-gray-50">
@@ -199,6 +200,21 @@
     <script>
         let userDetailsBootStarted = false;
 
+        function getSellerTypeConfig(value) {
+            const normalized = String(value || 'normal').toLowerCase();
+            if (normalized === 'certified') {
+                return {
+                    label: 'Vendeur certifié',
+                    className: 'px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-blue-100 text-blue-700'
+                };
+            }
+
+            return {
+                label: 'Vendeur normal',
+                className: 'px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500'
+            };
+        }
+
         async function loadUserDetails() {
             if (userDetailsBootStarted) return;
             userDetailsBootStarted = true;
@@ -237,6 +253,7 @@
             }
 
             const role = user.role || 'customer';
+            const sellerType = String(user.seller_type || (role === 'supplier' ? 'normal' : '')).toLowerCase();
 
             // UI Setup
             const displayName = UserManager.getDisplayName(user);
@@ -263,6 +280,18 @@
             const badge = document.getElementById('roleBadge');
             badge.textContent = role === 'supplier' ? 'Vendeur / Fournisseur' : 'Client / Acheteur';
             badge.className = `px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest ${role === 'supplier' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}`;
+
+            const sellerBadge = document.getElementById('sellerTypeBadge');
+            if (sellerBadge) {
+                if (role === 'supplier') {
+                    const cfg = getSellerTypeConfig(sellerType);
+                    sellerBadge.textContent = cfg.label;
+                    sellerBadge.className = cfg.className;
+                    sellerBadge.classList.remove('hidden');
+                } else {
+                    sellerBadge.classList.add('hidden');
+                }
+            }
 
             if (role === 'supplier') {
                 renderSupplierView(user, allOrders);
@@ -384,7 +413,22 @@
                     `;
                 }
 
+                const sellerType = String(user.seller_type || 'normal').toLowerCase();
+                const typeButtonsHtml = (user.status === 'approved' || user.status === 'verified')
+                    ? `
+                        <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
+                            <button onclick="setVendorSellerType('${user.id}', 'normal', '${UserManager.getDisplayName(user).replace(/'/g, "\\'")}')" class="flex-1 min-w-[180px] py-3 bg-gray-50 text-gray-700 rounded-xl font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:users-group-rounded-bold" width="18"></iconify-icon> Passer en normal
+                            </button>
+                            <button onclick="setVendorSellerType('${user.id}', 'certified', '${UserManager.getDisplayName(user).replace(/'/g, "\\'")}')" class="flex-1 min-w-[180px] py-3 bg-blue-50 text-blue-700 rounded-xl font-bold hover:bg-blue-100 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:verified-check-bold" width="18"></iconify-icon> Passer en certifié
+                            </button>
+                        </div>
+                    `
+                    : '';
+
                 detailsContent.innerHTML = `
+                    ${user.role === 'supplier' ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Type de compte</p><p class="font-bold text-gray-900">${getSellerTypeConfig(sellerType).label}</p></div>` : ''}
                     ${user.company_name ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Nom Professionnel</p><p class="font-bold text-gray-900">${user.company_name}</p></div>` : ''}
                     ${user.shipping_time ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Délai d'expédition</p><p class="font-bold text-blue-600">${user.shipping_time}</p></div>` : ''}
                     ${user.store_description ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Description</p><p class="text-gray-600 leading-relaxed">${user.store_description}</p></div>` : ''}
@@ -393,6 +437,7 @@
                     ${user.preferred_payout_method ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Paiement</p><p class="font-medium text-gray-900">${user.preferred_payout_method}</p></div>` : ''}
                     ${docsHtml}
                     ${actionButtonsHtml}
+                    ${typeButtonsHtml}
                 `;
             }
 
@@ -498,7 +543,7 @@
                 if (window.LoaderManager) LoaderManager.show("Approbation...");
 
                 try {
-                    const res = await window.SupabaseAdapter.update('users', id, { status: 'verified', role: 'supplier' });
+                    const res = await window.SupabaseAdapter.update('users', id, { status: 'verified', role: 'supplier', seller_type: 'certified' });
                     if (res) {
                         try {
                             const users = window.UserManager ? UserManager.getUsers() : [];
@@ -530,6 +575,34 @@
                     if (window.LoaderManager) LoaderManager.hide();
                 }
             });
+        }
+
+        async function setVendorSellerType(id, sellerType, name) {
+            const normalizedType = sellerType === 'certified' ? 'certified' : 'normal';
+            window.showConfirm(
+                normalizedType === 'certified' ? 'Certifier' : 'Rétablir en normal',
+                `Confirmer le passage du vendeur ${name} en ${normalizedType === 'certified' ? 'certifié' : 'normal'} ?`,
+                async () => {
+                    if (window.LoaderManager) LoaderManager.show("Mise à jour...");
+
+                    try {
+                        const res = await window.SupabaseAdapter.update('users', id, { seller_type: normalizedType });
+                        if (res) {
+                            if (window.showToast) {
+                                window.showToast(`Le vendeur ${name} est maintenant ${normalizedType === 'certified' ? 'certifié' : 'normal'}.`, 'success');
+                            }
+                            setTimeout(() => window.location.reload(), 1200);
+                        } else {
+                            throw new Error('Mise à jour échouée.');
+                        }
+                    } catch (err) {
+                        console.error('Erreur seller type:', err);
+                        if (window.showToast) window.showToast("Erreur lors de la mise à jour du type vendeur : " + err.message, 'danger', 'Erreur');
+                    } finally {
+                        if (window.LoaderManager) LoaderManager.hide();
+                    }
+                }
+            );
         }
 
         async function rejectVendor(id, name) {
