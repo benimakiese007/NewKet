@@ -35,7 +35,7 @@
     "@iconify-json/solar": "^1.2.5",
     "@sentry/browser": "^10.49.0",
     "@sentry/node": "^10.49.0",
-    "@supabase/supabase-js": "^2.45.4",
+    "@supabase/supabase-js": "^2.107.0",
     "@vercel/analytics": "^2.0.1",
     "chart.js": "^4.5.1",
     "compression": "^1.8.1",

@@ -31,7 +31,10 @@ export const supabaseClient = hasValidSupabaseConfig
         auth: {
             persistSession: true,
             autoRefreshToken: true,
-            detectSessionInUrl: true
+            detectSessionInUrl: true,
+            experimental: {
+                passkey: true
+            }
         }
     })
     : null;

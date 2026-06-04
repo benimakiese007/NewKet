@@ -208,6 +208,17 @@
                             </label>
                         </div>
 
+                        <div class="pt-6 border-t border-gray-50 flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-sm">Clé d'accès (Passkey)</h3>
+                                <p class="text-xs text-gray-500 mt-1">Se connecter sans mot de passe avec Face ID, empreinte ou clé de sécurité.</p>
+                            </div>
+                            <button id="registerPasskeyBtn" class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                                <iconify-icon icon="solar:fingerprint-linear"></iconify-icon>
+                                Créer
+                            </button>
+                        </div>
+
                         <div class="flex justify-end pt-4">
                             <button id="updatePasswordBtn"
                                 class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-6 py-3 rounded-xl text-sm font-bold transition-all">
@@ -360,6 +371,11 @@
                 bindEvents() {
                     document.getElementById('saveProfileBtn').addEventListener('click', () => this.saveProfile());
                     document.getElementById('updatePasswordBtn').addEventListener('click', () => this.updatePassword());
+                    
+                    const registerPasskeyBtn = document.getElementById('registerPasskeyBtn');
+                    if (registerPasskeyBtn) {
+                        registerPasskeyBtn.addEventListener('click', () => this.registerPasskey());
+                    }
                     
                     const avatarContainer = document.querySelector('.settings-avatar-img');
                     const avatarInput = document.getElementById('avatarUploadInput');
@@ -525,6 +541,24 @@
                     } catch (err) {
                         console.error('Avatar upload error:', err);
                         showToast('échec du téléchargement.', 'error');
+                    } finally {
+                        if (window.LoaderManager) LoaderManager.hide();
+                    }
+                },
+
+                async registerPasskey() {
+                    if (window.LoaderManager) LoaderManager.show("Enregistrement de la clé d'accès...");
+                    try {
+                        const { data, error } = await window.supabaseClient.auth.registerPasskey();
+                        if (error) throw error;
+                        showToast("Clé d'accès créée avec succès !", "success");
+                    } catch (err) {
+                        console.error('Passkey registration error:', err);
+                        let msg = err.message || "Erreur lors de la création de la clé d'accès.";
+                        if (msg.includes('cancelled') || msg.includes('cancel')) {
+                            msg = "Création annulée.";
+                        }
+                        showToast(msg, 'error');
                     } finally {
                         if (window.LoaderManager) LoaderManager.hide();
                     }
