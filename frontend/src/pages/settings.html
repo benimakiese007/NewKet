@@ -373,6 +373,20 @@
                     document.getElementById('updatePasswordBtn').addEventListener('click', () => this.updatePassword());
                     
                     const registerPasskeyBtn = document.getElementById('registerPasskeyBtn');
+                    
+                    // Vérifier si une clé existe déjà
+                    if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                        window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                            if (data && data.length > 0) {
+                                const title = registerPasskeyBtn.closest('div').querySelector('h3');
+                                if (title) {
+                                    title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Activée</span>';
+                                }
+                                registerPasskeyBtn.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                            }
+                        }).catch(err => console.error("Erreur passkeys:", err));
+                    }
+
                     if (registerPasskeyBtn) {
                         registerPasskeyBtn.addEventListener('click', () => this.registerPasskey());
                     }

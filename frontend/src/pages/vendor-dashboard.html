@@ -2137,6 +2137,20 @@
 
                     // Passkeys for Vendor
                     const registerPasskeyBtnVendor = document.getElementById('registerPasskeyBtnVendor');
+                    
+                    // Vérifier si une clé existe déjà
+                    if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                        window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                            if (data && data.length > 0) {
+                                const title = registerPasskeyBtnVendor.closest('div').querySelector('h2');
+                                if (title) {
+                                    title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                                }
+                                registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                            }
+                        }).catch(err => console.error("Erreur passkeys:", err));
+                    }
+
                     if (registerPasskeyBtnVendor) {
                         registerPasskeyBtnVendor.addEventListener('click', async () => {
                             if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
