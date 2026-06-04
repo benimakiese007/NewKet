@@ -162,6 +162,16 @@
             grid.classList.remove('hidden');
 
             grid.innerHTML = favs.map(item => `
+                ${(() => {
+                    const oldPrice = item.oldPrice || item.old_price;
+                    const hasPromo = oldPrice && Number(oldPrice) > Number(item.price);
+                    const oldPriceText = hasPromo
+                        ? (window.CurrencyManager ? CurrencyManager.formatPrice(oldPrice) : `${Number(oldPrice).toLocaleString()} FC`)
+                        : '';
+                    const discountPercent = hasPromo
+                        ? Math.round(((Number(oldPrice) - Number(item.price)) / Number(oldPrice)) * 100)
+                        : 0;
+                    return `
                 <div class="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-shadow transition-all duration-300 relative flex flex-col">
                     <button onclick="removeFromFav('${item.id}')" class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-red-500 shadow-sm hover:bg-red-500 hover:text-white transition-all">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
@@ -175,7 +185,13 @@
                             <a href="${buildProductHref(item)}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);" class="hover:underline">${item.name}</a>
                         </h3>
                         <div class="mt-auto flex flex-col gap-2 sm:gap-3">
-                            <span class="text-lg sm:text-xl font-black text-gray-900" data-price-cdf="${item.price}">${window.CurrencyManager ? CurrencyManager.formatPrice(item.price) : item.price + ' FC'}</span>
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-baseline gap-2 flex-wrap">
+                                    <span class="text-lg sm:text-xl font-black text-gray-900" data-price-cdf="${item.price}">${window.CurrencyManager ? CurrencyManager.formatPrice(item.price) : item.price + ' FC'}</span>
+                                    ${hasPromo ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-[0.12em]">-${discountPercent}%</span>` : ''}
+                                </div>
+                                ${hasPromo ? `<span class="old-price text-xs sm:text-sm font-semibold text-gray-400">${oldPriceText}</span>` : ''}
+                            </div>
                             <button onclick="contactFromFav('${item.id}', this)" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
                                 <iconify-icon icon="solar:chat-round-call-bold" width="16" class="flex-shrink-0"></iconify-icon>
                                 <span class="truncate">Commander</span>
@@ -183,6 +199,8 @@
                         </div>
                     </div>
                 </div>
+                    `;
+                })()}
             `).join('');
 
             if (window.CurrencyManager) CurrencyManager.updateAllPrices();

@@ -37,6 +37,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
     <link rel="stylesheet" href="/src/assets/css/style.css">
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
     <style>
@@ -149,8 +150,14 @@
                              </div>
                         </div>
 
-                        <div class="flex items-baseline gap-4 mb-8">
-                            <span id="productPrice" class="text-2xl font-black text-gray-900">... FC</span>
+                        <div class="flex flex-col gap-2 mb-8">
+                            <div class="flex items-baseline gap-3 flex-wrap">
+                                <span id="productPrice" class="text-2xl font-black text-gray-900 leading-none">... FC</span>
+                                <span id="productDiscountBadge" class="hidden promo-discount-badge inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-[0.12em]">
+                                    -0%
+                                </span>
+                            </div>
+                            <span id="productOldPrice" class="hidden old-price old-price-large text-sm sm:text-base font-semibold text-gray-400"></span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                             <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
@@ -330,6 +337,26 @@
 
             const priceStr = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC';
             document.getElementById('productPrice').textContent = priceStr;
+
+            const oldPrice = p.oldPrice || p.old_price;
+            const oldPriceEl = document.getElementById('productOldPrice');
+            const discountBadgeEl = document.getElementById('productDiscountBadge');
+            const hasPromo = oldPrice && Number(oldPrice) > Number(p.price);
+            if (oldPriceEl && discountBadgeEl) {
+                if (hasPromo) {
+                    const oldPriceStr = window.CurrencyManager ? CurrencyManager.formatPrice(oldPrice) : `${Number(oldPrice).toLocaleString()} FC`;
+                    const discountPercent = Math.round(((Number(oldPrice) - Number(p.price)) / Number(oldPrice)) * 100);
+                    oldPriceEl.textContent = oldPriceStr;
+                    oldPriceEl.classList.remove('hidden');
+                    discountBadgeEl.textContent = `-${discountPercent}%`;
+                    discountBadgeEl.classList.remove('hidden');
+                } else {
+                    oldPriceEl.textContent = '';
+                    oldPriceEl.classList.add('hidden');
+                    discountBadgeEl.textContent = '';
+                    discountBadgeEl.classList.add('hidden');
+                }
+            }
 
             const vendor = (Array.isArray(p.users) ? p.users[0] : p.users) || {};
             const shopName = vendor.company_name || vendor.name || 'Vendeur NewKet';

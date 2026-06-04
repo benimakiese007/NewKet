@@ -190,7 +190,7 @@
 
             const allOrders = OrderManager.getOrders();
 
-            if (OrderManager._initialized !== true || OrderManager._fetchPromise || !window.newketInitialized) {
+            if (OrderManager._initialized !== true || OrderManager._fetchPromise) {
                 if (typeof window.buildSkeletonTableRowsHTML === 'function') {
                     tbody.innerHTML = window.buildSkeletonTableRowsHTML(9, 6);
                 }

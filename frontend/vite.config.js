@@ -132,6 +132,7 @@ export default defineConfig({
         admin_branding: resolve(__dirname, 'src/pages/admin/branding.html'),
         admin_hero: resolve(__dirname, 'src/pages/admin/hero.html'),
         admin_settings: resolve(__dirname, 'src/pages/admin/settings.html'),
+        admin_referrals: resolve(__dirname, 'src/pages/admin/referrals.html'),
         admin_support: resolve(__dirname, 'src/pages/admin/support.html'),
         admin_user: resolve(__dirname, 'src/pages/admin/user.html'),
         admin_user_details: resolve(__dirname, 'src/pages/admin/user-details.html'),

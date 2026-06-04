@@ -116,21 +116,11 @@
                 </div>
 
                 <div class="admin-page-actions flex flex-wrap items-center gap-3">
-                    <button id="referralsRefreshBtn" type="button"
-                        class="border border-gray-200 text-gray-700 px-4 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center gap-2">
-                        <iconify-icon icon="solar:refresh-bold" width="16"></iconify-icon>
-                        Actualiser
-                    </button>
                     <button id="referralsExportBtn" type="button"
                         class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-xl shadow-black/10">
                         <iconify-icon icon="solar:download-bold" width="18"></iconify-icon>
                         Exporter CSV
                     </button>
-                    <a href="/src/pages/admin/settings.html?embedded=1"
-                        class="border border-gray-200 text-gray-700 px-4 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center gap-2">
-                        <iconify-icon icon="solar:settings-bold" width="16"></iconify-icon>
-                        Parametres
-                    </a>
                 </div>
             </div>
 
@@ -417,7 +407,6 @@
 
                 empty.classList.add('hidden');
                 body.innerHTML = rows.map((row) => {
-                    const href = userDetailsHref(row.email);
                     return `
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="p-4">
@@ -513,6 +502,11 @@
                     renderAll();
                 } catch (error) {
                     console.warn('[ReferralAdmin] Unable to load overview:', error?.message || error);
+                    if (els.statReferralCodes) els.statReferralCodes.textContent = '0';
+                    if (els.statReferralEvents) els.statReferralEvents.textContent = '0';
+                    if (els.statRewarded) els.statRewarded.textContent = '0';
+                    if (els.statRewardValue) els.statRewardValue.textContent = '≈ 0,00$';
+                    if (els.lastUpdatedLabel) els.lastUpdatedLabel.textContent = 'Erreur de chargement';
                     if (els.topReferrersBody) els.topReferrersBody.innerHTML = '';
                     if (els.recentEventsBody) els.recentEventsBody.innerHTML = '';
                     if (els.topReferrersEmpty) els.topReferrersEmpty.classList.remove('hidden');
@@ -575,7 +569,6 @@
                     if (els.statusFilter) els.statusFilter.value = 'all';
                     renderRecentEvents();
                 });
-                els.refreshBtn?.addEventListener('click', loadData);
                 els.exportBtn?.addEventListener('click', exportCsv);
             }
 
@@ -583,7 +576,6 @@
                 els.searchInput = pick('referralSearchInput');
                 els.statusFilter = pick('referralStatusFilter');
                 els.clearFiltersBtn = pick('referralClearFiltersBtn');
-                els.refreshBtn = pick('referralsRefreshBtn');
                 els.exportBtn = pick('referralsExportBtn');
                 els.tokenRateLabel = pick('tokenRateLabel');
                 els.lastUpdatedLabel = pick('lastUpdatedLabel');

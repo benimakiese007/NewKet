@@ -345,9 +345,8 @@
                 }
                 window.AdminOtpTracker.init();
             };
-            if (window.newketInitialized) {
-                boot();
-            } else {
+            boot();
+            if (!window.newketInitialized) {
                 window.addEventListener('newketInitialized', () => boot(), { once: true });
             }
         });
