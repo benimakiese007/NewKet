@@ -9,14 +9,7 @@ const FavoritesManager = {
             if (session?.user) return session.user;
         }
 
-        if (!window.supabaseClient) return null;
-
-        try {
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
-            return user || null;
-        } catch {
-            return null;
-        }
+        return window.getSupabaseUser ? await window.getSupabaseUser(1000) : null;
     },
 
     // Get favorites from localStorage

@@ -5,6 +5,7 @@
 const UserManager = {
     data: [],
     _initialized: false,
+    _initPromise: null,
 
     async init() {
         if (!window.ApiClient) {
@@ -12,15 +13,31 @@ const UserManager = {
             return;
         }
 
-        try {
+        if (this._initialized && Array.isArray(this.data) && this.data.length) {
+            return this.data;
+        }
+
+        if (this._initPromise) {
+            return await this._initPromise;
+        }
+
+        this._initPromise = (async () => {
+            try {
             // Fetch all users from the Express Backend
             const users = await ApiClient.get('/users');
             this.data = users || [];
             this._initialized = true;
-        } catch (error) {
+            return this.data;
+            } catch (error) {
             console.error('[UserManager] Error initializing users:', error);
             this.data = [];
-        }
+            return [];
+            } finally {
+                this._initPromise = null;
+            }
+        })();
+
+        return await this._initPromise;
     },
 
     getUsers() {

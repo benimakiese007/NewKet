@@ -1,11 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const SUPABASE_URL = 'https://kuygjocnnlvjtoaquicq.supabase.co';
-// Using service_role key to bypass RLS
-const SERVICE_ROLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1eWdqb2Nubmx2anRvYXF1aWNxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTM0MzY2NiwiZXhwIjoyMDg2OTE5NjY2fQ.QvH96s9FrZhzrvWjBjVNrBx00-tWTbhiPv9qnb2Bccg';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../backend/.env') });
+
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const BUCKET_NAME = 'product-images';
+
+if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+  throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment.');
+}
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 

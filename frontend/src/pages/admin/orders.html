@@ -42,12 +42,12 @@
 
         <!-- Main Content -->
         <main class="flex-1 min-w-0 space-y-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
-                <div>
-                    <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Suivi des Prospects</h1>
+            <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
+                <div class="admin-page-header__content">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Suivi des Prospects</h1>
                     <p class="text-gray-500 font-medium" id="pageSubtitle">Suivez les interactions et intentions d'achat générées par la plateforme.</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                <div class="admin-page-actions flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <select id="filterStatus" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
                         <option value="">Tous les statuts</option>
                         <option value="PAID_HELD">Paiement Séquestre</option>

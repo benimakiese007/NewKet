@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const content = document.getElementById('topicContent').value;
         const categoryId = topicCategorySelect.value;
 
-        const user = (await window.supabaseClient.auth.getUser()).data.user;
+        const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
 
         if (!user) {
             if (window.showToast) window.showToast('Vous devez être connecté pour publier.', 'info', 'Connexion requise');

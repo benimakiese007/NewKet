@@ -378,8 +378,10 @@
 
         async function initStatusFromProfile() {
             try {
-                const sessionRes = await window.supabaseClient?.auth?.getSession?.();
-                const user = sessionRes?.data?.session?.user;
+                const session = window.getSupabaseSession
+                    ? await window.getSupabaseSession(3000)
+                    : null;
+                const user = session?.user || null;
                 if (!user) {
                     setStatusUI('pending');
                     return;
@@ -482,8 +484,10 @@
                 const pMethodElem = document.getElementById('payoutMethod');
                 const payoutMethod = pMethodElem ? pMethodElem.value : '';
 
-                const sessionRes = await window.supabaseClient.auth.getSession();
-                const user = sessionRes?.data?.session?.user;
+                const session = window.getSupabaseSession
+                    ? await window.getSupabaseSession(3000)
+                    : null;
+                const user = session?.user || null;
                 if (!user) throw new Error("Vous n'êtes pas connecté");
 
                 const userId = user.id;

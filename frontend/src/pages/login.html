@@ -690,7 +690,13 @@
         function showError(msg) {
             formError.textContent = msg;
             formError.classList.remove('hidden');
-            gsap.fromTo(formError, { x: -5 }, { x: 5, yoyo: true, repeat: 3, duration: 0.1 });
+            if (window.gsap) {
+                try {
+                    gsap.fromTo(formError, { x: -5 }, { x: 5, yoyo: true, repeat: 3, duration: 0.1 });
+                } catch (_) {
+                    // Keep the error visible even if the animation layer is unavailable.
+                }
+            }
         }
 
         authForm.addEventListener('submit', async (e) => {
@@ -812,6 +818,7 @@
                     if (msg.includes("User already registered")) msg = "Cet utilisateur existe déjà.";
                 }
                 showError(msg);
+            } finally {
                 setBtnLoading(false);
             }
         });

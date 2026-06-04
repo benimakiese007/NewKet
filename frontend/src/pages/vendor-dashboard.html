@@ -819,6 +819,35 @@
                         </form>
                     </div>
 
+                    <!-- Referral Card -->
+                    <div class="glass-panel p-8">
+                        <h2 class="text-xl font-bold mb-2">Parrainage</h2>
+                        <p class="text-sm text-gray-400 mb-6">Partagez ce lien avec vos clients pour qu'ils puissent s'inscrire via votre code.</p>
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre code</label>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <input id="vendorReferralCode" type="text" readonly class="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm font-black tracking-[0.18em] text-gray-900 uppercase" placeholder="Chargement...">
+                                    <button id="copyVendorReferralCodeBtn" type="button" class="px-4 py-3 rounded-xl bg-black text-white text-xs font-black uppercase tracking-widest hover:shadow-xl transition-all">Copier</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre lien</label>
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <input id="vendorReferralLink" type="text" readonly class="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm text-gray-700" placeholder="Chargement...">
+                                    <button id="copyVendorReferralLinkBtn" type="button" class="px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all">Copier</button>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4">
+                                <p class="text-sm font-semibold text-gray-900">Astuce</p>
+                                <p class="text-xs text-gray-500 mt-1">Vous pouvez envoyer ce lien sur WhatsApp, Facebook ou par message direct.</p>
+                            </div>
+                        </div>
+                    </div>
+
                     </div>
                 </div>
             </div>
@@ -1679,7 +1708,7 @@
                         let avatarUrl = profile.avatar || profile.avatar_url || localStorage.getItem('newketUserAvatar');
                         if (!avatarUrl && window.SupabaseAdapter?.getClient) {
                             try {
-                                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                                 avatarUrl =
                                     user?.user_metadata?.avatar_url ||
                                     user?.user_metadata?.avatarUrl ||
@@ -1706,7 +1735,7 @@
 
                         if (!resolvedPhone && window.SupabaseAdapter?.fetchWithFilters && window.SupabaseAdapter?.getClient) {
                             try {
-                                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                                 if (user?.id) {
                                     const dbProfile = await window.SupabaseAdapter.fetchWithFilters('users', {
                                         eq: [['id', user.id]],
@@ -1750,7 +1779,7 @@
                             if (profile && profile.avatar) {
                                 _setAvatarPreview(profile.avatar);
                             } else {
-                                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                                 if (!user) return;
                                 const vendor = await window.SupabaseAdapter.fetchWithFilters('users', {
                                     eq: [['id', user.id]],
@@ -1804,7 +1833,7 @@
                             if (progressBar) progressBar.style.width = '30%';
 
                             try {
-                                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                                 if (!user) throw new Error('Non authentifié');
 
                                 const ext = _selectedAvatarFile.name.split('.').pop();
@@ -1855,7 +1884,7 @@
                     // Load existing cover photo
                     const _loadExistingCover = async () => {
                         try {
-                            const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                            const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                             if (!user) return;
                             const vendor = await window.SupabaseAdapter.fetchWithFilters('users', {
                                 eq: [['id', user.id]],
@@ -1915,7 +1944,7 @@
                             if (progressLabel) progressLabel.textContent = 'Préparation...';
 
                             try {
-                                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                                 if (!user) throw new Error('Non authentifié');
 
                                 const ext = _selectedCoverFile.name.split('.').pop();
@@ -1988,8 +2017,8 @@
                             // 2. Save to Supabase (users table)
                             try {
                                 if (window.SupabaseAdapter) {
-                                    const user = await window.SupabaseAdapter.getClient().auth.getUser();
-                                    if (user && user.data.user) {
+                                    const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                                    if (user && user.id) {
                                         if (newShopSlug) {
                                             const conflicts = await window.SupabaseAdapter.fetchWithFilters('users', {
                                                 eq: [['role', 'supplier'], ['shop_slug', newShopSlug]],
@@ -1998,13 +2027,13 @@
                                             });
                                             const hasConflict = Array.isArray(conflicts)
                                                 && conflicts.length > 0
-                                                && conflicts[0]?.id !== user.data.user.id;
+                                            && conflicts[0]?.id !== user.id;
                                             if (hasConflict) {
                                                 if (window.showToast) window.showToast("Ce nom de boutique est déjà utilisé. Choisissez un autre nom unique.", "warning", "Boutique");
                                                 return;
                                             }
                                         }
-                                        await window.SupabaseAdapter.update('users', user.data.user.id, {
+                                        await window.SupabaseAdapter.update('users', user.id, {
                                             company_name: newName,
                                             shop_slug: newShopSlug,
                                             shipping_time: newShipping,
@@ -2095,6 +2124,66 @@
                             }
                         });
                     }
+
+                    const getVendorReferralLink = (code) => {
+                        const loginPath = typeof window.resolvePath === 'function'
+                            ? window.resolvePath('login')
+                            : '/pages/login';
+                        const url = new URL(loginPath, window.location.origin);
+                        url.searchParams.set('signup', '1');
+                        url.searchParams.set('ref', code);
+                        return url.toString();
+                    };
+
+                    const loadVendorReferralPanel = async () => {
+                        const codeInput = document.getElementById('vendorReferralCode');
+                        const linkInput = document.getElementById('vendorReferralLink');
+                        if (!codeInput || !linkInput) return;
+
+                        try {
+                            const data = await window.ApiClient.get('/referrals/me', {
+                                suppressToast: true,
+                                suppressErrorLogging: true,
+                                suppressNetworkError: true
+                            });
+
+                            const code = data?.referral_code || '';
+                            const link = code ? getVendorReferralLink(code) : '';
+                            codeInput.value = code;
+                            linkInput.value = link;
+                        } catch (err) {
+                            console.warn('[Vendor Referral] Unable to load referral summary:', err?.message || err);
+                            codeInput.value = '';
+                            linkInput.value = '';
+                            codeInput.placeholder = 'Indisponible';
+                            linkInput.placeholder = 'Indisponible';
+                        }
+                    };
+
+                    const vendorCopyValue = async (value, label) => {
+                        if (!value) return;
+                        try {
+                            await navigator.clipboard.writeText(value);
+                            if (window.showToast) window.showToast(`${label} copié.`, 'success', 'Parrainage');
+                        } catch {
+                            if (window.showToast) window.showToast('Impossible de copier automatiquement.', 'warning', 'Parrainage');
+                        }
+                    };
+
+                    const copyVendorReferralCodeBtn = document.getElementById('copyVendorReferralCodeBtn');
+                    const copyVendorReferralLinkBtn = document.getElementById('copyVendorReferralLinkBtn');
+                    const vendorReferralCodeInput = document.getElementById('vendorReferralCode');
+                    const vendorReferralLinkInput = document.getElementById('vendorReferralLink');
+
+                    if (copyVendorReferralCodeBtn && vendorReferralCodeInput) {
+                        copyVendorReferralCodeBtn.addEventListener('click', () => vendorCopyValue(vendorReferralCodeInput.value, 'Code'));
+                    }
+
+                    if (copyVendorReferralLinkBtn && vendorReferralLinkInput) {
+                        copyVendorReferralLinkBtn.addEventListener('click', () => vendorCopyValue(vendorReferralLinkInput.value, 'Lien'));
+                    }
+
+                    loadVendorReferralPanel();
 
                     // Listened to updates previously
 

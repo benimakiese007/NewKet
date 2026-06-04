@@ -38,13 +38,13 @@
         <script type="module" src="/src/services/admin-layout.js"></script>
 
         <main class="flex-1 min-w-0 space-y-8">
-            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div class="min-w-0">
-                    <h1 class="text-4xl font-black tracking-tight text-gray-900">Temps réel</h1>
+            <div class="admin-page-header flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="admin-page-header__content min-w-0">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900">Temps réel</h1>
                     <p class="text-gray-500 font-medium">Utilisateurs actifs + top boutiques (sans jamais compter l'admin).</p>
                     <div class="mt-2 text-xs text-gray-400" id="realtimeMeta">Connexion...</div>
                 </div>
-                <div class="flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+                <div class="admin-page-actions flex w-full flex-col gap-3 lg:w-auto lg:items-end">
                     <div class="grid w-full gap-3">
                         <div class="flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
                             <div class="grid flex-1 grid-cols-3 gap-2">

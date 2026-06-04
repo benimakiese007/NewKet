@@ -22,6 +22,7 @@ const AdminLayout = {
         newsletter: 'newsletter',
         'notifications-admin': 'notifications-admin',
         support: 'support',
+        referrals: 'referrals',
         security: 'security',
         hero: 'hero',
         branding: 'branding',
@@ -503,6 +504,7 @@ const AdminLayout = {
             { href: this.getShellHref('support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform', view: 'support', section: 'Opérations' },
             { href: this.getShellHref('newsletter'), icon: 'solar:letter-bold', label: 'Newsletter', view: 'newsletter', section: 'Opérations' },
 
+            { href: this.getShellHref('referrals'), icon: 'solar:gift-bold', label: 'Parrainage Système', view: 'referrals', section: 'Système' },
             { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: 'Sécurité & Admins', view: 'security', section: 'Système' },
             { href: this.getShellHref('otp-guide'), icon: 'solar:password-bold', label: 'Guide', view: 'otp-guide', section: 'Système' },
             { href: this.getShellHref('otp-tracker'), icon: 'solar:password-minimalistic-input-bold-duotone', label: 'OTP Tracker', view: 'otp-tracker', section: 'Système' },
@@ -789,7 +791,7 @@ const AdminLayout = {
 
         if (!avatarUrl && window.SupabaseAdapter?.getClient) {
             try {
-                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                 avatarUrl =
                     user?.user_metadata?.avatar_url ||
                     user?.user_metadata?.avatarUrl ||

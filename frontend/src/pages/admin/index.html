@@ -83,7 +83,7 @@
             <!-- Header Section -->
             <div class="dashboard-page-header animate-premium">
                 <div class="dashboard-page-header__content">
-                    <h1 class="dashboard-page-title">Vue d'ensemble</h1>
+                    <h1 class="admin-page-title dashboard-page-title">Vue d'ensemble</h1>
                     <p class="dashboard-page-subtitle font-medium">Performances et activité globales de la plateforme.</p>
                 </div>
 
@@ -616,7 +616,7 @@
                 if (!client) return;
 
                 const role = localStorage.getItem('newketRole');
-                const user = (await client.auth.getUser()).data.user;
+                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                 if (!user) return;
                 
                 // Use OrderManager for consistent advanced stats
@@ -1162,11 +1162,12 @@
                     'otp-tracker': '/src/pages/admin/otp-tracker.html?embedded=1',
                     analytics: '/src/pages/admin/analytics.html?embedded=1',
                 activities: '/src/pages/admin/activities.html?embedded=1',
-                diagnostics: '/src/pages/admin/diagnostics.html?embedded=1',
+                    diagnostics: '/src/pages/admin/diagnostics.html?embedded=1',
                 reviews: '/src/pages/admin/reviews.html?embedded=1',
                 newsletter: '/src/pages/admin/newsletter.html?embedded=1',
                 'notifications-admin': '/src/pages/admin/notifications-admin.html?embedded=1',
                 support: '/src/pages/admin/support.html?embedded=1',
+                referrals: '/src/pages/admin/referrals.html?embedded=1',
                 security: '/src/pages/admin/security.html?embedded=1',
                 branding: '/src/pages/admin/branding.html?embedded=1',
                 hero: '/src/pages/admin/hero.html?embedded=1',
@@ -1189,6 +1190,7 @@
                 newsletter: 'Newsletter | NewKet Admin',
                 'notifications-admin': 'Notifications | NewKet Admin',
                 support: 'Support | NewKet Admin',
+                referrals: 'Parrainage Systeme | NewKet Admin',
                 security: 'Sécurité | NewKet Admin',
                 branding: 'Branding | NewKet Admin',
                 hero: 'HERO (Accueil) | NewKet Admin',

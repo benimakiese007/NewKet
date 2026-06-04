@@ -24,7 +24,7 @@ npm run dev:frontend
 ## Variables importantes
 
 - `frontend/.env` : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-- `backend/.env` : Supabase, SMTP, Sentry, AvadaPay
+- `backend/.env` : `SUPABASE_SECRET_KEY`, SMTP, Sentry, AvadaPay
 
 ## Paiement agrégateur
 

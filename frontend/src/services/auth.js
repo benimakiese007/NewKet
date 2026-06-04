@@ -757,15 +757,10 @@ const AuthManager = {
                 return;
             }
 
-            const { data: { user }, error } = await window.supabaseClient.auth.getUser();
-            
-            if (error || !user) {
-                if (error && error.status >= 500) {
-                    console.warn('[NewKet Auth] Supabase server error during refresh validation. Skipping logout for now.');
-                    return;
-                }
-                console.warn('[NewKet Auth] User invalid or missing during refresh.');
-                this.logout(false, 'Session expiree ou invalide');
+            const user = session.user || (window.getSupabaseUser ? await window.getSupabaseUser(5000) : null);
+
+            if (!user) {
+                console.warn('[NewKet Auth] User data unavailable during refresh validation. Skipping hard logout.');
                 return;
             }
 
@@ -1334,9 +1329,8 @@ const AuthManager = {
         }
         let email = this.user?.email;
         if (!email) {
-            const { data, error } = await window.supabaseClient.auth.getUser();
-            if (error) throw error;
-            email = data?.user?.email || null;
+            const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+            email = user?.email || null;
         }
         if (!email) {
             throw new Error('Utilisateur non authentifie.');

@@ -1,4 +1,5 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
+import { getReferralSummaryForUser } from './referral.controller.js';
 
 export const getPublicUserStats = async (req, res) => {
     try {
@@ -13,7 +14,7 @@ export const getPublicUserStats = async (req, res) => {
             totalUsers: Number(count) || 0
         });
     } catch (err) {
-        console.error('❌ Erreur getPublicUserStats:', err.message);
+        console.error('Error getPublicUserStats:', err.message);
         return res.status(500).json({ error: 'Failed to fetch public user stats' });
     }
 };
@@ -21,7 +22,7 @@ export const getPublicUserStats = async (req, res) => {
 export const getUsers = async (req, res) => {
     try {
         const client = supabaseAdmin || supabase;
-        // Return the fields the admin seller review screens actually use.
+        // Return the fields the admin screens actually use.
         const { data, error } = await client
             .from('users')
             .select(`
@@ -42,15 +43,21 @@ export const getUsers = async (req, res) => {
                 documents_url,
                 physical_shop_url,
                 shop_slug,
-                date_joined
+                date_joined,
+                referral_code,
+                referred_by_user_id,
+                referred_by_code,
+                referral_claimed_at,
+                referral_updated_at,
+                nk_token_balance,
+                nk_token_total_earned
             `)
             .order('date_joined', { ascending: false });
 
         if (error) throw error;
 
-        // Best-effort enrichment: if `users.avatar` is missing, try reading Supabase Auth metadata
-        // (e.g. Google picture) when service role is available. Never fail the endpoint if this
-        // lookup fails; it's only for UI convenience.
+        // Best-effort enrichment: if `users.avatar` is missing, try reading Supabase Auth metadata.
+        // Never fail the endpoint if this lookup fails; it is only for UI convenience.
         let users = Array.isArray(data) ? data : [];
         const canReadAuthUsers = Boolean(supabaseAdmin?.auth?.admin?.getUserById);
 
@@ -91,8 +98,37 @@ export const getUsers = async (req, res) => {
 
         return res.status(200).json(users);
     } catch (err) {
-        console.error('❌ Erreur getUsers:', err.message);
-        return res.status(500).json({ error: 'Failed to fetch users' });
+        console.error('Error getUsers:', err);
+
+        const status = Number(err?.status || err?.statusCode || 500);
+        const response = {
+            error: err?.message || 'Failed to fetch users'
+        };
+
+        if (process.env.NODE_ENV === 'development') {
+            if (err?.details) response.details = err.details;
+            if (err?.hint) response.hint = err.hint;
+            if (err?.code) response.code = err.code;
+        }
+
+        return res.status(status >= 400 ? status : 500).json(response);
+    }
+};
+
+export const getUserReferralSummary = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ error: 'User id is required' });
+        }
+
+        const summary = await getReferralSummaryForUser({ id });
+        return res.status(200).json({ success: true, ...summary });
+    } catch (err) {
+        console.error('Error getUserReferralSummary:', err.message);
+        return res.status(err.status || 500).json({
+            error: err.message || 'Failed to fetch user referral summary'
+        });
     }
 };
 
@@ -117,7 +153,7 @@ export const updateStatus = async (req, res) => {
 
         return res.status(200).json({ success: true, user: data[0] });
     } catch (err) {
-        console.error('❌ Erreur updateStatus:', err.message);
+        console.error('Error updateStatus:', err.message);
         return res.status(500).json({ error: 'Failed to update user status' });
     }
 };
@@ -129,7 +165,7 @@ export const updateSellerType = async (req, res) => {
         const normalizedType = String(seller_type || '').trim().toLowerCase();
 
         if (!['normal', 'certified'].includes(normalizedType)) {
-            return res.status(400).json({ error: 'Seller type invalide' });
+            return res.status(400).json({ error: 'Seller type invalid' });
         }
 
         const client = supabaseAdmin || supabase;
@@ -145,7 +181,7 @@ export const updateSellerType = async (req, res) => {
 
         return res.status(200).json({ success: true, user: data });
     } catch (err) {
-        console.error('âŒ Erreur updateSellerType:', err.message);
+        console.error('Error updateSellerType:', err.message);
         return res.status(500).json({ error: 'Failed to update user seller type' });
     }
 };
@@ -156,7 +192,6 @@ export const deleteUser = async (req, res) => {
 
         const client = supabaseAdmin || supabase;
 
-        // Optionally prevent deleting self or other checks
         const { error } = await client
             .from('users')
             .delete()
@@ -166,7 +201,7 @@ export const deleteUser = async (req, res) => {
 
         return res.status(200).json({ success: true });
     } catch (err) {
-        console.error('❌ Erreur deleteUser:', err.message);
+        console.error('Error deleteUser:', err.message);
         return res.status(500).json({ error: 'Failed to delete user' });
     }
 };

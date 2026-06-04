@@ -478,6 +478,13 @@ const ComponentLoader = {
         try {
             if (!window.SupabaseAdapter || typeof window.SupabaseAdapter.getSession !== 'function') return;
 
+            // During the initial auth bootstrap, AuthManager is the source of truth.
+            // Avoid probing Supabase from the component loader while the auth client
+            // is still resolving its own session state, which can trigger lock contention.
+            if (window.AuthManager && window.AuthManager._authChecking !== false && !window.AuthManager._initialized) {
+                return;
+            }
+
             const session = await window.SupabaseAdapter.getSession(800);
             this._initialHasSession = !!session;
             if (session) return;

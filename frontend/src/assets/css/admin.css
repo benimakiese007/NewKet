@@ -241,6 +241,94 @@ body {
     padding-top: clamp(1rem, 2vw, 2rem);
 }
 
+.admin-page-header,
+.dashboard-page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+}
+
+.admin-page-header__content,
+.dashboard-page-header__content {
+    min-width: 0;
+}
+
+.admin-page-title,
+.dashboard-page-title {
+    text-wrap: balance;
+}
+
+.admin-page-subtitle,
+.dashboard-page-subtitle {
+    margin: 0.5rem 0 0;
+    color: #6b7280;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 60ch;
+}
+
+.admin-page-header > div:first-child > p,
+.dashboard-page-header > div:first-child > p {
+    margin: 0.5rem 0 0;
+    color: #6b7280;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 60ch;
+}
+
+.admin-page-actions,
+.dashboard-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+@media (max-width: 1023px) {
+    /* Keep admin page titles compact and aligned on phones/tablets. */
+    .admin-page-header,
+    .dashboard-page-header {
+        align-items: flex-start;
+    }
+
+    .admin-shell > main > div:first-child h1,
+    .admin-shell .admin-page-title,
+    .admin-shell .dashboard-page-title {
+        font-size: clamp(1.5rem, 4vw, 2.35rem) !important;
+        line-height: 1.08 !important;
+        letter-spacing: -0.04em !important;
+    }
+
+    .admin-page-actions,
+    .dashboard-page-actions {
+        width: 100%;
+    }
+
+    .admin-page-actions > *,
+    .dashboard-page-actions > * {
+        flex: 0 1 auto;
+    }
+}
+
+@media (min-width: 640px) {
+    .admin-page-header,
+    .dashboard-page-header {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .admin-page-actions,
+    .dashboard-page-actions {
+        width: auto;
+        margin-left: auto;
+        justify-content: flex-end;
+    }
+}
+
 /* Match the same vertical alignment on vendor and customer dashboards. */
 .vendor-main-content,
 .customer-main-content {

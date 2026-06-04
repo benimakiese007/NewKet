@@ -262,6 +262,13 @@
                                 <span id="promoCurrencyBadge">FC</span>
                             </div>
                         </div>
+                        <div class="flex items-center justify-between gap-3 p-4 bg-emerald-50/70 rounded-2xl border border-emerald-100">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <iconify-icon icon="solar:tag-price-bold" class="text-emerald-600 shrink-0" width="18"></iconify-icon>
+                                <p class="text-[11px] text-emerald-900 font-medium">Réduction calculée automatiquement</p>
+                            </div>
+                            <div id="promoPercentValue" class="text-sm font-black text-emerald-700 tabular-nums">0%</div>
+                        </div>
                         <div class="flex items-center gap-2 p-4 bg-orange-50/50 rounded-2xl border border-orange-100/30">
                             <iconify-icon icon="solar:info-circle-linear" class="text-orange-500" width="18"></iconify-icon>
                             <p class="text-[11px] text-orange-800 font-medium">L'affichage "Promotion" augmente la visibilité de 40%.</p>
@@ -377,6 +384,7 @@
             const otherCurrencyNameEl = document.getElementById('otherCurrencyName');
             const exchangeRateInput = document.getElementById('exchangeRate');
             const EXCHANGE_RATE_STORAGE_KEY = 'newket_publish_exchange_rate';
+            const promoPercentValue = document.getElementById('promoPercentValue');
 
             function updateStatusBanner() {
                 const status = localStorage.getItem('newketUserStatus') || 'pending';
@@ -496,11 +504,34 @@
                 }
             }
 
+            function updatePromoPercentage() {
+                if (!promoPercentValue) return;
+
+                const promoToggle = document.getElementById('isPromoToggle');
+                if (!promoToggle || !promoToggle.checked) {
+                    promoPercentValue.textContent = '0%';
+                    return;
+                }
+
+                const currentPrice = parseFloat(priceInput.value);
+                const oldPrice = parseFloat(oldPriceInput.value);
+
+                if (!Number.isFinite(currentPrice) || !Number.isFinite(oldPrice) || oldPrice <= 0 || oldPrice <= currentPrice) {
+                    promoPercentValue.textContent = '0%';
+                    return;
+                }
+
+                const discountPercent = ((oldPrice - currentPrice) / oldPrice) * 100;
+                promoPercentValue.textContent = `${discountPercent.toFixed(1).replace(/\.0$/, '')}%`;
+            }
+
             updateEstimate();
 
             // écouteurs pour le calcul en temps réel
             priceInput.addEventListener('input', updateEstimate);
+            priceInput.addEventListener('input', updatePromoPercentage);
             currencyInput.addEventListener('change', updateEstimate);
+            currencyInput.addEventListener('change', updatePromoPercentage);
             exchangeRateInput.addEventListener('input', () => {
                 const currentRate = parseFloat(exchangeRateInput.value);
                 if (Number.isFinite(currentRate) && currentRate > 0) {
@@ -523,7 +554,10 @@
                 } else {
                     promoFields.classList.add('hidden');
                 }
+                updatePromoPercentage();
             });
+            oldPriceInput.addEventListener('input', updatePromoPercentage);
+            updatePromoPercentage();
 
             // Edit Mode Logic
             let isEditMode = false;
@@ -738,9 +772,16 @@
                     
                     if (isPromo) {
                         const oldPriceVal = parseFloat(oldPriceInput.value);
-                        if (oldPriceVal) {
-                            finalOldPrice = currency === 'USD' ? Math.round(oldPriceVal * exchangeRate) : Math.round(oldPriceVal);
+                        const convertedOldPrice = currency === 'USD' ? oldPriceVal * exchangeRate : oldPriceVal;
+                        if (!Number.isFinite(oldPriceVal) || !Number.isFinite(convertedOldPrice) || convertedOldPrice <= finalPrice) {
+                            if (typeof showToast === 'function') {
+                                showToast("L'ancien prix doit être supérieur au prix de vente pour activer la promotion.", "error");
+                            }
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+                            return;
                         }
+                        finalOldPrice = Math.round(convertedOldPrice);
                     }
 
                     let finalImagePaths = [];

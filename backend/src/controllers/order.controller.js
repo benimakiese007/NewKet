@@ -18,6 +18,7 @@ import {
     mapLegacyOrderStatus,
     releaseOrderEscrow
 } from '../services/order-workflow.js';
+import { awardReferralNkToken } from '../services/referral-rewards.js';
 
 const client = supabaseAdmin || supabase;
 
@@ -513,6 +514,19 @@ export const updateOrderStatus = async (req, res) => {
         if ([ORDER_STATUSES.CANCELLED, ORDER_STATUSES.REFUNDED].includes(status) &&
             ![ORDER_STATUSES.CANCELLED, ORDER_STATUSES.REFUNDED].includes(previousStatus)) {
             await restoreStockIfNeeded(order);
+        }
+
+        if (status === ORDER_STATUSES.COMPLETED && previousStatus !== ORDER_STATUSES.COMPLETED && previousStatus !== ORDER_STATUSES.REFUNDED) {
+            try {
+                await awardReferralNkToken({
+                    client,
+                    inviteeId: updatedOrder.customer_id || updatedOrder.user_id || getOrderCustomerId(updatedOrder),
+                    orderId: updatedOrder.id,
+                    rewardAmount: 1
+                });
+            } catch (rewardError) {
+                console.warn('[ReferralReward] Could not grant NKToken reward on manual completion:', rewardError.message);
+            }
         }
 
         await logOrderStatusHistory(client, {

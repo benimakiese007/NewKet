@@ -89,11 +89,12 @@ export const ApiClient = {
 
         let token = null;
 
-        if (window.SupabaseAdapter) {
-            const session = await window.SupabaseAdapter.getSession(3000); // 3s timeout
-            token = session?.access_token || null;
-        } else if (window.supabaseClient) {
-            const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (window.getSupabaseAccessToken) {
+            token = window.getSupabaseAccessToken();
+        }
+
+        if (!token && window.getSupabaseSession) {
+            const session = await window.getSupabaseSession(3000); // 3s timeout
             token = session?.access_token || null;
         }
 

@@ -1,6 +1,12 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 
 const client = supabaseAdmin || supabase;
+const NK_TOKEN_USD_VALUE = 0.5;
+
+function safeNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+}
 
 function normalizeReferralCode(value) {
     return String(value || '')
@@ -32,7 +38,7 @@ async function fetchUserRow(userId) {
 
     const { data, error } = await client
         .from('users')
-        .select('id, name, email, role, status, referral_code, referred_by_user_id, referred_by_code, referral_claimed_at, referral_updated_at')
+        .select('id, name, email, role, status, referral_code, referred_by_user_id, referred_by_code, referral_claimed_at, referral_updated_at, nk_token_balance, nk_token_total_earned')
         .eq('id', userId)
         .maybeSingle();
 
@@ -106,6 +112,165 @@ async function loadInvitees(inviterId) {
     return rows;
 }
 
+async function loadReferralAdminDataset(limit = 250) {
+    const normalizedLimit = Math.max(1, Math.min(1000, Number(limit) || 250));
+
+    const [eventsResult, usersResult] = await Promise.all([
+        client
+            .from('referral_events')
+            .select('id, inviter_id, invitee_id, referral_code, status, source, reward_amount, invited_at, qualified_at, rewarded_at, notes')
+            .order('invited_at', { ascending: false })
+            .limit(normalizedLimit),
+        client
+            .from('users')
+            .select('id, name, email, role, status, referral_code, referred_by_user_id, referred_by_code, referral_claimed_at, referral_updated_at, nk_token_balance, nk_token_total_earned, created_at')
+    ]);
+
+    if (eventsResult.error) throw eventsResult.error;
+    if (usersResult.error) throw usersResult.error;
+
+    const users = Array.isArray(usersResult.data) ? usersResult.data : [];
+    const usersById = new Map(users.map((row) => [row.id, row]));
+    const events = (Array.isArray(eventsResult.data) ? eventsResult.data : []).map((event) => {
+        const inviter = usersById.get(event.inviter_id) || null;
+        const invitee = usersById.get(event.invitee_id) || null;
+
+        return {
+            ...event,
+            inviter,
+            invitee
+        };
+    });
+
+    const statusCounts = events.reduce((acc, event) => {
+        const key = String(event.status || 'pending').toLowerCase();
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+    }, { pending: 0, qualified: 0, rewarded: 0, invalid: 0 });
+
+    const totals = events.reduce((acc, event) => {
+        const rewardAmount = safeNumber(event.reward_amount);
+        acc.referral_events += 1;
+        acc.reward_total += rewardAmount;
+        if (event.inviter_id) acc.active_referrers.add(event.inviter_id);
+        if (event.status === 'rewarded') acc.rewarded_events += 1;
+        if (event.status === 'qualified') acc.qualified_events += 1;
+        if (event.status === 'pending') acc.pending_events += 1;
+        if (event.status === 'invalid') acc.invalid_events += 1;
+        return acc;
+    }, {
+        referral_events: 0,
+        reward_total: 0,
+        rewarded_events: 0,
+        qualified_events: 0,
+        pending_events: 0,
+        invalid_events: 0,
+        active_referrers: new Set()
+    });
+
+    const allReferralUsers = users.filter((user) => String(user.referral_code || '').trim());
+    const usersWithReferralBalance = users.reduce((acc, user) => acc + safeNumber(user.nk_token_balance), 0);
+    const usersWithTotalEarned = users.reduce((acc, user) => acc + safeNumber(user.nk_token_total_earned), 0);
+
+    const topReferrersMap = new Map();
+    events.forEach((event) => {
+        if (!event.inviter_id) return;
+        const inviter = usersById.get(event.inviter_id) || null;
+        const current = topReferrersMap.get(event.inviter_id) || {
+            inviter_id: event.inviter_id,
+            referral_code: inviter?.referral_code || null,
+            name: inviter?.name || 'Utilisateur supprime',
+            email: inviter?.email || null,
+            total_events: 0,
+            pending: 0,
+            qualified: 0,
+            rewarded: 0,
+            invalid: 0,
+            reward_total: 0,
+            nk_token_balance: safeNumber(inviter?.nk_token_balance),
+            nk_token_total_earned: safeNumber(inviter?.nk_token_total_earned)
+        };
+
+        current.total_events += 1;
+        current.reward_total += safeNumber(event.reward_amount);
+        const status = String(event.status || 'pending').toLowerCase();
+        if (status in current) {
+            current[status] += 1;
+        } else {
+            current.invalid += 1;
+        }
+        topReferrersMap.set(event.inviter_id, current);
+    });
+
+    const topReferrers = [...topReferrersMap.values()]
+        .sort((a, b) => {
+            if (b.rewarded !== a.rewarded) return b.rewarded - a.rewarded;
+            if (b.total_events !== a.total_events) return b.total_events - a.total_events;
+            return (b.reward_total || 0) - (a.reward_total || 0);
+        })
+        .slice(0, 10);
+
+    const recentEvents = events.slice(0, normalizedLimit).map((event) => ({
+        id: event.id,
+        inviter_id: event.inviter_id,
+        invitee_id: event.invitee_id,
+        referral_code: event.referral_code,
+        status: event.status,
+        source: event.source,
+        reward_amount: safeNumber(event.reward_amount),
+        invited_at: event.invited_at || null,
+        qualified_at: event.qualified_at || null,
+        rewarded_at: event.rewarded_at || null,
+        notes: event.notes || null,
+        inviter: event.inviter
+            ? {
+                id: event.inviter.id,
+                name: event.inviter.name,
+                email: event.inviter.email,
+                role: event.inviter.role,
+                status: event.inviter.status,
+                referral_code: event.inviter.referral_code
+            }
+            : null,
+        invitee: event.invitee
+            ? {
+                id: event.invitee.id,
+                name: event.invitee.name,
+                email: event.invitee.email,
+                role: event.invitee.role,
+                status: event.invitee.status,
+                referral_code: event.invitee.referral_code,
+                referred_by_code: event.invitee.referred_by_code,
+                referral_claimed_at: event.invitee.referral_claimed_at,
+                referral_updated_at: event.invitee.referral_updated_at
+            }
+            : null
+    }));
+
+    return {
+        nk_token_usd_value: NK_TOKEN_USD_VALUE,
+        generated_at: new Date().toISOString(),
+        totals: {
+            referral_codes: allReferralUsers.length,
+            referral_events: totals.referral_events,
+            active_referrers: totals.active_referrers.size,
+            pending: statusCounts.pending,
+            qualified: statusCounts.qualified,
+            rewarded: statusCounts.rewarded,
+            invalid: statusCounts.invalid,
+            reward_total: totals.reward_total,
+            reward_total_usd: totals.reward_total * NK_TOKEN_USD_VALUE,
+            nk_token_balance_total: usersWithReferralBalance,
+            nk_token_balance_total_usd: usersWithReferralBalance * NK_TOKEN_USD_VALUE,
+            nk_token_total_earned: usersWithTotalEarned,
+            nk_token_total_earned_usd: usersWithTotalEarned * NK_TOKEN_USD_VALUE
+        },
+        status_breakdown: statusCounts,
+        top_referrers: topReferrers,
+        recent_events: recentEvents
+    };
+}
+
 function summarizeInvitees(invitees = []) {
     return invitees.reduce((acc, invitee) => {
         acc.total += 1;
@@ -118,7 +283,7 @@ function summarizeInvitees(invitees = []) {
     }, { total: 0, pending: 0, qualified: 0, rewarded: 0, invalid: 0, reward_total: 0 });
 }
 
-async function getReferralSummaryForUser(user) {
+export async function getReferralSummaryForUser(user) {
     const userRow = await fetchUserRow(user.id);
     if (!userRow) {
         const err = new Error('Profil introuvable pour ce compte.');
@@ -129,6 +294,23 @@ async function getReferralSummaryForUser(user) {
     const referralCode = await ensureReferralCode(userRow, user);
     const invitees = await loadInvitees(userRow.id);
     const stats = summarizeInvitees(invitees);
+    const rewardedInvitees = invitees
+        .filter((invitee) => invitee.status === 'rewarded')
+        .map((invitee) => ({
+            id: invitee.id,
+            inviter_id: invitee.inviter_id,
+            invitee_id: invitee.invitee_id,
+            referral_code: invitee.referral_code,
+            reward_amount: Number(invitee.reward_amount || 0),
+            reward_amount_usd: Number(invitee.reward_amount || 0) * NK_TOKEN_USD_VALUE,
+            invited_at: invitee.invited_at || null,
+            qualified_at: invitee.qualified_at || null,
+            rewarded_at: invitee.rewarded_at || null,
+            source: invitee.source || null,
+            invitee: invitee.invitee
+        }));
+    const nkTokenBalance = Number(userRow.nk_token_balance || 0);
+    const nkTokenTotalEarned = Number(userRow.nk_token_total_earned || 0);
 
     return {
         referral_code: referralCode,
@@ -136,9 +318,32 @@ async function getReferralSummaryForUser(user) {
         referred_by_user_id: userRow.referred_by_user_id || null,
         referred_by_code: userRow.referred_by_code || null,
         referral_claimed_at: userRow.referral_claimed_at || null,
+        nk_token_rate_usd: NK_TOKEN_USD_VALUE,
+        nk_token_balance: nkTokenBalance,
+        nk_token_balance_usd: nkTokenBalance * NK_TOKEN_USD_VALUE,
+        nk_token_total_earned: nkTokenTotalEarned,
+        nk_token_total_earned_usd: nkTokenTotalEarned * NK_TOKEN_USD_VALUE,
         stats,
-        invitees
+        invitees,
+        reward_history: rewardedInvitees,
+        reward_history_count: rewardedInvitees.length
     };
+}
+
+export async function getAdminReferralOverview(req, res) {
+    try {
+        const limit = Number(req.query?.limit || 250);
+        const overview = await loadReferralAdminDataset(limit);
+        return res.status(200).json({
+            success: true,
+            ...overview
+        });
+    } catch (error) {
+        console.error('Erreur getAdminReferralOverview:', error);
+        return res.status(error.status || 500).json({
+            error: error.message || 'Impossible de charger le tableau de bord du parrainage.'
+        });
+    }
 }
 
 export const getMyReferralSummary = async (req, res) => {
@@ -165,6 +370,12 @@ export const claimReferral = async (req, res) => {
         const userRow = await fetchUserRow(req.user.id);
         if (!userRow) {
             return res.status(404).json({ error: 'Profil introuvable pour ce compte.' });
+        }
+
+        if (String(userRow.role || '').toLowerCase() !== 'customer') {
+            return res.status(403).json({
+                error: 'Seuls les clients peuvent être parrainés.'
+            });
         }
 
         const referralCode = await ensureReferralCode(userRow, req.user);

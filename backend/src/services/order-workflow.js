@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import NotificationService from './notificationService.js';
+import { awardReferralNkToken } from './referral-rewards.js';
 
 export const ORDER_STATUSES = {
     PENDING: 'PENDING',
@@ -288,6 +289,17 @@ export async function releaseOrderEscrow({
         changedBy: initiatedBy,
         notes: autoRelease ? 'Auto release after escrow delay' : 'Escrow released'
     });
+
+    try {
+        await awardReferralNkToken({
+            client,
+            inviteeId: updatedOrder.customer_id || updatedOrder.user_id || null,
+            orderId: updatedOrder.id,
+            rewardAmount: 1
+        });
+    } catch (rewardError) {
+        console.warn('[ReferralReward] Could not grant NKToken reward:', rewardError.message);
+    }
 
     if (transfer.status === 'manual') {
         await NotificationService.notifyVendorManualPayout(updatedOrder);

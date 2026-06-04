@@ -85,7 +85,10 @@ const BehaviorTracking = {
             // Ignore high-frequency internal dashboard tab navigation (prevents 429 spam in dev).
             // We still track page views and meaningful actions elsewhere.
             try {
-                if (target.matches?.('[data-switch-vendor-tab]') || target.closest?.('[data-switch-vendor-tab]')) return;
+                if (
+                    target.matches?.('[data-switch-vendor-tab],[data-switch-customer-tab]') ||
+                    target.closest?.('[data-switch-vendor-tab],[data-switch-customer-tab]')
+                ) return;
             } catch (_) {}
 
             // Ignore sidebar UI toggles (burger / close / collapse): no need to track.

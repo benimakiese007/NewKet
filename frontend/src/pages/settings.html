@@ -65,9 +65,9 @@
             });
             await waitForSupabase();
 
-            if (window.supabaseClient) {
-                const { data } = await window.supabaseClient.auth.getSession();
-                if (!data.session) {
+            if (window.getSupabaseSession) {
+                const session = await window.getSupabaseSession(3000);
+                if (!session) {
                     window.location.href = '/pages/login';
                 }
             }

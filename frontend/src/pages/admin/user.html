@@ -100,9 +100,9 @@
 
         <!-- Main Content -->
         <main class="flex-1 min-w-0 space-y-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
-                <div>
-                    <h1 class="text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs</h1>
+            <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
+                <div class="admin-page-header__content">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs</h1>
                     <p class="text-gray-500 font-medium" id="pageSubtitle">Gérez l'ensemble des comptes et validez les nouveaux vendeurs.</p>
                 </div>
             </div>
@@ -145,12 +145,13 @@
                                 <th>Statut</th>
                                 <th>Articles</th>
                                 <th>Ventes (Brut)</th>
+                                <th>NKToken</th>
                                 <th class="text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="usersBody">
                             <tr>
-                                <td colspan="5" class="p-6">
+                                <td colspan="6" class="p-6">
                                     <div class="space-y-6">
                                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                             <div class="glass-panel p-5 space-y-3">
@@ -346,6 +347,7 @@
                 user.store_phone,
                 user.store_phone_whatsapp,
                 user.whatsapp,
+                user.referral_code,
                 UserManager.getDisplayName(user),
                 user.email,
                 emailPrefix
@@ -496,6 +498,8 @@
                     tbody.innerHTML = paginatedUsers.map((u, i) => {
                         const userProducts = _statsCache.productsByEmail[u.email] || [];
                         const userSales = _statsCache.salesByEmail[u.email] || 0;
+                        const nkTokenBalance = Number(u.nk_token_balance || 0);
+                        const nkTokenUsd = nkTokenBalance * 0.5;
 
                         const isSubmitted = u.status === 'submitted';
                         const isPending = u.status === 'pending';
@@ -535,6 +539,12 @@
                             <td><div class="badge-premium ${statusColor}">${statusLabel}</div></td>
                             <td><span class="font-black text-gray-900">${userProducts.length}</span></td>
                             <td><span class="font-black text-gray-900">${CurrencyManager.formatPrice(userSales)}</span></td>
+                            <td>
+                                <div class="flex flex-col">
+                                    <span class="font-black text-gray-900">${nkTokenBalance.toLocaleString('fr-FR')} NKToken</span>
+                                    <span class="text-[10px] text-emerald-600 font-bold">${CurrencyManager.formatPrice(nkTokenUsd)}</span>
+                                </div>
+                            </td>
                             <td class="text-right">
                                 <div class="flex items-center justify-end gap-2">
                                     ${needsReview ? `

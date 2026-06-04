@@ -211,6 +211,7 @@ window.SupabaseAdapter = {
     _cachedSession: null,
     _lastSessionFetch: 0,
     _sessionPromise: null,
+    _sessionFailureUntil: 0,
     _sessionCacheTTL: 5000, // 5 seconds cache to avoid SDK spamming
 
     /**
@@ -222,6 +223,11 @@ window.SupabaseAdapter = {
         if (!client) return null;
 
         const now = Date.now();
+
+        // If a recent session lookup timed out, avoid hammering Supabase again immediately.
+        if (this._sessionFailureUntil && now < this._sessionFailureUntil) {
+            return this._cachedSession;
+        }
 
         // 1. Return memory cache if fresh
         if (this._cachedSession && (now - this._lastSessionFetch < this._sessionCacheTTL)) {
@@ -247,9 +253,11 @@ window.SupabaseAdapter = {
                 
                 this._cachedSession = session;
                 this._lastSessionFetch = Date.now();
+                this._sessionFailureUntil = 0;
                 return session;
             } catch (err) {
                 console.error('[NewKet Adapter] Supabase getSession error:', err);
+                this._sessionFailureUntil = Date.now() + 1500;
                 return null;
             } finally {
                 // Clear the promise lock immediately after resolution
@@ -261,6 +269,7 @@ window.SupabaseAdapter = {
             return await this._withTimeout(this._sessionPromise, timeoutMs, 'Primary getSession');
         } catch (err) {
             console.warn('[NewKet Adapter] getSession timed out. Proceeding as Guest.');
+            this._sessionFailureUntil = Date.now() + 1500;
             return null;
         }
     },

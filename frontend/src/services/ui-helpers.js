@@ -626,6 +626,12 @@ export function buildProductCardHTML(p, options = {}) {
     const priceDisplay = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : `${(p.price || 0).toLocaleString()} FC`;
     const oldPrice = p.oldPrice || p.old_price;
     const oldPriceDisplay = oldPrice ? (window.CurrencyManager ? CurrencyManager.formatPrice(oldPrice) : `${oldPrice.toLocaleString()} FC`) : null;
+    const discountPercent = oldPrice && Number(oldPrice) > Number(p.price)
+        ? Math.round(((Number(oldPrice) - Number(p.price)) / Number(oldPrice)) * 100)
+        : 0;
+    const discountBadge = discountPercent > 0
+        ? `<span class="promo-discount-badge" style="display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:10px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;">-${discountPercent}%</span>`
+        : '';
 
     // Badge
     let badgeHTML = '';
@@ -725,6 +731,7 @@ export function buildProductCardHTML(p, options = {}) {
                 <div class="product-price">
                     <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
                     ${oldPriceDisplay ? `<span class="old-price">${oldPriceDisplay}</span>` : ''}
+                    ${discountBadge}
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 2px;">
                     <button 
@@ -1291,7 +1298,7 @@ function showCheckoutModal(productName, productPrice) {
 
         if (!prefillEmail && window.SupabaseAdapter?.getClient) {
             try {
-                const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                 prefillEmail = user?.email || '';
             } catch (_) {}
         }
@@ -1307,7 +1314,7 @@ function showCheckoutModal(productName, productPrice) {
             try {
                 const user =
                     window.AuthManager?.user ||
-                    (await window.SupabaseAdapter.getClient().auth.getUser())?.data?.user ||
+                    (window.getSupabaseUser ? await window.getSupabaseUser(3000) : null) ||
                     null;
                 const userId = user?.id || localStorage.getItem('newketUserId');
                     if (userId) {
@@ -1373,7 +1380,7 @@ function showCheckoutModal(productName, productPrice) {
         if (!prefillName) {
             if (!prefillEmail && window.SupabaseAdapter?.getClient) {
                 try {
-                    const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                    const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                     prefillEmail = user?.email || prefillEmail;
                 } catch (_) {}
             }
@@ -1683,7 +1690,7 @@ function showCheckoutModal(productName, productPrice) {
                 email = localStorage.getItem('newketUserEmail') || '';
                 if (!email && window.SupabaseAdapter?.getClient) {
                     try {
-                        const { data: { user } } = await window.SupabaseAdapter.getClient().auth.getUser();
+                        const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                         email = user?.email || email;
                         if (email) localStorage.setItem('newketUserEmail', email);
                         if (user?.id) localStorage.setItem('newketUserId', user.id);
