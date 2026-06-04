@@ -136,6 +136,17 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Personal Security (Passkey) -->
+                    <div class="glass-panel p-8">
+                        <h3 class="font-black text-xl mb-2">Sécurité Personnelle</h3>
+                        <p class="text-sm text-gray-400 mb-6">Sécurisez votre propre accès Administrateur avec une Clé d'accès (Face ID, Empreinte).</p>
+                        
+                        <button id="registerPasskeyBtnAdmin" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
+                            Créer une clé d'accès
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
@@ -384,6 +395,48 @@
                 loadAdmins();
             } else {
                 window.addEventListener('newketInitialized', loadAdmins);
+            }
+
+            const registerPasskeyBtnAdmin = document.getElementById('registerPasskeyBtnAdmin');
+            
+            // Vérifier si une clé existe déjà
+            if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                    if (data && data.length > 0) {
+                        const title = registerPasskeyBtnAdmin.closest('div').querySelector('h3');
+                        if (title) {
+                            title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                        }
+                        registerPasskeyBtnAdmin.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                    }
+                }).catch(err => console.error("Erreur passkeys:", err));
+            }
+
+            if (registerPasskeyBtnAdmin) {
+                registerPasskeyBtnAdmin.addEventListener('click', async () => {
+                    if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
+                        if (window.showToast) window.showToast("Votre navigateur ne supporte pas encore cette fonctionnalité.", "error", "Sécurité");
+                        return;
+                    }
+                    const originalText = registerPasskeyBtnAdmin.innerHTML;
+                    registerPasskeyBtnAdmin.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Création...';
+                    registerPasskeyBtnAdmin.disabled = true;
+                    try {
+                        const { data, error } = await window.supabaseClient.auth.registerPasskey();
+                        if (error) throw error;
+                        if (window.showToast) window.showToast("Clé d'accès créée avec succès !", "success", "Sécurité");
+                    } catch (err) {
+                        console.error('Passkey registration error:', err);
+                        let msg = err.message || "Erreur lors de la création de la clé d'accès.";
+                        if (msg.includes('cancelled') || msg.includes('cancel')) {
+                            msg = "Création annulée.";
+                        }
+                        if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                    } finally {
+                        registerPasskeyBtnAdmin.innerHTML = originalText;
+                        registerPasskeyBtnAdmin.disabled = false;
+                    }
+                });
             }
         });
     </script>
