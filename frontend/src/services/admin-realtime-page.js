@@ -16,9 +16,12 @@ const state = {
         products: 0,
         notifications: 0,
         activities: 0,
+        analytics: 0,
+        incidents: 0,
     },
     lastEvent: null,
     lastRenderedVisibleCount: 0,
+    latestIncident: null,
 };
 
 const TYPE_META = {
@@ -27,6 +30,8 @@ const TYPE_META = {
     product: { label: 'Produit', icon: 'solar:shop-bold-duotone', badge: 'bg-blue-50 text-blue-700', dot: 'bg-blue-500' },
     notification: { label: 'Notification', icon: 'solar:bell-bold-duotone', badge: 'bg-amber-50 text-amber-700', dot: 'bg-amber-500' },
     activity: { label: 'Activite', icon: 'solar:clipboard-list-bold-duotone', badge: 'bg-slate-50 text-slate-700', dot: 'bg-slate-500' },
+    traffic: { label: 'Trafic', icon: 'solar:graph-up-bold-duotone', badge: 'bg-cyan-50 text-cyan-700', dot: 'bg-cyan-500' },
+    incident: { label: 'Incident', icon: 'solar:danger-bold-duotone', badge: 'bg-red-50 text-red-700', dot: 'bg-red-500' },
     system: { label: 'Systeme', icon: 'solar:settings-bold-duotone', badge: 'bg-gray-100 text-gray-700', dot: 'bg-gray-500' },
 };
 
@@ -45,6 +50,62 @@ function escapeHtml(value) {
 
 function formatCount(value) {
     return Number(value || 0).toLocaleString('fr-FR');
+}
+
+function formatBytes(value) {
+    const bytes = Number(value || 0);
+    if (!Number.isFinite(bytes) || bytes <= 0) return '0 o';
+    const units = ['o', 'Ko', 'Mo', 'Go'];
+    const idx = Math.min(units.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
+    const scaled = bytes / (1024 ** idx);
+    return `${scaled >= 10 || idx === 0 ? Math.round(scaled) : scaled.toFixed(1)} ${units[idx]}`;
+}
+
+function formatDurationMs(value) {
+    const ms = Number(value || 0);
+    if (!Number.isFinite(ms) || ms <= 0) return '0 ms';
+    if (ms < 1000) return `${Math.round(ms)} ms`;
+    const seconds = ms / 1000;
+    if (seconds < 60) return `${seconds.toFixed(seconds < 10 ? 1 : 0)} s`;
+    const minutes = seconds / 60;
+    if (minutes < 60) return `${minutes.toFixed(minutes < 10 ? 1 : 0)} min`;
+    const hours = minutes / 60;
+    return `${hours.toFixed(hours < 10 ? 1 : 0)} h`;
+}
+
+function csvEscape(value) {
+    return `"${String(value ?? '').replaceAll('"', '""')}"`;
+}
+
+function buildFeedCsv(events) {
+    const rows = [
+        ['timestamp', 'type', 'source', 'title', 'detail', 'actor', 'severity', 'meta'].map(csvEscape).join(','),
+    ];
+    events.forEach((event) => {
+        rows.push([
+            event.timestamp || '',
+            event.type || '',
+            event.source || '',
+            event.title || '',
+            event.detail || '',
+            event.actor || '',
+            event.severity || '',
+            JSON.stringify(event.meta || {}),
+        ].map(csvEscape).join(','));
+    });
+    return rows.join('\r\n');
+}
+
+function downloadTextFile(filename, content, mimeType = 'text/plain;charset=utf-8') {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function formatClock(ts) {
@@ -212,6 +273,9 @@ function updateMetrics() {
     const visibleEvents = getVisibleFeedCount();
     const lastEvent = state.lastEvent;
     const channels = state.realtimeChannels.length + (window.PresenceManager?.channel ? 1 : 0);
+    const activeIncidents = state.events.filter((event) => event.type === 'incident' && !event.meta?.resolved);
+    const incidentCount = activeIncidents.length;
+    const latestIncident = activeIncidents[0] || null;
 
     const activeUsersEl = $id('metricActiveUsers');
     if (activeUsersEl) activeUsersEl.textContent = formatCount(activeUsers);
@@ -228,11 +292,29 @@ function updateMetrics() {
     const channelCountEl = $id('metricChannelCount');
     if (channelCountEl) channelCountEl.textContent = formatCount(channels);
 
+    const incidentCountEl = $id('metricIncidentCount');
+    if (incidentCountEl) incidentCountEl.textContent = formatCount(incidentCount);
+
     const feedMeta = $id('liveFeedMeta');
     if (feedMeta) feedMeta.textContent = `${formatCount(visibleEvents)} evenement${visibleEvents > 1 ? 's' : ''}`;
 
     const activeUsersLine = $id('presenceCountLine');
     if (activeUsersLine) activeUsersLine.textContent = `${formatCount(activeUsers)} en ligne (admin exclu)`;
+
+    const banner = $id('incidentBanner');
+    const bannerTitle = $id('incidentBannerTitle');
+    const bannerDetail = $id('incidentBannerDetail');
+    if (banner && bannerTitle && bannerDetail) {
+        if (latestIncident) {
+            banner.hidden = false;
+            bannerTitle.textContent = latestIncident.title || 'Incident en cours';
+            bannerDetail.textContent = latestIncident.detail || 'Incident detecte dans les signaux du tableau de bord.';
+        } else {
+            banner.hidden = true;
+            bannerTitle.textContent = 'Incident en cours';
+            bannerDetail.textContent = 'Aucun incident actif pour le moment.';
+        }
+    }
 
     setStatusPill(state.paused ? 'Pause' : (state.realtimeChannels.some((entry) => entry.status === 'SUBSCRIBED') ? 'Live' : 'Connecte'), state.paused ? 'warn' : 'good');
     updateLiveCaption();
@@ -274,6 +356,24 @@ function updateChannelHealth() {
             status: state.realtimeChannels.find((entry) => entry.name === 'notifications')?.status || 'WAITING',
             detail: `${formatCount(window.NotificationManager?.getNotifications?.() || [])} notification${(window.NotificationManager?.getNotifications?.() || []).length > 1 ? 's' : ''}.`,
             value: (window.NotificationManager?.getNotifications?.() || []).length,
+        },
+        {
+            name: 'Analytics',
+            status: state.realtimeChannels.find((entry) => entry.name === 'analytics_events')?.status || 'WAITING',
+            detail: `${formatCount(state.snapshotCounts.analytics || 0)} signal${(state.snapshotCounts.analytics || 0) > 1 ? 's' : ''} recent${(state.snapshotCounts.analytics || 0) > 1 ? 's' : ''}.`,
+            value: state.snapshotCounts.analytics || 0,
+        },
+        {
+            name: 'Activities',
+            status: state.realtimeChannels.find((entry) => entry.name === 'activities')?.status || 'WAITING',
+            detail: `${formatCount(window.ActivityManager?.getActivities?.() || [])} activite${(window.ActivityManager?.getActivities?.() || []).length > 1 ? 's' : ''}.`,
+            value: (window.ActivityManager?.getActivities?.() || []).length,
+        },
+        {
+            name: 'Incidents',
+            status: state.realtimeChannels.find((entry) => entry.name === 'system_health_incidents')?.status || 'WAITING',
+            detail: `${formatCount(state.events.filter((event) => event.type === 'incident' && !event.meta?.resolved).length)} signal${state.events.filter((event) => event.type === 'incident' && !event.meta?.resolved).length > 1 ? 's' : ''} actifs.`,
+            value: state.events.filter((event) => event.type === 'incident' && !event.meta?.resolved).length,
         },
     ];
 
@@ -570,6 +670,9 @@ function pushEvent(entry, options = {}) {
     state.events.unshift(normalized);
     if (state.events.length > 120) state.events.length = 120;
     state.lastEvent = normalized;
+    if (normalized.type === 'incident') {
+        state.latestIncident = normalized;
+    }
 
     if (!state.ready || state.paused) {
         updateMetrics();
@@ -585,6 +688,7 @@ function pushEvent(entry, options = {}) {
 
 function seedSnapshotEvents() {
     state.events = [];
+    state.latestIncident = null;
     const now = new Date().toISOString();
     const orders = window.OrderManager?.getOrders?.() || window.OrderManager?.data || [];
     const products = window.ProductManager?.getProducts?.() || [];
@@ -614,6 +718,88 @@ function seedSnapshotEvents() {
             }, { signature: `snapshot:${item.key}:${item.count}` });
         }
     });
+}
+
+async function seedIncidentSnapshot() {
+    const client = getClient();
+    if (!client?.from) return;
+
+    try {
+        const { data, error } = await client
+            .from('system_health_incidents')
+            .select('id, created_at, detected_at, priority, severity, category, title, summary, status, owner')
+            .limit(10);
+
+        if (error || !Array.isArray(data) || !data.length) return;
+
+        const ranked = [...data].sort((a, b) => {
+            const aTime = new Date(a.detected_at || a.created_at || 0).getTime();
+            const bTime = new Date(b.detected_at || b.created_at || 0).getTime();
+            return bTime - aTime;
+        });
+        const active = ranked.find((item) => !String(item.status || '').toLowerCase().includes('resolved'));
+        if (!active) return;
+
+        const severity = String(active.priority || active.severity || '').toUpperCase();
+        const type = severity === 'P0' || severity === 'P1' ? 'incident' : 'system';
+        const details = active.summary || `${active.category || 'Incident'} ${active.status ? `(${active.status})` : ''}`.trim();
+
+        pushEvent({
+            type,
+            source: 'snapshot',
+            title: active.title || 'Incident detecte',
+            detail: details,
+            severity: severity === 'P0' ? 'danger' : (severity === 'P1' ? 'warn' : 'info'),
+            timestamp: active.detected_at || active.created_at || new Date().toISOString(),
+            meta: {
+                id: active.id,
+                status: active.status || '',
+                channel: 'system_health_incidents',
+                category: active.category || '',
+                priority: active.priority || active.severity || '',
+            },
+        }, { signature: `snapshot:incident:${active.id}:${active.status || ''}:${active.priority || active.severity || ''}` });
+    } catch (err) {
+        console.warn('[Admin realtime] incident snapshot failed:', err?.message || err);
+    }
+}
+
+async function seedAnalyticsSnapshot() {
+    const client = getClient();
+    if (!client?.from) return;
+
+    try {
+        const { data, error } = await client
+            .from('analytics_events')
+            .select('id, event_type, user_id, user_role, session_id, path, page_title, target, active_ms, metadata, created_at, user_agent')
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+        if (error || !Array.isArray(data) || !data.length) return;
+
+        state.snapshotCounts.analytics = data.length;
+        const latest = data[0];
+        const eventType = String(latest.event_type || 'analytics').toLowerCase();
+        pushEvent({
+            type: 'traffic',
+            source: 'snapshot',
+            title: `Dernier signal analytics: ${latest.page_title || latest.path || eventType}`,
+            detail: `${eventType}${latest.target ? ` | ${latest.target}` : ''}${latest.active_ms ? ` | ${formatDurationMs(latest.active_ms)}` : ''}.`,
+            actor: latest.user_role || latest.user_id || latest.session_id || '',
+            timestamp: latest.created_at || new Date().toISOString(),
+            severity: 'info',
+            meta: {
+                id: latest.id,
+                status: eventType,
+                channel: 'analytics_events',
+                path: latest.path || '',
+                page_title: latest.page_title || '',
+                target: latest.target || '',
+            },
+        }, { signature: `snapshot:analytics:${latest.id}:${latest.event_type || ''}:${latest.created_at || ''}` });
+    } catch (err) {
+        console.warn('[Admin realtime] analytics snapshot failed:', err?.message || err);
+    }
 }
 
 function handleManagerSummary(kind) {
@@ -681,6 +867,18 @@ function getOrderStatusLabel(status) {
     return window.OrderManager.getStatusLabel(status);
 }
 
+function syncIncidentState(incidentId) {
+    if (!incidentId) return;
+    state.events.forEach((event) => {
+        if (event.type === 'incident' && String(event.meta?.id || '') === String(incidentId)) {
+            event.meta = { ...event.meta, resolved: true };
+        }
+    });
+    if (state.latestIncident && String(state.latestIncident.meta?.id || '') === String(incidentId)) {
+        state.latestIncident = { ...state.latestIncident, meta: { ...state.latestIncident.meta, resolved: true } };
+    }
+}
+
 function handleDbEvent(table, eventType, payload) {
     const row = payload?.new || payload?.old || {};
     const timestamp = row.updated_at || row.created_at || row.date || new Date().toISOString();
@@ -731,14 +929,117 @@ function handleDbEvent(table, eventType, payload) {
             severity: String(row.type || '').includes('broadcast') ? 'warn' : 'info',
             meta: { id: row.id, status: notifType, channel: 'notifications' },
         }, { signature: `db:notifications:${eventType}:${row.id}:${row.type || ''}:${timestamp}` });
+        return;
     }
+
+    if (table === 'analytics_events') {
+        const eventTypeName = String(row.event_type || 'analytics').toLowerCase();
+        const title = row.page_title || row.path || eventTypeName || 'Signal analytics';
+        const detailParts = [
+            row.path || '',
+            row.target || '',
+            row.user_role || '',
+            row.active_ms ? formatDurationMs(row.active_ms) : '',
+        ].filter(Boolean);
+        pushEvent({
+            type: 'traffic',
+            source: 'supabase',
+            title: `${eventTypeName.toUpperCase()} | ${title}`,
+            detail: detailParts.join(' | ') || 'Signal analytics recu.',
+            actor: row.user_id || row.session_id || row.user_role || '',
+            timestamp: row.created_at || timestamp,
+            severity: 'info',
+            meta: {
+                id: row.id,
+                status: eventTypeName,
+                channel: 'analytics_events',
+                path: row.path || '',
+                page_title: row.page_title || '',
+                target: row.target || '',
+                active_ms: row.active_ms || 0,
+            },
+        }, { signature: `db:analytics:${eventType}:${row.id}:${eventTypeName}:${row.path || ''}:${row.created_at || timestamp}` });
+        return;
+    }
+
+    if (table === 'activities') {
+        pushEvent({
+            type: 'activity',
+            source: 'supabase',
+            title: row.text || (eventType === 'INSERT' ? 'Nouvelle activite' : 'Activite mise a jour'),
+            detail: `${row.type || 'system'}${row.user_email ? ` | ${row.user_email}` : ''}.`,
+            actor: row.user_email || row.user_id || '',
+            timestamp: row.time || timestamp,
+            severity: String(row.type || '').toLowerCase().includes('error') ? 'warn' : 'info',
+            meta: { id: row.id, status: row.type || '', channel: 'activities' },
+        }, { signature: `db:activities:${eventType}:${row.id}:${row.type || ''}:${row.time || timestamp}` });
+        return;
+    }
+
+    if (table === 'order_status_history') {
+        const status = row.new_status || row.previous_status || 'unknown';
+        pushEvent({
+            type: 'order',
+            source: 'supabase',
+            title: `Historique commande ${shortId(row.order_id)}`,
+            detail: `${row.previous_status || 'UNKNOWN'} -> ${row.new_status || 'UNKNOWN'}${row.notes ? ` | ${row.notes}` : ''}.`,
+            actor: row.changed_by || '',
+            timestamp: row.changed_at || timestamp,
+            severity: ['CANCELLED', 'FROZEN', 'REFUNDED', 'FAILED'].includes(String(status).toUpperCase()) ? 'danger' : 'info',
+            meta: { id: row.order_id, status, channel: 'order_status_history' },
+        }, { signature: `db:order_history:${eventType}:${row.order_id}:${status}:${row.changed_at || timestamp}` });
+        return;
+    }
+
+    if (table === 'shop_views') {
+        const viewer = row.viewer_user_id || row.session_id || row.ip_hash || 'visiteur';
+        pushEvent({
+            type: 'traffic',
+            source: 'supabase',
+            title: `Visite boutique ${shortId(row.vendor_id)}`,
+            detail: `${row.user_agent || 'Navigateur inconnu'}${row.viewer_user_id ? ' | compte connecte' : ' | visite anonyme'}.`,
+            actor: viewer,
+            timestamp: row.created_at || timestamp,
+            severity: 'info',
+            meta: { id: row.id, status: 'view', channel: 'shop_views', vendor: row.vendor_id || '' },
+        }, { signature: `db:shop_views:${eventType}:${row.id}:${row.session_id || row.ip_hash || row.created_at || timestamp}` });
+        return;
+    }
+
+    if (table === 'system_health_incidents') {
+        const priority = String(row.priority || row.severity || '').toUpperCase();
+        const activeStatus = String(row.status || '').toLowerCase();
+        const isResolved = activeStatus.includes('resolved') || activeStatus.includes('closed');
+        syncIncidentState(row.id);
+        pushEvent({
+            type: 'incident',
+            source: 'supabase',
+            title: row.title || `Incident ${priority || 'systeme'}`,
+            detail: `${row.summary || row.category || 'Incident systeme'}${row.owner ? ` | owner ${row.owner}` : ''}.`,
+            actor: row.owner || row.category || '',
+            timestamp: row.detected_at || row.created_at || timestamp,
+            severity: priority === 'P0' ? 'danger' : (priority === 'P1' ? 'warn' : (isResolved ? 'info' : 'warn')),
+            meta: {
+                id: row.id,
+                status: row.status || '',
+                channel: 'system_health_incidents',
+                priority,
+                category: row.category || '',
+                resolved: isResolved,
+            },
+        }, { signature: `db:incidents:${eventType}:${row.id}:${row.status || ''}:${priority}:${row.detected_at || row.created_at || timestamp}` });
+    }
+}
+
+function getFilteredFeedEvents() {
+    return state.events.filter((event) => withinFeedWindow(event.timestamp) && eventMatchesFilter(event));
 }
 
 function renderFeed() {
     const list = $id('liveEventList');
     if (!list) return 0;
 
-    const filtered = state.events.filter((event) => withinFeedWindow(event.timestamp) && eventMatchesFilter(event));
+    const filtered = getFilteredFeedEvents();
     state.lastRenderedVisibleCount = filtered.length;
 
     if (!filtered.length) {
@@ -789,6 +1090,23 @@ function renderFeed() {
     }).join('');
 
     return filtered.length;
+}
+
+function exportFeedSnapshot() {
+    const filtered = getFilteredFeedEvents();
+    const stamp = new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-');
+    const filename = `newket-realtime-feed-${stamp}.csv`;
+    const csv = buildFeedCsv(filtered);
+    downloadTextFile(filename, csv, 'text/csv;charset=utf-8');
+    pushEvent({
+        type: 'system',
+        source: 'ui',
+        title: 'Flux exporte',
+        detail: `${formatCount(filtered.length)} evenement${filtered.length > 1 ? 's' : ''} exporte${filtered.length > 1 ? 's' : ''} en CSV.`,
+        timestamp: new Date().toISOString(),
+        severity: 'info',
+        meta: { id: filename, status: 'export', channel: 'ui' },
+    }, { signature: `ui:export:${filename}:${filtered.length}` });
 }
 
 function setTopVendorRangeButtons(days) {
@@ -872,6 +1190,11 @@ async function setupRealtimeMonitor() {
         { name: 'orders', events: ['INSERT', 'UPDATE'] },
         { name: 'products', events: ['INSERT', 'UPDATE'] },
         { name: 'notifications', events: ['INSERT', 'UPDATE'] },
+        { name: 'analytics_events', events: ['INSERT'] },
+        { name: 'activities', events: ['INSERT'] },
+        { name: 'order_status_history', events: ['INSERT'] },
+        { name: 'shop_views', events: ['INSERT'] },
+        { name: 'system_health_incidents', events: ['INSERT', 'UPDATE'] },
     ];
 
     specs.forEach((spec) => {
@@ -1002,6 +1325,8 @@ async function boot() {
     updateMetrics();
     updateChannelHealth();
 
+    await seedAnalyticsSnapshot();
+    await seedIncidentSnapshot();
     await setupRealtimeMonitor();
     await renderTopVendors({ days: state.currentDays });
 
@@ -1013,6 +1338,13 @@ async function boot() {
             renderAndSeed();
             await renderTopVendors({ days: state.currentDays, range: state.currentRealtimeDateRange });
             setStatusPill('Live', 'good');
+        });
+    }
+
+    const exportBtn = $id('liveExportBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            exportFeedSnapshot();
         });
     }
 

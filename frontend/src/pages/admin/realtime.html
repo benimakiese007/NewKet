@@ -87,6 +87,7 @@
                             </label>
                             <button id="livePauseBtn" type="button" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black">Pause</button>
                             <button id="liveRefreshBtn" type="button" class="rounded-2xl bg-black px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-colors hover:bg-gray-800">Actualiser</button>
+                            <button id="liveExportBtn" type="button" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black">Exporter</button>
                         </div>
                         <div class="flex flex-wrap gap-2" id="liveFilterButtons">
                             <button class="live-filter-btn rounded-full bg-black px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white" data-live-filter="all">Tout</button>
@@ -95,6 +96,8 @@
                             <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="product">Produits</button>
                             <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="notification">Notifications</button>
                             <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="activity">Activites</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="traffic">Trafic</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="incident">Incidents</button>
                             <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="system">Systeme</button>
                         </div>
                         <div class="flex flex-wrap gap-2" id="liveWindowButtons">
@@ -105,6 +108,19 @@
                         </div>
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="liveWindowLabel">Fenetre: 1h</div>
                     </div>
+                </div>
+            </div>
+
+            <div id="incidentBanner" hidden class="rounded-3xl border border-red-100 bg-gradient-to-r from-red-50 to-white p-4 shadow-sm">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-red-500">Alerte</div>
+                        <div class="mt-1 text-lg font-black text-gray-900" id="incidentBannerTitle">Incident en cours</div>
+                        <p class="mt-1 text-sm text-gray-600" id="incidentBannerDetail">Aucun incident actif pour le moment.</p>
+                    </div>
+                    <a href="/src/pages/system-health.html" class="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-700 transition-colors hover:border-red-400 hover:text-red-800">
+                        Voir System Health
+                    </a>
                 </div>
             </div>
 
@@ -130,6 +146,11 @@
                             <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Canaux suivis</div>
                             <div class="mt-2 text-2xl font-black text-gray-900" id="metricChannelCount">0</div>
                             <div class="mt-1 text-xs text-gray-400">Supabase + modules locaux</div>
+                        </div>
+                        <div class="rounded-3xl border border-red-100 bg-red-50 p-4 shadow-sm">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-red-500">Incidents actifs</div>
+                            <div class="mt-2 text-2xl font-black text-red-700" id="metricIncidentCount">0</div>
+                            <div class="mt-1 text-xs text-red-500">Signaux critiques et prioritaires</div>
                         </div>
                     </div>
 

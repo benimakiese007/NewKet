@@ -390,7 +390,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            if (window.gsap) {
+            const gsap = window.gsap;
+            if (gsap) {
                 gsap.to("#bgImage", { scale: 1, duration: 10, ease: "power1.out" });
 
                 const tl = gsap.timeline();
@@ -576,50 +577,61 @@
             formError.classList.add('hidden');
 
             // GSAP Transition for Form Elements
+            const applyMode = () => {
+                if (isLogin) {
+                    tabLogin.classList.replace('text-gray-400', 'text-black');
+                    tabLogin.classList.add('active');
+                    tabSignup.classList.replace('text-black', 'text-gray-400');
+                    tabSignup.classList.remove('active');
+
+                    formTitle.textContent = "Bienvenue";
+                    formSubtitle.textContent = "Veuillez renseigner vos identifiants.";
+                    submitBtnSpan.textContent = "Se connecter";
+
+                    roleContainer.classList.add('hidden');
+                    confirmPasswordContainer.classList.add('hidden');
+                    passwordStrengthContainer.classList.add('hidden');
+                    loginActions.classList.remove('hidden');
+                } else {
+                    tabSignup.classList.replace('text-gray-400', 'text-black');
+                    tabSignup.classList.add('active');
+                    tabLogin.classList.replace('text-black', 'text-gray-400');
+                    tabLogin.classList.remove('active');
+
+                    formTitle.textContent = "Créer un compte";
+                    formSubtitle.textContent = "Rejoignez la nouvelle ère du commerce.";
+                    submitBtnSpan.textContent = "S'inscrire";
+
+                    roleContainer.classList.remove('hidden');
+                    confirmPasswordContainer.classList.remove('hidden');
+                    passwordStrengthContainer.classList.remove('hidden');
+                    loginActions.classList.add('hidden');
+                }
+
+                syncAutofillHints();
+                preserveFormValuesAfterModeChange({
+                    keepEmail: true,
+                    keepPassword: true,
+                    keepConfirmPassword: true,
+                    keepRememberMe: true
+                });
+                resetPasswordStrength();
+            };
+
+            const gsap = window.gsap;
+            if (!gsap) {
+                applyMode();
+                const authFormEl = document.getElementById('authForm');
+                if (authFormEl) {
+                    authFormEl.style.opacity = '1';
+                    authFormEl.style.transform = 'none';
+                }
+                return;
+            }
+
             const tl = gsap.timeline();
             tl.to("#authForm", {
-                opacity: 0, scale: 0.98, duration: 0.2, ease: "power1.inOut", onComplete: () => {
-
-                    if (isLogin) {
-                        tabLogin.classList.replace('text-gray-400', 'text-black');
-                        tabLogin.classList.add('active');
-                        tabSignup.classList.replace('text-black', 'text-gray-400');
-                        tabSignup.classList.remove('active');
-
-                        formTitle.textContent = "Bienvenue";
-                        formSubtitle.textContent = "Veuillez renseigner vos identifiants.";
-                        submitBtnSpan.textContent = "Se connecter";
-
-                        roleContainer.classList.add('hidden');
-                        confirmPasswordContainer.classList.add('hidden');
-                        passwordStrengthContainer.classList.add('hidden');
-                        loginActions.classList.remove('hidden');
-                    } else {
-                        tabSignup.classList.replace('text-gray-400', 'text-black');
-                        tabSignup.classList.add('active');
-                        tabLogin.classList.replace('text-black', 'text-gray-400');
-                        tabLogin.classList.remove('active');
-
-                        formTitle.textContent = "Créer un compte";
-                        formSubtitle.textContent = "Rejoignez la nouvelle ère du commerce.";
-                        submitBtnSpan.textContent = "S'inscrire";
-
-                        roleContainer.classList.remove('hidden');
-                        confirmPasswordContainer.classList.remove('hidden');
-                        passwordStrengthContainer.classList.remove('hidden');
-                        loginActions.classList.add('hidden');
-                    }
-
-                    syncAutofillHints();
-                    preserveFormValuesAfterModeChange({
-                        keepEmail: true,
-                        keepPassword: true,
-                        keepConfirmPassword: true,
-                        keepRememberMe: true
-                    });
-                    resetPasswordStrength();
-
-                }
+                opacity: 0, scale: 0.98, duration: 0.2, ease: "power1.inOut", onComplete: applyMode
             }).to("#authForm", { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.2)" });
         }
 
@@ -702,7 +714,8 @@
         function showError(msg) {
             formError.textContent = msg;
             formError.classList.remove('hidden');
-            if (window.gsap) {
+            const gsap = window.gsap;
+            if (gsap) {
                 try {
                     gsap.fromTo(formError, { x: -5 }, { x: 5, yoyo: true, repeat: 3, duration: 0.1 });
                 } catch (_) {

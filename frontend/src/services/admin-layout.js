@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet Admin Layout Manager
  * Centralizes the Sidebar and Navbar for all Admin pages.
  */
@@ -408,7 +408,7 @@ const AdminLayout = {
                                  Boutique
                             </a>
 
-                            <button data-logout-safe class="h-10 w-10 sm:w-auto sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
+                            <button data-logout-safe onclick="AuthManager.handleLogoutClick(this)" class="h-10 w-10 sm:w-auto sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
                                 <iconify-icon icon="solar:logout-bold" width="16"></iconify-icon>
                                 <span class="hidden sm:inline">Quitter</span>
                             </button>
