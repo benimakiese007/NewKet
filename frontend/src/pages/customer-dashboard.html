@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -528,6 +528,16 @@
                             class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">Mettre
                             Ã  jour</button>
                     </form>
+                </div>
+
+                <!-- Passkeys -->
+                <div class="glass-panel p-8 w-full xl:max-w-2xl mt-8">
+                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Clé d'accès (Passkey)</h2>
+                    <p class="text-sm text-gray-500 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clé de sécurité.</p>
+                    <button id="registerPasskeyBtnCust" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                        <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
+                        Créer une clé d'accès
+                    </button>
                 </div>
 
                 <!-- Home Location -->
@@ -1634,6 +1644,35 @@
                 showToast('Erreur lors de la mise Ã  jour : ' + err.message, 'error');
             }
         });
+
+        // Passkeys
+        const registerPasskeyBtnCust = document.getElementById('registerPasskeyBtnCust');
+        if (registerPasskeyBtnCust) {
+            registerPasskeyBtnCust.addEventListener('click', async () => {
+                if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
+                    showToast("Votre navigateur ne supporte pas encore cette fonctionnalité.", "error");
+                    return;
+                }
+                const originalText = registerPasskeyBtnCust.innerHTML;
+                registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Création...';
+                registerPasskeyBtnCust.disabled = true;
+                try {
+                    const { data, error } = await window.supabaseClient.auth.registerPasskey();
+                    if (error) throw error;
+                    showToast("Clé d'accès créée avec succès !", "success");
+                } catch (err) {
+                    console.error('Passkey registration error:', err);
+                    let msg = err.message || "Erreur lors de la création de la clé d'accès.";
+                    if (msg.includes('cancelled') || msg.includes('cancel')) {
+                        msg = "Création annulée.";
+                    }
+                    showToast(msg, 'error');
+                } finally {
+                    registerPasskeyBtnCust.innerHTML = originalText;
+                    registerPasskeyBtnCust.disabled = false;
+                }
+            });
+        }
 
         function getReferralLoginLink(code) {
             const loginPath = typeof window.resolvePath === 'function' ? window.resolvePath('login') : '/pages/login';

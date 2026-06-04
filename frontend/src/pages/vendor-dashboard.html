@@ -819,6 +819,16 @@
                         </form>
                     </div>
 
+                    <!-- Passkeys Card -->
+                    <div class="glass-panel p-8">
+                        <h2 class="text-xl font-bold mb-2">Clé d'accès (Passkey)</h2>
+                        <p class="text-sm text-gray-400 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clé de sécurité.</p>
+                        <button id="registerPasskeyBtnVendor" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
+                            Créer une clé d'accès
+                        </button>
+                    </div>
+
                     <!-- Referral Card -->
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-2">Parrainage</h2>
@@ -2121,6 +2131,35 @@
                                 if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
                             } finally {
                                 if (btn) btn.disabled = false;
+                            }
+                        });
+                    }
+
+                    // Passkeys for Vendor
+                    const registerPasskeyBtnVendor = document.getElementById('registerPasskeyBtnVendor');
+                    if (registerPasskeyBtnVendor) {
+                        registerPasskeyBtnVendor.addEventListener('click', async () => {
+                            if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
+                                if (window.showToast) window.showToast("Votre navigateur ne supporte pas encore cette fonctionnalité.", "error", "Sécurité");
+                                return;
+                            }
+                            const originalText = registerPasskeyBtnVendor.innerHTML;
+                            registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Création...';
+                            registerPasskeyBtnVendor.disabled = true;
+                            try {
+                                const { data, error } = await window.supabaseClient.auth.registerPasskey();
+                                if (error) throw error;
+                                if (window.showToast) window.showToast("Clé d'accès créée avec succès !", "success", "Sécurité");
+                            } catch (err) {
+                                console.error('Passkey registration error:', err);
+                                let msg = err.message || "Erreur lors de la création de la clé d'accès.";
+                                if (msg.includes('cancelled') || msg.includes('cancel')) {
+                                    msg = "Création annulée.";
+                                }
+                                if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                            } finally {
+                                registerPasskeyBtnVendor.innerHTML = originalText;
+                                registerPasskeyBtnVendor.disabled = false;
                             }
                         });
                     }
