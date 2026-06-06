@@ -380,7 +380,7 @@ window.SupabaseAdapter = {
                     }
                     return data;
                 }),
-                options.timeout || 7000,
+                options.timeout || 15000,
                 `Fetch from ${table}`
             );
 
@@ -449,7 +449,7 @@ window.SupabaseAdapter = {
                     if (error) throw error;
                     return count || 0;
                 }),
-                options.timeout || 7000,
+                options.timeout || 15000,
                 `Count rows from ${table}`
             );
 

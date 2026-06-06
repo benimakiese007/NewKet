@@ -84,7 +84,7 @@ async function loadInvitees(inviterId) {
     if (inviteeIds.length) {
         const { data: inviteeRows, error: inviteeError } = await client
             .from('users')
-            .select('id, name, email, avatar, role, status, created_at')
+            .select('id, name, email, avatar, role, status, date_joined')
             .in('id', inviteeIds);
 
         if (inviteeError) throw inviteeError;
@@ -103,7 +103,8 @@ async function loadInvitees(inviterId) {
                     avatar: invitee.avatar,
                     role: invitee.role,
                     status: invitee.status,
-                    created_at: invitee.created_at
+                    created_at: invitee.date_joined || null,
+                    date_joined: invitee.date_joined || null
                 }
                 : null
         };
@@ -123,7 +124,7 @@ async function loadReferralAdminDataset(limit = 250) {
             .limit(normalizedLimit),
         client
             .from('users')
-            .select('id, name, email, role, status, referral_code, referred_by_user_id, referred_by_code, referral_claimed_at, referral_updated_at, nk_token_balance, nk_token_total_earned, created_at')
+            .select('id, name, email, role, status, referral_code, referred_by_user_id, referred_by_code, referral_claimed_at, referral_updated_at, nk_token_balance, nk_token_total_earned, date_joined')
     ]);
 
     if (eventsResult.error) throw eventsResult.error;
@@ -242,7 +243,9 @@ async function loadReferralAdminDataset(limit = 250) {
                 referral_code: event.invitee.referral_code,
                 referred_by_code: event.invitee.referred_by_code,
                 referral_claimed_at: event.invitee.referral_claimed_at,
-                referral_updated_at: event.invitee.referral_updated_at
+                referral_updated_at: event.invitee.referral_updated_at,
+                date_joined: event.invitee.date_joined || null,
+                created_at: event.invitee.date_joined || null
             }
             : null
     }));

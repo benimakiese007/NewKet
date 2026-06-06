@@ -111,16 +111,16 @@
             <div class="glass-panel p-6 space-y-6 animate-premium stagger-1">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="filterUsers('all')" data-filter="all" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
+                        <button onclick="filterUsers('all')" data-filter="all" data-track-action="admin_users:filter_all_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
                             Tous <span id="count-all" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </button>
-                        <button onclick="filterUsers('supplier')" id="btn-supplier" data-filter="supplier" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">
+                        <button onclick="filterUsers('supplier')" id="btn-supplier" data-filter="supplier" data-track-action="admin_users:filter_supplier_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">
                             Vendeurs <span id="count-supplier" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </button>
-                        <button onclick="filterUsers('customer')" data-filter="customer" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
+                        <button onclick="filterUsers('customer')" data-filter="customer" data-track-action="admin_users:filter_customer_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
                             Clients <span id="count-customer" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </button>
-                        <button onclick="filterUsers('pending')" id="btn-pending" data-filter="pending" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-orange-50 text-orange-600 border border-orange-100 flex items-center gap-2">
+                        <button onclick="filterUsers('pending')" id="btn-pending" data-filter="pending" data-track-action="admin_users:filter_pending_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-orange-50 text-orange-600 border border-orange-100 flex items-center gap-2">
                             <iconify-icon icon="solar:shield-warning-bold" width="16"></iconify-icon>
                             En Attente <span id="count-pending"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </button>
@@ -129,7 +129,7 @@
                     <div class="flex-1 max-w-md relative">
                         <iconify-icon icon="solar:magnifer-bold"
                             class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
-                        <input type="text" id="userSearch" placeholder="Rechercher par profil, boutique ou email..."
+                        <input type="text" id="userSearch" data-track-action="admin_users:search_change" placeholder="Rechercher par profil, boutique ou email..."
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/5 transition-all text-sm font-medium">
                     </div>
                 </div>
@@ -206,10 +206,10 @@
                     Page <span id="currentPageDisplay" class="text-black">1</span> sur <span id="totalPagesDisplay" class="text-black">1</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="prevPage()" class="p-3 bg-gray-50 text-gray-400 hover:bg-black hover:text-white rounded-xl transition-all disabled:opacity-30 disabled:pointer-events-none" id="prevBtn">
+                    <button onclick="prevPage()" data-track-action="admin_users:prev_page_click" class="p-3 bg-gray-50 text-gray-400 hover:bg-black hover:text-white rounded-xl transition-all disabled:opacity-30 disabled:pointer-events-none" id="prevBtn">
                         <iconify-icon icon="solar:alt-arrow-left-bold" width="20"></iconify-icon>
                     </button>
-                    <button onclick="nextPage()" class="p-3 bg-gray-50 text-gray-400 hover:bg-black hover:text-white rounded-xl transition-all disabled:opacity-30 disabled:pointer-events-none" id="nextBtn">
+                    <button onclick="nextPage()" data-track-action="admin_users:next_page_click" class="p-3 bg-gray-50 text-gray-400 hover:bg-black hover:text-white rounded-xl transition-all disabled:opacity-30 disabled:pointer-events-none" id="nextBtn">
                         <iconify-icon icon="solar:alt-arrow-right-bold" width="20"></iconify-icon>
                     </button>
                 </div>
@@ -235,7 +235,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="closeUserDetailsModal()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-black hover:scale-110 transition-all shadow-sm">
+                            <button onclick="closeUserDetailsModal()" data-track-action="admin_users:close_details_modal_click" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-black hover:scale-110 transition-all shadow-sm">
                                 <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
                             </button>
                         </div>
@@ -262,8 +262,8 @@
                         <!-- Main Display Area -->
                         <div class="space-y-6">
                             <div class="flex items-center gap-4 border-b border-gray-100">
-                                <button onclick="switchTab('orders')" id="tabBtn-orders" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-black transition-all">Activités & Commandes</button>
-                                <button onclick="switchTab('products')" id="tabBtn-products" class="hidden px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400 border-b-4 border-transparent hover:text-black transition-all">Catalogue Boutique</button>
+                                <button onclick="switchTab('orders')" id="tabBtn-orders" data-track-action="admin_users:tab_orders_click" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-black transition-all">Activités & Commandes</button>
+                                <button onclick="switchTab('products')" id="tabBtn-products" data-track-action="admin_users:tab_products_click" class="hidden px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400 border-b-4 border-transparent hover:text-black transition-all">Catalogue Boutique</button>
                             </div>
 
                             <div id="tabContent-orders" class="animate-premium">
@@ -508,9 +508,9 @@
                         const initialsSource = u.name || UserManager.getDisplayName(u) || (u.email ? u.email.split('@')[0] : '');
                         const initials = (window.getInitials ? window.getInitials(initialsSource) : (initialsSource || '?').trim().charAt(0).toUpperCase());
                         const hasNoLogo = u.role === 'supplier' && !avatarUrl;
-                        const sellerType = String(u.seller_type || (u.role === 'supplier' ? 'normal' : '')).toLowerCase();
-                        const sellerTypeLabel = sellerType === 'certified' ? 'Vendeur certifié' : (u.role === 'supplier' ? 'Vendeur normal' : '');
-                        const sellerTypeClass = sellerType === 'certified' ? 'seller-type-certified' : 'seller-type-normal';
+                        const sellerType = String(u.seller_type || 'certified').toLowerCase();
+                        const sellerTypeLabel = u.role === 'supplier' ? 'Vendeur certifié' : '';
+                        const sellerTypeClass = 'seller-type-certified';
 
                         const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
                         const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
@@ -548,10 +548,10 @@
                             <td class="text-right">
                                 <div class="flex items-center justify-end gap-2">
                                     ${needsReview ? `
-                                        <button onclick="approveVendor('${u.id}', '${u.name}')" class="px-4 py-2 bg-black text-white text-[10px] font-black uppercase rounded-xl hover:bg-gray-800 transition-all shadow-lg">Approuver</button>
-                                        <button onclick="rejectVendor('${u.id}', '${u.name}')" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon></button>
+                                        <button onclick="approveVendor('${u.id}', '${u.name}')" data-track-action="admin_users:approve_vendor_click" class="px-4 py-2 bg-black text-white text-[10px] font-black uppercase rounded-xl hover:bg-gray-800 transition-all shadow-lg">Approuver</button>
+                                        <button onclick="rejectVendor('${u.id}', '${u.name}')" data-track-action="admin_users:reject_vendor_click" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon></button>
                                     ` : `
-                                        <button onclick="confirmDelete('${u.id}', '${u.name}')" class="p-2 text-gray-200 hover:text-red-500 transition-colors">
+                                        <button onclick="confirmDelete('${u.id}', '${u.name}')" data-track-action="admin_users:delete_user_click" class="p-2 text-gray-200 hover:text-red-500 transition-colors">
                                             <iconify-icon icon="solar:trash-bin-trash-linear" width="22"></iconify-icon>
                                         </button>
                                     `}
@@ -625,7 +625,7 @@
             window.showConfirm("Rejeter", `Refuser le dossier de ${name} ?`, async () => {
                 try {
                     if (window.LoaderManager) LoaderManager.show(`Rejet...`);
-                    const { error } = await window.supabaseClient.from('users').update({ status: 'rejected', seller_type: 'normal' }).eq('id', id);
+                    const { error } = await window.supabaseClient.from('users').update({ status: 'rejected', seller_type: null }).eq('id', id);
                     if (error) throw error;
                     if (window.showToast) showToast(`Rejeté.`, "warning");
                     UserManager.init().then(() => renderUsers());

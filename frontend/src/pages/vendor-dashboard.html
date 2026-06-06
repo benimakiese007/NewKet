@@ -110,7 +110,7 @@
                             <span>Chargement...</span>
                             <iconify-icon icon="solar:verified-check-bold" class="text-blue-500 hidden" id="vendorVerifiedBadge" width="14"></iconify-icon>
                         </h2>
-                        <div id="vendorTypeBadge" class="mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 hidden">Vendeur normal</div>
+                        <div id="vendorTypeBadge" class="mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 hidden">Vendeur certifié</div>
                     </div>
                 </div>
 
@@ -1685,8 +1685,8 @@
                         const boutiqueName = profile.boutique_name || profile.company_name;
                         const fallbackName = profile.name || localStorage.getItem('newketUserName') || localStorage.getItem('newketUserEmail') || 'Vendeur';
                         const finalName = boutiqueName || fallbackName;
-                        const sellerType = String(profile.seller_type || localStorage.getItem('newketSellerType') || 'normal').toLowerCase();
-                        const isCertified = sellerType === 'certified';
+                        const sellerType = String(profile.seller_type || localStorage.getItem('newketSellerType') || 'certified').toLowerCase();
+                        const isCertified = sellerType === 'certified' || profile.role === 'supplier';
                         
                         // Update Sidebar Name
                         const vendorNameEl = document.getElementById('vendorName');
@@ -1703,7 +1703,7 @@
 
                         const typeBadge = document.getElementById('vendorTypeBadge');
                         if (typeBadge) {
-                            typeBadge.textContent = isCertified ? 'Vendeur certifié' : 'Vendeur normal';
+                            typeBadge.textContent = 'Vendeur certifié';
                             typeBadge.className = isCertified
                                 ? 'mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-50 text-blue-700'
                                 : 'mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500';
@@ -2188,7 +2188,7 @@
                         return url.toString();
                     };
 
-                    const loadVendorReferralPanel = async () => {
+                    const loadVendorReferralPanel = async (retryCount = 0) => {
                         const codeInput = document.getElementById('vendorReferralCode');
                         const linkInput = document.getElementById('vendorReferralLink');
                         if (!codeInput || !linkInput) return;
@@ -2204,8 +2204,15 @@
                             const link = code ? getVendorReferralLink(code) : '';
                             codeInput.value = code;
                             linkInput.value = link;
+                            codeInput.placeholder = 'Votre code';
+                            linkInput.placeholder = 'Votre lien';
                         } catch (err) {
-                            console.warn('[Vendor Referral] Unable to load referral summary:', err?.message || err);
+                            console.warn(`[Vendor Referral] Unable to load referral summary (attempt ${retryCount + 1}):`, err?.message || err);
+                            if (retryCount < 3) {
+                                const delay = Math.pow(2, retryCount) * 1000;
+                                setTimeout(() => loadVendorReferralPanel(retryCount + 1), delay);
+                                return;
+                            }
                             codeInput.value = '';
                             linkInput.value = '';
                             codeInput.placeholder = 'Indisponible';

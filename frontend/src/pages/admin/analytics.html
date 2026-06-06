@@ -50,14 +50,14 @@
                     <div class="grid w-full gap-3">
                         <div class="flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
                             <div class="grid flex-1 grid-cols-3 gap-2">
-                                <button class="analytics-range-btn bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest" data-days="7">7j</button>
-                                <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30">30j</button>
-                                <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90">90j</button>
+                                <button class="analytics-range-btn bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest" data-days="7" data-track-action="admin_analytics:range_7d_click">7j</button>
+                                <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30" data-track-action="admin_analytics:range_30d_click">30j</button>
+                                <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90" data-track-action="admin_analytics:range_90d_click">90j</button>
                             </div>
                             <div class="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
-                                <button id="resetBehaviorBtn" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-red-200 text-red-700">Réinitialiser</button>
-                                <button id="exportCsvBtn" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">CSV</button>
-                                <button id="exportJsonBtn" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">JSON</button>
+                                <button id="resetBehaviorBtn" data-track-action="admin_analytics:reset_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-red-200 text-red-700">Réinitialiser</button>
+                                <button id="exportCsvBtn" data-track-action="admin_analytics:export_csv_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">CSV</button>
+                                <button id="exportJsonBtn" data-track-action="admin_analytics:export_json_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">JSON</button>
                             </div>
                         </div>
                         <div class="grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
@@ -69,8 +69,8 @@
                                 <span>Au</span>
                                 <input id="analyticsQuickEnd" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
                             </label>
-                            <button id="applyQuickDateRangeBtn" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
-                            <button id="clearQuickDateRangeBtn" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
+                            <button id="applyQuickDateRangeBtn" data-track-action="admin_analytics:apply_quick_date_range_click" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
+                            <button id="clearQuickDateRangeBtn" data-track-action="admin_analytics:clear_quick_date_range_click" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
                         </div>
                     </div>
                 </div>
@@ -83,8 +83,8 @@
                         <div class="flex flex-col sm:flex-row gap-2">
                             <input id="userSearchInput" list="userSearchList" type="text" placeholder="Nom, boutique, email, telephone ou ID utilisateur" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm" />
                             <datalist id="userSearchList"></datalist>
-                            <button id="applyUserSearchBtn" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-black text-white">Voir</button>
-                            <button id="clearUserSearchBtn" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">Effacer</button>
+                            <button id="applyUserSearchBtn" data-track-action="admin_analytics:apply_user_search_click" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-black text-white">Voir</button>
+                            <button id="clearUserSearchBtn" data-track-action="admin_analytics:clear_user_search_click" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">Effacer</button>
                         </div>
                         <div class="mt-2 text-xs text-gray-400">Choisis un compte connecte pour isoler son parcours sur la plateforme.</div>
                     </div>
@@ -103,11 +103,11 @@
                         <div class="grid grid-cols-2 gap-2">
                             <label class="block">
                                 <span class="sr-only">Début</span>
-                                <input id="filterStart" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
+                                <input id="filterStart" data-track-action="admin_analytics:filter_start_change" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
                             </label>
                             <label class="block">
                                 <span class="sr-only">Fin</span>
-                                <input id="filterEnd" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
+                                <input id="filterEnd" data-track-action="admin_analytics:filter_end_change" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
                             </label>
                         </div>
                         <div class="mt-2 text-xs text-gray-400">Si rempli, remplace 7j/30j/90j.</div>
@@ -117,19 +117,19 @@
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Événements</div>
                         <div class="flex flex-wrap gap-2">
                             <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm">
-                                <input type="checkbox" class="filterEventType" value="page_view" checked />
+                                <input type="checkbox" class="filterEventType" data-track-action="admin_analytics:filter_event_page_view_change" value="page_view" checked />
                                 <span class="font-medium text-gray-700">Pages</span>
                             </label>
                             <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm">
-                                <input type="checkbox" class="filterEventType" value="click" checked />
+                                <input type="checkbox" class="filterEventType" data-track-action="admin_analytics:filter_event_click_change" value="click" checked />
                                 <span class="font-medium text-gray-700">Clics</span>
                             </label>
                             <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm">
-                                <input type="checkbox" class="filterEventType" value="heartbeat" checked />
+                                <input type="checkbox" class="filterEventType" data-track-action="admin_analytics:filter_event_heartbeat_change" value="heartbeat" checked />
                                 <span class="font-medium text-gray-700">Temps</span>
                             </label>
                             <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm">
-                                <input type="checkbox" class="filterEventType" value="admin_action" checked />
+                                <input type="checkbox" class="filterEventType" data-track-action="admin_analytics:filter_event_admin_change" value="admin_action" checked />
                                 <span class="font-medium text-gray-700">Admin</span>
                             </label>
                         </div>
@@ -137,14 +137,14 @@
 
                     <div class="lg:col-span-2">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Rôle</div>
-                        <select id="filterRole" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                        <select id="filterRole" data-track-action="admin_analytics:filter_role_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
                             <option value="all">Tous</option>
                         </select>
                     </div>
 
                     <div class="lg:col-span-2">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Device</div>
-                        <select id="filterDevice" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                        <select id="filterDevice" data-track-action="admin_analytics:filter_device_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
                             <option value="all">Tous</option>
                             <option value="mobile">Mobile</option>
                             <option value="tablet">Tablette</option>
@@ -155,7 +155,7 @@
 
                     <div class="lg:col-span-2">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Auth</div>
-                        <select id="filterAuth" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                        <select id="filterAuth" data-track-action="admin_analytics:filter_auth_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
                             <option value="all">Tous</option>
                             <option value="authenticated">Connectés</option>
                             <option value="guest">Invités</option>
@@ -165,24 +165,24 @@
                     <div class="lg:col-span-2">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Admin</div>
                         <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm w-full">
-                            <input id="filterIncludeAdmin" type="checkbox" />
+                            <input id="filterIncludeAdmin" data-track-action="admin_analytics:filter_include_admin_change" type="checkbox" />
                             <span class="font-medium text-gray-700">Inclure admin</span>
                         </label>
                     </div>
 
                     <div class="lg:col-span-4">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Page contient</div>
-                        <input id="filterPathContains" type="text" placeholder="ex: /src/pages/customer-dashboard" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
+                        <input id="filterPathContains" data-track-action="admin_analytics:filter_path_change" type="text" placeholder="ex: /src/pages/customer-dashboard" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
                     </div>
 
                     <div class="lg:col-span-4">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Action contient</div>
-                        <input id="filterTargetContains" type="text" placeholder="ex: Tableau de bord" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
+                        <input id="filterTargetContains" data-track-action="admin_analytics:filter_target_change" type="text" placeholder="ex: Tableau de bord" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
                     </div>
 
                     <div class="lg:col-span-2">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Funnel</div>
-                        <select id="filterFunnel" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                        <select id="filterFunnel" data-track-action="admin_analytics:filter_funnel_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
                             <option value="default">Shop</option>
                             <option value="admin">Admin</option>
                         </select>
@@ -190,7 +190,7 @@
 
                     <div class="lg:col-span-2">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Lignes</div>
-                        <select id="filterLimit" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                        <select id="filterLimit" data-track-action="admin_analytics:filter_limit_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
                             <option value="60">60</option>
                             <option value="120" selected>120</option>
                             <option value="250">250</option>
@@ -201,9 +201,9 @@
                     <div class="lg:col-span-12 flex flex-wrap items-center justify-between gap-3 pt-2">
                         <div class="text-xs text-gray-400" id="filtersHint">Astuce: clique sur une page ou une action pour ouvrir le détail.</div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <button id="applyFiltersBtn" class="bg-black text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Appliquer</button>
-                            <button id="resetFiltersBtn" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Reset</button>
-                            <button id="copyLinkBtn" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Copier lien</button>
+                            <button id="applyFiltersBtn" data-track-action="admin_analytics:apply_filters_click" class="bg-black text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Appliquer</button>
+                            <button id="resetFiltersBtn" data-track-action="admin_analytics:reset_filters_click" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Reset</button>
+                            <button id="copyLinkBtn" data-track-action="admin_analytics:copy_link_click" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Copier lien</button>
                         </div>
                     </div>
                 </div>

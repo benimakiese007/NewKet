@@ -48,7 +48,7 @@
                     <p class="text-gray-500 font-medium" id="pageSubtitle">Suivez les interactions et intentions d'achat générées par la plateforme.</p>
                 </div>
                 <div class="admin-page-actions flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <select id="filterStatus" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
+                    <select id="filterStatus" data-track-action="admin_orders:filter_status_change" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
                         <option value="">Tous les statuts</option>
                         <option value="PAID_HELD">Paiement Séquestre</option>
                         <option value="DELIVERED">Livré (Attente confirmation)</option>
@@ -56,7 +56,7 @@
                         <option value="DISPUTE_OPEN">Litige ouvert</option>
                         <option value="FROZEN">Gelé (Admin)</option>
                     </select>
-                    <select id="filterPayment" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
+                    <select id="filterPayment" data-track-action="admin_orders:filter_payment_change" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
                         <option value="">Paiements</option>
                         <option value="SUCCESSFUL">Payé</option>
                         <option value="PENDING">Attente</option>
@@ -64,10 +64,10 @@
                     </select>
                     <div class="relative flex-1 sm:w-64">
                         <iconify-icon icon="solar:magnifer-linear" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
-                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Rechercher par OTP, ID, Nom..." 
+                        <input type="text" id="searchInput" data-track-action="admin_orders:search_change" oninput="handleSearch()" placeholder="Rechercher par OTP, ID, Nom..." 
                             class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-gray-100 shadow-sm outline-none focus:ring-2 focus:ring-black transition-all text-xs font-bold">
                     </div>
-                    <button onclick="exportOrdersToCSV()"
+                    <button onclick="exportOrdersToCSV()" data-track-action="admin_orders:export_csv_click"
                         class="bg-black text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20 shrink-0">
                         <iconify-icon icon="solar:download-bold-duotone" width="18"></iconify-icon>
                         Exporter
@@ -289,7 +289,7 @@
                     </td>
                     <td class="p-4 text-right">
                         <div class="flex flex-col items-end gap-2">
-                            <select onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-black transition-all cursor-pointer">
+                            <select data-track-action="admin_orders:status_change" onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-black transition-all cursor-pointer">
                                 <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>Attente</option>
                                 <option value="PAID_HELD" ${o.status === 'PAID_HELD' ? 'selected' : ''}>Séquestre</option>
                                 <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>Livré</option>
@@ -301,7 +301,7 @@
                                 <option value="FROZEN" ${o.status === 'FROZEN' ? 'selected' : ''}>Gelé</option>
                             </select>
                             ${o.status === 'DISPUTE_OPEN' || o.status === 'DISPUTED' || o.status === 'FROZEN' ? `
-                                  <button onclick="openAdminDisputeModal('${o.id}')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors">
+                                  <button onclick="openAdminDisputeModal('${o.id}')" data-track-action="admin_orders:open_dispute_modal_click" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors">
                                       Juger le Litige
                                 </button>
                             ` : ''}
@@ -421,7 +421,7 @@
                         <p class="text-sm text-gray-500 font-medium">Commande <span id="adminDisputeOrderId" class="text-indigo-600 font-bold"></span></p>
                     </div>
                 </div>
-                <button onclick="closeAdminDisputeModal()" class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors shadow-sm">
+                <button onclick="closeAdminDisputeModal()" data-track-action="admin_orders:close_dispute_modal_click" class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors shadow-sm">
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                 </button>
             </div>
@@ -484,8 +484,8 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
-                        <input type="text" id="adminDisputeMessageInput" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all" placeholder="Envoyer un message (en tant qu'Admin)..." onkeydown="if(event.key === 'Enter') sendAdminDisputeMessage()">
-                        <button onclick="sendAdminDisputeMessage()" class="px-5 py-3 rounded-xl bg-gray-900 hover:bg-black text-white font-medium transition-colors flex items-center justify-center shrink-0 disabled:opacity-50">
+                        <input type="text" id="adminDisputeMessageInput" data-track-action="admin_orders:dispute_message_change" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all" placeholder="Envoyer un message (en tant qu'Admin)..." onkeydown="if(event.key === 'Enter') sendAdminDisputeMessage()">
+                        <button onclick="sendAdminDisputeMessage()" data-track-action="admin_orders:send_dispute_message_click" class="px-5 py-3 rounded-xl bg-gray-900 hover:bg-black text-white font-medium transition-colors flex items-center justify-center shrink-0 disabled:opacity-50">
                             <iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>
                         </button>
                     </div>
@@ -505,7 +505,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Action sur la Commande</label>
-                            <select id="adminResolutionAction" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50">
+                            <select id="adminResolutionAction" data-track-action="admin_orders:resolution_action_change" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50">
                                 <option value="REFUNDED">Rembourser (REFUNDED) - Argent restitué</option>
                                 <option value="COMPLETED">Rejeter le litige (COMPLETED) - Payer le vendeur</option>
                                 <option value="CANCELLED">Annuler (CANCELLED) - Retour au stock</option>
@@ -514,17 +514,17 @@
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Montant à rembourser ($)</label>
-                            <input type="number" id="adminRefundAmount" min="0" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50" placeholder="0.00">
+                            <input type="number" id="adminRefundAmount" data-track-action="admin_orders:refund_amount_change" min="0" step="0.01" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none text-sm transition-all bg-gray-50" placeholder="0.00">
                         </div>
                     </div>
                 </div>
             </div>
             
             <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
-                <button onclick="closeAdminDisputeModal()" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
+                <button onclick="closeAdminDisputeModal()" data-track-action="admin_orders:cancel_resolution_click" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
                     Annuler
                 </button>
-                <button id="btnResolveDispute" onclick="submitAdminDisputeResolution()" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-2 transition-colors">
+                <button id="btnResolveDispute" onclick="submitAdminDisputeResolution()" data-track-action="admin_orders:submit_resolution_click" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-2 transition-colors">
                     <iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon> Clôturer et Appliquer
                 </button>
             </div>

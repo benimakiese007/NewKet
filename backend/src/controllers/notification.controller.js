@@ -5,7 +5,7 @@ export const getNotifications = async (req, res) => {
     try {
         const userId = req.user?.id;
         const userEmail = req.user?.email;
-        if (!userId && !userEmail) return res.status(401).json({ error: 'Non autorisÃ©' });
+        if (!userId && !userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
         // Retrieve user role from public.users to map to target (customers/suppliers)
         let userRole = 'customer';
@@ -22,7 +22,7 @@ export const getNotifications = async (req, res) => {
         if (userId) condition += `,user_id.eq.${userId}`;
         if (userEmail) condition += `,user_email.eq.${userEmail}`;
 
-        // âœ… OPTIMISATION: Colonnes prÃ©cises seulement
+        // âœ… OPTIMISATION: Colonnes précises seulement
         const { data, error } = await supabaseAdmin
             .from('notifications')
             .select('id, user_id, user_email, title, message, type, target_role, read, date')
@@ -34,7 +34,7 @@ export const getNotifications = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Erreur getNotifications:', err);
-        res.status(500).json({ error: 'Erreur lors de la rÃ©cupÃ©ration des notifications.' });
+        res.status(500).json({ error: 'Erreur lors de la récupération des notifications.' });
     }
 };
 
@@ -44,7 +44,7 @@ export const addNotification = async (req, res) => {
         const userId = req.user?.id;
         const userEmail = req.user?.email;
 
-        if (!userEmail) return res.status(401).json({ error: 'Utilisateur non authentifiÃ©.' });
+        if (!userEmail) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
         if (!title || !message) return res.status(400).json({ error: 'Titre et message requis.' });
 
         const isBroadcast = type === 'broadcast'
@@ -80,7 +80,7 @@ export const addNotification = async (req, res) => {
         res.json(data);
     } catch (err) {
         console.error('Erreur addNotification:', err);
-        res.status(500).json({ error: 'Erreur lors de la crÃ©ation de la notification.' });
+        res.status(500).json({ error: 'Erreur lors de la création de la notification.' });
     }
 };
 
@@ -90,7 +90,7 @@ export const markAsRead = async (req, res) => {
         const userId = req.user?.id;
         const userEmail = req.user?.email;
 
-        if (!userId && !userEmail) return res.status(401).json({ error: 'Non autorisÃ©' });
+        if (!userId && !userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
         const getMappedTargetForUser = async () => {
             let userRole = 'customer';
@@ -144,13 +144,13 @@ export const markAsRead = async (req, res) => {
         }
 
         if (!updated) {
-            return res.status(404).json({ error: 'Notification introuvable ou non autorisÃ©e.' });
+            return res.status(404).json({ error: 'Notification introuvable ou non autorisée.' });
         }
 
         res.json(updated);
     } catch (err) {
         console.error('Erreur markAsRead:', err);
-        res.status(500).json({ error: 'Erreur lors de la mise Ã  jour de la notification.' });
+        res.status(500).json({ error: 'Erreur lors de la mise à jour de la notification.' });
     }
 };
 
@@ -160,9 +160,9 @@ export const deleteNotification = async (req, res) => {
         const userId = req.user?.id;
         const userEmail = req.user?.email;
 
-        if (!userEmail) return res.status(401).json({ error: 'Non autorisÃ©' });
+        if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
-        // VÃ©rifier si l'utilisateur est admin
+        // Vérifier si l'utilisateur est admin
         const { data: userData } = await supabaseAdmin
             .from('users')
             .select('role')
@@ -185,7 +185,7 @@ export const deleteNotification = async (req, res) => {
             return Array.isArray(data) && data.length > 0;
         };
 
-        // SÃ‰CURITÃ‰ : Les non-admins ne peuvent supprimer que leurs propres notifications
+        // SÉCURITÉ : Les non-admins ne peuvent supprimer que leurs propres notifications
         if (!isAdmin) {
             // Compatibility: many notifications were stored with user_email but no user_id.
             // Try user_id first (preferred), then fall back to user_email.
@@ -194,13 +194,13 @@ export const deleteNotification = async (req, res) => {
             if (!deleted && userEmail) deleted = await deleteOne({ user_email: userEmail });
 
             if (!deleted) {
-                return res.status(404).json({ error: 'Notification introuvable ou non autorisÃ©e.' });
+                return res.status(404).json({ error: 'Notification introuvable ou non autorisée.' });
             }
         } else {
             const { error } = await supabaseAdmin.from('notifications').delete().eq('id', id);
             if (error) throw error;
         }
-        res.json({ success: true, message: 'Notification supprimÃ©e.' });
+        res.json({ success: true, message: 'Notification supprimée.' });
     } catch (err) {
         console.error('Erreur deleteNotification:', err);
         res.status(500).json({ error: 'Erreur lors de la suppression.' });
@@ -210,7 +210,7 @@ export const deleteNotification = async (req, res) => {
 export const clearNotifications = async (req, res) => {
     try {
         const userEmail = req.user?.email;
-        if (!userEmail) return res.status(401).json({ error: 'Non autorisÃ©' });
+        if (!userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
         // Retrieve user role to see if they are admin
         const { data: userData, error: userError } = await supabaseAdmin
@@ -244,9 +244,9 @@ export const clearNotifications = async (req, res) => {
             throw new Error(`Supabase error: ${error.message}`);
         }
 
-        res.json({ success: true, message: 'Toutes les notifications ont Ã©tÃ© supprimÃ©es.' });
+        res.json({ success: true, message: 'Toutes les notifications ont été supprimées.' });
     } catch (err) {
         console.error('Erreur clearNotifications:', err);
-        res.status(500).json({ error: 'Erreur lors de la suppression groupÃ©e.', details: err.message });
+        res.status(500).json({ error: 'Erreur lors de la suppression groupée.', details: err.message });
     }
 };

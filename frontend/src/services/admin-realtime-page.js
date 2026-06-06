@@ -183,8 +183,11 @@ function renderUserAvatar(user, fallbackName, className = 'w-8 h-8') {
     return `<div class="${className} rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-xs font-black flex-shrink-0">${initial}</div>`;
 }
 
-function filterOutAdminPresence(users) {
-    return (users || []).filter((u) => (u?.role || 'guest') !== 'admin');
+function showUserIdentity(user) {
+    const name = getUserDisplayName(user);
+    const email = user.email || user.email_address || user.email || user.email_url || 'N/A';
+    const role = user.role || 'N/A';
+    alert(`Identité de l'utilisateur:\nNom: ${name}\nEmail: ${email}\nRôle: ${role}`);
 }
 
 function isLeadInRealtimeRange(lead, range = state.currentRealtimeDateRange) {
@@ -434,9 +437,8 @@ function renderPresence(users) {
             const mergedUser = { ...presenceUser, ...profile };
             const name = getUserDisplayName(mergedUser) || 'Anonyme';
             const page = presenceUser.page ? presenceUser.page.split('/').pop().replace('.html', '') || 'accueil' : '-';
-
             return `
-                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition-colors live-presence-item" data-user-id="${escapeHtml(mergedUser?.id || mergedUser?.user_id || '')}">
                     ${renderUserAvatar(mergedUser, name)}
                     <div class="flex-1 min-w-0">
                         <div class="text-xs font-bold text-gray-900 truncate">${escapeHtml(name)}</div>
@@ -446,10 +448,19 @@ function renderPresence(users) {
                 </div>
             `;
         }).join('');
+        // Attach click handler
+        list.querySelectorAll('.live-presence-item').forEach((el) => {
+            el.addEventListener('click', () => {
+                const uid = el.dataset.userId;
+                const presence = filtered.find((u) => (u?.id || u?.user_id) === uid) || {};
+                const profile = state.realtimeProfileCache.get(uid) || {};
+                const merged = { ...presence, ...profile };
+                showUserIdentity(merged);
+            });
+        });
         updateChannelHealth();
     });
 }
-
 async function primeRealtimeProfiles(users) {
     const ids = [...new Set(
         (users || [])
@@ -1429,4 +1440,8 @@ function waitForReady() {
 }
 
 window.addEventListener('beforeunload', cleanupRealtimeChannels);
-document.addEventListener('DOMContentLoaded', waitForReady);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', waitForReady);
+} else {
+    waitForReady();
+}

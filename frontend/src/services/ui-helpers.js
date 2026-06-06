@@ -1499,10 +1499,10 @@ function showCheckoutModal(productName, productPrice) {
 
                     <!-- Footer -->
                     <div class="px-5 py-4 sm:px-6 sm:py-5 border-t border-gray-50 bg-gray-50 flex gap-3 flex-shrink-0">
-                        <button onclick="closeCheckoutModal('${modalId}', null)" class="flex-1 px-4 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
+                        <button data-track-action="checkout:cancel_click" onclick="closeCheckoutModal('${modalId}', null)" class="flex-1 px-4 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
                             Annuler
                         </button>
-                        <button onclick="submitCheckoutModal('${modalId}')" class="flex-1 px-4 py-3 bg-green-600 text-white font-bold rounded-xl text-sm hover:bg-green-700 transition-colors shadow-sm shadow-green-600/30 flex items-center justify-center gap-2">
+                        <button data-track-action="checkout:pay_click" onclick="submitCheckoutModal('${modalId}')" class="flex-1 px-4 py-3 bg-green-600 text-white font-bold rounded-xl text-sm hover:bg-green-700 transition-colors shadow-sm shadow-green-600/30 flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:card-bold" width="18"></iconify-icon>
                             Payer
                         </button>
@@ -2095,6 +2095,17 @@ window.showPromptModal = ({
             return;
         }
 
+        try {
+            window.BehaviorTracking?.track?.('checkout_start', {
+                target: 'checkout:start',
+                metadata: {
+                    product_id: p.id || productId || null,
+                    quantity: Math.max(1, parseInt(quantity, 10) || 1),
+                    price: Number(p.price || 0) || null,
+                }
+            });
+        } catch (_) {}
+
         // Show a quick modal to collect customer info (Phone & City & Email for Netikash)
         const customerInfo = await showCheckoutModal(p.name, p.price);
         if (!customerInfo) {
@@ -2144,6 +2155,17 @@ window.showPromptModal = ({
               btnElement.disabled = false;
               return;
           }
+
+          try {
+              window.BehaviorTracking?.track?.('checkout_submit', {
+                  target: 'checkout:submit',
+                  metadata: {
+                      product_id: p.id || productId || null,
+                      quantity: requestedQuantity,
+                      vendor_id: p.vendor_id || p.user_id || null,
+                  }
+              });
+          } catch (_) {}
 
           showToast("Demande envoyée au vendeur. Il doit maintenant proposer le devis de livraison.", "success");
           btnElement.innerHTML = originalHtml;

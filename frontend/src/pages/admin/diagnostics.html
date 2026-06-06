@@ -53,16 +53,16 @@
                     <div class="grid w-full gap-3 lg:w-auto">
                         <div class="flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
                             <div class="grid flex-1 grid-cols-4 gap-2">
-                            <button data-timeframe="day" onclick="updateTimeframe('day', this)"
+                            <button data-timeframe="day" onclick="updateTimeframe('day', this)" data-track-action="admin_diagnostics:timeframe_day_click"
                                 class="time-btn min-w-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Jour</button>
-                            <button data-timeframe="week" onclick="updateTimeframe('week', this)"
+                            <button data-timeframe="week" onclick="updateTimeframe('week', this)" data-track-action="admin_diagnostics:timeframe_week_click"
                                 class="time-btn min-w-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Semaine</button>
-                            <button data-timeframe="month" onclick="updateTimeframe('month', this)"
+                            <button data-timeframe="month" onclick="updateTimeframe('month', this)" data-track-action="admin_diagnostics:timeframe_month_click"
                                 class="time-btn min-w-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-gray-50 text-gray-400">Mois</button>
-                            <button data-timeframe="all" onclick="updateTimeframe('all', this)"
+                            <button data-timeframe="all" onclick="updateTimeframe('all', this)" data-track-action="admin_diagnostics:timeframe_all_click"
                                 class="time-btn min-w-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white">Tout</button>
                             </div>
-                            <button id="toggleDiagnosticsDateFiltersBtn" type="button" aria-expanded="false"
+                            <button id="toggleDiagnosticsDateFiltersBtn" data-track-action="admin_diagnostics:toggle_filters_click" type="button" aria-expanded="false"
                                 class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black sm:w-auto">
                                 Filtres
                             </button>
@@ -76,8 +76,8 @@
                                 <span>Au</span>
                                 <input id="diagnosticsDateEnd" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
                             </label>
-                            <button id="applyDiagnosticsDateBtn" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
-                            <button id="clearDiagnosticsDateBtn" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
+                            <button id="applyDiagnosticsDateBtn" data-track-action="admin_diagnostics:apply_date_range_click" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
+                            <button id="clearDiagnosticsDateBtn" data-track-action="admin_diagnostics:clear_date_range_click" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
                         </div>
                     </div>
                 </div>

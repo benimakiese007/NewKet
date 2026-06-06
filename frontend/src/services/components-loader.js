@@ -106,6 +106,7 @@ const HEADER_HTML = `
                 <!-- Publish Button (Desktop Only) -->
                 <a href="{{ROOT}}src/pages/publish.html"
                     class="shrink-0 bg-gray-900 text-white px-4 md:px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors hidden sm:flex items-center gap-2 publish-btn h-[44px] whitespace-nowrap btn-active-scale"
+                    data-track-action="navigation:publish_click"
                     aria-label="Vendre un article">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span class="hidden md:inline">Vendre</span>
@@ -218,7 +219,7 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
                     <span>Boutiques</span>
                 </a>
-                <a href="{{ROOT}}src/pages/publish.html" class="mobile-menu-shortcut-card publish-btn">
+                <a href="{{ROOT}}src/pages/publish.html" class="mobile-menu-shortcut-card publish-btn" data-track-action="navigation:publish_click">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span>Vendre</span>
                 </a>
@@ -350,7 +351,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                     <li><a id="accountLinkFooter" href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
                     <li><a href="{{ROOT}}src/pages/support.html" class="text-gray-400 hover:text-white text-sm transition-colors">Support Technique</a></li>
                     <li><a href="{{ROOT}}src/pages/faq.html" class="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a></li>
-                    <li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn">Vendre un article</a></li>
+                    <li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn" data-track-action="navigation:publish_click">Vendre un article</a></li>
                 </ul>
             </div>
             <div class="lg:col-span-4 space-y-4">

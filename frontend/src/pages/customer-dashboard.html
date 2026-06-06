@@ -1701,7 +1701,7 @@
             return `${value.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}$`;
         }
 
-        async function refreshReferralPanel() {
+        async function refreshReferralPanel(retryCount = 0) {
             const codeInput = document.getElementById('referralCodeDisplay');
             const linkInput = document.getElementById('referralLinkDisplay');
             const totalEl = document.getElementById('referralTotalCount');
@@ -1777,7 +1777,11 @@
                     claimInput.value = data.referred_by_code;
                 }
             } catch (error) {
-                console.warn('[Customer Referral] Unable to load referral summary:', error?.message || error);
+                console.warn(`[Customer Referral] Unable to load referral summary (attempt ${retryCount + 1}):`, error?.message || error);
+                if (retryCount < 3) {
+                    const delay = Math.pow(2, retryCount) * 1000;
+                    setTimeout(() => refreshReferralPanel(retryCount + 1), delay);
+                }
             }
         }
 

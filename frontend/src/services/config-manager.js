@@ -52,7 +52,7 @@ const ConfigManager = {
     },
 
     async _fetchRemoteSettings(source = 'fetch') {
-        if (!window.SupabaseAdapter) return null;
+        if (!window.ApiClient && !window.SupabaseAdapter) return null;
 
         if (this._fetchPromise) {
             return this._fetchPromise;
@@ -60,15 +60,23 @@ const ConfigManager = {
 
         this._fetchPromise = (async () => {
             try {
-                const remoteConfig = await window.SupabaseAdapter.fetch('settings');
-                if (remoteConfig && remoteConfig.length > 0) {
-                    this._applyRemoteSettingsRow(remoteConfig[0], source);
+                const remoteConfig = window.ApiClient
+                    ? await window.ApiClient.get('/settings', {
+                        cacheKey: 'global-settings',
+                        cacheTtlMs: 30_000,
+                        suppressToast: true
+                    })
+                    : await window.SupabaseAdapter.fetch('settings');
+
+                const row = Array.isArray(remoteConfig) ? remoteConfig[0] : remoteConfig;
+                if (row) {
+                    this._applyRemoteSettingsRow(row, source);
                     this._markMaintenanceCheck();
-                    return remoteConfig[0];
+                    return row;
                 }
                 return null;
             } catch (err) {
-                console.warn('[NewKet] Failed to fetch settings from Supabase:', err);
+                console.warn('[NewKet] Failed to fetch settings from API:', err);
                 return null;
             }
         })();
@@ -362,14 +370,25 @@ const ConfigManager = {
                 // Ensure local cache timestamp is fresh after a write.
                 localStorage.setItem('newket_global_config_time', Date.now().toString());
 
-                // If a row exists, update it; otherwise insert with deterministic id.
-                const rows = await window.SupabaseAdapter.fetch('settings');
-                const existingRow = rows && rows.length > 0 ? rows[0] : null;
-                const payload = this._toRemoteSettingsPayload(this.config, existingRow);
-                if (rows && rows.length > 0) {
-                    await window.SupabaseAdapter.update('settings', rows[0].id, payload);
+                const payload = this.config.id
+                    ? { ...this.config, id: this.config.id }
+                    : { ...this.config, id: 'global-settings' };
+
+                if (window.ApiClient) {
+                    await window.ApiClient.put('/settings', payload, {
+                        suppressToast: true,
+                        suppressErrorLogging: true
+                    });
                 } else {
-                    await window.SupabaseAdapter.insert('settings', payload);
+                    // If the API helper is unavailable, fall back to the raw Supabase table.
+                    const rows = await window.SupabaseAdapter.fetch('settings');
+                    const existingRow = rows && rows.length > 0 ? rows[0] : null;
+                    const remotePayload = this._toRemoteSettingsPayload(this.config, existingRow);
+                    if (rows && rows.length > 0) {
+                        await window.SupabaseAdapter.update('settings', rows[0].id, remotePayload);
+                    } else {
+                        await window.SupabaseAdapter.insert('settings', remotePayload);
+                    }
                 }
                 this._markMaintenanceCheck();
             } catch (err) {

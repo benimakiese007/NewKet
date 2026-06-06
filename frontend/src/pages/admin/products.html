@@ -52,7 +52,7 @@
                     </div>
                 </div>
                 <div class="admin-page-actions">
-                <button onclick="openModal()"
+                <button onclick="openModal()" data-track-action="admin_products:add_product_click"
                     class="bg-black text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20">
                     <iconify-icon icon="solar:add-circle-bold-duotone" width="20"></iconify-icon>
                     Ajouter un Produit
@@ -71,7 +71,7 @@
                     
                     <div class="h-6 w-px bg-white/10"></div>
                     
-                    <button onclick="deleteSelected()"
+                    <button onclick="deleteSelected()" data-track-action="admin_products:delete_selected_click"
                         class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-all hover:scale-105">
                         <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                         Supprimer la sélection
@@ -81,7 +81,7 @@
                     
                     <div class="flex items-center gap-4">
                         <iconify-icon icon="solar:tag-bold" class="text-white/40" width="18"></iconify-icon>
-                        <select onchange="updateSelectedCategory(this.value); this.value='';"
+                        <select onchange="updateSelectedCategory(this.value); this.value='';" data-track-action="admin_products:bulk_move_category_change"
                             class="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer border-none focus:ring-0">
                             <option value="" disabled selected class="bg-black">Déplacer vers...</option>
                             <option value="Femme" class="bg-black">Femme</option>
@@ -93,7 +93,7 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="deselectAll()"
+                <button onclick="deselectAll()" data-track-action="admin_products:bulk_cancel_click"
                     class="px-6 py-2 rounded-xl bg-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all">Annuler</button>
             </div>
 
@@ -103,7 +103,7 @@
                         <thead>
                             <tr>
                                 <th class="w-10">
-                                    <input type="checkbox" id="selectAll" name="selectAll" onclick="toggleSelectAll()"
+                                    <input type="checkbox" id="selectAll" name="selectAll" onclick="toggleSelectAll()" data-track-action="admin_products:select_all_change"
                                         class="rounded-md border-gray-300 text-black focus:ring-black">
                                 </th>
                                 <th>Produit</th>
@@ -178,7 +178,7 @@
                     <h2 class="text-2xl font-black tracking-tight text-gray-900" id="modalTitle">Nouveau Produit</h2>
                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Configurez les détails de l'article</p>
                 </div>
-                <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-400 hover:text-black transition-all">
+                <button onclick="closeModal()" data-track-action="admin_products:close_modal_click" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-400 hover:text-black transition-all">
                     <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                 </button>
             </div>
@@ -287,7 +287,7 @@
                 return `
                 <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
                     <td class="p-4">
-                        <input type="checkbox" value="${p.id}" name="product-select-${p.id}" onclick="updateSelectedUI()" class="product-checkbox rounded-md border-gray-300 text-black focus:ring-black">
+                        <input type="checkbox" value="${p.id}" name="product-select-${p.id}" onclick="updateSelectedUI()" data-track-action="admin_products:row_select_change" class="product-checkbox rounded-md border-gray-300 text-black focus:ring-black">
                     </td>
                     <td class="p-4">
                         <div class="flex items-center gap-4">
@@ -316,17 +316,17 @@
                         </div>
                     </td>
                     <td class="text-center">
-                        <button onclick="togglePin('${p.id}')" 
+                        <button onclick="togglePin('${p.id}')" data-track-action="admin_products:pin_toggle_click"
                             class="w-10 h-10 rounded-xl transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-orange-50 text-orange-500 shadow-lg' : 'bg-gray-50 text-gray-300 hover:text-orange-500'}" title="${isPinned ? 'Désépingler' : 'Mettre en avant'}">
                             <iconify-icon icon="solar:star-bold-duotone" width="20"></iconify-icon>
                         </button>
                     </td>
                     <td class="p-4 text-right">
                         <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editProduct('${p.id}')" class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-black hover:text-white transition-all flex items-center justify-center">
+                            <button onclick="editProduct('${p.id}')" data-track-action="admin_products:edit_click" class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-black hover:text-white transition-all flex items-center justify-center">
                                 <iconify-icon icon="solar:pen-bold" width="20"></iconify-icon>
                             </button>
-                            <button onclick="deleteProduct('${p.id}')" class="w-10 h-10 rounded-xl bg-red-50 text-red-300 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
+                            <button onclick="deleteProduct('${p.id}')" data-track-action="admin_products:delete_click" class="w-10 h-10 rounded-xl bg-red-50 text-red-300 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
                                 <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
                             </button>
                         </div>

@@ -22,7 +22,11 @@ router.put('/:id/seller-type',
     requireAuth,
     requireAdmin,
     [
-        body('seller_type').trim().notEmpty().isIn(['normal', 'certified']).withMessage('Seller type invalide')
+        body('seller_type')
+            .trim()
+            .notEmpty()
+            .equals('certified')
+            .withMessage('Seller type invalide')
     ],
     validate,
     updateSellerType

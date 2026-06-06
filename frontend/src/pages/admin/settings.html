@@ -74,7 +74,7 @@
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Nom de l'enseigne</label>
                             <div class="relative">
                                 <iconify-icon icon="solar:pen-bold" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" width="18"></iconify-icon>
-                                <input type="text" id="shopName"
+                                <input type="text" id="shopName" data-track-action="admin_settings:shop_name_change"
                                     class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold placeholder:text-gray-200"
                                     placeholder="NewKet EMarket">
                             </div>
@@ -82,13 +82,13 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Email public</label>
-                                <input type="email" id="shopEmail"
+                                <input type="email" id="shopEmail" data-track-action="admin_settings:shop_email_change"
                                     class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold"
                                     placeholder="contact@newket.com">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Téléphone support</label>
-                                <input type="text" id="supportPhone"
+                                <input type="text" id="supportPhone" data-track-action="admin_settings:support_phone_change"
                                     class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold"
                                     placeholder="+243 ...">
                             </div>
@@ -113,7 +113,7 @@
                         
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Devise d'affichage par défaut</label>
-                            <select id="shopCurrency"
+                            <select id="shopCurrency" data-track-action="admin_settings:currency_change"
                                 class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black appearance-none cursor-pointer">
                                 <option value="CDF">Franc Congolais (FC)</option>
                                 <option value="USD">Dollar Américain ($)</option>
@@ -123,13 +123,13 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Taux de Change (1 USD = X FC)</label>
-                                <input type="number" id="exchangeRate"
+                                <input type="number" id="exchangeRate" data-track-action="admin_settings:exchange_rate_change"
                                     class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black text-blue-600"
                                     placeholder="2500">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Objectif Panier Moyen ($)</label>
-                                <input type="number" id="targetAOV"
+                                <input type="number" id="targetAOV" data-track-action="admin_settings:target_aov_change"
                                     class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black text-purple-600"
                                     placeholder="20">
                             </div>
@@ -155,7 +155,7 @@
                             <div class="relative">
                                 <iconify-icon icon="line-md:instagram" width="20"
                                     class="absolute left-6 top-1/2 -translate-y-1/2 text-pink-500"></iconify-icon>
-                                <input type="text" id="socialInstagram"
+                                <input type="text" id="socialInstagram" data-track-action="admin_settings:social_instagram_change"
                                     class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
                                     placeholder="Lien Instagram">
                             </div>
@@ -165,7 +165,7 @@
                             <div class="relative">
                                 <iconify-icon icon="line-md:facebook" width="20"
                                     class="absolute left-6 top-1/2 -translate-y-1/2 text-blue-600"></iconify-icon>
-                                <input type="text" id="socialFacebook"
+                                <input type="text" id="socialFacebook" data-track-action="admin_settings:social_facebook_change"
                                     class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
                                     placeholder="Lien Facebook">
                             </div>
@@ -175,7 +175,7 @@
                             <div class="relative">
                                 <iconify-icon icon="line-md:twitter-x" width="20"
                                     class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-900"></iconify-icon>
-                                <input type="text" id="socialX"
+                                <input type="text" id="socialX" data-track-action="admin_settings:social_x_change"
                                     class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
                                     placeholder="Lien X">
                             </div>
@@ -185,7 +185,7 @@
                             <div class="relative">
                                 <iconify-icon icon="line-md:linkedin" width="20"
                                     class="absolute left-6 top-1/2 -translate-y-1/2 text-sky-700"></iconify-icon>
-                                <input type="text" id="socialLinkedin"
+                                <input type="text" id="socialLinkedin" data-track-action="admin_settings:social_linkedin_change"
                                     class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
                                     placeholder="Lien LinkedIn">
                             </div>
@@ -212,7 +212,7 @@
                                 <div class="text-[9px] text-gray-400 uppercase tracking-widest font-black mt-1">Désactiver l'accès public</div>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="maintenanceMode" class="sr-only peer">
+                                <input type="checkbox" id="maintenanceMode" data-track-action="admin_settings:maintenance_toggle_change" class="sr-only peer">
                                 <div
                                     class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500 shadow-inner">
                                 </div>
@@ -227,7 +227,7 @@
                                     Réinitialisation permanente des commandes et activités. Action irréversible.
                                 </p>
                             </div>
-                            <button id="resetTestDataBtn"
+                            <button id="resetTestDataBtn" data-track-action="admin_settings:reset_test_data_click"
                                 class="w-full bg-red-600 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-red-500/20 hover:bg-red-700 transition-all flex items-center justify-center gap-2">
                                 <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                                 Effacer les données de test
@@ -238,7 +238,7 @@
             </div>
 
             <div class="max-w-xl mx-auto mt-16 pb-12 animate-premium stagger-5">
-                <button id="saveAllBtn"
+                <button id="saveAllBtn" data-track-action="admin_settings:save_all_click"
                     class="w-full bg-black text-white py-6 rounded-3xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-black/20 hover:bg-gray-800 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
                     <iconify-icon icon="solar:check-read-bold" width="22"></iconify-icon>
                     Enregistrer tous les paramètres

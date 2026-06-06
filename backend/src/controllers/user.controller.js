@@ -164,8 +164,8 @@ export const updateSellerType = async (req, res) => {
         const { seller_type } = req.body;
         const normalizedType = String(seller_type || '').trim().toLowerCase();
 
-        if (!['normal', 'certified'].includes(normalizedType)) {
-            return res.status(400).json({ error: 'Seller type invalid' });
+        if (normalizedType !== 'certified') {
+            return res.status(400).json({ error: 'Seller type invalid. Only certified is allowed for now.' });
         }
 
         const client = supabaseAdmin || supabase;

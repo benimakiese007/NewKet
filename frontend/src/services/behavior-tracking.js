@@ -117,6 +117,7 @@ const BehaviorTracking = {
             this.track(isAdminArea ? 'admin_action' : 'click', {
                 target: label,
                 metadata: {
+                    track_action: target.getAttribute?.('data-track-action') || null,
                     href: target.getAttribute('href') || null,
                     id: target.id || null,
                     classes: String(target.className || '').slice(0, 180),
@@ -268,6 +269,10 @@ const BehaviorTracking = {
                     this._analyticsDisabled = true;
                 }
             });
+
+            try {
+                window.NewKetGoogleAnalytics?.trackBehaviorEvent?.(eventType, payload, mergedMeta);
+            } catch (_) {}
         } catch (_) {}
     },
 

@@ -1,4 +1,5 @@
 import { inject } from '@vercel/analytics';
+import { initGoogleAnalytics } from './google-analytics.js';
 import './supabase-client.js';
 import './supabase-adapter.js';
 import './api-client.js';
@@ -30,6 +31,12 @@ if (!isLocalHost) {
     } catch (err) {
         console.warn('[NewKet] Vercel Analytics disabled:', err?.message || err);
     }
+}
+
+try {
+    initGoogleAnalytics();
+} catch (err) {
+    console.warn('[NewKet Home] Google Analytics disabled:', err?.message || err);
 }
 
 function runIdle(callback) {

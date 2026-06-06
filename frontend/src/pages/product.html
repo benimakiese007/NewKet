@@ -123,7 +123,7 @@
                         <div class="flex items-center justify-between gap-4 mb-2">
                             <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">Catégorie</div>
                             <div class="flex items-center gap-2">
-                                <button data-share-product class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md" aria-label="Partager">
+                                <button data-share-product data-track-action="product:share_click" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all border border-gray-100 shadow-sm hover:shadow-md" aria-label="Partager">
                                     <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
                                 </button>
                             </div>
@@ -193,11 +193,11 @@
                             </button>
                         </div>
                         <div class="flex gap-3">
-                            <button id="mainOrderBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">
+                            <button id="mainOrderBtn" data-track-action="product:order_click" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">
                                 <span>Commander</span>
                                 <iconify-icon icon="solar:bag-bold" width="24"></iconify-icon>
                             </button>
-                            <button id="mainWishlistBtn" class="w-12 h-12 flex items-center justify-center rounded-2xl border-2 border-gray-100 text-gray-300 hover:text-red-500 hover:border-red-50 transition-all">
+                            <button id="mainWishlistBtn" data-track-action="product:wishlist_toggle" class="w-12 h-12 flex items-center justify-center rounded-2xl border-2 border-gray-100 text-gray-300 hover:text-red-500 hover:border-red-50 transition-all">
                                 <iconify-icon icon="solar:heart-bold" width="28"></iconify-icon>
                             </button>
                         </div>
