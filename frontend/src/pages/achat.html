@@ -78,7 +78,7 @@
     <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="max-w-[1400px] mx-auto px-4 sm:px-8 py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
             <div class="flex items-center gap-3">
-                <button id="customerMobileBtn" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" aria-label="Ouvrir le menu" onclick="SidebarManager.toggle()">
+                <button id="customerMobileBtn" data-track-action="customer_space:mobile_menu_click" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex lg:hidden items-center justify-center transition-all" aria-label="Ouvrir le menu" onclick="SidebarManager.toggle()">
                     <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                 </button>
             </div>
@@ -90,7 +90,7 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <button id="btnLogout" data-logout-safe class="btn-ghost text-sm text-red-600 border-red-100 hover:bg-red-50 flex items-center gap-2">
+                <button id="btnLogout" data-logout-safe data-track-action="customer_space:logout_click" class="btn-ghost text-sm text-red-600 border-red-100 hover:bg-red-50 flex items-center gap-2">
                     <iconify-icon icon="solar:logout-2-bold" width="18"></iconify-icon>
                     Déconnexion
                 </button>
@@ -106,7 +106,7 @@
         <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-64 transition-all duration-300 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
             <!-- Mobile Close Button -->
-            <button onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
+            <button onclick="SidebarManager.close()" data-track-action="customer_space:close_sidebar_click" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
                 <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
             </button>
             <div class="glass-panel min-h-screen rounded-none border-0 shadow-none p-6 pt-24 lg:pt-6 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
@@ -126,33 +126,33 @@
                     </div>
                 </div>
                 <nav class="space-y-1">
-                    <a href="#" class="sidebar-link" id="link-dashboard" onclick="goDashboard('dashboard')">
+                    <a href="#" class="sidebar-link" id="link-dashboard" onclick="goDashboard('dashboard')" data-track-action="customer_space:tab_dashboard_click">
                         <iconify-icon icon="solar:home-2-bold" width="20"></iconify-icon>
                         <span>Accueil</span>
                     </a>
-                    <a href="#" class="sidebar-link" id="link-orders" onclick="goDashboard('orders')">
+                    <a href="#" class="sidebar-link" id="link-orders" onclick="goDashboard('orders')" data-track-action="customer_space:tab_orders_click">
                         <iconify-icon icon="solar:bag-bold" width="20"></iconify-icon>
                         <span>Mes demandes et devis</span>
                     </a>
-                    <a href="#" class="sidebar-link active" id="link-achat">
+                    <a href="#" class="sidebar-link active" id="link-achat" data-track-action="customer_space:tab_checkout_click">
                         <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                         <span>Achat</span>
                     </a>
-                    <a href="#" class="sidebar-link" id="link-favorites" onclick="goDashboard('favorites')">
+                    <a href="#" class="sidebar-link" id="link-favorites" onclick="goDashboard('favorites')" data-track-action="customer_space:tab_favorites_click">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
                         <span>Mes Favoris</span>
                     </a>
-                    <a href="#" class="sidebar-link" id="link-notifications" onclick="goDashboard('notifications')">
+                    <a href="#" class="sidebar-link" id="link-notifications" onclick="goDashboard('notifications')" data-track-action="customer_space:tab_notifications_click">
                         <iconify-icon icon="solar:bell-bold" width="20"></iconify-icon>
                         <span>Notifications</span>
                     </a>
-                    <a href="#" class="sidebar-link" id="link-settings" onclick="goDashboard('settings')">
+                    <a href="#" class="sidebar-link" id="link-settings" onclick="goDashboard('settings')" data-track-action="customer_space:tab_settings_click">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
                         <span>Paramètres</span>
                     </a>
                 </nav>
                 <div class="mt-4 pt-4 border-t border-gray-100">
-                    <button class="sidebar-logout" onclick="AuthManager.handleLogoutClick(this)">
+                    <button class="sidebar-logout" onclick="AuthManager.handleLogoutClick(this)" data-track-action="customer_space:logout_click">
                         <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
                         <span>Se déconnecter</span>
                     </button>

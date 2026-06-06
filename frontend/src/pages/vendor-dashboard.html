@@ -116,40 +116,40 @@
 
                 <!-- Navigation -->
                 <nav class="space-y-1.5">
-                    <a href="#dashboard" data-switch-vendor-tab="dashboard" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
+                    <a href="#dashboard" data-switch-vendor-tab="dashboard" data-track-action="vendor_dashboard:tab_dashboard_click" class="sidebar-link active group btn-active-scale" aria-label="Tableau de bord">
                         <iconify-icon icon="solar:chart-square-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Tableau de bord</span>
                     </a>
-                    <a href="#analytics" data-switch-vendor-tab="analytics" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
+                    <a href="#analytics" data-switch-vendor-tab="analytics" data-track-action="vendor_dashboard:tab_analytics_click" class="sidebar-link group btn-active-scale" aria-label="Analyses & Stats">
                         <iconify-icon icon="solar:graph-up-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Analyses & Stats</span>
                     </a>
-                    <a href="/src/pages/publish.html" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
+                    <a href="/src/pages/publish.html" data-track-action="vendor_dashboard:publish_click" class="sidebar-link group btn-active-scale" aria-label="Publier un article">
                         <iconify-icon icon="solar:add-circle-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Publier un article</span>
                     </a>
-                    <a href="#products" data-switch-vendor-tab="products" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
+                    <a href="#products" data-switch-vendor-tab="products" data-track-action="vendor_dashboard:tab_products_click" class="sidebar-link group btn-active-scale" aria-label="Mes Produits">
                         <iconify-icon icon="solar:box-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Mes Produits</span>
                     </a>
-                    <a href="#leads" data-switch-vendor-tab="leads" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
+                    <a href="#leads" data-switch-vendor-tab="leads" data-track-action="vendor_dashboard:tab_leads_click" class="sidebar-link group btn-active-scale" aria-label="Demandes et devis clients">
                         <iconify-icon icon="solar:card-send-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span class="sidebar-link-label-with-badge">Demandes et <span class="sidebar-link-label-tail">devis <span id="vendorLeadsBadge" class="sidebar-link-badge shrink-0 whitespace-nowrap bg-black text-white text-[10px] font-black rounded-full min-w-[20px] h-5 px-2 flex items-center justify-center hidden">0</span></span></span>
                     </a>
-                    <a href="#purchases" data-switch-vendor-tab="purchases" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
+                    <a href="#purchases" data-switch-vendor-tab="purchases" data-track-action="vendor_dashboard:tab_purchases_click" class="sidebar-link group btn-active-scale" aria-label="Mes Achats">
                         <iconify-icon icon="solar:bag-heart-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Mes Achats</span>
                     </a>
-                    <a href="#promos" data-switch-vendor-tab="promos" class="sidebar-link group btn-active-scale" aria-label="Codes promo">
+                    <a href="#promos" data-switch-vendor-tab="promos" data-track-action="vendor_dashboard:tab_promos_click" class="sidebar-link group btn-active-scale" aria-label="Codes promo">
                         <iconify-icon icon="solar:ticket-sale-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Codes promo</span>
                     </a>
                     <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
-                        <a href="#settings" data-switch-vendor-tab="settings" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
+                        <a href="#settings" data-switch-vendor-tab="settings" data-track-action="vendor_dashboard:tab_settings_click" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
                             <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Paramètres</span>
                         </a>
-                        <button class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2 w-full" data-logout-safe>
+                        <button class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2 w-full" data-logout-safe data-track-action="vendor_dashboard:logout_click">
                             <iconify-icon icon="solar:logout-2-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
                             <span>Se déconnecter</span>
                         </button>

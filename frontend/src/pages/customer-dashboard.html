@@ -162,7 +162,7 @@
 </head><body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
-            <button id="customerMobileBtn" data-toggle-sidebar="customer" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
+            <button id="customerMobileBtn" data-toggle-sidebar="customer" data-track-action="customer_dashboard:mobile_menu_click" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
                 <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
             </button>
         </div>
@@ -178,12 +178,12 @@
                 <div class="h-8 w-px bg-white/15 mx-1 hidden sm:block"></div>
 
                 <div class="flex items-center gap-3">
-                    <a href="/" class="hidden sm:flex h-10 px-4 items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-black bg-gray-50/50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50">
+                    <a href="/" data-track-action="customer_dashboard:go_shop_click" class="hidden sm:flex h-10 px-4 items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-black bg-gray-50/50 hover:bg-gray-100 rounded-xl transition-all border border-gray-100/50">
                         <iconify-icon icon="solar:globus-bold" width="16"></iconify-icon>
                         Boutique
                     </a>
 
-                    <button data-logout-safe class="h-10 w-10 sm:w-auto sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
+                    <button data-logout-safe data-track-action="customer_dashboard:logout_click" class="h-10 w-10 sm:w-auto sm:px-4 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-white bg-red-50 hover:bg-red-500 rounded-xl transition-all border border-red-100/50 flex items-center justify-center gap-2">
                         <iconify-icon icon="solar:logout-bold" width="16"></iconify-icon>
                         <span class="hidden sm:inline">Quitter</span>
                     </button>
@@ -264,7 +264,7 @@
                 </nav>
                 <!-- Logout -->
                 <div class="mt-4 pt-4 border-t border-gray-100">
-                    <button class="sidebar-logout" data-logout-safe>
+                <button class="sidebar-logout" data-logout-safe data-track-action="customer_dashboard:logout_click">
                         <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
                         <span>Se dÃ©connecter</span>
                     </button>

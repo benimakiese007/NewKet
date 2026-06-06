@@ -88,22 +88,22 @@
                 <p class="text-gray-500 text-sm mt-1" id="unread-text">Vous avez 0 notification non lue</p>
             </div>
             <div class="flex gap-2">
-                <button onclick="markAllRead()"
+                    <button onclick="markAllRead()" data-track-action="notifications:mark_all_read_click"
                     class="text-xs font-bold uppercase tracking-widest px-4 py-2 hover:bg-gray-100 rounded-lg transition-colors">Tout
                     lire</button>
-                <button onclick="clearAll()"
+                    <button onclick="clearAll()" data-track-action="notifications:clear_all_click"
                     class="text-xs font-bold uppercase tracking-widest px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">Effacer</button>
             </div>
         </div>
 
         <!-- Filters -->
         <div class="flex flex-wrap gap-2 mb-8">
-            <button onclick="setFilter('all')" data-filter="all"
+                    <button onclick="setFilter('all')" data-filter="all" data-track-action="notifications:filter_all_click"
                 class="filter-chip px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest border border-gray-100 bg-black text-white transition-all">Tout</button>
-            <button onclick="setFilter('unread')" data-filter="unread"
+                    <button onclick="setFilter('unread')" data-filter="unread" data-track-action="notifications:filter_unread_click"
                 class="filter-chip px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest border border-gray-100 bg-white text-gray-500 hover:border-gray-300 transition-all">Non
                 lus</button>
-            <button onclick="setFilter('alerts')" data-filter="alerts"
+                    <button onclick="setFilter('alerts')" data-filter="alerts" data-track-action="notifications:filter_alerts_click"
                 class="filter-chip px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest border border-gray-100 bg-white text-gray-500 hover:border-gray-300 transition-all">Alertes</button>
         </div>
 

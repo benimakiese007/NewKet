@@ -50,7 +50,7 @@
                     <p class="text-gray-500">Gérez les abonnés et envoyez des campagnes.</p>
                 </div>
                 <div class="admin-page-actions flex items-center gap-3">
-                    <button onclick="exportCSV()"
+                    <button onclick="exportCSV()" data-track-action="admin_newsletter:export_csv_click"
                         class="bg-white border border-gray-200 text-black px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-gray-50 transition-all shadow-sm">
                         <iconify-icon icon="solar:download-bold" width="18"></iconify-icon>
                         Exporter CSV
@@ -99,10 +99,10 @@
                         <span id="filterLabel" class="px-2.5 py-0.5 bg-gray-100 text-gray-500 text-[10px] font-black uppercase rounded-full tracking-widest">Tous</span>
                     </div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <input type="text" id="newsletterSearchInput" placeholder="Rechercher un email..."
+                        <input type="text" id="newsletterSearchInput" data-track-action="admin_newsletter:search_change" placeholder="Rechercher un email..."
                             oninput="filterSubscribers()"
                             class="border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-gray-400 transition-colors w-60">
-                        <select id="statusFilter" onchange="filterSubscribers()"
+                        <select id="statusFilter" onchange="filterSubscribers()" data-track-action="admin_newsletter:status_filter_change"
                             class="border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-gray-400 cursor-pointer">
                             <option value="all">Tous les statuts</option>
                             <option value="active">Actifs</option>
@@ -158,7 +158,7 @@
                             class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-black transition-colors resize-none font-mono text-xs"></textarea>
                     </div>
                     <div class="flex items-center gap-3">
-                        <button id="sendCampaignBtn" onclick="sendNewsletterCampaign()"
+                        <button id="sendCampaignBtn" onclick="sendNewsletterCampaign()" data-track-action="admin_newsletter:send_campaign_click"
                             class="bg-black text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             <iconify-icon id="sendIcon" icon="solar:letter-send-bold" width="18"></iconify-icon>
                             <span id="sendText">Envoyer la campagne</span>
@@ -251,14 +251,14 @@
                         <td class="p-4 text-right">
                             <div class="flex justify-end gap-2">
                                 ${isActive
-                                    ? `<button onclick="unsubscribe('${s.id}')" title="Désabonner" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all flex items-center justify-center">
+                                    ? `<button onclick="unsubscribe('${s.id}')" data-track-action="admin_newsletter:unsubscribe_click" title="Désabonner" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all flex items-center justify-center">
                                         <iconify-icon icon="solar:close-circle-bold" width="16"></iconify-icon>
                                     </button>`
-                                    : `<button onclick="resubscribe('${s.id}')" title="Réactiver" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-600 transition-all flex items-center justify-center">
+                                    : `<button onclick="resubscribe('${s.id}')" data-track-action="admin_newsletter:resubscribe_click" title="Réactiver" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-600 transition-all flex items-center justify-center">
                                         <iconify-icon icon="solar:refresh-circle-bold" width="16"></iconify-icon>
                                     </button>`
                                 }
-                                <button onclick="deleteSubscriber('${s.id}')" title="Supprimer" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
+                                <button onclick="deleteSubscriber('${s.id}')" data-track-action="admin_newsletter:delete_subscriber_click" title="Supprimer" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center">
                                     <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="16"></iconify-icon>
                                 </button>
                             </div>

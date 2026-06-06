@@ -85,7 +85,7 @@
                             <option value="OTP_VALIDATED">OTP valide</option>
                             <option value="PENDING">OTP en attente</option>
                         </select>
-                        <button onclick="window.AdminOtpTracker.resetSearch()"
+                        <button onclick="window.AdminOtpTracker.resetSearch()" data-track-action="admin_otp_tracker:reset_search_click"
                             class="px-5 py-4 rounded-2xl bg-gray-100 text-gray-700 font-black uppercase tracking-widest text-[10px] hover:bg-gray-200 transition-all">
                             Reset
                         </button>
@@ -276,7 +276,7 @@
                 tbody.innerHTML = this.filteredOrders.map((order) => `
                     <tr class="group">
                         <td class="p-4">
-                            <button onclick="window.AdminOtpTracker.focusOrder('${order.id}')" class="font-black tracking-[0.18em] text-violet-700 hover:text-black transition-colors">
+                            <button onclick="window.AdminOtpTracker.focusOrder('${order.id}')" data-track-action="admin_otp_tracker:focus_order_click" class="font-black tracking-[0.18em] text-violet-700 hover:text-black transition-colors">
                                 ${order.otp_code}
                             </button>
                         </td>

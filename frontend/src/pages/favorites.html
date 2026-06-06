@@ -50,7 +50,7 @@
                 <h1 class="text-3xl font-bold text-gray-900">Mes Favoris</h1>
                 <p id="fav-status" class="text-gray-500 text-sm mt-1">Récupération de vos coups de cœur...</p>
             </div>
-            <button id="clearAllBtn"
+                <button id="clearAllBtn" data-track-action="favorites:clear_all_click"
                 class="flex items-center gap-2 text-sm font-semibold text-red-500 hover:text-red-600 transition-colors bg-red-50 px-4 py-2 rounded-xl">
                 <iconify-icon icon="solar:trash-bin-trash-linear" width="18"></iconify-icon>
                 Tout effacer
@@ -173,7 +173,7 @@
                         : 0;
                     return `
                 <div class="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-shadow transition-all duration-300 relative flex flex-col">
-                    <button onclick="removeFromFav('${item.id}')" class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-red-500 shadow-sm hover:bg-red-500 hover:text-white transition-all">
+                    <button onclick="removeFromFav('${item.id}')" data-track-action="favorites:remove_click" class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center text-red-500 shadow-sm hover:bg-red-500 hover:text-white transition-all">
                         <iconify-icon icon="solar:heart-bold" width="20"></iconify-icon>
                     </button>
                     <a href="${buildProductHref(item)}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);" class="block aspect-square bg-gray-50 flex items-center justify-center p-8 overflow-hidden">
@@ -192,7 +192,7 @@
                                 </div>
                                 ${hasPromo ? `<span class="old-price text-xs sm:text-sm font-semibold text-gray-400">${oldPriceText}</span>` : ''}
                             </div>
-                            <button onclick="contactFromFav('${item.id}', this)" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                    <button onclick="contactFromFav('${item.id}', this)" data-track-action="favorites:contact_click" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
                                 <iconify-icon icon="solar:chat-round-call-bold" width="16" class="flex-shrink-0"></iconify-icon>
                                 <span class="truncate">Commander</span>
                             </button>

@@ -120,7 +120,7 @@
             <aside class="catalog-sidebar-aside w-full lg:w-72 lg:max-w-xs flex-shrink-0 animate-fade-in" style="animation-delay: 0.2s;">
                 <div class="filter-drawer-header">
                     <h2 class="text-base font-bold text-slate-900">Filtres</h2>
-                    <button id="closeFilterDrawer" class="p-2 rounded-xl hover:bg-slate-100 transition-colors">
+            <button id="closeFilterDrawer" data-track-action="promo:close_filter_drawer_click" class="p-2 rounded-xl hover:bg-slate-100 transition-colors">
                         <iconify-icon icon="solar:close-circle-linear" width="22" class="text-slate-600"></iconify-icon>
                     </button>
                 </div>
@@ -168,7 +168,7 @@
                         </div>
                     </section>
 
-                    <button onclick="resetFilters()" class="w-full border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all">
+                    <button onclick="resetFilters()" data-track-action="promo:reset_filters_click" class="w-full border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all">
                         Réinitialiser tout
                     </button>
                 </div>
@@ -177,7 +177,7 @@
             <!-- Main content -->
             <div class="flex-1 animate-fade-in" style="animation-delay: 0.3s;">
                 <div class="catalog-toolbar-row flex flex-row items-center justify-between pb-8 mb-8 border-b border-slate-100 gap-3">
-                    <button id="mobileFilterToggle" class="lg:hidden flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
+                    <button id="mobileFilterToggle" data-track-action="promo:open_filter_drawer_click" class="lg:hidden flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
                         <iconify-icon icon="solar:tuning-square-2-linear" width="16"></iconify-icon>
                         Filtres
                     </button>

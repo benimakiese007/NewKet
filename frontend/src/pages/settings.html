@@ -103,7 +103,7 @@
                         Profil & Sécurité
                     </a>
                     <div class="h-px bg-gray-200 my-2 mx-4"></div>
-                    <button onclick="AuthManager.handleLogoutClick(this)"
+                    <button onclick="AuthManager.handleLogoutClick(this)" data-track-action="settings:logout_click"
                         class="px-5 py-3 rounded-2xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2 group">
                         <iconify-icon icon="solar:logout-bold" width="18" class="group-hover:-translate-x-1 transition-transform"></iconify-icon>
                         Déconnexion
@@ -138,7 +138,7 @@
                                     <iconify-icon icon="solar:camera-linear" width="24"></iconify-icon>
                                 </div>
                             </div>
-                            <button class="text-xs font-semibold text-gray-500 hover:text-gray-900" onclick="document.getElementById('avatarUploadInput').click()">Modifier la photo</button>
+                    <button class="text-xs font-semibold text-gray-500 hover:text-gray-900" onclick="document.getElementById('avatarUploadInput').click()" data-track-action="settings:avatar_upload_click">Modifier la photo</button>
                         </div>
 
                         <!-- Form -->
@@ -166,7 +166,7 @@
                         </div>
                     </div>
                     <div class="mt-8 flex justify-end">
-                        <button id="saveProfileBtn"
+                <button id="saveProfileBtn" data-track-action="settings:save_profile_click"
                             class="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg shadow-gray-200 transition-all flex items-center gap-2">
                             <iconify-icon icon="solar:diskette-linear"></iconify-icon>
                             Enregistrer les modifications
@@ -213,14 +213,14 @@
                                 <h3 class="font-bold text-gray-900 text-sm">Clé d'accès (Passkey)</h3>
                                 <p class="text-xs text-gray-500 mt-1">Se connecter sans mot de passe avec Face ID, empreinte ou clé de sécurité.</p>
                             </div>
-                            <button id="registerPasskeyBtn" class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                    <button id="registerPasskeyBtn" data-track-action="settings:register_passkey_click" class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
                                 <iconify-icon icon="solar:fingerprint-linear"></iconify-icon>
                                 Créer
                             </button>
                         </div>
 
                         <div class="flex justify-end pt-4">
-                            <button id="updatePasswordBtn"
+                <button id="updatePasswordBtn" data-track-action="settings:update_password_click"
                                 class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-6 py-3 rounded-xl text-sm font-bold transition-all">
                                 Mettre à jour le mot de passe
                             </button>

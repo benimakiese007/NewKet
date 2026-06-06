@@ -211,11 +211,11 @@
 
                     <!-- Tabs -->
                     <div id="tabsContainer" class="flex items-center gap-8 mb-8 border-b border-gray-100 animate-item">
-                        <button id="tabLogin"
+                    <button id="tabLogin" data-track-action="auth_login:tab_login_click"
                             class="tab-btn active pb-3 text-sm font-bold uppercase tracking-widest text-black transition-colors">
                             Connexion
                         </button>
-                        <button id="tabSignup"
+                    <button id="tabSignup" data-track-action="auth_login:tab_signup_click"
                             class="tab-btn pb-3 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors">
                             Inscription
                         </button>
@@ -273,7 +273,7 @@
                             <label for="password"
                                 class="absolute left-5 top-4.5 text-gray-400 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Mot
                                 de passe</label>
-                            <button type="button" id="togglePassword"
+                            <button type="button" id="togglePassword" data-track-action="auth_login:toggle_password_click"
                                 class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors focus:outline-none">
                                 <iconify-icon icon="solar:eye-linear" width="20"></iconify-icon>
                             </button>
@@ -309,13 +309,13 @@
                                     class="text-[11px] font-bold text-gray-500 group-hover:text-black transition-colors uppercase tracking-wider">Se
                                     souvenir de moi</span>
                             </label>
-                            <button type="button" id="forgotPasswordBtn"
+                            <button type="button" id="forgotPasswordBtn" data-track-action="auth_login:forgot_password_click"
                                 class="text-[11px] font-black uppercase tracking-widest text-black hover:underline decoration-2 underline-offset-4 bg-transparent border-none p-0 cursor-pointer">Oublié
                                 ?</button>
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" id="submitBtn"
+                        <button type="submit" id="submitBtn" data-track-action="auth_login:submit_click"
                             class="w-full h-14 bg-black text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-900 active:scale-[0.98] transition-all flex items-center justify-center gap-3 group shadow-xl shadow-black/10 mt-6 animate-item">
                             <span>Se connecter</span>
                             <div class="loader-spinner"></div>
@@ -339,7 +339,7 @@
 
                     <!-- Oauth Providers -->
                     <div class="grid grid-cols-1 gap-4 animate-item">
-                        <button type="button" id="google-btn"
+                        <button type="button" id="google-btn" data-track-action="auth_login:google_click"
                             class="social-btn h-12 flex items-center justify-center gap-3 border-2 border-gray-100 rounded-2xl bg-white text-[11px] font-black uppercase tracking-widest text-gray-700 hover:border-gray-200 hover:bg-gray-50 transition-all relative">
                             <iconify-icon icon="logos:google-icon" width="16" id="google-icon"></iconify-icon>
                             <span id="google-btn-text">Google</span>
@@ -349,7 +349,7 @@
                         </button>
                         
                         <!-- Passkey Sign In -->
-                        <button type="button" id="passkey-btn"
+                        <button type="button" id="passkey-btn" data-track-action="auth_login:passkey_click"
                             class="social-btn h-12 flex items-center justify-center gap-3 border-2 border-black rounded-2xl bg-black text-[11px] font-black uppercase tracking-widest text-white hover:bg-gray-900 transition-all relative">
                             <iconify-icon icon="solar:fingerprint-bold" width="18" id="passkey-icon"></iconify-icon>
                             <span id="passkey-btn-text">Clé d'accès (Face ID / Empreinte)</span>
