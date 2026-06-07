@@ -25,6 +25,7 @@ const ProductManager = {
     _totalCount: 0,
     _hasMore: true,
     _loading: false,
+    _error: false,
     _realtimeChannel: null,
 
     async init() {
@@ -106,6 +107,7 @@ const ProductManager = {
      * Uses SupabaseAdapter directly (same as catalog.html) for production compatibility.
      */
     async fetchFreshData() {
+        this._error = false;
         try {
             let products = [];
 
@@ -165,6 +167,8 @@ const ProductManager = {
             window.dispatchEvent(new CustomEvent('productsUpdated'));
             
         } catch (err) {
+            this._error = true;
+            window.dispatchEvent(new CustomEvent('productsError', { detail: err }));
             window.dispatchEvent(new CustomEvent('productsUpdated'));
         }
     },
@@ -176,6 +180,7 @@ const ProductManager = {
     async loadMore() {
         if (this._loading || !this._hasMore) return;
         this._loading = true;
+        this._error = false;
 
         try {
             const offset = this._currentPage * PRODUCTS_PAGE_SIZE;
@@ -211,6 +216,8 @@ const ProductManager = {
                 window.dispatchEvent(new CustomEvent('productsUpdated'));
             }
         } catch (err) {
+            this._error = true;
+            window.dispatchEvent(new CustomEvent('productsError', { detail: err }));
         } finally {
             this._loading = false;
         }

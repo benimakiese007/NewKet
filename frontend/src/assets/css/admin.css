@@ -371,6 +371,17 @@ html.admin-embedded-mode .admin-shell > main {
     padding-top: clamp(1rem, 2vw, 2rem);
 }
 
+/* Remove default focus outlines on layout containers that can trigger on hash navigation/anchor loads */
+.vendor-main-content:focus,
+.vendor-main-content:focus-visible,
+.customer-main-content:focus,
+.customer-main-content:focus-visible,
+[id^="tab-"]:focus,
+[id^="tab-"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 /* Lift the sidebar: remove the extra visual gap under the fixed navbar */
 #adminSidebar > div,
 #customerSidebar > div,
@@ -638,6 +649,8 @@ body {
 }
 
 /* Panels contenant un canvas Chart.js : pas de translateY au hover (évite le re-layout du canvas) */
+/* Vendor dashboard: remove border from glass panels */
+.vendor-main-content .glass-panel { border: 0 !important; }
 .glass-panel:has(canvas):hover,
 .glass-panel:has(.vendor-chart-shell):hover {
     transform: none !important;

@@ -1,4 +1,5 @@
 import { createUserSupabaseClient, hasServiceRoleKey, supabaseAdmin } from '../config/supabase.js';
+import sharp from 'sharp';
 
 function getProfileClient(req) {
     return hasServiceRoleKey ? supabaseAdmin : createUserSupabaseClient(req.token);
@@ -73,8 +74,7 @@ export const uploadMyAvatar = async (req, res) => {
             return res.status(400).json({ error: 'Format image non supporte.' });
         }
 
-        const mimeType = dataUrlMatch[1] === 'image/jpg' ? 'image/jpeg' : dataUrlMatch[1];
-        const fileBuffer = Buffer.from(dataUrlMatch[2], 'base64');
+        let fileBuffer = Buffer.from(dataUrlMatch[2], 'base64');
 
         if (!fileBuffer.length) {
             return res.status(400).json({ error: 'Image vide.' });
@@ -84,12 +84,18 @@ export const uploadMyAvatar = async (req, res) => {
             return res.status(400).json({ error: 'Image trop lourde. Maximum 2 Mo.' });
         }
 
-        const extensionMap = {
-            'image/png': 'png',
-            'image/jpeg': 'jpg',
-            'image/webp': 'webp'
-        };
-        const extension = extensionMap[mimeType] || 'jpg';
+        // Conversion et compression systématique en WebP
+        try {
+            fileBuffer = await sharp(fileBuffer)
+                .webp({ quality: 80 })
+                .toBuffer();
+        } catch (sharpError) {
+            console.error('Erreur lors de la conversion WebP:', sharpError);
+            return res.status(500).json({ error: "Erreur de traitement de l'image." });
+        }
+
+        const mimeType = 'image/webp';
+        const extension = 'webp';
         const filePath = `avatars/${userId}_${Date.now()}.${extension}`;
 
         const { error: uploadError } = await sb

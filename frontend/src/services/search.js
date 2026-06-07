@@ -263,9 +263,8 @@ const SearchManager = {
         }
     },
 
-    showRecentAndPopular(container) {
+    async showRecentAndPopular(container) {
         const recent = this.getRecentSearches();
-        const popular = ['iPhone 15', 'Sac de luxe', 'Rolex', 'Chaussures']; // Example popular tags
 
         let html = '';
 
@@ -287,20 +286,52 @@ const SearchManager = {
                 </div>`;
         }
 
-        html += `
-            <div class="suggestion-section">
-                <div class="suggestion-section-title">Populaire en ce moment</div>
-                <div class="py-2">
-                    ${popular.map(q => `
-                        <div class="suggestion-item" onclick="SearchManager.executeSearch('${escapeHTML(q)}')">
-                            <div class="suggestion-icon">
-                                <iconify-icon icon="solar:fire-bold" width="18" class="text-orange-500"></iconify-icon>
-                            </div>
-                            <div class="suggestion-text">${escapeHTML(q)}</div>
+        // Fetch "popular" products (just latest 4 for now to make it dynamic)
+        try {
+            const popOptions = {
+                limit: 4,
+                order: ['created_at', { ascending: false }],
+                select: 'id, name, category, price, image'
+            };
+            
+            // Apply category filter if selected
+            if (this.selectedCategory !== 'all') {
+                popOptions.eq = [['category', this.selectedCategory]];
+            }
+
+            const popularProducts = await window.SupabaseAdapter.fetchWithFilters('products', popOptions);
+
+            if (popularProducts && popularProducts.length > 0) {
+                html += `
+                    <div class="suggestion-section">
+                        <div class="suggestion-section-title">Produits Populaires</div>
+                        <div class="py-1">`;
+                
+                html += popularProducts.map(p => {
+                    const firstImg = (p.image || '').split(',')[0];
+                    const optImg = (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(firstImg, { width: 120, quality: 70 }) : firstImg) || firstImg;
+                    const optImgSrcSet = window.buildResponsiveImageSrcSet ? window.buildResponsiveImageSrcSet(firstImg, [48, 72, 120], { quality: 70 }) : '';
+                        
+                    return `
+                    <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
+                        <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
+                            ${firstImg ? `<img src="${escapeHTML(optImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">` : `<iconify-icon icon="solar:box-linear" width="20" class="m-auto text-gray-400 h-full flex"></iconify-icon>`}
                         </div>
-                    `).join('')}
-                </div>
-            </div>`;
+                        <div class="flex-1 min-w-0">
+                            <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>
+                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${escapeHTML(p.category)}</div>
+                        </div>
+                        <div class="text-xs font-black text-slate-900">
+                            ${window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC'}
+                        </div>
+                    </a>`;
+                }).join('');
+
+                html += `</div></div>`;
+            }
+        } catch (e) {
+            console.error('[NewKet] Failed to fetch popular products:', e);
+        }
 
         container.innerHTML = html;
         container.classList.add('active');
@@ -378,7 +409,7 @@ const SearchManager = {
 
             // Apply category filter if selected
             if (this.selectedCategory !== 'all') {
-                searchOptions.category = `eq.${this.selectedCategory}`;
+                searchOptions.eq = [['category', this.selectedCategory]];
             }
 
             const filtered = await window.SupabaseAdapter.fetchWithFilters('products', searchOptions);

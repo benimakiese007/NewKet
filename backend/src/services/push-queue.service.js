@@ -26,7 +26,17 @@ async function claimDuePushJobs(batchSize = DEFAULT_BATCH_SIZE) {
         batch_size: batchSize
     });
 
-    if (error) throw error;
+    if (error) {
+        // The Postgres function may not exist yet (schema not migrated).
+        // In that case we return an empty array instead of crashing.
+        if (
+            error.message?.includes('Could not find the function') ||
+            error.code === 'PGRST202'
+        ) {
+            return [];
+        }
+        throw error;
+    }
     return Array.isArray(data) ? data : [];
 }
 

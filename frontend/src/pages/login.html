@@ -226,7 +226,7 @@
 
                         <!-- Role Selection (Signup Only) -->
                         <div id="roleContainer" class="hidden overflow-hidden transition-all duration-500 animate-item">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Je
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block">Je
                                 souhaite</label>
                             <div class="grid grid-cols-2 gap-3">
                                 <label class="cursor-pointer relative group">
@@ -237,7 +237,7 @@
                                             class="w-8 h-8 rounded-full bg-gray-100 peer-checked:bg-black peer-checked:text-white flex items-center justify-center transition-colors">
                                             <iconify-icon icon="solar:bag-heart-bold" width="16"></iconify-icon>
                                         </div>
-                                        <span class="text-xs font-bold uppercase tracking-wide">Commander</span>
+                                        <span class="text-xs font-bold uppercase tracking-wide">Acheteur</span>
                                     </div>
                                 </label>
                                 <label class="cursor-pointer relative group">
@@ -248,7 +248,7 @@
                                             class="w-8 h-8 rounded-full bg-gray-100 peer-checked:bg-black peer-checked:text-white flex items-center justify-center transition-colors">
                                             <iconify-icon icon="solar:shop-bold" width="16"></iconify-icon>
                                         </div>
-                                        <span class="text-xs font-bold uppercase tracking-wide">Vendre</span>
+                                        <span class="text-xs font-bold uppercase tracking-wide">Vendeur</span>
                                     </div>
                                 </label>
                             </div>
@@ -259,10 +259,11 @@
                             <input type="email" id="email" name="email" required placeholder=" " autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"
                                 class="peer w-full h-14 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-5 pb-1 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="email"
-                                class="absolute left-5 top-4.5 text-gray-400 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Adresse
+                                class="absolute left-5 top-4.5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Adresse
                                 email</label>
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300">
-                                <iconify-icon icon="solar:letter-bold-duotone" width="20"></iconify-icon>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 flex items-center justify-center">
+                                <iconify-icon icon="solar:letter-bold-duotone" width="20" id="emailDefaultIcon"></iconify-icon>
+                                <iconify-icon icon="solar:check-circle-bold" width="20" id="emailValidIcon" class="text-green-500 hidden"></iconify-icon>
                             </div>
                         </div>
 
@@ -271,7 +272,7 @@
                             <input type="password" id="password" name="password" required placeholder=" " autocomplete="current-password"
                                 class="peer w-full h-14 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl pl-5 pr-12 pt-5 pb-1 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="password"
-                                class="absolute left-5 top-4.5 text-gray-400 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Mot
+                                class="absolute left-5 top-4.5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Mot
                                 de passe</label>
                             <button type="button" id="togglePassword" data-track-action="auth_login:toggle_password_click"
                                 class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors focus:outline-none">
@@ -288,7 +289,7 @@
                                 <div class="strength-bar w-1/4 h-full bg-gray-200 transition-colors duration-300"></div>
                             </div>
                             <p id="passwordFeedback"
-                                class="text-[9px] font-black uppercase tracking-widest text-gray-400 text-right">Faible</p>
+                                class="text-[9px] font-black uppercase tracking-widest text-gray-500 text-right">Faible</p>
                         </div>
 
                         <!-- Confirm Password Input (Signup Only) -->
@@ -296,7 +297,7 @@
                             <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" " autocomplete="new-password"
                                 class="peer w-full h-14 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl pl-5 pr-12 pt-5 pb-1 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="confirmPassword"
-                                class="absolute left-5 top-4.5 text-gray-400 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Confirmer
+                                class="absolute left-5 top-4.5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Confirmer
                                 le mot de passe</label>
                         </div>
 
@@ -359,7 +360,7 @@
                         </button>
                     </div>
 
-                    <p class="text-[10px] font-medium text-gray-400 text-center mt-12 animate-item">
+                    <p class="text-[10px] font-medium text-gray-500 text-center mt-12 animate-item">
                         En continuant, vous acceptez nos <br><a href="/src/pages/terms.html"
                             class="text-black font-bold hover:underline">Conditions d'utilisation</a> et notre <a
                             href="/src/pages/privacy.html" class="text-black font-bold hover:underline">Politique de
@@ -458,11 +459,23 @@
 
         // onBlur validation for email
         const emailInput = document.getElementById('email');
+        const emailDefaultIcon = document.getElementById('emailDefaultIcon');
+        const emailValidIcon = document.getElementById('emailValidIcon');
+
         emailInput.addEventListener('blur', () => {
             if (emailInput.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
                 showError("Veuillez entrer une adresse email valide.");
+                if(emailValidIcon) emailValidIcon.classList.add('hidden');
+                if(emailDefaultIcon) emailDefaultIcon.classList.remove('hidden');
             } else {
                 formError.classList.add('hidden');
+                if (emailInput.value) {
+                    if(emailValidIcon) emailValidIcon.classList.remove('hidden');
+                    if(emailDefaultIcon) emailDefaultIcon.classList.add('hidden');
+                } else {
+                    if(emailValidIcon) emailValidIcon.classList.add('hidden');
+                    if(emailDefaultIcon) emailDefaultIcon.classList.remove('hidden');
+                }
             }
         });
 
@@ -592,6 +605,7 @@
                     confirmPasswordContainer.classList.add('hidden');
                     passwordStrengthContainer.classList.add('hidden');
                     loginActions.classList.remove('hidden');
+                    if (passkeyBtn) passkeyBtn.classList.remove('hidden');
                 } else {
                     tabSignup.classList.replace('text-gray-400', 'text-black');
                     tabSignup.classList.add('active');
@@ -606,6 +620,7 @@
                     confirmPasswordContainer.classList.remove('hidden');
                     passwordStrengthContainer.classList.remove('hidden');
                     loginActions.classList.add('hidden');
+                    if (passkeyBtn) passkeyBtn.classList.add('hidden');
                 }
 
                 syncAutofillHints();
@@ -658,7 +673,7 @@
 
             if (val.length === 0) {
                 feedback.textContent = "Requis";
-                feedback.className = "text-[9px] font-black uppercase tracking-widest text-gray-400 text-right";
+                feedback.className = "text-[9px] font-black uppercase tracking-widest text-gray-500 text-right";
                 return;
             }
 
@@ -688,7 +703,7 @@
             const bars = document.querySelectorAll('.strength-bar');
             bars.forEach(b => b.className = 'strength-bar w-1/4 h-full bg-gray-200 transition-colors duration-300');
             document.getElementById('passwordFeedback').textContent = "Faible";
-            document.getElementById('passwordFeedback').className = "text-[9px] font-black uppercase tracking-widest text-gray-400 text-right";
+            document.getElementById('passwordFeedback').className = "text-[9px] font-black uppercase tracking-widest text-gray-500 text-right";
         }
 
         // --- 5. Form Submission ---

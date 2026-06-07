@@ -224,17 +224,36 @@ const OrderManager = {
     },
 
     getVendorStats(emailOrId) {
+        const normalize = (value) => (value == null ? '' : String(value));
         const fallbackVendorId = localStorage.getItem('newketUserId');
-        const vendorOrders = this.data.filter(o =>
-            o.vendor_email === emailOrId || o.vendor_id === emailOrId || o.vendor_id === fallbackVendorId
-        );
+        const fallbackVendorEmail = localStorage.getItem('newketUserEmail');
+        const vendorIdentifiers = new Set([emailOrId, fallbackVendorId, fallbackVendorEmail].map(normalize).filter(Boolean));
+        const vendorOrders = this.data.filter(o => {
+            const vendorEmail = normalize(o.vendor_email);
+            const vendorId = normalize(o.vendor_id);
+            return vendorIdentifiers.has(vendorEmail) || vendorIdentifiers.has(vendorId);
+        });
         const totalEstimatedValue = vendorOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+        const totalViews = window.ProductManager && typeof ProductManager.getProducts === 'function'
+            ? ProductManager.getProducts()
+                .filter((product) => {
+                    const productOwnerEmail = normalize(product?.supplier_email);
+                    const productOwnerId = normalize(product?.user_id);
+                    return vendorIdentifiers.has(productOwnerEmail) || vendorIdentifiers.has(productOwnerId);
+                })
+                .reduce((sum, product) => sum + (parseInt(product?.views, 10) || 0), 0)
+            : 0;
+        const uniqueCustomers = [...new Set(vendorOrders.map((order) => normalize(order.customer_id || order.user_id || order.customer_email)).filter(Boolean))].length;
 
         return {
             totalOrders: vendorOrders.length,
             totalLeads: vendorOrders.length,
             totalRevenue: totalEstimatedValue,
             estimatedValue: totalEstimatedValue,
+            averageOrderValue: vendorOrders.length > 0 ? totalEstimatedValue / vendorOrders.length : 0,
+            conversionRate: totalViews > 0 ? (vendorOrders.length / totalViews) * 100 : 0,
+            totalViews,
+            uniqueCustomers,
             commission: 0, 
             commissionPercent: 0,
             netGains: totalEstimatedValue,

@@ -151,9 +151,10 @@ const HeroContentManager = {
 
         this._fetchPromise = (async () => {
             try {
+                const fetchOptions = { eq: [['id', HERO_ROW_ID]], limit: 1, timeout: 3000, suppressToast: true };
                 const rows = await window.SupabaseAdapter.fetchWithFilters
-                    ? await window.SupabaseAdapter.fetchWithFilters('hero_content', { eq: [['id', HERO_ROW_ID]], limit: 1 })
-                    : await window.SupabaseAdapter.fetch('hero_content');
+                    ? await window.SupabaseAdapter.fetchWithFilters('hero_content', fetchOptions)
+                    : await window.SupabaseAdapter.fetch('hero_content', fetchOptions);
 
                 const row = Array.isArray(rows)
                     ? (rows.find(r => r?.id === HERO_ROW_ID) || rows[0])

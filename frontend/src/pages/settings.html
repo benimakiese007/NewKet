@@ -208,15 +208,18 @@
                             </label>
                         </div>
 
-                        <div class="pt-6 border-t border-gray-50 flex items-center justify-between">
-                            <div>
-                                <h3 class="font-bold text-gray-900 text-sm">Clé d'accès (Passkey)</h3>
-                                <p class="text-xs text-gray-500 mt-1">Se connecter sans mot de passe avec Face ID, empreinte ou clé de sécurité.</p>
+                        <div class="pt-6 border-t border-gray-50 flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-bold text-gray-900 text-sm">Clé d'accès (Passkey)</h3>
+                                    <p class="text-xs text-gray-500 mt-1">Se connecter sans mot de passe avec Face ID, empreinte ou clé de sécurité.</p>
+                                </div>
+                                <button id="registerPasskeyBtn" data-track-action="settings:register_passkey_click" class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                                    <iconify-icon icon="solar:fingerprint-linear"></iconify-icon>
+                                    Créer
+                                </button>
                             </div>
-                    <button id="registerPasskeyBtn" data-track-action="settings:register_passkey_click" class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
-                                <iconify-icon icon="solar:fingerprint-linear"></iconify-icon>
-                                Créer
-                            </button>
+                            <div id="settingsPasskeysList" class="space-y-3 hidden"></div>
                         </div>
 
                         <div class="flex justify-end pt-4">
@@ -373,19 +376,86 @@
                     document.getElementById('updatePasswordBtn').addEventListener('click', () => this.updatePassword());
                     
                     const registerPasskeyBtn = document.getElementById('registerPasskeyBtn');
+                    const passkeysListContainer = document.getElementById('settingsPasskeysList');
                     
-                    // Vérifier si une clé existe déjà
-                    if (window.supabaseClient && window.supabaseClient.auth.passkey) {
-                        window.supabaseClient.auth.passkey.list().then(({ data }) => {
-                            if (data && data.length > 0) {
-                                const title = registerPasskeyBtn.closest('div').querySelector('h3');
-                                if (title) {
-                                    title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Activée</span>';
-                                }
-                                registerPasskeyBtn.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                    const renderSettingsPasskeys = (passkeys) => {
+                        if (!passkeysListContainer) return;
+                        if (!passkeys || passkeys.length === 0) {
+                            passkeysListContainer.classList.add('hidden');
+                            passkeysListContainer.innerHTML = '';
+                            return;
+                        }
+                        
+                        passkeysListContainer.classList.remove('hidden');
+                        passkeysListContainer.innerHTML = passkeys.map(pk => {
+                            const date = new Date(pk.created_at).toLocaleDateString('fr-FR', {
+                                day: 'numeric', month: 'short', year: 'numeric'
+                            });
+                            const name = pk.friendly_name || pk.name || 'Appareil inconnu';
+                            
+                            let pkType = 'WebAuthn / Biométrie';
+                            let icon = 'solar:key-minimalistic-bold';
+                            const lowerName = name.toLowerCase();
+                            
+                            if (lowerName.includes('apple') || lowerName.includes('mac') || lowerName.includes('iphone') || lowerName.includes('ipad')) {
+                                pkType = 'Passkey Apple (Face ID / Touch ID)';
+                                icon = 'bi:apple';
+                            } else if (lowerName.includes('windows')) {
+                                pkType = 'Windows Hello (Empreinte / Code)';
+                                icon = 'bi:windows';
+                            } else if (lowerName.includes('android')) {
+                                pkType = 'Passkey Android';
+                                icon = 'bi:android2';
+                            } else if (lowerName.includes('yubikey') || lowerName.includes('security key')) {
+                                pkType = 'Clé de sécurité physique';
+                                icon = 'solar:usb-bold';
                             }
-                        }).catch(err => console.error("Erreur passkeys:", err));
-                    }
+                            
+                            return `
+                                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50 gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100 text-gray-500 shrink-0">
+                                            <iconify-icon icon="${icon}" width="18"></iconify-icon>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-gray-900 truncate">${name}</p>
+                                            <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                                                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Ajoutée le ${date}</p>
+                                                <span class="text-[10px] text-gray-300 hidden sm:inline">•</span>
+                                                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Type : ${pkType}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-green-100 text-green-800 rounded">
+                                        Opérationnelle
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    };
+
+                    this.loadSettingsPasskeys = () => {
+                        if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                            window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                                renderSettingsPasskeys(data);
+                                if (data && data.length > 0) {
+                                    const title = registerPasskeyBtn.closest('div').querySelector('h3');
+                                    if (title && !title.innerHTML.includes('Activée')) {
+                                        title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Activée</span>';
+                                    }
+                                    registerPasskeyBtn.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé';
+                                } else {
+                                    const title = registerPasskeyBtn.closest('div').querySelector('h3');
+                                    if (title && title.innerHTML.includes('Activée')) {
+                                        title.innerHTML = "Clé d'accès (Passkey)";
+                                    }
+                                    registerPasskeyBtn.innerHTML = '<iconify-icon icon="solar:fingerprint-linear" width="20"></iconify-icon> Créer';
+                                }
+                            }).catch(err => console.error("Erreur passkeys:", err));
+                        }
+                    };
+
+                    this.loadSettingsPasskeys();
 
                     if (registerPasskeyBtn) {
                         registerPasskeyBtn.addEventListener('click', () => this.registerPasskey());
@@ -566,6 +636,7 @@
                         const { data, error } = await window.supabaseClient.auth.registerPasskey();
                         if (error) throw error;
                         showToast("Clé d'accès créée avec succès !", "success");
+                        if (this.loadSettingsPasskeys) this.loadSettingsPasskeys();
                     } catch (err) {
                         console.error('Passkey registration error:', err);
                         let msg = err.message || "Erreur lors de la création de la clé d'accès.";

@@ -606,7 +606,8 @@ export function buildProductCardHTML(p, options = {}) {
         delay = '0s',
         imageLoading = 'lazy',
         prioritizeImage = false,
-        prioritizeAvatar = false
+        prioritizeAvatar = false,
+        wrapperClass = ''
     } = options;
     const isFavorite = window.FavoritesManager ? FavoritesManager.isInFavorites(p.id) : false;
 
@@ -681,7 +682,7 @@ export function buildProductCardHTML(p, options = {}) {
     const absoluteProductUrl = `${window.location.origin}${productPagePath}`;
 
     return `
-        <div class="product-card card-active-scale ${animationClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${String(p.name || 'Produit NewKet').replace(/"/g, '&quot;')}">
+        <div class="product-card card-active-scale ${animationClass} ${wrapperClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${String(p.name || 'Produit NewKet').replace(/"/g, '&quot;')}">
             <div class="product-image">
                 ${badgeHTML}
                 <div style="position:absolute;left:12px;bottom:12px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none;">
@@ -733,20 +734,19 @@ export function buildProductCardHTML(p, options = {}) {
                     ${oldPriceDisplay ? `<span class="old-price">${oldPriceDisplay}</span>` : ''}
                     ${discountBadge}
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 2px;">
+                <div class="flex items-center gap-1 sm:gap-2 mt-auto pt-1 sm:pt-2">
                     <button 
                         onclick="if(window.initCheckout) window.initCheckout('${p.id}', this)"
-                        class="flex-1 btn-active-scale ${isAvailable ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-500'} py-2 sm:py-2.5 px-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
-                        style="border:none; cursor:pointer; min-width: 0;"
+                        class="flex-1 btn-active-scale ${isAvailable ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-500'} py-2 sm:py-2.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
+                        style="border:none; cursor:pointer;"
                         aria-label="Commander ${p.name.replace(/"/g, '&quot;')}"
                         data-product-id="${p.id}" ${isAvailable ? '' : 'disabled'}>
                         <iconify-icon icon="solar:cart-large-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
-                        <span class="truncate">${isAvailable ? 'Commander' : 'Indisponible'}</span>
+                        <span class="whitespace-nowrap sm:truncate tracking-tight">${isAvailable ? 'Commander' : 'Indisponible'}</span>
                     </button>
                     <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + resolvePath('pages/product') + '?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
-                        style="width:40px; height:40px; border-radius:10px; border:1px solid #e5e7eb; display:flex; align-items:center; justify-content:center; color:#6b7280; background:white; cursor:pointer; flex-shrink:0; transition: all 0.2s ease;"
-                        onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='white'"
-                        aria-label="Partager ce produit" hidden
+                        class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 bg-white hover:bg-gray-50 flex-shrink-0 transition-all"
+                        aria-label="Partager ce produit"
                         title="Partager">
                         <iconify-icon icon="solar:share-linear" width="16"></iconify-icon>
                     </button>
@@ -1023,11 +1023,32 @@ function isSupabaseImageSource(source) {
 
 function extractPrimaryImageToken(source) {
     if (Array.isArray(source)) {
-        return String(source[0] || '').trim();
+        source = String(source[0] || '').trim();
     }
-    const value = String(source || '').trim();
+    let value = String(source || '').trim();
     if (!value) return '';
-    return value.split(',')[0].trim();
+
+    let extractedValue = value;
+
+    if (value.startsWith('[') || value.startsWith('{')) {
+        try {
+            const parsed = JSON.parse(value);
+            if (Array.isArray(parsed)) {
+                extractedValue = String(parsed[0] || '').trim();
+            } else if (parsed && typeof parsed === 'object') {
+                extractedValue = String(parsed.url || parsed.image || parsed.src || parsed.thumb || parsed.primary || Object.values(parsed)[0] || '').trim();
+            }
+        } catch (e) {
+            // Not JSON or malformed, continue to fallback
+        }
+    }
+
+    // Handle Postgres array syntax like "{url1,url2}" and stray brackets/quotes
+    let cleanedValue = extractedValue.replace(/^\{|\}$/g, '').replace(/^\[|\]$/g, '');
+    let firstPart = cleanedValue.split(',')[0].trim();
+    
+    // Clean wrapping quotes
+    return firstPart.replace(/^"|"$/g, '').replace(/^'|'$/g, '').trim();
 }
 
 function parseImageVariantToken(token) {
@@ -1047,6 +1068,18 @@ function parseImageVariantToken(token) {
 
     const normalized = isSupabaseImageSource(value) ? buildSupabaseTransformedImageUrl(value) : value;
     return { thumb: '', full: normalized, primary: normalized };
+}
+
+function isValidResponsiveImageBaseUrl(value) {
+    const token = String(value || '').trim();
+    if (!token) return false;
+    if (token === '||') return false;
+
+    // Reject strings that are just array/object delimiters or separators.
+    const collapsed = token.replace(/[\[\]\{\}\|,;]+/g, '').trim();
+    if (!collapsed) return false;
+
+    return true;
 }
 
 function selectResponsiveImageUrl(source, opts = {}) {
@@ -1070,17 +1103,34 @@ function selectResponsiveImageUrl(source, opts = {}) {
     return parsed.primary || token;
 }
 
+/**
+ * Builds a responsive `srcset` attribute value for an image source.
+ *
+ * The original implementation returned an empty string for many cases, which
+ * caused the browser to emit "Failed parsing 'srcset'" errors. The new logic
+ * always returns a valid srcset when the image token can be resolved.
+ *
+ * @param {string|string[]} source - Image URL or array of URLs.
+ * @param {number[]} widths - Desired widths for the srcset entries.
+ * @param {object} opts - Additional options (currently unused).
+ * @returns {string} A properly formatted srcset string or an empty string if
+ *   the source cannot be processed.
+ */
 export function buildResponsiveImageSrcSet(source, widths = [240, 320, 480], opts = {}) {
-    const token = extractPrimaryImageToken(source);
-    if (!token || token === 'Images/default.png') return '';
-    if (token.startsWith('data:') || token.startsWith('blob:') || token.startsWith('Images/')) return '';
+    const resolvedUrl = selectResponsiveImageUrl(source, opts);
+    // Guard clauses for invalid, placeholder, or non-network images.
+    if (!resolvedUrl || resolvedUrl === '/Images/default.png') return '';
+    if (resolvedUrl.startsWith('data:') || resolvedUrl.startsWith('blob:')) return '';
+    if (!isValidResponsiveImageBaseUrl(resolvedUrl)) return '';
 
-    const parsed = parseImageVariantToken(token);
-    if (parsed.thumb && parsed.full) {
-        return `${parsed.thumb} 360w, ${parsed.full} 1600w`;
-    }
-
-    return '';
+    // If the token already points to a full image path, generate srcset using
+    // the provided widths. We assume a Supabase image URL where we can append
+    // the `?w=` query parameter to request a specific width.
+    const baseUrl = resolvedUrl.startsWith('Images/') ? `/${resolvedUrl}` : resolvedUrl;
+    const srcset = widths
+        .map((w) => `${baseUrl}?w=${w} ${w}w`)
+        .join(', ');
+    return srcset;
 }
 
 /**
@@ -2464,32 +2514,35 @@ window.showLogoutConfirm = () => {
         const modalId = 'logout-confirm-' + Date.now();
         const modal = document.createElement('div');
         modal.id = modalId;
-        modal.className = 'fixed top-0 left-0 right-0 z-[10000] flex justify-center p-4 sm:p-6 pointer-events-none transition-all duration-500';
+        modal.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 pointer-events-none transition-opacity duration-400 opacity-0';
         
         modal.innerHTML = `
-            <div class="absolute inset-0 bg-gray-950/20 backdrop-blur-[2px] pointer-events-auto" onclick="window._closeLogoutConfirm('${modalId}', false)"></div>
-            <div class="relative bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-2xl max-w-sm w-full pointer-events-auto border border-white/20 transform -translate-y-full transition-all duration-500 ease-out">
-                <div class="h-1.5 bg-gradient-to-r from-red-500 to-orange-500 rounded-t-[2rem]"></div>
-                <div class="p-6 sm:p-8">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center shrink-0">
-                            <iconify-icon icon="solar:logout-3-bold" class="text-red-500 text-2xl"></iconify-icon>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-black text-gray-900 leading-tight">Déconnexion</h3>
-                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Session NewKet</p>
-                        </div>
+            <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-[4px] pointer-events-auto transition-opacity duration-500 opacity-0" id="${modalId}-backdrop" onclick="window._closeLogoutConfirm('${modalId}', false)"></div>
+            <div class="relative bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl max-w-sm w-full pointer-events-auto border border-white/60 transform scale-95 translate-y-4 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden" id="${modalId}-content">
+                <div class="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-red-400 to-rose-600 rounded-full blur-[3rem] opacity-20 pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-gradient-to-tr from-orange-400 to-amber-500 rounded-full blur-[3rem] opacity-20 pointer-events-none"></div>
+
+                <div class="p-8 relative z-10 text-center flex flex-col items-center">
+                    <div class="w-20 h-20 rounded-[1.5rem] bg-gradient-to-br from-red-50 to-orange-50 border border-red-100/50 flex items-center justify-center shadow-inner mb-6 relative group transition-transform duration-500 hover:scale-110">
+                        <div class="absolute inset-0 bg-red-500 rounded-[1.5rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"></div>
+                        <iconify-icon icon="solar:logout-3-bold" class="text-red-500 text-4xl relative z-10 drop-shadow-sm group-hover:scale-110 transition-transform duration-500"></iconify-icon>
                     </div>
                     
-                    <p class="text-sm text-gray-600 font-medium leading-relaxed mb-8">Êtes-vous sûr de vouloir fermer votre session ?</p>
+                    <h3 class="text-2xl font-black text-gray-900 leading-tight mb-2 tracking-tight">Déconnexion</h3>
+                    <p class="text-[11px] text-red-500 font-bold uppercase tracking-[0.2em] mb-4 bg-red-50 px-3 py-1 rounded-full border border-red-100">Session NewKet</p>
                     
-                    <div class="flex gap-3">
-                        <button onclick="window._closeLogoutConfirm('${modalId}', false)" class="flex-1 px-4 py-3.5 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-all active:scale-95 text-sm">
-                            Rester
+                    <p class="text-[14px] text-gray-500 font-medium leading-relaxed mb-8">
+                        Êtes-vous sûr de vouloir fermer votre session ? Vous devrez vous reconnecter pour accéder à votre compte.
+                    </p>
+                    
+                    <div class="flex flex-col gap-3 w-full">
+                        <button onclick="window._closeLogoutConfirm('${modalId}', true)" class="w-full px-5 py-4 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-[1.25rem] shadow-[0_8px_16px_-4px_rgba(239,68,68,0.3)] hover:shadow-[0_16px_24px_-4px_rgba(239,68,68,0.5)] hover:-translate-y-1 transition-all duration-300 active:scale-[0.98] text-[15px] flex items-center justify-center gap-2 group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[800ms] ease-in-out skew-x-12"></div>
+                            <span class="relative z-10 transition-transform duration-300 group-hover:translate-x-1">Oui, me déconnecter</span>
+                            <iconify-icon icon="solar:logout-3-bold" width="18" class="relative z-10 transition-transform duration-300 group-hover:translate-x-2 group-hover:rotate-6"></iconify-icon>
                         </button>
-                        <button onclick="window._closeLogoutConfirm('${modalId}', true)" class="flex-1 px-4 py-3.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/20 transition-all active:scale-95 text-sm flex items-center justify-center gap-2">
-                            Quitter
-                            <iconify-icon icon="solar:arrow-right-up-bold" width="16"></iconify-icon>
+                        <button onclick="window._closeLogoutConfirm('${modalId}', false)" class="w-full px-5 py-4 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-[1.25rem] transition-all duration-300 active:scale-[0.98] text-[15px] border-2 border-gray-100 hover:border-gray-200 hover:-translate-y-1 hover:shadow-md flex items-center justify-center">
+                            Rester connecté
                         </button>
                     </div>
                 </div>
@@ -2498,21 +2551,36 @@ window.showLogoutConfirm = () => {
 
         document.body.appendChild(modal);
 
-        // Slide down
+        // Animate in
         requestAnimationFrame(() => {
-            modal.querySelector('.transform').classList.remove('-translate-y-full');
+            modal.classList.remove('opacity-0');
+            const backdrop = document.getElementById(`${modalId}-backdrop`);
+            const content = document.getElementById(`${modalId}-content`);
+            if (backdrop) backdrop.classList.remove('opacity-0');
+            if (content) {
+                content.classList.remove('scale-95', 'translate-y-4', 'opacity-0');
+            }
         });
 
         window._closeLogoutConfirm = (id, result) => {
             const el = document.getElementById(id);
             if (!el) return;
-            el.querySelector('.transform').classList.add('-translate-y-full');
-            el.style.opacity = '0';
+            const backdrop = document.getElementById(`${id}-backdrop`);
+            const content = document.getElementById(`${id}-content`);
+            
+            if (backdrop) backdrop.classList.add('opacity-0');
+            if (content) {
+                content.style.transitionTimingFunction = 'cubic-bezier(0.4, 0, 0.2, 1)';
+                content.style.transitionDuration = '400ms';
+                content.classList.add('scale-95', 'translate-y-4', 'opacity-0');
+            }
+            el.classList.add('opacity-0');
+            
             setTimeout(() => {
                 el.remove();
                 delete window._closeLogoutConfirm;
                 resolve(result);
-            }, 500);
+            }, 400); // Wait for transition
         };
     });
 };

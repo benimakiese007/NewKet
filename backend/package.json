@@ -23,6 +23,7 @@
     "helmet": "^8.1.0",
     "node-cache": "^5.1.2",
     "nodemailer": "^8.0.5",
+    "sharp": "^0.34.5",
     "web-push": "^3.6.7"
   }
 }

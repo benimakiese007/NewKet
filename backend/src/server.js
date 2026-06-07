@@ -149,6 +149,14 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: () => process.env.NODE_ENV === 'development',
+  // Prevent crash when request.ip is undefined (e.g. behind a proxy without trust proxy set)
+  keyGenerator: (req) => {
+    return req.ip
+      || req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+      || req.socket?.remoteAddress
+      || 'unknown';
+  },
+  validate: { xForwardedForHeader: false },
 });
 app.use('/api', limiter);
 
@@ -274,14 +282,23 @@ if (!IS_VERCEL) {
     });
   }, 15 * 60 * 1000);
 
+  let _pushJobFnMissing = false;
   setTimeout(() => {
     processDuePushNotificationJobsJob().catch((error) => {
+      if (error.message?.includes('Could not find the function')) {
+        if (!_pushJobFnMissing) {
+          console.warn('[PushJob] claim_push_notification_jobs() not found in DB schema — push jobs disabled until migration is applied.');
+          _pushJobFnMissing = true;
+        }
+        return;
+      }
       console.error('[PushJob] Startup run failed:', error.message);
     });
   }, 20000);
 
   setInterval(() => {
     processDuePushNotificationJobsJob().catch((error) => {
+      if (error.message?.includes('Could not find the function')) return; // silenced — one-time warning logged above
       console.error('[PushJob] Scheduled run failed:', error.message);
     });
   }, PUSH_JOB_INTERVAL_MS);

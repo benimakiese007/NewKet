@@ -1885,7 +1885,11 @@
                         });
                     }
 
-                    _loadExistingAvatar();
+                    if (window.newketInitialized) {
+                        _loadExistingAvatar();
+                    } else {
+                        window.addEventListener('newketInitialized', _loadExistingAvatar);
+                    }
                     // ===== END AVATAR PHOTO LOGIC =====
 
                     // ===== COVER PHOTO LOGIC =====
@@ -1995,7 +1999,11 @@
                     }
 
                     // Load existing cover on page load
-                    _loadExistingCover();
+                    if (window.newketInitialized) {
+                        _loadExistingCover();
+                    } else {
+                        window.addEventListener('newketInitialized', _loadExistingCover);
+                    }
                     // ===== END COVER PHOTO LOGIC =====
 
                     // Handle Settings Form

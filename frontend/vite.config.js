@@ -30,17 +30,12 @@ export default defineConfig({
         server.middlewares.use((req, _res, next) => {
           try {
             const originalUrl = req.url || '';
-            // Rewrite product pretty URLs to product page.
-            // Supported (case-insensitive):
-            // - /boutique/<shop-slug>/produit/<product-id-or-slug>
-            // - /Boutique/<shop-slug>/<product-id-or-slug>/<1-100>/NewKet
             const legacyProduct = originalUrl.match(/^\/boutique\/[^/?#]+\/produit\/([^/?#]+)\/?(?:\?.*)?$/i);
             const prettyProduct = originalUrl.match(/^\/boutique\/[^/?#]+\/([^/?#]+)\/(?:[0-9]{1,3})\/newket\/?(?:\?.*)?$/i);
             const pMatch = legacyProduct || prettyProduct;
             if (pMatch) {
               const productToken = pMatch[1];
               const url = new URL(originalUrl, 'http://localhost');
-              // Only set id when it's very likely an ID; otherwise let product.html parse pathname.
               if (/^(prod-[a-z0-9-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(productToken)) {
                 url.searchParams.set('id', productToken);
               }
@@ -48,7 +43,6 @@ export default defineConfig({
               return next();
             }
 
-            // Rewrite /boutique/<slug>/NewKet to the shop HTML page in dev.
             const m = originalUrl.match(/^\/boutique\/([^/?#]+)(?:\/NewKet)?\/?(?:\?.*)?$/i);
             if (m) {
               const slug = m[1];
@@ -57,7 +51,6 @@ export default defineConfig({
               req.url = `/src/pages/shop.html?${url.searchParams.toString()}`;
             }
           } catch {
-            // ignore
           }
           next();
         });
@@ -65,11 +58,11 @@ export default defineConfig({
     }
   ],
   server: {
-    host: 'localhost',
+    host: '0.0.0.0',
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://127.0.0.1:3000',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path
@@ -77,19 +70,18 @@ export default defineConfig({
     },
     hmr: {
       host: 'localhost',
+      port: 5173,
       protocol: 'ws',
     }
   },
   root: '.',
   envDir: './',
   publicDir: './public',
-  // Vite va résoudre le build à la racine par défaut
   build: {
     outDir: './dist',
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        // Root pages
         main: resolve(__dirname, 'index.html'),
         catalog: resolve(__dirname, 'src/pages/catalog.html'),
         product: resolve(__dirname, 'src/pages/product.html'),
@@ -117,7 +109,6 @@ export default defineConfig({
         support: resolve(__dirname, 'src/pages/support.html'),
         system_health: resolve(__dirname, 'src/pages/system-health.html'),
         
-        // Admin pages
         admin_index: resolve(__dirname, 'src/pages/admin/index.html'),
         admin_realtime: resolve(__dirname, 'src/pages/admin/realtime.html'),
         admin_analytics: resolve(__dirname, 'src/pages/admin/analytics.html'),

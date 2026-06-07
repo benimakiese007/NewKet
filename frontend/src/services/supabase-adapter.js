@@ -387,9 +387,13 @@ window.SupabaseAdapter = {
             this._setCache(cacheKey, data, table);
             return data;
         } catch (err) {
-            console.error(`[NewKet] Critical Error fetching from ${table} (filtered):`, err);
+            if (options.suppressToast) {
+                console.warn(`[NewKet] Expected/Non-critical timeout fetching from ${table}:`, err.message || err);
+            } else {
+                console.error(`[NewKet] Critical Error fetching from ${table} (filtered):`, err);
+            }
             const errMsg = (err.message || '').toLowerCase();
-            if (typeof window.showToast === 'function' && (errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('timed out'))) {
+            if (!options.suppressToast && typeof window.showToast === 'function' && (errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('timed out'))) {
                 window.showToast("Une erreur réseau est survenue. Veuillez vérifier votre connexion.", "danger");
             }
             return options.single ? null : [];

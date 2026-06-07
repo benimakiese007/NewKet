@@ -850,6 +850,7 @@
             const to = from + CATALOG_PAGE_SIZE - 1;
 
             let products = [];
+            let hasError = false;
 
             // Try server-side query first
             if (window.SupabaseAdapter && window.supabaseClient) {
@@ -922,6 +923,7 @@
                 } catch (err) {
                     console.warn('[NewKet Catalog] Server-side query failed, falling back to client-side:', err.message);
                     products = null; // Flag to use fallback
+                    hasError = true;
                 }
             }
 
@@ -970,20 +972,37 @@
             }
 
             if (products.length === 0 && !append) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                        <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <iconify-icon icon="solar:magnifer-zoom-out-linear" width="48"></iconify-icon>
+                if (hasError && (!window.ProductManager || window.ProductManager.getProducts().length === 0)) {
+                    grid.innerHTML = `
+                        <div class="col-span-full text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="w-24 h-24 bg-red-50 text-red-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <iconify-icon icon="solar:danger-triangle-linear" width="48"></iconify-icon>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">Erreur de connexion</div>
+                            <div class="text-gray-500 mb-8 max-w-sm mx-auto">Impossible de charger les produits. Veuillez vérifier votre connexion internet et réessayer.</div>
+                            <div class="mt-6">
+                                <button onclick="window.NewKetPageRefresh()" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                                    <iconify-icon icon="solar:restart-linear" width="20"></iconify-icon> Réessayer
+                                </button>
+                            </div>
                         </div>
-                        <div class="text-2xl font-bold text-gray-900 mb-2">Quête infructueuse</div>
-                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</div>
-                        <div class="mt-6">
-                            <button data-reset-filters class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
-                                Réinitialiser l'horizon
-                            </button>
+                    `;
+                } else {
+                    grid.innerHTML = `
+                        <div class="col-span-full text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <iconify-icon icon="solar:magnifer-zoom-out-linear" width="48"></iconify-icon>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">Quête infructueuse</div>
+                            <div class="text-gray-500 mb-8 max-w-sm mx-auto">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</div>
+                            <div class="mt-6">
+                                <button data-reset-filters class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                                    Réinitialiser l'horizon
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
                 removeLoadMoreButton();
                 return;
             }
@@ -1015,25 +1034,43 @@
             }
         }
 
+        let catalogObserver = null;
+
         function showLoadMoreButton() {
-            let btn = document.getElementById('loadMoreBtn');
-            if (!btn) {
-                btn = document.createElement('button');
-                btn.id = 'loadMoreBtn';
-                btn.className = 'mx-auto mt-8 mb-4 block px-8 py-3 bg-gray-900 text-white rounded-2xl font-bold text-sm hover:bg-black hover:scale-105 active:scale-95 transition-all shadow-lg';
-                btn.innerHTML = '<iconify-icon icon="solar:arrow-down-linear" width="16" class="mr-2"></iconify-icon>Voir plus';
-                btn.onclick = () => {
-                    catalogPage++;
-                    renderCatalog(true);
-                };
+            let sentinel = document.getElementById('loadMoreSentinel');
+            if (!sentinel) {
+                sentinel = document.createElement('div');
+                sentinel.id = 'loadMoreSentinel';
+                sentinel.className = 'w-full flex justify-center py-8 mt-4';
+                sentinel.innerHTML = `
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                `;
                 const grid = document.getElementById('catalog-grid');
-                grid.parentNode.insertBefore(btn, grid.nextSibling);
+                grid.parentNode.insertBefore(sentinel, grid.nextSibling);
+                
+                if (!catalogObserver) {
+                    catalogObserver = new IntersectionObserver((entries) => {
+                        if (entries[0].isIntersecting && !window._isFetchingCatalog) {
+                            window._isFetchingCatalog = true;
+                            catalogPage++;
+                            renderCatalog(true).finally(() => {
+                                window._isFetchingCatalog = false;
+                            });
+                        }
+                    }, { rootMargin: '300px' });
+                }
+                catalogObserver.observe(sentinel);
             }
         }
 
         function removeLoadMoreButton() {
-            const btn = document.getElementById('loadMoreBtn');
-            if (btn) btn.remove();
+            const sentinel = document.getElementById('loadMoreSentinel');
+            if (sentinel) {
+                if (catalogObserver) catalogObserver.unobserve(sentinel);
+                sentinel.remove();
+            }
+            const oldBtn = document.getElementById('loadMoreBtn');
+            if (oldBtn) oldBtn.remove();
         }
 
         window.NewKetPageRefresh = async function () {

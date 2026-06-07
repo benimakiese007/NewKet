@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NewKet">
     <title>Mon Espace Client | NewKet</title>
-    <meta name="description" content="DÃ©couvrez NewKet, la marketplace de luxe de rÃ©fÃ©rence en RDC. Achetez et vendez vos articles en toute sÃ©curitÃ©.">
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
     <link rel="stylesheet" href="/src/assets/css/input.css">
         <script src="/vendor/iconify-preload.js"></script>
     <script src="/vendor/iconify-icon.min.js"></script>
@@ -205,7 +205,7 @@
             </button>
 
             <!-- Desktop/Tablet Collapse Toggle -->
-            <button type="button" class="sidebar-toggle-btn hidden lg:flex" data-toggle-sidebar="customer" aria-label="RÃ©duire le menu" data-no-close>
+            <button type="button" class="sidebar-toggle-btn hidden lg:flex" data-toggle-sidebar="customer" aria-label="Réduire le menu" data-no-close>
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
             </button>
 
@@ -251,7 +251,7 @@
                     </a>
                     <a href="#settings" data-switch-customer-tab="settings" class="sidebar-link" id="link-settings">
                         <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
-                        <span>ParamÃ¨tres</span>
+                        <span>Paramètres</span>
                     </a>
                     <!-- Admin Link for Suppliers -->
                     <div id="supplier-link-container" class="hidden">
@@ -266,7 +266,7 @@
                 <div class="mt-4 pt-4 border-t border-gray-100">
                 <button class="sidebar-logout" data-logout-safe data-track-action="customer_dashboard:logout_click">
                         <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
-                        <span>Se dÃ©connecter</span>
+                        <span>Se déconnecter</span>
                     </button>
                 </div>
 
@@ -307,7 +307,7 @@
                 <div class="dashboard-page-header dashboard-page-header--stacked">
                     <div class="dashboard-page-header__content">
                         <h1 class="dashboard-page-title">Achat</h1>
-                        <p class="dashboard-page-subtitle text-sm sm:text-base">Finalisez votre paiement en toute sÃ©curitÃ© (sÃ©questre NewKet).</p>
+                        <p class="dashboard-page-subtitle text-sm sm:text-base">Finalisez votre paiement en toute sécurité (séquestre NewKet).</p>
                     </div>
                 </div>
                 <div id="achatContent" class="space-y-4">
@@ -374,7 +374,7 @@
                         <div class="flex items-center justify-between mb-6 gap-4">
                             <div class="min-w-0">
                                 <h2 class="text-lg font-bold truncate">Commandes en cours</h2>
-                                <p class="text-sm text-gray-500 mt-1">Suivez l'Ã©tat et passez Ã  l'Ã©tape suivante.</p>
+                                <p class="text-sm text-gray-500 mt-1">Suivez l'état et passez à l'étape suivante.</p>
                             </div>
                             <button type="button"
                                 class="text-[10px] font-bold uppercase tracking-widest px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap"
@@ -401,7 +401,7 @@
                 <!-- Recent Activity Feed -->
                 <div class="bg-white rounded-3xl border border-gray-100 p-8">
                     <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-lg font-bold">ActivitÃ©s RÃ©centes</h2>
+                        <h2 class="text-lg font-bold">Activités Récentes</h2>
                         <iconify-icon icon="solar:history-bold" width="20" class="text-gray-300"></iconify-icon>
                     </div>
                     <div id="customer-activity-feed" class="space-y-4">
@@ -448,7 +448,7 @@
                                 </div>
                                 <div class="min-w-0">
                                     <h2 class="text-sm font-black uppercase tracking-widest text-gray-900">Notifications appareil</h2>
-                                    <p id="customerDevicePushStatus" class="text-xs text-gray-500 mt-1">PWA installee recommandee pour recevoir les alertes hors app.</p>
+                                    <p id="customerDevicePushStatus" class="text-xs text-gray-500 mt-1">PWA installée recommandée pour recevoir les alertes hors app.</p>
                                 </div>
                             </div>
                         </div>
@@ -460,106 +460,117 @@
                 </div>
 
                 <div class="customer-settings-grid grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
-                <!-- Profile Info -->
-                <div class="glass-panel p-8 w-full">
-                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Informations
-                        personnelles</h2>
-                    <form class="space-y-5" id="profileForm">
-                        <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-200">
-                            <div id="profileAvatarPreview" class="w-16 h-16 rounded-full overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center text-sm font-black text-gray-700 shrink-0">
-                                <img id="profileAvatarPreviewImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
-                                <span id="profileAvatarPreviewPlaceholder">?</span>
+                    <!-- Profile Info -->
+                    <div class="glass-panel p-8 w-full">
+                        <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Informations personnelles</h2>
+                        <form class="space-y-5" id="profileForm">
+                            <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-200">
+                                <div id="profileAvatarPreview" class="w-16 h-16 rounded-full overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center text-sm font-black text-gray-700 shrink-0">
+                                    <img id="profileAvatarPreviewImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
+                                    <span id="profileAvatarPreviewPlaceholder">?</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-bold text-gray-900">Photo de profil</p>
+                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG ou WEBP. Maximum 2 Mo.</p>
+                                </div>
+                                <button type="button" id="changeProfileAvatarBtn"
+                                    class="px-4 py-2 rounded-xl bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-gray-800 transition-colors">
+                                    Modifier
+                                </button>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-gray-900">Photo de profil</p>
-                                <p class="text-xs text-gray-500 mt-1">PNG, JPG ou WEBP. Maximum 2 Mo.</p>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                                <input type="text" id="profName"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                             </div>
-                            <button type="button" id="changeProfileAvatarBtn"
-                                class="px-4 py-2 rounded-xl bg-black text-white text-xs font-black uppercase tracking-widest hover:bg-gray-800 transition-colors">
-                                Modifier
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" id="profEmail"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone</label>
+                                <input type="tel" id="profPhone"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                            </div>
+                            <button type="submit"
+                                class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                                <span class="btn-text">Enregistrer le profil</span>
+                                <span class="btn-loader hidden">
+                                    <iconify-icon icon="solar:refresh-linear" class="animate-spin" width="16"></iconify-icon>
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right Column: Password + Passkeys -->
+                    <div class="flex flex-col gap-8 w-full">
+                        <!-- Change Password -->
+                        <div class="glass-panel p-8 w-full">
+                            <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Modifier le mot de passe</h2>
+                            <form class="space-y-5" id="passwordForm">
+                                <input type="text" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
+                                <div id="currentPasswordGroup">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
+                                    <input type="password" id="currentPassword" placeholder="********" autocomplete="current-password"
+                                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                                </div>
+                                <p id="passwordOauthHint" class="hidden text-xs text-gray-500">Compte Google detecte : vous pouvez definir un mot de passe sans saisir un mot de passe actuel.</p>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
+                                    <input type="password" id="newPassword" placeholder="Minimum 8 caractères" autocomplete="new-password"
+                                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
+                                    <input type="password" id="confirmPassword" placeholder="Répéter le mot de passe" autocomplete="new-password"
+                                        class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                                </div>
+                                <button type="submit"
+                                    class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">
+                                    Mettre à jour
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Passkeys -->
+                        <div class="glass-panel p-8 w-full">
+                            <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Clé d'accès (Passkey)</h2>
+                            <p class="text-sm text-gray-500 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clé de sécurité.</p>
+                            
+                            <div id="customerPasskeysList" class="space-y-3 mb-6 hidden">
+                                <!-- Passkeys will be injected here -->
+                            </div>
+
+                            <button id="registerPasskeyBtnCust" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
+                                Créer une clé d'accès
                             </button>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
-                            <input type="text" id="profName"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                            <input type="email" id="profEmail"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">TÃ©lÃ©phone</label>
-                            <input type="tel" id="profPhone"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                        </div>
-                        <button type="submit"
-                            class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors"><span class="btn-text">Enregistrer le profil</span><span class="btn-loader hidden"><iconify-icon icon="solar:refresh-linear" class="animate-spin" width="16"></iconify-icon></span></button>
-                    </form>
+                    </div>
                 </div>
 
-                <!-- Change Password -->
-                <div class="glass-panel p-8 w-full xl:max-w-2xl">
-                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Modifier le mot de passe
-                    </h2>
-                    <form class="space-y-5" id="passwordForm">
-                        <input type="text" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
-                        <div id="currentPasswordGroup">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
-                            <input type="password" id="currentPassword" placeholder="********" autocomplete="current-password"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                        </div>
-                        <p id="passwordOauthHint" class="hidden text-xs text-gray-500">Compte Google detecte : vous pouvez definir un mot de passe sans saisir un mot de passe actuel.</p>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
-                            <input type="password" id="newPassword" placeholder="Minimum 8 caractÃ¨res" autocomplete="new-password"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de
-                                passe</label>
-                            <input type="password" id="confirmPassword" placeholder="RÃ©pÃ©ter le mot de passe" autocomplete="new-password"
-                                class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
-                        </div>
-                        <button type="submit"
-                            class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">Mettre
-                            Ã  jour</button>
-                    </form>
-                </div>
-
-                <!-- Passkeys -->
-                <div class="glass-panel p-8 w-full xl:max-w-2xl mt-8">
-                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Clé d'accès (Passkey)</h2>
-                    <p class="text-sm text-gray-500 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clé de sécurité.</p>
-                    <button id="registerPasskeyBtnCust" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                        <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
-                        Créer une clé d'accès
-                    </button>
-                </div>
-
-                <!-- Home Location -->
+                <!-- Residence Section -->
                 <div class="glass-panel p-8 w-full">
-                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-2">Residence de livraison
-                    </h2>
-                    <p class="text-sm text-gray-500 mb-6">Enregistrez la localisation de votre maison une fois. Les prochaines commandes partiront de cette residence par defaut.</p>
+                    <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-2">Résidence de livraison</h2>
+                    <p class="text-sm text-gray-500 mb-6">Enregistrez la localisation de votre maison une fois. Les prochaines commandes partiront de cette résidence par défaut.</p>
                     <div class="space-y-5" id="residenceSection">
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex-1">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Ville de residence</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ville de résidence</label>
                                 <input type="text" id="residenceCity" placeholder="Ex: Kinshasa"
                                     class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
                             </div>
-                            <div id="customerResidenceBadge" class="hidden px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest self-start mt-8">Residence active</div>
+                            <div id="customerResidenceBadge" class="hidden px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest self-start mt-8">Résidence active</div>
                         </div>
                         <div class="rounded-[1.25rem] border border-gray-100 overflow-hidden bg-gray-50">
                             <div id="customerResidenceMap" class="w-full h-64"></div>
                         </div>
                         <div id="customerResidenceStatus" class="text-xs text-gray-600 px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 flex items-center gap-2">
                             <iconify-icon icon="solar:info-circle-bold" width="16" class="text-gray-400"></iconify-icon>
-                            <span>Chargez votre residence puis sauvegardez-la pour le checkout.</span>
+                            <span>Chargez votre résidence puis sauvegardez-la pour le checkout.</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <button type="button" id="residenceLocateBtn"
@@ -570,12 +581,13 @@
                             <button type="button" id="saveResidenceBtn"
                                 class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                                 <iconify-icon icon="solar:diskette-bold" width="18"></iconify-icon>
-                                Sauvegarder ma residence
+                                Sauvegarder ma résidence
                             </button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Referral Section -->
                 <div class="glass-panel p-8 w-full">
                     <div class="flex items-start justify-between gap-4 mb-6">
                         <div>
@@ -592,7 +604,7 @@
                         </div>
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
                             <iconify-icon icon="solar:wallet-money-bold" width="14"></iconify-icon>
-                            Valeur cumulÃ©e: <span id="referralNkTokenUsdBadge">0,00$</span>
+                            Valeur cumulée: <span id="referralNkTokenUsdBadge">0,00$</span>
                         </div>
                     </div>
 
@@ -631,14 +643,14 @@
                                 <div id="referralPendingCount" class="text-2xl font-black text-gray-900">0</div>
                             </div>
                             <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
-                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">ConfirmÃ©s</div>
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Confirmés</div>
                                 <div id="referralQualifiedCount" class="text-2xl font-black text-gray-900">0</div>
                             </div>
                         </div>
 
                         <div class="rounded-2xl border border-dashed border-gray-200 bg-white p-4 space-y-4">
                             <div>
-                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Tu as reÃ§u un code ?</label>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Tu as reçu un code ?</label>
                                 <div class="flex flex-col sm:flex-row gap-3">
                                     <input id="referralClaimCode" type="text" placeholder="Ex: NEWKET-ABC123"
                                         class="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none text-sm text-gray-900 uppercase">
@@ -648,7 +660,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <p id="referralHint" class="text-xs text-gray-500">Si tu arrives avec un lien de parrainage, le code est enregistrÃ© automatiquement. Tu peux aussi le coller ici plus tard.</p>
+                            <p id="referralHint" class="text-xs text-gray-500">Si tu arrives avec un lien de parrainage, le code est enregistr� automatiquement. Tu peux aussi le coller ici plus tard.</p>
                         </div>
                         <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4 space-y-4">
                             <div class="flex items-center justify-between gap-3">
@@ -657,7 +669,7 @@
                                     <div id="referralNkTokenBalance" class="text-2xl font-black text-gray-900">0 NKToken</div>
                                 </div>
                                 <div class="text-right">
-                                    <div id="referralNkTokenBalanceUsd" class="text-sm font-black text-emerald-700">≈ 0,00$</div>
+                                    <div id="referralNkTokenBalanceUsd" class="text-sm font-black text-emerald-700">H 0,00$</div>
                                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">1 NKToken = 0,5$</div>
                                 </div>
                             </div>
@@ -675,7 +687,6 @@
                                 <div class="text-sm text-gray-400">Aucune récompense pour le moment.</div>
                             </div>
                         </div>
-                        </div>
                     </div>
                 </div>
                 </div>
@@ -688,7 +699,7 @@
             class="glass-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden animate-in fade-in zoom-in duration-300">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                 <div>
-                    <h2 class="text-xl font-bold" id="modalOrderIdText">DÃ©tails de la demande</h2>
+                    <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
                     <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
                 </div>
                 <button type="button" data-action="close-order-modal"
@@ -755,7 +766,7 @@
                                 <span id="quoteAmount" class="font-black">-</span>
                             </div>
                             <div class="flex items-center justify-between gap-3">
-                                <span>DÃ©lai estimÃ©</span>
+                                <span>Délai estimé</span>
                                 <span id="quoteDelay" class="font-bold">-</span>
                             </div>
                             <p id="quoteNote" class="text-xs text-amber-700 mt-2"></p>
@@ -789,7 +800,7 @@
                         <button id="btnValidateDelivery" type="button"
                             class="hidden flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
-                            Valider la rÃ©ception
+                            Valider la réception
                         </button>
                         <button id="btnOpenDispute" type="button"
                             class="hidden flex-1 py-3 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
@@ -1078,14 +1089,14 @@
             }
 
             customerAvatarUploadInFlight = true;
-            if (window.LoaderManager) LoaderManager.show('Mise Ã  jour de la photo...');
+            if (window.LoaderManager) LoaderManager.show('Mise à jour de la photo...');
 
             try {
                 const client = window.SupabaseAdapter?.getClient?.();
                 if (!client) throw new Error('Client Supabase indisponible');
 
                 const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
-                if (!user?.id) throw new Error('Utilisateur non authentifiÃ©');
+                if (!user?.id) throw new Error('Utilisateur non authentifié');
 
                 const ext = (file.name?.split('.')?.pop() || 'jpg').toLowerCase();
                 const safeExt = ['png', 'jpg', 'jpeg', 'webp'].includes(ext) ? ext : 'jpg';
@@ -1104,7 +1115,7 @@
 
                 const currentName = currentProfile.name || localStorage.getItem('newketUserName') || user.email || 'Utilisateur';
                 renderCustomerProfileAvatarPreview(currentName, publicUrl);
-                showToast('Photo de profil mise Ã  jour.', 'success');
+                showToast('Photo de profil mise à jour.', 'success');
             } catch (error) {
                 console.error('[Customer Avatar] Upload error:', error);
                 const uploadError = window.SupabaseAdapter?.getLastUploadError?.() || error;
@@ -1322,7 +1333,7 @@
                 mapEl.dataset.leafletReady = 'true';
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 18,
-                    attribution: 'Â© OpenStreetMap'
+                    attribution: '© OpenStreetMap'
                 }).addTo(customerResidenceMap);
 
                 customerResidenceMarker = L.marker(defaultCenter, { draggable: true }).addTo(customerResidenceMap);
@@ -1593,10 +1604,10 @@
                 ProfileManager.saveProfile({ ...profile, ...saved, phone: savedPhone });
                 document.getElementById('userDisplayName').textContent = (saved.name || name) || 'Mon Compte';
                 renderAvatar(saved.name || name, (saved.avatar || profile.avatar) || localStorage.getItem('newketUserAvatar'), 'userAvatarImg', 'userAvatarPlaceholder');
-                showToast('Profil mis Ã  jour avec succÃ¨s !', 'success');
+                showToast('Profil mis à jour avec succès !', 'success');
             } catch (err) {
                 console.error('[Customer Profile] Update error:', err);
-                showToast('Erreur lors de la mise Ã  jour du profil.', 'error');
+                showToast('Erreur lors de la mise à jour du profil.', 'error');
             }
         });
 
@@ -1638,27 +1649,100 @@
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
-                showToast('Mot de passe mis Ã  jour avec succÃ¨s !', 'success');
+                showToast('Mot de passe mis à jour avec succès !', 'success');
             } catch (err) {
                 console.error('Erreur password:', err);
-                showToast('Erreur lors de la mise Ã  jour : ' + err.message, 'error');
+                showToast('Erreur lors de la mise à jour : ' + err.message, 'error');
             }
         });
 
         // Passkeys
         const registerPasskeyBtnCust = document.getElementById('registerPasskeyBtnCust');
         
-        // Vérifier si une clé existe déjà
-        if (window.supabaseClient && window.supabaseClient.auth.passkey) {
-            window.supabaseClient.auth.passkey.list().then(({ data }) => {
-                if (data && data.length > 0) {
-                    const title = registerPasskeyBtnCust.closest('div').querySelector('h2');
-                    if (title) {
-                        title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
-                    }
-                    registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+        // Render Passkeys List
+        const customerPasskeysList = document.getElementById('customerPasskeysList');
+        
+        const renderCustomerPasskeys = (passkeys) => {
+            if (!customerPasskeysList) return;
+            if (!passkeys || passkeys.length === 0) {
+                customerPasskeysList.classList.add('hidden');
+                customerPasskeysList.innerHTML = '';
+                return;
+            }
+            
+            customerPasskeysList.classList.remove('hidden');
+            customerPasskeysList.innerHTML = passkeys.map(pk => {
+                const date = new Date(pk.created_at).toLocaleDateString('fr-FR', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+                const name = pk.friendly_name || pk.name || 'Appareil inconnu';
+                
+                let pkType = 'WebAuthn / Biométrie';
+                let icon = 'solar:key-minimalistic-bold';
+                const lowerName = name.toLowerCase();
+                
+                if (lowerName.includes('apple') || lowerName.includes('mac') || lowerName.includes('iphone') || lowerName.includes('ipad')) {
+                    pkType = 'Passkey Apple (Face ID / Touch ID)';
+                    icon = 'bi:apple';
+                } else if (lowerName.includes('windows')) {
+                    pkType = 'Windows Hello (Empreinte / Code)';
+                    icon = 'bi:windows';
+                } else if (lowerName.includes('android')) {
+                    pkType = 'Passkey Android';
+                    icon = 'bi:android2';
+                } else if (lowerName.includes('yubikey') || lowerName.includes('security key')) {
+                    pkType = 'Clé de sécurité physique';
+                    icon = 'solar:usb-bold';
                 }
-            }).catch(err => console.error("Erreur passkeys:", err));
+                
+                return `
+                    <div class="flex flex-wrap sm:flex-nowrap items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50 gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100 text-gray-500 shrink-0">
+                                <iconify-icon icon="${icon}" width="18"></iconify-icon>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-sm font-bold text-gray-900 truncate">${name}</p>
+                                <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Ajoutée le ${date}</p>
+                                    <span class="text-[10px] text-gray-300 hidden sm:inline">•</span>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Type : ${pkType}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-green-100 text-green-800 rounded">
+                            Opérationnelle
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+        
+        const loadCustomerPasskeys = () => {
+            if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                    renderCustomerPasskeys(data);
+                    if (data && data.length > 0) {
+                        const title = registerPasskeyBtnCust.closest('div').querySelector('h2');
+                        if (title && !title.innerHTML.includes('Activée')) {
+                            title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                        }
+                        registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                    } else {
+                        const title = registerPasskeyBtnCust.closest('div').querySelector('h2');
+                        if (title && title.innerHTML.includes('Activée')) {
+                            title.innerHTML = "Clé d'accès (Passkey)";
+                        }
+                        registerPasskeyBtnCust.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une clé d\'accès';
+                    }
+                }).catch(err => console.error("Erreur passkeys:", err));
+            }
+        };
+
+        if (window.newketInitialized) {
+            loadCustomerPasskeys();
+        } else {
+            window.addEventListener('newketInitialized', loadCustomerPasskeys);
         }
 
         if (registerPasskeyBtnCust) {
@@ -1674,6 +1758,7 @@
                     const { data, error } = await window.supabaseClient.auth.registerPasskey();
                     if (error) throw error;
                     showToast("Clé d'accès créée avec succès !", "success");
+                    loadCustomerPasskeys();
                 } catch (err) {
                     console.error('Passkey registration error:', err);
                     let msg = err.message || "Erreur lors de la création de la clé d'accès.";
@@ -1741,7 +1826,7 @@
                 const pointsEl = document.getElementById('customer-newket-points');
                 if (pointsEl) pointsEl.textContent = `${balance} NKToken`;
                 if (balanceEl) balanceEl.textContent = `${balance} NKToken`;
-                if (balanceUsdEl) balanceUsdEl.textContent = `≈ ${formatNkTokenUsd(balanceUsd)}`;
+                if (balanceUsdEl) balanceUsdEl.textContent = `H ${formatNkTokenUsd(balanceUsd)}`;
                 if (usdBadgeEl) usdBadgeEl.textContent = formatNkTokenUsd(balanceUsd);
                 if (historyCountEl) historyCountEl.textContent = String(rewardHistory.length);
                 if (historyEl) {
@@ -1765,7 +1850,7 @@
                                     </div>
                                     <div class="text-right shrink-0">
                                         <div class="text-sm font-black text-emerald-700">+${rewardAmount} NKToken</div>
-                                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">≈ ${formatNkTokenUsd(rewardAmountUsd)}</div>
+                                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">H ${formatNkTokenUsd(rewardAmountUsd)}</div>
                                     </div>
                                 </div>
                             `;
@@ -1807,8 +1892,8 @@
                 });
 
                 localStorage.removeItem('newketReferralCode');
-                if (hint) hint.textContent = 'Code validÃ©. Le parrainage est maintenant rattachÃ© Ã  ton compte.';
-                showToast('Code de parrainage validÃ©.', 'success');
+                if (hint) hint.textContent = 'Code validé. Le parrainage est maintenant rattaché à ton compte.';
+                showToast('Code de parrainage validé.', 'success');
                 await refreshReferralPanel();
             } catch (error) {
                 console.error('[Customer Referral] Claim error:', error);
@@ -1830,7 +1915,7 @@
                 if (!value) return;
                 try {
                     await navigator.clipboard.writeText(value);
-                    showToast(`${label} copiÃ©.`, 'success');
+                    showToast(`${label} copié.`, 'success');
                 } catch {
                     showToast('Impossible de copier automatiquement.', 'warning');
                 }
@@ -1962,7 +2047,7 @@
                 if (avgEl) avgEl.textContent = 'Aujourd\'hui';
                 if (pointsEl) pointsEl.textContent = '0 NKToken';
                 if (feed) {
-                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activitÃ© pour le moment.</p>';
+                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activité pour le moment.</p>';
                 }
                 return;
             }
@@ -1979,7 +2064,7 @@
                 if (!window.ActivityManager || typeof ActivityManager.getRecentActivity !== 'function') return;
                 const activities = ActivityManager.getRecentActivity(4);
                 if (activities.length === 0) {
-                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activitÃ© pour le moment.</p>';
+                    feed.innerHTML = '<p class="text-sm text-gray-400 py-4">Aucune activité pour le moment.</p>';
                 } else {
                     feed.innerHTML = activities.map(a => `
                         <div class="flex items-start gap-4 p-3 hover:bg-gray-50 rounded-2xl transition-all">
@@ -2033,12 +2118,12 @@
                 return { label: 'Payer maintenant', icon: 'solar:card-send-bold', required: true, kind: 'achat' };
             }
             if (status === 'DELIVERED') {
-                return { label: 'Valider la rÃ©ception', icon: 'solar:check-read-bold', required: true, kind: 'achat' };
+                return { label: 'Valider la réception', icon: 'solar:check-read-bold', required: true, kind: 'achat' };
             }
             if (['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'PROCESSING'].includes(status)) {
                 return { label: 'Suivre la commande', icon: 'solar:map-point-wave-bold', required: false, kind: 'achat' };
             }
-            return { label: 'Voir les dÃ©tails', icon: 'solar:eye-bold', required: false, kind: 'modal' };
+            return { label: 'Voir les détails', icon: 'solar:eye-bold', required: false, kind: 'modal' };
         }
 
         function renderCustomerOrdersFocusPanels() {
@@ -2222,7 +2307,7 @@
                             <iconify-icon icon="solar:bag-broken" width="48"></iconify-icon>
                         </div>
                         <div class="text-2xl font-bold text-gray-900 mb-2">Aucune commande pour le moment</div>
-                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Vous n'avez pas encore envoyÃ© de demande. L'exceptionnel vous attend, dÃ©couvrez nos nouveautÃ©s.</div>
+                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Vous n'avez pas encore envoyé de demande. L'exceptionnel vous attend, découvrez nos nouveautés.</div>
                         <div class="mt-6">
                             <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
@@ -2316,8 +2401,8 @@
                         <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
                             <iconify-icon icon="solar:heart-broken-linear" width="48"></iconify-icon>
                         </div>
-                        <div class="text-2xl font-bold text-gray-900 mb-2">Votre liste de dÃ©sirs est vide</div>
-                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous sÃ©duire par nos piÃ¨ces d'exception et dÃ©couvrez nos derniÃ¨res nouveautÃ©s.</div>
+                        <div class="text-2xl font-bold text-gray-900 mb-2">Votre liste de désirs est vide</div>
+                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et découvrez nos dernières nouveautés.</div>
                         <div class="mt-6">
                             <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
                                 Voir nos produits
@@ -2441,7 +2526,7 @@
                 container.innerHTML = `
                     <div class="glass-panel p-12 text-center text-gray-500">
                         <iconify-icon icon="solar:shop-2-bold" width="48" class="mb-4 text-gray-300"></iconify-icon>
-                        <p class="font-bold text-gray-900">Aucun achat prÃªt pour paiement</p>
+                        <p class="font-bold text-gray-900">Aucun achat prêt pour paiement</p>
                         <p class="mt-2 text-sm">Retournez dans "Mes demandes et devis" pour suivre vos demandes.</p>
                         <div class="mt-6">
                             <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors" onclick="window.switchTab && window.switchTab('orders')">Aller aux demandes</button>
@@ -2499,8 +2584,8 @@
                     <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-900 flex items-start gap-3">
                         <iconify-icon icon="solar:info-circle-bold" width="22"></iconify-icon>
                         <div>
-                            <div class="font-black">SÃ©lectionnez une demande</div>
-                            <div class="mt-1 text-indigo-800">Vous serez redirigÃ© vers le paiement sÃ©curisÃ© aprÃ¨s confirmation.</div>
+                            <div class="font-black">Sélectionnez une demande</div>
+                            <div class="mt-1 text-indigo-800">Vous serez redirigé vers le paiement sécurisé après confirmation.</div>
                         </div>
                     </div>
                 `);
@@ -2537,7 +2622,7 @@
                                     </div>
                                     <div class="min-w-0">
                                         <div class="font-black text-gray-900 truncate">${safeText(productName)}</div>
-                                        <div class="text-sm text-gray-500 mt-1">QuantitÃ©: <span class="font-bold text-gray-700">${qty}</span></div>
+                                        <div class="text-sm text-gray-500 mt-1">Quantité: <span class="font-bold text-gray-700">${qty}</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -2575,7 +2660,7 @@
                                 <button id="achatDashApplyPromo" class="px-4 py-3 rounded-2xl bg-white border border-gray-100 text-xs font-black tracking-widest uppercase hover:border-black transition-colors">Appliquer</button>
                             </div>
                             <button id="achatDashRemovePromo" class="mt-2 text-xs font-bold text-gray-500 hover:text-black ${promoCode ? '' : 'hidden'}">Retirer le code promo</button>
-                            <div id="achatDashPromoSuccess" class="mt-2 text-xs text-emerald-700 font-semibold ${promoCode ? '' : 'hidden'}">${promoCode ? `Code appliquÃ©: ${promoCode}` : ''}</div>
+                            <div id="achatDashPromoSuccess" class="mt-2 text-xs text-emerald-700 font-semibold ${promoCode ? '' : 'hidden'}">${promoCode ? `Code appliqué: ${promoCode}` : ''}</div>
                             <div id="achatDashPromoError" class="mt-2 text-xs text-red-600 font-semibold hidden"></div>
                         </div>
 
@@ -2630,7 +2715,7 @@
 
                     const code = safeText(promo?.code || '').trim().toUpperCase();
                     if (promoSuccess) {
-                        promoSuccess.textContent = code ? `Code appliquÃ©: ${code}` : '';
+                        promoSuccess.textContent = code ? `Code appliqué: ${code}` : '';
                         promoSuccess.classList.toggle('hidden', !code);
                     }
                     if (promoRemoveBtn) promoRemoveBtn.classList.toggle('hidden', !code);
@@ -2648,7 +2733,7 @@
                     }
 
                     promoApplyBtn.disabled = true;
-                    promoApplyBtn.textContent = 'VÃ©rification...';
+                    promoApplyBtn.textContent = 'Vérification...';
                     try {
                         const data = await window.ApiClient.post('/promos/validate', { order_id: orderId, promo_code: promoCode });
                         syncAmounts(data?.pricing, data?.promo);
@@ -2691,7 +2776,7 @@
                             return;
                         }
                         if (payError) {
-                            payError.textContent = safeText(data?.error || 'Lien de paiement non reÃ§u');
+                            payError.textContent = safeText(data?.error || 'Lien de paiement non reçu');
                             payError.classList.remove('hidden');
                         }
                     } catch (e) {
@@ -2726,9 +2811,9 @@
                         <div class="glass-panel p-12 text-center text-gray-500">
                             <iconify-icon icon="solar:danger-triangle-bold" width="48" class="mb-4 text-gray-300"></iconify-icon>
                             <p class="font-bold text-gray-900">Commande introuvable</p>
-                            <p class="mt-2 text-sm">Retournez Ã  la liste et rÃ©essayez.</p>
+                            <p class="mt-2 text-sm">Retournez à la liste et réessayez.</p>
                             <div class="mt-6">
-                                <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors" onclick="window.location.hash='achat'; window.renderAchatTab && window.renderAchatTab();">Retour Ã  la liste</button>
+                                <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors" onclick="window.location.hash='achat'; window.renderAchatTab && window.renderAchatTab();">Retour à la liste</button>
                             </div>
                         </div>
                     `;
@@ -2801,7 +2886,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-sm sm:text-base truncate">${item.name}</div>
-                        <div class="text-xs text-gray-500">QuantitÃ©: ${item.quantity} Ã© ${CurrencyManager.formatPrice(item.price)}</div>
+                        <div class="text-xs text-gray-500">Quantité: ${item.quantity} é ${CurrencyManager.formatPrice(item.price)}</div>
                     </div>
                     <div class="text-sm font-bold text-right">${CurrencyManager.formatPrice(item.price * item.quantity)}</div>
                 </div>
@@ -2847,7 +2932,7 @@
                 quoteSummarySection.classList.remove('hidden');
                 document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0));
                 document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
-                document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposÃ© un devis de livraison.';
+                document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposé un devis de livraison.';
                 btnAcceptQuote.classList.remove('hidden');
                 btnRejectQuote.classList.remove('hidden');
             } else if (order.status === 'READY_FOR_PAYMENT') {
@@ -2857,11 +2942,11 @@
                     const quote = order.latest_delivery_quote;
                     document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0));
                     document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
-                    document.getElementById('quoteNote').textContent = quote.note || 'Devis acceptÃ©. Vous pouvez maintenant payer.';
+                    document.getElementById('quoteNote').textContent = quote.note || 'Devis accepté. Vous pouvez maintenant payer.';
                 } else {
                     document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(order.delivery_fee_amount || 0));
-                    document.getElementById('quoteDelay').textContent = 'ConfirmÃ©';
-                    document.getElementById('quoteNote').textContent = 'Le devis a Ã©tÃ© acceptÃ©. Le paiement passe maintenant en sÃ©questre.';
+                    document.getElementById('quoteDelay').textContent = 'Confirmé';
+                    document.getElementById('quoteNote').textContent = 'Le devis a été accepté. Le paiement passe maintenant en séquestre.';
                 }
                 btnPayOrder.classList.remove('hidden');
             } else if (order.status === 'PAID_HELD') {
@@ -2962,7 +3047,7 @@
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
 
                     await OrderManager.validateDelivery(currentSelectedOrder.id);
-                    showToast('RÃ©ception confirmÃ©e ! Merci de votre confiance.', 'success');
+                    showToast('Réception confirmée ! Merci de votre confiance.', 'success');
                     closeOrderModal();
                     await loadDashboardData();
                 } catch (error) {
@@ -2971,20 +3056,20 @@
                 } finally {
                     const btn = document.getElementById('btnValidateDelivery');
                     btn.disabled = false;
-                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Valider la rÃ©ception';
+                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Valider la réception';
                 }
             };
 
             if (typeof window.showConfirm === 'function') {
                 window.showConfirm(
-                    'Confirmer la rÃ©ception',
-                    "En confirmant, vous libÃ©rez les fonds sÃ©questrÃ©s au vendeur. Continuer ?",
+                    'Confirmer la réception',
+                    "En confirmant, vous libérez les fonds séquestrés au vendeur. Continuer ?",
                     run
                 );
                 return;
             }
 
-            const confirmed = confirm("Voulez-vous confirmer la rÃ©ception de votre commande ? Cela libÃ©rera les fonds pour le vendeur.");
+            const confirmed = confirm("Voulez-vous confirmer la réception de votre commande ? Cela libérera les fonds pour le vendeur.");
             if (!confirmed) return;
 
             await run();
@@ -3000,7 +3085,7 @@
                     action: 'ACCEPT',
                     quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
                 });
-                showToast('Devis acceptÃ©. Vous pouvez maintenant passer au paiement.', 'success');
+                showToast('Devis accepté. Vous pouvez maintenant passer au paiement.', 'success');
                 closeOrderModal();
                 await loadDashboardData();
             } catch (error) {
@@ -3022,7 +3107,7 @@
                     action: 'REJECT',
                     quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
                 });
-                showToast('Devis refusÃ©. La demande a Ã©tÃ© clÃ´turÃ©e.', 'warning');
+                showToast('Devis refusé. La demande a été clôturée.', 'warning');
                 closeOrderModal();
                 await loadDashboardData();
             } catch (error) {
@@ -3116,7 +3201,7 @@
                 container.innerHTML = '';
 
                 if (!messages || messages.length === 0) {
-                    container.innerHTML = '<div class="text-center text-[10px] text-gray-400 italic mt-8">Pas encore de messages. L\'administrateur ou le vendeur vous rÃ©pondront ici.</div>';
+                    container.innerHTML = '<div class="text-center text-[10px] text-gray-400 italic mt-8">Pas encore de messages. L\'administrateur ou le vendeur vous répondront ici.</div>';
                     return;
                 }
 
@@ -3126,7 +3211,7 @@
                     let roleLabel = '';
                     let bubbleClass = '';
                     let alignClass = isMe ? 'self-end items-end' : 'self-start items-start';
-                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise Ã  jour';
+                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
 
                     if (senderRole === 'ADMIN') {
                         roleLabel = '<span class="text-[8px] font-black bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2 uppercase">SUPPORT</span>';
@@ -3135,7 +3220,7 @@
                         roleLabel = '<span class="text-[8px] font-black bg-blue-100 text-blue-600 px-1 py-0.5 rounded ml-2 uppercase">VENDEUR</span>';
                         bubbleClass = 'bg-blue-50 border border-blue-100 text-blue-950';
                     } else if (senderRole === 'SYSTEM') {
-                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÃˆME</span>';
+                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÈME</span>';
                         bubbleClass = 'bg-gray-100 text-gray-700';
                     } else {
                         roleLabel = '<span class="text-[8px] font-black text-gray-400 ml-2 uppercase">VOUS</span>';
@@ -3196,7 +3281,7 @@
             if (!currentSelectedDispute) return;
             try {
                 await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'ACCEPT' });
-                showToast("Proposition vendeur acceptÃ©e.", 'success');
+                showToast("Proposition vendeur acceptée.", 'success');
                 await loadDashboardData();
                 await loadDisputeChat(currentSelectedOrder.id);
             } catch (error) {
@@ -3376,7 +3461,7 @@
             const printDocument = printFrame.contentWindow?.document;
             if (!printDocument) {
                 printFrame.remove();
-                showToast('Impossible de prÃ©parer la facture.', 'error');
+                showToast('Impossible de préparer la facture.', 'error');
                 return;
             }
 
@@ -3554,30 +3639,30 @@
             <div class="p-6 overflow-y-auto space-y-5">
                 <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3 text-sm text-orange-800">
                     <iconify-icon icon="solar:info-circle-linear" class="text-xl shrink-0"></iconify-icon>
-                    <p>En ouvrant ce litige, les fonds de votre commande seront partiellement ou totalement gelÃ©s en attendant l'Ã©valuation de notre pÃ´le litige.</p>
+                    <p>En ouvrant ce litige, les fonds de votre commande seront partiellement ou totalement gelés en attendant l'évaluation de notre pôle litige.</p>
                 </div>
                 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">CatÃ©gorie du problÃ¨me</label>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Catégorie du problème</label>
                         <select id="disputeReason" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50">
-                            <option value="">-- SÃ©lectionnez une catÃ©gorie --</option>
-                            <option value="PRODUIT_NON_RECU">Produit non reÃ§u</option>
-                            <option value="PRODUIT_ENDOMMAGE">Produit endommagÃ© ou cassÃ©</option>
-                            <option value="PRODUIT_NON_CONFORME">Produit non conforme Ã  la description</option>
-                            <option value="CONTREFACON">Suspicion de contrefaÃ§on</option>
+                            <option value="">-- Sélectionnez une catégorie --</option>
+                            <option value="PRODUIT_NON_RECU">Produit non reçu</option>
+                            <option value="PRODUIT_ENDOMMAGE">Produit endommagé ou cassé</option>
+                            <option value="PRODUIT_NON_CONFORME">Produit non conforme à la description</option>
+                            <option value="CONTREFACON">Suspicion de contrefaçon</option>
                             <option value="AUTRE">Autre raison</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Description dÃ©taillÃ©e</label>
-                        <textarea id="disputeDescription" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="DÃ©crivez prÃ©cisÃ©ment votre problÃ¨me avec cette commande..."></textarea>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Description détaillée</label>
+                        <textarea id="disputeDescription" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="Décrivez précisément votre problème avec cette commande..."></textarea>
                     </div>
 
                     <div class="space-y-2">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Preuves (Liens Web / Drive / Imgur)</label>
-                        <p class="text-xs text-gray-500 mb-2">Veuillez fournir au moins 1 lien menant vers une URL contenant vos photos ou vidÃ©o de preuve.</p>
+                        <p class="text-xs text-gray-500 mb-2">Veuillez fournir au moins 1 lien menant vers une URL contenant vos photos ou vidéo de preuve.</p>
                         <input type="url" id="disputeProof1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50" placeholder="https://lien-preuve-1.com/img">
                         <input type="url" id="disputeProof2" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50" placeholder="https://lien-preuve-2.com/img (Optionnel)">
                     </div>
