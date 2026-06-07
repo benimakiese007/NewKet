@@ -425,7 +425,8 @@
                                 <span class="text-[10px] font-black uppercase tracking-widest text-gray-600">Visites</span>
                             </div>
                         </div>
-                        <div style="position:relative; width:100%; height:clamp(220px, 40vw, 350px);">
+                        <div class="vendor-chart-shell" style="position:relative; width:100%; height:clamp(220px, 40vw, 350px);">
+                            <div id="vendorAudienceChartSkeleton" class="absolute inset-0 rounded-2xl skeleton skeleton-shimmer hidden"></div>
                             <canvas id="audienceChart" style="position:absolute;top:0;left:0;width:100%;height:100%;"></canvas>
                         </div>
                     </div>
@@ -2676,8 +2677,52 @@
                 }
 
                 function renderVendorDashboard() {
-                    // Keep the initial skeleton visible until we have at least one data refresh.
-                    if (isVendorOrdersDataPending() || isVendorProductsDataPending()) return;
+                    // Keep the skeleton visible during data fetch
+                    if (isVendorOrdersDataPending() || isVendorProductsDataPending()) {
+                        const setInlineSkeleton = (id, width = '70%') => {
+                            const el = document.getElementById(id);
+                            if (el) el.innerHTML = `<div class="skeleton skeleton-text" style="width:${width};height:1em;margin:0 auto;"></div>`;
+                        };
+                        setInlineSkeleton('vendorTotalSales', '55%');
+                        setInlineSkeleton('vendorOrders', '35%');
+                        setInlineSkeleton('vendorProducts', '30%');
+                        setInlineSkeleton('vendorTotalViews', '40%');
+                        setInlineSkeleton('vendorConversionRate', '60px');
+                        setInlineSkeleton('vendorRating', '48px');
+
+                        const ordersTable = document.getElementById('vendor-recent-orders');
+                        if (ordersTable) {
+                            ordersTable.innerHTML = Array(3).fill(`
+                                <tr>
+                                    <td class="py-4"><div class="h-4 w-4 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4"><div class="h-4 w-12 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-9 h-9 rounded-full bg-gray-100 animate-pulse shrink-0"></div>
+                                            <div class="flex flex-col gap-1 w-full">
+                                                <div class="h-3 w-24 bg-gray-100 rounded animate-pulse"></div>
+                                                <div class="h-2 w-16 bg-gray-100 rounded animate-pulse"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4"><div class="h-4 w-20 bg-gray-100 rounded animate-pulse"></div></td>
+                                    <td class="py-4 text-right"><div class="h-4 w-16 bg-gray-100 rounded animate-pulse ml-auto"></div></td>
+                                    <td class="py-4"><div class="h-4 w-16 bg-gray-100 rounded-full animate-pulse mx-auto"></div></td>
+                                    <td class="py-4"><div class="h-4 w-16 bg-gray-100 rounded-full animate-pulse mx-auto"></div></td>
+                                    <td class="py-4"></td>
+                                </tr>
+                            `).join('');
+                        }
+                        
+                        const chartSkeleton = document.getElementById('vendorSalesChartSkeleton');
+                        if (chartSkeleton) chartSkeleton.classList.remove('hidden');
+
+                        const feed = document.getElementById('vendor-activity-feed');
+                        if (feed && typeof window.buildSkeletonPanelListHTML === 'function') {
+                            feed.innerHTML = window.buildSkeletonPanelListHTML(4, { lines: 2, cardClass: 'glass-panel p-4' });
+                        }
+                        return;
+                    }
 
                     if (!window.OrderManager || typeof OrderManager.getVendorStats !== 'function' || !window.CurrencyManager || typeof CurrencyManager.formatPrice !== 'function') {
                         return;
@@ -3050,6 +3095,9 @@
                         setInlineSkeleton('analyticsProductViews', '60%');
                         setInlineSkeleton('analyticsEngagementRate', '40%');
 
+                        const chartSkel = document.getElementById('vendorAudienceChartSkeleton');
+                        if (chartSkel) chartSkel.classList.remove('hidden');
+
                         const top = document.getElementById('analyticsTopProducts');
                         if (top && typeof window.buildSkeletonPanelListHTML === 'function') {
                             top.innerHTML = window.buildSkeletonPanelListHTML(4, { lines: 2, cardClass: 'glass-panel p-4' });
@@ -3118,6 +3166,18 @@
                             if (window.__cachedVendorMetrics && Date.now() - window.__cachedVendorMetrics.timestamp < 60000) {
                                 metrics = window.__cachedVendorMetrics.data;
                             } else {
+                                const setInlineSkeleton = (id, width = '70%') => {
+                                    const el = document.getElementById(id);
+                                    if (el) el.innerHTML = `<div class="skeleton skeleton-text" style="width:${width};height:1em;margin:0 auto;"></div>`;
+                                };
+                                setInlineSkeleton('analyticsShopViews', '55%');
+                                setInlineSkeleton('analyticsUniqueVisitors', '45%');
+                                setInlineSkeleton('analyticsProductViews', '60%');
+                                setInlineSkeleton('analyticsEngagementRate', '40%');
+                                
+                                const chartSkel = document.getElementById('vendorAudienceChartSkeleton');
+                                if (chartSkel) chartSkel.classList.remove('hidden');
+
                                 metrics = await ApiClient.get('/analytics/vendor/shop-metrics?days=30', {
                                     suppressNetworkError: true,
                                     suppressErrorLogging: true
@@ -3128,12 +3188,14 @@
                             }
 
                             if (!metrics?.success) {
+                                applyAnalyticsMetrics(buildLocalAnalyticsMetrics());
                                 return;
                             }
 
                             applyAnalyticsMetrics(metrics);
                         } catch (error) {
                             console.warn('[VendorAnalytics] Remote metrics unavailable, local fallback kept.', error?.message || error);
+                            applyAnalyticsMetrics(buildLocalAnalyticsMetrics());
                         }
                     };
 
@@ -3168,6 +3230,7 @@
                     }
                     const ctx = document.getElementById('audienceChart');
                     if (!ctx) return;
+                    const skeleton = document.getElementById('vendorAudienceChartSkeleton');
                     const isMobile = window.matchMedia('(max-width: 640px)').matches;
                     const audienceLabels = Array.isArray(chartData?.labels) ? chartData.labels : [];
                     const audienceData = Array.isArray(chartData?.data) ? chartData.data : [];
@@ -3247,6 +3310,7 @@
                             }
                         }
                     });
+                    if (skeleton) skeleton.classList.add('hidden');
                     // Force resize: ensures correct canvas sizing on mobile after DOM paint
                     requestAnimationFrame(() => { if (audienceChart) audienceChart.resize(); });
                 }
