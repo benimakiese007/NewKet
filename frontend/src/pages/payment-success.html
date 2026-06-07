@@ -44,6 +44,48 @@
                         <iconify-icon id="statusIcon" icon="solar:check-circle-bold" width="48"></iconify-icon>
                     </div>
                 </div>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="/src/services/app.js" type="module"></script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-premium {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[#f8fafc] text-gray-900 antialiased">
+    <div id="header-placeholder"></div>
+    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-green-50 via-transparent to-transparent opacity-70"></div>
+
+    <main class="flex min-h-[70vh] items-center justify-center px-4 py-10 sm:px-6 sm:py-16">
+        <div class="w-full max-w-xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <div class="glass-premium relative overflow-hidden rounded-[3rem] p-8 text-center shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] sm:p-12">
+                <div class="relative mx-auto mb-8 h-24 w-24">
+                    <div id="statusGlow" class="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping duration-[2000ms]"></div>
+                    <div id="statusIconShell" class="relative flex h-full w-full items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl shadow-emerald-500/20">
+                        <iconify-icon id="statusIcon" icon="solar:check-circle-bold" width="48"></iconify-icon>
+                    </div>
+                </div>
 
                 <h1 id="statusTitle" class="mb-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Paiement confirme !</h1>
                 <p id="statusDescription" class="mb-12 text-lg font-medium leading-relaxed text-gray-500">
@@ -53,13 +95,13 @@
                 <div class="mb-12 space-y-4 rounded-3xl border border-gray-100/50 bg-gray-50/50 p-6 text-left">
                     <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                         <span class="text-xs font-black uppercase tracking-widest text-gray-400">Reference transaction</span>
-                        <span id="txRef" class="font-mono text-sm font-bold text-gray-900">...</span>
+                        <span id="txRef" class="skeleton font-mono text-sm font-bold text-gray-900 rounded-full" style="min-width:140px;height:18px;"></span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-black uppercase tracking-widest text-gray-400">Statut</span>
                         <div id="statusBadge" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-600">
                             <div id="statusDot" class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span id="statusLabel">Succes</span>
+                            <span id="statusLabel" class="skeleton rounded-full" style="min-width:60px;height:14px;"></span>
                         </div>
                     </div>
                 </div>
@@ -87,9 +129,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || '';
             const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'pending').toLowerCase();
-
-            const txRefEl = document.getElementById('txRef');
-            if (txRefEl) txRefEl.textContent = txRef || 'Indisponible';
 
             const statusTitle = document.getElementById('statusTitle');
             const statusDescription = document.getElementById('statusDescription');
@@ -166,7 +205,25 @@
             }
 
             (async () => {
+                // Remove skeleton shimmer from txRef once the ref is known
+                const txRefEl = document.getElementById('txRef');
+                if (txRefEl) {
+                    txRefEl.classList.remove('skeleton');
+                    txRefEl.style.minWidth = '';
+                    txRefEl.style.height = '';
+                    txRefEl.textContent = txRef || 'Indisponible';
+                }
+
                 const serverStatus = await loadServerStatus();
+
+                // Remove skeleton from statusLabel
+                const statusLabelEl = document.getElementById('statusLabel');
+                if (statusLabelEl) {
+                    statusLabelEl.classList.remove('skeleton');
+                    statusLabelEl.style.minWidth = '';
+                    statusLabelEl.style.height = '';
+                }
+
                 const orderStatus = serverStatus?.order?.status || null;
                 const paymentStatus = (serverStatus?.order?.payment_status || serverStatus?.payment?.status || '').toString().toLowerCase();
 
@@ -194,6 +251,3 @@
     </script>
 </body>
 </html>
-
-
-

@@ -56,11 +56,9 @@
                     <div class="flex items-center gap-3 flex-wrap">
                         <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-200"></div>
                         <div class="text-sm font-black text-gray-900">Statut du dossier</div>
-                        <span id="statusPill" class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-500">Chargement…</span>
+                        <span id="statusPill" class="skeleton inline-flex items-center px-10 py-3 rounded-full" style="min-width:100px;"></span>
                     </div>
-                    <div id="statusMessage" class="text-[12px] text-gray-500 font-medium mt-2 leading-relaxed">
-                        Connexion requise pour afficher votre statut.
-                    </div>
+                    <div id="statusMessage" class="skeleton h-3 w-2/3 rounded-full mt-2" style="min-height:12px;"></div>
                 </div>
                 <a id="backToDashboardStatus" data-track-action="seller_onboarding:back_dashboard_status_click" href="javascript:void(0)"
                     class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-black text-white text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-gray-200">

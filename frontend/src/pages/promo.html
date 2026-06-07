@@ -190,6 +190,18 @@
                                 <option value="price-asc">Prix Croissant</option>
                                 <option value="price-desc">Prix Décroissant</option>
                                 <option value="newest">Dernières pépites</option>
+                        <iconify-icon icon="solar:tuning-square-2-linear" width="16"></iconify-icon>
+                        Filtres
+                    </button>
+                    <p class="text-sm font-medium text-slate-500"><span class="text-slate-900 font-bold" id="productCount">0</span> offres disponibles</p>
+
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative flex-1 sm:w-48">
+                            <select id="sortSelect" class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none cursor-pointer focus:ring-2 focus:ring-slate-100">
+                                <option value="default">Plus Pertinents</option>
+                                <option value="price-asc">Prix Croissant</option>
+                                <option value="price-desc">Prix Décroissant</option>
+                                <option value="newest">Dernières pépites</option>
                             </select>
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="14" class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"></iconify-icon>
                         </div>
@@ -197,7 +209,37 @@
                 </div>
 
                 <div class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4" id="catalog-grid">
-                    <!-- Products injected by JS -->
+                    <!-- Skeleton loading -->
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -577,6 +577,25 @@
             }
 
             async function loadProductToEdit(id) {
+                // Show skeleton overlay on form while loading product data
+                const form = document.getElementById('publishForm');
+                const skOverlay = document.createElement('div');
+                skOverlay.id = 'editLoadingOverlay';
+                skOverlay.style.cssText = 'position:relative;';
+                const skBanner = document.createElement('div');
+                skBanner.className = 'mb-6 bg-gray-50 border border-gray-100 rounded-[2rem] p-6 flex items-center gap-4 animate-pulse';
+                skBanner.innerHTML = `
+                    <div class="w-12 h-12 skeleton rounded-2xl shrink-0"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="skeleton h-4 w-1/3 rounded-full"></div>
+                        <div class="skeleton h-3 w-1/2 rounded-full"></div>
+                    </div>`;
+                form.prepend(skBanner);
+                // Dim the cards
+                form.querySelectorAll(':scope > div').forEach(card => {
+                    if (card !== skBanner) card.style.opacity = '0.4';
+                });
+
                 try {
                     const product = await ProductManager.fetchProductById(id);
                     if (!product) throw new Error("Produit non trouvé");
@@ -640,6 +659,11 @@
                         ? "Erreur 404: l'API n'est pas joignable. Vérifiez la config Vercel de `VITE_API_URL` (elle doit pointer vers /api)."
                         : "Erreur lors du chargement du produit";
                     if (typeof showToast === 'function') showToast(msg, "error");
+                } finally {
+                    // Remove skeleton banner and restore form opacity
+                    const skBannerEl = form.querySelector('.animate-pulse');
+                    if (skBannerEl) skBannerEl.remove();
+                    form.querySelectorAll(':scope > div').forEach(card => card.style.opacity = '');
                 }
             }
 

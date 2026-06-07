@@ -131,8 +131,8 @@
                         <!-- Avatar -->
                         <div class="flex flex-col items-center gap-3">
                             <div
-                                class="settings-avatar-img w-24 h-24 rounded-full hero-gradient flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-gray-200 relative group cursor-pointer overflow-hidden">
-                                <span>??</span>
+                                class="settings-avatar-img w-24 h-24 rounded-full hero-gradient flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-gray-200 relative group cursor-pointer overflow-hidden skeleton">
+                                <span class="hidden">??</span>
                                 <div
                                     class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <iconify-icon icon="solar:camera-linear" width="24"></iconify-icon>
@@ -145,23 +145,23 @@
                         <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nom Complet</label>
-                                <input type="text" id="profileFullName" placeholder="Chargement..."
-                                    class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900">
+                                <div class="skeleton h-12 w-full rounded-xl" id="skFullName"></div>
+                                <input type="text" id="profileFullName" placeholder="" class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 hidden">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Rôle</label>
-                                <input type="text" id="profileRole" readonly
-                                    class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded-xl outline-none text-xs font-bold text-gray-400 uppercase">
+                                <div class="skeleton h-12 w-full rounded-xl" id="skRole"></div>
+                                <input type="text" id="profileRole" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded-xl outline-none text-xs font-bold text-gray-400 uppercase hidden">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Email (Lecture seule)</label>
-                                <input type="email" id="profileEmail" readonly
-                                    class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded-xl outline-none text-sm font-medium text-gray-400">
+                                <div class="skeleton h-12 w-full rounded-xl" id="skEmail"></div>
+                                <input type="email" id="profileEmail" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded-xl outline-none text-sm font-medium text-gray-400 hidden">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Téléphone</label>
-                                <input type="tel" id="profilePhone" placeholder="+243 ..."
-                                    class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900">
+                                <div class="skeleton h-12 w-full rounded-xl" id="skPhone"></div>
+                                <input type="tel" id="profilePhone" placeholder="+243 ..." class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 hidden">
                             </div>
                         </div>
                     </div>
@@ -325,13 +325,22 @@
 
                 loadProfile(user) {
                     const metadata = user.user_metadata || {};
+
+                    // Remove skeleton and reveal inputs
+                    ['skFullName','skRole','skEmail','skPhone'].forEach(id => {
+                        const sk = document.getElementById(id);
+                        if (sk) sk.remove();
+                    });
+                    document.querySelectorAll('#profileFullName, #profileRole, #profileEmail, #profilePhone').forEach(el => el.classList.remove('hidden'));
+
+                    const avatarContainer = document.querySelector('.settings-avatar-img');
+                    avatarContainer.classList.remove('skeleton');
+                    const avatarSpan = avatarContainer.querySelector('span');
+
                     document.getElementById('profileFullName').value = metadata.full_name || '';
                     document.getElementById('profileEmail').value = user.email || '';
                     document.getElementById('profilePhone').value = metadata.phone || '';
                     document.getElementById('profileRole').value = AuthManager.role || 'Client';
-
-                    const avatarContainer = document.querySelector('.settings-avatar-img');
-                    const avatarSpan = avatarContainer.querySelector('span');
                     const avatarUrl = metadata.avatar_url;
 
                     if (avatarUrl) {

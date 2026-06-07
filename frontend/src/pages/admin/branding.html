@@ -48,7 +48,17 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <!-- Skeleton loading banner while ConfigManager loads -->
+            <div id="brandingSkeletonBanner" class="glass-panel p-8 flex items-center gap-6 animate-pulse">
+                <div class="skeleton w-14 h-14 rounded-3xl shrink-0"></div>
+                <div class="flex-1 space-y-3">
+                    <div class="skeleton h-4 w-1/4 rounded-full"></div>
+                    <div class="skeleton h-3 w-1/3 rounded-full"></div>
+                </div>
+                <div class="skeleton h-10 w-32 rounded-2xl"></div>
+            </div>
+
+            <div id="brandingFormGrid" class="grid grid-cols-1 xl:grid-cols-2 gap-8" style="opacity:0.35;pointer-events:none;transition:opacity .4s">
                 <section class="glass-panel p-10 space-y-10 animate-premium">
                     <div class="flex items-center gap-4">
                         <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center shadow-inner">
@@ -356,6 +366,12 @@
                     console.warn('[Branding] ConfigManager init failed, using current config snapshot.', err);
                 }
             }
+
+            // Remove skeleton, reveal form
+            const skBanner = document.getElementById('brandingSkeletonBanner');
+            if (skBanner) skBanner.remove();
+            const formGrid = document.getElementById('brandingFormGrid');
+            if (formGrid) { formGrid.style.opacity = '1'; formGrid.style.pointerEvents = ''; }
 
             const cfg = window.ConfigManager?.getConfig?.();
             fillForm(cfg);
