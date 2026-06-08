@@ -10,8 +10,18 @@ export const getPublicUserStats = async (req, res) => {
 
         if (error) throw error;
 
+        const { data: recentUsers } = await client
+            .from('users')
+            .select('avatar')
+            .not('avatar', 'is', null)
+            .order('date_joined', { ascending: false })
+            .limit(3);
+
+        const recentAvatars = recentUsers?.map(u => u.avatar) || [];
+
         return res.status(200).json({
-            totalUsers: Number(count) || 0
+            totalUsers: Number(count) || 0,
+            recentAvatars
         });
     } catch (err) {
         console.error('Error getPublicUserStats:', err.message);

@@ -939,12 +939,6 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
     }
 }
 
-@media (max-width: 400px) {
-    .vendor-stats-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
 /* Stats Widgets */
 .stat-card-label {
     font-size: 0.65rem;
@@ -1053,6 +1047,12 @@ html.admin-embedded-mode .stagger-5 {
     border-bottom: 2px solid #f1f5f9;
 }
 
+/* Vendor product card MODIFIER btn label: hidden on tiny screens, visible from 360px */
+.vendor-product-btn-label { display: none; }
+@media (min-width: 360px) {
+    .vendor-product-btn-label { display: inline; }
+}
+
 @media (max-width: 768px) {
     .premium-table tbody td {
         width: 100% !important;
@@ -1088,51 +1088,26 @@ html.admin-embedded-mode .stagger-5 {
 
     #tab-dashboard .vendor-orders-table {
         min-width: 760px;
-        table-layout: fixed;
         border-collapse: separate;
         border-spacing: 0;
     }
 
+    #tab-dashboard .vendor-orders-table th,
+    #tab-dashboard .vendor-orders-table td {
+        border-right: 1px solid #f1f5f9; /* gray-100 */
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    #tab-dashboard .vendor-orders-table th:last-child,
+    #tab-dashboard .vendor-orders-table td:last-child {
+        border-right: none;
+    }
+
     /* Make the horizontal scroll reach the very end on mobile */
     #tab-dashboard .vendor-table-shell .vendor-orders-table {
-        display: inline-block;
-        width: max-content;
+        display: table;
+        width: 100%;
         min-width: 1120px;
-    }
-
-    #tab-dashboard .vendor-orders-table th:nth-child(1),
-    #tab-dashboard .vendor-orders-table td:nth-child(1) {
-        min-width: 96px;
-    }
-
-    #tab-dashboard .vendor-orders-table th:nth-child(2),
-    #tab-dashboard .vendor-orders-table td:nth-child(2) {
-        min-width: 240px;
-    }
-
-    #tab-dashboard .vendor-orders-table th:nth-child(3),
-    #tab-dashboard .vendor-orders-table td:nth-child(3) {
-        min-width: 180px;
-    }
-
-    #tab-dashboard .vendor-orders-table th:nth-child(4),
-    #tab-dashboard .vendor-orders-table td:nth-child(4) {
-        min-width: 150px;
-    }
-
-    #tab-dashboard .vendor-orders-table th:nth-child(5),
-    #tab-dashboard .vendor-orders-table td:nth-child(5) {
-        min-width: 130px;
-    }
-
-    #tab-dashboard .vendor-orders-table th:nth-child(6),
-    #tab-dashboard .vendor-orders-table td:nth-child(6) {
-        min-width: 120px;
-    }
-
-    #tab-dashboard .vendor-orders-table th:nth-child(7),
-    #tab-dashboard .vendor-orders-table td:nth-child(7) {
-        min-width: 56px;
     }
 
     #tab-dashboard .vendor-table-shell::-webkit-scrollbar {

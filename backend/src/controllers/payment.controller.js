@@ -226,6 +226,11 @@ export const initiatePayment = async (req, res) => {
         const provider = getActivePaymentProvider();
 
         if (!orderId) {
+            const resolvedCustomerEmail = customer_email || req.user?.email;
+            if (!resolvedCustomerEmail) {
+                return res.status(400).json({ error: 'Une adresse e-mail valide est requise pour initier un paiement.' });
+            }
+
             const resolvedVendorId = vendor_id || product.user_id || null;
             const newOrder = {
                 id: generateOrderId(),
@@ -256,7 +261,7 @@ export const initiatePayment = async (req, res) => {
                 customer_phone: customer_phone || null,
                 customer_name: customer_name || req.user?.user_metadata?.full_name || 'Client NewKet',
                 customer_city: customer_city || null,
-                customer_email: customer_email || req.user?.email || 'client@newket.cd',
+                customer_email: resolvedCustomerEmail,
                 escrow_status: ESCROW_STATUSES.NONE,
                 proof_status: 'PENDING'
             };

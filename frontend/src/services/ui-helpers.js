@@ -1578,7 +1578,12 @@ function showCheckoutModal(productName, productPrice) {
             setTimeout(() => {
                 const mapContainer = document.getElementById(`${modalId}-map`);
                 if (window.L && mapContainer) {
+                    const defaultMapCenter = [-4.4419, 15.2663]; // Kinshasa by default
                     const initialZoom = savedHomeLocation ? 16 : 12;
+
+                    // Fix for Leaflet Icon.Default.js removeChild NotFoundError
+                    L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
+
                     const map = L.map(mapContainer).setView(defaultMapCenter, initialZoom);
                     
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

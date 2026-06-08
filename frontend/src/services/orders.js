@@ -86,18 +86,17 @@ const OrderManager = {
                 this._initialized = true;
                 localStorage.setItem('newket_orders_sync_time', now.toString());
                 console.log(`[OrderManager] Loaded ${this.data.length} orders.`);
-                // Dashboards listen to this event to rerender their lists/stats.
-                window.dispatchEvent(new CustomEvent('ordersUpdated'));
             } catch (error) {
                 console.warn('[OrderManager] Could not fetch orders, using empty data:', error.message);
                 if (!this._initialized) this.data = [];
                 this._initialized = true;
-                window.dispatchEvent(new CustomEvent('ordersUpdated'));
             }
         })();
         
         await this._fetchPromise;
         this._fetchPromise = null;
+        // Dashboards listen to this event to rerender their lists/stats.
+        window.dispatchEvent(new CustomEvent('ordersUpdated'));
     },
 
     /**
@@ -251,7 +250,7 @@ const OrderManager = {
             totalRevenue: totalEstimatedValue,
             estimatedValue: totalEstimatedValue,
             averageOrderValue: vendorOrders.length > 0 ? totalEstimatedValue / vendorOrders.length : 0,
-            conversionRate: totalViews > 0 ? (vendorOrders.length / totalViews) * 100 : 0,
+            conversionRate: totalViews > 0 ? Number(((vendorOrders.length / totalViews) * 100).toFixed(2)) : 0,
             totalViews,
             uniqueCustomers,
             commission: 0, 

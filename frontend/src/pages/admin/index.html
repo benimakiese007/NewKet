@@ -413,7 +413,17 @@
                 initPromises.push(UserManager.init());
             }
 
-            Promise.all(initPromises).then(() => refreshDashboardData());
+            // If OrderManager is already initialized, refresh immediately.
+            // Otherwise kick off init so ordersUpdated will fire and trigger refresh.
+            if (window.OrderManager) {
+                if (OrderManager._initialized && !OrderManager._fetchPromise) {
+                    Promise.all(initPromises).then(() => refreshDashboardData());
+                } else if (!OrderManager._initialized && !OrderManager._fetchPromise) {
+                    Promise.all(initPromises).then(() => OrderManager.init().catch(() => {}));
+                }
+            } else {
+                Promise.all(initPromises).then(() => refreshDashboardData());
+            }
 
             // Handle role-based UI
             const role = localStorage.getItem('newketRole');
@@ -452,6 +462,15 @@
                 if (countEl) countEl.textContent = filtered.length;
                 renderPresenceUsers(filtered);
             }
+
+            // Safety net: retry refreshDashboardData after short delays.
+            // This handles the case where events fired before listeners were registered.
+            const retryDelays = [300, 800, 1500, 3000];
+            retryDelays.forEach(delay => {
+                window.setTimeout(() => {
+                    if (isOverviewViewActive()) refreshDashboardData();
+                }, delay);
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {

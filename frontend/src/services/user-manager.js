@@ -23,17 +23,20 @@ const UserManager = {
 
         this._initPromise = (async () => {
             try {
-            // Fetch all users from the Express Backend
-            const users = await ApiClient.get('/users');
-            this.data = users || [];
-            this._initialized = true;
-            return this.data;
+                // Fetch all users from the Express Backend
+                const users = await ApiClient.get('/users');
+                this.data = users || [];
+                this._initialized = true;
+                return this.data;
             } catch (error) {
-            console.error('[UserManager] Error initializing users:', error);
-            this.data = [];
-            return [];
+                console.error('[UserManager] Error initializing users:', error);
+                this.data = [];
+                this._initialized = true;
+                return [];
             } finally {
                 this._initPromise = null;
+                // Dispatch INSIDE the IIFE so it fires after data is ready
+                window.dispatchEvent(new CustomEvent('usersUpdated'));
             }
         })();
 

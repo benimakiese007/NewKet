@@ -100,13 +100,14 @@
         }
 
         .animate-scroll {
-            animation: scroll 400s linear infinite;
+            animation: scroll 45s linear infinite;
             pointer-events: none; /* Empêche l'arrêt sur mobile/tactile */
             user-select: none;
         }
 
         .features-gradient-edge {
             mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
 
     </style>
@@ -120,14 +121,14 @@
 
     <!-- The header component handles its own spacing if needed -->
 
-    <!-- ========== PRODUITS ÉPINGLÉS ========== -->
+    <!-- ========== PRODUITS SPONSORISÉS ========== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 mb-12 md:mb-16 pt-6 md:pt-8" id="pinnedSection" style="content-visibility:auto; contain-intrinsic-size: 640px 920px;">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-black rounded-xl flex items-center justify-center shadow-lg shadow-black/10">
                     <iconify-icon icon="solar:pin-bold" width="16" class="text-white"></iconify-icon>
                 </div>
-                <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Produits épinglés</h2>
+                <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900">Produits Sponsorisés</h2>
             </div>
             <a href="/src/pages/catalog.html"
                 class="text-sm font-bold text-gray-900 hover:text-gray-600 flex items-center gap-1 transition-all group">
@@ -230,22 +231,22 @@
 
     <!-- ========== FEATURES SECTION ========== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 mb-16 overflow-hidden features-gradient-edge" style="content-visibility:auto; contain-intrinsic-size: 120px 120px;">
-        <div class="flex gap-20 sm:gap-32 animate-scroll w-max py-4">
-            <div class="flex items-center gap-5 flex-shrink-0">
+        <div class="flex animate-scroll w-max py-4">
+            <div class="flex items-center gap-5 flex-shrink-0 pr-20 sm:pr-32">
                 <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
                 <div>
                     <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
                 </div>
             </div>
-            <div class="flex items-center gap-5 flex-shrink-0">
+            <div class="flex items-center gap-5 flex-shrink-0 pr-20 sm:pr-32">
                 <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
                 <div>
                     <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
                 </div>
             </div>
-            <div class="flex items-center gap-5 flex-shrink-0">
+            <div class="flex items-center gap-5 flex-shrink-0 pr-20 sm:pr-32">
                 <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
                 <div>
                     <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
@@ -255,30 +256,23 @@
         </div>
     </section>
 
-    <!-- Script pour dupliquer les éléments afin de garantir le scroll infini -->
+    <!-- Script synchrone pour dupliquer les éléments avant le chargement d'Iconify -->
     <script>
         (function() {
-            const run = function() {
-                const container = document.querySelector('.animate-scroll');
-                if (!container || container.dataset.enhanced === 'true') return;
-
-                const children = Array.from(container.children);
-                const fragment = document.createDocumentFragment();
-                for (let i = 0; i < 11; i++) {
-                    children.forEach(child => {
-                        fragment.appendChild(child.cloneNode(true));
-                    });
-                }
-
-                container.appendChild(fragment);
-                container.dataset.enhanced = 'true';
-            };
-
-            if ('requestIdleCallback' in window) {
-                window.requestIdleCallback(run, { timeout: 2000 });
-            } else {
-                window.setTimeout(run, 800);
-            }
+            const container = document.querySelector('.animate-scroll');
+            if (!container) return;
+            
+            // On récupère le HTML brut des 3 items (avant qu'Iconify ne s'active)
+            const baseHTML = container.innerHTML;
+            
+            // Pour que l'animation translateX(-50%) soit parfaitement fluide sans coupure,
+            // il faut que la première moitié du conteneur soit plus large que l'écran.
+            // On répète donc nos 3 items 4 fois (soit 12 items) pour former la "Moitié 1".
+            const halfHTML = baseHTML + baseHTML + baseHTML + baseHTML;
+            
+            // Le conteneur final contiendra Moitié 1 + Moitié 2 (exactement identiques)
+            // Donc translateX(-50%) passera de la fin de la Moitié 1 au début de la Moitié 1 sans saut.
+            container.innerHTML = halfHTML + halfHTML;
         })();
     </script>
 

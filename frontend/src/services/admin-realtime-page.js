@@ -1324,6 +1324,14 @@ async function boot() {
     setActiveButtonGroup('#liveWindowButtons .live-window-btn', 'liveWindow', String(state.feedWindowMinutes));
     setLiveWindowLabel();
     updateLiveCaption();
+
+    // Immediately replace static skeleton HTML with real content so
+    // they don't get stuck even before async ops complete.
+    const presenceCountLine = $id('presenceCountLine');
+    if (presenceCountLine) presenceCountLine.textContent = 'En connexion...';
+    const livePresenceList = $id('livePresenceList');
+    if (livePresenceList) livePresenceList.innerHTML = `<div class="text-xs text-gray-400 italic">Connexion au canal de présence...</div>`;
+
     updateChannelHealth();
 
     const meta = $id('realtimeMeta');
@@ -1339,7 +1347,32 @@ async function boot() {
     await seedAnalyticsSnapshot();
     await seedIncidentSnapshot();
     await setupRealtimeMonitor();
-    await renderTopVendors({ days: state.currentDays });
+
+    // Ensure OrderManager is ready before rendering Top Vendors.
+    // If already initialized — render now. Otherwise kick off init and
+    // renderTopVendors will fire again via the ordersUpdated listener.
+    if (window.OrderManager && window.OrderManager._initialized && !window.OrderManager._fetchPromise) {
+        await renderTopVendors({ days: state.currentDays });
+    } else if (window.OrderManager && !window.OrderManager._initialized && !window.OrderManager._fetchPromise) {
+        // Show skeleton while we wait for init to complete
+        renderTopVendorsSkeleton();
+        window.OrderManager.init({ force: false }).catch(() => {});
+        // ordersUpdated listener (bindLocalListeners) will call renderTopVendors when done
+    } else {
+        // Fallback — try to render with whatever data is available
+        await renderTopVendors({ days: state.currentDays });
+    }
+
+    // Safety net: retry channel health and top vendors after short delays
+    // to handle the case where managers finish after boot() runs.
+    [500, 1200, 2500].forEach((delay) => {
+        window.setTimeout(() => {
+            updateChannelHealth();
+            if (window.OrderManager?._initialized) {
+                renderTopVendors({ days: state.currentDays, range: state.currentRealtimeDateRange }).catch(() => {});
+            }
+        }, delay);
+    });
 
     const refreshBtn = $id('liveRefreshBtn');
     if (refreshBtn) {

@@ -150,6 +150,11 @@ export const createOrder = async (req, res) => {
             return res.status(404).json({ error: 'Produit introuvable' });
         }
 
+        const resolvedCustomerEmail = customer_email || req.user?.email;
+        if (!resolvedCustomerEmail) {
+            return res.status(400).json({ error: 'Une adresse e-mail valide est requise pour passer une commande.' });
+        }
+
         const vendorId = vendor_id || product.user_id;
         const merchandiseAmount = Number(product.price || 0) * quantity;
         const orderId = generateOrderId();
@@ -184,7 +189,7 @@ export const createOrder = async (req, res) => {
                 customer_phone: customer_phone || null,
                 customer_name: customer_name || null,
                 customer_city: customer_city || null,
-                customer_email: customer_email || req.user?.email || null,
+                customer_email: resolvedCustomerEmail,
                 customer_lat: customer_lat || null,
                 customer_lng: customer_lng || null,
                 escrow_status: ESCROW_STATUSES.NONE,

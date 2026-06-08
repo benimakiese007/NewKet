@@ -397,12 +397,27 @@
         function initializeOrders() {
             if (ordersBootStarted) return;
             ordersBootStarted = true;
-            renderAdminOrders();
+
+            // Always listen for future updates (real-time changes, refreshes)
+            window.addEventListener('ordersUpdated', () => { renderAdminOrders(); });
+
+            // If OrderManager is already initialized, render immediately.
+            // Otherwise, show skeleton and wait — the ordersUpdated event will arrive.
+            if (window.OrderManager && OrderManager._initialized && !OrderManager._fetchPromise) {
+                renderAdminOrders();
+            } else if (window.OrderManager && !OrderManager._initialized) {
+                // Manager exists but hasn't started — kick off init
+                OrderManager.init().catch(() => {});
+            } else {
+                // Not yet available — show skeleton while waiting
+                renderAdminOrders();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initializeOrders();
-            if (!window.newketInitialized) {
+            if (window.newketInitialized) {
+                initializeOrders();
+            } else {
                 window.addEventListener('newketInitialized', initializeOrders, { once: true });
             }
         });

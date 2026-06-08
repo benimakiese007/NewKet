@@ -65,8 +65,8 @@
                     <table class="premium-table w-full">
                         <thead>
                             <tr>
-                                <th>Date/Heure</th>
-                                <th>Description de l'action</th>
+                                <th class="border-r border-gray-200">Date/Heure</th>
+                                <th class="border-r border-gray-200">Description de l'action</th>
                                 <th>Priorité / Type</th>
                             </tr>
                         </thead>
@@ -216,11 +216,11 @@
 
                 return `
                 <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
-                    <td class="p-4 w-48 align-top">
+                    <td class="p-4 w-48 align-top border-r border-gray-200">
                         <div class="font-black text-gray-900">${timeStr}</div>
                         <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">${fullDate}</div>
                     </td>
-                    <td class="p-4">
+                    <td class="p-4 border-r border-gray-200">
                         <div class="flex items-start gap-4">
                             <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
                                 <iconify-icon icon="${iconStr}" width="22" class="${colorClass}"></iconify-icon>

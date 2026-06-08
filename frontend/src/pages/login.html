@@ -168,8 +168,8 @@
                 <p class="text-lg text-gray-300 font-medium mb-8 leading-relaxed">Rejoignez des milliers d'acheteurs et de
                     vendeurs. Une plateforme pensée pour la performance et le raffinement.</p>
 
-                <div class="flex items-center gap-4">
-                    <div class="flex -space-x-3">
+                <div class="flex items-center gap-4 opacity-0 transition-opacity duration-500" id="statsContainer">
+                    <div class="flex -space-x-3" id="avatarContainer">
                         <img loading="lazy" width="40" height="40" class="w-10 h-10 rounded-full border-2 border-black object-cover"
                             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"
                             alt="User">
@@ -263,7 +263,6 @@
                                 email</label>
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 flex items-center justify-center">
                                 <iconify-icon icon="solar:letter-bold-duotone" width="20" id="emailDefaultIcon"></iconify-icon>
-                                <iconify-icon icon="solar:check-circle-bold" width="20" id="emailValidIcon" class="text-green-500 hidden"></iconify-icon>
                             </div>
                         </div>
 
@@ -459,23 +458,12 @@
 
         // onBlur validation for email
         const emailInput = document.getElementById('email');
-        const emailDefaultIcon = document.getElementById('emailDefaultIcon');
-        const emailValidIcon = document.getElementById('emailValidIcon');
 
         emailInput.addEventListener('blur', () => {
             if (emailInput.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
                 showError("Veuillez entrer une adresse email valide.");
-                if(emailValidIcon) emailValidIcon.classList.add('hidden');
-                if(emailDefaultIcon) emailDefaultIcon.classList.remove('hidden');
             } else {
                 formError.classList.add('hidden');
-                if (emailInput.value) {
-                    if(emailValidIcon) emailValidIcon.classList.remove('hidden');
-                    if(emailDefaultIcon) emailDefaultIcon.classList.add('hidden');
-                } else {
-                    if(emailValidIcon) emailValidIcon.classList.add('hidden');
-                    if(emailDefaultIcon) emailDefaultIcon.classList.remove('hidden');
-                }
             }
         });
 
@@ -1024,16 +1012,39 @@
                     throw new Error('Invalid public user stats payload');
                 }
 
-                countEl.textContent = totalUsers.toLocaleString('fr-FR');
+                const displayCount = totalUsers >= 10 ? '+' + (Math.floor(totalUsers / 10) * 10) : totalUsers.toLocaleString('fr-FR');
+                countEl.textContent = displayCount;
                 labelEl.textContent = totalUsers > 1 ? 'Utilisateurs' : 'Utilisateur';
+
+                if (stats?.recentAvatars && Array.isArray(stats.recentAvatars)) {
+                    const avatarContainer = document.getElementById('avatarContainer');
+                    if (avatarContainer) {
+                        const imgs = avatarContainer.querySelectorAll('img');
+                        stats.recentAvatars.forEach((avatarUrl, index) => {
+                            if (imgs[index] && avatarUrl) {
+                                imgs[index].src = avatarUrl;
+                            }
+                        });
+                    }
+                }
             } catch (error) {
                 console.warn('[Login] Impossible de charger le total utilisateurs:', error);
                 countEl.textContent = '0';
                 labelEl.textContent = 'Utilisateurs';
+            } finally {
+                const statsContainer = document.getElementById('statsContainer');
+                if (statsContainer) {
+                    statsContainer.classList.remove('opacity-0');
+                    statsContainer.classList.add('opacity-100');
+                }
             }
         }
 
-        loadPublicUserStats();
+        if (window.ApiClient) {
+            loadPublicUserStats();
+        } else {
+            window.addEventListener('newketInitialized', loadPublicUserStats);
+        }
     </script>
 </body>
 

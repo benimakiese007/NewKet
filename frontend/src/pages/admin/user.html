@@ -111,10 +111,10 @@
             <div class="glass-panel p-6 space-y-6 animate-premium stagger-1">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="filterUsers('all')" data-filter="all" data-track-action="admin_users:filter_all_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
+                        <button onclick="filterUsers('all')" data-filter="all" data-track-action="admin_users:filter_all_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">
                             Tous <span id="count-all" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </button>
-                        <button onclick="filterUsers('supplier')" id="btn-supplier" data-filter="supplier" data-track-action="admin_users:filter_supplier_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">
+                        <button onclick="filterUsers('supplier')" id="btn-supplier" data-filter="supplier" data-track-action="admin_users:filter_supplier_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
                             Vendeurs <span id="count-supplier" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </button>
                         <button onclick="filterUsers('customer')" data-filter="customer" data-track-action="admin_users:filter_customer_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
@@ -296,7 +296,7 @@
 
     <script>
         let usersBootStarted = false;
-        let currentFilter = 'supplier';
+        let currentFilter = 'all';
         let searchQuery = '';
         let currentPage = 1;
         const itemsPerPage = 20;
@@ -592,14 +592,27 @@
         function initializeUsers() {
             if (usersBootStarted) return;
             usersBootStarted = true;
+
+            // Always listen for future updates
             window.addEventListener('usersUpdated', () => { _statsCache = null; renderUsers(); });
             window.addEventListener('ordersUpdated', () => { _statsCache = null; renderUsers(); });
-            renderUsers();
+
+            // If UserManager already has data ready, render immediately
+            if (window.UserManager && UserManager._initialized) {
+                renderUsers();
+            } else if (window.UserManager && !UserManager._initialized && !UserManager._initPromise) {
+                // Kick off init — usersUpdated event will trigger renderUsers()
+                UserManager.init().catch(() => {});
+            } else {
+                // Show skeleton while waiting
+                renderUsers();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initializeUsers();
-            if (!window.newketInitialized) {
+            if (window.newketInitialized) {
+                initializeUsers();
+            } else {
                 window.addEventListener('newketInitialized', initializeUsers, { once: true });
             }
         });

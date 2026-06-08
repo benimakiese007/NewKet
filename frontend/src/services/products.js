@@ -55,6 +55,7 @@ const ProductManager = {
         this._hasMore = true;
         this.fetchFreshData().finally(() => {
             this.loading = false;
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
         });
 
         // --- REALTIME SUBSCRIPTION ---
@@ -407,7 +408,8 @@ const ProductManager = {
             this.products.unshift(mappedProd); // Add to front (newest first)
             this._totalCount++;
             window.dispatchEvent(new CustomEvent('productsUpdated'));
-            if (window.ActivityManager) ActivityManager.log(`Produit ajouté : ${product.name}`, 'stock');
+            if (window.logVendorActivity) logVendorActivity(`Produit ajouté : ${product.name}`, 'stock');
+            else if (window.ActivityManager) ActivityManager.log(`Produit ajouté : ${product.name}`, 'stock');
         }
         return newProd;
     },
@@ -424,7 +426,8 @@ const ProductManager = {
             if (index !== -1) {
                 this.products[index] = this._mapProduct(updated);
                 window.dispatchEvent(new CustomEvent('productsUpdated'));
-                if (window.ActivityManager) ActivityManager.log(`Produit modifié : ${updated.name}`, 'stock');
+                if (window.logVendorActivity) logVendorActivity(`Produit modifié : ${updated.name}`, 'stock');
+                else if (window.ActivityManager) ActivityManager.log(`Produit modifié : ${updated.name}`, 'stock');
             }
         }
         return updated;
@@ -438,7 +441,8 @@ const ProductManager = {
             this.products = this.products.filter(p => p.id !== id);
             this._totalCount--;
             window.dispatchEvent(new CustomEvent('productsUpdated'));
-            if (product && window.ActivityManager) ActivityManager.log(`Produit supprimé : ${product.name}`, 'stock');
+            if (product && window.logVendorActivity) logVendorActivity(`Produit supprimé : ${product.name}`, 'stock');
+            else if (product && window.ActivityManager) ActivityManager.log(`Produit supprimé : ${product.name}`, 'stock');
         }
         return success;
     },
@@ -448,7 +452,8 @@ const ProductManager = {
         this.products = this.products.filter(p => !ids.includes(p.id));
         this._totalCount -= ids.length;
         window.dispatchEvent(new CustomEvent('productsUpdated'));
-        if (window.ActivityManager) ActivityManager.log(`${ids.length} produits supprimés par action groupée`, 'stock');
+        if (window.logVendorActivity) logVendorActivity(`${ids.length} produits supprimés par action groupée`, 'stock');
+        else if (window.ActivityManager) ActivityManager.log(`${ids.length} produits supprimés par action groupée`, 'stock');
     },
 
     async updateCategoryBulk(ids, newCategory) {
@@ -457,7 +462,8 @@ const ProductManager = {
             if (ids.includes(p.id)) p.category = newCategory;
         });
         window.dispatchEvent(new CustomEvent('productsUpdated'));
-        if (window.ActivityManager) ActivityManager.log(`Catégorie mise à jour pour ${ids.length} produits`, 'stock');
+        if (window.logVendorActivity) logVendorActivity(`Catégorie mise à jour pour ${ids.length} produits`, 'stock');
+        else if (window.ActivityManager) ActivityManager.log(`Catégorie mise à jour pour ${ids.length} produits`, 'stock');
     }
 };
 

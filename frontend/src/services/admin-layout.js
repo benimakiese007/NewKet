@@ -633,6 +633,13 @@ const AdminLayout = {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Bouton Déconnexion dans la Sidebar -->
+                        <div class="mt-6 pt-5 border-t border-gray-100">
+                            <button onclick="AuthManager.handleLogoutClick(this)" class="flex items-center justify-center gap-2 w-full px-4 py-4 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-all active:scale-[0.98]">
+                                <iconify-icon icon="solar:logout-linear" width="20"></iconify-icon> Déconnexion
+                            </button>
+                        </div>
                     </div>
                 </div>
             </aside>

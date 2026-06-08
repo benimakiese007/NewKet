@@ -401,7 +401,12 @@ const ComponentLoader = {
         // If there is no active Supabase session, do not let stale role/email values
         // drive the UI (e.g. linking guests to vendor/admin surfaces). Keep buyer
         // interface as the default for guests.
-        await this.sanitizeGuestAuthState();
+        this.sanitizeGuestAuthState().then(() => {
+            // Once sanitized, if the auth state has changed, update links
+            if (window.AuthManager) {
+                window.AuthManager.updateAccountLink();
+            }
+        });
 
         // Prevent double initialization
         if (window.componentsLoading) return;

@@ -110,7 +110,7 @@
                                 <th>Catégorie</th>
                                 <th>Prix</th>
                                 <th>Stock</th>
-                                <th class="text-center">Épinglé</th>
+                                <th class="text-center">Sponsorisé</th>
                                 <th class="text-right">Actions</th>
                             </tr>
                         </thead>
@@ -317,7 +317,7 @@
                     </td>
                     <td class="text-center">
                         <button onclick="togglePin('${p.id}')" data-track-action="admin_products:pin_toggle_click"
-                            class="w-10 h-10 rounded-xl transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-orange-50 text-orange-500 shadow-lg' : 'bg-gray-50 text-gray-300 hover:text-orange-500'}" title="${isPinned ? 'Désépingler' : 'Mettre en avant'}">
+                            class="w-10 h-10 rounded-xl transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-orange-50 text-orange-500 shadow-lg' : 'bg-gray-50 text-gray-300 hover:text-orange-500'}" title="${isPinned ? 'Retirer le sponsoring' : 'Mettre en avant'}">
                             <iconify-icon icon="solar:star-bold-duotone" width="20"></iconify-icon>
                         </button>
                     </td>
@@ -422,7 +422,7 @@
             const newPinned = !p.pinned;
             await ProductManager.updateProduct(id, { pinned: newPinned });
             renderAdminProducts();
-            if (window.showToast) showToast(newPinned ? 'Produit épinglé !' : 'Décroché.', 'success');
+            if (window.showToast) showToast(newPinned ? 'Produit sponsorisé !' : 'Non sponsorisé.', 'success');
         }
 
         document.getElementById('productForm').addEventListener('submit', (e) => {
@@ -449,13 +449,30 @@
         function initializeProducts() {
             if (productsBootStarted) return;
             productsBootStarted = true;
-            renderAdminProducts();
+
+            // Always listen for future updates
             window.addEventListener('productsUpdated', renderAdminProducts);
+
+            // If ProductManager already has data ready, render immediately
+            if (window.ProductManager && typeof ProductManager.getProducts === 'function') {
+                const existingProducts = ProductManager.getProducts();
+                if (existingProducts && existingProducts.length > 0) {
+                    renderAdminProducts();
+                    return;
+                }
+                if (ProductManager.loading === false) {
+                    renderAdminProducts();
+                    return;
+                }
+            }
+            // Otherwise show skeleton and wait for productsUpdated
+            renderAdminProducts();
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            initializeProducts();
-            if (!window.newketInitialized) {
+            if (window.newketInitialized) {
+                initializeProducts();
+            } else {
                 window.addEventListener('newketInitialized', initializeProducts, { once: true });
             }
         });
