@@ -2922,8 +2922,51 @@
                     // Activity feed: use local vendor activity log (works for vendor role)
                     const feed = document.getElementById('vendor-activity-feed');
                     if (feed) {
-                        const raw = localStorage.getItem('newket_vendor_activities');
-                        const activities = raw ? JSON.parse(raw).slice(0, 8) : [];
+                        let storedActivities = [];
+                        try {
+                            const raw = localStorage.getItem('newket_vendor_activities');
+                            storedActivities = raw ? JSON.parse(raw) : [];
+                        } catch (_) {
+                            storedActivities = [];
+                        }
+
+                        const normalizeTime = (value) => {
+                            const time = new Date(value || 0).getTime();
+                            return Number.isFinite(time) && time > 0 ? new Date(time).toISOString() : new Date().toISOString();
+                        };
+
+                        const getOrderActivityStatus = (order) => {
+                            const rawStatus = order?.status || order?.payment_status || 'PENDING';
+                            return window.OrderManager?.getStatusLabel ? OrderManager.getStatusLabel(rawStatus) : rawStatus;
+                        };
+
+                        const derivedOrderActivities = (recentOrders || []).slice(0, 8).map((order) => ({
+                            text: `Commande #${String(order?.id || '').slice(0, 6)} - ${order?.customer?.name || order?.customer_name || 'Client'} (${getOrderActivityStatus(order)})`,
+                            type: 'order',
+                            time: normalizeTime(order?.updated_at || order?.created_at || order?.date || order?.time),
+                        }));
+
+                        const derivedProductActivities = myProducts
+                            .filter((product) => product?.created_at || product?.updated_at)
+                            .sort((a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0))
+                            .slice(0, 4)
+                            .map((product) => ({
+                                text: `${product?.updated_at ? 'Produit mis a jour' : 'Produit publie'} : ${product?.name || 'Produit'}`,
+                                type: 'stock',
+                                time: normalizeTime(product?.updated_at || product?.created_at),
+                            }));
+
+                        const activities = [
+                            ...storedActivities.map((activity) => ({
+                                text: activity?.text || 'Activite boutique',
+                                type: activity?.type || 'system',
+                                time: normalizeTime(activity?.time),
+                            })),
+                            ...derivedOrderActivities,
+                            ...derivedProductActivities,
+                        ]
+                            .sort((a, b) => new Date(b.time) - new Date(a.time))
+                            .slice(0, 8);
 
                         const iconMap = {
                             stock: 'solar:box-bold',
@@ -2946,6 +2989,15 @@
                             if (diff < 86400) return `${Math.floor(diff / 3600)} h`;
                             return new Date(iso).toLocaleDateString();
                         };
+                        const escapeActivity = (value) => {
+                            if (typeof window.escapeHTML === 'function') return window.escapeHTML(value);
+                            return String(value ?? '')
+                                .replaceAll('&', '&amp;')
+                                .replaceAll('<', '&lt;')
+                                .replaceAll('>', '&gt;')
+                                .replaceAll('"', '&quot;')
+                                .replaceAll("'", '&#39;');
+                        };
 
                         feed.innerHTML = activities.length ? activities.map(a => `
                             <div class="flex items-start gap-3 p-3 border border-gray-50 rounded-2xl hover:bg-gray-50/60 transition-colors">
@@ -2953,8 +3005,8 @@
                                     <iconify-icon icon="${iconMap[a.type] || iconMap.system}" width="18"></iconify-icon>
                                 </div>
                                 <div class="min-w-0">
-                                    <p class="text-sm font-bold text-gray-900 truncate">${a.text}</p>
-                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">${formatAgo(a.time)}</p>
+                                    <p class="text-sm font-bold text-gray-900 truncate">${escapeActivity(a.text)}</p>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">${escapeActivity(formatAgo(a.time))}</p>
                                 </div>
                             </div>
                         `).join('') : '<p class="text-sm text-gray-400 py-6 text-center">Aucune activité récente.</p>';

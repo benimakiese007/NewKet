@@ -164,6 +164,30 @@ function getUserAvatar(user) {
         '';
 }
 
+function isAdminPresence(user) {
+    if (!user) return false;
+
+    const role = String(
+        user.role ||
+        user.user_role ||
+        user.user_metadata?.role ||
+        ''
+    ).toLowerCase();
+
+    if (role === 'admin') return true;
+
+    const activeAdminId = window.AuthManager?.role === 'admin'
+        ? (window.AuthManager?.user?.id || window.AuthManager?.user?.user_id || '')
+        : '';
+    const presenceUserId = user.user_id || user.id || '';
+
+    return !!activeAdminId && !!presenceUserId && String(activeAdminId) === String(presenceUserId);
+}
+
+function filterOutAdminPresence(users) {
+    return (Array.isArray(users) ? users : []).filter((user) => !isAdminPresence(user));
+}
+
 function renderUserAvatar(user, fallbackName, className = 'w-8 h-8') {
     const avatarUrl = getUserAvatar(user);
     const label = (fallbackName || getUserDisplayName(user) || '?').trim();
