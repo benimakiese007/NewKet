@@ -521,6 +521,23 @@
                     physicalUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', path, physicalShopFile);
                 }
 
+                const currentProfile = await window.SupabaseAdapter.fetchWithFilters('users', {
+                    eq: [['id', userId]],
+                    select: 'status',
+                    single: true,
+                    skipCache: true
+                });
+
+                if (currentProfile && (currentProfile.status === 'approved' || currentProfile.status === 'submitted')) {
+                    if (window.showToast) window.showToast("Votre dossier a déjà été soumis ou approuvé. Redirection...", "info");
+                    localStorage.setItem('newketUserStatus', currentProfile.status);
+                    setTimeout(() => {
+                        window.location.href = getDashboardHref();
+                    }, 1500);
+                    if (window.LoaderManager) LoaderManager.hide();
+                    return;
+                }
+
                 // Update user profile
                 const fallbackBuildShopSlug = (value) => String(value || '')
                     .normalize('NFD')

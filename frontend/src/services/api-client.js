@@ -110,6 +110,7 @@ export const ApiClient = {
     },
 
     _invalidateAuthCache() {
+        // Clear cached auth token.
         this._sessionCache.token = null;
         this._sessionCache.expiresAt = 0;
     },
@@ -306,9 +307,8 @@ export const ApiClient = {
             }
 
             if (!options.suppressToast && typeof window.showToast === 'function' && !isTransientLocalGateway) {
-                if (isNetworkFailure(error)) {
-                    window.showToast("Une erreur réseau est survenue. Veuillez vérifier votre connexion.", "danger");
-                } else if (error.status !== 401 && error.status !== 403) {
+                // Show toast only for non-network errors.
+                if (!isNetworkFailure(error) && error.status !== 401 && error.status !== 403) {
                     window.showToast(error.message || "Une erreur est survenue.", "danger");
                 }
             }

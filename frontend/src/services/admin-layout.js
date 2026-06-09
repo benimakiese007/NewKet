@@ -418,6 +418,31 @@ const AdminLayout = {
             </nav>
         `;
 
+        // Offline network status icon
+        const topbarRight = navbarPlaceholder.querySelector('.dashboard-topbar-inner > div:last-child');
+        if (topbarRight) {
+            const networkDiv = document.createElement('div');
+            networkDiv.id = 'networkStatusIcon';
+            networkDiv.className = 'hidden flex items-center justify-center text-red-500 bg-red-50 h-10 w-10 sm:w-auto sm:px-4 rounded-xl border border-red-100/50 tooltip-trigger transition-all';
+            networkDiv.setAttribute('title', 'Vous êtes hors ligne');
+            networkDiv.innerHTML = `
+                <iconify-icon icon="mdi:wifi-off" width="20"></iconify-icon>
+                <span class="hidden sm:inline ml-2 text-[10px] font-black uppercase tracking-widest">Hors ligne</span>
+            `;
+            // Insert at the beginning of the right container
+            topbarRight.insertBefore(networkDiv, topbarRight.firstChild);
+            const updateNetworkStatus = () => {
+                if (navigator.onLine) {
+                    networkDiv.classList.add('hidden');
+                } else {
+                    networkDiv.classList.remove('hidden');
+                }
+            };
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            updateNetworkStatus();
+        }
+
         if (window.CurrencyManager && typeof CurrencyManager.updateCurrencyUI === 'function') {
             CurrencyManager.updateCurrencyUI();
         }

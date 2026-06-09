@@ -94,20 +94,48 @@
             transition: transform 0.5s ease;
         }
 
-        @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        @keyframes marquee-scroll {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
         }
 
-        .animate-scroll {
-            animation: scroll 45s linear infinite;
-            pointer-events: none; /* Empêche l'arrêt sur mobile/tactile */
+        .marquee-track {
+            display: flex;
+            width: max-content;
+            animation: marquee-scroll 40s linear infinite;
+            pointer-events: none;
             user-select: none;
+            -webkit-user-drag: none;
+            will-change: transform;
         }
 
-        .features-gradient-edge {
-            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        /* Force animation to NEVER pause — not on hover, focus, or any state */
+        .marquee-track,
+        .marquee-track:hover,
+        .marquee-track:focus,
+        .marquee-track:active,
+        .marquee-wrapper:hover .marquee-track,
+        .marquee-wrapper:focus-within .marquee-track {
+            animation-play-state: running !important;
+        }
+
+        .marquee-wrapper {
+            overflow: hidden;
+            pointer-events: none;
+            mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+        }
+
+        .marquee-item {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex-shrink: 0;
+            padding-right: 5rem;
+        }
+
+        @media (min-width: 640px) {
+            .marquee-item { padding-right: 8rem; }
         }
 
     </style>
@@ -229,24 +257,173 @@
         </div>
     </section>
 
-    <!-- ========== FEATURES SECTION ========== -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 mb-16 overflow-hidden features-gradient-edge" style="content-visibility:auto; contain-intrinsic-size: 120px 120px;">
-        <div class="flex animate-scroll w-max py-4">
-            <div class="flex items-center gap-5 flex-shrink-0 pr-20 sm:pr-32">
+    <!-- ========== FEATURES SECTION — Infinite Marquee ========== -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 mb-16 marquee-wrapper">
+        <div class="marquee-track py-4">
+            <!-- === Half 1 (4 repetitions of 3 items = 12 items) === -->
+            <div class="marquee-item">
                 <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
                 <div>
                     <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
                 </div>
             </div>
-            <div class="flex items-center gap-5 flex-shrink-0 pr-20 sm:pr-32">
+            <div class="marquee-item">
                 <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
                 <div>
                     <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
                     <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
                 </div>
             </div>
-            <div class="flex items-center gap-5 flex-shrink-0 pr-20 sm:pr-32">
+            <div class="marquee-item">
+                <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <!-- === Half 2 (identique à Half 1 — pour la boucle parfaite) === -->
+            <div class="marquee-item">
+                <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">M-Pesa, Orange, Airtel</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:delivery-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Livraison Rapide</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Dès 125 000 FC d'achat</div>
+                </div>
+            </div>
+            <div class="marquee-item">
+                <iconify-icon icon="solar:shield-check-linear" width="32" class="text-black"></iconify-icon>
+                <div>
+                    <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Sécurisé</div>
+                    <div class="text-xs text-gray-500 mt-1 font-medium">Transactions 100% cryptées</div>
+                </div>
+            </div>
+            <div class="marquee-item">
                 <iconify-icon icon="solar:smartphone-linear" width="32" class="text-black"></iconify-icon>
                 <div>
                     <div class="text-sm font-bold text-black uppercase tracking-[0.15em]">Paiement Mobile</div>
@@ -255,26 +432,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Script synchrone pour dupliquer les éléments avant le chargement d'Iconify -->
-    <script>
-        (function() {
-            const container = document.querySelector('.animate-scroll');
-            if (!container) return;
-            
-            // On récupère le HTML brut des 3 items (avant qu'Iconify ne s'active)
-            const baseHTML = container.innerHTML;
-            
-            // Pour que l'animation translateX(-50%) soit parfaitement fluide sans coupure,
-            // il faut que la première moitié du conteneur soit plus large que l'écran.
-            // On répète donc nos 3 items 4 fois (soit 12 items) pour former la "Moitié 1".
-            const halfHTML = baseHTML + baseHTML + baseHTML + baseHTML;
-            
-            // Le conteneur final contiendra Moitié 1 + Moitié 2 (exactement identiques)
-            // Donc translateX(-50%) passera de la fin de la Moitié 1 au début de la Moitié 1 sans saut.
-            container.innerHTML = halfHTML + halfHTML;
-        })();
-    </script>
 
     <!-- ========== TOUS LES PRODUITS + FILTRE ========== -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 mt-12 md:mt-16 mb-12 md:mb-16" style="content-visibility:auto; contain-intrinsic-size: 920px 1200px;">

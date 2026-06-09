@@ -429,6 +429,98 @@ const App = {
 
         applyHeaderScrollState(lastScrollTop);
         window.addEventListener('scroll', queueHeaderScrollUpdate, { passive: true });
+
+        // Global Modal Manager
+        const setupGlobalModals = () => {
+            const isModalNode = (node) => {
+                if (node.nodeType !== Node.ELEMENT_NODE) return false;
+                const role = node.getAttribute('role');
+                const id = node.id || '';
+                const classes = node.className || '';
+                if (role === 'dialog' || id.toLowerCase().endsWith('modal') || (typeof classes === 'string' && classes.includes('modal') && classes.includes('fixed'))) {
+                    return true;
+                }
+                return false;
+            };
+
+            const isNodeVisible = (node) => {
+                if (node.classList.contains('hidden') || node.classList.contains('invisible') || node.style.display === 'none' || node.style.opacity === '0') return false;
+                const style = window.getComputedStyle(node);
+                return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+            };
+
+            const checkAnyModalOpen = () => {
+                const modals = document.querySelectorAll('.fixed.inset-0, [role="dialog"], [id$="Modal"], [id$="modal"]');
+                let anyOpen = false;
+                for (const m of modals) {
+                    if (isModalNode(m) && isNodeVisible(m) && (m.classList.contains('fixed') || window.getComputedStyle(m).position === 'fixed')) {
+                        anyOpen = true;
+                        break;
+                    }
+                }
+                if (anyOpen) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            };
+
+            // Observe DOM for class/style changes on modals to toggle body overflow
+            const modalObserver = new MutationObserver((mutations) => {
+                let shouldCheck = false;
+                for (const m of mutations) {
+                    if (m.type === 'attributes' && (m.attributeName === 'class' || m.attributeName === 'style')) {
+                        if (isModalNode(m.target)) {
+                            shouldCheck = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldCheck) {
+                    checkAnyModalOpen();
+                }
+            });
+
+            modalObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
+            
+            setTimeout(checkAnyModalOpen, 500);
+
+            // Handle clicking outside modal to close it
+            document.addEventListener('mousedown', (e) => {
+                const target = e.target;
+                if (isModalNode(target) && target.classList.contains('fixed')) {
+                    const closeBtn = target.querySelector('[data-action*="close"], [onclick*="close"], .close-modal, #closeModalBtn, button:has(iconify-icon[icon*="close"])');
+                    if (closeBtn) {
+                        closeBtn.click();
+                    } else {
+                        target.classList.add('hidden');
+                        target.classList.remove('flex');
+                        target.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Handle Escape key to close top modal
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const modals = Array.from(document.querySelectorAll('.fixed.inset-0, [role="dialog"], [id$="Modal"], [id$="modal"]')).filter(m => isModalNode(m) && isNodeVisible(m) && m.classList.contains('fixed'));
+                    if (modals.length > 0) {
+                        modals.sort((a, b) => parseInt(window.getComputedStyle(b).zIndex || 0) - parseInt(window.getComputedStyle(a).zIndex || 0));
+                        const topModal = modals[0];
+                        const closeBtn = topModal.querySelector('[data-action*="close"], [onclick*="close"], .close-modal, #closeModalBtn, button:has(iconify-icon[icon*="close"])');
+                        if (closeBtn) {
+                            closeBtn.click();
+                        } else {
+                            topModal.classList.add('hidden');
+                            topModal.classList.remove('flex');
+                            topModal.style.display = 'none';
+                        }
+                    }
+                }
+            });
+        };
+
+        setupGlobalModals();
     },
 
     shakeFavoritesIcon() {

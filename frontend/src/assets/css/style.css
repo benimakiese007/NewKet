@@ -6028,10 +6028,12 @@ video {
 
 .overflow-x-auto{
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .overflow-y-auto{
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .overflow-x-hidden{
@@ -9800,3 +9802,8 @@ html.dark .skeleton::after {
         animation: none !important;
     }
 }
+
+
+/* Global Modal Fixes for scroll chaining */
+.fixed.inset-0, [role="dialog"], [id$="Modal"] { overscroll-behavior: contain; }
+

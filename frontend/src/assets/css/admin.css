@@ -272,10 +272,51 @@ html.admin-embedded-mode .admin-shell > main {
     padding-top: var(--dashboard-topbar-height) !important;
 }
 
-/* Shared admin page breathing room below the header bar. */
+/* Shared admin page breathing room below the header bar.
+   Augmenté pour aligner le départ du contenu sur le layout vendeur. */
 .admin-shell > main {
-    padding-top: clamp(1rem, 2vw, 2rem);
+    padding-top: clamp(2rem, 3vw, 3rem);
+    padding-bottom: clamp(2rem, 4vw, 4rem);
 }
+
+/* ≤1023px : suppress extra spacing + fix colour bleed + remove strip above title */
+@media (max-width: 1023px) {
+    /* Remove flex gap — the sidebar placeholder has 0 height (sidebar is fixed overlay)
+       but the gap-8 on admin-shell was creating a visible coloured strip */
+    .admin-shell {
+        gap: 0 !important;
+    }
+
+    /* Keep the placeholder in the DOM (sidebar + overlay are fixed children inside it)
+       but give it zero dimensions so it takes no space in the flex-col layout */
+    #adminSidebarPlaceholder {
+        height: 0 !important;
+        width: 0 !important;
+        overflow: visible !important;
+        flex-shrink: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .admin-shell > main {
+        padding-top: 1.5rem !important;
+    }
+
+    /* Disable glass-panel backdrop-filter on mobile/tablet to stop colour bleed
+       from saturate(200%) picking up the purple gradient cards */
+    .admin-shell .glass-panel,
+    #adminSidebar .glass-panel {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Sidebar inner panel: solid white, no transparency */
+    #adminSidebar > div {
+        background: #ffffff !important;
+    }
+}
+
+
 
 .admin-page-header,
 .dashboard-page-header {
@@ -337,6 +378,8 @@ html.admin-embedded-mode .admin-shell > main {
         font-size: clamp(1.5rem, 4vw, 2.35rem) !important;
         line-height: 1.08 !important;
         letter-spacing: -0.04em !important;
+        margin-top: 0 !important;
+        margin-bottom: 0.5rem !important;
     }
 
     .admin-page-actions,
@@ -892,18 +935,29 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
 }
 
 .vendor-charts-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    width: 100%;
+    overflow-x: hidden; /* prevent horizontal scroll */
+    padding: 0;
+    margin: 0;
 }
+
+.vendor-charts-grid .glass-panel {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 0;
+}
+
+
 
 /* Deterministic chart sizing (avoid missing Tailwind arbitrary classes on prod builds) */
 .vendor-chart-shell {
     width: 100%;
-    height: 320px;
+    aspect-ratio: 16 / 9;
     position: relative;
-    /* Do NOT use overflow:hidden here — it prevents Chart.js canvas from rendering correctly */
+    overflow: hidden;
+    max-width: 100%;
+    /* Remove fixed height, let aspect ratio handle sizing */
 }
 
 .vendor-chart-shell canvas {
@@ -911,20 +965,14 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
     width: 100% !important;
     height: 100% !important;
     max-width: 100%;
+    max-height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: contain;
 }
 
-@media (max-width: 1024px) {
-    .vendor-chart-shell {
-        height: 260px;
-    }
-}
-
-@media (max-width: 640px) {
-    .vendor-chart-shell {
-        height: 220px;
-        min-height: 180px;
-    }
-}
+/* Height overrides removed; aspect-ratio handles responsive sizing */
 
 @media (max-width: 1024px) {
     .vendor-charts-grid {
@@ -1076,14 +1124,13 @@ html.admin-embedded-mode .stagger-5 {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-x: contain;
-        touch-action: pan-x;
         scrollbar-width: thin;
         scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
         display: block;
         width: 100%;
         max-width: 100%;
-        padding-bottom: 10px;
-        overflow-y: hidden;
+        padding-bottom: 24px;
+        min-height: 250px; /* Augmente la zone tactile en dessous des lignes */
     }
 
     #tab-dashboard .vendor-orders-table {
@@ -1258,4 +1305,10 @@ html.admin-embedded-mode .stagger-5 {
     #customerSidebar.-translate-x-full {
         transform: translateX(-100%) !important;
     }
+}
+
+/* Augmente la zone tactile sous tous les tableaux pour faciliter le scroll mobile */
+.glass-panel .overflow-x-auto {
+    min-height: 250px;
+    padding-bottom: 24px;
 }

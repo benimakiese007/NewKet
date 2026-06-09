@@ -54,11 +54,19 @@ const HEADER_HTML = `
                     </a>
                 </div>
 
-                <!-- Account Icon (Mobile) -->
-                <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale sm:hidden"
-                    title="Compte" aria-label="Mon compte">
-                    <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
-                </a>
+                <!-- Right Icons (Mobile) -->
+                <div class="flex items-center gap-2 sm:hidden">
+                    <!-- Offline Network Status Icon (Mobile) -->
+                    <div class="network-status-icon hidden flex items-center justify-center text-red-500 bg-red-500/20 h-8 w-8 rounded-lg border border-red-500/30" title="Vous êtes hors ligne">
+                        <iconify-icon icon="mdi:wifi-off" width="18"></iconify-icon>
+                    </div>
+
+                    <!-- Account Icon (Mobile) -->
+                    <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Compte" aria-label="Mon compte">
+                        <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
+                    </a>
+                </div>
             </div>
 
             <!-- Search Bar (Full width on mobile, centered on desktop) -->
@@ -133,6 +141,12 @@ const HEADER_HTML = `
                             <span class="segmented-label" data-currency="CDF">CDF</span>
                         </div>
                     </div>
+                </div>
+
+                <!-- Offline Network Status Icon (Desktop) -->
+                <div class="network-status-icon hidden flex items-center gap-2 text-red-500 bg-red-500/20 h-10 px-3 rounded-xl border border-red-500/30" title="Vous êtes hors ligne">
+                    <iconify-icon icon="mdi:wifi-off" width="20"></iconify-icon>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-white">Hors ligne</span>
                 </div>
 
                 <!-- Notifications -->
@@ -477,7 +491,24 @@ const ComponentLoader = {
             document.head.appendChild(script);
         }
 
+        this.initNetworkStatus();
+
         setTimeout(() => this.setupHeaderSpacing(), 50);
+    },
+
+    initNetworkStatus() {
+        const updateNetworkStatus = () => {
+            document.querySelectorAll('.network-status-icon').forEach(el => {
+                if (navigator.onLine) {
+                    el.classList.add('hidden');
+                } else {
+                    el.classList.remove('hidden');
+                }
+            });
+        };
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        updateNetworkStatus();
     },
 
     async sanitizeGuestAuthState() {

@@ -530,12 +530,12 @@
 
                     <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
                         <div class="glass-panel p-8 xl:col-span-2">
-                            <div class="flex items-center justify-between gap-3 mb-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                                 <div>
                                     <h3 class="text-lg font-bold text-gray-900">Créer ou modifier</h3>
                                     <p class="text-xs text-gray-400 mt-1">Les montants promo s'appliquent sur les produits, pas sur la livraison.</p>
                                 </div>
-                                <button id="vendorPromoResetBtn" type="button" class="text-sm font-bold text-gray-500 hover:text-black">Réinitialiser</button>
+                                <button id="vendorPromoResetBtn" type="button" class="shrink-0 self-start sm:self-auto text-sm font-bold text-gray-500 hover:text-black">Réinitialiser</button>
                             </div>
 
                             <form id="vendorPromoForm" class="space-y-4">
@@ -616,7 +616,7 @@
                         </div>
 
                         <div class="glass-panel p-8 xl:col-span-3">
-                            <div class="flex items-center justify-between gap-3 mb-6">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
                                 <div>
                                     <h3 class="text-lg font-bold text-gray-900">Vos codes actifs et archivés</h3>
                                     <p class="text-xs text-gray-400 mt-1">Vous pouvez activer, désactiver, éditer ou supprimer un code à tout moment.</p>
@@ -826,6 +826,11 @@
                     <div class="glass-panel p-8">
                         <h2 class="text-xl font-bold mb-2">Clé d'accès (Passkey)</h2>
                         <p class="text-sm text-gray-400 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clé de sécurité.</p>
+                        
+                        <div id="vendorPasskeysList" class="space-y-3 mb-6 hidden">
+                            <!-- Passkeys will be injected here -->
+                        </div>
+
                         <button id="registerPasskeyBtnVendor" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
                             Créer une clé d'accès
@@ -2154,12 +2159,7 @@
                                 document.getElementById('vCurrentPassword').value = '';
                                 document.getElementById('vNewPassword').value = '';
                                 document.getElementById('vConfirmPassword').value = '';
-
-                                if (window.showToast) window.showToast('Mot de passe mis à jour avec succès.', 'success', 'Sécurité');
-                            } catch (err) {
-                                console.error('[Security] Password update error:', err);
-                                const msg = (err && err.message) ? err.message : 'Erreur lors de la mise à jour du mot de passe.';
-                                if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                            if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
                             } finally {
                                 if (btn) btn.disabled = false;
                             }
@@ -2168,19 +2168,88 @@
 
                     // Passkeys for Vendor
                     const registerPasskeyBtnVendor = document.getElementById('registerPasskeyBtnVendor');
+                    const passkeysListContainer = document.getElementById('vendorPasskeysList');
                     
-                    // Vérifier si une clé existe déjà
-                    if (window.supabaseClient && window.supabaseClient.auth.passkey) {
-                        window.supabaseClient.auth.passkey.list().then(({ data }) => {
-                            if (data && data.length > 0) {
-                                const title = registerPasskeyBtnVendor.closest('div').querySelector('h2');
-                                if (title) {
-                                    title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
-                                }
-                                registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                    const renderVendorPasskeys = (passkeys) => {
+                        if (!passkeysListContainer) return;
+                        if (!passkeys || passkeys.length === 0) {
+                            passkeysListContainer.classList.add('hidden');
+                            passkeysListContainer.innerHTML = '';
+                            return;
+                        }
+                        
+                        passkeysListContainer.classList.remove('hidden');
+                        passkeysListContainer.innerHTML = passkeys.map(pk => {
+                            const date = new Date(pk.created_at).toLocaleDateString('fr-FR', {
+                                day: 'numeric', month: 'short', year: 'numeric'
+                            });
+                            const name = pk.friendly_name || pk.name || 'Appareil inconnu';
+                            
+                            // Détection du type de clé
+                            let pkType = 'WebAuthn / Biométrie';
+                            let icon = 'solar:key-minimalistic-bold';
+                            const lowerName = name.toLowerCase();
+                            
+                            if (lowerName.includes('apple') || lowerName.includes('mac') || lowerName.includes('iphone') || lowerName.includes('ipad')) {
+                                pkType = 'Passkey Apple (Face ID / Touch ID)';
+                                icon = 'bi:apple';
+                            } else if (lowerName.includes('windows')) {
+                                pkType = 'Windows Hello (Empreinte / Code)';
+                                icon = 'bi:windows';
+                            } else if (lowerName.includes('android')) {
+                                pkType = 'Passkey Android';
+                                icon = 'bi:android2';
+                            } else if (lowerName.includes('yubikey') || lowerName.includes('security key')) {
+                                pkType = 'Clé de sécurité physique';
+                                icon = 'solar:usb-bold';
                             }
-                        }).catch(err => console.error("Erreur passkeys:", err));
-                    }
+                            
+                            return `
+                                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50 gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100 text-gray-500 shrink-0">
+                                            <iconify-icon icon="${icon}" width="18"></iconify-icon>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-gray-900 truncate">${name}</p>
+                                            <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Ajoutée le ${date}</p>
+                                                <span class="text-[10px] text-gray-300 hidden sm:inline">•</span>
+                                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Type : ${pkType}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-green-100 text-green-800 rounded">
+                                        Opérationnelle
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    };
+
+                    const loadVendorPasskeys = () => {
+                        // Vérifier si une clé existe déjà
+                        if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                            window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                                renderVendorPasskeys(data);
+                                if (data && data.length > 0) {
+                                    const title = registerPasskeyBtnVendor.closest('div').querySelector('h2');
+                                    if (title && !title.innerHTML.includes('Activée')) {
+                                        title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                                    }
+                                    registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                                } else {
+                                    const title = registerPasskeyBtnVendor.closest('div').querySelector('h2');
+                                    if (title && title.innerHTML.includes('Activée')) {
+                                        title.innerHTML = "Clé d'accès (Passkey)";
+                                    }
+                                    registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une clé d\'accès';
+                                }
+                            }).catch(err => console.error("Erreur passkeys:", err));
+                        }
+                    };
+
+                    loadVendorPasskeys();
 
                     if (registerPasskeyBtnVendor) {
                         registerPasskeyBtnVendor.addEventListener('click', async () => {

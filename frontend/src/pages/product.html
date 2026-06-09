@@ -111,7 +111,7 @@
             <!-- Image Section -->
             <div id="productImageCol">
                 <div class="w-full aspect-square glass-card rounded-3xl overflow-hidden group relative flex items-center justify-center p-1 sm:p-2 hover:shadow-2xl transition-all duration-700">
-                    <img id="mainImage" src="" alt="Image du produit" width="1200" height="1200" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply scale-105 group-hover:scale-125 transition-transform duration-1000 ease-out cursor-zoom-in" data-open-zoom>
+                    <img id="mainImage" src="" alt="Image du produit" width="1200" height="1200" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply scale-105 group-hover:scale-125 transition-transform duration-1000 ease-out cursor-zoom-in" data-open-zoom onclick="window.openZoom()" onmouseenter="window._nkPreloadZoom && window._nkPreloadZoom()">
                 </div>
                 <div class="flex flex-wrap gap-3 sm:gap-4 mt-6" id="thumbnailGrid"></div>
             </div>
@@ -224,12 +224,19 @@
         </section>
     </main>
 
-    <div id="zoomModal" class="fixed inset-0 z-[100] invisible opacity-0 transition-all duration-500 bg-black/95 flex items-center justify-center p-4 backdrop-blur-2xl" data-close-zoom>
-        <button class="absolute top-8 right-8 text-white/50 hover:text-white transition-all">
+    <div id="zoomModal" class="fixed inset-0 z-[100] invisible opacity-0 transition-all duration-300 bg-black/95 flex items-center justify-center p-4 backdrop-blur-2xl" data-close-zoom>
+        <button class="absolute top-8 right-8 text-white/50 hover:text-white transition-all" onclick="window.closeZoom()" aria-label="Fermer le zoom">
             <iconify-icon icon="solar:close-circle-bold" width="40"></iconify-icon>
         </button>
-        <img id="zoomModalImg" src="" class="max-w-full max-h-[90vh] object-contain select-none" alt="Zoom">
+        <!-- Spinner visible pendant le chargement -->
+        <div id="zoomSpinner" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.15);border-top-color:#fff;border-radius:50%;animation:nk-spin 0.7s linear infinite;"></div>
+        </div>
+        <img id="zoomModalImg" src="" class="max-w-full max-h-[90vh] object-contain select-none opacity-0 transition-opacity duration-200" alt="Zoom">
     </div>
+    <style>
+        @keyframes nk-spin { to { transform: rotate(360deg); } }
+    </style>
 
 
 
@@ -748,10 +755,84 @@
             inp.value = (Number.isFinite(stock) && stock > 0) ? String(Math.min(next, stock)) : String(next);
         };
         window.changeImageByIndex = (idx, el) => { updateImageUI(parseInt(idx) || 0); if (el) { document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); } };
-        window.openZoom = () => { document.getElementById('zoomModalImg').src = document.getElementById('mainImage').src; document.getElementById('zoomModal').classList.remove('invisible', 'opacity-0'); document.body.style.overflow = 'hidden'; };
-        window.closeZoom = () => { document.getElementById('zoomModal').classList.add('invisible', 'opacity-0'); document.body.style.overflow = ''; };
+        window.openZoom = () => {
+            const modal = document.getElementById('zoomModal');
+            const img = document.getElementById('zoomModalImg');
+            const spinner = document.getElementById('zoomSpinner');
+            const mainImage = document.getElementById('mainImage');
+            const originalUrl = currentProductImages[currentProductImageIndex] || '';
+
+            // Afficher IMMÉDIATEMENT l'image déjà chargée en mémoire (pas de loader)
+            const cachedSrc = mainImage.currentSrc || mainImage.src || '';
+            if (cachedSrc) {
+                img.src = cachedSrc;
+                img.classList.remove('opacity-0');
+                img.classList.add('opacity-100');
+                if (spinner) spinner.style.display = 'none';
+            } else {
+                // Cas rare : aucune image chargée → spinner court
+                img.src = '';
+                img.classList.remove('opacity-100');
+                img.classList.add('opacity-0');
+                if (spinner) spinner.style.display = 'flex';
+                const loader = new Image();
+                loader.onload = () => {
+                    img.src = loader.src;
+                    img.classList.remove('opacity-0');
+                    img.classList.add('opacity-100');
+                    if (spinner) spinner.style.display = 'none';
+                };
+                loader.src = originalUrl;
+            }
+
+            modal.classList.remove('invisible', 'opacity-0');
+            document.body.style.overflow = 'hidden';
+
+            // Upgrade silencieux vers l'URL originale pleine qualité si différente
+            if (originalUrl && originalUrl !== cachedSrc) {
+                const loader = new Image();
+                loader.onload = () => {
+                    if (!modal.classList.contains('invisible')) img.src = originalUrl;
+                };
+                loader.src = originalUrl;
+            }
+        };
+        window.closeZoom = () => {
+            const modal = document.getElementById('zoomModal');
+            const img = document.getElementById('zoomModalImg');
+            modal.classList.add('invisible', 'opacity-0');
+            document.body.style.overflow = '';
+            // Libérer la mémoire après fermeture
+            setTimeout(() => { if (img) { img.src = ''; img.classList.remove('opacity-100'); img.classList.add('opacity-0'); } }, 350);
+        };
         window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copié !', 'info'); } };
         function initRecentlyViewed(p) { let list = JSON.parse(localStorage.getItem('newketRecentlyViewed') || '[]'); list = [p, ...list.filter(item => item.id !== p.id)].slice(0, 10); localStorage.setItem('newketRecentlyViewed', JSON.stringify(list)); }
+
+        // Précharger l'image zoom au survol pour affichage instantané au clic
+        let _nkZoomPreloadCache = null;
+        window._nkPreloadZoom = () => {
+            const url = currentProductImages[currentProductImageIndex];
+            if (!url || _nkZoomPreloadCache === url) return;
+            _nkZoomPreloadCache = url;
+            const preloader = new Image();
+            preloader.src = url;
+        };
+
+        // Fermer zoom avec la touche Échap
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('zoomModal');
+                if (modal && !modal.classList.contains('invisible')) window.closeZoom();
+            }
+        });
+
+        // Réinitialiser le cache préchargé quand l'image principale change
+        const _origUpdateImageUI = updateImageUI;
+        // (déjà défini ci-dessus, on patch juste le cache)
+        const _patchUpdateImage = () => { _nkZoomPreloadCache = null; };
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('thumbnailGrid')?.addEventListener('click', _patchUpdateImage);
+        });
 
         document.addEventListener('DOMContentLoaded', () => { if (window.newketInitialized) initPage(); else window.addEventListener('newketInitialized', initPage); });
     </script>

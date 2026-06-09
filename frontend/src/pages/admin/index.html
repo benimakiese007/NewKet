@@ -689,7 +689,7 @@
                         </div>
                         <div>
                             <div class="text-sm font-bold text-gray-900">${p ? p.name : 'Produit inconnu'}</div>
-                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${new Date(l.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${new Date(l.created_at || l.date).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
                         </div>
                     </div>
                     <div class="badge-premium bg-blue-50 text-blue-600">
