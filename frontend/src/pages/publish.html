@@ -347,8 +347,7 @@
         class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gray-900/80 backdrop-blur-md opacity-0 invisible transition-all duration-500">
         <div
             class="bg-white rounded-[3rem] w-full max-w-sm p-12 text-center shadow-2xl transform scale-90 transition-all duration-500 relative overflow-hidden">
-            <!-- Background element -->
-            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+
             
             <div id="successState" class="hidden">
                 <div
@@ -863,7 +862,7 @@
 
                     if (isEditMode) {
                         await ProductManager.updateProduct(editProductId, productData);
-                        if (typeof showToast === 'function') showToast("Article mis à jour avec succès !", "success");
+                        // Toast removed — the success modal already provides feedback
                     } else {
                         const newProduct = {
                             ...productData,
