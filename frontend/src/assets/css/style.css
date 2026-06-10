@@ -290,7 +290,6 @@ button {
 /* Ensure the injected header logo stays visible across pages with aggressive global img resets. */
 .header-brand-image {
   display: block !important;
-  height: 3rem !important;
   width: auto !important;
   max-width: none !important;
   opacity: 1 !important;
@@ -299,12 +298,6 @@ button {
   object-fit: contain;
   /* Improve legibility when the logo is light-on-light (e.g. white logo on white/very light headers). */
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
-}
-
-@media (min-width: 640px) {
-  .header-brand-image {
-    height: 7.5rem !important;
-  }
 }
 
 /* Tablet/Small-desktop (1024–1100px): give the search bar more breathing room next to the logo. */

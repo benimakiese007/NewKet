@@ -396,7 +396,7 @@ const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <nav class="main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="minimal">
     <div class="relative flex h-[64px] sm:h-[92px] items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
-        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-10 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-12 sm:h-20 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-white/40">
         <iconify-icon icon="solar:lock-password-bold" width="18"></iconify-icon>
