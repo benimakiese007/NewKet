@@ -4,6 +4,12 @@ import {
     isNetikashConfigured,
     verifyNetikashSignature
 } from '../services/netikash.js';
+import {
+    createStripeCheckoutSession,
+    getStripeConfig,
+    isStripeConfigured,
+    verifyStripeSignature
+} from '../services/stripe.js';
 import NotificationService from '../services/notificationService.js';
 import {
     ESCROW_STATUSES,
@@ -111,7 +117,26 @@ function getRedirectUrl(req) {
 }
 
 function getActivePaymentProvider() {
-    return 'netikash';
+    return isStripeConfigured() ? 'stripe' : 'netikash';
+}
+
+function getCheckoutSuccessUrl(req, orderId, txId) {
+    const cfg = getStripeConfig();
+    const base = cfg.checkoutSuccessUrl || getRedirectUrl(req);
+    const url = new URL(base);
+    url.searchParams.set('order_id', orderId);
+    url.searchParams.set('transaction_id', txId);
+    return url.toString();
+}
+
+function getCheckoutCancelUrl(req, orderId, txId) {
+    const cfg = getStripeConfig();
+    const base = cfg.checkoutCancelUrl || getRedirectUrl(req);
+    const url = new URL(base);
+    url.searchParams.set('canceled', '1');
+    url.searchParams.set('order_id', orderId);
+    url.searchParams.set('transaction_id', txId);
+    return url.toString();
 }
 
 async function loadProductForPayment(client, productId) {
@@ -149,12 +174,12 @@ export const initiatePayment = async (req, res) => {
             customer_email
         } = req.body;
 
-        if (!isNetikashConfigured()) {
+        if (!isStripeConfigured() && !isNetikashConfigured()) {
             return res.status(503).json({
                 success: false,
                 code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
                 error: 'Paiement indisponible',
-                message: 'L agregateur de paiement n est pas encore configure. Ajoute les cles Netikash cote backend puis reessaie.'
+                message: 'Le fournisseur de paiement n est pas configure. Ajoute les cles Stripe cote backend puis reessaie.'
             });
         }
 
@@ -324,20 +349,39 @@ export const initiatePayment = async (req, res) => {
 
         if (lockError) throw lockError;
 
-        if (!isNetikashConfigured()) {
-            throw new Error('Netikash n est pas configure (NETIKASH_CLIENT_ID / NETIKASH_CLIENT_SECRET)');
+        let paymentUrl = null;
+        if (provider === 'stripe') {
+            const stripeSession = await createStripeCheckoutSession({
+                'mode': 'payment',
+                'success_url': getCheckoutSuccessUrl(req, orderId, txId),
+                'cancel_url': getCheckoutCancelUrl(req, orderId, txId),
+                'client_reference_id': txId,
+                'metadata[transaction_id]': txId,
+                'metadata[order_id]': orderId,
+                'metadata[product_id]': String(product.id),
+                'metadata[vendor_id]': String(order?.vendor_id || vendor_id || product.user_id || ''),
+                'line_items[0][quantity]': '1',
+                'line_items[0][price_data][currency]': 'usd',
+                'line_items[0][price_data][unit_amount]': String(Math.round(finalAmountUSD * 100)),
+                'line_items[0][price_data][product_data][name]': `NewKet Marketplace - ${product.name}`
+            });
+            paymentUrl = stripeSession.payment_url;
+        } else {
+            if (!isNetikashConfigured()) {
+                throw new Error('Netikash n est pas configure (NETIKASH_CLIENT_ID / NETIKASH_CLIENT_SECRET)');
+            }
+
+            const paymentRequestPayload = {
+                amount: finalAmountUSD,
+                currency: 'USD',
+                ref: txId,
+                referer_url: getRedirectUrl(req),
+                label: `NewKet Marketplace - ${product.name}`
+            };
+
+            const netikash = await createNetikashPaymentRequest(paymentRequestPayload);
+            paymentUrl = netikash.payment_url;
         }
-
-        const paymentRequestPayload = {
-            amount: finalAmountUSD,
-            currency: 'USD',
-            ref: txId,
-            referer_url: getRedirectUrl(req),
-            label: `NewKet Marketplace - ${product.name}`
-        };
-
-        const netikash = await createNetikashPaymentRequest(paymentRequestPayload);
-        const paymentUrl = netikash.payment_url;
 
         return res.status(200).json({
             success: true,
@@ -365,6 +409,9 @@ export const initiatePayment = async (req, res) => {
 };
 
 export const paymentWebhook = async (req, res) => {
+    if (req.headers?.['stripe-signature']) {
+        return stripeWebhook(req, res);
+    }
     return netikashWebhook(req, res);
 };
 
@@ -583,6 +630,109 @@ export const netikashWebhook = async (req, res) => {
         return res.status(200).send('OK');
     } catch (error) {
         console.error('netikashWebhook error:', error);
+        return res.status(500).send('Erreur interne');
+    }
+};
+
+export const stripeWebhook = async (req, res) => {
+    try {
+        const signatureValid = verifyStripeSignature(req);
+        if (!signatureValid) {
+            return res.status(401).send('Unauthorized');
+        }
+
+        const payload = req.body || {};
+        const eventType = String(payload?.type || 'unknown');
+        const session = payload?.data?.object || {};
+        const ourTxId = session?.client_reference_id || session?.metadata?.transaction_id || null;
+        const providerTxId = session?.payment_intent || session?.id || null;
+        const providerEventId = `${String(providerTxId || 'unknown')}:${eventType}`;
+
+        if (!ourTxId) {
+            return res.status(400).send('transaction_id manquant');
+        }
+
+        const client = supabaseAdmin || supabase;
+        const nowIso = new Date().toISOString();
+
+        const { error: webhookInsertError } = await client
+            .from('payment_webhook_events')
+            .insert({
+                provider: 'stripe',
+                event_type: eventType,
+                provider_event_id: providerEventId,
+                tx_ref: String(ourTxId),
+                payload,
+                signature_valid: signatureValid,
+                received_at: nowIso,
+                process_status: 'RECEIVED'
+            });
+
+        if (webhookInsertError) {
+            if (String(webhookInsertError.code) === '23505') return res.status(200).send('OK');
+            return res.status(500).send('Erreur DB');
+        }
+
+        const { data: order, error: orderError } = await client
+            .from('orders')
+            .select('id, transaction_id')
+            .eq('transaction_id', String(ourTxId))
+            .maybeSingle();
+
+        if (orderError || !order) {
+            await client.from('payment_webhook_events')
+                .update({
+                    process_status: 'ORDER_NOT_FOUND',
+                    processing_error: orderError?.message || 'Order not found',
+                    processed_at: nowIso
+                })
+                .eq('provider', 'stripe')
+                .eq('provider_event_id', providerEventId);
+            return res.status(404).send('Commande introuvable');
+        }
+
+        if (providerTxId) {
+            await client.from('orders').update({
+                payment_provider: 'stripe',
+                payment_provider_tx_id: String(providerTxId),
+                updated_at: nowIso
+            }).eq('id', order.id);
+        }
+
+        if (eventType !== 'checkout.session.completed') {
+            await client.from('payment_webhook_events').update({
+                order_id: order.id,
+                processed_at: nowIso,
+                process_status: 'IGNORED',
+                processing_error: `Unhandled event: ${eventType}`
+            }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
+            return res.status(200).send('OK');
+        }
+
+        const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
+            p_transaction_id: String(ourTxId)
+        });
+
+        if (rpcError || rpcResult?.success === false) {
+            await client.from('payment_webhook_events').update({
+                order_id: order.id,
+                processed_at: nowIso,
+                process_status: 'PROCESSING_FAILED',
+                processing_error: rpcError?.message || rpcResult?.message || 'process_order_payment failed'
+            }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
+            return res.status(500).send('Erreur traitement paiement');
+        }
+
+        await client.from('payment_webhook_events').update({
+            order_id: order.id,
+            processed_at: nowIso,
+            process_status: 'PROCESSED',
+            processing_error: null
+        }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
+
+        return res.status(200).send('OK');
+    } catch (error) {
+        console.error('stripeWebhook error:', error);
         return res.status(500).send('Erreur interne');
     }
 };

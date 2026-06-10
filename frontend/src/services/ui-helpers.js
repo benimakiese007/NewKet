@@ -1293,9 +1293,9 @@ function nkGetSavedHomeLocation() {
 
 /**
  * Shows a checkout modal to collect customer details before payment.
- * Returns a Promise that resolves to { phone, name, city, lat, lng } or null if cancelled.
+ * Returns a Promise that resolves to { phone, name, city, lat, lng, quantity } or null if cancelled.
  */
-function showCheckoutModal(productName, productPrice) {
+function showCheckoutModal(productName, productPrice, quantity = 1, stock = null) {
     return new Promise(async (resolve) => {
         const escapeAttr = (value) =>
             String(value ?? '')
@@ -1445,7 +1445,12 @@ function showCheckoutModal(productName, productPrice) {
         }
 
         const modalId = 'checkout-modal-' + Date.now();
-        const priceStr = window.CurrencyManager ? window.CurrencyManager.formatPrice(productPrice) : `${productPrice.toLocaleString()} FC`;
+        const unitPrice = Number(productPrice || 0) || 0;
+        const requestedQuantity = Math.max(1, parseInt(quantity, 10) || 1);
+        const stockLimit = Number.isFinite(Number(stock)) && Number(stock) > 0 ? Math.max(1, Math.floor(Number(stock))) : null;
+        const initialQuantity = stockLimit ? Math.min(requestedQuantity, stockLimit) : requestedQuantity;
+        const formatAmount = (value) => window.CurrencyManager ? window.CurrencyManager.formatPrice(value) : `${Number(value || 0).toLocaleString()} FC`;
+        const priceStr = formatAmount(unitPrice * initialQuantity);
 
         // "Triche" display: keep header/nav stable while checkout modal is open (Catalog was clipping menus).
         try {
@@ -1472,9 +1477,27 @@ function showCheckoutModal(productName, productPrice) {
                     <div class="px-5 py-4 sm:px-6 sm:py-5 space-y-4 overflow-y-auto overscroll-contain flex-1">
                         <div class="bg-indigo-50/50 p-4 rounded-2xl flex items-center justify-between mb-2 border border-indigo-100/50">
                             <span class="text-sm font-semibold text-indigo-900">Total à payer</span>
-                            <span class="text-xl font-black text-indigo-600">${priceStr}</span>
+                            <div class="text-right">
+                                <span id="${modalId}-total-amount" class="text-xl font-black text-indigo-600">${priceStr}</span>
+                                <div id="${modalId}-total-meta" class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-1">1 x ${formatAmount(unitPrice)}</div>
+                            </div>
                         </div>
 
+                        <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                            <div class="flex items-center justify-between gap-3 mb-3">
+                                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Quantité</label>
+                                <span id="${modalId}-stock-hint" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${stockLimit ? `Stock dispo: ${stockLimit}` : 'Quantité libre'}</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button type="button" id="${modalId}-qty-minus" class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 font-black text-2xl leading-none hover:bg-gray-100 transition-colors flex items-center justify-center" aria-label="Réduire la quantité">−</button>
+                                <input type="number" id="${modalId}-quantity" min="1" ${stockLimit ? `max="${stockLimit}"` : ''} value="${initialQuantity}" inputmode="numeric"
+                                    class="flex-1 h-12 rounded-xl border border-gray-200 bg-gray-50 text-center text-base font-black text-gray-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <button type="button" id="${modalId}-qty-plus" class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 font-black text-2xl leading-none hover:bg-gray-100 transition-colors flex items-center justify-center" aria-label="Augmenter la quantité">+</button>
+                            </div>
+                            <div id="${modalId}-qty-note" class="mt-3 text-[11px] text-gray-500 leading-snug">
+                                La quantité modifie le total avant validation.
+                            </div>
+                        </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Informations de livraison</label>
                             
@@ -1569,6 +1592,32 @@ function showCheckoutModal(productName, productPrice) {
         let marker = null;
         let selectedLat = savedHomeLocation?.lat ?? null;
         let selectedLng = savedHomeLocation?.lng ?? null;
+        const quantityInput = () => document.getElementById(`${modalId}-quantity`);
+        const totalAmountEl = () => document.getElementById(`${modalId}-total-amount`);
+        const totalMetaEl = () => document.getElementById(`${modalId}-total-meta`);
+        const qtyMinusBtn = () => document.getElementById(`${modalId}-qty-minus`);
+        const qtyPlusBtn = () => document.getElementById(`${modalId}-qty-plus`);
+        const stockHintEl = () => document.getElementById(`${modalId}-stock-hint`);
+        const getClampedQuantity = () => {
+            const raw = quantityInput()?.value;
+            let q = Math.max(1, parseInt(raw, 10) || 1);
+            if (stockLimit) q = Math.min(q, stockLimit);
+            return q;
+        };
+        const syncQuantityUI = () => {
+            const q = getClampedQuantity();
+            const total = unitPrice * q;
+            const input = quantityInput();
+            if (input) input.value = String(q);
+            if (totalAmountEl()) totalAmountEl().textContent = formatAmount(total);
+            if (totalMetaEl()) totalMetaEl().textContent = `${q} x ${formatAmount(unitPrice)}`;
+            if (qtyMinusBtn()) qtyMinusBtn().disabled = q <= 1;
+            if (qtyPlusBtn()) qtyPlusBtn().disabled = !!stockLimit && q >= stockLimit;
+            if (stockHintEl()) {
+                stockHintEl().textContent = stockLimit ? `Stock dispo: ${stockLimit}` : 'Quantité libre';
+            }
+            return q;
+        };
         
         requestAnimationFrame(() => {
             modalEl.classList.remove('opacity-0');
@@ -1612,6 +1661,23 @@ function showCheckoutModal(productName, productPrice) {
                     window._checkoutMarkerRef = marker;
                 }
             }, 300);
+
+            syncQuantityUI();
+            quantityInput()?.addEventListener('input', syncQuantityUI);
+            quantityInput()?.addEventListener('change', syncQuantityUI);
+            qtyMinusBtn()?.addEventListener('click', () => {
+                const input = quantityInput();
+                if (!input) return;
+                input.value = String(Math.max(1, getClampedQuantity() - 1));
+                syncQuantityUI();
+            });
+            qtyPlusBtn()?.addEventListener('click', () => {
+                const input = quantityInput();
+                if (!input) return;
+                const next = stockLimit ? Math.min(stockLimit, getClampedQuantity() + 1) : getClampedQuantity() + 1;
+                input.value = String(next);
+                syncQuantityUI();
+            });
 
             // ===== GEOLOCATION: "Me localiser" button logic =====
             window._locateMe = (id) => {
@@ -1758,6 +1824,12 @@ function showCheckoutModal(productName, productPrice) {
                 }
             }
 
+            const quantityValue = syncQuantityUI();
+            if (stockLimit && quantityValue > stockLimit) {
+                showToast(`Quantite indisponible. Stock actuel: ${stockLimit}.`, "warning");
+                return;
+            }
+
             if (!Number.isFinite(selectedLat) || !Number.isFinite(selectedLng)) {
                 showToast("Definissez d'abord la position de livraison sur la carte.", "warning");
                 return;
@@ -1808,7 +1880,8 @@ function showCheckoutModal(productName, productPrice) {
                 email, 
                 city: city || "Kinshasa",
                 lat: selectedLat,
-                lng: selectedLng
+                lng: selectedLng,
+                quantity: quantityValue
             });
         };
     });
@@ -2150,19 +2223,28 @@ window.showPromptModal = ({
             return;
         }
 
+        const requestedQuantity = Math.max(1, parseInt(quantity, 10) || 1);
+        const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
+        if (Number.isFinite(stock) && stock > 0 && requestedQuantity > stock) {
+            showToast(`Quantite indisponible. Stock actuel: ${stock}.`, 'warning');
+            btnElement.innerHTML = originalHtml;
+            btnElement.disabled = false;
+            return;
+        }
+
         try {
             window.BehaviorTracking?.track?.('checkout_start', {
                 target: 'checkout:start',
                 metadata: {
                     product_id: p.id || productId || null,
-                    quantity: Math.max(1, parseInt(quantity, 10) || 1),
+                    quantity: requestedQuantity,
                     price: Number(p.price || 0) || null,
                 }
             });
         } catch (_) {}
 
         // Show a quick modal to collect customer info (Phone & City & Email for Netikash)
-        const customerInfo = await showCheckoutModal(p.name, p.price);
+        const customerInfo = await showCheckoutModal(p.name, p.price, requestedQuantity, stock);
         if (!customerInfo) {
             btnElement.innerHTML = originalHtml;
             btnElement.disabled = false;
@@ -2189,12 +2271,12 @@ window.showPromptModal = ({
             }
         }
 
-          const requestedQuantity = Math.max(1, parseInt(quantity, 10) || 1);
+          const finalQuantity = Math.max(1, parseInt(customerInfo.quantity ?? requestedQuantity, 10) || requestedQuantity);
 
           const data = await window.ApiClient.post('/orders', {
               product_id: p.id,
               vendor_id: p.user_id,
-              quantity: requestedQuantity,
+              quantity: finalQuantity,
               customer_phone: customerPhone,
               customer_name: customerName,
               customer_city: customerCity,
@@ -2216,7 +2298,7 @@ window.showPromptModal = ({
                   target: 'checkout:submit',
                   metadata: {
                       product_id: p.id || productId || null,
-                      quantity: requestedQuantity,
+                      quantity: finalQuantity,
                       vendor_id: p.vendor_id || p.user_id || null,
                   }
               });

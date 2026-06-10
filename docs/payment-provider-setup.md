@@ -3,22 +3,19 @@
 ## Current state
 
 - Checkout initialization is implemented.
-- Netikash pay-in webhook storage and idempotence are implemented.
-- Vendor payout remains manual until the aggregator payout credentials and final API contract are available.
+- Stripe Checkout is now the active provider when `STRIPE_SECRET_KEY` is set.
+- Netikash remains as a fallback only if Stripe is not configured.
 
 ## Required backend variables
 
 Add these values in `backend/.env`:
 
 ```env
-NETIKASH_ACCOUNTS_BASE_URL=https://accounts.netikash.com
-NETIKASH_API_BASE_URL=https://api.netikash.com/api/v1/trs
-NETIKASH_CLIENT_ID=
-NETIKASH_CLIENT_SECRET=
-NETIKASH_WEBHOOK_SIGNING_KEY=
-NETIKASH_SIGNATURE_HEADER=x-signature
-NETIKASH_TIMESTAMP_HEADER=x-timestamp
-NETIKASH_REDIRECT_URL=http://localhost:5173/pages/payment-success.html
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_CHECKOUT_SUCCESS_URL=http://localhost:5173/pages/payment-success.html
+STRIPE_CHECKOUT_CANCEL_URL=http://localhost:5173/pages/payment-success.html
+STRIPE_CURRENCY=usd
 ```
 
 ## Behavior without keys
@@ -29,7 +26,7 @@ NETIKASH_REDIRECT_URL=http://localhost:5173/pages/payment-success.html
 
 ## Remaining work after keys arrive
 
-1. Create the callback destination in Netikash and store the returned signing key in `NETIKASH_WEBHOOK_SIGNING_KEY`.
-2. Validate the live webhook payload shape for amount/currency fields and keep `ref = transaction_id`.
-3. Validate end-to-end flow: checkout, webhook, order payment processing.
-4. Keep vendor payout manual unless NewKet later decides to automate that part separately.
+1. Create the Stripe webhook endpoint and store `whsec_...` in `STRIPE_WEBHOOK_SECRET`.
+2. Validate the Checkout flow end to end in test mode.
+3. Confirm the order is marked paid after `checkout.session.completed`.
+4. Decide later if vendor payouts stay manual or move to Stripe Connect.
