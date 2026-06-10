@@ -108,6 +108,7 @@ export default defineConfig({
         promo: resolve(__dirname, 'src/pages/promo.html'),
         support: resolve(__dirname, 'src/pages/support.html'),
         system_health: resolve(__dirname, 'src/pages/system-health.html'),
+        payment_cancel: resolve(__dirname, 'src/pages/payment-cancel.html'),
         
         admin_index: resolve(__dirname, 'src/pages/admin/index.html'),
         admin_realtime: resolve(__dirname, 'src/pages/admin/realtime.html'),

@@ -76,12 +76,12 @@
             <!-- Profile Card -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="glass-panel p-8 text-center space-y-4">
-                    <div class="w-24 h-24 rounded-full bg-black mx-auto flex items-center justify-center text-3xl font-black text-white shadow-2xl"
+                    <div class="w-24 h-24 rounded-full bg-black mx-auto flex items-center justify-center text-3xl font-black text-white shadow-2xl skeleton skeleton-avatar"
                         id="userAvatar">U</div>
                     <div>
                         <h2 class="text-2xl font-black text-gray-900 tracking-tight" id="userName"><span class="skeleton skeleton-title inline-block" style="width:220px;height:24px;margin:0 auto;"></span></h2>
                         <div class="mt-2 flex flex-wrap items-center justify-center gap-2">
-                            <p class="text-gray-500 font-medium" id="userEmail">email@example.com</p>
+                            <p class="text-gray-500 font-medium" id="userEmail"><span class="skeleton skeleton-text skeleton-line" style="width:180px;height:14px;"></span></p>
                             <span id="roleBadge" class="px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500">Profil</span>
                             <span id="sellerTypeBadge" class="hidden px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500">Vendeur normal</span>
                         </div>
@@ -89,7 +89,7 @@
                     <div class="pt-4 flex justify-center gap-4 border-t border-gray-50">
                         <div class="text-center">
                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Membre depuis</p>
-                            <p class="font-bold text-gray-900" id="joinDate">N/A</p>
+                            <p class="font-bold text-gray-900" id="joinDate"><span class="skeleton skeleton-text skeleton-line" style="width:110px;height:14px;"></span></p>
                         </div>
                     </div>
                     <button onclick="window.print()" data-track-action="admin_user_details:print_click"
@@ -116,8 +116,23 @@
                         <iconify-icon icon="solar:bell-bing-bold" width="20" class="text-orange-500"></iconify-icon>
                         Activité Récente
                     </h3>
-                    <div id="activityFeed" class="space-y-6">
-                        <!-- Activity Items -->
+                    <div id="activityFeed" class="space-y-4">
+                        <div class="flex gap-4">
+                            <div class="skeleton skeleton-avatar flex-shrink-0" style="width:32px;height:32px;border-radius:9999px;"></div>
+                            <div class="flex-1 space-y-2 pt-1">
+                                <div class="skeleton skeleton-text" style="width:72%;height:14px;"></div>
+                                <div class="skeleton skeleton-text" style="width:54%;height:12px;"></div>
+                                <div class="skeleton skeleton-text" style="width:38%;height:10px;"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="skeleton skeleton-avatar flex-shrink-0" style="width:32px;height:32px;border-radius:9999px;"></div>
+                            <div class="flex-1 space-y-2 pt-1">
+                                <div class="skeleton skeleton-text" style="width:66%;height:14px;"></div>
+                                <div class="skeleton skeleton-text" style="width:50%;height:12px;"></div>
+                                <div class="skeleton skeleton-text" style="width:42%;height:10px;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- Referral & NKToken -->
@@ -220,7 +235,24 @@
                                 </tr>
                             </thead>
                             <tbody id="dataBody" class="divide-y divide-gray-100">
-                                <!-- Data injected here -->
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:90px;height:14px;"></div></td>
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:120px;height:14px;"></div></td>
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:140px;height:14px;"></div></td>
+                                    <td class="p-4 text-right"><div class="skeleton skeleton-text ml-auto" style="width:80px;height:14px;"></div></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:90px;height:14px;"></div></td>
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:120px;height:14px;"></div></td>
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:140px;height:14px;"></div></td>
+                                    <td class="p-4 text-right"><div class="skeleton skeleton-text ml-auto" style="width:80px;height:14px;"></div></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:90px;height:14px;"></div></td>
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:120px;height:14px;"></div></td>
+                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:140px;height:14px;"></div></td>
+                                    <td class="p-4 text-right"><div class="skeleton skeleton-text ml-auto" style="width:80px;height:14px;"></div></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -326,6 +358,8 @@
                 
                 const db = document.getElementById('dataBody');
                 if (db) db.innerHTML = "";
+                const feed = document.getElementById('activityFeed');
+                if (feed) feed.innerHTML = "";
             }
 
             const role = user.role || 'customer';
@@ -343,9 +377,10 @@
             const avatarEl = document.getElementById('userAvatar');
             if (user.avatar) {
                 avatarEl.innerHTML = `<img src="${user.avatar}" class="w-full h-full object-cover rounded-full shadow-lg">`;
-                avatarEl.classList.remove('bg-black', 'text-white'); // Clean up bg if using image
+                avatarEl.classList.remove('bg-black', 'text-white', 'skeleton', 'skeleton-img', 'skeleton-avatar');
             } else {
                 avatarEl.textContent = displayName.substring(0, 2).toUpperCase();
+                avatarEl.classList.remove('skeleton', 'skeleton-img', 'skeleton-avatar');
             }
             const joinedAt = getValidDate(getUserJoinedAt(user));
             const joinDateLabel = joinedAt
@@ -656,6 +691,7 @@
 
         function renderActivityFeed(user, orders) {
             const feed = document.getElementById('activityFeed');
+            if (!feed) return;
             const items = [];
             const joinedAt = getUserJoinedAt(user);
 

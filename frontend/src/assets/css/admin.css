@@ -939,13 +939,7 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
     overflow-x: hidden; /* prevent horizontal scroll */
     padding: 0;
     margin: 0;
-}
-
-.vendor-charts-grid .glass-panel {
-    width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
-    padding: 0;
+    align-items: start;
 }
 
 
