@@ -1452,6 +1452,17 @@
             }
         }
 
+        async function loadDashboardData() {
+            if (window.OrderManager) {
+                OrderManager._initialized = false;
+                await OrderManager.init();
+            }
+            if (typeof renderOrders === 'function') renderOrders();
+            if (typeof renderCustomerDashboardStats === 'function') renderCustomerDashboardStats();
+            if (typeof renderCustomerOrdersFocusPanels === 'function') renderCustomerOrdersFocusPanels();
+            if (typeof window.renderAchatTab === 'function') window.renderAchatTab();
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             await ensureCustomerIdentity();
             window.__newketCustomerOrdersReady = false;
@@ -2136,7 +2147,7 @@
                 return { label: 'Voir le litige', icon: 'solar:shield-warning-bold', required: true, kind: 'achat' };
             }
             if (status === 'QUOTE') {
-                return { label: 'Voir le devis', icon: 'solar:bill-list-bold', required: true, kind: 'achat' };
+                return { label: 'Voir le devis', icon: 'solar:bill-list-bold', required: true, kind: 'modal' };
             }
             if (status === 'READY_FOR_PAYMENT') {
                 return { label: 'Payer maintenant', icon: 'solar:card-send-bold', required: true, kind: 'achat' };
@@ -3379,8 +3390,14 @@
                 ? order.items.reduce((sum, item) => sum + (Number(item?.price || 0) * Number(item?.quantity || 0)), 0)
                 : 0;
             const subtotal = Number(order?.merchandise_amount ?? itemsSubtotal ?? 0);
-            const deliveryFee = Number(order?.delivery_fee_amount ?? order?.latest_delivery_quote?.delivery_fee_amount ?? 0);
-            const total = Number(order?.total ?? order?.total_amount ?? (subtotal + deliveryFee));
+            
+            let deliveryFee = Number(order?.delivery_fee_amount ?? 0);
+            let total = Number(order?.total ?? order?.total_amount ?? (subtotal + deliveryFee));
+
+            if (order?.status === 'QUOTE' && order?.latest_delivery_quote) {
+                deliveryFee = Number(order.latest_delivery_quote.delivery_fee_amount || 0);
+                total = subtotal + deliveryFee - Number(order?.promo_discount_amount || 0);
+            }
 
             return {
                 subtotal,
