@@ -126,9 +126,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const orderRefreshSignalKey = 'newket_orders_refresh_signal';
             const urlParams = new URLSearchParams(window.location.search);
             const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || '';
             const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'pending').toLowerCase();
+            let resolvedOrderId = null;
 
             const statusTitle = document.getElementById('statusTitle');
             const statusDescription = document.getElementById('statusDescription');
@@ -169,6 +171,27 @@
             }
 
             function setSuccessUI() {
+                try {
+                    localStorage.setItem(orderRefreshSignalKey, JSON.stringify({
+                        txRef,
+                        at: Date.now()
+                    }));
+                } catch {}
+
+                window.dispatchEvent(new CustomEvent('ordersUpdated'));
+
+                if (window.__newketPaymentRedirectTimer) {
+                    clearTimeout(window.__newketPaymentRedirectTimer);
+                }
+                window.__newketPaymentRedirectTimer = setTimeout(() => {
+                    const target = resolvedOrderId
+                        ? `/src/pages/customer-dashboard.html#achat?order_id=${encodeURIComponent(resolvedOrderId)}`
+                        : (txRef
+                            ? `/src/pages/customer-dashboard.html#orders?tx_ref=${encodeURIComponent(txRef)}`
+                            : '/src/pages/customer-dashboard.html#orders');
+                    window.location.href = target;
+                }, 2500);
+
                 const count = 200;
                 const defaults = {
                     origin: { y: 0.7 },
@@ -215,6 +238,7 @@
                 }
 
                 const serverStatus = await loadServerStatus();
+                resolvedOrderId = serverStatus?.order?.id || null;
 
                 // Remove skeleton from statusLabel
                 const statusLabelEl = document.getElementById('statusLabel');

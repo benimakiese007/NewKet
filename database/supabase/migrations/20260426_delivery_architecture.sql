@@ -220,7 +220,7 @@ BEGIN
     UPDATE public.orders
     SET
         payment_status = 'PAID',
-        status = 'PAID_HELD',
+        status = 'IN_DELIVERY',
         otp_code = COALESCE(otp_code, v_otp),
         otp_attempts = 0,
         escrow_status = 'HELD',

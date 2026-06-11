@@ -32,7 +32,7 @@ BEGIN
     SELECT id INTO v_order_id 
     FROM public.orders 
     WHERE transaction_id = p_transaction_id 
-      AND (payment_status = 'PENDING' OR payment_status IS NULL)
+      AND (payment_status = 'PENDING' OR payment_status = 'INITIATED' OR payment_status IS NULL)
     FOR UPDATE;
 
     IF v_order_id IS NULL THEN

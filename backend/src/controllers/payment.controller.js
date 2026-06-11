@@ -110,6 +110,18 @@ function getWebhookSuccessState(payload) {
     };
 }
 
+async function finalizePaidOrder(client, orderId, nowIso) {
+    return client
+        .from('orders')
+        .update({
+            payment_status: 'PAID',
+            status: ORDER_STATUSES.IN_DELIVERY,
+            escrow_status: ESCROW_STATUSES.HELD,
+            updated_at: nowIso
+        })
+        .eq('id', orderId);
+}
+
 function getRedirectUrl(req) {
     if (process.env.NETIKASH_REDIRECT_URL) return process.env.NETIKASH_REDIRECT_URL;
     const host = req.headers.host || 'localhost:3001';
@@ -728,13 +740,18 @@ export const stripeWebhook = async (req, res) => {
         });
 
         if (rpcError || rpcResult?.success === false) {
-            await client.from('payment_webhook_events').update({
-                order_id: order.id,
-                processed_at: nowIso,
-                process_status: 'PROCESSING_FAILED',
-                processing_error: rpcError?.message || rpcResult?.message || 'process_order_payment failed'
-            }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
-            return res.status(500).send('Erreur traitement paiement');
+            console.warn('[Stripe Webhook] process_order_payment failed, using direct order finalization fallback:', rpcError?.message || rpcResult?.message);
+
+            const { error: fallbackError } = await finalizePaidOrder(client, order.id, nowIso);
+            if (fallbackError) {
+                await client.from('payment_webhook_events').update({
+                    order_id: order.id,
+                    processed_at: nowIso,
+                    process_status: 'PROCESSING_FAILED',
+                    processing_error: rpcError?.message || rpcResult?.message || fallbackError.message || 'process_order_payment failed'
+                }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
+                return res.status(500).send('Erreur traitement paiement');
+            }
         }
 
         await client.from('payment_webhook_events').update({

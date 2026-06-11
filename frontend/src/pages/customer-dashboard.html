@@ -938,6 +938,7 @@
     <script>
         let currentSelectedOrder = null;
         let currentSelectedDispute = null;
+        const orderRefreshSignalKey = 'newket_orders_refresh_signal';
 
         function switchTab(tabId, event) {
             if (event) {
@@ -1610,6 +1611,10 @@
             });
             window.addEventListener('favoritesUpdated', () => {
                 renderFavorites();
+            });
+            window.addEventListener('storage', (event) => {
+                if (event.key !== orderRefreshSignalKey || !event.newValue) return;
+                loadDashboardData().catch(console.error);
             });
 
             // Fallback: if orders never load (offline/dev/auth mismatch), stop skeletons and show empty states.
@@ -2910,7 +2915,14 @@
                 transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id.substring(0, 16)}...` : '';
             }
             if (contactMethodEl) {
-                contactMethodEl.textContent = order.payment_status && order.payment_status !== 'N/A' ? 'Netikash Online' : 'Paiement en cours';
+                const paymentState = String(order.payment_status || '').toUpperCase();
+                if (['PAID', 'SUCCESS', 'SUCCESSFUL'].includes(paymentState) || order.status === 'PAID_HELD') {
+                    contactMethodEl.textContent = 'Paiement confirmé';
+                } else if (order.payment_status && order.payment_status !== 'N/A') {
+                    contactMethodEl.textContent = 'Netikash Online';
+                } else {
+                    contactMethodEl.textContent = 'Paiement en cours';
+                }
             }
 
             const itemsList = document.getElementById('modalOrderItems');
