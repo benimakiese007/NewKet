@@ -203,7 +203,8 @@ export const initiatePayment = async (req, res) => {
                 return res.status(403).json({ error: 'Acces refuse a cette commande.' });
             }
 
-            if (mapLegacyOrderStatus(existingOrder.status) !== ORDER_STATUSES.READY_FOR_PAYMENT) {
+            const currentStatus = mapLegacyOrderStatus(existingOrder.status);
+            if (currentStatus !== ORDER_STATUSES.READY_FOR_PAYMENT && currentStatus !== ORDER_STATUSES.QUOTE) {
                 return res.status(400).json({ error: `Paiement impossible depuis le statut ${existingOrder.status}.` });
             }
 
@@ -314,6 +315,7 @@ export const initiatePayment = async (req, res) => {
                     final_total_amount: verifiedAmount,
                     total: verifiedAmount,
                     payment_status: 'PENDING',
+                    status: ORDER_STATUSES.READY_FOR_PAYMENT,
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', orderId);
@@ -321,6 +323,7 @@ export const initiatePayment = async (req, res) => {
             if (dbError) throw dbError;
             order = {
                 ...order,
+                status: ORDER_STATUSES.READY_FOR_PAYMENT,
                 transaction_id: txId,
                 promo_id: appliedPromo?.id || null,
                 promo_code: appliedPromo?.code || null,

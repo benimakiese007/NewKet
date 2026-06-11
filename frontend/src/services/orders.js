@@ -95,8 +95,34 @@ const OrderManager = {
         
         await this._fetchPromise;
         this._fetchPromise = null;
+        
+        // Initialize Realtime subscription
+        this._setupRealtime();
+
         // Dashboards listen to this event to rerender their lists/stats.
         window.dispatchEvent(new CustomEvent('ordersUpdated'));
+    },
+
+    _setupRealtime() {
+        if (this._realtimeSubscription || !window.supabaseClient) return;
+
+        this._realtimeSubscription = window.supabaseClient
+            .channel('public:orders:manager')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+                console.log('[OrderManager] Realtime update received:', payload);
+                
+                // Clear the 5-min cache 
+                localStorage.removeItem('newket_orders_sync_time');
+
+                // Debounce the fetch to avoid spamming if multiple updates arrive at once
+                if (this._realtimeTimeout) clearTimeout(this._realtimeTimeout);
+                this._realtimeTimeout = setTimeout(() => {
+                    this.init({ force: true }).catch(err => console.error('[OrderManager] Realtime sync error:', err));
+                }, 1000);
+            })
+            .subscribe((status) => {
+                console.log('[OrderManager] Realtime subscription status:', status);
+            });
     },
 
     /**
@@ -634,7 +660,57 @@ const OrderManager = {
         }
     },
 
-    // ========== HELPERS ==========
+    /**
+     * Subscribe to real-time messages for a specific dispute.
+     * Call this when a dispute chat window is opened.
+     * @param {string} disputeId - The dispute ID to listen to
+     * @param {function} onNewMessage - Callback called with the new message payload
+     * @returns {object} The Supabase channel (use to unsubscribe later)
+     */
+    subscribeToDisputeMessages(disputeId, onNewMessage) {
+        if (!window.supabaseClient || !disputeId) return null;
+
+        // Clean up any previous subscription for this dispute
+        this.unsubscribeFromDisputeMessages(disputeId);
+
+        console.log(`[OrderManager] Subscribing to dispute messages: ${disputeId}`);
+        const channel = window.supabaseClient
+            .channel(`public:dispute_messages:${disputeId}`)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'dispute_messages',
+                filter: `dispute_id=eq.${disputeId}`
+            }, (payload) => {
+                console.log('[OrderManager] Realtime dispute message:', payload);
+                if (payload.new && typeof onNewMessage === 'function') {
+                    onNewMessage(payload.new);
+                }
+            })
+            .subscribe((status) => {
+                console.log(`[OrderManager] Dispute messages channel status (${disputeId}):`, status);
+            });
+
+        if (!this._disputeChannels) this._disputeChannels = {};
+        this._disputeChannels[disputeId] = channel;
+        return channel;
+    },
+
+    /**
+     * Unsubscribe from real-time messages for a specific dispute.
+     * Call this when the dispute chat window is closed.
+     * @param {string} disputeId - The dispute ID to stop listening to
+     */
+    unsubscribeFromDisputeMessages(disputeId) {
+        if (!this._disputeChannels || !this._disputeChannels[disputeId]) return;
+        if (window.supabaseClient) {
+            window.supabaseClient.removeChannel(this._disputeChannels[disputeId]);
+        }
+        delete this._disputeChannels[disputeId];
+        console.log(`[OrderManager] Unsubscribed from dispute messages: ${disputeId}`);
+    },
+
+
 
     _calculateGrowth(orders, valueExtractor) {
         const now = new Date();

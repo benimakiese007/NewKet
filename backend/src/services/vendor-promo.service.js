@@ -168,11 +168,18 @@ export async function calculateVendorPromoPricing({
     }
 
     const now = new Date();
-    if (promo.starts_at && new Date(promo.starts_at) > now) {
+    
+    // Allow a margin to avoid strict timezone issues (comparing dates)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    if (promo.starts_at && new Date(promo.starts_at) > todayEnd) {
         return { valid: false, message: 'Ce code promo n’est pas encore actif.' };
     }
 
-    if (promo.ends_at && new Date(promo.ends_at) < now) {
+    if (promo.ends_at && new Date(promo.ends_at) < todayStart) {
         return { valid: false, message: 'Ce code promo a expiré.' };
     }
 

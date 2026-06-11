@@ -908,7 +908,7 @@
                             <div class="min-w-0">
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Localisation</p>
                                 <p class="font-bold text-gray-900 truncate" id="vModalCustomerCity"></p>
-                                <p class="text-[10px] font-bold text-blue-500 hover:underline cursor-pointer truncate hidden mt-1" id="vModalCustomerGPS" onclick="window.open(this.dataset.url, '_blank')">Ouvrir Maps</p>
+                                <p class="text-[10px] font-bold text-blue-500 hover:underline cursor-pointer truncate hidden mt-1" id="vModalCustomerGPS" onclick="window.openMapUrl(this.dataset.lat, this.dataset.lng)">Voir sur la carte</p>
                             </div>
                             <div class="min-w-0">
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Paiement</p>
@@ -3936,12 +3936,14 @@
                     document.getElementById('vModalCustomerCity').textContent = order.customer_city || 'Ville non précisée';
                     const gpsEl = document.getElementById('vModalCustomerGPS');
                     if (order.customer_lat && order.customer_lng) {
-                        gpsEl.dataset.url = `https://www.google.com/maps/search/?api=1&query=${order.customer_lat},${order.customer_lng}`;
+                        gpsEl.dataset.lat = order.customer_lat;
+                        gpsEl.dataset.lng = order.customer_lng;
                         gpsEl.textContent = 'Voir sur la carte';
                         gpsEl.classList.remove('hidden');
                     } else {
                         gpsEl.classList.add('hidden');
-                        gpsEl.dataset.url = '';
+                        gpsEl.dataset.lat = '';
+                        gpsEl.dataset.lng = '';
                     }
 
                     // Avatar logic
@@ -4078,6 +4080,10 @@
                         modal.classList.remove('flex');
                         document.documentElement.classList.remove('overflow-hidden');
                     }
+                    // Unsubscribe from dispute realtime when modal closes
+                    if (window.currentDisputeIdForVendor) {
+                        OrderManager.unsubscribeFromDisputeMessages(window.currentDisputeIdForVendor);
+                    }
                 };
 
                 let currentOrderIdForOtp = null;
@@ -4201,7 +4207,7 @@
                                         <h3 class="text-lg font-black text-gray-900 truncate">${currentQuote ? 'Modifier le devis' : 'Proposer un devis'}</h3>
                                         <div class="mt-2 p-2 bg-blue-50 rounded-lg text-xs text-blue-900">
                                             <p class="font-bold">📍 Localisation client: <span class="font-normal">${order?.customer_city || 'Non précisée'}</span></p>
-                                            ${(order?.customer_lat && order?.customer_lng) ? `<a href="https://www.google.com/maps/search/?api=1&query=${order.customer_lat},${order.customer_lng}" target="_blank" class="text-[10px] font-bold text-blue-600 hover:underline mt-1 inline-block">Voir sur la carte</a>` : ''}
+                                            ${(order?.customer_lat && order?.customer_lng) ? `<a href="#" onclick="event.preventDefault(); window.openMapUrl('${order.customer_lat}','${order.customer_lng}');" class="text-[10px] font-bold text-blue-600 hover:underline mt-1 inline-block">Voir sur la carte</a>` : ''}
                                         </div>
                                         <p class="text-xs text-gray-500 mt-2">Le client doit accepter avant de payer. Paiement en sequestre.</p>
                                     </div>
@@ -4378,6 +4384,48 @@
                         });
                         
                         chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                        // ⚡ Realtime — nouveaux messages s'affichent automatiquement
+                        OrderManager.subscribeToDisputeMessages(dispute.id, (newMsg) => {
+                            const senderRole = (newMsg.payload && newMsg.payload.sender_role) || newMsg.sender_role || 'SYSTEM';
+                            const isMe = senderRole === 'VENDOR' || senderRole === 'SELLER';
+                            let roleBadge = '';
+                            let bubbleColor = '';
+                            let textColor = '';
+                            let align = isMe ? 'self-end items-end' : 'self-start items-start';
+                            const messageText = newMsg.payload?.message || newMsg.payload?.event || newMsg.message || 'Mise à jour';
+                            if (senderRole === 'ADMIN') {
+                                roleBadge = '<span class="text-[8px] font-black uppercase bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2">ADMIN</span>';
+                                bubbleColor = 'bg-red-50 border border-red-100';
+                                textColor = 'text-red-900';
+                            } else if (senderRole === 'CUSTOMER' || senderRole === 'BUYER') {
+                                roleBadge = '<span class="text-[8px] font-black uppercase bg-gray-100 text-gray-600 px-1 py-0.5 rounded ml-2">CLIENT</span>';
+                                bubbleColor = 'bg-gray-50 border border-gray-100';
+                                textColor = 'text-gray-900';
+                            } else if (senderRole === 'SYSTEM') {
+                                roleBadge = '<span class="text-[8px] font-black uppercase bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2">SYSTÈME</span>';
+                                bubbleColor = 'bg-gray-100 border border-gray-200';
+                                textColor = 'text-gray-700';
+                            } else {
+                                roleBadge = '<span class="text-[8px] font-black uppercase text-gray-400 ml-2">Vous</span>';
+                                bubbleColor = 'bg-gray-900 border border-gray-900';
+                                textColor = 'text-white';
+                            }
+                            const timeStr = new Date(newMsg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            const dateStr = new Date(newMsg.created_at).toLocaleDateString([], {day:'2-digit', month:'2-digit'});
+                            chatContainer.insertAdjacentHTML('beforeend', `
+                                <div class="flex flex-col ${align} max-w-[85%] snap-end">
+                                    <div class="flex items-center mb-1">
+                                        <span class="text-[9px] font-bold text-gray-500">${timeStr} ${dateStr}</span>
+                                        ${roleBadge}
+                                    </div>
+                                    <div class="px-3 py-2 rounded-2xl ${bubbleColor} ${textColor} text-xs shadow-sm">
+                                        ${messageText}
+                                    </div>
+                                </div>
+                            `);
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        });
                     } catch (error) {
                         console.error("Chat load error:", error);
                         chatContainer.innerHTML = '<div class="text-center text-[10px] text-red-400 italic mt-4">Erreur lors du chargement des messages.</div>';
@@ -4403,7 +4451,7 @@
                             payload: { message, sender_role: 'SELLER' }
                         });
                         input.value = '';
-                        await window.loadVendorDisputeChat(orderId);
+                        // Realtime push le nouveau message automatiquement
                     } catch (error) {
                         if(window.showToast) showToast("Erreur lors de l'envoi.", 'error');
                     } finally {
@@ -4554,7 +4602,35 @@
             }
         })();
     </script>
+    <script>
+        /**
+         * Ouvre la localisation dans l'app Maps native selon la plateforme :
+         * - iOS (iPhone/iPad) → maps:// (Plans natif Apple)
+         * - Android           → geo: URI (Google Maps natif)
+         * - Desktop/autre     → https://www.google.com/maps (navigateur)
+         */
+        window.openMapUrl = function(lat, lng) {
+            if (!lat || !lng) return;
+            const ua = navigator.userAgent || '';
+            const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+            const isAndroid = /Android/.test(ua);
+
+            let url;
+            if (isIOS) {
+                // Ouvre Plans (Apple Maps) sur iPhone / iPad
+                url = `maps://?q=${lat},${lng}&ll=${lat},${lng}`;
+            } else if (isAndroid) {
+                // Ouvre Google Maps sur Android
+                url = `geo:${lat},${lng}?q=${lat},${lng}`;
+            } else {
+                // Navigateur desktop → Google Maps web
+                url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+            }
+            window.open(url, '_blank');
+        };
+    </script>
 </body>
+
 
 </html>
 

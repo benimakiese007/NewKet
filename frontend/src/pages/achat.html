@@ -198,7 +198,7 @@
                 <div class="card-link">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                         <div class="flex items-center gap-4 min-w-0 flex-1">
-                            <img class="img-cover shrink-0" src="${img || '/Images/Logo NewKet PNG.png'}" alt="">
+                            <img class="img-cover shrink-0" src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : '/Images/Logo NewKet PNG.png'}" onerror="this.src='/Images/Logo NewKet PNG.png'; this.onerror=null;" alt="">
                             <div class="min-w-0">
                                 <div class="text-[11px] font-black uppercase tracking-wider text-gray-400">Demande #${orderId}</div>
                                 <div class="mt-1 font-black text-gray-900 truncate">${safeText(productName)}</div>
@@ -293,7 +293,7 @@
                     <div class="lg:col-span-2 space-y-5">
                         <div class="card-link">
                             <div class="flex items-center gap-4">
-                                <img class="img-cover" src="${img || '/Images/Logo NewKet PNG.png'}" alt="">
+                                <img class="img-cover" src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : '/Images/Logo NewKet PNG.png'}" onerror="this.src='/Images/Logo NewKet PNG.png'; this.onerror=null;" alt="">
                                 <div class="flex-1 min-w-0">
                                     <div class="text-[11px] font-black uppercase tracking-wider text-gray-400">Commande</div>
                                     <div class="mt-1 font-black text-gray-900 text-lg truncate">${safeText(productName)}</div>
@@ -341,7 +341,7 @@
                                 <p class="mt-1 text-xs muted">Appliquez une remise proposée par la boutique avant de payer.</p>
                             </div>
                             <div class="flex gap-2">
-                                <input id="promoCodeInput" type="text" value="${appliedCode}" placeholder="Ex: MAMAN10" class="flex-1 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
+                                <input id="promoCodeInput" type="text" value="${appliedCode}" placeholder="Ex: MAMAN10" class="flex-1 min-w-0 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
                                 <button id="btnApplyPromo" class="btn-ghost whitespace-nowrap">Appliquer</button>
                             </div>
                             <button id="btnRemovePromo" class="text-sm font-bold text-gray-500 hover:text-black text-left ${appliedCode ? '' : 'hidden'}">Retirer le code promo</button>
@@ -471,7 +471,7 @@
                 }
 
                 promoApplyBtn.disabled = true;
-                promoApplyBtn.textContent = 'Vérification...';
+                promoApplyBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>';
 
                 try {
                     const data = await window.ApiClient.post('/promos/validate', {
@@ -485,7 +485,7 @@
                     promoError.classList.remove('hidden');
                 } finally {
                     promoApplyBtn.disabled = false;
-                    promoApplyBtn.textContent = 'Appliquer';
+                    promoApplyBtn.innerHTML = 'Appliquer';
                 }
             });
 

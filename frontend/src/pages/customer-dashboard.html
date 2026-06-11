@@ -2574,7 +2574,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                             <div class="flex items-center gap-4 min-w-0 flex-1">
                                 <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                    <img src="${img || window.resolvePath('assets/Images/default.png')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('assets/Images/default.png')">
+                                    <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('assets/Images/default.png')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('assets/Images/default.png')">
                                 </div>
                                 <div class="min-w-0">
                                     <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${orderId}</div>
@@ -2643,7 +2643,7 @@
                                 <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${orderId}</div>
                                 <div class="mt-2 flex items-center gap-4">
                                     <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                        <img src="${img || window.resolvePath('assets/Images/default.png')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('assets/Images/default.png')">
+                                        <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('assets/Images/default.png')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('assets/Images/default.png')">
                                     </div>
                                     <div class="min-w-0">
                                         <div class="font-black text-gray-900 truncate">${safeText(productName)}</div>
@@ -2681,7 +2681,7 @@
                         <div class="mt-6">
                             <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Code promo</div>
                             <div class="flex gap-2">
-                                <input id="achatDashPromoInput" type="text" value="${promoCode}" placeholder="Ex: MAMAN10" class="flex-1 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
+                                <input id="achatDashPromoInput" type="text" value="${promoCode}" placeholder="Ex: MAMAN10" class="flex-1 min-w-0 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
                                 <button id="achatDashApplyPromo" class="px-4 py-3 rounded-2xl bg-white border border-gray-100 text-xs font-black tracking-widest uppercase hover:border-black transition-colors">Appliquer</button>
                             </div>
                             <button id="achatDashRemovePromo" class="mt-2 text-xs font-bold text-gray-500 hover:text-black ${promoCode ? '' : 'hidden'}">Retirer le code promo</button>
@@ -2758,7 +2758,7 @@
                     }
 
                     promoApplyBtn.disabled = true;
-                    promoApplyBtn.textContent = 'Vérification...';
+                    promoApplyBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>';
                     try {
                         const data = await window.ApiClient.post('/promos/validate', { order_id: orderId, promo_code: promoCode });
                         syncAmounts(data?.pricing, data?.promo);
@@ -2770,7 +2770,7 @@
                         }
                     } finally {
                         promoApplyBtn.disabled = false;
-                        promoApplyBtn.textContent = 'Appliquer';
+                        promoApplyBtn.innerHTML = 'Appliquer';
                     }
                 });
 
@@ -3269,6 +3269,43 @@
                 });
 
                 container.scrollTop = container.scrollHeight;
+
+                // ⚡ Realtime — nouveaux messages arrivent automatiquement
+                OrderManager.subscribeToDisputeMessages(currentSelectedDispute.id, (newMsg) => {
+                    const senderRole = (newMsg.payload && newMsg.payload.sender_role) || newMsg.sender_role || 'SYSTEM';
+                    const isMe = senderRole === 'CUSTOMER';
+                    let roleLabel = '';
+                    let bubbleClass = '';
+                    let alignClass = isMe ? 'self-end items-end' : 'self-start items-start';
+                    const messageText = newMsg.payload?.message || newMsg.payload?.event || newMsg.message || 'Mise à jour';
+                    if (senderRole === 'ADMIN') {
+                        roleLabel = '<span class="text-[8px] font-black bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2 uppercase">SUPPORT</span>';
+                        bubbleClass = 'bg-red-50 border border-red-100 text-red-950';
+                    } else if (senderRole === 'VENDOR' || senderRole === 'SELLER') {
+                        roleLabel = '<span class="text-[8px] font-black bg-blue-100 text-blue-600 px-1 py-0.5 rounded ml-2 uppercase">VENDEUR</span>';
+                        bubbleClass = 'bg-blue-50 border border-blue-100 text-blue-950';
+                    } else if (senderRole === 'SYSTEM') {
+                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÈME</span>';
+                        bubbleClass = 'bg-gray-100 text-gray-700';
+                    } else {
+                        roleLabel = '<span class="text-[8px] font-black text-gray-400 ml-2 uppercase">VOUS</span>';
+                        bubbleClass = 'bg-black text-white';
+                    }
+                    const time = new Date(newMsg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const msgHtml = `
+                        <div class="flex flex-col ${alignClass} max-w-[85%]">
+                            <div class="flex items-center mb-1">
+                                <span class="text-[9px] text-gray-400 font-bold">${time}</span>
+                                ${roleLabel}
+                            </div>
+                            <div class="px-3 py-2 rounded-2xl text-xs font-medium ${bubbleClass} shadow-sm">
+                                ${messageText}
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', msgHtml);
+                    container.scrollTop = container.scrollHeight;
+                });
             } catch (error) {
                 container.innerHTML = '<div class="text-center text-xs text-red-500 p-4">Erreur de chargement des messages.</div>';
             }
@@ -3293,7 +3330,7 @@
                     payload: { message }
                 });
                 input.value = '';
-                await loadDisputeChat(currentSelectedOrder.id);
+                // Realtime push le nouveau message automatiquement
             } catch (error) {
                 showToast('Erreur d\'envoi du message', 'error');
             } finally {
@@ -3331,6 +3368,10 @@
             document.getElementById('orderModal').classList.add('hidden');
             document.getElementById('orderModal').style.display = 'none';
             document.body.style.overflow = '';
+            // Unsubscribe from dispute realtime when modal closes
+            if (currentSelectedDispute?.id) {
+                OrderManager.unsubscribeFromDisputeMessages(currentSelectedDispute.id);
+            }
         }
 
         function getOrderAmounts(order) {

@@ -597,6 +597,10 @@
         function closeAdminDisputeModal() {
             document.getElementById('adminDisputeModal').classList.add('hidden');
             document.body.style.overflow = '';
+            // Unsubscribe from dispute realtime
+            if (currentDispute?.id) {
+                OrderManager.unsubscribeFromDisputeMessages(currentDispute.id);
+            }
             currentDispute = null;
         }
 
@@ -674,6 +678,46 @@
                 
                 // Scroll to bottom
                 chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                // ⚡ Realtime — nouveaux messages s'affichent automatiquement
+                OrderManager.subscribeToDisputeMessages(disputeId, (newMsg) => {
+                    const senderRole = (newMsg.payload && newMsg.payload.sender_role) || newMsg.sender_role || 'SYSTEM';
+                    const isAdmin = senderRole === 'ADMIN';
+                    const isVendor = senderRole === 'VENDOR' || senderRole === 'SELLER';
+                    const messageText = newMsg.payload?.message || newMsg.payload?.event || newMsg.message || 'Mise à jour';
+                    let roleBadge = '';
+                    let bgColor = 'bg-gray-100';
+                    let flexAlign = 'items-start';
+                    if (isAdmin) {
+                        roleBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-black text-white font-bold uppercase">Admin</span>';
+                        bgColor = 'bg-indigo-50 border border-indigo-100';
+                        flexAlign = 'items-end flex-row-reverse';
+                    } else if (isVendor) {
+                        roleBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold uppercase">Vendeur</span>';
+                        bgColor = 'bg-white border border-gray-200';
+                    } else {
+                        roleBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-md bg-green-100 text-green-800 font-bold uppercase">Client</span>';
+                        bgColor = 'bg-white border border-gray-200';
+                    }
+                    const msgHtml = `
+                        <div class="flex gap-3 w-full ${flexAlign}">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center font-bold text-gray-500 text-xs">
+                                ${isAdmin ? 'A' : (isVendor ? 'V' : 'C')}
+                            </div>
+                            <div class="flex flex-col gap-1 max-w-[80%]">
+                                <div class="flex items-center gap-2 ${isAdmin ? 'flex-row-reverse' : ''}">
+                                    ${roleBadge}
+                                    <span class="text-[10px] text-gray-400 font-medium">${new Date(newMsg.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <div class="${bgColor} p-3 rounded-2xl text-sm text-gray-800 break-words whitespace-pre-wrap ${isAdmin ? 'rounded-tr-none' : 'rounded-tl-none'} shadow-sm">
+                                    ${messageText}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    chatContainer.insertAdjacentHTML('beforeend', msgHtml);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                });
             } catch (error) {
                 console.error("Erreur chargement messages:", error);
                 chatContainer.innerHTML = '<div class="text-center text-xs text-red-500 italic mt-6">Erreur lors du chargement des messages.</div>';
@@ -699,7 +743,7 @@
                 });
                 
                 input.value = '';
-                await loadAdminDisputeMessages(currentDispute.id);
+                // Realtime s'occupe d'ajouter le message dans le chat automatiquement
             } catch (error) {
                 console.error("Erreur envoi message admin:", error);
                 alert("Erreur lors de l'envoi du message.");

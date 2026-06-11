@@ -175,6 +175,26 @@ const ActivityManager = {
         await this._fetchPromise;
         this._fetchPromise = null;
         window.dispatchEvent(new CustomEvent('activitiesUpdated'));
+
+        // Realtime subscription
+        this._setupRealtime();
+    },
+
+    _setupRealtime() {
+        if (this._realtimeSubscription || !window.supabaseClient) return;
+        this._realtimeSubscription = window.supabaseClient
+            .channel('public:activities:manager')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activities' }, (payload) => {
+                console.log('[ActivityManager] Realtime new activity:', payload);
+                if (payload.new) {
+                    this.activities.unshift(payload.new);
+                    if (this.activities.length > 50) this.activities.pop();
+                    window.dispatchEvent(new CustomEvent('activitiesUpdated'));
+                }
+            })
+            .subscribe((status) => {
+                console.log('[ActivityManager] Realtime status:', status);
+            });
     },
     getActivities() { return this.activities; },
     getRecentActivity(limit = 5) { return this.activities.slice(0, limit); },
@@ -247,6 +267,26 @@ const NotificationManager = {
 
         this.updateBadge();
         window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+
+        // Realtime subscription
+        this._setupRealtime();
+    },
+
+    _setupRealtime() {
+        if (this._realtimeSubscription || !window.supabaseClient) return;
+        this._realtimeSubscription = window.supabaseClient
+            .channel('public:notifications:manager')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, (payload) => {
+                console.log('[NotificationManager] Realtime update:', payload);
+                localStorage.removeItem('newket_notifications_sync_time');
+                if (this._realtimeTimeout) clearTimeout(this._realtimeTimeout);
+                this._realtimeTimeout = setTimeout(() => {
+                    this.init(true).catch(err => console.error('[NotificationManager] Realtime sync error:', err));
+                }, 800);
+            })
+            .subscribe((status) => {
+                console.log('[NotificationManager] Realtime status:', status);
+            });
     },
     getNotifications() { return this.notifications; },
     async addNotification(title, message, type = 'info', target = 'all') {
