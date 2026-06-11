@@ -254,6 +254,63 @@ const NotificationService = {
         }
     },
 
+    async notifyCustomerReceipt(order) {
+        if (!order || !order.customer_email) return;
+
+        try {
+            const customerName = order.customer_name || 'Client';
+            const amount = order.total_amount || 0;
+            const currency = process.env.CURRENCY || 'FC';
+
+            EmailService.sendMail({
+                to: order.customer_email,
+                subject: 'Votre reçu de paiement - NewKet',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                        <h2 style="color: #10b981;">Paiement confirmé</h2>
+                        <p>Bonjour <b>${customerName}</b>,</p>
+                        <p>Nous confirmons la réception de votre paiement pour la commande <b>#${order.transaction_id || order.id}</b>.</p>
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #10b981;">
+                            <p><b>Total payé :</b> ${amount} ${currency}</p>
+                            <p><b>Produit :</b> ${order.items && order.items[0] ? order.items[0].name : 'Article NewKet'}</p>
+                        </div>
+                        <p>Votre paiement est conservé en sécurité dans notre compte séquestre jusqu'à la livraison.</p>
+                        <p>Merci pour votre confiance !</p>
+                    </div>
+                `
+            }).catch(err => console.error('[NotificationService] Error sending receipt:', err));
+        } catch (error) {
+            console.error('[NotificationService] Receipt error:', error);
+        }
+    },
+
+    async notifyCustomerReview(order) {
+        if (!order || !order.customer_email) return;
+
+        try {
+            const customerName = order.customer_name || 'Client';
+
+            EmailService.sendMail({
+                to: order.customer_email,
+                subject: 'Commande livrée ! Laissez votre avis - NewKet',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                        <h2 style="color: #000;">Livraison confirmée 🎉</h2>
+                        <p>Bonjour <b>${customerName}</b>,</p>
+                        <p>Nous espérons que vous êtes satisfait de votre commande <b>#${order.transaction_id || order.id}</b>.</p>
+                        <p>Votre avis est précieux pour la communauté NewKet et aide les autres acheteurs à faire le bon choix.</p>
+                        <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
+                            <a href="${getFrontendBaseUrl()}/pages/customer-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Laisser un avis au vendeur</a>
+                        </div>
+                        <p style="font-size: 12px; color: #6b7280;">Si vous rencontrez un problème, vous pouvez nous contacter depuis votre espace client.</p>
+                    </div>
+                `
+            }).catch(err => console.error('[NotificationService] Error sending review email:', err));
+        } catch (error) {
+            console.error('[NotificationService] Review email error:', error);
+        }
+    },
+
     async notifyVendorManualPayout(order) {
         if (!order?.vendor_id) return;
 

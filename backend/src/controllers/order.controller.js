@@ -1,5 +1,7 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import NotificationService from '../services/notificationService.js';
+import slackService from '../services/integrations/slackService.js';
+import slackAdminService from '../services/integrations/slackAdminService.js';
 import {
     ORDER_STATUSES,
     DELIVERY_QUOTE_STATUSES,
@@ -208,6 +210,49 @@ export const createOrder = async (req, res) => {
         });
 
         NotificationService.notifyVendorOrderRequest(order);
+
+        // Notification Slack multi-tenant : canal du vendeur + canal admin
+        (async () => {
+            try {
+                // Récupérer le nom du vendeur et son canal Slack depuis Supabase
+                const { data: vendor } = await supabaseAdmin
+                    .from('users')
+                    .select('name, full_name, email')
+                    .eq('id', vendorId)
+                    .maybeSingle();
+
+                const { data: integration } = await supabaseAdmin
+                    .from('vendor_integrations')
+                    .select('webhook_url')
+                    .eq('vendor_id', vendorId)
+                    .eq('provider', 'slack_channel')
+                    .maybeSingle();
+
+                const vendorName = vendor?.name || vendor?.full_name || vendor?.email || 'Vendeur';
+                let vendorChannelId = integration?.webhook_url || null;
+
+                // Si pas de canal existant, on en crée un automatiquement
+                if (!vendorChannelId) {
+                    vendorChannelId = await slackAdminService.createVendorChannel(vendorName);
+                    if (vendorChannelId) {
+                        // Sauvegarder le canal en base pour les prochaines fois
+                        await supabaseAdmin.from('vendor_integrations').upsert({
+                            vendor_id: vendorId,
+                            provider: 'slack_channel',
+                            webhook_url: vendorChannelId
+                        }, { onConflict: 'vendor_id, provider' });
+                    }
+                }
+
+                await slackAdminService.sendOrderNotification(vendorChannelId, {
+                    totalAmount: order.total_amount,
+                    productName: order.items[0]?.name || 'Produit inconnu',
+                    customerName: customer_name || resolvedCustomerEmail
+                }, vendorName);
+            } catch (err) {
+                console.error('[Slack] Erreur non-bloquante:', err.message);
+            }
+        })();
 
         return res.status(201).json({ success: true, order });
     } catch (error) {
@@ -683,6 +728,9 @@ export const verifyDelivery = async (req, res) => {
             changedBy: req.user.id,
             notes: 'OTP validated'
         });
+
+        // Envoyer la demande d'avis à l'acheteur
+        NotificationService.notifyCustomerReview(updatedOrder).catch(console.error);
 
         return res.status(200).json({ success: true, message: 'Livraison validée avec succès', order: updatedOrder });
     } catch (error) {

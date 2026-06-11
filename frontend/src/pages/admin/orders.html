@@ -47,8 +47,8 @@
                     <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Suivi des Prospects</h1>
                     <p class="text-gray-500 font-medium" id="pageSubtitle">Suivez les interactions et intentions d'achat générées par la plateforme.</p>
                 </div>
-                <div class="admin-page-actions flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <select id="filterStatus" data-track-action="admin_orders:filter_status_change" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
+                <div class="admin-page-actions flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                    <select id="filterStatus" data-track-action="admin_orders:filter_status_change" onchange="handleSearch()" class="w-full sm:w-auto bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
                         <option value="">Tous les statuts</option>
                         <option value="PAID_HELD">Paiement Séquestre</option>
                         <option value="DELIVERED">Livré (Attente confirmation)</option>
@@ -56,19 +56,19 @@
                         <option value="DISPUTE_OPEN">Litige ouvert</option>
                         <option value="FROZEN">Gelé (Admin)</option>
                     </select>
-                    <select id="filterPayment" data-track-action="admin_orders:filter_payment_change" onchange="handleSearch()" class="bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
+                    <select id="filterPayment" data-track-action="admin_orders:filter_payment_change" onchange="handleSearch()" class="w-full sm:w-auto bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
                         <option value="">Paiements</option>
                         <option value="SUCCESSFUL">Payé</option>
                         <option value="PENDING">Attente</option>
                         <option value="FAILED">Échoué</option>
                     </select>
-                    <div class="relative flex-1 sm:w-64">
+                    <div class="relative w-full sm:flex-1 sm:w-64">
                         <iconify-icon icon="solar:magnifer-linear" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
                         <input type="text" id="searchInput" data-track-action="admin_orders:search_change" oninput="handleSearch()" placeholder="Rechercher par OTP, ID, Nom..." 
                             class="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white border border-gray-100 shadow-sm outline-none focus:ring-2 focus:ring-black transition-all text-xs font-bold">
                     </div>
                     <button onclick="exportOrdersToCSV()" data-track-action="admin_orders:export_csv_click"
-                        class="bg-black text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20 shrink-0">
+                        class="w-full sm:w-auto justify-center bg-black text-white px-6 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20 shrink-0">
                         <iconify-icon icon="solar:download-bold-duotone" width="18"></iconify-icon>
                         Exporter
                     </button>

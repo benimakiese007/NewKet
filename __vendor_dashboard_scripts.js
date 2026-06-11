@@ -1195,7 +1195,7 @@
                             ? ActivityManager.getRecentActivity(6)
                             : [];
                         feed.innerHTML = activities.length ? activities.map(a => `
-                            <div class="flex items-start gap-4 p-4 border border-gray-50 rounded-2xl">
+                            <div class="flex items-start gap-4 p-4 border border-gray-50 rounded-2xl min-w-[280px] shrink-0 snap-start">
                                 <div class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-sm">
                                     <iconify-icon icon="${a.type === 'stock' ? 'solar:box-bold' : 'solar:bell-bold'}" width="20"></iconify-icon>
                                 </div>

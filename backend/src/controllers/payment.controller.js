@@ -11,6 +11,7 @@ import {
     verifyStripeSignature
 } from '../services/stripe.js';
 import NotificationService from '../services/notificationService.js';
+import slackService from '../services/integrations/slackService.js';
 import {
     ESCROW_STATUSES,
     ORDER_STATUSES,
@@ -624,6 +625,16 @@ export const netikashWebhook = async (req, res) => {
                     .catch((notifyError) => {
                         console.error('[netikashWebhook] OTP notification failed:', notifyError);
                     });
+                
+                NotificationService.notifyCustomerReceipt(paidOrder);
+            }
+
+            if (paidOrder?.vendor_id) {
+                slackService.sendPaymentReceivedNotification(paidOrder.vendor_id, {
+                    totalAmount: paidOrder.total_amount,
+                    productName: paidOrder.items?.[0]?.name || 'Produit inconnu',
+                    customerName: paidOrder.customer_name || 'Client'
+                }).catch(err => console.error('[SlackService] Payment notification failed:', err));
             }
         }
 
@@ -729,6 +740,25 @@ export const stripeWebhook = async (req, res) => {
             process_status: 'PROCESSED',
             processing_error: null
         }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
+
+        const { data: paidOrderStripe } = await client
+            .from('orders')
+            .select('*')
+            .eq('id', order.id)
+            .maybeSingle();
+            
+        if (paidOrderStripe && paidOrderStripe.vendor_id) {
+             slackService.sendPaymentReceivedNotification(paidOrderStripe.vendor_id, {
+                 totalAmount: paidOrderStripe.total_amount,
+                 productName: paidOrderStripe.items?.[0]?.name || 'Produit inconnu',
+                 customerName: paidOrderStripe.customer_name || 'Client'
+             }).catch(err => console.error('[SlackService] Payment notification failed:', err));
+             
+             if (paidOrderStripe.customer_email) {
+                 NotificationService.notifyCustomerReceipt(paidOrderStripe);
+                 NotificationService.notifyCustomerOTP(paidOrderStripe).catch(console.error);
+             }
+        }
 
         return res.status(200).send('OK');
     } catch (error) {
