@@ -209,7 +209,7 @@
                 const matchStatus = statusFilter ? o.status === statusFilter || (statusFilter === 'Livré' && o.status === 'Conclu') : true;
                 
                 let oPayment = (o.payment_status || '').toUpperCase();
-                if(oPayment === 'SUCCESS' || oPayment === 'PAID') oPayment = 'SUCCESSFUL';
+                if(['SUCCESS', 'PAID', 'SUCCEEDED', 'COMPLETED'].includes(oPayment)) oPayment = 'SUCCESSFUL';
                 const matchPayment = paymentFilter ? oPayment === paymentFilter : true;
 
                 return matchQuery && matchStatus && matchPayment;
@@ -338,6 +338,8 @@
             switch (status?.toUpperCase()) {
                 case 'SUCCESSFUL':
                 case 'SUCCESS': 
+                case 'SUCCEEDED':
+                case 'COMPLETED':
                 case 'PAID':
                     return 'bg-green-50 text-green-600 border border-green-100';
                 case 'PENDING': 

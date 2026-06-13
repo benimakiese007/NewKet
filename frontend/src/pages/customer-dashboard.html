@@ -2684,7 +2684,8 @@
 
                 const promoCode = safeText(order?.promo_code || '').trim().toUpperCase();
 
-                const isPaid = order?.payment_status === 'PAID' || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
+                const paymentState = String(order?.payment_status || '').toUpperCase();
+                const isPaid = ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED'].includes(paymentState) || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
 
                 return `
                     <div class="glass-panel p-6 sm:p-8">
@@ -2917,6 +2918,8 @@
             switch (status?.toUpperCase()) {
                 case 'SUCCESSFUL':
                 case 'SUCCESS':
+                case 'SUCCEEDED':
+                case 'COMPLETED':
                 case 'PAID':
                     return 'bg-green-100 text-green-700';
                 case 'PENDING':
@@ -2961,7 +2964,7 @@
             }
             if (contactMethodEl) {
                 const paymentState = String(order.payment_status || '').toUpperCase();
-                if (['PAID', 'SUCCESS', 'SUCCESSFUL'].includes(paymentState) || order.status === 'PAID_HELD') {
+                if (['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED'].includes(paymentState) || order.status === 'PAID_HELD') {
                     contactMethodEl.textContent = 'Paiement confirmé';
                 } else if (order.payment_status && order.payment_status !== 'N/A') {
                     contactMethodEl.textContent = 'Netikash Online';
@@ -3123,7 +3126,7 @@
             const pay = String(order?.payment_status || '').toUpperCase();
 
             const isPaid =
-                ['SUCCESS', 'SUCCESSFUL', 'PAID'].includes(pay) ||
+                ['SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED', 'PAID'].includes(pay) ||
                 ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
 
             const isShippingDone = ['IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);

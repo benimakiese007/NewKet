@@ -98,6 +98,15 @@
             const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || '';
             const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'pending').toLowerCase();
             let resolvedOrderId = null;
+            let statusPollTimer = null;
+
+            const MAX_STATUS_POLLS = 6;
+            const STATUS_POLL_DELAY_MS = 2000;
+            const PAID_PAYMENT_STATUSES = new Set(['paid', 'success', 'successful', 'succeeded', 'completed']);
+            const PENDING_PAYMENT_STATUSES = new Set(['pending', 'initiated', 'processing', 'verification']);
+            const FAILED_PAYMENT_STATUSES = new Set(['failed', 'failure', 'cancelled', 'canceled', 'expired', 'declined', 'refunded']);
+            const PAID_ORDER_STATUSES = new Set(['paid_held', 'delivered', 'completed']);
+            const FAILED_ORDER_STATUSES = new Set(['cancelled', 'canceled', 'refunded', 'failed']);
 
             const statusTitle = document.getElementById('statusTitle');
             const statusDescription = document.getElementById('statusDescription');
@@ -109,7 +118,36 @@
             const statusIcon = document.getElementById('statusIcon');
             const pageTitle = document.querySelector('title');
 
+            function normalizeState(value) {
+                return String(value || '').trim().toLowerCase();
+            }
+
+            function clearStatusPollTimer() {
+                if (statusPollTimer) {
+                    clearTimeout(statusPollTimer);
+                    statusPollTimer = null;
+                }
+            }
+
+            function isPaidState(orderStatus, paymentStatus) {
+                return PAID_PAYMENT_STATUSES.has(paymentStatus) || PAID_ORDER_STATUSES.has(orderStatus);
+            }
+
+            function isTerminalFailureState(orderStatus, paymentStatus, currentRawStatus) {
+                return currentRawStatus === 'cancelled'
+                    || FAILED_PAYMENT_STATUSES.has(paymentStatus)
+                    || FAILED_ORDER_STATUSES.has(orderStatus);
+            }
+
+            function isPendingState(orderStatus, paymentStatus) {
+                return !paymentStatus
+                    || PENDING_PAYMENT_STATUSES.has(paymentStatus)
+                    || orderStatus === 'ready_for_payment'
+                    || orderStatus === 'pending';
+            }
+
             function setFailureUI(labelText) {
+                clearStatusPollTimer();
                 if (pageTitle) pageTitle.textContent = 'Paiement annule | NewKet';
                 if (statusTitle) statusTitle.textContent = 'Paiement non confirme';
                 if (statusDescription) {
@@ -138,6 +176,7 @@
             }
 
             function setSuccessUI() {
+                clearStatusPollTimer();
                 try {
                     localStorage.setItem(orderRefreshSignalKey, JSON.stringify({
                         txRef,
@@ -185,17 +224,71 @@
                 if (!window.ApiClient) return null;
                 try {
                     return await window.ApiClient.get(`/payments/status/${encodeURIComponent(txRef)}`, {
-                        cacheKey: `payment-status:${txRef}`,
-                        cacheTtlMs: 5_000,
-                        suppressNetworkError: true
+                        suppressNetworkError: true,
+                        dedupe: false
                     });
                 } catch {
                     return null;
                 }
             }
 
+            function scheduleStatusRetry(attempt) {
+                clearStatusPollTimer();
+                if (attempt >= MAX_STATUS_POLLS) {
+                    return;
+                }
+
+                statusPollTimer = setTimeout(() => {
+                    refreshStatus(attempt + 1);
+                }, STATUS_POLL_DELAY_MS);
+            }
+
+            async function refreshStatus(attempt = 0) {
+                if (!txRef) {
+                    setFailureUI('Reference absente');
+                    return;
+                }
+
+                const serverStatus = await loadServerStatus();
+                resolvedOrderId = serverStatus?.order?.id || resolvedOrderId || null;
+
+                const statusLabelEl = document.getElementById('statusLabel');
+                if (statusLabelEl) {
+                    statusLabelEl.classList.remove('skeleton');
+                    statusLabelEl.style.minWidth = '';
+                    statusLabelEl.style.height = '';
+                }
+
+                if (!serverStatus) {
+                    setPendingUI(rawStatus === 'cancelled' ? 'Annule' : 'Verification');
+                    scheduleStatusRetry(attempt);
+                    return;
+                }
+
+                const orderStatus = normalizeState(serverStatus?.order?.status);
+                const paymentStatus = normalizeState(serverStatus?.order?.payment_status || serverStatus?.payment?.status);
+
+                if (isPaidState(orderStatus, paymentStatus)) {
+                    setSuccessUI();
+                    return;
+                }
+
+                if (isTerminalFailureState(orderStatus, paymentStatus, rawStatus)) {
+                    setFailureUI(paymentStatus === 'failed' ? 'Echec' : 'Annule');
+                    return;
+                }
+
+                if (isPendingState(orderStatus, paymentStatus)) {
+                    setPendingUI('Verification');
+                    scheduleStatusRetry(attempt);
+                    return;
+                }
+
+                setPendingUI('Verification');
+                scheduleStatusRetry(attempt);
+            }
+
             (async () => {
-                // Remove skeleton shimmer from txRef once the ref is known
                 const txRefEl = document.getElementById('txRef');
                 if (txRefEl) {
                     txRefEl.classList.remove('skeleton');
@@ -204,38 +297,8 @@
                     txRefEl.textContent = txRef || 'Indisponible';
                 }
 
-                const serverStatus = await loadServerStatus();
-                resolvedOrderId = serverStatus?.order?.id || null;
-
-                // Remove skeleton from statusLabel
-                const statusLabelEl = document.getElementById('statusLabel');
-                if (statusLabelEl) {
-                    statusLabelEl.classList.remove('skeleton');
-                    statusLabelEl.style.minWidth = '';
-                    statusLabelEl.style.height = '';
-                }
-
-                const orderStatus = serverStatus?.order?.status || null;
-                const paymentStatus = (serverStatus?.order?.payment_status || serverStatus?.payment?.status || '').toString().toLowerCase();
-
-                const isPaid = ['paid', 'success', 'successful'].includes(paymentStatus) || ['paid_held', 'delivered', 'completed'].includes((orderStatus || '').toString().toLowerCase());
-
-                if (!txRef) {
-                    setFailureUI('Reference absente');
-                    return;
-                }
-
-                if (!serverStatus) {
-                    setPendingUI(rawStatus === 'cancelled' ? 'Annule' : 'Verification');
-                    return;
-                }
-
-                if (!isPaid) {
-                    setFailureUI(paymentStatus === 'failed' ? 'Echec' : 'En attente');
-                    return;
-                }
-
-                setSuccessUI();
+                setPendingUI(rawStatus === 'cancelled' ? 'Annule' : 'Verification');
+                await refreshStatus();
             })();
 
         });

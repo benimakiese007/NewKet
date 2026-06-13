@@ -290,7 +290,8 @@
             const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : (order.status || '');
             const appliedCode = safeText(order?.promo_code || '');
 
-            const isPaid = order?.payment_status === 'PAID' || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
+            const paymentState = String(order?.payment_status || '').toUpperCase();
+            const isPaid = ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED'].includes(paymentState) || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
 
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)] gap-6">

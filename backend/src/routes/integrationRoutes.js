@@ -83,10 +83,10 @@ router.get('/callback', async (req, res) => {
             }, { onConflict: 'vendor_id, provider' });
         }
         
-        res.redirect('/src/pages/vendor-dashboard.html?integration=success');
+        res.redirect('/src/pages/vendor-dashboard.html?integration=success#settings');
     } catch (error) {
         console.error(`[Integration] Erreur lors du callback ${provider}:`, error);
-        res.redirect(`/src/pages/vendor-dashboard.html?integration=error&msg=${encodeURIComponent(error.message)}`);
+        res.redirect(`/src/pages/vendor-dashboard.html?integration=error&msg=${encodeURIComponent(error.message)}#settings`);
     }
 });
 

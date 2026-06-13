@@ -919,7 +919,8 @@ function handleDbEvent(table, eventType, payload) {
     const timestamp = row.updated_at || row.created_at || row.date || new Date().toISOString();
 
     if (table === 'orders') {
-        const status = row.status || row.payment_status || 'PENDING';
+        const paymentStatus = String(row.payment_status || '').toUpperCase();
+        const status = row.status || (['SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED', 'PAID'].includes(paymentStatus) ? 'PAID_HELD' : row.payment_status) || 'PENDING';
         const label = getOrderStatusLabel(status);
         pushEvent({
             type: 'order',
