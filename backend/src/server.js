@@ -86,7 +86,7 @@ const cspDirectives = {
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
   imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
-  connectSrc: ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://vitals.vercel-insights.com', 'https://*.ingest.sentry.io', 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://www.googletagmanager.com'],
+  connectSrc: ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://unpkg.com', 'https://vitals.vercel-insights.com', 'https://*.ingest.sentry.io', 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://www.googletagmanager.com'],
   mediaSrc: ["'self'", 'blob:', 'https:'],
   workerSrc: ["'self'", 'blob:'],
   frameSrc: ["'self'"],
