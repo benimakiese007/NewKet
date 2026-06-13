@@ -170,7 +170,7 @@ router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
         // On fera un join simple si on avait les clés étrangères, mais on va faire deux requêtes simples pour l'instant.
         const { data: vendors, error: vendorError } = await supabaseAdmin
             .from('users')
-            .select('id, email, first_name, last_name, boutique_name')
+            .select('id, email, name, company_name')
             .eq('role', 'vendor');
             
         if (vendorError) throw vendorError;
@@ -187,7 +187,7 @@ router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
             return {
                 id: vendor.id,
                 email: vendor.email,
-                name: `${vendor.first_name || ''} ${vendor.last_name || ''}`.trim() || vendor.boutique_name || 'Inconnu',
+                name: vendor.name || vendor.company_name || 'Inconnu',
                 slack: vendorInts.some(i => i.provider === 'slack'),
                 notion: vendorInts.some(i => i.provider === 'notion')
             };
@@ -209,7 +209,7 @@ router.get('/admin/csv', requireAuth, requireAdmin, async (req, res) => {
         
         const { data: vendors, error: vendorError } = await supabaseAdmin
             .from('users')
-            .select('id, email, first_name, last_name, boutique_name')
+            .select('id, email, name, company_name')
             .eq('role', 'vendor');
             
         if (vendorError) throw vendorError;
@@ -224,7 +224,7 @@ router.get('/admin/csv', requireAuth, requireAdmin, async (req, res) => {
         
         for (const vendor of vendors) {
             const vendorInts = integrations.filter(i => i.vendor_id === vendor.id);
-            const name = `${vendor.first_name || ''} ${vendor.last_name || ''}`.trim() || vendor.boutique_name || 'Inconnu';
+            const name = vendor.name || vendor.company_name || 'Inconnu';
             const slack = vendorInts.some(i => i.provider === 'slack') ? 'Oui' : 'Non';
             const notion = vendorInts.some(i => i.provider === 'notion') ? 'Oui' : 'Non';
             
