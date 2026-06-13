@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'; // Assurez-vous que node-fetch est disponible ou utilisez fetch natif si Node >= 18
+// fetch est disponible nativement dans Node >= 18 (Vercel)
 
 class OAuthService {
     /**
