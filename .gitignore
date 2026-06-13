@@ -30,3 +30,7 @@ frontend/api/_backend/
 
 # Local sidecar app (do not commit)
 newket-ad/
+
+# IA Agents (do not commit)
+.agents/
+antigravity-workflows/

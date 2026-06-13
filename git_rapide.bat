@@ -1,6 +1,4 @@
 @echo off
-:: Pour afficher correctement les accents
-chcp 65001 >nul 
 color 0A
 
 echo ========================================================
@@ -13,9 +11,9 @@ git status -s
 echo --------------------------------------------------------
 echo.
 
-set /p msg="1. Entrez un message pour decrire ce que vous venez de faire : "
+set /p msg="1. Entrez un message pour decrire.......(COMMIT) : "
 
-:: Vérification si le message est vide
+REM Verification si le message est vide
 IF "%msg%"=="" (
     echo.
     color 0C
@@ -39,10 +37,10 @@ echo.
 echo [3/3] Envoi vers GitHub (git push)...
 
 IF "%branche%"=="" (
-    :: Si l'utilisateur n'a rien tapé, on fait un push normal
+    REM Si l'utilisateur n'a rien tape, on fait un push normal
     git push
 ) ELSE (
-    :: Si l'utilisateur a tapé un nom de branche, on pousse le code actuel sur cette branche distante
+    REM Si l'utilisateur a tape un nom de branche, on pousse le code actuel sur cette branche distante
     git push origin HEAD:%branche%
 )
 
