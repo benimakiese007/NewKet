@@ -3163,6 +3163,25 @@
                 return 'solar:minus-circle-linear';
             }
 
+                { label: 'Terminee', done: isDone, current: false }
+            ];
+
+            function chipClass(s) {
+                if (special === 'cancel') return 'bg-gray-200 text-gray-600 border-gray-200';
+                if (special === 'dispute') return s.done ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-white text-orange-800 border-orange-200';
+                if (s.done) return 'bg-black text-white border-black';
+                if (s.current) return 'bg-white text-black border-black';
+                return 'bg-white text-gray-500 border-gray-200';
+            }
+
+            function iconFor(s) {
+                if (special === 'cancel') return 'solar:close-circle-bold';
+                if (special === 'dispute') return 'solar:danger-circle-bold';
+                if (s.done) return 'solar:check-circle-bold';
+                if (s.current) return 'solar:clock-circle-bold';
+                return 'solar:minus-circle-linear';
+            }
+
             return steps.map((s) => `
                 <div class="flex items-center gap-2 p-3 rounded-2xl border ${chipClass(s)}">
                     <iconify-icon icon="${iconFor(s)}" width="18"></iconify-icon>
@@ -3180,7 +3199,7 @@
                     btn.disabled = true;
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
 
-                    await OrderManager.validateDelivery(currentSelectedOrder.id);
+                    await OrderManager.confirmCompletion(currentSelectedOrder.id);
                     showToast('Fonds libérés avec succès.', 'success');
                     closeOrderModal();
                     await loadDashboardData();

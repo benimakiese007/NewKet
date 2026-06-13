@@ -546,6 +546,19 @@ const OrderManager = {
         }
     },
 
+    async confirmCompletion(orderId) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/orders/${orderId}/confirm-completion`);
+            this._initialized = false; // Forcer la mise à jour des stats et listes
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur confirmCompletion:', error);
+            throw error;
+        }
+    },
+
     async getDisputes() {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
