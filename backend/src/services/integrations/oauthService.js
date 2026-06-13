@@ -13,7 +13,7 @@ class OAuthService {
 
         const clientId = process.env.NOTION_CLIENT_ID;
         const clientSecret = process.env.NOTION_CLIENT_SECRET;
-        const redirectUri = process.env.OAUTH_REDIRECT_URI;
+        const redirectUri = process.env.OAUTH_REDIRECT_URI || 'http://localhost:5173/api/integrations/callback';
 
         const encoded = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
@@ -54,7 +54,7 @@ class OAuthService {
 
         const clientId = process.env.SLACK_CLIENT_ID;
         const clientSecret = process.env.SLACK_CLIENT_SECRET;
-        const redirectUri = process.env.OAUTH_REDIRECT_URI;
+        const redirectUri = process.env.OAUTH_REDIRECT_URI || 'http://localhost:5173/api/integrations/callback';
 
         const response = await fetch('https://slack.com/api/oauth.v2.access', {
             method: 'POST',

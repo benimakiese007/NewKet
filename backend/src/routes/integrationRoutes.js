@@ -115,17 +115,47 @@ router.post('/notion/sync', async (req, res) => {
  * GET /api/integrations/test-slack?sellerId=123
  */
 router.get('/test-slack', async (req, res) => {
-    // Import dynamique pour éviter les soucis si le fichier est appelé bizarrement
-    const { default: slackService } = await import('../services/integrations/slackService.js');
-    
-    const sellerId = req.query.sellerId || 'test-seller';
-    await slackService.sendSaleNotification(sellerId, {
-        totalAmount: 4500,
-        productName: 'Sac Hermès Birkin Vintage',
-        customerName: 'Jean Dupont'
-    });
-    
-    res.json({ message: 'Test de notification Slack déclenché (regardez les logs du serveur).' });
+    try {
+        const { default: slackService } = await import('../services/integrations/slackService.js');
+        const { default: slackAdminService } = await import('../services/integrations/slackAdminService.js');
+        
+        const sellerId = req.query.sellerId;
+        
+        if (sellerId) {
+            const success = await slackService.sendSaleNotification(sellerId, {
+                totalAmount: 4500,
+                productName: 'Sac Hermès Birkin Vintage (Test)',
+                customerName: 'Jean Dupont'
+            });
+            return res.json({ message: 'Test de notification Slack vendeur déclenché.', success });
+        } else {
+            const adminChannelId = await slackAdminService.getAdminChannelId();
+            if (!adminChannelId) {
+                throw new Error("Impossible de trouver ou de créer le canal admin.");
+            }
+            
+            const adminBlocks = [
+                {
+                    type: 'header',
+                    text: { type: 'plain_text', text: '🔔 Test d\'intégration Slack Admin', emoji: true }
+                },
+                {
+                    type: 'section',
+                    text: { type: 'mrkdwn', text: 'Ceci est un message de test envoyé depuis le tableau de bord admin de NewKet.' }
+                }
+            ];
+            
+            const success = await slackAdminService.postMessage(adminChannelId, adminBlocks, '🔔 Test d\'intégration Slack Admin');
+            if (!success) {
+                throw new Error("L'envoi du message de test a échoué.");
+            }
+            
+            return res.json({ message: 'Notification Slack Admin envoyée avec succès !', success });
+        }
+    } catch (error) {
+        console.error('[Integration] Test Slack Error:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 export default router;

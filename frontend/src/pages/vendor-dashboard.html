@@ -883,7 +883,7 @@
                                         <p class="text-xs text-gray-500 mt-1">Recevez vos nouvelles commandes directement dans un canal Slack dédié.</p>
                                     </div>
                                 </div>
-                                <a href="/api/integrations/auth/slack" class="shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
+                                <a href="/api/integrations/auth/slack" id="btnSlackConnect" class="shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
                                     Connecter Slack
                                 </a>
                             </div>
@@ -903,7 +903,7 @@
                                     <button id="btnNotionSync" class="hidden bg-black text-white px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-800 transition-all">
                                         <iconify-icon icon="solar:refresh-circle-bold" class="mr-1"></iconify-icon> Synchro
                                     </button>
-                                    <a href="/api/integrations/auth/notion" class="bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
+                                    <a href="/api/integrations/auth/notion" id="btnNotionConnect" class="bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
                                         Connecter Notion
                                     </a>
                                 </div>
@@ -1330,6 +1330,9 @@
                     else if (tabId === 'promos') renderVendorPromos();
                     else if (tabId === 'settings') {
                         refreshVendorDevicePushStatus();
+                        if (typeof window.refreshVendorIntegrationsStatus === 'function') {
+                            window.refreshVendorIntegrationsStatus();
+                        }
                         setTimeout(() => {
                             if (typeof initVendorResidenceMap === 'function') initVendorResidenceMap();
                         }, 120);
@@ -2408,6 +2411,115 @@
                     }
 
                     loadVendorReferralPanel();
+
+                    // ===== INTEGRATIONS LOGIC (SLACK & NOTION) =====
+                    async function refreshVendorIntegrationsStatus() {
+                        const btnSlack = document.getElementById('btnSlackConnect');
+                        const btnNotion = document.getElementById('btnNotionConnect');
+                        const btnSync = document.getElementById('btnNotionSync');
+
+                        if (!btnSlack && !btnNotion) return;
+
+                        try {
+                            const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                            if (!user) return;
+
+                            if (!window.SupabaseAdapter?.fetchWithFilters) return;
+
+                            const integrations = await window.SupabaseAdapter.fetchWithFilters('vendor_integrations', {
+                                eq: [['vendor_id', user.id]],
+                                skipCache: true
+                            });
+
+                            const isSlackConnected = integrations && integrations.some(i => i.provider === 'slack');
+                            if (btnSlack) {
+                                if (isSlackConnected) {
+                                    btnSlack.innerHTML = '<iconify-icon icon="solar:check-circle-bold" class="mr-1 text-green-500 align-middle"></iconify-icon> Slack Connecté';
+                                    btnSlack.className = 'shrink-0 bg-green-50 border border-green-200 text-green-700 px-6 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1';
+                                } else {
+                                    btnSlack.innerHTML = 'Connecter Slack';
+                                    btnSlack.className = 'shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center';
+                                }
+                            }
+
+                            const isNotionConnected = integrations && integrations.some(i => i.provider === 'notion');
+                            if (btnNotion) {
+                                if (isNotionConnected) {
+                                    btnNotion.innerHTML = '<iconify-icon icon="solar:check-circle-bold" class="mr-1 text-green-500 align-middle"></iconify-icon> Notion Connecté';
+                                    btnNotion.className = 'bg-green-50 border border-green-200 text-green-700 px-6 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1';
+                                    if (btnSync) btnSync.classList.remove('hidden');
+                                } else {
+                                    btnNotion.innerHTML = 'Connecter Notion';
+                                    btnNotion.className = 'bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center';
+                                    if (btnSync) btnSync.classList.add('hidden');
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error refreshing integrations status:', error);
+                        }
+                    }
+                    window.refreshVendorIntegrationsStatus = refreshVendorIntegrationsStatus;
+
+                    function checkIntegrationQueryParams() {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.has('integration')) {
+                            const status = urlParams.get('integration');
+                            if (status === 'success') {
+                                if (window.showToast) {
+                                    window.showToast("Intégration connectée avec succès !", "success");
+                                }
+                            } else if (status === 'error') {
+                                const msg = urlParams.get('msg') || "Erreur de connexion.";
+                                if (window.showToast) {
+                                    window.showToast("Échec de l'intégration : " + msg, "error");
+                                }
+                            }
+                            const newUrl = window.location.pathname + window.location.hash;
+                            window.history.replaceState({}, document.title, newUrl);
+                        }
+                    }
+
+                    const btnSync = document.getElementById('btnNotionSync');
+                    if (btnSync) {
+                        btnSync.addEventListener('click', async () => {
+                            const originalHTML = btnSync.innerHTML;
+                            btnSync.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" class="mr-1"></iconify-icon> Synchro...';
+                            btnSync.disabled = true;
+
+                            try {
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                                if (!user) throw new Error("Veuillez vous reconnecter.");
+
+                                const result = await window.ApiClient.post('/integrations/notion/sync', { vendorId: user.id });
+                                
+                                if (window.showToast) {
+                                    window.showToast(result.message || "Catalogue synchronisé avec succès !", "success");
+                                }
+                                if (window.ProductManager && typeof ProductManager.fetchFreshData === 'function') {
+                                    await ProductManager.fetchFreshData();
+                                }
+                            } catch (error) {
+                                console.error('Notion sync error:', error);
+                                if (window.showToast) {
+                                    window.showToast(error.message || "Erreur lors de la synchronisation.", "error");
+                                }
+                            } finally {
+                                btnSync.innerHTML = originalHTML;
+                                btnSync.disabled = false;
+                            }
+                        });
+                    }
+
+                    if (window.newketInitialized) {
+                        checkIntegrationQueryParams();
+                        refreshVendorIntegrationsStatus();
+                    } else {
+                        window.addEventListener('newketInitialized', () => {
+                            checkIntegrationQueryParams();
+                            refreshVendorIntegrationsStatus();
+                        });
+                    }
+                    // ===== END INTEGRATIONS LOGIC =====
 
                     // Listened to updates previously
 
