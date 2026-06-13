@@ -2450,7 +2450,7 @@
                                 skipCache: true
                             });
 
-                            const isSlackConnected = Array.isArray(integrations) && integrations.some(i => i.provider === 'slack');
+                            const isSlackConnected = Array.isArray(integrations) && integrations.some(i => i.provider.startsWith('slack'));
                             if (btnSlack) {
                                 if (isSlackConnected) {
                                     btnSlack.dataset.connected = '1';

@@ -188,7 +188,7 @@ router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
                 id: vendor.id,
                 email: vendor.email,
                 name: vendor.name || vendor.company_name || 'Inconnu',
-                slack: vendorInts.some(i => i.provider === 'slack'),
+                slack: vendorInts.some(i => i.provider.startsWith('slack')),
                 notion: vendorInts.some(i => i.provider === 'notion')
             };
         });
@@ -225,7 +225,7 @@ router.get('/admin/csv', requireAuth, requireAdmin, async (req, res) => {
         for (const vendor of vendors) {
             const vendorInts = integrations.filter(i => i.vendor_id === vendor.id);
             const name = vendor.name || vendor.company_name || 'Inconnu';
-            const slack = vendorInts.some(i => i.provider === 'slack') ? 'Oui' : 'Non';
+            const slack = vendorInts.some(i => i.provider.startsWith('slack')) ? 'Oui' : 'Non';
             const notion = vendorInts.some(i => i.provider === 'notion') ? 'Oui' : 'Non';
             
             csvContent += `"${vendor.id}","${name}","${vendor.email}","${slack}","${notion}"\n`;
