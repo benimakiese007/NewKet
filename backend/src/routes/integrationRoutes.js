@@ -171,7 +171,7 @@ router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
         const { data: vendors, error: vendorError } = await supabaseAdmin
             .from('users')
             .select('id, email, name, company_name')
-            .eq('role', 'vendor');
+            .eq('role', 'supplier');
             
         if (vendorError) throw vendorError;
         
@@ -210,7 +210,7 @@ router.get('/admin/csv', requireAuth, requireAdmin, async (req, res) => {
         const { data: vendors, error: vendorError } = await supabaseAdmin
             .from('users')
             .select('id, email, name, company_name')
-            .eq('role', 'vendor');
+            .eq('role', 'supplier');
             
         if (vendorError) throw vendorError;
         
