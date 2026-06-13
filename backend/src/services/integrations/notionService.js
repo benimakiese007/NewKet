@@ -67,7 +67,7 @@ class NotionService {
         
         // 2. Récupérer tous les produits Notion où Publié = Vrai
         const response = await notion.dataSources.query({
-            database_id: dbId,
+            data_source_id: dbId,
             filter: { property: 'Publié', checkbox: { equals: true } }
         });
         
