@@ -82,7 +82,7 @@ const cspDirectives = {
   objectSrc: ["'none'"],
   frameAncestors: ["'none'"],
   formAction: ["'self'"],
-  scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://va.vercel-scripts.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com'],
+  scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://va.vercel-scripts.com', 'https://www.googletagmanager.com', 'https://www.google-analytics.com', 'https://cdn.jsdelivr.net'],
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
   imgSrc: ["'self'", 'data:', 'blob:', 'https:'],

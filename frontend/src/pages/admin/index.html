@@ -413,12 +413,24 @@
                 initPromises.push(UserManager.init());
             }
 
-            // If OrderManager is already initialized, refresh immediately.
-            // Otherwise kick off init so ordersUpdated will fire and trigger refresh.
+            // Boot strategy for OrderManager:
+            // 1. Already loaded → refresh immediately.
+            // 2. Fetch in progress (race condition) → wait for it, then refresh.
+            // 3. Not yet started → kick off init; the ordersUpdated event triggers refresh.
             if (window.OrderManager) {
                 if (OrderManager._initialized && !OrderManager._fetchPromise) {
+                    // Case 1: data ready — render right away
                     Promise.all(initPromises).then(() => refreshDashboardData());
-                } else if (!OrderManager._initialized && !OrderManager._fetchPromise) {
+                } else if (OrderManager._fetchPromise) {
+                    // Case 2: fetch already in flight (race condition fix)
+                    // Capture the promise reference before it is cleared
+                    const inFlight = OrderManager._fetchPromise;
+                    Promise.all(initPromises)
+                        .then(() => inFlight)
+                        .catch(() => {})
+                        .then(() => refreshDashboardData());
+                } else {
+                    // Case 3: not yet started — ordersUpdated event will trigger refresh via listener below
                     Promise.all(initPromises).then(() => OrderManager.init().catch(() => {}));
                 }
             } else {

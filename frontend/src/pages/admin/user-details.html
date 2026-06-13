@@ -30,6 +30,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/src/assets/css/style.css">
     <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
     <style>
         body {
             background-color: #f8fafc;
@@ -299,6 +300,22 @@
         async function loadUserDetails() {
             if (userDetailsBootStarted) return;
             userDetailsBootStarted = true;
+
+            const initPromises = [];
+            if (window.UserManager) {
+                if (UserManager._fetchPromise) initPromises.push(UserManager._fetchPromise.catch(() => {}));
+                else if (!UserManager._initialized) initPromises.push(UserManager.init().catch(() => {}));
+            }
+            if (window.OrderManager) {
+                if (OrderManager._fetchPromise) initPromises.push(OrderManager._fetchPromise.catch(() => {}));
+                else if (!OrderManager._initialized) initPromises.push(OrderManager.init().catch(() => {}));
+            }
+            if (window.ProductManager) {
+                if (ProductManager._fetchPromise) initPromises.push(ProductManager._fetchPromise.catch(() => {}));
+                else if (!ProductManager._initialized) initPromises.push(ProductManager.init().catch(() => {}));
+            }
+            await Promise.all(initPromises);
+
             const urlParams = new URLSearchParams(window.location.search);
             const email = urlParams.get('email');
 

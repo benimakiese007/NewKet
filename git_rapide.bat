@@ -25,6 +25,9 @@ IF "%msg%"=="" (
 echo.
 set /p branche="2. Sur quelle branche envoyer sur GitHub ? (Appuyez sur Entree pour envoyer sur la branche actuelle) : "
 
+REM Remplacer automatiquement les espaces par des tirets pour eviter les bugs Git
+IF NOT "%branche%"=="" set branche=%branche: =-%
+
 echo.
 echo [1/3] Preparation des fichiers (git add .)...
 git add .
