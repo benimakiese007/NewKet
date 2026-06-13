@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAuth, requireAdmin } from '../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -154,6 +155,87 @@ router.get('/test-slack', async (req, res) => {
         }
     } catch (error) {
         console.error('[Integration] Test Slack Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * Route admin: liste de toutes les intégrations des vendeurs
+ */
+router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const { supabaseAdmin } = await import('../config/supabase.js');
+        
+        // On récupère tous les utilisateurs et leurs intégrations.
+        // On fera un join simple si on avait les clés étrangères, mais on va faire deux requêtes simples pour l'instant.
+        const { data: vendors, error: vendorError } = await supabaseAdmin
+            .from('users')
+            .select('id, email, first_name, last_name, boutique_name')
+            .eq('role', 'vendor');
+            
+        if (vendorError) throw vendorError;
+        
+        const { data: integrations, error: intError } = await supabaseAdmin
+            .from('vendor_integrations')
+            .select('vendor_id, provider');
+            
+        if (intError) throw intError;
+        
+        // Agréger les données
+        const result = vendors.map(vendor => {
+            const vendorInts = integrations.filter(i => i.vendor_id === vendor.id);
+            return {
+                id: vendor.id,
+                email: vendor.email,
+                name: `${vendor.first_name || ''} ${vendor.last_name || ''}`.trim() || vendor.boutique_name || 'Inconnu',
+                slack: vendorInts.some(i => i.provider === 'slack'),
+                notion: vendorInts.some(i => i.provider === 'notion')
+            };
+        });
+        
+        res.json(result);
+    } catch (error) {
+        console.error('[Integration Admin] Erreur lors de la récupération des intégrations:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * Route admin: Export CSV des intégrations
+ */
+router.get('/admin/csv', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const { supabaseAdmin } = await import('../config/supabase.js');
+        
+        const { data: vendors, error: vendorError } = await supabaseAdmin
+            .from('users')
+            .select('id, email, first_name, last_name, boutique_name')
+            .eq('role', 'vendor');
+            
+        if (vendorError) throw vendorError;
+        
+        const { data: integrations, error: intError } = await supabaseAdmin
+            .from('vendor_integrations')
+            .select('vendor_id, provider');
+            
+        if (intError) throw intError;
+        
+        let csvContent = 'ID Vendeur,Nom,Email,Slack Connecté,Notion Connecté\n';
+        
+        for (const vendor of vendors) {
+            const vendorInts = integrations.filter(i => i.vendor_id === vendor.id);
+            const name = `${vendor.first_name || ''} ${vendor.last_name || ''}`.trim() || vendor.boutique_name || 'Inconnu';
+            const slack = vendorInts.some(i => i.provider === 'slack') ? 'Oui' : 'Non';
+            const notion = vendorInts.some(i => i.provider === 'notion') ? 'Oui' : 'Non';
+            
+            csvContent += `"${vendor.id}","${name}","${vendor.email}","${slack}","${notion}"\n`;
+        }
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="vendor_integrations.csv"');
+        res.send(csvContent);
+    } catch (error) {
+        console.error('[Integration Admin] Erreur lors de l\'export CSV:', error);
         res.status(500).json({ error: error.message });
     }
 });
