@@ -90,11 +90,46 @@ class SlackAdminService {
     }
 
     /**
-     * Retrouve ou crée le canal admin
+     * Retrouve ou crée le canal admin.
+     * Priorité: env SLACK_ADMIN_CHANNEL_ID > recherche > création
      */
     async getAdminChannelId() {
-        return await this.findChannelByName(this.adminChannelName)
-            || await this.createAdminChannel();
+        // 1. Fallback direct si l'ID est configuré en env
+        if (process.env.SLACK_ADMIN_CHANNEL_ID) {
+            return process.env.SLACK_ADMIN_CHANNEL_ID;
+        }
+        
+        // 2. Chercher dans les canaux rejoints par le bot (ne nécessite pas channels:read/groups:read)
+        const joined = await this.findChannelInJoined(this.adminChannelName);
+        if (joined) return joined;
+        
+        // 3. Chercher via conversations.list (nécessite channels:read ou groups:read)
+        const found = await this.findChannelByName(this.adminChannelName);
+        if (found) return found;
+        
+        // 4. Tenter de créer
+        return await this.createAdminChannel();
+    }
+
+    /**
+     * Cherche un canal parmi ceux que le bot a déjà rejoints
+     * (utilise le scope 'channels:read' OU fonctionne si le bot est membre)
+     */
+    async findChannelInJoined(channelName) {
+        // conversations.list with exclude_archived + types works for channels the bot is in
+        const result = await this.callSlackAPI('conversations.list', {
+            types: 'public_channel,private_channel',
+            exclude_archived: true,
+            limit: 200
+        });
+        
+        if (!result.ok) {
+            console.warn(`[SlackAdmin] conversations.list failed: ${result.error}`);
+            return null;
+        }
+        
+        const channel = result.channels?.find(c => c.name === channelName);
+        return channel?.id || null;
     }
 
     async createAdminChannel() {
@@ -102,7 +137,15 @@ class SlackAdminService {
             name: this.adminChannelName,
             is_private: true
         });
-        return result.ok ? result.channel.id : null;
+        
+        if (result.ok) return result.channel.id;
+        
+        // Si le canal existe déjà, essayer de le rejoindre par nom via conversations.open
+        if (result.error === 'name_taken') {
+            console.log(`[SlackAdmin] Canal #${this.adminChannelName} existe déjà mais bot ne peut pas le lister. Configurez SLACK_ADMIN_CHANNEL_ID dans les variables d'environnement.`);
+        }
+        
+        return null;
     }
 
     /**
