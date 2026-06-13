@@ -883,9 +883,9 @@
                                         <p class="text-xs text-gray-500 mt-1">Recevez vos nouvelles commandes directement dans un canal Slack dédié.</p>
                                     </div>
                                 </div>
-                                <a href="/api/integrations/auth/slack" id="btnSlackConnect" class="shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
+                                <button id="btnSlackConnect" class="shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
                                     Connecter Slack
-                                </a>
+                                </button>
                             </div>
 
                             <!-- Notion -->
@@ -903,9 +903,9 @@
                                     <button id="btnNotionSync" class="hidden bg-black text-white px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-800 transition-all">
                                         <iconify-icon icon="solar:refresh-circle-bold" class="mr-1"></iconify-icon> Synchro
                                     </button>
-                                    <a href="/api/integrations/auth/notion" id="btnNotionConnect" class="bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
+                                    <button id="btnNotionConnect" class="bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
                                         Connecter Notion
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -2420,42 +2420,69 @@
 
                         if (!btnSlack && !btnNotion) return;
 
+                        // Wire up OAuth click handlers with vendorId (only once)
+                        const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                        if (!user) return;
+
+                        const vendorId = user.id;
+
+                        // Attach click → redirect with vendorId in URL
+                        if (btnSlack && !btnSlack.dataset.wired) {
+                            btnSlack.dataset.wired = '1';
+                            btnSlack.addEventListener('click', () => {
+                                if (btnSlack.dataset.connected === '1') return; // Already connected, no action
+                                window.location.href = '/api/integrations/auth/slack?vendorId=' + encodeURIComponent(vendorId);
+                            });
+                        }
+                        if (btnNotion && !btnNotion.dataset.wired) {
+                            btnNotion.dataset.wired = '1';
+                            btnNotion.addEventListener('click', () => {
+                                if (btnNotion.dataset.connected === '1') return; // Already connected, no action
+                                window.location.href = '/api/integrations/auth/notion?vendorId=' + encodeURIComponent(vendorId);
+                            });
+                        }
+
+                        if (!window.SupabaseAdapter?.fetchWithFilters) return;
+
                         try {
-                            const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
-                            if (!user) return;
-
-                            if (!window.SupabaseAdapter?.fetchWithFilters) return;
-
                             const integrations = await window.SupabaseAdapter.fetchWithFilters('vendor_integrations', {
-                                eq: [['vendor_id', user.id]],
+                                eq: [['vendor_id', vendorId]],
                                 skipCache: true
                             });
 
-                            const isSlackConnected = integrations && integrations.some(i => i.provider === 'slack');
+                            const isSlackConnected = Array.isArray(integrations) && integrations.some(i => i.provider === 'slack');
                             if (btnSlack) {
                                 if (isSlackConnected) {
-                                    btnSlack.innerHTML = '<iconify-icon icon="solar:check-circle-bold" class="mr-1 text-green-500 align-middle"></iconify-icon> Slack Connecté';
-                                    btnSlack.className = 'shrink-0 bg-green-50 border border-green-200 text-green-700 px-6 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1';
+                                    btnSlack.dataset.connected = '1';
+                                    btnSlack.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="16" style="color:#16a34a"></iconify-icon>&nbsp;CONNECTÉ';
+                                    btnSlack.className = 'shrink-0 inline-flex items-center gap-1.5 bg-green-50 border-2 border-green-400 text-green-700 px-5 py-2 rounded-xl font-black text-xs tracking-wide cursor-default';
+                                    btnSlack.title = 'Slack est déjà connecté à votre boutique';
                                 } else {
+                                    btnSlack.dataset.connected = '0';
                                     btnSlack.innerHTML = 'Connecter Slack';
-                                    btnSlack.className = 'shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center';
+                                    btnSlack.className = 'shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center cursor-pointer';
+                                    btnSlack.title = '';
                                 }
                             }
 
-                            const isNotionConnected = integrations && integrations.some(i => i.provider === 'notion');
+                            const isNotionConnected = Array.isArray(integrations) && integrations.some(i => i.provider === 'notion');
                             if (btnNotion) {
                                 if (isNotionConnected) {
-                                    btnNotion.innerHTML = '<iconify-icon icon="solar:check-circle-bold" class="mr-1 text-green-500 align-middle"></iconify-icon> Notion Connecté';
-                                    btnNotion.className = 'bg-green-50 border border-green-200 text-green-700 px-6 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1';
+                                    btnNotion.dataset.connected = '1';
+                                    btnNotion.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="16" style="color:#16a34a"></iconify-icon>&nbsp;CONNECTÉ';
+                                    btnNotion.className = 'inline-flex items-center gap-1.5 bg-green-50 border-2 border-green-400 text-green-700 px-5 py-2 rounded-xl font-black text-xs tracking-wide cursor-default';
+                                    btnNotion.title = 'Notion est déjà connecté à votre boutique';
                                     if (btnSync) btnSync.classList.remove('hidden');
                                 } else {
+                                    btnNotion.dataset.connected = '0';
                                     btnNotion.innerHTML = 'Connecter Notion';
-                                    btnNotion.className = 'bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center';
+                                    btnNotion.className = 'bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center cursor-pointer';
+                                    btnNotion.title = '';
                                     if (btnSync) btnSync.classList.add('hidden');
                                 }
                             }
                         } catch (error) {
-                            console.error('Error refreshing integrations status:', error);
+                            console.error('[NewKet] Error refreshing integrations status:', error);
                         }
                     }
                     window.refreshVendorIntegrationsStatus = refreshVendorIntegrationsStatus;
