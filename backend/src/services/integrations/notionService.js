@@ -65,7 +65,6 @@ class NotionService {
         const notion = new Client({ auth: integration.access_token });
         const dbId = integration.webhook_url; // On stocke le Database ID dans webhook_url
         
-        // 2. Récupérer tous les produits Notion où Publié = Vrai
         const response = await notion.dataSources.query({
             data_source_id: dbId,
             filter: { property: 'Publié', checkbox: { equals: true } }

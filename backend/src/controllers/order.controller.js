@@ -253,7 +253,7 @@ export const createOrder = async (req, res) => {
 
                 // Si pas de canal existant, on en crée un automatiquement
                 if (!vendorChannelId) {
-                    vendorChannelId = await slackAdminService.createVendorChannel(vendorName);
+                    vendorChannelId = await slackAdminService.createVendorChannel(vendorName, vendor?.email);
                     if (vendorChannelId) {
                         // Sauvegarder le canal en base pour les prochaines fois
                         await supabaseAdmin.from('vendor_integrations').upsert({

@@ -42,7 +42,7 @@ class SlackAdminService {
      * @param {string} vendorName - Nom du vendeur (ex: "Ben Dupont" → #vendeur-ben-dupont)
      * @returns {string|null} Channel ID Slack
      */
-    async createVendorChannel(vendorName) {
+    async createVendorChannel(vendorName, vendorEmail) {
         // Normalise le nom : "Ben Dupont" → "vendeur-ben-dupont"
         const channelName = 'vendeur-' + vendorName
             .toLowerCase()
@@ -62,6 +62,16 @@ class SlackAdminService {
 
         if (result.ok) {
             console.log(`[SlackAdmin] ✅ Canal #${channelName} créé (ID: ${result.channel.id})`);
+            
+            // Notifier l'admin qu'il doit inviter le vendeur manuellement
+            const adminChannelId = await this.getAdminChannelId();
+            if (adminChannelId) {
+                const messageText = `🚨 *Action Requise : Nouveau Vendeur*\n\nLe bot vient de créer le canal privé <#${result.channel.id}> pour le vendeur *${vendorName}*.\n\n👉 *Tu dois l'inviter manuellement* dans ce canal via son adresse email : \`${vendorEmail || 'Email inconnu'}\` en tant qu'Invité multicanal.`;
+                await this.postMessage(adminChannelId, [
+                    { type: 'section', text: { type: 'mrkdwn', text: messageText } }
+                ], "Action requise : Inviter un nouveau vendeur");
+            }
+            
             return result.channel.id;
         }
 

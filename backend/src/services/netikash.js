@@ -52,7 +52,11 @@ export function verifyNetikashSignature(req) {
   const cfg = getNetikashConfig();
   const signature = String(req.headers?.[cfg.signatureHeader] || '');
   const signingKey = String(cfg.webhookSigningKey || '');
-  const raw = req.rawBody;
+  let raw = req.rawBody;
+
+  if (!raw && req.body && Object.keys(req.body).length > 0) {
+    raw = Buffer.from(JSON.stringify(req.body), 'utf8');
+  }
 
   if (!signingKey || !signature) return false;
   if (!raw || !(raw instanceof Buffer)) return false;

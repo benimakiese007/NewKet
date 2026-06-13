@@ -61,10 +61,7 @@ router.get('/callback', async (req, res) => {
             const tokenData = await oauthService.exchangeNotionCode(code);
             const { default: notionService } = await import('../services/integrations/notionService.js');
             
-            const dbId = await notionService.createNotionDatabase(tokenData.access_token).catch(e => {
-                console.error("Erreur création DB Notion:", e.message);
-                return "mock_db_id";
-            });
+            const dbId = await notionService.createNotionDatabase(tokenData.access_token);
 
             await supabaseAdmin.from('vendor_integrations').upsert({
                 vendor_id: vendorId,

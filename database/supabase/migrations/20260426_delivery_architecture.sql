@@ -217,32 +217,6 @@ BEGIN
 
     v_otp := LPAD((FLOOR(RANDOM() * 1000000))::INT::TEXT, 6, '0');
 
-    UPDATE public.orders
-    SET
-        payment_status = 'PAID',
-        status = 'PAID_HELD',
-        otp_code = COALESCE(otp_code, v_otp),
-        otp_attempts = 0,
-        escrow_status = 'HELD',
-        updated_at = NOW()
-    WHERE id = v_order.id;
-
-    INSERT INTO public.escrow_events(order_id, event_type, amount, metadata, processed_at)
-    VALUES (
-        v_order.id,
-        'HELD',
-        v_order.total_amount,
-        jsonb_build_object('transaction_id', p_transaction_id),
-        NOW()
-    );
-
-    INSERT INTO public.activities (user_email, text, type, time)
-    SELECT customer_email, 'Paiement confirmé pour la commande ' || transaction_id, 'payment', NOW()
-    FROM public.orders
-    WHERE id = v_order.id;
-
-    RETURN jsonb_build_object('success', true, 'message', 'Paiement traité avec succès');
-
     FOR v_item IN
         SELECT * FROM jsonb_to_recordset(v_order.items) AS x(product_id TEXT, quantity INT)
     LOOP
@@ -263,8 +237,6 @@ BEGIN
         SET stock = stock - v_item.quantity
         WHERE id = v_item.product_id;
     END LOOP;
-
-    v_otp := LPAD((FLOOR(RANDOM() * 1000000))::INT::TEXT, 6, '0');
 
     UPDATE public.orders
     SET
