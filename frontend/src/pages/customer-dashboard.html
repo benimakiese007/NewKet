@@ -743,7 +743,7 @@
                 <!-- Summary -->
                 <div class="bg-gray-50 rounded-xl p-6 space-y-3">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-200">
-                        <img id="modalInvoiceLogo" src="../../assets/Images/logo-newket.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
+                        <img id="modalInvoiceLogo" src="/Images/logo-newket.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
                         <div class="min-w-0">
                             <div class="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Facture</div>
                             <div class="font-black text-gray-900">Aperçu compact</div>
@@ -884,7 +884,7 @@
                 <div class="invoice-header">
                     <div class="invoice-header-top">
                         <div class="invoice-brand">
-                            <img id="invLogo" src="../../assets/Images/logo-newket.png" alt="NewKet" class="invoice-logo">
+                            <img id="invLogo" src="/Images/logo-newket.png" alt="NewKet" class="invoice-logo">
                             <div class="invoice-brand-copy">
                                 <div class="invoice-title">FACTURE</div>
                             </div>
@@ -3538,13 +3538,12 @@
 
         function getNewketLogoUrl() {
             if (typeof window.resolvePath === 'function') {
-                return window.resolvePath('assets/Images/logo-newket.png');
+                return window.resolvePath('/Images/logo-newket.png');
             }
-
             try {
-                return new URL('../../assets/Images/logo-newket.png', window.location.href).href;
+                return new URL('/Images/logo-newket.png', window.location.href).href;
             } catch (error) {
-                return '../../assets/Images/logo-newket.png';
+                return '/Images/logo-newket.png';
             }
         }
 
