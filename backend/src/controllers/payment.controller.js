@@ -166,6 +166,8 @@ async function finalizePaidOrder(client, orderId, nowIso) {
             otp_code: otp,
             otp_attempts: 0,
             escrow_status: ESCROW_STATUSES.HELD,
+            payment_locked_at: null,
+            payment_lock_reason: null,
             updated_at: nowIso
         })
         .eq('id', orderId);
@@ -608,6 +610,8 @@ export const netikashWebhook = async (req, res) => {
                     payment_status: 'FAILED',
                     payment_provider: 'netikash',
                     payment_provider_tx_id: providerTxId ? String(providerTxId) : order.payment_provider_tx_id,
+                    payment_locked_at: null,
+                    payment_lock_reason: null,
                     updated_at: nowIso
                 })
                 .eq('id', order.id);
