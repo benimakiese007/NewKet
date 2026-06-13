@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase.js';
+import { supabaseClient as supabase } from './supabase-client.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // On n'exécute le code que si on est sur la page settings de l'admin
