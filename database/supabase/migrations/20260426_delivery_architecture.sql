@@ -243,7 +243,6 @@ BEGIN
         payment_status = 'PAID',
         status = 'PAID_HELD',
         otp_code = COALESCE(otp_code, v_otp),
-        otp_attempts = 0,
         escrow_status = 'HELD',
         updated_at = NOW()
     WHERE id = v_order.id;
