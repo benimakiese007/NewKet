@@ -50,7 +50,7 @@
                 <div class="admin-page-actions flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full lg:w-auto">
                     <select id="filterStatus" data-track-action="admin_orders:filter_status_change" onchange="handleSearch()" class="w-full sm:w-auto bg-white border border-gray-100 rounded-2xl px-4 py-3.5 text-xs font-bold outline-none focus:ring-2 focus:ring-black">
                         <option value="">Tous les statuts</option>
-                        <option value="PAID_HELD">Paiement Séquestre</option>
+                        <option value="PAID_HELD">Paiement sécurisé</option>
                         <option value="DELIVERED">Livré (Attente confirmation)</option>
                         <option value="COMPLETED">Conclu (Fonds libérés)</option>
                         <option value="DISPUTE_OPEN">Litige ouvert</option>
@@ -291,7 +291,7 @@
                         <div class="flex flex-col items-end gap-2">
                             <select data-track-action="admin_orders:status_change" onchange="updateStatus('${o.id}', this.value)" class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border-none rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-black transition-all cursor-pointer">
                                 <option value="PENDING" ${o.status === 'PENDING' ? 'selected' : ''}>Attente</option>
-                                <option value="PAID_HELD" ${o.status === 'PAID_HELD' ? 'selected' : ''}>Séquestre</option>
+                                <option value="PAID_HELD" ${o.status === 'PAID_HELD' ? 'selected' : ''}>Paiement sécurisé</option>
                                 <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>Livré</option>
                                 <option value="COMPLETED" ${o.status === 'COMPLETED' ? 'selected' : ''}>Conclu</option>
                                 <option value="RELEASED" ${o.status === 'RELEASED' ? 'selected' : ''}>Confirmé (legacy)</option>

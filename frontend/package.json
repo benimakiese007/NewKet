@@ -48,6 +48,7 @@
     "iconify-icon": "^3.0.2",
     "node-cache": "^5.1.2",
     "nodemailer": "^8.0.5",
+    "qrcode": "^1.5.4",
     "web-push": "^3.6.7"
   }
 }

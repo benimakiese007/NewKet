@@ -742,6 +742,13 @@
 
                 <!-- Summary -->
                 <div class="bg-gray-50 rounded-xl p-6 space-y-3">
+                    <div class="flex items-center gap-3 pb-3 border-b border-gray-200">
+                        <img id="modalInvoiceLogo" src="../../assets/Images/logo-newket.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
+                        <div class="min-w-0">
+                            <div class="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Facture</div>
+                            <div class="font-black text-gray-900">Aperçu compact</div>
+                        </div>
+                    </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-500">Sous-total</span>
                         <span id="modalOrderSubtotal" class="font-medium"></span>
@@ -749,6 +756,14 @@
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-500">Livraison</span>
                         <span id="modalOrderDelivery" class="font-medium text-green-600"></span>
+                    </div>
+                    <div id="modalOrderDiscountRow" class="flex justify-between text-sm hidden">
+                        <span class="text-emerald-600 font-bold">Réduction promo</span>
+                        <span id="modalOrderDiscount" class="font-bold text-emerald-600"></span>
+                    </div>
+                    <div id="modalOrderPromoCodeRow" class="flex justify-between text-sm hidden">
+                        <span class="text-gray-500">Code promo</span>
+                        <span id="modalOrderPromoCode" class="font-bold text-gray-900 uppercase"></span>
                     </div>
                     <div class="flex justify-between pt-3 border-t border-gray-200">
                         <span class="font-bold">Total</span>
@@ -780,6 +795,13 @@
                         <p id="otpHint" class="mt-3 text-xs text-purple-800 font-semibold"></p>
                     </div>
 
+                    <!-- Release Delay -->
+                    <div id="releaseDelaySection" class="hidden p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-center">
+                        <div class="text-xs font-bold text-emerald-700 uppercase mb-2">Libération des fonds</div>
+                        <div id="releaseCountdown" class="text-2xl font-black tracking-tight text-emerald-900">-</div>
+                        <p id="releaseDelayHint" class="mt-2 text-xs text-emerald-800 font-semibold"></p>
+                    </div>
+
                     <!-- Actions Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3">
                         <button id="btnAcceptQuote" type="button"
@@ -800,7 +822,7 @@
                         <button id="btnValidateDelivery" type="button"
                             class="hidden flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
-                            Valider la réception
+                            Libérer les fonds
                         </button>
                         <button id="btnOpenDispute" type="button"
                             class="hidden flex-1 py-3 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
@@ -912,6 +934,14 @@
                         <span>Sous-total</span>
                         <strong id="invSubtotal"></strong>
                     </div>
+                    <div class="invoice-total-row invoice-total-row--discount hidden" id="invDiscountRow">
+                        <span>Réduction code promo</span>
+                        <strong id="invDiscount"></strong>
+                    </div>
+                    <div class="invoice-total-row hidden" id="invPromoCodeRow">
+                        <span>Code promo</span>
+                        <strong id="invPromoCode"></strong>
+                    </div>
                     <div class="invoice-total-row">
                         <span>Livraison</span>
                         <strong id="invDelivery"></strong>
@@ -927,7 +957,8 @@
                         <div class="invoice-qr-copy">
                             <div class="invoice-party-label">QR unique</div>
                             <div id="invQrCode" class="invoice-qr-code"></div>
-                            <div class="invoice-party-detail">Scannez ce code pour retrouver la r&eacute;f&eacute;rence unique de cette facture.</div>
+                            <div class="invoice-party-detail">Scannez ce code pour ouvrir la page de v&eacute;rification de cette commande.</div>
+                            <a id="invQrLink" class="invoice-party-detail" href="#" target="_blank" rel="noreferrer noopener">Ouvrir la vérification</a>
                         </div>
                     </div>
                 </div>
@@ -938,6 +969,7 @@
     <script>
         let currentSelectedOrder = null;
         let currentSelectedDispute = null;
+        let releaseCountdownTimer = null;
         const orderRefreshSignalKey = 'newket_orders_refresh_signal';
 
         function switchTab(tabId, event) {
@@ -2158,7 +2190,7 @@
                 return { label: 'Payer maintenant', icon: 'solar:card-send-bold', required: true, kind: 'achat' };
             }
             if (status === 'DELIVERED') {
-                return { label: 'Valider la réception', icon: 'solar:check-read-bold', required: true, kind: 'achat' };
+                return { label: 'Libérer les fonds', icon: 'solar:check-read-bold', required: true, kind: 'achat' };
             }
             if (['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'PROCESSING'].includes(status)) {
                 return { label: 'Suivre la commande', icon: 'solar:map-point-wave-bold', required: false, kind: 'achat' };
@@ -2226,7 +2258,7 @@
                                     onclick="${onClick}">
                                     <iconify-icon icon="${next.icon}" width="16"></iconify-icon>
                                     <span class="hidden sm:inline">${next.label}</span>
-                                    <span class="sm:hidden">${next.label.replace('Voir les détails', 'Détails').replace('Voir le litige', 'Litige').replace('Voir le devis', 'Devis').replace('Payer maintenant', 'Payer').replace('Valider la réception', 'Valider').replace('Suivre la commande', 'Suivre')}</span>
+                                    <span class="sm:hidden">${next.label.replace('Voir les détails', 'Détails').replace('Voir le litige', 'Litige').replace('Voir le devis', 'Devis').replace('Payer maintenant', 'Payer').replace('Libérer les fonds', 'Libérer').replace('Suivre la commande', 'Suivre')}</span>
                                 </button>
                             </div>
                         </div>
@@ -2652,6 +2684,8 @@
 
                 const promoCode = safeText(order?.promo_code || '').trim().toUpperCase();
 
+                const isPaid = order?.payment_status === 'PAID' || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
+
                 return `
                     <div class="glass-panel p-6 sm:p-8">
                         <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
@@ -2694,6 +2728,7 @@
                             </div>
                         </div>
 
+                        ${isPaid ? '' : `
                         <div class="mt-6">
                             <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Code promo</div>
                             <div class="flex gap-2">
@@ -2704,14 +2739,23 @@
                             <div id="achatDashPromoSuccess" class="mt-2 text-xs text-emerald-700 font-semibold ${promoCode ? '' : 'hidden'}">${promoCode ? `Code appliqué: ${promoCode}` : ''}</div>
                             <div id="achatDashPromoError" class="mt-2 text-xs text-red-600 font-semibold hidden"></div>
                         </div>
+                        `}
 
+                        ${isPaid ? `
+                        <div class="mt-6">
+                            <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-emerald-900 flex items-center justify-center gap-3">
+                                <iconify-icon icon="solar:shield-check-bold" width="24"></iconify-icon>
+                                <span class="font-black tracking-tight text-sm uppercase">Paiement sécurisé effectué</span>
+                            </div>
+                        </div>
+                        ` : `
                         <div class="mt-6 space-y-3">
                             <button id="achatDashPayNow" class="w-full px-5 py-4 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors flex items-center justify-center gap-2">
                                 <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                                 Payer maintenant
                             </button>
-                            <div id="achatDashPayError" class="text-xs text-red-600 font-semibold hidden"></div>
                         </div>
+                        `}
                     </div>
                 `;
             }
@@ -2724,7 +2768,6 @@
                 const promoError = document.getElementById('achatDashPromoError');
                 const promoSuccess = document.getElementById('achatDashPromoSuccess');
                 const btnPay = document.getElementById('achatDashPayNow');
-                const payError = document.getElementById('achatDashPayError');
 
                 const subtotalEl = document.getElementById('achatDashSubtotal');
                 const deliveryEl = document.getElementById('achatDashDelivery');
@@ -2803,10 +2846,8 @@
                 btnPay?.addEventListener('click', async () => {
                     if (!btnPay) return;
                     btnPay.disabled = true;
-                    if (payError) {
-                        payError.classList.add('hidden');
-                        payError.textContent = '';
-                    }
+                    if (window.clearInlineFeedback) window.clearInlineFeedback(btnPay);
+                    
                     btnPay.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Ouverture...';
                     try {
                         const data = await OrderManager.initiatePayment(orderId, {
@@ -2816,14 +2857,13 @@
                             window.location.href = data.payment_url;
                             return;
                         }
-                        if (payError) {
-                            payError.textContent = safeText(data?.error || 'Lien de paiement non reçu');
-                            payError.classList.remove('hidden');
+                        
+                        if (window.showInlineFeedback) {
+                            window.showInlineFeedback(btnPay, safeText(data?.error || 'Lien de paiement non reçu'), 'error');
                         }
                     } catch (e) {
-                        if (payError) {
-                            payError.textContent = safeText(e?.message || "Erreur lors de l'ouverture du paiement");
-                            payError.classList.remove('hidden');
+                        if (window.showInlineFeedback) {
+                            window.showInlineFeedback(btnPay, safeText(e?.message || "Erreur lors de l'ouverture du paiement"), 'error');
                         }
                     } finally {
                         btnPay.disabled = false;
@@ -2892,6 +2932,10 @@
             const order = OrderManager.getOrders().find(o => o.id === id);
             if (!order) return;
             currentSelectedOrder = order;
+            if (releaseCountdownTimer) {
+                clearInterval(releaseCountdownTimer);
+                releaseCountdownTimer = null;
+            }
 
             document.getElementById('modalOrderIdText').textContent = 'Commande #' + order.id;
             document.getElementById('modalOrderDateText').textContent = new Date(order.date).toLocaleDateString('fr-FR', {
@@ -2912,7 +2956,8 @@
                 payStatusEl.className = `px-3 py-1 rounded-full text-xs font-bold inline-block ${getPaymentStatusColor(pStatus)}`;
             }
             if (transIdEl) {
-                transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id.substring(0, 16)}...` : '';
+                transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id}` : '';
+                transIdEl.classList.add('break-all', 'whitespace-normal');
             }
             if (contactMethodEl) {
                 const paymentState = String(order.payment_status || '').toUpperCase();
@@ -2944,6 +2989,25 @@
             document.getElementById('modalOrderDelivery').textContent = amounts.deliveryFee > 0
                 ? CurrencyManager.formatPrice(amounts.deliveryFee)
                 : 'Gratuit';
+            
+            const discountRow = document.getElementById('modalOrderDiscountRow');
+            const promoCodeRow = document.getElementById('modalOrderPromoCodeRow');
+            const promoCodeValue = document.getElementById('modalOrderPromoCode');
+            const modalInvoiceLogo = document.getElementById('modalInvoiceLogo');
+            if (modalInvoiceLogo) modalInvoiceLogo.src = getNewketLogoUrl();
+            const promoCode = String(order?.promo_code || '').trim().toUpperCase();
+            if (amounts.discount > 0) {
+                if (discountRow) discountRow.classList.remove('hidden');
+                document.getElementById('modalOrderDiscount').textContent = "-" + CurrencyManager.formatPrice(amounts.discount);
+            } else {
+                if (discountRow) discountRow.classList.add('hidden');
+            }
+            if (promoCodeRow && promoCodeValue) {
+                const hasPromoCode = Boolean(promoCode);
+                promoCodeRow.classList.toggle('hidden', !hasPromoCode);
+                promoCodeValue.textContent = promoCode;
+            }
+
             document.getElementById('modalOrderTotal').textContent = CurrencyManager.formatPrice(amounts.total);
 
             const timelineEl = document.getElementById('modalOrderTimeline');
@@ -2961,16 +3025,21 @@
             const btnAcceptQuote = document.getElementById('btnAcceptQuote');
             const btnRejectQuote = document.getElementById('btnRejectQuote');
             const btnPayOrder = document.getElementById('btnPayOrder');
+            const releaseDelaySection = document.getElementById('releaseDelaySection');
+            const releaseCountdown = document.getElementById('releaseCountdown');
+            const releaseDelayHint = document.getElementById('releaseDelayHint');
 
             escrowSection.classList.add('hidden');
             otpSection.classList.add('hidden');
             quoteSummarySection.classList.add('hidden');
+            releaseDelaySection.classList.add('hidden');
             btnValidate.classList.add('hidden');
             btnDispute.classList.add('hidden');
             btnAcceptQuote.classList.add('hidden');
             btnRejectQuote.classList.add('hidden');
             btnPayOrder.classList.add('hidden');
             if (otpHintEl) otpHintEl.textContent = '';
+            if (releaseDelayHint) releaseDelayHint.textContent = '';
 
             currentSelectedDispute = null;
 
@@ -2994,7 +3063,7 @@
                 } else {
                     document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(order.delivery_fee_amount || 0));
                     document.getElementById('quoteDelay').textContent = 'Confirmé';
-                    document.getElementById('quoteNote').textContent = 'Le devis a été accepté. Le paiement passe maintenant en séquestre.';
+                    document.getElementById('quoteNote').textContent = 'Le devis a été accepté. Le paiement est maintenant en séquestre.';
                 }
                 btnPayOrder.classList.remove('hidden');
             } else if (order.status === 'PAID_HELD') {
@@ -3002,23 +3071,37 @@
                 otpSection.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
                 if (otpHintEl) {
-                    otpHintEl.textContent = "Donnez ce code uniquement au livreur APRES avoir recu et verifie le produit. Ne le partagez pas par message.";
+                    otpHintEl.textContent = "Donnez ce code uniquement au livreur après avoir reçu et vérifié le produit. Ne le partagez pas par message.";
                 }
             } else if (order.status === 'DELIVERED') {
                 escrowSection.classList.remove('hidden');
                 btnValidate.classList.remove('hidden');
                 btnDispute.classList.remove('hidden');
-                otpSection.classList.remove('hidden');
-                document.getElementById('otpValue').textContent = '------';
-                if (otpHintEl) {
-                    otpHintEl.textContent = "Si tout est OK, validez la reception pour liberer les fonds au vendeur. Sinon, ouvrez un litige.";
-                }
+                releaseDelaySection.classList.remove('hidden');
+                const releaseAtValue = order.escrow_release_at || order.release_scheduled_at || order.release_at || null;
+                const releaseAt = releaseAtValue ? new Date(releaseAtValue) : null;
+                const updateReleaseCountdown = () => {
+                    const now = new Date();
+                    const diffMs = releaseAt && !Number.isNaN(releaseAt.getTime()) ? releaseAt.getTime() - now.getTime() : null;
+                    if (releaseCountdown) {
+                        releaseCountdown.textContent = diffMs === null ? 'Délai à définir' : formatReleaseCountdown(diffMs);
+                    }
+                    if (releaseDelayHint) {
+                        releaseDelayHint.textContent = releaseAt && !Number.isNaN(releaseAt.getTime())
+                            ? (diffMs > 0
+                                ? `Libération automatique sous 48h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
+                                : 'Le délai est écoulé. Les fonds peuvent être libérés immédiatement.')
+                            : 'La libération automatique sera affichée dès que le délai sera enregistré.';
+                    }
+                };
+                updateReleaseCountdown();
+                releaseCountdownTimer = window.setInterval(updateReleaseCountdown, 30000);
             } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
                 escrowSection.classList.remove('hidden');
                 otpSection.classList.remove('hidden');
-                document.getElementById('otpValue').textContent = '------';
+                document.getElementById('otpValue').textContent = order.otp_code || '------';
                 if (otpHintEl) {
-                    otpHintEl.textContent = "Le code OTP s'affichera ici au moment de la reception. Ne donnez aucun code avant d'avoir le produit.";
+                    otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÈS avoir reçu et vérifié le produit.";
                 }
             }
 
@@ -3057,7 +3140,7 @@
                 { label: 'Commandee', done: true, current: false },
                 { label: 'Payee', done: isPaid, current: !isPaid && status === 'READY_FOR_PAYMENT' },
                 { label: 'En livraison', done: isShippingDone, current: isShippingCurrent },
-                { label: 'Reception OTP', done: isOtpDone, current: isOtpCurrent },
+                { label: 'Validation OTP', done: isOtpDone, current: isOtpCurrent },
                 { label: 'Terminee', done: isDone, current: false }
             ];
 
@@ -3095,7 +3178,7 @@
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
 
                     await OrderManager.validateDelivery(currentSelectedOrder.id);
-                    showToast('Réception confirmée ! Merci de votre confiance.', 'success');
+                    showToast('Fonds libérés avec succès.', 'success');
                     closeOrderModal();
                     await loadDashboardData();
                 } catch (error) {
@@ -3104,24 +3187,36 @@
                 } finally {
                     const btn = document.getElementById('btnValidateDelivery');
                     btn.disabled = false;
-                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Valider la réception';
+                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Libérer les fonds';
                 }
             };
 
             if (typeof window.showConfirm === 'function') {
                 window.showConfirm(
-                    'Confirmer la réception',
-                    "En confirmant, vous libérez les fonds séquestrés au vendeur. Continuer ?",
+                    'Libérer les fonds',
+                    "La validation OTP est déjà confirmée. En continuant, vous libérez maintenant les fonds séquestrés au vendeur. Continuer ?",
                     run
                 );
                 return;
             }
 
-            const confirmed = confirm("Voulez-vous confirmer la réception de votre commande ? Cela libérera les fonds pour le vendeur.");
+            const confirmed = confirm("Voulez-vous libérer maintenant les fonds pour le vendeur ?");
             if (!confirmed) return;
 
             await run();
           }
+
+        function formatReleaseCountdown(diffMs) {
+            const ms = Math.max(0, Number(diffMs || 0));
+            const totalMinutes = Math.floor(ms / 60000);
+            const days = Math.floor(totalMinutes / 1440);
+            const hours = Math.floor((totalMinutes % 1440) / 60);
+            const minutes = totalMinutes % 60;
+
+            if (days > 0) return `${days} j ${hours} h`;
+            if (hours > 0) return `${hours} h ${minutes.toString().padStart(2, '0')} min`;
+            return `${Math.max(1, minutes)} min`;
+        }
 
         async function handleAcceptQuote() {
             if (!currentSelectedOrder) return;
@@ -3388,6 +3483,10 @@
         // ========================================================================
 
         function closeOrderModal() {
+            if (releaseCountdownTimer) {
+                clearInterval(releaseCountdownTimer);
+                releaseCountdownTimer = null;
+            }
             document.getElementById('orderModal').classList.add('hidden');
             document.getElementById('orderModal').style.display = 'none';
             document.body.style.overflow = '';
@@ -3404,16 +3503,18 @@
             const subtotal = Number(order?.merchandise_amount ?? itemsSubtotal ?? 0);
             
             let deliveryFee = Number(order?.delivery_fee_amount ?? 0);
-            let total = Number(order?.total ?? order?.total_amount ?? (subtotal + deliveryFee));
+            let discount = Number(order?.promo_discount_amount ?? 0);
+            let total = Number(order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee - discount));
 
             if (order?.status === 'QUOTE' && order?.latest_delivery_quote) {
                 deliveryFee = Number(order.latest_delivery_quote.delivery_fee_amount || 0);
-                total = subtotal + deliveryFee - Number(order?.promo_discount_amount || 0);
+                total = Math.max(0, subtotal + deliveryFee - discount);
             }
 
             return {
                 subtotal,
                 deliveryFee,
+                discount,
                 total
             };
         }
@@ -3431,6 +3532,18 @@
             return 'Vendeur NewKet';
         }
 
+        function getNewketLogoUrl() {
+            if (typeof window.resolvePath === 'function') {
+                return window.resolvePath('assets/Images/logo-newket.png');
+            }
+
+            try {
+                return new URL('../../assets/Images/logo-newket.png', window.location.href).href;
+            } catch (error) {
+                return '../../assets/Images/logo-newket.png';
+            }
+        }
+
         async function buildInvoiceQrReference(order, amounts) {
             const fingerprint = [
                 order?.id || '',
@@ -3440,6 +3553,7 @@
                 getVendorDisplayName(order),
                 amounts?.subtotal ?? 0,
                 amounts?.deliveryFee ?? 0,
+                amounts?.discount ?? 0,
                 amounts?.total ?? 0
             ].join('|');
 
@@ -3467,22 +3581,28 @@
             }
         }
 
-        function buildInvoiceQrPayload(order, amounts, qrReference) {
-            return [
-                'NEWKET_INVOICE',
-                `reference=${qrReference}`,
-                `order=${order?.id || ''}`,
-                `date=${order?.date || ''}`,
-                `customer=${order?.customer?.email || order?.customer?.name || ''}`,
-                `vendor=${getVendorDisplayName(order)}`,
-                `subtotal=${amounts?.subtotal ?? 0}`,
-                `delivery=${amounts?.deliveryFee ?? 0}`,
-                `total=${amounts?.total ?? 0}`
-            ].join('\n');
+        function buildInvoiceQrTargetUrl(order, qrReference) {
+            if (window.InvoiceQrService && typeof window.InvoiceQrService.buildInvoiceQrTargetUrl === 'function') {
+                return window.InvoiceQrService.buildInvoiceQrTargetUrl(order, qrReference);
+            }
+
+            const resolvedPath = typeof window.resolvePath === 'function'
+                ? window.resolvePath('invoice-verify')
+                : '/src/pages/invoice-verify.html';
+            const url = new URL(resolvedPath, window.location.origin);
+            if (order?.id) url.searchParams.set('order_id', order.id);
+            if (qrReference) url.searchParams.set('invoice_ref', qrReference);
+            return url.toString();
         }
 
-        function buildInvoiceQrUrl(payload) {
-            return `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=${encodeURIComponent(payload)}`;
+        async function buildInvoiceQrImageSrc(order, qrReference) {
+            const targetUrl = buildInvoiceQrTargetUrl(order, qrReference);
+            if (window.InvoiceQrService && typeof window.InvoiceQrService.toDataUrl === 'function') {
+                return window.InvoiceQrService.toDataUrl(targetUrl);
+            }
+
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><rect width="220" height="220" fill="#fff"/><rect x="12" y="12" width="196" height="196" rx="18" fill="#f0fdf4" stroke="#bbf7d0"/><text x="110" y="102" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#065f46">QR indisponible</text><text x="110" y="128" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#6b7280">Ouvrir la vérification</text></svg>`;
+            return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
         }
 
         function waitForFrameAssets(printFrame) {
@@ -3511,19 +3631,28 @@
             const o = currentSelectedOrder;
             const amounts = getOrderAmounts(o);
             const qrReference = await buildInvoiceQrReference(o, amounts);
-            const qrPayload = buildInvoiceQrPayload(o, amounts, qrReference);
+            const qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+            const qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
             document.getElementById('invId').textContent = '#' + o.id;
             document.getElementById('invDate').textContent = new Date(o.date).toLocaleDateString();
             document.getElementById('invClient').textContent = o.customer?.name || 'Client NewKet';
             document.getElementById('invEmail').textContent = o.customer?.email || '';
             document.getElementById('invVendor').textContent = getVendorDisplayName(o);
             document.getElementById('invQrCode').textContent = qrReference;
-            document.getElementById('invQrImage').src = buildInvoiceQrUrl(qrPayload);
+            document.getElementById('invQrImage').src = qrImageSrc;
+            const promoCode = String(o.promo_code || '').trim().toUpperCase();
+            const discountAmount = Number(amounts.discount || 0);
+            const discountRow = document.getElementById('invDiscountRow');
+            const discountValue = document.getElementById('invDiscount');
+            const promoCodeRow = document.getElementById('invPromoCodeRow');
+            const promoCodeValue = document.getElementById('invPromoCode');
+            const qrLinkEl = document.getElementById('invQrLink');
 
             const invoiceLogo = document.getElementById('invLogo');
-            if (invoiceLogo && typeof window.resolvePath === 'function') {
-                invoiceLogo.src = window.resolvePath('assets/Images/logo-newket.png');
+            if (invoiceLogo) {
+                invoiceLogo.src = getNewketLogoUrl();
             }
+            if (qrLinkEl) qrLinkEl.href = qrTargetUrl;
 
             const invItems = document.getElementById('invItems');
             invItems.innerHTML = o.items.map(item => `
@@ -3536,6 +3665,16 @@
             `).join('');
 
             document.getElementById('invSubtotal').textContent = CurrencyManager.formatPrice(amounts.subtotal);
+            if (discountRow && discountValue) {
+                const hasDiscount = discountAmount > 0;
+                discountRow.classList.toggle('hidden', !hasDiscount);
+                discountValue.textContent = hasDiscount ? `- ${CurrencyManager.formatPrice(discountAmount)}` : '';
+            }
+            if (promoCodeRow && promoCodeValue) {
+                const hasPromoCode = Boolean(promoCode);
+                promoCodeRow.classList.toggle('hidden', !hasPromoCode);
+                promoCodeValue.textContent = promoCode;
+            }
             document.getElementById('invDelivery').textContent = amounts.deliveryFee > 0
                 ? CurrencyManager.formatPrice(amounts.deliveryFee)
                 : 'Gratuit';
@@ -3567,52 +3706,52 @@
                     <head>
                         <title>Facture NewKet</title>
                         <style>
-                            @page { margin: 18mm; }
+                            @page { size: A4 portrait; margin: 10mm; }
+                            * { box-sizing: border-box; }
                             html, body { width: 100%; }
-                            body { margin: 0; font-family: Arial, sans-serif; color: #1f2937; background: #ffffff; }
-                            .invoice-sheet { box-sizing: border-box; position: relative; overflow: hidden; width: 100%; max-width: 760px; min-height: 100%; background: #fff; margin: 0 auto; }
+                            body { margin: 0; font-family: Arial, sans-serif; color: #1f2937; background: #ffffff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            .invoice-sheet { position: relative; overflow: hidden; width: 100%; max-width: 760px; background: #fff; margin: 0 auto; page-break-inside: avoid; }
                             .invoice-accent { position: absolute; inset: 0 auto 0 0; width: 108px; background:
                                 radial-gradient(circle at -8% 12%, rgba(183, 228, 199, 0.58) 0, rgba(183, 228, 199, 0.58) 34%, transparent 35%),
                                 radial-gradient(circle at 18% 34%, rgba(16, 185, 129, 0.16) 0, rgba(16, 185, 129, 0.16) 44%, transparent 45%),
                                 radial-gradient(circle at 2% 60%, rgba(74, 222, 128, 0.18) 0, rgba(74, 222, 128, 0.18) 38%, transparent 39%),
                                 linear-gradient(180deg, rgba(220, 252, 231, 0.95), rgba(255, 255, 255, 0.25)); }
-                            .invoice-body { position: relative; padding: 24px 28px 18px 74px; }
-                            .invoice-header { margin-bottom: 18px; }
-                            .invoice-header-top { display: flex; justify-content: flex-start; align-items: flex-start; gap: 24px; }
-                            .invoice-brand { display: flex; align-items: center; gap: 16px; }
-                            .invoice-logo { width: 92px; height: 92px; object-fit: contain; }
-                            .invoice-title { font-size: 42px; line-height: 0.92; font-weight: 900; letter-spacing: 0.02em; color: #065f46; }
-                            .invoice-subtitle { margin-top: 8px; font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; }
-                            .invoice-meta-card { min-width: 220px; padding: 14px 16px; border: 1px solid #d1fae5; border-radius: 16px; background: linear-gradient(180deg, #f0fdf4, #ffffff); }
-                            .invoice-meta-card--below { margin-top: 10px; margin-left: auto; max-width: 320px; }
-                            .invoice-meta-row { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; padding: 5px 0; }
+                            .invoice-body { position: relative; padding: 18px 20px 14px 58px; }
+                            .invoice-header { margin-bottom: 12px; }
+                            .invoice-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+                            .invoice-brand { display: flex; align-items: center; gap: 12px; }
+                            .invoice-logo { width: 64px; height: 64px; object-fit: contain; }
+                            .invoice-title { font-size: 32px; line-height: 0.95; font-weight: 900; letter-spacing: 0.02em; color: #065f46; }
+                            .invoice-subtitle { margin-top: 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; }
+                            .invoice-meta-card { min-width: 200px; padding: 10px 12px; border: 1px solid #d1fae5; border-radius: 14px; background: linear-gradient(180deg, #f0fdf4, #ffffff); }
+                            .invoice-meta-card--below { margin-top: 8px; margin-left: auto; max-width: 300px; }
+                            .invoice-meta-row { display: flex; justify-content: space-between; gap: 14px; font-size: 11px; padding: 3px 0; }
                             .invoice-meta-row span { color: #065f46; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
                             .invoice-meta-row strong { color: #111827; font-weight: 800; }
-                            .invoice-parties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 28px; }
-                            .invoice-party-card { padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 18px; background: #ffffff; }
+                            .invoice-parties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+                            .invoice-party-card { padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 14px; background: #ffffff; }
                             .invoice-party-card--soft { background: #f0fdf4; border-color: #bbf7d0; }
-                            .invoice-party-label { font-size: 11px; font-weight: 900; color: #047857; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-                            .invoice-party-name { font-size: 16px; font-weight: 800; color: #111827; }
-                            .invoice-party-detail { margin-top: 5px; font-size: 12px; line-height: 1.5; color: #6b7280; }
-                            .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-                            .invoice-table thead th { padding: 10px 12px; border-bottom: 2px solid #a7f3d0; font-size: 11px; font-weight: 900; color: #065f46; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; }
-                            .invoice-table td { padding: 12px; border-bottom: 1px solid #ecfdf5; font-size: 12px; color: #1f2937; }
+                            .invoice-party-label { font-size: 10px; font-weight: 900; color: #047857; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+                            .invoice-party-name { font-size: 14px; font-weight: 800; color: #111827; line-height: 1.2; }
+                            .invoice-party-detail { margin-top: 4px; font-size: 11px; line-height: 1.35; color: #6b7280; }
+                            .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+                            .invoice-table thead th { padding: 8px 10px; border-bottom: 2px solid #a7f3d0; font-size: 10px; font-weight: 900; color: #065f46; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; }
+                            .invoice-table td { padding: 9px 10px; border-bottom: 1px solid #ecfdf5; font-size: 11px; color: #1f2937; }
                             .invoice-table tbody tr:last-child td { border-bottom: 0; }
                             .text-center { text-align: center !important; }
                             .text-right { text-align: right !important; }
-                            .invoice-totals { margin-left: auto; width: 260px; padding: 16px 18px; border-radius: 18px; background: #f9fafb; border: 1px solid #e5e7eb; }
-                            .invoice-total-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 6px 0; font-size: 13px; color: #4b5563; }
+                            .invoice-totals { margin-left: auto; width: 250px; padding: 12px 14px; border-radius: 14px; background: #f9fafb; border: 1px solid #e5e7eb; }
+                            .invoice-total-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 0; font-size: 12px; color: #4b5563; }
                             .invoice-total-row strong { color: #111827; font-weight: 800; }
-                            .invoice-total-row--grand { margin-top: 8px; padding-top: 12px; border-top: 2px solid #10b981; font-size: 18px; font-weight: 900; color: #065f46; }
-                            .invoice-total-row--grand strong { font-size: 22px; color: #065f46; }
-                            .invoice-security { margin-top: 20px; display: flex; justify-content: flex-end; }
-                            .invoice-qr-card { display: flex; align-items: center; gap: 16px; width: 100%; max-width: 360px; padding: 14px 16px; border-radius: 18px; background: #f0fdf4; border: 1px solid #bbf7d0; }
-                            .invoice-qr-image { width: 88px; height: 88px; object-fit: contain; background: #ffffff; border-radius: 12px; padding: 8px; border: 1px solid #d1fae5; }
+                            .invoice-total-row--discount strong { color: #047857; }
+                            .invoice-total-row--grand { margin-top: 6px; padding-top: 10px; border-top: 2px solid #10b981; font-size: 16px; font-weight: 900; color: #065f46; }
+                            .invoice-total-row--grand strong { font-size: 20px; color: #065f46; }
+                            .invoice-security { margin-top: 12px; display: flex; justify-content: flex-end; }
+                            .invoice-qr-card { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 320px; padding: 10px 12px; border-radius: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; }
+                            .invoice-qr-image { width: 76px; height: 76px; object-fit: contain; background: #ffffff; border-radius: 10px; padding: 6px; border: 1px solid #d1fae5; }
                             .invoice-qr-copy { min-width: 0; flex: 1; }
-                            .invoice-qr-code { margin-top: 4px; font-size: 15px; font-weight: 900; color: #065f46; letter-spacing: 0.08em; word-break: break-word; }
-                            .invoice-footer { margin-top: 34px; padding-top: 18px; border-top: 1px solid #d1fae5; }
-                            .invoice-footer-title { font-size: 13px; font-weight: 900; color: #065f46; text-transform: uppercase; letter-spacing: 0.08em; }
-                            .invoice-footer-copy { margin-top: 8px; font-size: 12px; color: #6b7280; }
+                            .invoice-qr-code { margin-top: 3px; font-size: 13px; font-weight: 900; color: #065f46; letter-spacing: 0.08em; word-break: break-word; }
+                            .hidden { display: none !important; }
                         </style>
                     </head>
                     <body>${printContent}</body>

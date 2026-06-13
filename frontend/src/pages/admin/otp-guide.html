@@ -41,7 +41,7 @@
                             Livraison securisee
                         </div>
                         <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900 mt-4">Guide commande, paiement et OTP sur NewKet</h1>
-                        <p class="text-gray-500 font-medium mt-3">Cette page permet a l'admin de suivre le cycle complet: reservation, devis vendeur, validation client, paiement en escrow, livraison, verification OTP et activation de la garantie.</p>
+                        <p class="text-gray-500 font-medium mt-3">Cette page permet a l'admin de suivre le cycle complet: commande, devis vendeur, validation client, paiement en escrow, livraison, reception OTP et activation de la garantie.</p>
                     </div>
 
                     <a href="/src/pages/admin/index.html?view=orders"
@@ -86,7 +86,7 @@
                     </div>
                     <div class="text-[10px] font-black uppercase tracking-[0.24em] text-emerald-600 mb-2">Etape 4</div>
                     <h2 class="text-lg font-black text-gray-900">Livraison puis OTP</h2>
-                    <p class="text-sm text-gray-500 mt-2">Le vendeur livre, le client verifie le produit, puis genere et transmet l'OTP. Quand le vendeur applique ce code, la livraison est confirmee et la garantie s'active.</p>
+                    <p class="text-sm text-gray-500 mt-2">Le vendeur commence la livraison, le client verifie le produit, puis genere et transmet l'OTP. Quand le vendeur applique ce code, la reception est confirmee et la garantie s'active.</p>
                 </article>
             </section>
 
@@ -115,7 +115,7 @@
 
                         <div class="rounded-3xl border border-gray-100 bg-white/80 p-5">
                             <div class="text-sm font-black text-gray-900 mb-2">4. Paiement securise en escrow</div>
-                            <p class="text-sm text-gray-500">Une fois le paiement confirme, l'argent est place directement en escrow. Le vendeur peut alors avancer vers la livraison pendant que les fonds restent proteges.</p>
+                            <p class="text-sm text-gray-500">Une fois le paiement confirme, l'argent est place en escrow et la commande passe en attente de livraison. Le vendeur peut alors demarrer la livraison pendant que les fonds restent proteges.</p>
                         </div>
 
                         <div class="rounded-3xl border border-gray-100 bg-white/80 p-5">
@@ -130,7 +130,7 @@
 
                         <div class="rounded-3xl border border-gray-100 bg-white/80 p-5">
                             <div class="text-sm font-black text-gray-900 mb-2">7. Application de l'OTP et activation de la garantie</div>
-                            <p class="text-sm text-gray-500">Le vendeur applique l'OTP sur la commande. La livraison est alors confirmee, la preuve passe en <span class="font-black text-gray-900">OTP_VALIDATED</span> et la garantie peut demarrer selon le cycle prevu.</p>
+                            <p class="text-sm text-gray-500">Le vendeur applique l'OTP sur la commande. La reception est alors confirmee, la preuve passe en <span class="font-black text-gray-900">OTP_VALIDATED</span> et la garantie peut demarrer selon le cycle prevu.</p>
                         </div>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
                         </div>
                         <ul class="space-y-3 text-sm text-white/90 list-disc pl-5">
                             <li>Le devis doit être validé par le client avant le paiement.</li>
-                            <li>Le paiement confirmé doit aller en escrow avant la livraison.</li>
+                            <li>Le paiement confirmé doit aller en escrow avant le démarrage de la livraison.</li>
                             <li>Le client ne doit jamais donner l'OTP avant vérification du produit.</li>
                             <li>Si le produit est non conforme, il faut ouvrir un litige au lieu de partager le code.</li>
                         </ul>
@@ -161,7 +161,7 @@
                             </div>
                             <div class="rounded-2xl bg-gray-50 border border-gray-100 px-4 py-3">
                                 <div class="font-black text-gray-900">Vendor Dashboard</div>
-                                <div>Le vendeur envoie le devis, livre le produit puis applique l'OTP pour confirmer la reception.</div>
+                                <div>Le vendeur envoie le devis, demarre la livraison puis applique l'OTP pour confirmer la reception.</div>
                             </div>
                             <div class="rounded-2xl bg-gray-50 border border-gray-100 px-4 py-3">
                                 <div class="font-black text-gray-900">Admin</div>

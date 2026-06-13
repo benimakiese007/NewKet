@@ -1,0 +1,160 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - button [ref=e5] [cursor=pointer]:
+        - img [ref=e7]
+      - link "Accueil NewKet" [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img "NewKet Logo" [ref=e11]
+      - button [ref=e14] [cursor=pointer]:
+        - img [ref=e16]
+  - generic [ref=e19]:
+    - complementary [ref=e21]:
+      - button "Réduire le menu" [ref=e22] [cursor=pointer]
+      - generic [ref=e24]:
+        - navigation "Navigation Admin" [ref=e25]:
+          - generic [ref=e26]: Général
+          - link "Vue d'ensemble" [ref=e27] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html
+            - img [ref=e30]
+            - generic [ref=e32]: Vue d'ensemble
+          - link "Temps réel" [ref=e34] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=realtime
+            - generic [ref=e36]: Temps réel
+          - generic [ref=e37]: Analytique
+          - link "Comportements" [ref=e38] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=analytics
+            - img [ref=e41]
+            - generic [ref=e43]: Comportements
+          - link "Journal d'Activités" [ref=e44] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=activities
+            - img [ref=e47]
+            - generic [ref=e49]: Journal d'Activités
+          - link "Audit & Diagnostics" [ref=e50] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=diagnostics
+            - img [ref=e53]
+            - generic [ref=e55]: Audit & Diagnostics
+          - generic [ref=e56]: Catalogue
+          - link "Gestion Vendeurs" [ref=e57] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=user
+            - generic [ref=e59]: Gestion Vendeurs
+          - link "Contrôle Catalogue" [ref=e60] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=products
+            - img [ref=e63]
+            - generic [ref=e65]: Contrôle Catalogue
+          - link "Avis & Modération" [ref=e66] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=reviews
+            - img [ref=e69]
+            - generic [ref=e71]: Avis & Modération
+          - generic [ref=e72]: Opérations
+          - link "Commandes & Retraits" [ref=e73] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=orders
+            - img [ref=e76]
+            - generic [ref=e78]: Commandes & Retraits
+          - link "Notifications" [ref=e79] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=notifications-admin
+            - generic [ref=e81]: Notifications
+          - link "Support Platform" [ref=e82] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=support
+            - img [ref=e85]
+            - generic [ref=e87]: Support Platform
+          - link "Newsletter" [ref=e88] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=newsletter
+            - img [ref=e91]
+            - generic [ref=e93]: Newsletter
+          - generic [ref=e94]: Système
+          - link "Parrainage Système" [ref=e95] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=referrals
+            - generic [ref=e97]: Parrainage Système
+          - link "Sécurité & Admins" [ref=e98] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=security
+            - generic [ref=e100]: Sécurité & Admins
+          - link "Guide" [ref=e101] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=otp-guide
+            - generic [ref=e103]: Guide
+          - link "OTP Tracker" [ref=e104] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=otp-tracker
+            - generic [ref=e106]: OTP Tracker
+          - link "Branding & Thème" [ref=e107] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=branding
+            - generic [ref=e109]: Branding & Thème
+          - link "HERO (Accueil)" [ref=e110] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=hero
+            - generic [ref=e112]: HERO (Accueil)
+          - link "Paramètres" [ref=e115] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html?view=settings
+            - img [ref=e118]
+            - generic [ref=e120]: Paramètres
+        - button "Déconnexion" [ref=e122] [cursor=pointer]:
+          - img [ref=e124]
+          - text: Déconnexion
+    - generic:
+      - generic:
+        - generic: Mise à jour...
+    - main [ref=e128]:
+      - generic [ref=e129]:
+        - generic [ref=e130]:
+          - generic [ref=e131]:
+            - heading "Vue d'ensemble" [level=1] [ref=e132]
+            - paragraph [ref=e133]: Performances et activité globales de la plateforme.
+          - generic [ref=e135]:
+            - generic [ref=e136]:
+              - generic [ref=e137]:
+                - button "Jour" [ref=e138] [cursor=pointer]
+                - button "Semaine" [ref=e139] [cursor=pointer]
+                - button "Mois" [ref=e140] [cursor=pointer]
+                - button "Tout" [ref=e141] [cursor=pointer]
+              - button "Filtres" [ref=e142] [cursor=pointer]
+            - generic [ref=e143]:
+              - generic [ref=e144]:
+                - generic [ref=e145]: Du
+                - textbox "Du" [ref=e146]
+              - generic [ref=e147]:
+                - generic [ref=e148]: Au
+                - textbox "Au" [ref=e149]
+              - button "Appliquer" [ref=e150] [cursor=pointer]
+              - button "Effacer" [ref=e151] [cursor=pointer]
+        - generic [ref=e152]:
+          - generic [ref=e153]:
+            - img [ref=e156]
+            - paragraph [ref=e160]: Commandes
+            - generic [ref=e162]:
+              - generic [ref=e163]: +12%
+              - generic [ref=e164]: vs hier
+          - generic [ref=e165]:
+            - img [ref=e168]
+            - paragraph [ref=e171]: Vues Totales
+            - generic [ref=e173]:
+              - generic [ref=e174]: +8%
+              - generic [ref=e175]: vs hier
+          - generic [ref=e176]:
+            - paragraph [ref=e180]: Funnel de Conversion
+            - generic [ref=e181]:
+              - generic [ref=e184]: Vues
+              - generic [ref=e190]: Leads
+          - generic [ref=e193]:
+            - paragraph [ref=e195]: Articles Actifs
+            - paragraph [ref=e197]: Boutique en ligne
+          - generic [ref=e198]:
+            - img [ref=e201]
+            - paragraph [ref=e206]: Visiteurs en Direct
+            - generic [ref=e212]: Temps réel
+        - generic [ref=e213]:
+          - generic [ref=e214]:
+            - generic [ref=e216]:
+              - heading "Performance des Leads & Ventes" [level=3] [ref=e217]: Performance des Leads & Ventes
+              - generic [ref=e219]:
+                - generic [ref=e222]: Revenus ($)
+                - generic [ref=e225]: Leads
+            - generic [ref=e229]:
+              - heading "Historique des Intéractions" [level=3] [ref=e230]: Historique des Intéractions
+              - link "Tout voir" [ref=e231] [cursor=pointer]:
+                - /url: orders.html
+          - generic [ref=e235]:
+            - generic [ref=e236]:
+              - heading "Base Utilisateurs" [level=3] [ref=e237]: Base Utilisateurs
+              - generic [ref=e238]:
+                - generic [ref=e240]: Total Inscrits
+                - generic [ref=e243]: Ce mois
+            - heading "Par Catégorie" [level=3] [ref=e246]: Par Catégorie
+            - heading "Alertes Stock" [level=3] [ref=e250]: Alertes Stock

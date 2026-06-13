@@ -290,6 +290,8 @@
             const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : (order.status || '');
             const appliedCode = safeText(order?.promo_code || '');
 
+            const isPaid = order?.payment_status === 'PAID' || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
+
             return `
                 <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)] gap-6">
                     <div class="lg:col-span-2 space-y-5">
@@ -309,7 +311,7 @@
                             <iconify-icon icon="solar:shield-check-bold" width="22"></iconify-icon>
                             <div>
                                 <div class="font-black">Paiement protégé</div>
-                                <div class="mt-1 text-emerald-800">Votre paiement passe en séquestre et ne sera libéré au vendeur qu'après confirmation de réception.</div>
+                                <div class="mt-1 text-emerald-800">Votre paiement passe en séquestre et ne sera libéré au vendeur qu'après validation OTP et expiration du délai de libération.</div>
                             </div>
                         </div>
                     </div>
@@ -337,6 +339,7 @@
                             </div>
                         </div>
 
+                        ${isPaid ? '' : `
                         <div class="card-link space-y-3">
                             <div>
                                 <div class="font-black text-gray-900">Code promo</div>
@@ -350,14 +353,21 @@
                             <div id="promoSuccess" class="text-xs text-emerald-700 font-semibold ${appliedCode ? '' : 'hidden'}">${appliedCode ? `Code appliqué: ${appliedCode}` : ''}</div>
                             <div id="promoError" class="text-xs text-red-600 font-semibold hidden"></div>
                         </div>
+                        `}
 
+                        ${isPaid ? `
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-emerald-900 flex items-center justify-center gap-3">
+                            <iconify-icon icon="solar:shield-check-bold" width="24"></iconify-icon>
+                            <span class="font-black tracking-tight text-sm uppercase">Paiement sécurisé effectué</span>
+                        </div>
+                        ` : `
                         <button id="btnPayNow" class="btn-primary w-full flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                             Payer maintenant
                         </button>
                         <span class="text-xs text-emerald-600 block mt-2 text-center font-bold">Paiement 100% sécurisé</span>
+                        `}
                         <button class="btn-ghost w-full mt-3" onclick="backToDashboard()">Retour à l'espace client</button>
-                        <div id="payError" class="text-xs text-red-600 font-semibold hidden"></div>
                     </div>
                 </div>
             `;
@@ -408,7 +418,6 @@
             container.innerHTML = buildDetailView(order);
 
             const btn = document.getElementById('btnPayNow');
-            const payError = document.getElementById('payError');
             const promoInput = document.getElementById('promoCodeInput');
             const promoApplyBtn = document.getElementById('btnApplyPromo');
             const promoRemoveBtn = document.getElementById('btnRemovePromo');
@@ -503,7 +512,7 @@
 
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
-                payError.classList.add('hidden');
+                if (window.clearInlineFeedback) window.clearInlineFeedback(btn);
                 btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Ouverture...';
                 try {
                     const data = await OrderManager.initiatePayment(orderId, {
@@ -513,11 +522,9 @@
                         window.location.href = data.payment_url;
                         return;
                     }
-                    payError.textContent = safeText(data?.error || 'Lien de paiement non reçu');
-                    payError.classList.remove('hidden');
+                    if (window.showInlineFeedback) window.showInlineFeedback(btn, safeText(data?.error || 'Lien de paiement non reçu'), 'error');
                 } catch (e) {
-                    payError.textContent = safeText(e?.message || "Erreur lors de l'ouverture du paiement");
-                    payError.classList.remove('hidden');
+                    if (window.showInlineFeedback) window.showInlineFeedback(btn, safeText(e?.message || "Erreur lors de l'ouverture du paiement"), 'error');
                 } finally {
                     btn.disabled = false;
                     btn.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant';

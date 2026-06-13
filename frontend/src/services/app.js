@@ -21,6 +21,7 @@ import './products.js';
 import './orders.js';
 import './favorites.js';
 import './currency.js';
+import './invoice-qr.js';
 import './managers.js';
 
 import './ui-helpers.js';

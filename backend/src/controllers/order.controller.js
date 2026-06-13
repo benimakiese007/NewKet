@@ -12,6 +12,7 @@ import {
     canTransitionOrder,
     createEscrowEvent,
     generateOrderId,
+    generateOtpCode,
     getOrderCustomerId,
     getOrderVendorId,
     isCustomerActor,
@@ -86,6 +87,25 @@ async function fetchOrderOr404(orderId, res) {
     }
 
     order.status = mapLegacyOrderStatus(order.status);
+
+    if (order.status === ORDER_STATUSES.PAID_HELD && !String(order.otp_code || '').trim()) {
+        const otpCode = generateOtpCode();
+        const { error: otpUpdateError } = await client
+            .from('orders')
+            .update({
+                otp_code: otpCode,
+                otp_attempts: 0,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', order.id);
+
+        if (!otpUpdateError) {
+            order.otp_code = otpCode;
+        } else {
+            console.warn('[Order] Could not backfill OTP code:', otpUpdateError.message);
+        }
+    }
+
     return order;
 }
 

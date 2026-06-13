@@ -22,7 +22,7 @@ const OrderManager = {
         'CANCELLED':  'Annulé',
         'COMPLETED':  'Terminé',
         'REFUNDED':   'Remboursé',
-        'PAID_HELD':  'Séquestre',
+        'PAID_HELD':  'Paiement sécurisé',
         'RELEASED':   'Confirmé',
         'DISPUTED':   'En litige',
         'DISPUTE_OPEN': 'Litige ouvert',
@@ -510,7 +510,7 @@ const OrderManager = {
             return await ApiClient.post('/payments/initiate', {
                 order_id: orderId,
                 promo_code: options.promo_code || null
-            });
+            }, { suppressToast: true });
         } catch (error) {
             if (error?.data?.code === 'PAYMENT_PROVIDER_NOT_CONFIGURED') {
                 throw new Error(error.data.message || 'Le paiement est temporairement indisponible.');
@@ -536,7 +536,7 @@ const OrderManager = {
     async validateDelivery(orderId, otpCode) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
-            const data = await ApiClient.post(`/orders/${orderId}/verify-delivery`, { otp: otpCode });
+            const data = await ApiClient.post(`/orders/${orderId}/verify-delivery`, { otp: otpCode }, { suppressToast: true });
             this._initialized = false; // Forcer la mise à jour des stats et listes
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
             return data;

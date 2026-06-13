@@ -2671,3 +2671,65 @@ window.showLogoutConfirm = () => {
         };
     });
 };
+
+/**
+ * Shows an inline message (error or success) below a specific button.
+ * It automatically handles creating the message element if it doesn't exist,
+ * and clears it when the user modifies inputs in the same form/container.
+ * 
+ * @param {HTMLElement} buttonElement - The button that triggered the action
+ * @param {string} message - The message to display
+ * @param {string} type - 'error' or 'success'
+ */
+export function showInlineFeedback(buttonElement, message, type = 'error') {
+    if (!buttonElement) return;
+
+    // Remove any existing inline feedback to prevent duplicates
+    clearInlineFeedback(buttonElement);
+
+    // Create the message container
+    const msgContainer = document.createElement('div');
+    msgContainer.className = 'nk-inline-feedback text-xs font-semibold mt-2 text-center w-full break-words';
+    
+    // Set colors based on type
+    if (type === 'error') {
+        msgContainer.classList.add('text-red-600');
+    } else {
+        msgContainer.classList.add('text-emerald-600');
+    }
+
+    msgContainer.textContent = message;
+    
+    // Insert after the button
+    buttonElement.parentNode.insertBefore(msgContainer, buttonElement.nextSibling);
+
+    // Add listener to inputs in the closest parent (e.g., form or card) to clear the message
+    const parent = buttonElement.closest('form') || buttonElement.closest('.card') || buttonElement.parentElement;
+    if (parent) {
+        const inputs = parent.querySelectorAll('input, textarea, select');
+        const clearMsg = () => {
+            clearInlineFeedback(buttonElement);
+            inputs.forEach(input => input.removeEventListener('input', clearMsg));
+            inputs.forEach(input => input.removeEventListener('change', clearMsg));
+        };
+        inputs.forEach(input => {
+            input.addEventListener('input', clearMsg);
+            input.addEventListener('change', clearMsg);
+        });
+    }
+}
+
+/**
+ * Clears the inline feedback below a specific button.
+ */
+export function clearInlineFeedback(buttonElement) {
+    if (!buttonElement) return;
+    const nextEl = buttonElement.nextElementSibling;
+    if (nextEl && nextEl.classList.contains('nk-inline-feedback')) {
+        nextEl.remove();
+    }
+}
+
+// Make them available globally
+window.showInlineFeedback = showInlineFeedback;
+window.clearInlineFeedback = clearInlineFeedback;

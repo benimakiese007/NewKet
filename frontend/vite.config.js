@@ -105,6 +105,7 @@ export default defineConfig({
         achat: resolve(__dirname, 'src/pages/achat.html'),
         faq: resolve(__dirname, 'src/pages/faq.html'),
         payment_success: resolve(__dirname, 'src/pages/payment-success.html'),
+        invoice_verify: resolve(__dirname, 'src/pages/invoice-verify.html'),
         promo: resolve(__dirname, 'src/pages/promo.html'),
         support: resolve(__dirname, 'src/pages/support.html'),
         system_health: resolve(__dirname, 'src/pages/system-health.html'),

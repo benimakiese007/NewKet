@@ -1,0 +1,80 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - button [ref=e5] [cursor=pointer]:
+        - img [ref=e7]
+      - link "Accueil NewKet" [ref=e10] [cursor=pointer]:
+        - /url: /
+        - img "NewKet Logo" [ref=e11]
+      - button [ref=e14] [cursor=pointer]:
+        - img [ref=e16]
+  - generic:
+    - generic:
+      - generic: Mise à jour...
+  - main [ref=e19]:
+    - complementary [ref=e20]:
+      - button [ref=e21] [cursor=pointer]
+      - button "Réduire le menu" [ref=e22] [cursor=pointer]:
+        - img [ref=e24]
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e31]: "?"
+          - generic [ref=e33]:
+            - heading "Mon Compte" [level=2] [ref=e34]
+            - generic [ref=e36]: Standard
+        - navigation [ref=e37]:
+          - link "Accueil" [ref=e38] [cursor=pointer]:
+            - /url: "#dashboard"
+            - generic [ref=e39]: Accueil
+          - link "Mes demandes et devis" [ref=e40] [cursor=pointer]:
+            - /url: "#orders"
+            - generic [ref=e41]:
+              - text: Mes demandes et
+              - generic [ref=e42]: devis
+          - link "Achat" [ref=e43] [cursor=pointer]:
+            - /url: "#achat"
+            - generic [ref=e44]: Achat
+          - link "Mes Favoris" [ref=e45] [cursor=pointer]:
+            - /url: "#favorites"
+            - generic [ref=e46]: Mes Favoris
+          - link "Notifications" [ref=e47] [cursor=pointer]:
+            - /url: "#notifications"
+            - generic [ref=e48]: Notifications
+          - link "Paramètres" [ref=e49] [cursor=pointer]:
+            - /url: "#settings"
+            - generic [ref=e50]: Paramètres
+          - link "Espace Vendeur" [ref=e53] [cursor=pointer]:
+            - /url: /src/pages/admin/index.html
+            - generic [ref=e54]: Espace Vendeur
+        - button "Se déconnecter" [ref=e56] [cursor=pointer]:
+          - generic [ref=e57]: Se déconnecter
+        - generic [ref=e58]:
+          - paragraph [ref=e59]: Devise d'affichage
+          - generic "Devise d'affichage" [ref=e60] [cursor=pointer]:
+            - generic [ref=e61]:
+              - generic [ref=e63]: USD
+              - generic [ref=e64]: CDF
+    - generic [ref=e66]:
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - img [ref=e71]
+          - paragraph [ref=e73]: Demandes Shop
+        - generic [ref=e75]:
+          - img [ref=e78]
+          - paragraph [ref=e80]: Favoris
+        - generic [ref=e82]:
+          - img [ref=e85]
+          - paragraph [ref=e87]: Dernier Contact
+        - generic [ref=e89]:
+          - img [ref=e92]
+          - paragraph [ref=e95]: NKToken
+      - generic [ref=e97]:
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - heading "Commandes en cours" [level=2] [ref=e101]
+            - paragraph [ref=e102]: Suivez l'état et passez à l'étape suivante.
+          - button "Voir tout" [ref=e103] [cursor=pointer]
+        - generic [ref=e108]:
+          - heading "Actions requises" [level=2] [ref=e109]
+          - img [ref=e111]
+      - heading "Activités Récentes" [level=2] [ref=e117]

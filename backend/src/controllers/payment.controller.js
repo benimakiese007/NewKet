@@ -1,4 +1,5 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
+import crypto from 'crypto';
 import {
     createNetikashPaymentRequest,
     isNetikashConfigured,
@@ -17,6 +18,7 @@ import {
     ORDER_STATUSES,
     generateOrderId,
     generateTransactionId,
+    generateOtpCode,
     getOrderCustomerId,
     mapLegacyOrderStatus
 } from '../services/order-workflow.js';
@@ -36,6 +38,50 @@ function normalizeAmount(value) {
 
 function normalizeCurrency(value) {
     return String(value || '').trim().toUpperCase();
+}
+
+function sanitizeText(value) {
+    return String(value || '').trim();
+}
+
+function getVendorDisplayName(order) {
+    const explicitName = order?.vendor_company_name || order?.vendor?.company_name || order?.vendor_name || order?.vendor?.name;
+    if (explicitName) return explicitName;
+
+    const vendorEmail = order?.vendor_email || order?._raw?.vendor_email || '';
+    if (vendorEmail) {
+        const localPart = vendorEmail.split('@')[0] || vendorEmail;
+        return localPart.replace(/[._-]+/g, ' ').trim();
+    }
+
+    return 'Vendeur NewKet';
+}
+
+function getOrderAmountSummary(order) {
+    const itemsSubtotal = Array.isArray(order?.items)
+        ? order.items.reduce((sum, item) => sum + (Number(item?.price || 0) * Number(item?.quantity || 0)), 0)
+        : 0;
+    const subtotal = Number(order?.merchandise_amount ?? itemsSubtotal ?? 0);
+    const deliveryFee = Number(order?.delivery_fee_amount ?? 0);
+    const discount = Number(order?.promo_discount_amount ?? 0);
+    const total = Number(order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee - discount));
+    return { subtotal, deliveryFee, discount, total };
+}
+
+function computeInvoiceReference(order, amounts) {
+    const fingerprint = [
+        order?.id || '',
+        order?.date || '',
+        order?.customer?.email || '',
+        order?.customer?.name || '',
+        getVendorDisplayName(order),
+        amounts?.subtotal ?? 0,
+        amounts?.deliveryFee ?? 0,
+        amounts?.discount ?? 0,
+        amounts?.total ?? 0
+    ].join('|');
+
+    return `NK-${crypto.createHash('sha256').update(fingerprint).digest('hex').slice(0, 12).toUpperCase()}`;
 }
 
 function getWebhookAmount(payload) {
@@ -111,11 +157,14 @@ function getWebhookSuccessState(payload) {
 }
 
 async function finalizePaidOrder(client, orderId, nowIso) {
+    const otp = generateOtpCode();
     return client
         .from('orders')
         .update({
             payment_status: 'PAID',
-            status: ORDER_STATUSES.IN_DELIVERY,
+            status: ORDER_STATUSES.PAID_HELD,
+            otp_code: otp,
+            otp_attempts: 0,
             escrow_status: ESCROW_STATUSES.HELD,
             updated_at: nowIso
         })
@@ -123,10 +172,25 @@ async function finalizePaidOrder(client, orderId, nowIso) {
 }
 
 function getRedirectUrl(req) {
+    if (process.env.FRONTEND_URL) {
+        // Supprime le slash final s'il existe
+        const baseUrl = process.env.FRONTEND_URL.replace(/\/$/, '');
+        return `${baseUrl}/src/pages/payment-success.html`;
+    }
     if (process.env.NETIKASH_REDIRECT_URL) return process.env.NETIKASH_REDIRECT_URL;
+
     const host = req.headers.host || 'localhost:3001';
-    const frontendHost = host.includes('localhost') ? host.replace(':3001', ':5173') : host;
-    return `http://${frontendHost}/src/pages/payment-success.html`;
+    
+    // Environnement local
+    if (host.includes('localhost') || host.includes('127.0.0.1')) {
+        const frontendHost = host.replace(/:300[0-9]/, ':5173');
+        return `http://${frontendHost}/src/pages/payment-success.html`;
+    }
+
+    // Fallback en production (utilise HTTPS par défaut et le host de la requête)
+    // Note : Il est fortement recommandé de définir FRONTEND_URL ou STRIPE_CHECKOUT_SUCCESS_URL
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    return `${protocol}://${host}/src/pages/payment-success.html`;
 }
 
 function getActivePaymentProvider() {
@@ -829,6 +893,60 @@ export const getPaymentStatus = async (req, res) => {
         });
     } catch (error) {
         console.error('getPaymentStatus error:', error);
+        return res.status(500).json({ error: 'Erreur interne' });
+    }
+};
+
+export const verifyInvoice = async (req, res) => {
+    try {
+        const client = supabaseAdmin || supabase;
+        const orderId = sanitizeText(req.params.order_id);
+        const invoiceRef = sanitizeText(req.query.invoice_ref);
+
+        if (!orderId) {
+            return res.status(400).json({ error: 'order_id est requis.' });
+        }
+
+        const { data: order, error } = await client
+            .from('orders')
+            .select('id, date, status, payment_status, total, total_amount, subtotal_amount, merchandise_amount, delivery_fee_amount, promo_discount_amount, final_total_amount, items, customer_name, customer_email, vendor_name, vendor_email, vendor_company_name, vendor_id, user_id, customer_id, payment_provider_tx_id, transaction_id, payment_locked_at, updated_at')
+            .eq('id', orderId)
+            .maybeSingle();
+
+        if (error || !order) {
+            return res.status(404).json({ error: 'Commande introuvable.' });
+        }
+
+        order.status = mapLegacyOrderStatus(order.status);
+        const amounts = getOrderAmountSummary(order);
+        const invoiceReference = computeInvoiceReference(order, amounts);
+        const referenceMatches = !invoiceRef || invoiceRef === invoiceReference;
+
+        return res.status(200).json({
+            ok: true,
+            order: {
+                id: order.id,
+                date: order.date,
+                status: order.status,
+                payment_status: order.payment_status,
+                total: amounts.total,
+                subtotal: amounts.subtotal,
+                delivery_fee: amounts.deliveryFee,
+                discount: amounts.discount,
+                final_total: amounts.total,
+                items: Array.isArray(order.items) ? order.items.map((item) => ({
+                    name: item?.name || 'Article',
+                    quantity: Number(item?.quantity || 0),
+                    price: Number(item?.price || 0)
+                })) : [],
+                vendor_name: getVendorDisplayName(order)
+            },
+            invoice_reference: invoiceReference,
+            reference_matches: referenceMatches,
+            verified: referenceMatches && ['PAID', 'PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'RELEASED', 'READY_FOR_PAYMENT', 'QUOTE'].includes(String(order.status || '').toUpperCase())
+        });
+    } catch (error) {
+        console.error('verifyInvoice error:', error);
         return res.status(500).json({ error: 'Erreur interne' });
     }
 };
