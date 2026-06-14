@@ -515,7 +515,7 @@
                         <div class="glass-panel p-8 w-full">
                             <h2 class="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Modifier le mot de passe</h2>
                             <form class="space-y-5" id="passwordForm">
-                                <input type="text" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
+                                <input type="text" id="cPasswordUsername" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
                                 <div id="currentPasswordGroup">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
                                     <input type="password" id="currentPassword" placeholder="********" autocomplete="current-password"
@@ -1699,6 +1699,10 @@
             if (currentPasswordInput) {
                 currentPasswordInput.required = requiresCurrentPassword;
                 if (isOauthOnly) currentPasswordInput.value = '';
+            }
+            const usernameInput = document.getElementById('cPasswordUsername');
+            if (usernameInput) {
+                usernameInput.value = localStorage.getItem('newketUserEmail') || '';
             }
         }
 

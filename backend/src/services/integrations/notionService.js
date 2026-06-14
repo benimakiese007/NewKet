@@ -12,7 +12,6 @@ class NotionService {
         // 1. Chercher une BDD "📦 Catalogue NewKet" déjà existante pour éviter les doublons
         const existingSearch = await notion.search({
             query: '📦 Catalogue NewKet',
-            filter: { property: 'object', value: 'database' },
             page_size: 1
         });
 

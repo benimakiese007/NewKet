@@ -182,7 +182,8 @@
                     </h2>
 
                     <div class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <form id="settingsPasswordForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <input type="text" id="sPasswordUsername" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nouveau mot de passe</label>
                                 <input type="password" id="newPassword" placeholder="••••••••"
@@ -193,7 +194,7 @@
                                 <input type="password" id="confirmPassword" placeholder="••••••••"
                                     class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900">
                             </div>
-                        </div>
+                        </form>
 
                         <div class="pt-6 border-t border-gray-50 flex items-center justify-between">
                             <div>
@@ -223,7 +224,7 @@
                         </div>
 
                         <div class="flex justify-end pt-4">
-                <button id="updatePasswordBtn" data-track-action="settings:update_password_click"
+                            <button id="updatePasswordBtn" form="settingsPasswordForm" type="submit" data-track-action="settings:update_password_click"
                                 class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-6 py-3 rounded-xl text-sm font-bold transition-all">
                                 Mettre à jour le mot de passe
                             </button>
@@ -339,6 +340,9 @@
 
                     document.getElementById('profileFullName').value = metadata.full_name || '';
                     document.getElementById('profileEmail').value = user.email || '';
+                    if (document.getElementById('sPasswordUsername')) {
+                        document.getElementById('sPasswordUsername').value = user.email || '';
+                    }
                     document.getElementById('profilePhone').value = metadata.phone || '';
                     document.getElementById('profileRole').value = AuthManager.role || 'Client';
                     const avatarUrl = metadata.avatar_url;
@@ -382,7 +386,10 @@
 
                 bindEvents() {
                     document.getElementById('saveProfileBtn').addEventListener('click', () => this.saveProfile());
-                    document.getElementById('updatePasswordBtn').addEventListener('click', () => this.updatePassword());
+                    document.getElementById('settingsPasswordForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.updatePassword();
+                    });
                     
                     const registerPasskeyBtn = document.getElementById('registerPasskeyBtn');
                     const passkeysListContainer = document.getElementById('settingsPasskeysList');
