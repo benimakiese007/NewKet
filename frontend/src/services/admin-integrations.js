@@ -51,13 +51,17 @@ async function loadIntegrations() {
                 <td class="px-6 py-4 text-sm font-medium text-gray-500">${vendor.email}</td>
                 <td class="px-6 py-4 text-center">
                     ${vendor.slack 
-                        ? '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/20"><iconify-icon icon="solar:check-read-bold-duotone" width="14"></iconify-icon></span>' 
+                        ? '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/20" title="Connecté"><iconify-icon icon="solar:check-read-bold-duotone" width="14"></iconify-icon></span>' 
                         : '<span class="text-gray-300">—</span>'}
                 </td>
                 <td class="px-6 py-4 text-center">
-                    ${vendor.notion 
-                        ? '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/20"><iconify-icon icon="solar:check-read-bold-duotone" width="14"></iconify-icon></span>' 
-                        : '<span class="text-gray-300">—</span>'}
+                    ${vendor.notion && vendor.notion_db_id
+                        ? `<a href="https://notion.so/${vendor.notion_db_id.replace(/-/g, '')}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 transition-all font-bold text-[10px] border border-emerald-200" title="Ouvrir le catalogue Notion">
+                            <iconify-icon icon="solar:link-bold" width="12"></iconify-icon> Voir Catalogue
+                           </a>`
+                        : vendor.notion 
+                            ? '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/20" title="Connecté"><iconify-icon icon="solar:check-read-bold-duotone" width="14"></iconify-icon></span>'
+                            : '<span class="text-gray-300">—</span>'}
                 </td>
             </tr>
         `).join('');

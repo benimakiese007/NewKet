@@ -174,19 +174,21 @@ router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
         
         const { data: integrations, error: intError } = await supabaseAdmin
             .from('vendor_integrations')
-            .select('vendor_id, provider');
+            .select('vendor_id, provider, webhook_url');
             
         if (intError) throw intError;
         
         // Agréger les données
         const result = vendors.map(vendor => {
             const vendorInts = integrations.filter(i => i.vendor_id === vendor.id);
+            const notionInt = vendorInts.find(i => i.provider === 'notion');
             return {
                 id: vendor.id,
                 email: vendor.email,
                 name: vendor.name || vendor.company_name || 'Inconnu',
                 slack: vendorInts.some(i => i.provider.startsWith('slack')),
-                notion: vendorInts.some(i => i.provider === 'notion')
+                notion: !!notionInt,
+                notion_db_id: notionInt ? notionInt.webhook_url : null
             };
         });
         
@@ -237,4 +239,64 @@ router.get('/admin/csv', requireAuth, requireAdmin, async (req, res) => {
     }
 });
 
+/**
+ * Route pour révoquer (déconnecter) une intégration vendeur
+ * DELETE /api/integrations/revoke
+ * Body: { vendorId, provider, password }
+ */
+router.delete('/revoke', async (req, res) => {
+    try {
+        const { vendorId, provider, password } = req.body;
+
+        if (!vendorId || !provider || !password) {
+            return res.status(400).json({ error: 'Paramètres manquants (vendorId, provider, password).' });
+        }
+
+        const { supabaseAdmin } = await import('../config/supabase.js');
+
+        // 1. Récupérer l'email du vendeur pour vérifier son mot de passe via Supabase Auth
+        const { data: userRecord, error: userError } = await supabaseAdmin
+            .from('users')
+            .select('email')
+            .eq('id', vendorId)
+            .single();
+
+        if (userError || !userRecord) {
+            return res.status(404).json({ error: 'Vendeur introuvable.' });
+        }
+
+        // 2. Vérifier le mot de passe via Supabase Auth signInWithPassword
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseAuth = createClient(
+            process.env.SUPABASE_URL,
+            process.env.SUPABASE_ANON_KEY
+        );
+        const { error: authError } = await supabaseAuth.auth.signInWithPassword({
+            email: userRecord.email,
+            password: password
+        });
+
+        if (authError) {
+            return res.status(401).json({ error: 'Mot de passe incorrect. Déconnexion annulée.' });
+        }
+
+        // 3. Supprimer l'intégration
+        const { error: deleteError } = await supabaseAdmin
+            .from('vendor_integrations')
+            .delete()
+            .eq('vendor_id', vendorId)
+            .eq('provider', provider);
+
+        if (deleteError) throw deleteError;
+
+        console.log(`[Integration] Intégration ${provider} révoquée pour le vendeur ${vendorId}`);
+        res.json({ success: true, message: `Intégration ${provider} déconnectée avec succès.` });
+
+    } catch (error) {
+        console.error('[Integration] Erreur lors de la révocation:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;
+

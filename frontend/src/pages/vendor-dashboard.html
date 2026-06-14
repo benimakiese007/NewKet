@@ -883,9 +883,14 @@
                                         <p class="text-xs text-gray-500 mt-1">Recevez vos nouvelles commandes directement dans un canal Slack dédié.</p>
                                     </div>
                                 </div>
-                                <button id="btnSlackConnect" class="shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
-                                    Connecter Slack
-                                </button>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <button id="btnSlackConnect" class="shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
+                                        Connecter Slack
+                                    </button>
+                                    <button id="btnSlackDisconnect" class="hidden shrink-0 flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-600 px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-red-100 transition-all" title="Déconnecter Slack">
+                                        <iconify-icon icon="solar:close-circle-bold" width="16"></iconify-icon> Déconnecter
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Notion -->
@@ -906,6 +911,9 @@
                                     <button id="btnNotionConnect" class="bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
                                         Connecter Notion
                                     </button>
+                                    <button id="btnNotionDisconnect" class="hidden shrink-0 flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-600 px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-red-100 transition-all" title="Déconnecter Notion">
+                                        <iconify-icon icon="solar:close-circle-bold" width="16"></iconify-icon> Déconnecter
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -915,9 +923,48 @@
                 </div>
             </div>
 
+            <!-- ===== Modale de confirmation de déconnexion intégration ===== -->
+            <div id="revokeIntegrationModal" class="fixed inset-0 z-[20000] hidden items-center justify-center bg-black/60 p-4">
+                <div class="bg-white rounded-[24px] shadow-2xl border border-gray-100 w-full max-w-md animate-in fade-in zoom-in duration-300 p-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-11 h-11 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+                            <iconify-icon icon="solar:plug-circle-broken-bold" width="22" style="color:#dc2626"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-gray-900 text-lg" id="revokeModalTitle">Déconnecter l'intégration</h3>
+                            <p class="text-xs text-gray-500">Cette action est irréversible sans se reconnecter.</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-5" id="revokeModalDesc">Pour confirmer, entrez votre mot de passe NewKet.</p>
+                    <div class="relative mb-4">
+                        <input type="password" id="revokePasswordInput"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 transition-all"
+                            placeholder="Votre mot de passe"
+                            autocomplete="current-password" />
+                        <button type="button" id="revokePasswordToggle"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                            onclick="document.getElementById('revokePasswordInput').type = document.getElementById('revokePasswordInput').type === 'password' ? 'text' : 'password'">
+                            <iconify-icon icon="solar:eye-bold" width="18"></iconify-icon>
+                        </button>
+                    </div>
+                    <p id="revokeModalError" class="text-xs text-red-500 mb-3 hidden"></p>
+                    <div class="flex gap-3">
+                        <button id="revokeCancelBtn"
+                            class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all">
+                            Annuler
+                        </button>
+                        <button id="revokeConfirmBtn"
+                            class="flex-1 bg-red-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:plug-circle-broken-bold" width="16"></iconify-icon>
+                            Déconnecter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Order Detail Modal (New for Vendor) -->
             <div id="orderDetailModal"
-                class="fixed inset-0 z-[150] hidden items-center justify-center bg-black/60 p-4">
+                class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/60 p-4">
                 <div class="solid-modal-content bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-300">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                         <div>
@@ -942,13 +989,13 @@
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Client</p>
-                                    <p class="font-bold text-gray-900 truncate" id="vModalCustomerName"></p>
-                                    <p class="text-xs text-gray-500 truncate" id="vModalCustomerEmail"></p>
+                                    <p class="font-bold text-gray-900 break-words" id="vModalCustomerName"></p>
+                                    <p class="text-xs text-gray-500 break-all" id="vModalCustomerEmail"></p>
                                 </div>
                             </div>
                             <div class="min-w-0">
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Contact</p>
-                                <p class="font-bold text-gray-900 truncate" id="vModalCustomerPhone"></p>
+                                <p class="font-bold text-gray-900 break-words" id="vModalCustomerPhone"></p>
                             </div>
                             <div class="min-w-0">
                                 <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Localisation</p>
@@ -2426,6 +2473,71 @@
 
                         const vendorId = user.id;
 
+                        // ---- Revoke (Disconnect) modal logic — global scope ----
+                        if (!window._revokeModalInitialized) {
+                            window._revokeModalInitialized = true;
+                            window._revokeProvider = null;
+                            window._revokeVendorId = null;
+
+                            window.openRevokeModal = function(provider, vid) {
+                                window._revokeProvider = provider;
+                                window._revokeVendorId = vid;
+                                const modal = document.getElementById('revokeIntegrationModal');
+                                const titleEl = document.getElementById('revokeModalTitle');
+                                const descEl = document.getElementById('revokeModalDesc');
+                                const errEl = document.getElementById('revokeModalError');
+                                const input = document.getElementById('revokePasswordInput');
+                                const label = provider === 'slack' ? 'Slack' : 'Notion';
+                                if (titleEl) titleEl.textContent = `Déconnecter ${label}`;
+                                if (descEl) descEl.textContent = `Êtes-vous sûr de vouloir déconnecter ${label} ? Entrez votre mot de passe NewKet pour confirmer.`;
+                                if (errEl) { errEl.classList.add('hidden'); errEl.textContent = ''; }
+                                if (input) input.value = '';
+                                if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+                                setTimeout(() => input?.focus(), 100);
+                            };
+
+                            window.closeRevokeModal = function() {
+                                const modal = document.getElementById('revokeIntegrationModal');
+                                if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+                            };
+
+                            document.getElementById('revokeCancelBtn')?.addEventListener('click', window.closeRevokeModal);
+                            document.getElementById('revokeIntegrationModal')?.addEventListener('click', (e) => {
+                                if (e.target === e.currentTarget) window.closeRevokeModal();
+                            });
+
+                            document.getElementById('revokeConfirmBtn')?.addEventListener('click', async () => {
+                                const password = document.getElementById('revokePasswordInput').value.trim();
+                                const errEl = document.getElementById('revokeModalError');
+                                const confirmBtn = document.getElementById('revokeConfirmBtn');
+                                if (!password) {
+                                    errEl.textContent = 'Veuillez entrer votre mot de passe.';
+                                    errEl.classList.remove('hidden');
+                                    return;
+                                }
+                                confirmBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="16"></iconify-icon> En cours...';
+                                confirmBtn.disabled = true;
+                                errEl.classList.add('hidden');
+                                try {
+                                    await window.ApiClient.delete('/integrations/revoke', {
+                                        vendorId: window._revokeVendorId,
+                                        provider: window._revokeProvider,
+                                        password
+                                    });
+                                    window.closeRevokeModal();
+                                    if (window.showToast) window.showToast(`Intégration déconnectée avec succès !`, 'success');
+                                    if (window.refreshVendorIntegrationsStatus) await window.refreshVendorIntegrationsStatus();
+                                } catch (err) {
+                                    errEl.textContent = err.message || 'Erreur. Vérifiez votre mot de passe.';
+                                    errEl.classList.remove('hidden');
+                                } finally {
+                                    confirmBtn.innerHTML = '<iconify-icon icon="solar:plug-circle-broken-bold" width="16"></iconify-icon> Déconnecter';
+                                    confirmBtn.disabled = false;
+                                }
+                            });
+                        }
+                        // ---- End revoke modal logic ----
+
                         // Attach click → redirect with vendorId in URL
                         if (btnSlack && !btnSlack.dataset.wired) {
                             btnSlack.dataset.wired = '1';
@@ -2442,6 +2554,18 @@
                             });
                         }
 
+                        // Wire disconnect buttons (once)
+                        const btnSlackDisc = document.getElementById('btnSlackDisconnect');
+                        const btnNotionDisc = document.getElementById('btnNotionDisconnect');
+                        if (btnSlackDisc && !btnSlackDisc.dataset.wired) {
+                            btnSlackDisc.dataset.wired = '1';
+                            btnSlackDisc.addEventListener('click', () => window.openRevokeModal('slack', vendorId));
+                        }
+                        if (btnNotionDisc && !btnNotionDisc.dataset.wired) {
+                            btnNotionDisc.dataset.wired = '1';
+                            btnNotionDisc.addEventListener('click', () => window.openRevokeModal('notion', vendorId));
+                        }
+
                         if (!window.SupabaseAdapter?.fetchWithFilters) return;
 
                         try {
@@ -2450,6 +2574,9 @@
                                 skipCache: true
                             });
 
+                            const btnSlackDisc2 = document.getElementById('btnSlackDisconnect');
+                            const btnNotionDisc2 = document.getElementById('btnNotionDisconnect');
+
                             const isSlackConnected = Array.isArray(integrations) && integrations.some(i => i.provider.startsWith('slack'));
                             if (btnSlack) {
                                 if (isSlackConnected) {
@@ -2457,11 +2584,13 @@
                                     btnSlack.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="16" style="color:#16a34a"></iconify-icon>&nbsp;CONNECTÉ';
                                     btnSlack.className = 'shrink-0 inline-flex items-center gap-1.5 bg-green-50 border-2 border-green-400 text-green-700 px-5 py-2 rounded-xl font-black text-xs tracking-wide cursor-default';
                                     btnSlack.title = 'Slack est déjà connecté à votre boutique';
+                                    if (btnSlackDisc2) btnSlackDisc2.classList.remove('hidden');
                                 } else {
                                     btnSlack.dataset.connected = '0';
                                     btnSlack.innerHTML = 'Connecter Slack';
                                     btnSlack.className = 'shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center cursor-pointer';
                                     btnSlack.title = '';
+                                    if (btnSlackDisc2) btnSlackDisc2.classList.add('hidden');
                                 }
                             }
 
@@ -2473,12 +2602,14 @@
                                     btnNotion.className = 'inline-flex items-center gap-1.5 bg-green-50 border-2 border-green-400 text-green-700 px-5 py-2 rounded-xl font-black text-xs tracking-wide cursor-default';
                                     btnNotion.title = 'Notion est déjà connecté à votre boutique';
                                     if (btnSync) btnSync.classList.remove('hidden');
+                                    if (btnNotionDisc2) btnNotionDisc2.classList.remove('hidden');
                                 } else {
                                     btnNotion.dataset.connected = '0';
                                     btnNotion.innerHTML = 'Connecter Notion';
                                     btnNotion.className = 'bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center cursor-pointer';
                                     btnNotion.title = '';
                                     if (btnSync) btnSync.classList.add('hidden');
+                                    if (btnNotionDisc2) btnNotionDisc2.classList.add('hidden');
                                 }
                             }
                         } catch (error) {

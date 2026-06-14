@@ -139,7 +139,7 @@ const AppNotifications = {
                                             options.actionText = 'Mes achats';
                                             options.actionCallback = () => {
                                                 if (typeof window.switchTab === 'function') {
-                                                    window.switchTab('achat');
+                                                    window.switchTab('purchases');
                                                 }
                                             };
                                         }
