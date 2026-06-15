@@ -73,6 +73,15 @@ class NotionService {
                         }
                     },
                     'Stock': { number: { format: 'number' } },
+                    'État': {
+                        select: {
+                            options: [
+                                { name: 'Neuf', color: 'green' },
+                                { name: 'Occasion', color: 'orange' }
+                            ]
+                        }
+                    },
+                    'Taux (FC/$)': { number: { format: 'number' } },
                     'Image 1': { url: {} },
                     'Image 2': { url: {} },
                     'Image 3': { url: {} },
@@ -173,6 +182,13 @@ class NotionService {
 
                 const stock = props['Stock']?.number ?? 1;
 
+                // État du produit → is_new
+                const etatValue = (props['État']?.select?.name || 'Neuf').toLowerCase();
+                const isNew = !etatValue.includes('occasion');
+
+                // Taux de change personnalisé
+                const customExchangeRate = props['Taux (FC/$)']?.number ?? null;
+
                 // Collecter jusqu'à 5 images
                 const imageUrls = [
                     props['Image 1']?.url,
@@ -203,11 +219,12 @@ class NotionService {
                     description,
                     category,
                     stock,
-                    image,           // Image principale (1ère URL)
-                    images,          // Tableau de toutes les URLs (galerie)
+                    image,                    // Image principale (1ère URL)
+                    images,                   // Tableau de toutes les URLs (galerie)
                     user_id: vendorId,
                     supplier_email: vendorData?.email || null,
-                    is_new: true,
+                    is_new: isNew,            // État: Neuf ou Occasion
+                    custom_exchange_rate: customExchangeRate,  // Taux FC/$
                     is_promo: oldPrice !== null && oldPrice > price
                 };
 
