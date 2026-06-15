@@ -2662,7 +2662,23 @@
                             } catch (error) {
                                 console.error('Notion sync error:', error);
                                 if (window.showToast) {
-                                    window.showToast(error.message || "Erreur lors de la synchronisation.", "error");
+                                    // Traduire les erreurs Notion en messages clairs
+                                    let msg = error.message || '';
+                                    let friendlyMsg;
+                                    if (msg.includes('Could not find database') || msg.includes('not found')) {
+                                        friendlyMsg = '⚠️ Catalogue introuvable dans Notion. Déconnectez puis reconnectez Notion pour recréer la base de données.';
+                                    } else if (msg.includes('unauthorized') || msg.includes('401')) {
+                                        friendlyMsg = '🔒 Accès Notion refusé. Votre connexion a expiré — déconnectez puis reconnectez Notion.';
+                                    } else if (msg.includes('shared') || msg.includes('integration')) {
+                                        friendlyMsg = '🔗 Notion n\'a pas accès à votre base. Vérifiez que la page est partagée avec l\'intégration "NewKet Vendeurs".';
+                                    } else if (msg.includes('Aucun produit') || msg.includes('Publié')) {
+                                        friendlyMsg = msg; // Message déjà en français, on le garde
+                                    } else if (msg.includes('reconnecter')) {
+                                        friendlyMsg = msg;
+                                    } else {
+                                        friendlyMsg = '❌ Erreur de synchronisation Notion. Réessayez ou déconnectez puis reconnectez Notion.';
+                                    }
+                                    window.showToast(friendlyMsg, 'error');
                                 }
                             } finally {
                                 btnSync.innerHTML = originalHTML;
