@@ -281,11 +281,18 @@ router.delete('/revoke', async (req, res) => {
         }
 
         // 3. Supprimer l'intégration
-        const { error: deleteError } = await supabaseAdmin
+        let query = supabaseAdmin
             .from('vendor_integrations')
             .delete()
-            .eq('vendor_id', vendorId)
-            .eq('provider', provider);
+            .eq('vendor_id', vendorId);
+
+        if (provider === 'slack') {
+            query = query.like('provider', 'slack%');
+        } else {
+            query = query.eq('provider', provider);
+        }
+
+        const { error: deleteError } = await query;
 
         if (deleteError) throw deleteError;
 

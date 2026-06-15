@@ -12,12 +12,13 @@ class NotionService {
         // 1. Chercher une BDD "📦 Catalogue NewKet" déjà existante pour éviter les doublons
         const existingSearch = await notion.search({
             query: '📦 Catalogue NewKet',
-            page_size: 1
+            page_size: 10
         });
 
-        if (existingSearch.results.length > 0) {
+        const existingDb = existingSearch.results.find(r => r.object === 'database');
+        if (existingDb) {
             console.log('[Notion] Base de données existante trouvée, réutilisation.');
-            return existingSearch.results[0].id;
+            return existingDb.id;
         }
 
         // 2. Trouver la page parente partagée avec l'intégration
@@ -111,14 +112,29 @@ class NotionService {
         const dbId = integration.webhook_url; // L'ID de la Database est stocké ici
 
         // 2. Récupérer tous les produits cochés "Publié" depuis Notion
-        // Note: on utilise notion.databases.query (API correcte)
-        const response = await notion.databases.query({
-            database_id: dbId,
-            filter: {
-                property: 'Publié',
-                checkbox: { equals: true }
-            }
+        // 2. Récupérer tous les produits cochés "Publié" depuis Notion
+        // On utilise fetch direct car la version SDK (v5) n'expose pas notion.databases.query
+        const queryRes = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${integration.access_token}`,
+                'Content-Type': 'application/json',
+                'Notion-Version': '2022-06-28'
+            },
+            body: JSON.stringify({
+                filter: {
+                    property: 'Publié',
+                    checkbox: { equals: true }
+                }
+            })
         });
+
+        if (!queryRes.ok) {
+            const errBody = await queryRes.json();
+            throw new Error(`Erreur Notion Query: ${errBody.message || queryRes.statusText}`);
+        }
+
+        const response = await queryRes.json();
 
         if (!response.results || response.results.length === 0) {
             return { success: true, count: 0, message: 'Aucun produit "Publié" trouvé dans Notion. Cochez la case "Publié" sur vos produits.' };
