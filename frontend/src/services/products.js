@@ -1,6 +1,7 @@
 /* newket EMarket Product Manager — V2.1 (Paginated + Image Optimization) */
 
 const PRODUCTS_PAGE_SIZE = 20; // Load 20 at a time instead of 200
+const PRODUCTS_ADMIN_MAX = 1000; // Max products to fetch in admin (no pagination limit)
 
 // ========== IMAGE URL HELPER ==========
 /**
@@ -229,6 +230,63 @@ const ProductManager = {
      */
     hasMore() {
         return this._hasMore;
+    },
+
+    /**
+     * Fetches ALL products from the database without any pagination limit.
+     * Intended for admin pages only (Gestion du Catalogue).
+     * Replaces this.products with the full list and dispatches productsUpdated.
+     */
+    async fetchAll() {
+        this._error = false;
+        try {
+            let products = [];
+
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                try {
+                    const [fetchedProducts, totalCount] = await Promise.all([
+                        window.SupabaseAdapter.fetchWithFilters('products', {
+                            select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                            order: ['created_at', { ascending: false }],
+                            limit: PRODUCTS_ADMIN_MAX,
+                            skipCache: true
+                        }),
+                        window.SupabaseAdapter.countRows('products', { timeout: 10000 })
+                    ]);
+                    products = fetchedProducts;
+                    this._totalCount = totalCount || products.length;
+                } catch (joinErr) {
+                    const [fetchedProducts, totalCount] = await Promise.all([
+                        window.SupabaseAdapter.fetchWithFilters('products', {
+                            select: '*',
+                            order: ['created_at', { ascending: false }],
+                            limit: PRODUCTS_ADMIN_MAX,
+                            skipCache: true
+                        }),
+                        window.SupabaseAdapter.countRows('products', { timeout: 10000 })
+                    ]);
+                    products = fetchedProducts;
+                    this._totalCount = totalCount || products.length;
+                }
+            } else if (window.ApiClient) {
+                const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_ADMIN_MAX}`);
+                if (result && result.data) {
+                    products = result.data;
+                    this._totalCount = result.count || products.length;
+                }
+            }
+
+            const mappedProducts = (products || []).map(p => this._mapProduct(p));
+            this._currentPage = 1;
+            this._hasMore = false; // Admin loaded everything
+            this.products = mappedProducts;
+
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+        } catch (err) {
+            this._error = true;
+            window.dispatchEvent(new CustomEvent('productsError', { detail: err }));
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+        }
     },
 
     /**

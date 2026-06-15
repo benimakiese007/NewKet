@@ -269,6 +269,13 @@ export const createOrder = async (req, res) => {
                     productName: order.items[0]?.name || 'Produit inconnu',
                     customerName: customer_name || resolvedCustomerEmail
                 }, vendorName);
+
+                // Notifier aussi le vendeur via son propre webhook Slack (connecté via OAuth)
+                await slackService.sendSaleNotification(vendorId, {
+                    totalAmount: order.total_amount,
+                    productName: order.items[0]?.name || 'Produit inconnu',
+                    customerName: customer_name || resolvedCustomerEmail
+                });
             } catch (err) {
                 console.error('[Slack] Erreur non-bloquante:', err.message);
             }

@@ -453,7 +453,14 @@
             // Always listen for future updates
             window.addEventListener('productsUpdated', renderAdminProducts);
 
-            // If ProductManager already has data ready, render immediately
+            // Admin: load ALL products (no pagination limit)
+            if (window.ProductManager && typeof ProductManager.fetchAll === 'function') {
+                renderAdminProducts(); // Show skeleton immediately
+                ProductManager.fetchAll();
+                return;
+            }
+
+            // Fallback if fetchAll not available yet
             if (window.ProductManager && typeof ProductManager.getProducts === 'function') {
                 const existingProducts = ProductManager.getProducts();
                 if (existingProducts && existingProducts.length > 0) {
