@@ -7,13 +7,12 @@ const UI = {
     init() {
         this.renderHomeGrid();
 
-        // Listen for data updates
+        // Listen for data updates — skip if a scroll-triggered loadMore is in progress
         window.addEventListener('productsUpdated', () => {
-            this.renderHomeGrid();
+            if (!window._isFetchingHome) {
+                this.renderHomeGrid();
+            }
         });
-
-        // favoritesUpdated listener removed - handled by FavoritesManager.updateUI() for better performance.
-
 
         // Listen for currency changes
         window.addEventListener('currencyChanged', () => {
@@ -53,7 +52,7 @@ const UI = {
         }
 
         const pinned = products
-            .filter(p => p.pinned === true || p.is_pinned === true)
+            .filter(p => p.pinned === true)
             .sort((a, b) => {
                 const aDate = new Date(a.created_at || 0).getTime();
                 const bDate = new Date(b.created_at || 0).getTime();
@@ -156,8 +155,18 @@ const UI = {
         let filtered = [...products];
 
         // Apply sort
-        if (sortBy === 'price_asc') filtered.sort((a, b) => a.price - b.price);
-        else if (sortBy === 'price_desc') filtered.sort((a, b) => b.price - a.price);
+        if (sortBy === 'price_asc') {
+            filtered.sort((a, b) => a.price - b.price);
+        } else if (sortBy === 'price_desc') {
+            filtered.sort((a, b) => b.price - a.price);
+        } else {
+            // Default to 'recent': Ensure strict chronological order (newest first)
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.created_at || 0).getTime();
+                const dateB = new Date(b.created_at || 0).getTime();
+                return dateB - dateA;
+            });
+        }
 
         const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
         if (currentFilter !== 'all') {
@@ -169,9 +178,17 @@ const UI = {
             });
         }
 
-        const displayList = append 
-            ? filtered.slice(container.children.length, container.children.length + batchSize)
-            : filtered.slice(0, batchSize);
+        let displayList;
+        if (append) {
+            // Collect IDs already rendered in the grid to avoid duplicates
+            const renderedIds = new Set(
+                [...container.querySelectorAll('[data-product-id]')].map(el => el.dataset.productId)
+            );
+            const notYetRendered = filtered.filter(p => !renderedIds.has(String(p.id)));
+            displayList = notYetRendered.slice(0, batchSize);
+        } else {
+            displayList = filtered.slice(0, batchSize);
+        }
 
         if (displayList.length === 0 && !append) {
              // Handled by noMsg below usually
@@ -203,8 +220,38 @@ const UI = {
         // UI toggles
         const voirPlus = document.getElementById('voirPlusContainer');
         if (voirPlus) {
-            const hasMore = window.ProductManager && ProductManager.hasMore();
-            voirPlus.classList.toggle('hidden', !hasMore);
+            const finalRenderedIds = new Set(
+                [...container.querySelectorAll('[data-product-id]')].map(el => el.dataset.productId)
+            );
+            const notYetRenderedCount = filtered.filter(p => !finalRenderedIds.has(String(p.id))).length;
+            const hasMore = (notYetRenderedCount > 0) || (window.ProductManager && ProductManager.hasMore());
+            
+            voirPlus.classList.add('hidden'); // Hide the old button
+
+            let sentinel = document.getElementById('homeLoadMoreSentinel');
+            if (hasMore) {
+                if (!sentinel) {
+                    sentinel = document.createElement('div');
+                    sentinel.id = 'homeLoadMoreSentinel';
+                    sentinel.className = 'w-full flex justify-center py-8 mt-4';
+                    sentinel.innerHTML = `<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 border-t-transparent"></div>`;
+                    voirPlus.parentNode.insertBefore(sentinel, voirPlus);
+                    
+                    if (!window.homeObserver) {
+                        window.homeObserver = new IntersectionObserver((entries) => {
+                            if (entries[0].isIntersecting) {
+                                window.showMoreProducts();
+                            }
+                        }, { rootMargin: '300px' });
+                    }
+                    window.homeObserver.observe(sentinel);
+                }
+            } else {
+                if (sentinel) {
+                    if (window.homeObserver) window.homeObserver.unobserve(sentinel);
+                    sentinel.remove();
+                }
+            }
         }
 
         const noMsg = document.getElementById('noProductsMsg');
@@ -248,26 +295,54 @@ window.sortAndRenderAll = function () {
 };
 
 window.showMoreProducts = async function () {
-    const btn = document.getElementById('voirPlusBtn');
     const grid = document.getElementById('allProductGrid');
-    if (!btn || !grid) return;
+    if (!grid || window._isFetchingHome) return;
 
-    btn.disabled = true;
-    const originalText = btn.innerHTML;
-    btn.innerHTML = `<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon> <span class="ml-2">Chargement...</span>`;
+    window._isFetchingHome = true;
 
     try {
-        await ProductManager.loadMore();
-        // Since we want to APPEND, we call renderFilteredBatch with append=true
-        // Using batch size from manager or default
         const batchSize = ProductManager.getBatchSize?.() || 8;
-        UI.renderFilteredBatch(ProductManager.getProducts(), grid, batchSize, true);
+
+        const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+        let filtered = [...ProductManager.getProducts()];
+        if (currentFilter !== 'all') {
+            filtered = filtered.filter(p => {
+                if (currentFilter === 'Femme') return p.category === 'Femme' || p.category === 'Collections Femme';
+                if (currentFilter === 'Homme') return p.category === 'Homme' || p.category === 'Style Homme';
+                if (currentFilter === 'Promos') return p.isPromo === true;
+                return p.category === currentFilter;
+            });
+        }
+
+        // Collect IDs already rendered
+        const renderedIds = new Set(
+            [...grid.querySelectorAll('[data-product-id]')].map(el => el.dataset.productId)
+        );
+        const notYetRendered = filtered.filter(p => !renderedIds.has(String(p.id)));
+
+        // If we have no more local items and Supabase has more pages, fetch them
+        if (notYetRendered.length === 0 && ProductManager.hasMore()) {
+            await ProductManager.loadMore();
+            // Re-compute after fresh data (productsUpdated is blocked by _isFetchingHome)
+            let freshFiltered = [...ProductManager.getProducts()];
+            if (currentFilter !== 'all') {
+                freshFiltered = freshFiltered.filter(p => {
+                    if (currentFilter === 'Femme') return p.category === 'Femme' || p.category === 'Collections Femme';
+                    if (currentFilter === 'Homme') return p.category === 'Homme' || p.category === 'Style Homme';
+                    if (currentFilter === 'Promos') return p.isPromo === true;
+                    return p.category === currentFilter;
+                });
+            }
+            const freshNotRendered = freshFiltered.filter(p => !renderedIds.has(String(p.id)));
+            UI.renderFilteredBatch(freshNotRendered, grid, batchSize, true);
+        } else {
+            UI.renderFilteredBatch(notYetRendered, grid, batchSize, true);
+        }
     } catch (err) {
         console.error("Error loading more products:", err);
         if (window.showToast) showToast('Erreur lors du chargement', 'error');
     } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalText;
+        window._isFetchingHome = false;
     }
 };
 

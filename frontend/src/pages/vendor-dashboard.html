@@ -466,7 +466,7 @@
                         </div>
                     </div>
                     <div id="vendor-products-grid"
-                        class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
+                        class="product-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
                         <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
                         <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
                         <div class="skeleton-card"><div class="skeleton skeleton-shimmer skeleton-image"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 30%"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 50%"></div><div class="skeleton skeleton-shimmer skeleton-title"></div><div class="skeleton skeleton-shimmer skeleton-text" style="width: 40%"></div><div class="skeleton skeleton-shimmer skeleton-price"></div><div class="skeleton skeleton-shimmer skeleton-button"></div></div>
@@ -1780,6 +1780,18 @@
 
                     initVendorDashboard();
                     initVendorResidenceMap();
+
+                    // Force fetch all products for this specific vendor, bypassing pagination limits
+                    setTimeout(() => {
+                        const email = localStorage.getItem('newketUserEmail');
+                        const userId = localStorage.getItem('newketUserId');
+                        if (window.ProductManager && typeof ProductManager.fetchVendorProducts === 'function') {
+                            ProductManager.fetchVendorProducts(userId, email).then(() => {
+                                window.__newketVendorProductsReady = true;
+                                if (typeof scheduleRerender === 'function') scheduleRerender();
+                            });
+                        }
+                    }, 50);
 
                     document.querySelectorAll('[data-switch-vendor-tab]').forEach((link) => {
                         // Avoid double-binding even if this block ever runs again.
@@ -3901,6 +3913,15 @@
                         product?.supplier_email === email || product?.user_id === userId
                     );
 
+                    // Trier par le plus récent d'abord (created_at DESC)
+                    myProducts.sort((a, b) => {
+                        const dateA = new Date(a.created_at || a.createdAt || 0).getTime();
+                        const dateB = new Date(b.created_at || b.createdAt || 0).getTime();
+                        if (dateA !== dateB) return dateB - dateA;
+                        // Fallback à l'ID en cas d'égalité ou d'absence de date
+                        return String(b.id || '').localeCompare(String(a.id || ''));
+                    });
+
                     // Apply search filter
                     if (searchQuery) {
                         myProducts = myProducts.filter((p) => {
@@ -3956,7 +3977,7 @@
                     grid.innerHTML = myProducts.map(p => `
                         <div class="glass-panel p-4 flex flex-col group relative">
                             <div class="aspect-square bg-gray-50 rounded-xl mb-3 overflow-hidden relative">
-                                 <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '') : (p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image ? p.image.split(',')[0] : '', [120, 180, 240], { quality: 75 })}" sizes="120px"` : ''} alt="${p.name}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform" onerror="this.src='../assets/Images/default.png'">
+                                 <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '') : (p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image ? p.image.split(',')[0] : '', [120, 180, 240], { quality: 75 })}" sizes="120px"` : ''} alt="${p.name}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform" onerror="this.onerror=null; this.src='/Images/Logo_Header_Officiel_PNG.png'">
                                  <!-- Edit/Delete Overlay -->
                                  <div class="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                                      <button type="button" onclick="window.location.href='${window.resolvePath('pages/publish')}?edit=${p.id}'" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Modifier" aria-label="Modifier">

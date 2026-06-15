@@ -1,5 +1,11 @@
 import express from 'express';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
+import oauthService from '../services/integrations/oauthService.js';
+import notionService from '../services/integrations/notionService.js';
+import slackService from '../services/integrations/slackService.js';
+import slackAdminService from '../services/integrations/slackAdminService.js';
+import { supabaseAdmin } from '../config/supabase.js';
+import { createClient } from '@supabase/supabase-js';
 
 const router = express.Router();
 
@@ -54,12 +60,8 @@ router.get('/callback', async (req, res) => {
     console.log(`[Integration] Callback reçu pour ${provider}, vendeur: ${vendorId}`);
 
     try {
-        const { default: oauthService } = await import('../services/integrations/oauthService.js');
-        const { supabaseAdmin } = await import('../config/supabase.js');
-
         if (provider === 'notion') {
             const tokenData = await oauthService.exchangeNotionCode(code);
-            const { default: notionService } = await import('../services/integrations/notionService.js');
             
             const dbId = await notionService.createNotionDatabase(tokenData.access_token);
 
@@ -98,8 +100,6 @@ router.post('/notion/sync', async (req, res) => {
             return res.status(401).json({ error: 'Non autorisé.' });
         }
         
-        const { default: notionService } = await import('../services/integrations/notionService.js');
-        
         const result = await notionService.syncProductsFromNotion(vendorId);
         res.json(result);
     } catch (error) {
@@ -114,9 +114,6 @@ router.post('/notion/sync', async (req, res) => {
  */
 router.get('/test-slack', async (req, res) => {
     try {
-        const { default: slackService } = await import('../services/integrations/slackService.js');
-        const { default: slackAdminService } = await import('../services/integrations/slackAdminService.js');
-        
         const sellerId = req.query.sellerId;
         
         if (sellerId) {
@@ -161,7 +158,6 @@ router.get('/test-slack', async (req, res) => {
  */
 router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
     try {
-        const { supabaseAdmin } = await import('../config/supabase.js');
         
         // On récupère tous les utilisateurs et leurs intégrations.
         // On fera un join simple si on avait les clés étrangères, mais on va faire deux requêtes simples pour l'instant.
@@ -204,7 +200,6 @@ router.get('/admin', requireAuth, requireAdmin, async (req, res) => {
  */
 router.get('/admin/csv', requireAuth, requireAdmin, async (req, res) => {
     try {
-        const { supabaseAdmin } = await import('../config/supabase.js');
         
         const { data: vendors, error: vendorError } = await supabaseAdmin
             .from('users')
@@ -252,8 +247,6 @@ router.delete('/revoke', async (req, res) => {
             return res.status(400).json({ error: 'Paramètres manquants (vendorId, provider, password).' });
         }
 
-        const { supabaseAdmin } = await import('../config/supabase.js');
-
         // 1. Récupérer l'email du vendeur pour vérifier son mot de passe via Supabase Auth
         const { data: userRecord, error: userError } = await supabaseAdmin
             .from('users')
@@ -266,7 +259,6 @@ router.delete('/revoke', async (req, res) => {
         }
 
         // 2. Vérifier le mot de passe via Supabase Auth signInWithPassword
-        const { createClient } = await import('@supabase/supabase-js');
         const supabaseAuth = createClient(
             process.env.SUPABASE_URL,
             process.env.SUPABASE_ANON_KEY
@@ -301,6 +293,60 @@ router.delete('/revoke', async (req, res) => {
 
     } catch (error) {
         console.error('[Integration] Erreur lors de la révocation:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+/**
+ * Route admin : Ajouter une nouvelle colonne (propriété) à la base de données Notion
+ * de TOUS les vendeurs connectés.
+ *
+ * POST /api/integrations/admin/notion/add-column
+ * Body: {
+ *   name: string,          // Nom de la colonne (ex: "Garantie")
+ *   type: string,          // Type: "rich_text" | "number" | "select" | "multi_select" | "checkbox" | "url" | "date"
+ *   options?: [            // Requis si type === "select" ou "multi_select"
+ *     { name: string, color?: string }
+ *   ],
+ *   format?: string        // Requis si type === "number" (ex: "number", "dollar", "euro", "franc")
+ * }
+ */
+router.post('/admin/notion/add-column', requireAuth, requireAdmin, async (req, res) => {
+    try {
+        const { name, type, options, format } = req.body;
+
+        // --- Validation ---
+        if (!name || typeof name !== 'string' || name.trim().length === 0) {
+            return res.status(400).json({ error: 'Le champ "name" (nom de la colonne) est obligatoire.' });
+        }
+
+        const validTypes = ['rich_text', 'number', 'select', 'multi_select', 'checkbox', 'url', 'date'];
+        if (!type || !validTypes.includes(type)) {
+            return res.status(400).json({
+                error: `Le champ "type" est invalide. Types acceptés : ${validTypes.join(', ')}.`
+            });
+        }
+
+        // Pour les types select/multi_select, les options sont obligatoires
+        if ((type === 'select' || type === 'multi_select') && (!Array.isArray(options) || options.length === 0)) {
+            return res.status(400).json({
+                error: 'Les "options" (tableau avec au moins un item) sont obligatoires pour les types select et multi_select.'
+            });
+        }
+
+        const columnConfig = { name: name.trim(), type, options, format };
+
+        console.log(`[Integration Admin] Déploiement colonne "${name}" (type: ${type}) par admin ${req.user?.id}`);
+        const report = await notionService.addColumnToAllDatabases(columnConfig);
+
+        res.json({
+            success: true,
+            report
+        });
+
+    } catch (error) {
+        console.error('[Integration Admin] Erreur add-column:', error);
         res.status(500).json({ error: error.message });
     }
 });

@@ -160,6 +160,28 @@ const ProductManager = {
             this._currentPage = 1;
             this.products = mappedProducts;
 
+            // Ensure pinned products are always fetched, even if older than the first page
+            try {
+                if (window.SupabaseAdapter && window.supabaseClient) {
+                    const pinned = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        eq: [['pinned', true]],
+                        skipCache: true
+                    });
+                    if (pinned && pinned.length > 0) {
+                        const mappedPinned = pinned.map(p => this._mapProduct(p));
+                        const existingIds = new Set(this.products.map(p => p.id));
+                        const newPinned = mappedPinned.filter(p => !existingIds.has(p.id));
+                        if (newPinned.length > 0) {
+                            this.products = [...this.products, ...newPinned];
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('[ProductManager] Failed to merge pinned products:', err);
+            }
+
             // Cache subset for instant next load
             if (this.products.length > 0) {
                 localStorage.setItem('newket_products_cache', JSON.stringify(this.products.slice(0, 20)));
@@ -290,6 +312,99 @@ const ProductManager = {
     },
 
     /**
+     * Fetches all pinned/sponsored products, regardless of age.
+     * Merges them into the global products list so they are accessible to the UI.
+     */
+    async fetchPinnedProducts() {
+        if (!window.SupabaseAdapter || !window.supabaseClient) return [];
+        try {
+            let products = [];
+            
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                products = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                    order: ['created_at', { ascending: false }],
+                    eq: [['pinned', true]],
+                    skipCache: true
+                });
+            }
+
+            if (!products || products.length === 0) return [];
+
+            const mapped = products.map(p => this._mapProduct(p));
+
+            const existingIds = new Set(this.products.map(p => p.id));
+            const newProds = mapped.filter(p => !existingIds.has(p.id));
+            if (newProds.length > 0) {
+                this.products = [...this.products, ...newProds];
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+            }
+
+            return mapped;
+        } catch (err) {
+            console.warn('[ProductManager] Failed to fetch pinned products:', err);
+            return [];
+        }
+    },
+
+    /**
+     * Fetches all products belonging to a specific vendor.
+     * Merges them into the global products list so they are accessible to the UI.
+     */
+    async fetchVendorProducts(userId, email) {
+        if (!window.SupabaseAdapter || !window.supabaseClient) return [];
+        try {
+            let products = [];
+            
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                let byEmail = [];
+                if (email) {
+                    byEmail = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        eq: [['supplier_email', email]],
+                        skipCache: true
+                    });
+                }
+
+                let byUser = [];
+                if (userId && userId !== 'null' && userId !== 'undefined') {
+                    byUser = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        eq: [['user_id', userId]],
+                        skipCache: true
+                    });
+                }
+
+                const allProducts = [...(byEmail || []), ...(byUser || [])];
+                const seen = new Set();
+                products = allProducts.filter(p => {
+                    if (seen.has(p.id)) return false;
+                    seen.add(p.id);
+                    return true;
+                });
+            }
+
+            if (!products || products.length === 0) return [];
+
+            const mapped = products.map(p => this._mapProduct(p));
+
+            const existingIds = new Set(this.products.map(p => p.id));
+            const newProds = mapped.filter(p => !existingIds.has(p.id));
+            if (newProds.length > 0) {
+                this.products = [...this.products, ...newProds];
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+            }
+
+            return mapped;
+        } catch (err) {
+            console.warn('[ProductManager] Failed to fetch vendor products:', err);
+            return [];
+        }
+    },
+
+    /**
      * Maps a raw Supabase product row to the camelCase format expected by the UI.
      * Also applies image URL optimization.
      */
@@ -341,7 +456,7 @@ const ProductManager = {
                 // We use fetchWithFilters which handles the client call
                 const results = await window.SupabaseAdapter.fetchWithFilters('products', {
                     select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
-                    eq: { id: id }
+                    eq: [['id', id]]
                 });
                 
                 if (results && results.length > 0) {

@@ -26,7 +26,8 @@ const AdminLayout = {
         security: 'security',
         hero: 'hero',
         branding: 'branding',
-        settings: 'settings'
+        settings: 'settings',
+        'notion-manager': 'notion-manager'
     },
 
     ensureNoFoucStyles() {
@@ -521,6 +522,7 @@ const AdminLayout = {
             { href: this.getShellHref('diagnostics'), icon: 'solar:chart-square-bold', label: 'Audit & Diagnostics', view: 'diagnostics', section: 'Analytique' },
 
             { href: this.getShellHref('user'), icon: 'solar:users-group-two-rounded-bold', label: 'Gestion Vendeurs', view: 'user', section: 'Catalogue' },
+            { href: this.getShellHref('notion-manager'), icon: 'simple-icons:notion', label: 'Gestionnaire Notion', view: 'notion-manager', section: 'Catalogue' },
             { href: this.getShellHref('products'), icon: 'solar:box-bold', label: 'Contrôle Catalogue', view: 'products', section: 'Catalogue' },
             { href: this.getShellHref('reviews'), icon: 'solar:star-bold', label: 'Avis & Modération', view: 'reviews', section: 'Catalogue' },
 

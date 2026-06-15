@@ -129,18 +129,16 @@
                             <label for="pCategoryInput" class="text-sm font-bold text-gray-900 uppercase tracking-wider">Catégorie</label>
                         </div>
                         <div class="relative group input-focus border border-gray-100 rounded-2xl transition-all duration-300 bg-gray-50/50">
-                            <select id="pCategoryInput" name="pCategoryInput" required
-                                class="w-full px-6 py-5 rounded-2xl outline-none text-gray-900 appearance-none bg-transparent font-medium cursor-pointer">
-                                <option value="" disabled selected>Choisir une catégorie...</option>
-                                <option value="Femme">Femme</option>
-                                <option value="Homme">Homme</option>
-                                <option value="Tech & Gadgets">Tech & Gadgets</option>
-                                <option value="HIGH-TECH">HIGH-TECH</option>
-                                <option value="Art de vivre">Art de vivre</option>
-                                <option value="Autres">Autres</option>
-                            </select>
-                            <iconify-icon icon="solar:alt-arrow-down-linear" width="20"
-                                class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></iconify-icon>
+                            <input type="text" id="pCategoryInput" name="pCategoryInput" list="categoryOptions" required placeholder="Choisir ou écrire une catégorie..."
+                                class="w-full px-6 py-5 rounded-2xl outline-none text-gray-900 bg-transparent font-medium">
+                            <datalist id="categoryOptions">
+                                <option value="Femme"></option>
+                                <option value="Homme"></option>
+                                <option value="Tech & Gadgets"></option>
+                                <option value="HIGH-TECH"></option>
+                                <option value="Art de vivre"></option>
+                                <option value="Autres"></option>
+                            </datalist>
                         </div>
                     </div>
 

@@ -400,9 +400,12 @@ const SearchManager = {
 
             const seq = ++this._suggestionsSeq;
 
+            // Clean query for safe PostgREST embedding
+            const safeQuery = query.replace(/"/g, '');
+
             // Live fetch from Supabase
             const searchOptions = {
-                or: `name.ilike.%${query}%,category.ilike.%${query}%`,
+                or: `name.ilike."%${safeQuery}%",category.ilike."%${safeQuery}%"`,
                 limit: 6,
                 select: 'id, name, category, price, image'
             };
