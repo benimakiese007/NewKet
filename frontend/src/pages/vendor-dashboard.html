@@ -2580,7 +2580,7 @@
                             const btnSlackDisc2 = document.getElementById('btnSlackDisconnect');
                             const btnNotionDisc2 = document.getElementById('btnNotionDisconnect');
 
-                            const isSlackConnected = Array.isArray(integrations) && integrations.some(i => i.provider.startsWith('slack'));
+                            const isSlackConnected = Array.isArray(integrations) && integrations.some(i => i.provider === 'slack');
                             if (btnSlack) {
                                 if (isSlackConnected) {
                                     btnSlack.dataset.connected = '1';

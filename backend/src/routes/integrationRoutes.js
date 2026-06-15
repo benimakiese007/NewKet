@@ -287,7 +287,7 @@ router.delete('/revoke', async (req, res) => {
             .eq('vendor_id', vendorId);
 
         if (provider === 'slack') {
-            query = query.like('provider', 'slack%');
+            query = query.eq('provider', 'slack');
         } else {
             query = query.eq('provider', provider);
         }

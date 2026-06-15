@@ -237,7 +237,7 @@ export const createOrder = async (req, res) => {
                 // Récupérer le nom du vendeur et son canal Slack depuis Supabase
                 const { data: vendor } = await supabaseAdmin
                     .from('users')
-                    .select('name, full_name, email')
+                    .select('name, company_name, full_name, email')
                     .eq('id', vendorId)
                     .maybeSingle();
 
@@ -248,7 +248,7 @@ export const createOrder = async (req, res) => {
                     .eq('provider', 'slack_channel')
                     .maybeSingle();
 
-                const vendorName = vendor?.name || vendor?.full_name || vendor?.email || 'Vendeur';
+                const vendorName = vendor?.name || vendor?.company_name || vendor?.full_name || vendor?.email || 'Vendeur';
                 let vendorChannelId = integration?.webhook_url || null;
 
                 // Si pas de canal existant, on en crée un automatiquement
