@@ -73,7 +73,11 @@ class NotionService {
                         }
                     },
                     'Stock': { number: { format: 'number' } },
-                    'URL Image': { url: {} },
+                    'Image 1': { url: {} },
+                    'Image 2': { url: {} },
+                    'Image 3': { url: {} },
+                    'Image 4': { url: {} },
+                    'Image 5': { url: {} },
                     'Publié': { checkbox: {} }
                 }
             })
@@ -157,12 +161,40 @@ class NotionService {
                 const price = props['Prix (FC)']?.number ?? 0;
                 const oldPrice = props['Ancien Prix (FC)']?.number ?? null;
                 const description = props['Description']?.rich_text?.map(rt => rt.plain_text).join('') ?? '';
-                const category = props['Catégorie']?.select?.name ?? 'Général';
-                const stock = props['Stock']?.number ?? 1;
-                const imageUrl = props['URL Image']?.url ?? null;
+                let category = props['Catégorie']?.select?.name ?? 'Général';
+                
+                // Mapper la catégorie de Notion vers les catégories exactes du frontend
+                const catLower = category.toLowerCase();
+                if (catLower.includes('tech')) category = 'Tech & Gadgets';
+                if (catLower === 'femme' || catLower === 'homme' || catLower === 'art de vivre' || catLower === 'autres') {
+                    // C'est bon, on laisse tel quel (en s'assurant de la majuscule)
+                    category = category.charAt(0).toUpperCase() + category.slice(1);
+                }
 
-                // Image de fallback si pas d'URL fournie
-                const image = imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=400&background=1a1a2e&color=ffffff`;
+                const stock = props['Stock']?.number ?? 1;
+
+                // Collecter jusqu'à 5 images
+                const imageUrls = [
+                    props['Image 1']?.url,
+                    props['Image 2']?.url,
+                    props['Image 3']?.url,
+                    props['Image 4']?.url,
+                    props['Image 5']?.url,
+                    // Compatibilité avec l'ancienne colonne "URL Image"
+                    props['URL Image']?.url
+                ].filter(url => url && url.trim() !== '');
+
+                // Image principale = la première (avec fallback auto si aucune)
+                const image = imageUrls[0] || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=400&background=1a1a2e&color=ffffff`;
+                // Tableau complet pour galerie (max 5)
+                const images = imageUrls.length > 0 ? imageUrls.slice(0, 5) : [image];
+
+                // Récupérer le supplier_email du vendeur
+                const { data: vendorData } = await supabaseAdmin
+                    .from('users')
+                    .select('email')
+                    .eq('id', vendorId)
+                    .single();
 
                 const productData = {
                     name,
@@ -171,8 +203,10 @@ class NotionService {
                     description,
                     category,
                     stock,
-                    image,
+                    image,           // Image principale (1ère URL)
+                    images,          // Tableau de toutes les URLs (galerie)
                     user_id: vendorId,
+                    supplier_email: vendorData?.email || null,
                     is_new: true,
                     is_promo: oldPrice !== null && oldPrice > price
                 };
@@ -185,11 +219,21 @@ class NotionService {
                     .eq('user_id', vendorId)
                     .maybeSingle();
 
+                let dbError = null;
                 if (existing) {
-                    await supabaseAdmin.from('products').update(productData).eq('id', existing.id);
+                    const { error } = await supabaseAdmin.from('products').update(productData).eq('id', existing.id);
+                    dbError = error;
                 } else {
-                    await supabaseAdmin.from('products').insert(productData);
+                    // Les produits requièrent un ID manuel ("prod-12345...")
+                    const newProductId = 'prod-' + Date.now() + Math.random().toString(36).substring(2, 7);
+                    const { error } = await supabaseAdmin.from('products').insert({ id: newProductId, ...productData });
+                    dbError = error;
                 }
+                
+                if (dbError) {
+                    throw new Error(dbError.message);
+                }
+                
                 syncCount++;
             } catch (itemError) {
                 console.error('[Notion] Erreur sur un produit:', itemError.message);
