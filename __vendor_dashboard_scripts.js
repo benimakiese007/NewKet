@@ -1,12 +1,85 @@
 
 
+                    // ============================================================
+                    // INLINE ERROR UTILITY — showInlineError(anchor, message, ms)
+                    // Injects a red error <p> directly after `anchor` in the DOM.
+                    // No HTML changes needed — fully JS-driven and scalable.
+                    // ============================================================
+                    (function() {
+                        const ATTR = 'data-inline-err-id';
 
+                        /**
+                         * Show a red inline error message just below `anchor`.
+                         * @param {HTMLElement} anchor   - The button or input to attach to.
+                         * @param {string}      message  - The error text to display.
+                         * @param {number}      [duration=5000] - Auto-hide after ms (0 = never).
+                         */
+                        window.showInlineError = function(anchor, message, duration = 5000) {
+                            if (!anchor) return;
 
+                            // Reuse or create the error element
+                            let errId = anchor.getAttribute(ATTR);
+                            let el = errId ? document.getElementById(errId) : null;
 
+                            if (!el) {
+                                el = document.createElement('p');
+                                el.id = 'inline-err-' + Math.random().toString(36).slice(2, 9);
+                                el.setAttribute('role', 'alert');
+                                el.style.cssText = [
+                                    'color:#ef4444',
+                                    'font-size:0.78rem',
+                                    'margin-top:6px',
+                                    'font-weight:500',
+                                    'display:flex',
+                                    'align-items:center',
+                                    'gap:4px',
+                                    'opacity:0',
+                                    'transition:opacity 0.2s ease'
+                                ].join(';');
+                                el.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
+                                anchor.setAttribute(ATTR, el.id);
+                                anchor.parentNode.insertBefore(el, anchor.nextSibling);
+                            }
 
+                            // Update text
+                            el.querySelector('span').textContent = message;
+                            el.style.opacity = '1';
 
+                            // Clear previous auto-hide timer
+                            if (el._hideTimer) clearTimeout(el._hideTimer);
 
+                            // Auto-hide
+                            if (duration > 0) {
+                                el._hideTimer = setTimeout(() => window.clearInlineError(anchor), duration);
+                            }
 
+                            // Also clear on next user interaction with the anchor
+                            const clearOnce = () => {
+                                window.clearInlineError(anchor);
+                                anchor.removeEventListener('click', clearOnce);
+                                anchor.removeEventListener('input', clearOnce);
+                                anchor.removeEventListener('change', clearOnce);
+                            };
+                            anchor.addEventListener('click',  clearOnce, { once: true });
+                            anchor.addEventListener('input',  clearOnce, { once: true });
+                            anchor.addEventListener('change', clearOnce, { once: true });
+                        };
+
+                        /**
+                         * Programmatically clear the inline error attached to `anchor`.
+                         * @param {HTMLElement} anchor
+                         */
+                        window.clearInlineError = function(anchor) {
+                            if (!anchor) return;
+                            const errId = anchor.getAttribute(ATTR);
+                            const el = errId ? document.getElementById(errId) : null;
+                            if (el) {
+                                el.style.opacity = '0';
+                                if (el._hideTimer) clearTimeout(el._hideTimer);
+                            }
+                        };
+                    })();
+                    // ============================================================
 
 
                     document.addEventListener('newketInitialized', function() {
@@ -102,7 +175,8 @@
                             const file = e.target.files[0];
                             if (!file) return;
                             if (file.size > 2 * 1024 * 1024) {
-                                if (window.showToast) showToast('Image trop lourde. Max 2 Mo.', 'error');
+                                const _avatarInput = document.getElementById('avatarPhotoInput');
+                                if (window.showInlineError) window.showInlineError(_avatarInput, 'Image trop lourde. Max 2 Mo.');
                                 return;
                             }
                             _selectedAvatarFile = file;
@@ -208,7 +282,8 @@
 
                             // Validate size (5MB max)
                             if (file.size > 5 * 1024 * 1024) {
-                                if (window.showToast) showToast('Image trop lourde. Max 5 Mo.', 'error');
+                                const _coverInput = document.getElementById('coverPhotoInput');
+                                if (window.showInlineError) window.showInlineError(_coverInput, 'Image trop lourde. Max 5 Mo.');
                                 return;
                             }
 
@@ -376,20 +451,21 @@
                             const confirmPass = (document.getElementById('vConfirmPassword')?.value || '').trim();
                             const requiresCurrentPassword = !!window.AuthManager?.requiresCurrentPassword?.();
 
+                            const _pwdBtn = document.getElementById('vUpdatePasswordBtn');
                             if (requiresCurrentPassword && !currentPass) {
-                                if (window.showToast) window.showToast('Veuillez saisir votre mot de passe actuel.', 'warning', 'Sécurité');
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Veuillez saisir votre mot de passe actuel.');
                                 return;
                             }
                             if (!newPass) {
-                                if (window.showToast) window.showToast('Veuillez saisir un nouveau mot de passe.', 'warning', 'Sécurité');
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Veuillez saisir un nouveau mot de passe.');
                                 return;
                             }
                             if (newPass.length < 8) {
-                                if (window.showToast) window.showToast('Le nouveau mot de passe doit contenir au moins 8 caractères.', 'warning', 'Sécurité');
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Le nouveau mot de passe doit contenir au moins 8 caractères.');
                                 return;
                             }
                             if (newPass !== confirmPass) {
-                                if (window.showToast) window.showToast('Les mots de passe ne correspondent pas.', 'warning', 'Sécurité');
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Les mots de passe ne correspondent pas.');
                                 return;
                             }
 
@@ -2183,12 +2259,14 @@
                     const orderId = currentOrderIdForOtp;
 
                     if (!orderId) {
-                        showToast('Commande introuvable pour la vérification OTP.', 'error');
+                        const _otpBtn = document.getElementById('btnVerifyVendorOtp');
+                        if (window.showInlineError) window.showInlineError(_otpBtn, 'Commande introuvable pour la vérification OTP.');
                         return;
                     }
 
                     if (!/^\d{6}$/.test(otp)) {
-                        showToast('Le code OTP doit contenir exactement 6 chiffres.', 'warning');
+                        const _otpBtn = document.getElementById('btnVerifyVendorOtp');
+                        if (window.showInlineError) window.showInlineError(_otpBtn, 'Le code OTP doit contenir exactement 6 chiffres.');
                         otpInput?.focus();
                         return;
                     }
@@ -2346,12 +2424,12 @@
                             const note = String(noteEl()?.value || '').trim();
 
                             if (!Number.isFinite(deliveryFee) || deliveryFee < 0) {
-                                showToast('Montant de livraison invalide.', 'error');
+                                if (window.showInlineError) window.showInlineError(feeEl(), 'Montant de livraison invalide.');
                                 feeEl()?.focus();
                                 return;
                             }
                             if (!Number.isFinite(estimatedDelay) || estimatedDelay <= 0) {
-                                showToast('Delai invalide.', 'error');
+                                if (window.showInlineError) window.showInlineError(delayEl(), 'Délai invalide.');
                                 delayEl()?.focus();
                                 return;
                             }
