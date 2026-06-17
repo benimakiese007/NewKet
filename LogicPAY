@@ -22,7 +22,7 @@ Le processus repose sur 4 piliers :
 3. Le client accepte l’offre
 4. Le client paie → argent bloqué (Escrow = HELD)
 5. Le vendeur livre le produit
-6. Le client valide la livraison via OTP
+6. Le client saisit l’OTP fourni par le vendeur/livreur pour confirmer la réception
 7. Le système passe en statut DELIVERED
 8. Un délai automatique (ex : 72h) démarre
 9. Deux issues :

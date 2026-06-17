@@ -184,13 +184,16 @@ class NotionService {
             // Récupérer les produits existants pour ce vendeur pour éviter les doublons de nom
             const { data: existingProducts } = await supabaseAdmin
                 .from('products')
-                .select('id, name')
+                .select('id, name, notion_id')
                 .eq('user_id', vendorId);
 
-            const existingProductsMap = new Map();
+            const existingProductsByNotionId = new Map();
+            const existingProductsByName = new Map();
+            
             if (existingProducts) {
                 for (const p of existingProducts) {
-                    existingProductsMap.set(p.name, p.id);
+                    if (p.notion_id) existingProductsByNotionId.set(p.notion_id, p.id);
+                    if (p.name) existingProductsByName.set(p.name, p.id);
                 }
             }
 
@@ -258,15 +261,21 @@ class NotionService {
                         is_new: isNew,            // État: Neuf ou Occasion
                         custom_exchange_rate: customExchangeRate,  // Taux FC/$
                         is_promo: oldPrice !== null && oldPrice > price,
-                        created_at: page.created_time // Preserve Notion creation time
+                        created_at: page.created_time, // Preserve Notion creation time
+                        notion_id: page.id        // Identifiant unique Notion
                     };
 
-                    const existingId = existingProductsMap.get(name);
+                    const existingId = existingProductsByNotionId.get(page.id) || existingProductsByName.get(name);
+                    
                     if (existingId) {
                         productData.id = existingId;
                     } else {
                         productData.id = 'prod-' + Date.now() + Math.random().toString(36).substring(2, 7);
                     }
+                    
+                    // Mettre à jour les maps pour éviter les doublons dans ce même lot
+                    existingProductsByNotionId.set(page.id, productData.id);
+                    if (name) existingProductsByName.set(name, productData.id);
 
                     upsertBatch.push(productData);
                 } catch (itemError) {

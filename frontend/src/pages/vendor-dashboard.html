@@ -1782,16 +1782,31 @@
                     initVendorResidenceMap();
 
                     // Force fetch all products for this specific vendor, bypassing pagination limits
-                    setTimeout(() => {
+                    const _fetchVendorProductsSafe = () => {
                         const email = localStorage.getItem('newketUserEmail');
                         const userId = localStorage.getItem('newketUserId');
                         if (window.ProductManager && typeof ProductManager.fetchVendorProducts === 'function') {
                             ProductManager.fetchVendorProducts(userId, email).then(() => {
                                 window.__newketVendorProductsReady = true;
                                 if (typeof scheduleRerender === 'function') scheduleRerender();
+                            }).catch(() => {
+                                window.__newketVendorProductsReady = true;
+                                if (typeof scheduleRerender === 'function') scheduleRerender();
                             });
+                        } else {
+                            // ProductManager pas encore chargé — réessayer dans 500ms (max 3 fois)
+                            if (!_fetchVendorProductsSafe._retries) _fetchVendorProductsSafe._retries = 0;
+                            _fetchVendorProductsSafe._retries++;
+                            if (_fetchVendorProductsSafe._retries < 4) {
+                                setTimeout(_fetchVendorProductsSafe, 500);
+                            } else {
+                                // Après 3 tentatives, forcer l'arrêt du skeleton pour ne pas bloquer l'UI
+                                window.__newketVendorProductsReady = true;
+                                if (typeof scheduleRerender === 'function') scheduleRerender();
+                            }
                         }
-                    }, 50);
+                    };
+                    setTimeout(_fetchVendorProductsSafe, 50);
 
                     document.querySelectorAll('[data-switch-vendor-tab]').forEach((link) => {
                         // Avoid double-binding even if this block ever runs again.
@@ -2653,11 +2668,14 @@
                     }
 
                     const btnSync = document.getElementById('btnNotionSync');
-                    if (btnSync) {
+                    if (btnSync && !btnSync.dataset.wiredSync) {
+                        btnSync.dataset.wiredSync = '1';
                         btnSync.addEventListener('click', async () => {
+                            if (btnSync.disabled) return;
                             const originalHTML = btnSync.innerHTML;
                             btnSync.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" class="mr-1"></iconify-icon> Synchro...';
                             btnSync.disabled = true;
+                            btnSync.style.pointerEvents = 'none';
 
                             try {
                                 const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
@@ -2695,6 +2713,7 @@
                             } finally {
                                 btnSync.innerHTML = originalHTML;
                                 btnSync.disabled = false;
+                                btnSync.style.pointerEvents = 'auto';
                             }
                         });
                     }
@@ -4599,6 +4618,12 @@
 
                 function openVendorQuoteModal(order) {
                     return new Promise((resolve) => {
+                        const orderModal = document.getElementById('orderDetailModal');
+                        if (orderModal) {
+                            orderModal.classList.add('hidden');
+                            orderModal.classList.remove('flex');
+                        }
+
                         const currentQuote = order?.latest_delivery_quote || null;
                         const presetFee = currentQuote?.delivery_fee_amount ?? order?.delivery_fee_amount ?? '';
                         const presetDelay = currentQuote?.estimated_delay_hours ?? 24;
@@ -4663,6 +4688,13 @@
                         const close = (result) => {
                             document.body.style.overflow = '';
                             container.remove();
+                            
+                            if (!result && orderModal) {
+                                orderModal.classList.remove('hidden');
+                                orderModal.classList.add('flex');
+                                document.documentElement.classList.add('overflow-hidden');
+                            }
+                            
                             resolve(result);
                         };
 

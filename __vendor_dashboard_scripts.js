@@ -2253,6 +2253,12 @@
 
                 function openVendorQuoteModal(order) {
                     return new Promise((resolve) => {
+                        const orderModal = document.getElementById('orderDetailModal');
+                        if (orderModal) {
+                            orderModal.classList.add('hidden');
+                            orderModal.classList.remove('flex');
+                        }
+
                         const currentQuote = order?.latest_delivery_quote || null;
                         const presetFee = currentQuote?.delivery_fee_amount ?? order?.delivery_fee_amount ?? '';
                         const presetDelay = currentQuote?.estimated_delay_hours ?? 24;
@@ -2313,6 +2319,13 @@
                         const close = (result) => {
                             document.body.style.overflow = '';
                             container.remove();
+                            
+                            if (!result && orderModal) {
+                                orderModal.classList.remove('hidden');
+                                orderModal.classList.add('flex');
+                                document.documentElement.classList.add('overflow-hidden');
+                            }
+                            
                             resolve(result);
                         };
 

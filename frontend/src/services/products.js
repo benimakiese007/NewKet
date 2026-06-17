@@ -386,16 +386,19 @@ const ProductManager = {
                 });
             }
 
-            if (!products || products.length === 0) return [];
+            if (!products || products.length === 0) {
+                // Toujours signaler que le fetch est terminé, même avec 0 résultats,
+                // pour que le skeleton loading s'arrête et affiche l'état vide.
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                return [];
+            }
 
             const mapped = products.map(p => this._mapProduct(p));
 
             const existingIds = new Set(this.products.map(p => p.id));
             const newProds = mapped.filter(p => !existingIds.has(p.id));
-            if (newProds.length > 0) {
-                this.products = [...this.products, ...newProds];
-                window.dispatchEvent(new CustomEvent('productsUpdated'));
-            }
+            this.products = newProds.length > 0 ? [...this.products, ...newProds] : this.products;
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
 
             return mapped;
         } catch (err) {
