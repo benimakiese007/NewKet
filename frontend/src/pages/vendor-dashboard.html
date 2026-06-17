@@ -455,7 +455,7 @@
             <div id="tab-products" class="hidden">
                 <div class="glass-panel p-8">
                     <div class="flex items-center justify-between mb-8">
-                        <h2 class="text-xl font-bold">Mes Produits en Ligne</h2>
+                        <h2 class="text-xl font-bold flex items-center gap-2">Mes Produits en Ligne <span id="vendorProductsCountBadge" class="bg-black text-white text-[10px] font-black px-2 py-0.5 rounded-full hidden">0</span></h2>
                         <div class="flex gap-2 w-full sm:w-auto">
                             <input type="text" id="dashboardSearch" name="dashboardSearch" placeholder="Rechercher..."
                                 inputmode="search" autocomplete="off" aria-label="Rechercher dans mes produits"
@@ -882,7 +882,7 @@
                                         <p class="text-xs text-gray-500 mt-1">Recevez vos nouvelles commandes directement dans un canal Slack dédié.</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 shrink-0">
+                                <div class="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto justify-start sm:justify-end">
                                     <button id="btnSlackConnect" class="shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
                                         Connecter Slack
                                     </button>
@@ -903,11 +903,11 @@
                                         <p class="text-xs text-gray-500 mt-1">Synchronisez et gérez votre catalogue de produits via une base de données Notion.</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <button id="btnNotionSync" class="hidden bg-black text-white px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-800 transition-all">
+                                <div class="flex flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto justify-start sm:justify-end">
+                                    <button id="btnNotionSync" class="hidden shrink-0 flex items-center bg-black text-white px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-800 transition-all">
                                         <iconify-icon icon="solar:refresh-circle-bold" class="mr-1"></iconify-icon> Synchro
                                     </button>
-                                    <button id="btnNotionConnect" class="bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
+                                    <button id="btnNotionConnect" class="shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center">
                                         Connecter Notion
                                     </button>
                                     <button id="btnNotionDisconnect" class="hidden shrink-0 flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-600 px-4 py-2.5 rounded-xl font-bold text-xs hover:bg-red-100 transition-all" title="Déconnecter Notion">
@@ -2629,14 +2629,14 @@
                                 if (isNotionConnected) {
                                     btnNotion.dataset.connected = '1';
                                     btnNotion.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="16" style="color:#16a34a"></iconify-icon>&nbsp;CONNECTÉ';
-                                    btnNotion.className = 'inline-flex items-center gap-1.5 bg-green-50 border-2 border-green-400 text-green-700 px-5 py-2 rounded-xl font-black text-xs tracking-wide cursor-default';
+                                    btnNotion.className = 'shrink-0 inline-flex items-center gap-1.5 bg-green-50 border-2 border-green-400 text-green-700 px-5 py-2 rounded-xl font-black text-xs tracking-wide cursor-default';
                                     btnNotion.title = 'Notion est déjà connecté à votre boutique';
                                     if (btnSync) btnSync.classList.remove('hidden');
                                     if (btnNotionDisc2) btnNotionDisc2.classList.remove('hidden');
                                 } else {
                                     btnNotion.dataset.connected = '0';
                                     btnNotion.innerHTML = 'Connecter Notion';
-                                    btnNotion.className = 'bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center cursor-pointer';
+                                    btnNotion.className = 'shrink-0 bg-white border border-gray-200 text-gray-900 px-6 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition-all text-center cursor-pointer';
                                     btnNotion.title = '';
                                     if (btnSync) btnSync.classList.add('hidden');
                                     if (btnNotionDisc2) btnNotionDisc2.classList.add('hidden');
@@ -3948,6 +3948,12 @@
                             const category = String(p?.category || '').toLowerCase();
                             return name.includes(searchQuery) || category.includes(searchQuery);
                         });
+                    }
+
+                    const countBadge = document.getElementById('vendorProductsCountBadge');
+                    if (countBadge) {
+                        countBadge.textContent = myProducts.length;
+                        countBadge.classList.remove('hidden');
                     }
 
                     if (!myProducts.length) {

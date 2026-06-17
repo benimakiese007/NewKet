@@ -46,9 +46,16 @@
                 <div class="admin-page-header__content">
                     <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion du Catalogue</h1>
                     <p class="text-gray-500 font-medium" id="pageSubtitle">Supervisez et modérez l'ensemble des articles de la plateforme.</p>
-                    <div id="productsTotalBadge" class="mt-3 inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-gray-600">
-                        <span>Produits</span>
-                        <span id="productsTotalCount"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                    <div class="mt-3 flex flex-wrap items-center gap-3">
+                        <div id="productsTotalBadge" class="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-gray-600">
+                            <span>Produits</span>
+                            <span id="productsTotalCount"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </div>
+                        <div id="productsSponsoredBadge" class="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-orange-600">
+                            <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
+                            <span>Sponsorisés</span>
+                            <span id="productsSponsoredCount"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </div>
                     </div>
                 </div>
                 <div class="admin-page-actions">
@@ -248,13 +255,23 @@
         let productsBootStarted = false;
         function updateProductsTotal() {
             const totalNode = document.getElementById('productsTotalCount');
-            if (!totalNode) return;
+            const sponsoredNode = document.getElementById('productsSponsoredCount');
+            
             if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
-            if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) return;
+            const products = ProductManager.getProducts() || [];
+            
+            if (ProductManager.loading !== false && products.length === 0) return;
+            
             const total = typeof ProductManager?.getTotalCount === 'function'
                 ? ProductManager.getTotalCount()
-                : (ProductManager?.getProducts?.() || []).length;
-            totalNode.textContent = total;
+                : products.length;
+                
+            if (totalNode) totalNode.textContent = total;
+            
+            if (sponsoredNode) {
+                const sponsoredCount = products.filter(p => p.pinned === true).length;
+                sponsoredNode.textContent = sponsoredCount;
+            }
         }
 
         function renderAdminProducts() {
@@ -420,9 +437,25 @@
             const p = ProductManager.getProduct(id);
             if (!p) return;
             const newPinned = !p.pinned;
-            await ProductManager.updateProduct(id, { pinned: newPinned });
+            
+            // Mise à jour optimiste pour la réactivité de l'UI
+            p.pinned = newPinned;
             renderAdminProducts();
-            if (window.showToast) showToast(newPinned ? 'Produit sponsorisé !' : 'Non sponsorisé.', 'success');
+            
+            try {
+                const updated = await ProductManager.updateProduct(id, { pinned: newPinned });
+                if (!updated) {
+                    // Annuler si la mise à jour échoue
+                    p.pinned = !newPinned;
+                    renderAdminProducts();
+                    if (window.showToast) showToast('Erreur lors de la mise à jour.', 'error');
+                }
+            } catch (err) {
+                // Annuler en cas d'erreur
+                p.pinned = !newPinned;
+                renderAdminProducts();
+                if (window.showToast) showToast('Erreur de connexion.', 'error');
+            }
         }
 
         document.getElementById('productForm').addEventListener('submit', (e) => {

@@ -35,6 +35,10 @@ const OrderManager = {
      * Traduit un statut backend en label français pour l'UI.
      */
     getStatusLabel(backendStatus) {
+        const isVendorDash = typeof window !== 'undefined' && window.location && window.location.pathname.includes('vendor-dashboard');
+        if (backendStatus === 'PENDING' && (isVendorDash || (window.AuthManager && window.AuthManager.role === 'supplier'))) {
+            return 'À traiter';
+        }
         return this.STATUS_LABELS[backendStatus] || backendStatus || 'Inconnu';
     },
 

@@ -3154,11 +3154,6 @@
                 btnPayOrder.classList.remove('hidden');
             } else if (order.status === 'PAID_HELD') {
                 escrowSection.classList.remove('hidden');
-                otpSection.classList.remove('hidden');
-                document.getElementById('otpValue').textContent = order.otp_code || '------';
-                if (otpHintEl) {
-                    otpHintEl.textContent = "Donnez ce code uniquement au livreur après avoir reçu et vérifié le produit. Ne le partagez pas par message.";
-                }
             } else if (order.status === 'DELIVERED') {
                 escrowSection.classList.remove('hidden');
                 btnValidate.classList.remove('hidden');
@@ -3212,10 +3207,10 @@
                 ['SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED', 'PAID'].includes(pay) ||
                 ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
 
-            const isShippingDone = ['IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
-            const isShippingCurrent = ['IN_DELIVERY', 'SHIPPED'].includes(status);
-            const isOtpCurrent = ['PAID_HELD', 'DELIVERED'].includes(status);
-            const isOtpDone = ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
+            const isShippingDone = ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
+            const isShippingCurrent = ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED'].includes(status);
+            const isOtpCurrent = ['DELIVERED'].includes(status);
+            const isOtpDone = ['COMPLETED', 'RELEASED'].includes(status);
             const isDone = ['COMPLETED', 'RELEASED'].includes(status);
 
             const special = ['CANCELLED', 'REFUNDED'].includes(status)
