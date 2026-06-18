@@ -158,6 +158,43 @@
 
         html.dark .status-standard { background: #1e293b; color: #94a3b8; }
         html.dark .status-premium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        /* ---- Bouton clignotant "À vous de jouer" ---- */
+        @keyframes nk-blink-green {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+            50% { opacity: 0.85; box-shadow: 0 0 0 7px rgba(22, 163, 74, 0); }
+        }
+        .nk-your-turn-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: #16a34a;
+            color: #fff;
+            border-radius: 9999px;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            animation: nk-blink-green 1.2s ease-in-out infinite;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .nk-your-turn-btn:hover { background: #15803d; }
+        .nk-your-turn-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #bbf7d0;
+            display: inline-block;
+            animation: nk-blink-green 1.2s ease-in-out infinite;
+        }
+
+        .order-items-strip {
+            min-height: 0 !important;
+            padding-bottom: 0 !important;
+        }
     </style>
 </head><body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
@@ -292,7 +329,7 @@
             <div id="tab-orders" class="space-y-6 hidden">
                 <div class="dashboard-page-header dashboard-page-header--stacked">
                     <div class="dashboard-page-header__content">
-                        <h1 class="dashboard-page-title">Mes demandes, devis et paiements</h1>
+                        <h1 class="dashboard-page-title">Mes demandes et devis</h1>
                     </div>
                 </div>
                 <div id="orders-list" class="space-y-4">
@@ -305,12 +342,26 @@
             <!-- Achat Tab -->
             <div id="tab-purchases" class="space-y-6 hidden">
                 <div class="glass-panel p-8">
-                    <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center justify-between mb-4">
                         <h2 class="text-xl font-bold">Mes Achats</h2>
                         <div class="bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
                             <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total dépensé</p>
                             <p class="font-black text-gray-900" id="customerPurchasesTotal">0 FC</p>
                         </div>
+                    </div>
+                    <!-- Filter buttons -->
+                    <div class="flex items-center gap-2 mb-8" id="purchasesFilterBar">
+                        <button type="button" class="purchases-filter-btn bg-black text-white shadow-lg px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="all">
+                            Tout
+                        </button>
+                        <button type="button" class="purchases-filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="paid">
+                            <iconify-icon icon="solar:wallet-bold" width="14" class="mr-1"></iconify-icon>
+                            Payé
+                        </button>
+                        <button type="button" class="purchases-filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="completed">
+                            <iconify-icon icon="solar:check-circle-bold" width="14" class="mr-1"></iconify-icon>
+                            Terminé
+                        </button>
                     </div>
                     <div id="customer-purchases-list" class="space-y-4">
                         <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
@@ -1090,12 +1141,14 @@
                 showToast('Action indisponible. Veuillez r\u00e9essayer.', 'error');
             });
             document.querySelector('[data-action="download-invoice"]')?.addEventListener('click', downloadInvoice);
-            document.querySelectorAll('[data-action="close-dispute-modal"]').forEach((button) => {
-                if (button.dataset.bound === 'true') return;
-                button.addEventListener('click', closeDisputeModal);
-                button.dataset.bound = 'true';
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('[data-action="close-dispute-modal"]').forEach((button) => {
+                    if (button.dataset.bound === 'true') return;
+                    button.addEventListener('click', closeDisputeModal);
+                    button.dataset.bound = 'true';
+                });
+                document.getElementById('btnSubmitDispute')?.addEventListener('click', submitDispute);
             });
-            document.getElementById('btnSubmitDispute')?.addEventListener('click', submitDispute);
         }
 
         bindCustomerDashboardActions();
@@ -2195,7 +2248,7 @@
                 return { label: 'Voir le devis', icon: 'solar:bill-list-bold', required: true, kind: 'modal' };
             }
             if (status === 'READY_FOR_PAYMENT') {
-                return { label: 'Payer maintenant', icon: 'solar:card-send-bold', required: true, kind: 'achat' };
+                return { label: 'Payer maintenant', icon: 'solar:card-send-bold', required: true, kind: 'modal' };
             }
             if (status === 'DELIVERED') {
                 return { label: 'Libérer les fonds', icon: 'solar:check-read-bold', required: true, kind: 'achat' };
@@ -2368,6 +2421,15 @@
                     (userId && (o.user_id === userId || o.customer_id === userId))
                 );
             }
+            // Exclude orders already shown in "Mes achats" (paid / completed / delivered)
+            orders = orders.filter(o => {
+                const s = String(o?.status || '').toUpperCase();
+                const ps = String(o?.payment_status || '').toUpperCase();
+                const isPurchase =
+                    ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED'].includes(ps) ||
+                    ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(s);
+                return !isPurchase;
+            });
             orders = orders.slice().sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
 
             const ordersBadge = document.getElementById('customerOrdersBadge');
@@ -2408,44 +2470,56 @@
                         ? buildCustomerOrderTimelineHTML(order)
                         : '';
 
+                    // Déterminer si c'est au client d'agir sur cette commande
+                    const isCustomerTurn = next.required;
+                    const yourTurnBadge = isCustomerTurn
+                        ? `<span class="nk-your-turn-btn" onclick="event.stopPropagation(); ${actionOnClick}">
+                               <span class="nk-your-turn-dot"></span>
+                               À vous de jouer
+                           </span>`
+                        : '';
+
                     return `
-                        <div class="glass-panel p-6 cursor-pointer hover:border-black transition-all group" onclick="openOrderModal('${order.id}')">
-                            <div class="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-gray-100">
+                        <div class="glass-panel p-3 sm:p-4 cursor-pointer hover:border-black transition-all group${isCustomerTurn ? ' border-green-200' : ''}" onclick="openOrderModal('${order.id}')">
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-gray-100">
                                 <div>
-                                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${order.id}</div>
-                                    <div class="text-sm text-gray-500">${new Date(order.date).toLocaleDateString()}</div>
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.14em]">Demande #${order.id}</div>
+                                    <div class="text-xs text-gray-500">${new Date(order.date).toLocaleDateString()}</div>
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <div class="px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(order.status)}">
+                                <div class="flex items-center gap-2">
+                                    ${yourTurnBadge}
+                                    <div class="px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusColor(order.status)}">
                                         ${window.OrderManager ? OrderManager.getStatusLabel(order.status) : order.status}
                                     </div>
-                                    <iconify-icon icon="solar:alt-arrow-right-linear" width="20" class="text-gray-300 group-hover:text-black transition-colors"></iconify-icon>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" width="18" class="text-gray-300 group-hover:text-black transition-colors"></iconify-icon>
                                 </div>
                             </div>
 
                             ${timelineHTML ? `
-                                <div class="mb-4">
-                                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                                <div class="mb-2">
+                                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-1">
                                         ${timelineHTML}
                                     </div>
                                 </div>
                             ` : ''}
 
-                            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                                ${order.items.slice(0, 3).map(item => `
-                                    <div class="w-10 h-10 bg-gray-50 rounded border border-gray-100 flex-shrink-0 p-1">
-                                        <img src="${window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(item.image, [48, 72, 96], { quality: 70 })}" sizes="40px"` : ''} alt="${item.name || 'Produit'}" loading="lazy" class="w-full h-full object-contain" onerror="this.src=window.resolvePath('assets/Images/default.png')">
-                                    </div>
-                                `).join('')}
-                                ${order.items.length > 3 ? `<div class="text-xs font-bold text-gray-400">+${order.items.length - 3}</div>` : ''}
-                                <div class="ml-auto flex items-center gap-3">
+                            <div class="pt-2 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-2">
+                                <div class="order-items-strip flex items-center gap-1.5 overflow-x-auto pb-0 scrollbar-none min-w-0">
+                                    ${order.items.slice(0, 3).map(item => `
+                                        <div class="w-8 h-8 bg-gray-50 rounded border border-gray-100 flex-shrink-0 p-1">
+                                            <img src="${window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(item.image, [48, 72, 96], { quality: 70 })}" sizes="32px"` : ''} alt="${item.name || 'Produit'}" loading="lazy" class="w-full h-full object-contain" onerror="this.src=window.resolvePath('assets/Images/default.png')">
+                                        </div>
+                                    `).join('')}
+                                    ${order.items.length > 3 ? `<div class="text-[10px] font-bold text-gray-400">+${order.items.length - 3}</div>` : ''}
+                                </div>
+                                <div class="flex items-center gap-2 sm:ml-auto sm:shrink-0">
                                     <button type="button"
-                                        class="px-4 py-2 rounded-xl bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors whitespace-nowrap"
+                                        class="px-2.5 py-1 rounded-xl bg-black text-white text-[9px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors whitespace-nowrap"
                                         onclick="${actionOnClick}">
-                                        <iconify-icon icon="${next.icon}" width="16"></iconify-icon>
+                                        <iconify-icon icon="${next.icon}" width="14"></iconify-icon>
                                         ${next.label}
                                     </button>
-                                    <div class="text-lg font-black text-gray-900">${CurrencyManager.formatPrice(order.total)}</div>
+                                    <div class="text-sm font-black text-gray-900 whitespace-nowrap">${CurrencyManager.formatPrice(order.total)}</div>
                                 </div>
                             </div>
                         </div>
@@ -2914,9 +2988,34 @@
                 bindAchatDetailActions(order);
             }
 
-            window.renderCustomerPurchasesTab = async function() {
+            // --- Purchases filter state ---
+            let _purchasesActiveFilter = 'all';
+
+            function isPurchaseCompleted(o) {
+                const s = String(o?.status || '').toUpperCase();
+                return ['COMPLETED', 'RELEASED'].includes(s);
+            }
+            function isPurchasePaidOnly(o) {
+                const s = String(o?.status || '').toUpperCase();
+                const ps = String(o?.payment_status || '').toUpperCase();
+                // Paid but NOT yet completed/released
+                return (
+                    ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED'].includes(ps) ||
+                    ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'PROCESSING'].includes(s)
+                ) && !['COMPLETED', 'RELEASED'].includes(s);
+            }
+            function getPurchaseStatusBadge(o) {
+                if (isPurchaseCompleted(o)) {
+                    return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-emerald-100 text-emerald-700"><iconify-icon icon="solar:check-circle-bold" width="11" style="vertical-align:-1px;margin-right:2px"></iconify-icon>Terminé</span>';
+                }
+                return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-green-100 text-green-700"><iconify-icon icon="solar:wallet-bold" width="11" style="vertical-align:-1px;margin-right:2px"></iconify-icon>Payé</span>';
+            }
+
+            window.renderCustomerPurchasesTab = async function(filter) {
                 const container = document.getElementById('customer-purchases-list');
                 if (!container) return;
+
+                if (filter) _purchasesActiveFilter = filter;
 
                 await waitForAppReady();
 
@@ -2929,12 +3028,32 @@
                 }
 
                 const stats = OrderManager.getCustomerStats(email, userId);
-                const myPurchases = (Array.isArray(stats.orders) ? stats.orders : []).filter(o => 
+                let myPurchases = (Array.isArray(stats.orders) ? stats.orders : []).filter(o => 
                     o.payment_status === 'PAID' || o.payment_status === 'SUCCESS' || o.status === 'COMPLETED' || o.status === 'DELIVERED'
+                    || o.status === 'RELEASED' || o.status === 'PAID_HELD' || o.status === 'IN_DELIVERY' || o.status === 'SHIPPED'
                 ).sort((a, b) => {
                     const ta = new Date(a?.timestamp || a?.date || a?.created_at || 0).getTime();
                     const tb = new Date(b?.timestamp || b?.date || b?.created_at || 0).getTime();
                     return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0);
+                });
+
+                // Apply active filter
+                if (_purchasesActiveFilter === 'paid') {
+                    myPurchases = myPurchases.filter(o => isPurchasePaidOnly(o));
+                } else if (_purchasesActiveFilter === 'completed') {
+                    myPurchases = myPurchases.filter(o => isPurchaseCompleted(o));
+                }
+
+                // Update filter button styles
+                document.querySelectorAll('.purchases-filter-btn').forEach(btn => {
+                    const f = btn.getAttribute('data-filter');
+                    if (f === _purchasesActiveFilter) {
+                        btn.classList.add('bg-black', 'text-white', 'shadow-lg');
+                        btn.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                    } else {
+                        btn.classList.remove('bg-black', 'text-white', 'shadow-lg');
+                        btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                    }
                 });
 
                 if (document.getElementById('customerPurchasesTotal')) {
@@ -2942,11 +3061,12 @@
                 }
 
                 if (myPurchases.length === 0) {
-                    renderEmptyPurchases(container);
+                    renderEmptyPurchases(container, _purchasesActiveFilter);
                 } else {
                     container.innerHTML = myPurchases.map((o, index) => {
                         const img = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(o.product_image) : (o.product_image || '');
                         const fallbackImg = window.resolvePath ? window.resolvePath('assets/Images/default.png') : '../assets/Images/default.png';
+                        const statusBadge = getPurchaseStatusBadge(o);
                         return `
                             <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700" style="animation-delay: ${index * 100}ms">
                                 <div class="flex items-center gap-5">
@@ -2961,9 +3081,7 @@
                                             <span class="text-[9px] font-black uppercase tracking-tighter text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
                                                 ${new Date(o.date || o.timestamp || o.created_at).toLocaleDateString()}
                                             </span>
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-green-100 text-green-700">
-                                                PAYÉ
-                                            </span>
+                                            ${statusBadge}
                                         </div>
                                     </div>
                                 </div>
@@ -2979,16 +3097,37 @@
                         `;
                     }).join('');
                 }
+
+                // Bind filter buttons (once)
+                if (!window.__purchasesFilterBound) {
+                    window.__purchasesFilterBound = true;
+                    document.addEventListener('click', function(e) {
+                        const btn = e.target.closest('.purchases-filter-btn');
+                        if (!btn) return;
+                        const f = btn.getAttribute('data-filter');
+                        if (f && f !== _purchasesActiveFilter) {
+                            _purchasesActiveFilter = f;
+                            window.renderCustomerPurchasesTab(f);
+                        }
+                    });
+                }
             };
 
-            function renderEmptyPurchases(container) {
+            function renderEmptyPurchases(container, filter) {
+                const filterMsg = filter === 'paid' ? 'payé' : filter === 'completed' ? 'terminé' : '';
+                const emptyTitle = filterMsg
+                    ? `Aucune commande ${filterMsg}e`
+                    : 'Aucun achat conclu pour le moment';
+                const emptyDesc = filterMsg
+                    ? `Il n'y a pas encore de commande avec le statut "${filterMsg}".`
+                    : 'Vos achats apparaîtront ici. Pourquoi ne pas vous faire plaisir en explorant nos offres ?';
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-20 px-4 text-center animate-in fade-in zoom-in-95 duration-700">
                         <div class="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 text-gray-200 shadow-inner">
                             <iconify-icon icon="solar:bag-heart-bold-duotone" width="48"></iconify-icon>
                         </div>
-                        <h4 class="font-black text-gray-900 mb-2">Aucun achat conclu pour le moment</h4>
-                        <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">Vos achats apparaîtront ici. Pourquoi ne pas vous faire plaisir en explorant nos offres ?</p>
+                        <h4 class="font-black text-gray-900 mb-2">${emptyTitle}</h4>
+                        <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">${emptyDesc}</p>
                         <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
                             Découvrir le catalogue
                         </a>
@@ -3170,13 +3309,13 @@
                     if (releaseDelayHint) {
                         releaseDelayHint.textContent = releaseAt && !Number.isNaN(releaseAt.getTime())
                             ? (diffMs > 0
-                                ? `Libération automatique sous 48h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
+                                ? `Libération automatique sous 24h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
                                 : 'Le délai est écoulé. Les fonds peuvent être libérés immédiatement.')
                             : 'La libération automatique sera affichée dès que le délai sera enregistré.';
                     }
                 };
                 updateReleaseCountdown();
-                releaseCountdownTimer = window.setInterval(updateReleaseCountdown, 30000);
+                releaseCountdownTimer = window.setInterval(updateReleaseCountdown, 1000);
             } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
                 escrowSection.classList.remove('hidden');
                 otpSection.classList.remove('hidden');
@@ -3241,13 +3380,16 @@
                 return 'solar:minus-circle-linear';
             }
 
-
-            return steps.map((s) => `
-                <div class="flex items-center gap-2 p-3 rounded-2xl border ${chipClass(s)}">
-                    <iconify-icon icon="${iconFor(s)}" width="18"></iconify-icon>
-                    <div class="text-[10px] font-black uppercase tracking-widest leading-tight">${s.label}</div>
+            return `
+                <div class="flex flex-wrap items-center gap-1.5">
+                    ${steps.map((s) => `
+                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-xl border text-[8px] sm:text-[9px] font-black uppercase tracking-[0.16em] leading-none ${chipClass(s)}">
+                            <iconify-icon icon="${iconFor(s)}" width="14"></iconify-icon>
+                            <span class="whitespace-nowrap">${s.label}</span>
+                        </div>
+                    `).join('')}
                 </div>
-            `).join('');
+            `;
         }
 
         async function handleValidateDelivery() {
@@ -3290,14 +3432,15 @@
 
         function formatReleaseCountdown(diffMs) {
             const ms = Math.max(0, Number(diffMs || 0));
-            const totalMinutes = Math.floor(ms / 60000);
-            const days = Math.floor(totalMinutes / 1440);
-            const hours = Math.floor((totalMinutes % 1440) / 60);
-            const minutes = totalMinutes % 60;
+            const totalSeconds = Math.floor(ms / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
 
-            if (days > 0) return `${days} j ${hours} h`;
-            if (hours > 0) return `${hours} h ${minutes.toString().padStart(2, '0')} min`;
-            return `${Math.max(1, minutes)} min`;
+            if (days > 0) return `${days}j ${hours}h`;
+            if (hours > 0) return `${hours}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+            return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
         }
 
         async function handleAcceptQuote() {

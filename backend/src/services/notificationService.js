@@ -364,6 +364,150 @@ const NotificationService = {
         } catch (error) {
             console.error('[NotificationService] notifyVendorManualPayout error:', error);
         }
+    },
+
+    /**
+     * T+0 — Notif immédiate après validation OTP.
+     * Avertit le client que le timer de 24h démarre et qu'il peut ouvrir un litige.
+     * Notifie aussi le vendeur que le timer est lancé.
+     */
+    async notifyEscrowTimerStarted(order) {
+        if (!order?.id) return;
+
+        const releaseAt = order.escrow_release_at
+            ? new Date(order.escrow_release_at).toLocaleString('fr-FR', { timeZone: 'Africa/Kinshasa' })
+            : 'dans 24h';
+        const transactionId = order.transaction_id || order.id;
+        const customerName = order.customer_name || 'Client';
+        const nowIso = new Date().toISOString();
+        const customerId = order.user_id || order.customer_id || null;
+
+        // --- Notification client ---
+        try {
+            if (order.customer_email) {
+                await createDbNotification({
+                    id: `notif-escrow-start-${order.id}`,
+                    ...(customerId ? { user_id: customerId } : {}),
+                    user_email: order.customer_email,
+                    title: '\u23F3 Votre d\u00E9lai de v\u00E9rification d\u00E9marre',
+                    message: `Vous avez 24h pour v\u00E9rifier votre commande #${transactionId} et ouvrir un litige si n\u00E9cessaire.`,
+                    type: 'info',
+                    target_role: 'customer',
+                    read: false,
+                    date: nowIso
+                });
+
+                EmailService.sendMail({
+                    to: order.customer_email,
+                    subject: '\u23F3 Livraison confirm\u00E9e \u2014 V\u00E9rifiez votre commande dans les 24h',
+                    html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                            <h2 style="color: #111827;">Livraison confirm\u00E9e \u2014 Timer d\u00E9marr\u00E9</h2>
+                            <p>Bonjour <b>${customerName}</b>,</p>
+                            <p>Votre commande <b>#${transactionId}</b> a \u00E9t\u00E9 livr\u00E9e et le code OTP a \u00E9t\u00E9 valid\u00E9.</p>
+                            <div style="background: #fffbeb; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                                <p style="margin: 0; font-weight: bold;">\u23F3 D\u00E9lai de v\u00E9rification : 24 heures</p>
+                                <p style="margin: 8px 0 0; color: #92400e;">Lib\u00E9ration automatique pr\u00E9vue le : <b>${releaseAt}</b></p>
+                            </div>
+                            <p>Pendant ce d\u00E9lai, v\u00E9rifiez soigneusement votre produit :</p>
+                            <ul>
+                                <li>\u2705 Tout est conforme \u2192 les fonds seront lib\u00E9r\u00E9s automatiquement</li>
+                                <li>\u274C Probl\u00E8me constat\u00E9 \u2192 ouvrez un litige depuis votre espace client</li>
+                            </ul>
+                            <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin: 20px 0; color: #991b1b; font-size: 14px;">
+                                <strong>Important :</strong> Pass\u00E9 ce d\u00E9lai de 24h sans action de votre part, les fonds seront automatiquement vers\u00E9s au vendeur.
+                            </div>
+                            <div style="text-align: center; margin-top: 30px;">
+                                <a href="${getFrontendBaseUrl()}/pages/customer-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Voir ma commande</a>
+                            </div>
+                        </div>
+                    `
+                }).catch(err => console.error('[NotificationService] escrowTimerStarted client email error:', err));
+            }
+        } catch (err) {
+            console.error('[NotificationService] notifyEscrowTimerStarted client error:', err);
+        }
+
+        // --- Notification vendeur ---
+        try {
+            if (order.vendor_id) {
+                const vendor = await fetchUserById(order.vendor_id);
+                if (vendor?.email) {
+                    await createDbNotification({
+                        id: `notif-escrow-start-vendor-${order.id}`,
+                        user_id: vendor.id,
+                        user_email: vendor.email,
+                        title: '\u23F3 Timer escrow d\u00E9marr\u00E9',
+                        message: `La commande #${transactionId} a \u00E9t\u00E9 livr\u00E9e. Les fonds seront lib\u00E9r\u00E9s automatiquement dans 24h si aucun litige n'est ouvert.`,
+                        type: 'info',
+                        target_role: 'supplier',
+                        read: false,
+                        date: nowIso
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('[NotificationService] notifyEscrowTimerStarted vendor error:', err);
+        }
+    },
+
+    /**
+     * T+12h \u2014 Rappel mi-timer.
+     * Envoy\u00E9 via push_notification_jobs avec available_at planifi\u00E9 \u00E0 delivered_at + 12h.
+     * Pr\u00E9vient le client qu'il reste 12h pour agir avant lib\u00E9ration automatique.
+     */
+    async notifyEscrowReminder(order) {
+        if (!order?.id || !order?.customer_email) return;
+
+        const releaseAt = order.escrow_release_at
+            ? new Date(order.escrow_release_at).toLocaleString('fr-FR', { timeZone: 'Africa/Kinshasa' })
+            : 'dans 12h';
+        const transactionId = order.transaction_id || order.id;
+        const customerName = order.customer_name || 'Client';
+        const customerId = order.user_id || order.customer_id || null;
+        const nowIso = new Date().toISOString();
+
+        try {
+            await createDbNotification({
+                id: `notif-escrow-reminder-${order.id}`,
+                ...(customerId ? { user_id: customerId } : {}),
+                user_email: order.customer_email,
+                title: '\u26A0\uFE0F Il vous reste 12h pour v\u00E9rifier votre commande',
+                message: `Les fonds de la commande #${transactionId} seront lib\u00E9r\u00E9s automatiquement le ${releaseAt}.`,
+                type: 'warning',
+                target_role: 'customer',
+                read: false,
+                date: nowIso
+            });
+
+            EmailService.sendMail({
+                to: order.customer_email,
+                subject: '\u26A0\uFE0F Derni\u00E8re chance \u2014 12h pour ouvrir un litige sur votre commande',
+                html: `
+                    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                        <h2 style="color: #b45309;">\u26A0\uFE0F Rappel : 12h restantes</h2>
+                        <p>Bonjour <b>${customerName}</b>,</p>
+                        <p>Le d\u00E9lai de v\u00E9rification de votre commande <b>#${transactionId}</b> arrive bient\u00F4t \u00E0 terme.</p>
+                        <div style="background: #fff7ed; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f97316;">
+                            <p style="margin: 0; color: #c2410c; font-weight: bold;">\u23F0 Lib\u00E9ration automatique pr\u00E9vue le : ${releaseAt}</p>
+                        </div>
+                        <p>Si vous n'avez pas encore v\u00E9rifi\u00E9 votre produit, faites-le maintenant :</p>
+                        <ul>
+                            <li>\u2705 Produit conforme \u2192 aucune action n\u00E9cessaire, les fonds seront lib\u00E9r\u00E9s automatiquement</li>
+                            <li>\u274C Probl\u00E8me \u2192 ouvrez un litige imm\u00E9diatement depuis votre espace client</li>
+                        </ul>
+                        <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin: 20px 0; color: #991b1b; font-size: 14px;">
+                            <strong>Pass\u00E9 le d\u00E9lai</strong>, il ne sera plus possible d'ouvrir un litige pour cette commande.
+                        </div>
+                        <div style="text-align: center; margin-top: 30px;">
+                            <a href="${getFrontendBaseUrl()}/pages/customer-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Voir ma commande</a>
+                        </div>
+                    </div>
+                `
+            }).catch(err => console.error('[NotificationService] escrowReminder email error:', err));
+        } catch (error) {
+            console.error('[NotificationService] notifyEscrowReminder error:', error);
+        }
     }
 };
 

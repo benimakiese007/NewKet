@@ -181,6 +181,8 @@ const OrderManager = {
             total: order.final_total_amount || order.total_amount || product?.price || product?.priceCDF || 0,
             status: order.status || 'PENDING',
             payment_status: order.payment_status || 'N/A',
+            escrow_status: order.escrow_status || null,
+            escrow_release_at: order.escrow_release_at || null,
             transaction_id: order.transaction_id || null,
             otp_code: order.otp_code || null,
             delivery_fee_amount: order.delivery_fee_amount || 0,

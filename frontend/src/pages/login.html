@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -338,11 +338,13 @@
                     </div>
 
                     <!-- Oauth Providers -->
-                    <div class="grid grid-cols-1 gap-4 animate-item">
+                    <div id="oauthProviders" class="grid grid-cols-2 gap-3 items-stretch animate-item">
                         <button type="button" id="google-btn" data-track-action="auth_login:google_click"
-                            class="social-btn h-12 flex items-center justify-center gap-3 border-2 border-gray-100 rounded-2xl bg-white text-[11px] font-black uppercase tracking-widest text-gray-700 hover:border-gray-200 hover:bg-gray-50 transition-all relative">
-                            <iconify-icon icon="logos:google-icon" width="16" id="google-icon"></iconify-icon>
-                            <span id="google-btn-text">Google</span>
+                            aria-label="Google" title="Google"
+                            class="social-btn h-12 w-full flex items-center justify-center border-2 border-gray-100 rounded-2xl bg-white text-[11px] font-black uppercase tracking-widest text-gray-700 hover:border-gray-200 hover:bg-gray-50 transition-all relative">
+                            <span class="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                                <iconify-icon icon="logos:google-icon" width="16" height="16" id="google-icon" class="block"></iconify-icon>
+                            </span>
                             <div id="google-spinner" class="hidden">
                                 <i class="fas fa-circle-notch fa-spin text-black"></i>
                             </div>
@@ -350,11 +352,13 @@
                         
                         <!-- Passkey Sign In -->
                         <button type="button" id="passkey-btn" data-track-action="auth_login:passkey_click"
-                            class="social-btn h-12 flex items-center justify-center gap-3 border-2 border-black rounded-2xl bg-black text-[11px] font-black uppercase tracking-widest text-white hover:bg-gray-900 transition-all relative">
-                            <iconify-icon icon="solar:fingerprint-bold" width="18" id="passkey-icon"></iconify-icon>
-                            <span id="passkey-btn-text">Clé d'accès (Face ID / Empreinte)</span>
+                            aria-label="Passkey" title="Passkey"
+                            class="social-btn h-12 w-full flex items-center justify-center border-2 border-gray-100 rounded-2xl bg-white text-[11px] font-black uppercase tracking-widest text-gray-700 hover:border-gray-200 hover:bg-gray-50 transition-all relative">
+                            <span class="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                                <iconify-icon icon="material-symbols:passkey-rounded" width="16" height="16" id="passkey-icon" class="block text-gray-900"></iconify-icon>
+                            </span>
                             <div id="passkey-spinner" class="hidden">
-                                <iconify-icon icon="line-md:loading-twotone-loop" width="18" class="text-white"></iconify-icon>
+                                <iconify-icon icon="line-md:loading-twotone-loop" width="18" class="text-black"></iconify-icon>
                             </div>
                         </button>
                     </div>
@@ -443,6 +447,7 @@
         const confirmPasswordContainer = document.getElementById('confirmPasswordContainer');
         const passwordStrengthContainer = document.getElementById('passwordStrengthContainer');
         const loginActions = document.getElementById('loginActions');
+        const oauthProviders = document.getElementById('oauthProviders');
         const submitBtnSpan = document.getElementById('submitBtn').querySelector('span');
         const authForm = document.getElementById('authForm');
         const formError = document.getElementById('formError');
@@ -611,6 +616,11 @@
                     if (passkeyBtn) passkeyBtn.classList.add('hidden');
                 }
 
+                if (oauthProviders) {
+                    oauthProviders.classList.toggle('grid-cols-1', !isLogin);
+                    oauthProviders.classList.toggle('grid-cols-2', isLogin);
+                }
+
                 syncAutofillHints();
                 preserveFormValuesAfterModeChange({
                     keepEmail: true,
@@ -733,6 +743,8 @@
 
             const email = document.getElementById('email').value.trim();
             const password = pwdInput.value;
+            const normalizedEmail = email.toLowerCase().trim();
+            const normalizedPassword = password.trim().toLowerCase();
 
             // Form Validations
             if (!isRecovery && !email) {
@@ -741,6 +753,11 @@
             }
             if (!password) {
                 showError("Veuillez renseigner le mot de passe.");
+                return;
+            }
+
+            if (!isLogin && !isRecovery && normalizedPassword === normalizedEmail) {
+                showError("Le mot de passe ne peut pas être identique à l'email.");
                 return;
             }
 
@@ -772,7 +789,7 @@
                     }, 1500);
 
                 } else if (isLogin) {
-                    // LOGIN Logic à All authentication via Supabase Auth
+                    // LOGIN Logic - All authentication via Supabase Auth
                     let loginEmail = email.toLowerCase().trim();
 
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email: loginEmail, password });
@@ -911,13 +928,11 @@
         // --- 6. Oauth Logic ---
         async function signInWithProvider(provider) {
             const btn = document.getElementById('google-btn');
-            const text = document.getElementById('google-btn-text');
             const icon = document.getElementById('google-icon');
             const spinner = document.getElementById('google-spinner');
 
             // UI feedback
             if (btn) btn.disabled = true;
-            if (text) text.innerText = 'Connexion...';
             if (icon) icon.classList.add('hidden');
             if (spinner) spinner.classList.remove('hidden');
 
@@ -945,7 +960,6 @@
                 
                 // Reset UI
                 if (btn) btn.disabled = false;
-                if (text) text.innerText = 'Google';
                 if (icon) icon.classList.remove('hidden');
                 if (spinner) spinner.classList.add('hidden');
             }
@@ -954,11 +968,8 @@
         function signInWithGoogle() { signInWithProvider('google'); }
 
         async function signInWithPasskey() {
-            const btnText = document.getElementById('passkey-btn-text');
             const icon = document.getElementById('passkey-icon');
             const spinner = document.getElementById('passkey-spinner');
-            
-            btnText.style.display = 'none';
             icon.style.display = 'none';
             spinner.classList.remove('hidden');
             
@@ -1049,5 +1060,8 @@
 </body>
 
 </html>
+
+
+
 
 

@@ -430,8 +430,37 @@ const App = {
         applyHeaderScrollState(lastScrollTop);
         window.addEventListener('scroll', queueHeaderScrollUpdate, { passive: true });
 
-        // Global Modal Manager
+        // Global Modal Manager — with robust touch scroll-lock
         const setupGlobalModals = () => {
+            let _scrollLockActive = false;
+            let _savedScrollY = 0;
+
+            const lockBodyScroll = () => {
+                if (_scrollLockActive) return;
+                _scrollLockActive = true;
+                _savedScrollY = window.scrollY || window.pageYOffset || 0;
+                document.body.style.position = 'fixed';
+                document.body.style.top = `-${_savedScrollY}px`;
+                document.body.style.left = '0';
+                document.body.style.right = '0';
+                document.body.style.overflow = 'hidden';
+                document.body.style.touchAction = 'none';
+                document.body.style.overscrollBehavior = 'none';
+            };
+
+            const unlockBodyScroll = () => {
+                if (!_scrollLockActive) return;
+                _scrollLockActive = false;
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
+                document.body.style.overflow = '';
+                document.body.style.touchAction = '';
+                document.body.style.overscrollBehavior = '';
+                window.scrollTo({ top: _savedScrollY, left: 0, behavior: 'instant' });
+            };
+
             const isModalNode = (node) => {
                 if (node.nodeType !== Node.ELEMENT_NODE) return false;
                 const role = node.getAttribute('role');
@@ -459,9 +488,9 @@ const App = {
                     }
                 }
                 if (anyOpen) {
-                    document.body.style.overflow = 'hidden';
+                    lockBodyScroll();
                 } else {
-                    document.body.style.overflow = '';
+                    unlockBodyScroll();
                 }
             };
 
@@ -484,6 +513,27 @@ const App = {
             modalObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
             
             setTimeout(checkAnyModalOpen, 500);
+
+            // Prevent touch scroll chaining: block touchmove on modal backdrop only
+            document.addEventListener('touchmove', (e) => {
+                if (!_scrollLockActive) return;
+                const touch = e.touches[0];
+                if (!touch) return;
+                const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (!el) { e.preventDefault(); return; }
+                // Walk up to find a scrollable container inside the modal
+                let node = el;
+                while (node && node !== document.body && node !== document.documentElement) {
+                    const style = window.getComputedStyle(node);
+                    const overflowY = style.overflowY;
+                    if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+                        return; // allow scroll inside this scrollable area
+                    }
+                    node = node.parentElement;
+                }
+                // No scrollable ancestor inside modal — block to prevent background scroll
+                e.preventDefault();
+            }, { passive: false });
 
             // Handle clicking outside modal to close it
             document.addEventListener('mousedown', (e) => {

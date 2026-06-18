@@ -43,6 +43,42 @@ async function claimDuePushJobs(batchSize = DEFAULT_BATCH_SIZE) {
 async function processSingleJob(job) {
     const startedAt = nowIso();
 
+    // Gestion des jobs typés (ex : rappel escrow T+12h)
+    if (job.notification?._type === 'escrow_reminder') {
+        try {
+            const orderId = job.notification.order_id;
+            if (orderId) {
+                const { data: order } = await supabaseAdmin
+                    .from('orders')
+                    .select('*')
+                    .eq('id', orderId)
+                    .single();
+
+                // N'envoyer que si la commande est encore en attente de validation
+                if (order && order.status === 'DELIVERED') {
+                    // Lazy import to avoid circular dependency
+                    const { default: NotificationSvc } = await import('./notificationService.js');
+                    await NotificationSvc.notifyEscrowReminder(order);
+                }
+            }
+            await updateJob(job.id, {
+                status: 'sent',
+                finished_at: startedAt,
+                last_error: null,
+                sent_count: 1
+            });
+            return { status: 'sent', sent: 1 };
+        } catch (err) {
+            await updateJob(job.id, {
+                status: 'failed',
+                finished_at: startedAt,
+                last_error: err?.message || String(err),
+                sent_count: 0
+            });
+            return { status: 'failed', error: err?.message };
+        }
+    }
+
     if (!WebPushService.isConfigured()) {
         await updateJob(job.id, {
             status: 'failed',

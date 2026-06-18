@@ -9805,6 +9805,30 @@ html.dark .skeleton::after {
 }
 
 
-/* Global Modal Fixes for scroll chaining */
-.fixed.inset-0, [role="dialog"], [id$="Modal"] { overscroll-behavior: contain; }
+/* Global Modal Fixes for scroll chaining (touch + desktop) */
+.fixed.inset-0,
+[role="dialog"],
+[id$="Modal"],
+[id$="modal"] {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Modal overlay / backdrop — block all touch scroll */
+.fixed.inset-0 > .absolute.inset-0,
+.fixed.inset-0[class*="bg-black"],
+.fixed.inset-0[class*="backdrop"] {
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+/* Scrollable content INSIDE modals — allow normal scroll but contain it */
+.fixed.inset-0 [class*="overflow-y-auto"],
+.fixed.inset-0 [class*="overflow-auto"],
+.fixed.inset-0 [style*="overflow"],
+[role="dialog"] [class*="overflow-y-auto"],
+[role="dialog"] [class*="overflow-auto"] {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
 

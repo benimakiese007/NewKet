@@ -19,7 +19,8 @@ import {
     isVendorActor,
     logOrderStatusHistory,
     mapLegacyOrderStatus,
-    releaseOrderEscrow
+    releaseOrderEscrow,
+    addHours
 } from '../services/order-workflow.js';
 import { awardReferralNkToken } from '../services/referral-rewards.js';
 
@@ -759,7 +760,33 @@ export const verifyDelivery = async (req, res) => {
         // Envoyer la demande d'avis à l'acheteur
         NotificationService.notifyCustomerReview(updatedOrder).catch(console.error);
 
-        return res.status(200).json({ success: true, message: 'Livraison validée avec succès', order: updatedOrder });
+        // T+0 : Notif escrow timer démarré (client + vendeur)
+        NotificationService.notifyEscrowTimerStarted(updatedOrder).catch((err) => {
+            console.error('[Order] notifyEscrowTimerStarted error:', err.message);
+        });
+
+        // T+12h : Planifier le rappel mi-timer (email + notif DB) via push_notification_jobs
+        // Le cron pickup existant (toutes les 15min) traitera ce job au bon moment.
+        const reminderAt = addHours(updatedOrder.delivered_at || nowIso, 12);
+        supabaseAdmin
+            .from('push_notification_jobs')
+            .insert({
+                notification: {
+                    _type: 'escrow_reminder',
+                    order_id: updatedOrder.id
+                },
+                status: 'queued',
+                available_at: reminderAt
+            })
+            .then(({ error }) => {
+                if (error) console.warn('[Order] Could not schedule escrow reminder job:', error.message);
+                else console.log(`[Order] Escrow reminder scheduled at ${reminderAt} for order ${updatedOrder.id}`);
+            })
+            .catch((err) => {
+                console.warn('[Order] Could not schedule escrow reminder job:', err.message);
+            });
+
+        return res.status(200).json({ success: true, message: 'Livraison valid\u00E9e avec succ\u00E8s', order: updatedOrder });
     } catch (error) {
         console.error('❌ Erreur verifyDelivery:', error.message);
         return res.status(500).json({ error: 'Failed to verify delivery' });

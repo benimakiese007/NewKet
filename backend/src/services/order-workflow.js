@@ -99,7 +99,7 @@ export const DISPUTE_BUYER_RESPONSE_HOURS = 24;
 export const DISPUTE_REVIEW_HOURS = 72;
 
 export const MAX_OTP_ATTEMPTS = 5;
-export const ESCROW_HOLD_HOURS = 48; // Délai post-livraison : 48h avant libération automatique de l'escrow
+export const ESCROW_HOLD_HOURS = 24; // Délai post-livraison : 24h avant libération automatique de l'escrow
 
 export const LEGACY_ORDER_STATUS_MAP = {
     SHIPPED: ORDER_STATUSES.IN_DELIVERY,
