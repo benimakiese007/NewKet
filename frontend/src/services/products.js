@@ -158,7 +158,11 @@ const ProductManager = {
             // Map and update state
             const mappedProducts = (products || []).map(p => this._mapProduct(p));
             this._currentPage = 1;
-            this.products = mappedProducts;
+            
+            // Merge with existing products to avoid overwriting vendor products fetched concurrently
+            const newIds = new Set(mappedProducts.map(p => p.id));
+            const existingToKeep = this.products.filter(p => !newIds.has(p.id));
+            this.products = [...mappedProducts, ...existingToKeep];
 
             // Ensure pinned products are always fetched, even if older than the first page
             try {
@@ -395,9 +399,16 @@ const ProductManager = {
 
             const mapped = products.map(p => this._mapProduct(p));
 
-            const existingIds = new Set(this.products.map(p => p.id));
-            const newProds = mapped.filter(p => !existingIds.has(p.id));
-            this.products = newProds.length > 0 ? [...this.products, ...newProds] : this.products;
+            // Remove old version of this vendor's products from the local array
+            this.products = this.products.filter(p => {
+                if (email && p.supplier_email === email) return false;
+                if (userId && p.user_id === userId) return false;
+                return true;
+            });
+
+            if (mapped.length > 0) {
+                this.products = [...this.products, ...mapped];
+            }
             window.dispatchEvent(new CustomEvent('productsUpdated'));
 
             return mapped;

@@ -35,6 +35,12 @@ export const supabaseClient = hasValidSupabaseConfig
             experimental: {
                 passkey: true
             }
+        },
+        global: {
+            fetch: (...args) => {
+                const [url, options] = args;
+                return fetch(url, { ...options, cache: 'no-store' });
+            }
         }
     })
     : null;
