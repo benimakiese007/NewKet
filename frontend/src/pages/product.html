@@ -194,8 +194,8 @@
                         </div>
                         <div class="flex gap-3">
                             <button id="mainOrderBtn" data-track-action="product:order_click" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">
-                                <span>Commander</span>
-                                <iconify-icon icon="solar:bag-bold" width="24"></iconify-icon>
+                                <span>Ajouter au panier</span>
+                                <iconify-icon icon="solar:cart-plus-bold" width="24"></iconify-icon>
                             </button>
                             <button id="mainWishlistBtn" data-track-action="product:wishlist_toggle" class="w-12 h-12 flex items-center justify-center rounded-2xl border-2 border-gray-100 text-gray-300 hover:text-red-500 hover:border-red-50 transition-all">
                                 <iconify-icon icon="solar:heart-bold" width="28"></iconify-icon>
@@ -403,7 +403,7 @@
                 orderBtn.classList.toggle('cursor-not-allowed', disabled);
                 orderBtn.title = disabled ? 'Produit indisponible' : '';
                 const label = orderBtn.querySelector('span');
-                if (label) label.textContent = disabled ? 'Indisponible' : 'Commander';
+                if (label) label.textContent = disabled ? 'Indisponible' : 'Ajouter au panier';
             }
 
             // Priorité: tableau images[] (Notion multi-image) → split virgule → défaut
@@ -536,7 +536,16 @@
                     if (window.showToast) showToast(`Quantite indisponible. Stock actuel: ${stock}.`, 'warning');
                     return;
                 }
-                if (window.initCheckout) window.initCheckout(p.id, document.getElementById('mainOrderBtn'), quantity);
+                if (window.CartManager) {
+                    const vendor = Array.isArray(p.users) ? p.users[0] : p.users;
+                    window.CartManager.add({
+                        id: p.id,
+                        title: p.name,
+                        price: p.price,
+                        image: p.images && p.images[0] ? p.images[0] : '',
+                        vendor: vendor?.company_name || vendor?.name || 'NewKet Shop'
+                    }, quantity);
+                }
             };
             document.getElementById('mainWishlistBtn').onclick = () => {
                 if (FavoritesManager.isInFavorites(p.id)) FavoritesManager.removeItem(p.id);

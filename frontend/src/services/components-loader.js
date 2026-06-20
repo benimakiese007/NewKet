@@ -61,6 +61,13 @@ const HEADER_HTML = `
                         <iconify-icon icon="mdi:wifi-off" width="18"></iconify-icon>
                     </div>
 
+                    <!-- Cart Icon (Mobile) -->
+                    <button onclick="window.CartManager && window.CartManager.toggleCartUI()" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Panier" aria-label="Mon panier">
+                        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22" class="text-white"></iconify-icon>
+                        <span class="cart-badge absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
+                    </button>
+
                     <!-- Account Icon (Mobile) -->
                     <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                         title="Compte" aria-label="Mon compte">
@@ -167,6 +174,15 @@ const HEADER_HTML = `
                         class="favorites-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="display:none; font-size:10px; width:18px; height:18px;">0</span>
                 </a>
+
+                <!-- Cart -->
+                <button onclick="window.CartManager && window.CartManager.toggleCartUI()" class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Panier" aria-label="Voir le panier">
+                    <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22" class="text-white"></iconify-icon>
+                    <span
+                        class="cart-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        style="display:none; font-size:10px; width:18px; height:18px;">0</span>
+                </button>
 
                 <!-- Account -->
                 <a href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
@@ -488,6 +504,13 @@ const ComponentLoader = {
         if (!window.NewsletterManager) {
             const script = document.createElement('script');
             script.src = this.getAdjustedPath('/js/newsletter.js');
+            document.head.appendChild(script);
+        }
+
+        // Load cart manager globally
+        if (!window.CartManager) {
+            const script = document.createElement('script');
+            script.src = this.getAdjustedPath('/src/services/cart.js');
             document.head.appendChild(script);
         }
 

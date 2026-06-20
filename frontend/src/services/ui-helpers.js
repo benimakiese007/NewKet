@@ -736,13 +736,13 @@ export function buildProductCardHTML(p, options = {}) {
                 </div>
                 <div class="flex items-center gap-1 sm:gap-2 mt-auto pt-1 sm:pt-2">
                     <button 
-                        onclick="if(window.initCheckout) window.initCheckout('${p.id}', this)"
-                        class="flex-1 btn-active-scale ${isAvailable ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-500'} py-2 sm:py-2.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
+                        onclick="if(window.CartManager) window.CartManager.add({id: '${p.id}', title: '${(p.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${p.price}', image: '${p.images && p.images[0] ? p.images[0] : ''}', vendor: '${(vendor?.company_name || vendor?.name || 'NewKet').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}'})"
+                        class="flex-1 btn-active-scale ${isAvailable ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-gray-200 text-gray-500'} py-2 sm:py-2.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
                         style="border:none; cursor:pointer;"
-                        aria-label="Commander ${p.name.replace(/"/g, '&quot;')}"
+                        aria-label="Ajouter ${String(p.name).replace(/"/g, '&quot;')} au panier"
                         data-product-id="${p.id}" ${isAvailable ? '' : 'disabled'}>
-                        <iconify-icon icon="solar:cart-large-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
-                        <span class="whitespace-nowrap sm:truncate tracking-tight">${isAvailable ? 'Commander' : 'Indisponible'}</span>
+                        <iconify-icon icon="solar:cart-plus-bold" width="14" class="flex-shrink-0 sm:w-4"></iconify-icon>
+                        <span class="whitespace-nowrap sm:truncate tracking-tight">${isAvailable ? 'Ajouter' : 'Indisponible'}</span>
                     </button>
                     <button onclick="if(navigator.share){ navigator.share({title:'${p.name.replace(/'/g, "\\'")} — NewKet', url: window.location.origin + resolvePath('pages/product') + '?id=${p.id}'}); } else { navigator.clipboard.writeText(window.location.origin + resolvePath('pages/product') + '?id=${p.id}'); if(window.showToast) showToast('Lien copié !', 'info'); }"
                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 bg-white hover:bg-gray-50 flex-shrink-0 transition-all"
