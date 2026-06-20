@@ -29,17 +29,10 @@ const BehaviorTracking = {
 
     async _maybeDisableInDevIfApiDown() {
         try {
-            const isLocal = /^(localhost|127\\.0\\.0\\.1)$/i.test(window.location.hostname || '');
-            if (!isLocal) return;
-
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 1200);
-            try {
-                // Call backend directly to bypass Vite proxy error logs.
-                const res = await fetch('http://localhost:3000/api/health', { signal: controller.signal });
-                if (!res.ok) this._analyticsDisabled = true;
-            } finally {
-                clearTimeout(timeout);
+            const isLocal = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
+            if (isLocal) {
+                this._analyticsDisabled = true;
+                return;
             }
         } catch (_) {
             this._analyticsDisabled = true;

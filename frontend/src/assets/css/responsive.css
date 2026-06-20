@@ -162,7 +162,9 @@ canvas {
         margin: 0 !important;
         background-color: #f3f4f6 !important;
         border-radius: 14px !important;
-        width: 100% !important;
+        flex: 1 !important;
+        width: auto !important;
+        min-width: 0 !important;
     }
 
     #mobileSearchContainer {
@@ -179,6 +181,10 @@ canvas {
         padding: 0.35rem 1rem !important;
         font-size: 1rem !important;
         height: 40px !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     /* Mobile/tablet: category nav stays desktop-only */
@@ -366,7 +372,7 @@ canvas {
         grid-column: 1 !important;
     }
 
-    .publish-btn,
+    #mobileSearchContainer .publish-btn,
     #accountLinkTablet,
     #cartBtnTablet {
         flex: 0 0 auto !important;
@@ -374,7 +380,7 @@ canvas {
         white-space: nowrap !important;
     }
 
-    .publish-btn {
+    #mobileSearchContainer .publish-btn {
         order: 2 !important;
         grid-column: 2 !important;
     }
@@ -395,14 +401,14 @@ canvas {
     }
 
     /* Tablet header: keep everything on one line (make "Vendre" compact) */
-    .publish-btn {
+    #mobileSearchContainer .publish-btn {
         padding-left: 0.85rem !important;
         padding-right: 0.85rem !important;
         height: 44px !important;
         border-radius: 14px !important;
     }
 
-    .publish-btn span {
+    #mobileSearchContainer .publish-btn span {
         display: none !important;
     }
 
@@ -1798,7 +1804,7 @@ html.dark .glass-panel {
         font-size: 0.6rem !important;
     }
 
-    .publish-btn {
+    .header-content .publish-btn {
         padding-left: 0.9rem !important;
         padding-right: 0.9rem !important;
     }

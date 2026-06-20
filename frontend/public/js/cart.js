@@ -8,6 +8,7 @@ class CartManager {
         this.STORAGE_KEY = 'newket_cart';
         this.cart = this.loadCart();
         this.initialized = false;
+        this.lastClickEvent = null;
         
         // Listen for storage changes from other tabs
         window.addEventListener('storage', (e) => {
@@ -16,6 +17,11 @@ class CartManager {
                 this.updateUI();
             }
         });
+
+        // Track last click for animations
+        document.addEventListener('click', (e) => {
+            this.lastClickEvent = e;
+        }, true);
     }
 
     init() {
@@ -64,10 +70,62 @@ class CartManager {
         }
         
         this.saveCart();
-        this.showToast();
         
-        // Open cart to show added item
-        this.toggleCartUI(true);
+
+        // Trigger fly-to-cart animation
+        this.animateFlyToCart(product.image, this.lastClickEvent);
+    }
+
+    animateFlyToCart(imageUrl, clickEvent) {
+        if (!clickEvent) return;
+        
+        const cartButtons = Array.from(document.querySelectorAll('button[title="Panier"]'));
+        const visibleCartBtn = cartButtons.find(btn => btn.offsetParent !== null) || cartButtons[0];
+        if (!visibleCartBtn) return;
+        
+        const cartRect = visibleCartBtn.getBoundingClientRect();
+        const startX = clickEvent.clientX;
+        const startY = clickEvent.clientY;
+        const endX = cartRect.left + cartRect.width / 2;
+        const endY = cartRect.top + cartRect.height / 2;
+        
+        const flyEl = document.createElement('div');
+        flyEl.style.position = 'fixed';
+        flyEl.style.left = startX + 'px';
+        flyEl.style.top = startY + 'px';
+        flyEl.style.width = '50px';
+        flyEl.style.height = '50px';
+        flyEl.style.borderRadius = '50%';
+        flyEl.style.backgroundImage = imageUrl ? `url(${imageUrl})` : 'none';
+        flyEl.style.backgroundSize = 'cover';
+        flyEl.style.backgroundPosition = 'center';
+        flyEl.style.backgroundColor = '#013220';
+        flyEl.style.zIndex = '999999';
+        flyEl.style.transition = 'all 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
+        flyEl.style.transform = 'translate(-50%, -50%) scale(1)';
+        flyEl.style.pointerEvents = 'none';
+        flyEl.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3)';
+        
+        document.body.appendChild(flyEl);
+        
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                flyEl.style.left = endX + 'px';
+                flyEl.style.top = endY + 'px';
+                flyEl.style.transform = 'translate(-50%, -50%) scale(0.2)';
+                flyEl.style.opacity = '0.5';
+            });
+        });
+        
+        setTimeout(() => {
+            if (document.body.contains(flyEl)) document.body.removeChild(flyEl);
+            const originalTransform = visibleCartBtn.style.transform;
+            visibleCartBtn.style.transform = 'scale(1.2)';
+            visibleCartBtn.style.transition = 'transform 0.2s';
+            setTimeout(() => {
+                visibleCartBtn.style.transform = originalTransform;
+            }, 200);
+        }, 600);
     }
 
     /**
@@ -147,14 +205,6 @@ class CartManager {
         });
     }
 
-    showToast() {
-        if (window.showToast) {
-            window.showToast('Ajouté au panier !', 'success');
-        } else {
-            console.log('Ajouté au panier !');
-        }
-    }
-    
     // Toggle the slide-over Cart UI
     toggleCartUI(forceShow = false) {
         const cartUI = document.getElementById('cartSlideOver');
@@ -340,7 +390,7 @@ class CartManager {
             <div id="cartOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] opacity-0 pointer-events-none transition-opacity duration-300" onclick="window.CartManager._hideSlideOver()"></div>
             
             <!-- Cart Slide-over -->
-            <div id="cartSlideOver" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-gray-50 z-[1001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
+            <div id="cartSlideOver" class="fixed top-0 right-0 h-full w-full bg-gray-50 z-[1001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col overscroll-contain">
                 <!-- Header -->
                 <div class="px-6 py-5 flex items-center justify-between shrink-0" style="background:#013220; border-bottom:1px solid rgba(1,50,32,0.6);">
                     <div class="flex items-center gap-3">
@@ -355,7 +405,7 @@ class CartManager {
                 </div>
                 
                 <!-- Items list -->
-                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6" style="scrollbar-width: thin;">
+                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 overscroll-contain" style="scrollbar-width: thin;">
                     <!-- Items rendered here dynamically -->
                 </div>
                 

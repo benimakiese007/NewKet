@@ -112,19 +112,16 @@ const HEADER_HTML = `
                     <input type="text" id="searchInput" name="search" placeholder="Rechercher sur NewKet..." aria-label="Rechercher des produits"
                         class="search-input" autocomplete="off" spellcheck="false">
                         
-                    <button id="searchBtn" aria-label="Lancer la recherche"
-                        class="bg-slate-900 text-white px-4 py-2 rounded-xl hover:bg-slate-800 transition-all hidden md:flex items-center justify-center btn-active-scale">
-                        <iconify-icon icon="solar:magnifer-linear" width="18"></iconify-icon>
-                    </button>
+
                 </div>
 
-                <!-- Publish Button (Desktop Only) -->
+                <!-- Publish Button -->
                 <a href="{{ROOT}}src/pages/publish.html"
-                    class="shrink-0 bg-gray-900 text-white px-4 md:px-5 py-2 rounded-xl text-sm font-bold hover:bg-gray-800 transition-colors hidden sm:flex items-center gap-2 publish-btn h-[44px] whitespace-nowrap btn-active-scale"
+                    class="shrink-0 bg-gray-900 text-white p-2 md:px-5 md:py-2 rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 publish-btn h-[44px] min-w-[44px] md:min-w-0 order-last btn-active-scale"
                     data-track-action="navigation:publish_click"
                     aria-label="Vendre un article">
-                    <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
-                    <span class="hidden md:inline">Vendre</span>
+                    <iconify-icon icon="solar:add-circle-bold" width="22" class="md:w-5"></iconify-icon>
+                    <span class="hidden md:inline text-sm font-bold">Vendre</span>
                 </a>
 
                 <!-- Cart Icon (Tablet) -->
@@ -224,26 +221,30 @@ const HEADER_HTML = `
     <div class="flex-1 overflow-y-auto pt-4 pb-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
         <!-- Guest Call to Action -->
         <div id="mobileGuestCTA" class="px-4 mb-6">
-            <a href="{{ROOT}}src/pages/login.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800">
-                <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
-                    <iconify-icon icon="solar:user-bold" width="24"></iconify-icon>
+            <a href="{{ROOT}}src/pages/login.html" class="flex flex-row items-center gap-3 p-4 md:p-5 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800">
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-white/10 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                    <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
                 </div>
-                <div class="text-base font-bold">Compte NewKet</div>
-                <div class="text-xs text-white/60 font-medium">Connectez-vous pour voir vos favoris et vos commandes.</div>
-                <div class="mt-4 px-6 py-2.5 bg-white text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest">Se connecter</div>
+                <div class="flex-1 flex flex-col items-start">
+                    <div class="text-sm md:text-base font-bold">Compte NewKet</div>
+                    <div class="text-[10px] md:text-xs text-white/60 font-medium mt-0.5 leading-tight">Connectez-vous pour voir vos favoris et vos commandes.</div>
+                </div>
+                <div class="px-3 py-2 md:px-5 md:py-2.5 bg-white text-slate-900 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shrink-0">Se connecter</div>
             </a>
         </div>
 
         <!-- Logged User Call to Action -->
         <div id="mobileLoggedCTA" class="px-4 mb-6" style="display: none;">
-            <a id="mobileLoggedLink" href="{{ROOT}}src/pages/customer-dashboard.html" class="flex flex-col items-center gap-2 p-6 bg-slate-900 text-white rounded-[2rem] text-center group transition-all hover:bg-slate-800 shadow-xl">
-                <div class="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-1 group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
+            <a id="mobileLoggedLink" href="{{ROOT}}src/pages/customer-dashboard.html" class="flex flex-row items-center gap-3 p-4 md:p-5 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800 shadow-xl">
+                <div class="w-10 h-10 md:w-12 md:h-12 shrink-0 bg-white/10 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
                     <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
-                    <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="30" class="text-white hidden"></iconify-icon>
+                    <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="20" class="text-white hidden"></iconify-icon>
                 </div>
-                <div id="mobileLoggedName" class="text-base font-bold leading-tight mt-1">Mon Compte</div>
-                <div id="mobileLoggedRole" class="text-xs text-white/50 font-medium uppercase tracking-widest mt-1">Membre NewKet</div>
-                <div class="mt-4 px-6 py-2.5 bg-white/10 text-white border border-white/20 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-colors w-full">Mon Espace</div>
+                <div class="flex-1 flex flex-col items-start">
+                    <div id="mobileLoggedName" class="text-sm md:text-base font-bold leading-tight">Mon Compte</div>
+                    <div id="mobileLoggedRole" class="text-[10px] md:text-xs text-white/50 font-medium uppercase tracking-widest mt-0.5">Membre NewKet</div>
+                </div>
+                <div class="px-3 py-2 md:px-5 md:py-2.5 bg-white/10 text-white border border-white/20 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-colors shrink-0">Mon Espace</div>
             </a>
         </div>
 

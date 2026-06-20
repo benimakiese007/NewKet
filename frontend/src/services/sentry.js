@@ -29,7 +29,7 @@ export function initSentry() {
 
     if (!isSentryEnabled()) {
         if (env === 'development') {
-            console.info(`[Sentry] Monitoring disabled in ${env}. Set VITE_ENABLE_SENTRY_DEV=true to enable it locally.`);
+            // console.info(`[Sentry] Monitoring disabled in ${env}. Set VITE_ENABLE_SENTRY_DEV=true to enable it locally.`);
         }
         return;
     }
