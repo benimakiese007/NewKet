@@ -545,16 +545,31 @@
             </div>
 
             <!-- My Purchases Tab -->
-            <div id="tab-purchases" class="hidden">
+            <div id="tab-purchases" class="hidden space-y-6">
                 <div class="glass-panel p-8">
-                    <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center justify-between mb-4">
                         <h2 class="text-xl font-bold">Mes Achats</h2>
                         <div class="bg-gray-50 px-4 py-2 rounded-xl border border-gray-100">
                              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total dépensé</p>
                              <p class="font-black text-gray-900" id="vendorPurchasesTotal">0 FC</p>
                         </div>
                     </div>
+                    <!-- Filter buttons -->
+                    <div class="flex items-center gap-2 mb-8" id="purchasesFilterBar">
+                        <button type="button" class="purchases-filter-btn bg-black text-white shadow-lg px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="all">
+                            Tout
+                        </button>
+                        <button type="button" class="purchases-filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="paid">
+                            <iconify-icon icon="solar:wallet-bold" width="14" class="mr-1"></iconify-icon>
+                            Payé
+                        </button>
+                        <button type="button" class="purchases-filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="completed">
+                            <iconify-icon icon="solar:check-circle-bold" width="14" class="mr-1"></iconify-icon>
+                            Terminé
+                        </button>
+                    </div>
                     <div id="vendor-purchases-list" class="space-y-4">
+                        <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                         <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                         <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                     </div>

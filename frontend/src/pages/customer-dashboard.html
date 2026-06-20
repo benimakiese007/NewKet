@@ -3068,7 +3068,7 @@
                         const fallbackImg = window.resolvePath ? window.resolvePath('assets/Images/default.png') : '../assets/Images/default.png';
                         const statusBadge = getPurchaseStatusBadge(o);
                         return `
-                            <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700" style="animation-delay: ${index * 100}ms">
+                            <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 cursor-pointer" style="animation-delay: ${index * 100}ms" onclick="openOrderModal('${o.id}')">
                                 <div class="flex items-center gap-5">
                                     <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center overflow-hidden shrink-0 border border-gray-100 transition-colors">
                                         <img src="${img}" class="w-full h-full object-contain p-2" onerror="this.src='${fallbackImg}'">
