@@ -118,6 +118,11 @@ canvas {
         min-height: 520px !important;
     }
 
+    /* Mobile logo size */
+    .header-brand-image {
+        height: 4rem !important;
+    }
+
     /* Actions row: keep link button aligned right on mobile */
     .vendor-hero-inner .shop-hero-actions {
         justify-content: flex-end !important;
@@ -349,7 +354,7 @@ canvas {
     /* Tablet: keep search + (Vendre, Compte) on the same row */
     #mobileSearchContainer {
         display: grid !important;
-        grid-template-columns: minmax(0, 1fr) auto auto !important;
+        grid-template-columns: minmax(0, 1fr) auto auto auto !important;
         align-items: center !important;
         column-gap: 0.625rem !important;
     }
@@ -362,7 +367,8 @@ canvas {
     }
 
     .publish-btn,
-    #accountLinkTablet {
+    #accountLinkTablet,
+    #cartBtnTablet {
         flex: 0 0 auto !important;
         justify-self: end !important;
         white-space: nowrap !important;
@@ -373,9 +379,15 @@ canvas {
         grid-column: 2 !important;
     }
 
-    #accountLinkTablet {
+    #cartBtnTablet {
+        display: inline-flex !important;
         order: 3 !important;
         grid-column: 3 !important;
+    }
+
+    #accountLinkTablet {
+        order: 4 !important;
+        grid-column: 4 !important;
     }
 
     .header-search-row {

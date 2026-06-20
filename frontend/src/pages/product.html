@@ -543,6 +543,7 @@
                         title: p.name,
                         price: p.price,
                         image: p.images && p.images[0] ? p.images[0] : '',
+                        vendor_id: p.user_id || vendor?.id || '',
                         vendor: vendor?.company_name || vendor?.name || 'NewKet Shop'
                     }, quantity);
                 }

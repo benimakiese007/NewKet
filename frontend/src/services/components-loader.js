@@ -127,6 +127,14 @@ const HEADER_HTML = `
                     <span class="hidden md:inline">Vendre</span>
                 </a>
 
+                <!-- Cart Icon (Tablet) -->
+                <button id="cartBtnTablet" onclick="window.CartManager && window.CartManager.toggleCartUI()" 
+                    class="header-icon-button relative hidden items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    title="Panier" aria-label="Mon panier">
+                    <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22" class="text-white"></iconify-icon>
+                    <span class="cart-badge absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
+                </button>
+
                 <!-- Account Icon (Tablet) -->
                 <a id="accountLinkTablet" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative hidden items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Compte" aria-label="Mon compte">
@@ -510,7 +518,7 @@ const ComponentLoader = {
         // Load cart manager globally
         if (!window.CartManager) {
             const script = document.createElement('script');
-            script.src = this.getAdjustedPath('/src/services/cart.js');
+            script.src = this.getAdjustedPath('/js/cart.js');
             document.head.appendChild(script);
         }
 

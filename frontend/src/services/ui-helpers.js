@@ -736,7 +736,7 @@ export function buildProductCardHTML(p, options = {}) {
                 </div>
                 <div class="flex items-center gap-1 sm:gap-2 mt-auto pt-1 sm:pt-2">
                     <button 
-                        onclick="if(window.CartManager) window.CartManager.add({id: '${p.id}', title: '${(p.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${p.price}', image: '${p.images && p.images[0] ? p.images[0] : ''}', vendor: '${(vendor?.company_name || vendor?.name || 'NewKet').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}'})"
+                        onclick="if(window.CartManager) window.CartManager.add({id: '${p.id}', title: '${(p.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${p.price}', image: '${p.images && p.images[0] ? p.images[0] : ''}', vendor_id: '${p.user_id || vendor?.id || ''}', vendor: '${(vendor?.company_name || vendor?.name || 'NewKet').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}'})"
                         class="flex-1 btn-active-scale ${isAvailable ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-gray-200 text-gray-500'} py-2 sm:py-2.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
                         style="border:none; cursor:pointer;"
                         aria-label="Ajouter ${String(p.name).replace(/"/g, '&quot;')} au panier"
@@ -1295,7 +1295,8 @@ function nkGetSavedHomeLocation() {
  * Shows a checkout modal to collect customer details before payment.
  * Returns a Promise that resolves to { phone, name, city, lat, lng, quantity } or null if cancelled.
  */
-function showCheckoutModal(productName, productPrice, quantity = 1, stock = null) {
+window.showCheckoutModal = showCheckoutModal;
+export function showCheckoutModal(productName, productPrice, quantity = 1, stock = null, hideQuantity = false) {
     return new Promise(async (resolve) => {
         const escapeAttr = (value) =>
             String(value ?? '')
@@ -1483,6 +1484,7 @@ function showCheckoutModal(productName, productPrice, quantity = 1, stock = null
                             </div>
                         </div>
 
+                        ${hideQuantity ? '' : `
                         <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
                             <div class="flex items-center justify-between gap-3 mb-3">
                                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Quantité</label>
@@ -1498,6 +1500,7 @@ function showCheckoutModal(productName, productPrice, quantity = 1, stock = null
                                 La quantité modifie le total avant validation.
                             </div>
                         </div>
+                        `}
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Informations de livraison</label>
                             
@@ -1600,7 +1603,7 @@ function showCheckoutModal(productName, productPrice, quantity = 1, stock = null
         const stockHintEl = () => document.getElementById(`${modalId}-stock-hint`);
         const getClampedQuantity = () => {
             const raw = quantityInput()?.value;
-            let q = Math.max(1, parseInt(raw, 10) || 1);
+            let q = Math.max(1, parseInt(raw, 10) || initialQuantity);
             if (stockLimit) q = Math.min(q, stockLimit);
             return q;
         };

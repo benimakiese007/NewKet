@@ -195,6 +195,69 @@ class CartManager {
         }
     }
 
+    async checkout() {
+        if (this.cart.length === 0) {
+            if (window.showToast) window.showToast("Votre panier est vide.", "warning");
+            return;
+        }
+
+        const total = this.cart.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+        const description = "Commande de " + this.cart.length + " article(s)";
+
+        if (window.showCheckoutModal) {
+            const customerInfo = await window.showCheckoutModal(description, total, 1, 999, true);
+            if (!customerInfo) return; // Cancelled
+
+            if (window.SupabaseAdapter) {
+                const session = await window.SupabaseAdapter.getSession(3000);
+                if (!session?.access_token) {
+                    if (window.showToast) window.showToast('Vous devez être connecté pour passer une commande.', 'warning');
+                    return;
+                }
+            }
+
+            const { name, phone, city, email, lat, lng } = customerInfo;
+            
+            this.toggleCartUI(false);
+            if (window.showToast) window.showToast("Création de votre commande en cours...", "info");
+
+            let hasError = false;
+            for (const item of this.cart) {
+                const data = await window.ApiClient?.post('/orders', {
+                    product_id: item.id,
+                    vendor_id: item.vendor_id || item.vendor, // Assuming we pass vendor_id when adding
+                    quantity: item.quantity,
+                    customer_phone: phone,
+                    customer_name: name,
+                    customer_city: city,
+                    customer_email: email || null,
+                    customer_lat: lat,
+                    customer_lng: lng
+                });
+                if (!data?.success) {
+                    hasError = true;
+                    console.error("Order error for item", item.id, data?.error);
+                }
+            }
+
+            if (hasError) {
+                if (window.showToast) window.showToast("Certains articles n'ont pas pu être commandés.", "error");
+            } else {
+                this.cart = [];
+                this.saveCart();
+                this.renderCartItems();
+                
+                if (window.showOrderSuccessModal) {
+                    window.showOrderSuccessModal();
+                } else if (window.showToast) {
+                    window.showToast("Commande passée avec succès !", "success");
+                }
+            }
+        } else {
+            console.error("La fonction showCheckoutModal est introuvable.");
+        }
+    }
+
     renderCartItems() {
         const container = document.getElementById('cartItemsContainer');
         const totalEl = document.getElementById('cartTotalPrice');
@@ -238,12 +301,12 @@ class CartManager {
                         <div class="flex items-center justify-between mt-2">
                             <div class="font-black text-slate-900 text-sm">${priceFormatted}</div>
                             <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-100">
-                                <button onclick="window.CartManager.updateQuantity('${item.id}', ${item.quantity - 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700">
-                                    <iconify-icon icon="solar:minus-linear" width="14"></iconify-icon>
+                                <button onclick="window.CartManager.updateQuantity('${item.id}', ${item.quantity - 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
+                                    −
                                 </button>
                                 <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
-                                <button onclick="window.CartManager.updateQuantity('${item.id}', ${item.quantity + 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700">
-                                    <iconify-icon icon="solar:add-linear" width="14"></iconify-icon>
+                                <button onclick="window.CartManager.updateQuantity('${item.id}', ${item.quantity + 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
+                                    +
                                 </button>
                             </div>
                         </div>
@@ -263,8 +326,8 @@ class CartManager {
     }
 
     formatCurrency(amount) {
-        if (window.CurrencyManager && window.CurrencyManager.format) {
-            return window.CurrencyManager.format(amount);
+        if (window.CurrencyManager && window.CurrencyManager.formatPrice) {
+            return window.CurrencyManager.formatPrice(amount);
         }
         return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'USD' }).format(amount || 0);
     }
@@ -279,14 +342,14 @@ class CartManager {
             <!-- Cart Slide-over -->
             <div id="cartSlideOver" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-gray-50 z-[1001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col">
                 <!-- Header -->
-                <div class="px-6 py-5 bg-white border-b border-gray-100 flex items-center justify-between shrink-0">
+                <div class="px-6 py-5 flex items-center justify-between shrink-0" style="background:#013220; border-bottom:1px solid rgba(1,50,32,0.6);">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center">
+                        <div class="w-10 h-10 rounded-full text-white flex items-center justify-center" style="background:rgba(255,255,255,0.15);">
                             <iconify-icon icon="solar:cart-large-minimalistic-bold" width="20"></iconify-icon>
                         </div>
-                        <h2 class="text-lg font-black uppercase tracking-widest text-slate-900">Mon Panier</h2>
+                        <h2 class="text-lg font-black uppercase tracking-widest text-white">Mon Panier</h2>
                     </div>
-                    <button onclick="window.CartManager._hideSlideOver()" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors btn-active-scale">
+                    <button onclick="window.CartManager._hideSlideOver()" class="p-2 rounded-xl text-white transition-colors btn-active-scale" style="hover:background:rgba(255,255,255,0.1);">
                         <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>
                     </button>
                 </div>
@@ -303,9 +366,9 @@ class CartManager {
                         <span id="cartTotalPrice" class="text-xl font-black text-slate-900">$0.00</span>
                     </div>
                     <p class="text-[10px] text-gray-400 text-center mb-4">Les frais de livraison seront calculés à l'étape suivante.</p>
-                    <a href="/src/pages/checkout.html" id="cartCheckoutBtn" class="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-colors btn-active-scale shadow-lg shadow-slate-900/20">
+                    <button onclick="if(window.CartManager) window.CartManager.checkout()" id="cartCheckoutBtn" class="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-colors btn-active-scale shadow-lg shadow-slate-900/20">
                         Passer à la caisse <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
-                    </a>
+                    </button>
                 </div>
             </div>
         `;
