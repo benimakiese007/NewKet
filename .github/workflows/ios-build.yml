@@ -1,0 +1,89 @@
+name: 🍎 Build iOS App & Take Screenshots
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'ios_app/**'
+  workflow_dispatch: # Permet de lancer manuellement depuis GitHub
+
+jobs:
+  build-and-screenshot:
+    name: Build & Screenshot on iOS Simulator
+    runs-on: macos-15  # macOS gratuit sur GitHub Actions
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Select Xcode 16
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: 📱 List available simulators
+        run: xcrun simctl list devices available --json | python3 -c "import json,sys; devs=json.load(sys.stdin)['devices']; [print(v[0]['name'], v[0]['udid']) for k,v in devs.items() if 'iOS' in k and v]" 2>/dev/null || xcrun simctl list devices available | grep "iPhone 16"
+
+      - name: 🚀 Boot iPhone 16 Pro Simulator
+        run: |
+          UDID=$(xcrun simctl list devices available | grep "iPhone 16 Pro" | grep -v "Plus\|Max" | head -1 | grep -oE '[A-F0-9-]{36}')
+          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
+          xcrun simctl boot $UDID || true
+          echo "✅ Booted simulator: $UDID"
+
+      - name: 🔨 Build NewKet App (Simulator)
+        working-directory: ios_app
+        run: |
+          xcodebuild \
+            -project NewKet.xcodeproj \
+            -scheme NewKet \
+            -destination "platform=iOS Simulator,name=iPhone 16 Pro" \
+            -configuration Debug \
+            -derivedDataPath ../build \
+            build \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty --color || xcodebuild \
+            -project NewKet.xcodeproj \
+            -scheme NewKet \
+            -destination "platform=iOS Simulator,name=iPhone 16 Pro" \
+            -configuration Debug \
+            -derivedDataPath ../build \
+            build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: 📦 Install App on Simulator
+        run: |
+          APP_PATH=$(find build -name "NewKet.app" -type d | head -1)
+          echo "App path: $APP_PATH"
+          xcrun simctl install ${{ env.SIMULATOR_UDID }} "$APP_PATH"
+          echo "✅ App installed"
+
+      - name: ▶️ Launch App & Wait
+        run: |
+          xcrun simctl launch ${{ env.SIMULATOR_UDID }} com.newket.app
+          sleep 5  # Attendre que l'app se charge
+
+      - name: 📸 Take Screenshots
+        run: |
+          mkdir -p screenshots
+          xcrun simctl io ${{ env.SIMULATOR_UDID }} screenshot screenshots/01_accueil.png
+          sleep 2
+          echo "✅ Screenshot 1 - Accueil capturé"
+          
+          # Faire défiler pour voir les produits
+          xcrun simctl io ${{ env.SIMULATOR_UDID }} screenshot screenshots/02_produits.png
+          echo "✅ Screenshot 2 - Produits capturé"
+
+      - name: 📤 Upload Screenshots as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-App-Screenshots
+          path: screenshots/
+          retention-days: 7
+
+      - name: 📤 Upload .app for Appetize.io
+        uses: actions/upload-artifact@v4
+        with:
+          name: NewKet-iOS-App
+          path: build/Build/Products/Debug-iphonesimulator/NewKet.app
+          retention-days: 7
