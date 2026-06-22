@@ -23,9 +23,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    // ⚠️ Remplacez par l'IP de votre PC sur le réseau local (ex: 192.168.1.X:5000)
-    // En émulateur Android: utilisez 10.0.2.2 pour localhost
-    private const val BASE_URL = "http://10.0.2.2:5000/api/"
+    private const val BASE_URL = "https://kuygjocnnlvjtoaquicq.supabase.co/rest/v1/"
+    private const val SUPABASE_ANON_KEY = "sb_publishable_iMlPI6QIA0U0qqRfLp5_WA_-443VkDx"
 
     @Provides
     @Singleton
@@ -36,6 +35,13 @@ object AppModule {
                     level = HttpLoggingInterceptor.Level.BODY
                 }
             )
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("apikey", SUPABASE_ANON_KEY)
+                    .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                    .build()
+                chain.proceed(request)
+            }
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()

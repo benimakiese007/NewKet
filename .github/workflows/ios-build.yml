@@ -60,8 +60,17 @@ jobs:
 
       - name: 📦 Install App on Simulator
         run: |
-          APP_PATH=$(find build -name "NewKet.app" -type d | head -1)
+          APP_PATH="build/Build/Products/Debug-iphonesimulator/NewKet.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "❌ App not found at $APP_PATH! Searching..."
+            find build -name "*.app"
+            APP_PATH=$(find build -name "NewKet.app" -type d | head -1)
+          fi
           echo "App path: $APP_PATH"
+          if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
+            echo "Error: APP_PATH is empty or does not exist"
+            exit 1
+          fi
           xcrun simctl install ${{ env.SIMULATOR_UDID }} "$APP_PATH"
           echo "✅ App installed"
 

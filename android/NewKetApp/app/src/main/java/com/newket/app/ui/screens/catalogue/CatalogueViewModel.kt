@@ -26,7 +26,7 @@ class CatalogueViewModel @Inject constructor(
     private val _state = MutableStateFlow(CatalogueUiState())
     val state: StateFlow<CatalogueUiState> = _state
 
-    val categories = listOf("Tous", "Légumes", "Fruits", "Viandes", "Poissons", "Épices", "Boissons")
+    val categories = listOf("Tous", "Femme", "Homme", "Tech & Gadgets", "HIGH-TECH", "Art de vivre")
 
     init {
         loadProducts()
@@ -36,13 +36,19 @@ class CatalogueViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
             try {
-                val category = if (_state.value.selectedCategory == "Tous" || _state.value.selectedCategory == null) null
-                               else _state.value.selectedCategory
-                val search = _state.value.searchQuery.takeIf { it.isNotBlank() }
-                val response = api.getProducts(category = category, search = search)
+                val response = api.getProducts()
                 if (response.isSuccessful) {
+                    var list = response.body() ?: emptyList()
+                    val cat = _state.value.selectedCategory
+                    if (cat != null && cat != "Tous") {
+                        list = list.filter { it.category?.equals(cat, ignoreCase = true) == true }
+                    }
+                    val query = _state.value.searchQuery
+                    if (query.isNotBlank()) {
+                        list = list.filter { it.name.contains(query, ignoreCase = true) }
+                    }
                     _state.value = _state.value.copy(
-                        products = response.body() ?: emptyList(),
+                        products = list,
                         isLoading = false
                     )
                 } else {
@@ -70,5 +76,22 @@ class CatalogueViewModel @Inject constructor(
             selectedCategory = if (category == "Tous") null else category
         )
         loadProducts()
+    }
+
+    // Appelé depuis CatalogueScreen (raccourci combiné)
+    fun search(query: String, category: String) {
+        _state.value = _state.value.copy(
+            searchQuery = query,
+            selectedCategory = if (category == "Tous") null else category
+        )
+        loadProducts()
+    }
+
+    fun toggleFavorite(productId: String) {
+        // TODO: connecter à l'API favoris
+        val updated = _state.value.products.map { p ->
+            if (p.id == productId) p.copy(isFavorite = !p.isFavorite) else p
+        }
+        _state.value = _state.value.copy(products = updated)
     }
 }

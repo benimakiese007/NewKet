@@ -30,14 +30,19 @@ class ProductDetailViewModel @Inject constructor(
     private val _state = MutableStateFlow(ProductDetailUiState())
     val state: StateFlow<ProductDetailUiState> = _state
 
-    fun loadProduct(id: Int) {
+    fun loadProduct(id: String) {
         viewModelScope.launch {
             _state.value = ProductDetailUiState(isLoading = true)
             try {
-                val response = api.getProduct(id)
+                val response = api.getProduct(id = "eq.$id")
                 if (response.isSuccessful) {
-                    _state.value = ProductDetailUiState(product = response.body())
-                    checkFavorite(id)
+                    val product = response.body()?.firstOrNull()
+                    if (product != null) {
+                        _state.value = ProductDetailUiState(product = product)
+                        checkFavorite(id)
+                    } else {
+                        _state.value = ProductDetailUiState(error = "Produit introuvable")
+                    }
                 } else {
                     _state.value = ProductDetailUiState(error = "Produit introuvable")
                 }
@@ -47,7 +52,7 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
 
-    private fun checkFavorite(productId: Int) {
+    private fun checkFavorite(productId: String) {
         viewModelScope.launch {
             val token = session.token.first() ?: return@launch
             try {
@@ -60,7 +65,7 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
 
-    fun toggleFavorite(productId: Int) {
+    fun toggleFavorite(productId: String) {
         viewModelScope.launch {
             val token = session.token.first() ?: return@launch
             try {
@@ -75,7 +80,7 @@ class ProductDetailViewModel @Inject constructor(
         }
     }
 
-    fun addToCart(productId: Int, quantity: Int) {
+    fun addToCart(productId: String, quantity: Int) {
         viewModelScope.launch {
             val token = session.token.first() ?: return@launch
             try {

@@ -19,14 +19,12 @@ interface NewKetApiService {
     // ---- Products ----
     @GET("products")
     suspend fun getProducts(
-        @Query("category") category: String? = null,
-        @Query("search") search: String? = null,
-        @Query("page") page: Int? = null,
-        @Query("limit") limit: Int? = null
+        @Query("select") select: String = "*",
+        @Query("order") order: String = "created_at.desc"
     ): Response<List<Product>>
 
-    @GET("products/{id}")
-    suspend fun getProduct(@Path("id") id: Int): Response<Product>
+    @GET("products")
+    suspend fun getProduct(@Query("id") id: String, @Query("select") select: String = "*"): Response<List<Product>>
 
     // ---- Cart ----
     @GET("cart")
@@ -38,17 +36,17 @@ interface NewKetApiService {
         @Body request: AddToCartRequest
     ): Response<CartItem>
 
-    @PUT("cart/{id}")
+    @PUT("cart")
     suspend fun updateCartItem(
         @Header("Authorization") token: String,
-        @Path("id") id: Int,
+        @Query("id") id: String,
         @Body request: UpdateCartRequest
     ): Response<CartItem>
 
-    @DELETE("cart/{id}")
+    @DELETE("cart")
     suspend fun removeFromCart(
         @Header("Authorization") token: String,
-        @Path("id") id: Int
+        @Query("id") id: String
     ): Response<Unit>
 
     @DELETE("cart")
@@ -58,16 +56,16 @@ interface NewKetApiService {
     @GET("favorites")
     suspend fun getFavorites(@Header("Authorization") token: String): Response<List<Favorite>>
 
-    @POST("favorites/{productId}")
+    @POST("favorites")
     suspend fun addFavorite(
         @Header("Authorization") token: String,
-        @Path("productId") productId: Int
+        @Query("productId") productId: String
     ): Response<Favorite>
 
-    @DELETE("favorites/{productId}")
+    @DELETE("favorites")
     suspend fun removeFavorite(
         @Header("Authorization") token: String,
-        @Path("productId") productId: Int
+        @Query("productId") productId: String
     ): Response<Unit>
 
     // ---- Orders ----

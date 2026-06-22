@@ -31,8 +31,8 @@ private val LightColorScheme = lightColorScheme(
     background = NewKetBackground,
     surface = NewKetSurface,
     onPrimary = Color.White,
-    onBackground = NewKetOnSurface,
-    onSurface = NewKetOnSurface,
+    onBackground = NewKetTextPrimary,
+    onSurface = NewKetTextPrimary,
     error = NewKetError
 )
 

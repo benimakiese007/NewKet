@@ -19,15 +19,19 @@ class SessionManager @Inject constructor(
     companion object {
         private val KEY_TOKEN = stringPreferencesKey("auth_token")
         private val KEY_USER = stringPreferencesKey("user_data")
-        private val KEY_USER_ID = intPreferencesKey("user_id")
+        private val KEY_USER_ID = stringPreferencesKey("user_id")
     }
 
     private val gson = Gson()
 
     val token: Flow<String?> = dataStore.data.map { it[KEY_TOKEN] }
-    val userId: Flow<Int?> = dataStore.data.map { it[KEY_USER_ID] }
+    val userId: Flow<String?> = dataStore.data.map { it[KEY_USER_ID] }
     val user: Flow<User?> = dataStore.data.map { prefs ->
         prefs[KEY_USER]?.let { gson.fromJson(it, User::class.java) }
+    }
+    // Rôle de l'utilisateur connecté ("buyer" ou "supplier")
+    val role: Flow<String> = dataStore.data.map { prefs ->
+        prefs[KEY_USER]?.let { gson.fromJson(it, User::class.java) }?.role ?: "buyer"
     }
 
     suspend fun saveSession(token: String, user: User) {

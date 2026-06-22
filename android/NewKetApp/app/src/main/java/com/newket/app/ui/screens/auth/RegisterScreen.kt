@@ -56,8 +56,7 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("🛒", fontSize = 48.sp)
-            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = "Créer un compte",
                 fontSize = 28.sp,
@@ -92,7 +91,9 @@ fun RegisterScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = NewKetGreen,
                             focusedLabelColor = NewKetGreen,
-                            focusedLeadingIconColor = NewKetGreen
+                            focusedLeadingIconColor = NewKetGreen,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
                         )
                     )
 
@@ -109,7 +110,9 @@ fun RegisterScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = NewKetGreen,
                             focusedLabelColor = NewKetGreen,
-                            focusedLeadingIconColor = NewKetGreen
+                            focusedLeadingIconColor = NewKetGreen,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
                         )
                     )
 
@@ -135,7 +138,9 @@ fun RegisterScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = NewKetGreen,
                             focusedLabelColor = NewKetGreen,
-                            focusedLeadingIconColor = NewKetGreen
+                            focusedLeadingIconColor = NewKetGreen,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
                         )
                     )
 

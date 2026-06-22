@@ -3,24 +3,30 @@ package com.newket.app.data.model
 import com.google.gson.annotations.SerializedName
 
 data class Product(
-    val id: Int = 0,
+    val id: String = "",
     val name: String = "",
     val description: String = "",
     val price: Double = 0.0,
+    @SerializedName("old_price")
+    val oldPrice: Double? = null,
     val stock: Int = 0,
-    val category: String = "",
-    @SerializedName("image_url")
-    val imageUrl: String? = null,
-    @SerializedName("seller_id")
-    val sellerId: Int = 0,
-    @SerializedName("seller_name")
-    val sellerName: String = "",
+    val category: String? = null,
+    @SerializedName("image")
+    val image: String? = null, // Can be comma separated
+    @SerializedName("supplier_email")
+    val sellerId: String = "",
     @SerializedName("created_at")
-    val createdAt: String = ""
+    val createdAt: String = "",
+    @SerializedName("is_new")
+    val isNew: Boolean = false,
+    @SerializedName("is_promo")
+    val isPromo: Boolean = false,
+    // Champ local (non-API) pour suivre les favoris
+    @Transient val isFavorite: Boolean = false
 )
 
 data class User(
-    val id: Int = 0,
+    val id: String = "",
     val name: String = "",
     val email: String = "",
     val role: String = "buyer",
@@ -28,19 +34,19 @@ data class User(
 )
 
 data class CartItem(
-    val id: Int = 0,
+    val id: String = "",
     @SerializedName("product_id")
-    val productId: Int = 0,
+    val productId: String = "",
     @SerializedName("user_id")
-    val userId: Int = 0,
+    val userId: String = "",
     val quantity: Int = 0,
     val product: Product? = null
 )
 
 data class Order(
-    val id: Int = 0,
+    val id: String = "",
     @SerializedName("user_id")
-    val userId: Int = 0,
+    val userId: String = "",
     val status: String = "",
     val total: Double = 0.0,
     val items: List<OrderItem> = emptyList(),
@@ -49,19 +55,19 @@ data class Order(
 )
 
 data class OrderItem(
-    val id: Int = 0,
+    val id: String = "",
     @SerializedName("product_id")
-    val productId: Int = 0,
+    val productId: String = "",
     val quantity: Int = 0,
     val price: Double = 0.0,
     val product: Product? = null
 )
 
 data class Favorite(
-    val id: Int = 0,
+    val id: String = "",
     @SerializedName("user_id")
-    val userId: Int = 0,
+    val userId: String = "",
     @SerializedName("product_id")
-    val productId: Int = 0,
+    val productId: String = "",
     val product: Product? = null
 )

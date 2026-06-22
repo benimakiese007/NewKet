@@ -46,7 +46,7 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    fun removeFavorite(productId: Int) {
+    fun removeFavorite(productId: String) {
         viewModelScope.launch {
             val token = session.token.first() ?: return@launch
             try {

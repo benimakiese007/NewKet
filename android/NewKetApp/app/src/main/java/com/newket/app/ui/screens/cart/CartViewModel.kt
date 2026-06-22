@@ -52,7 +52,7 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    fun removeItem(itemId: Int) {
+    fun removeItem(itemId: String) {
         viewModelScope.launch {
             val token = session.token.first() ?: return@launch
             try {
@@ -64,7 +64,19 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    fun updateQuantity(itemId: Int, quantity: Int) {
+    fun addItem(productId: String, quantity: Int = 1) {
+        viewModelScope.launch {
+            val token = session.token.first() ?: return@launch
+            try {
+                if (quantity <= 0) {
+                    return@launch
+                }
+                // Implementation for adding item would go here
+            } catch (e: Exception) { /* ignore */ }
+        }
+    }
+
+    fun updateQuantity(itemId: String, quantity: Int) {
         viewModelScope.launch {
             val token = session.token.first() ?: return@launch
             try {

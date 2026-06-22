@@ -27,7 +27,7 @@ data class ApiResponse<T>(
 
 // ---- Cart ----
 data class AddToCartRequest(
-    val productId: Int,
+    val productId: String,
     val quantity: Int
 )
 
@@ -41,6 +41,6 @@ data class CreateOrderRequest(
 )
 
 data class OrderItemRequest(
-    val productId: Int,
+    val productId: String,
     val quantity: Int
 )

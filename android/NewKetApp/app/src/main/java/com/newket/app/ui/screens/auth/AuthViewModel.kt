@@ -45,11 +45,11 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun register(name: String, email: String, password: String) {
+    fun register(name: String, email: String, password: String, role: String = "buyer") {
         viewModelScope.launch {
             _state.value = AuthUiState(isLoading = true)
             try {
-                val response = api.register(RegisterRequest(name.trim(), email.trim(), password))
+                val response = api.register(RegisterRequest(name.trim(), email.trim(), password, role))
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
                     session.saveSession(body.token, body.user)
