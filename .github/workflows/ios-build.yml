@@ -16,10 +16,17 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🔧 Select Xcode 16
+      - name: 🛠 Select Xcode 16
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.0'
+
+      - name: 📦 Install XcodeGen
+        run: brew install xcodegen
+
+      - name: ⚙️ Generate Xcode Project
+        working-directory: ios_app
+        run: xcodegen generate
 
       - name: 📱 List available simulators
         run: xcrun simctl list devices available --json | python3 -c "import json,sys; devs=json.load(sys.stdin)['devices']; [print(v[0]['name'], v[0]['udid']) for k,v in devs.items() if 'iOS' in k and v]" 2>/dev/null || xcrun simctl list devices available | grep "iPhone 16"
