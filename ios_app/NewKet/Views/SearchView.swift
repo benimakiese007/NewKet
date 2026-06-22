@@ -10,9 +10,8 @@ struct SearchView: View {
             
             ScrollView {
                 VStack(spacing: 20) {
-                    Spacer().frame(height: 140) // Espace pour le header et la barre de recherche
+                    Spacer().frame(height: 140)
                     
-                    // Contenu principal de recherche
                     VStack(spacing: 16) {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 48))
@@ -28,84 +27,42 @@ struct SearchView: View {
                 }
             }
             
-            // Glass Search Header
-            if #available(iOS 26, *) {
-                GlassSearchHeader(text: $searchText)
-            } else {
-                FallbackSearchHeader(text: $searchText)
-            }
-        }
-    }
-}
-
-// MARK: - Glass Search Header (iOS 26+)
-@available(iOS 26, *)
-struct GlassSearchHeader: View {
-    @Binding var text: String
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("Recherche")
-                .font(InterFont.bold(size: 24))
-                .foregroundColor(.newketDark)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.newketGray)
-                    .font(.system(size: 18))
-                TextField("Que cherchez-vous ?", text: $text)
-                    .font(InterFont.medium(size: 15))
+            // Search Header (iOS 17+ compatible)
+            VStack(spacing: 16) {
+                Text("Recherche")
+                    .font(InterFont.bold(size: 24))
                     .foregroundColor(.newketDark)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.newketGray)
+                        .font(.system(size: 18))
+                    TextField("Que cherchez-vous ?", text: $searchText)
+                        .font(InterFont.medium(size: 15))
+                        .foregroundColor(.newketDark)
+                }
+                .padding(14)
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
             }
-            .padding(14)
-            .background(Color.white.opacity(0.8))
-            .cornerRadius(12)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
+            .padding(.top, topSafeArea)
+            .background(.ultraThinMaterial)
+            .overlay(
+                Rectangle()
+                    .frame(height: 0.5)
+                    .foregroundColor(Color.black.opacity(0.1)),
+                alignment: .bottom
+            )
+            .ignoresSafeArea(edges: .top)
         }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 20)
-        .padding(.top, topSafeArea)
-        .glassEffect(.regular.interactive(), in: .rect(bottomLeadingRadius: 24, bottomTrailingRadius: 24))
-        .ignoresSafeArea(.all, edges: .top)
     }
     
     var topSafeArea: CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 44
-    }
-}
-
-// MARK: - Fallback Search Header
-struct FallbackSearchHeader: View {
-    @Binding var text: String
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("Recherche")
-                .font(InterFont.bold(size: 24))
-                .foregroundColor(.newketDark)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.newketGray)
-                    .font(.system(size: 18))
-                TextField("Que cherchez-vous ?", text: $text)
-                    .font(InterFont.medium(size: 15))
-                    .foregroundColor(.newketDark)
-            }
-            .padding(14)
-            .background(Color.white)
-            .cornerRadius(12)
-        }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 20)
-        .padding(.top, topSafeArea)
-        .background(.ultraThinMaterial)
-        .ignoresSafeArea(.all, edges: .top)
-    }
-    
-    var topSafeArea: CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 44
+        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.safeAreaInsets.top ?? 44
     }
 }
 

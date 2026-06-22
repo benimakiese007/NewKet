@@ -23,9 +23,7 @@ struct SellView: View {
                     
                     // Zone Photo
                     VStack(spacing: 12) {
-                        Button(action: {
-                            // Ouvrir la caméra / galerie
-                        }) {
+                        Button(action: {}) {
                             VStack(spacing: 12) {
                                 Image(systemName: "camera.fill")
                                     .font(.system(size: 36))
@@ -109,23 +107,46 @@ struct SellView: View {
                     .padding(.horizontal, 16)
                     
                     // Bouton Publier
-                    Button(action: {
-                        // Publier l'annonce
-                    }) {
+                    Button(action: {}) {
                         Text("Publier l'annonce")
                             .font(.headline)
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 16)
+                            .background(Color.newketDark)
+                            .cornerRadius(12)
                     }
-                    .buttonStyle(.glassProminent)
                     .padding(.horizontal, 16)
                     
                     Spacer().frame(height: 100)
                 }
             }
             
-            SimpleGlassHeader(title: "Vendre")
+            // Header
+            VStack {
+                HStack {
+                    Text("Vendre")
+                        .font(InterFont.bold(size: 24))
+                        .foregroundColor(.newketDark)
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
+                .padding(.top, topSafeArea)
+                .background(.ultraThinMaterial)
+                .overlay(
+                    Rectangle()
+                        .frame(height: 0.5)
+                        .foregroundColor(Color.black.opacity(0.1)),
+                    alignment: .bottom
+                )
+            }
+            .ignoresSafeArea(edges: .top)
         }
+    }
+    
+    var topSafeArea: CGFloat {
+        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.safeAreaInsets.top ?? 44
     }
 }
 

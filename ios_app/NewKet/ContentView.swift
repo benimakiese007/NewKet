@@ -25,70 +25,19 @@ struct ContentView: View {
             .ignoresSafeArea()
             
             // Custom Glass Tab Bar
-            if #available(iOS 26, *) {
-                GlassTabBar(selectedTab: $selectedTab)
-            } else {
-                FallbackTabBar(selectedTab: $selectedTab)
-            }
+            GlassTabBar(selectedTab: $selectedTab)
         }
     }
 }
 
-// MARK: - Glass Tab Bar (iOS 26+)
-@available(iOS 26, *)
+// MARK: - Glass Tab Bar
 struct GlassTabBar: View {
     @Binding var selectedTab: Int
     @Namespace private var tabAnimation
     
     var body: some View {
-        GlassEffectContainer(spacing: 8) {
-            HStack(spacing: 0) {
-                // Main capsule containing primary tabs
-                HStack(spacing: 6) {
-                    TabBarButton(icon: "house.fill", title: "Accueil", index: 0, selectedTab: $selectedTab, animation: tabAnimation)
-                    TabBarButton(icon: "square.grid.2x2.fill", title: "Catalogue", index: 2, selectedTab: $selectedTab, animation: tabAnimation)
-                    TabBarButton(icon: "cart.fill", title: "Panier", index: 3, selectedTab: $selectedTab, animation: tabAnimation)
-                    TabBarButton(icon: "person.fill", title: "Profil", index: 4, selectedTab: $selectedTab, animation: tabAnimation)
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 10)
-                .glassEffect(.regular, in: .capsule)
-                
-                // Separate circle for search (like Apple Music's Search tab)
-                Button(action: {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                        selectedTab = 1
-                    }
-                }) {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(selectedTab == 1 ? .blue : .primary)
-                        .padding(14)
-                        .background {
-                            if selectedTab == 1 {
-                                Circle()
-                                    .fill(Color.clear)
-                                    .glassEffect(.prominent.interactive())
-                                    .glassEffectID("tab_highlight", in: tabAnimation)
-                            }
-                        }
-                }
-                .glassEffect(.regular.interactive(), in: .circle)
-                .padding(.leading, 8)
-            }
-        }
-        .padding(.bottom, 16)
-    }
-}
-
-// MARK: - Fallback Tab Bar (iOS 25 and below)
-struct FallbackTabBar: View {
-    @Binding var selectedTab: Int
-    @Namespace private var tabAnimation
-    
-    var body: some View {
         HStack(spacing: 8) {
-            // Main capsule
+            // Main capsule containing primary tabs
             HStack(spacing: 6) {
                 TabBarButton(icon: "house.fill", title: "Accueil", index: 0, selectedTab: $selectedTab, animation: tabAnimation)
                 TabBarButton(icon: "square.grid.2x2.fill", title: "Catalogue", index: 2, selectedTab: $selectedTab, animation: tabAnimation)
@@ -98,8 +47,9 @@ struct FallbackTabBar: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 10)
             .background(.ultraThinMaterial, in: Capsule())
+            .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 0.5))
             
-            // Search button
+            // Separate circle for Search
             Button(action: {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     selectedTab = 1
@@ -111,16 +61,17 @@ struct FallbackTabBar: View {
                     .padding(14)
                     .background {
                         if selectedTab == 1 {
-                            Circle()
-                                .fill(Color.blue.opacity(0.2))
-                                .matchedGeometryEffect(id: "tab_highlight", in: tabAnimation)
+                            Circle().fill(Color.blue.opacity(0.2))
+                                .matchedGeometryEffect(id: "search_highlight", in: tabAnimation)
                         }
                     }
             }
             .background(.ultraThinMaterial, in: Circle())
+            .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 0.5))
             .padding(.leading, 8)
         }
         .padding(.bottom, 16)
+        .shadow(color: .black.opacity(0.12), radius: 20, x: 0, y: 8)
     }
 }
 
@@ -151,16 +102,9 @@ struct TabBarButton: View {
             .padding(.vertical, 8)
             .background {
                 if selectedTab == index {
-                    if #available(iOS 26, *) {
-                        Capsule()
-                            .fill(Color.clear)
-                            .glassEffect(.prominent.interactive())
-                            .glassEffectID("tab_highlight", in: animation)
-                    } else {
-                        Capsule()
-                            .fill(Color.blue.opacity(0.2))
-                            .matchedGeometryEffect(id: "tab_highlight", in: animation)
-                    }
+                    Capsule()
+                        .fill(Color.blue.opacity(0.2))
+                        .matchedGeometryEffect(id: "tab_highlight", in: animation)
                 }
             }
         }

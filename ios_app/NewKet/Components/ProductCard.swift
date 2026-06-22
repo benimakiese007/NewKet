@@ -1,47 +1,38 @@
 import SwiftUI
 
-struct Product {
-    let id: UUID = UUID()
-    let name: String
-    let price: String
-    let imageName: String
-    var brand: String = "Marque" // Added brand property
-}
-
 struct ProductCard: View {
     let product: Product
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Product Image
+            // Image
             ZStack(alignment: .topTrailing) {
                 Rectangle()
                     .fill(Color.newketLightGray)
-                    .aspectRatio(1.0, contentMode: .fit)
+                    .aspectRatio(0.8, contentMode: .fit)
                     .overlay(
                         Image(systemName: product.imageName)
                             .font(.system(size: 40))
                             .foregroundColor(.newketGray)
                     )
                 
-                // Favorite Button
+                // Cœur favori
                 Button(action: {}) {
                     Image(systemName: "heart")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 16))
                         .foregroundColor(.newketDark)
                         .padding(8)
-                        .background(Color.white)
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                        .background(.ultraThinMaterial, in: Circle())
                 }
-                .padding(12)
+                .padding(8)
             }
             
+            // Infos
             VStack(alignment: .leading, spacing: 4) {
                 Text(product.brand)
-                    .font(InterFont.semibold(size: 11))
+                    .font(InterFont.bold(size: 10))
                     .foregroundColor(.newketGray)
-                    .textCase(.uppercase)
+                    .tracking(1)
                 
                 Text(product.name)
                     .font(InterFont.medium(size: 14))
@@ -49,28 +40,23 @@ struct ProductCard: View {
                     .lineLimit(1)
                 
                 Text(product.price)
-                    .font(InterFont.bold(size: 16))
+                    .font(InterFont.bold(size: 14))
                     .foregroundColor(.newketDark)
-                    .padding(.top, 4)
+                    .padding(.top, 2)
             }
-            .padding(16)
+            .padding(12)
         }
         .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.08), radius: 15, x: 0, y: 4) // Exact Tailwind shadow-lg
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.08), radius: 15, x: 0, y: 4)
     }
 }
 
-// MARK: - Glass Card Modifier (Legacy kept for other parts if needed)
+// MARK: - Glass Card Modifier (Fallback)
 struct GlassCardModifier: ViewModifier {
     func body(content: Content) -> some View {
-        if #available(iOS 26, *) {
-            content
-                .glassEffect(.regular, in: .rect(cornerRadius: 16))
-        } else {
-            content
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        }
+        content
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
@@ -78,6 +64,6 @@ struct GlassCardModifier: ViewModifier {
     ZStack {
         Color.newketLightGray.ignoresSafeArea()
         ProductCard(product: Product(name: "T-Shirt NewKet", price: "25,00 €", imageName: "tshirt", brand: "NEWKET"))
-            .frame(width: 200)
+            .padding()
     }
 }

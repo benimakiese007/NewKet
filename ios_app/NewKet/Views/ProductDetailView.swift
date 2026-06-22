@@ -11,7 +11,7 @@ struct ProductDetailView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-                    // Image Produit (plein écran)
+                    // Image Produit
                     Rectangle()
                         .fill(Color.gray.opacity(0.2))
                         .frame(height: 400)
@@ -103,9 +103,9 @@ struct ProductDetailView: View {
                     .padding(.top, 20)
                 }
             }
-            .ignoresSafeArea(.all, edges: .top)
+            .ignoresSafeArea(edges: .top)
             
-            // Bouton Retour Glass
+            // Boutons de navigation (Retour / Partager)
             HStack {
                 Button(action: { dismiss() }) {
                     Image(systemName: "chevron.left")
@@ -114,19 +114,19 @@ struct ProductDetailView: View {
                         .foregroundColor(.primary)
                         .frame(width: 44, height: 44)
                 }
-                .modifier(GlassCircleModifier())
+                .background(.ultraThinMaterial, in: Circle())
+                .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 0.5))
                 
                 Spacer()
                 
-                Button(action: {
-                    // Partager
-                }) {
+                Button(action: {}) {
                     Image(systemName: "square.and.arrow.up")
                         .font(.title3)
                         .foregroundColor(.primary)
                         .frame(width: 44, height: 44)
                 }
-                .modifier(GlassCircleModifier())
+                .background(.ultraThinMaterial, in: Circle())
+                .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 0.5))
             }
             .padding(.horizontal, 16)
             .padding(.top, topSafeArea)
@@ -135,37 +135,44 @@ struct ProductDetailView: View {
             VStack {
                 Spacer()
                 HStack(spacing: 12) {
-                    Button(action: {
-                        // Faire une offre
-                    }) {
+                    Button(action: {}) {
                         Text("Faire une offre")
                             .font(.headline)
+                            .foregroundColor(.newketDark)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 14)
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.newketDark, lineWidth: 1))
                     }
-                    .buttonStyle(.glass)
                     
-                    Button(action: {
-                        // Acheter maintenant
-                    }) {
+                    Button(action: {}) {
                         Text("Acheter")
                             .font(.headline)
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 14)
+                            .background(Color.newketDark)
+                            .cornerRadius(12)
                     }
-                    .buttonStyle(.glassProminent)
                 }
                 .padding(.horizontal, 16)
-                .padding(.bottom, 30)
-                .modifier(HeaderGlassModifier())
+                .padding(.vertical, 16)
+                .background(.ultraThinMaterial)
+                .overlay(
+                    Rectangle()
+                        .frame(height: 0.5)
+                        .foregroundColor(Color.black.opacity(0.1)),
+                    alignment: .top
+                )
             }
-            .ignoresSafeArea(.all, edges: .bottom)
+            .ignoresSafeArea(edges: .bottom)
         }
         .navigationBarHidden(true)
     }
     
     var topSafeArea: CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 44
+        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.safeAreaInsets.top ?? 44
     }
 }
 
@@ -181,17 +188,6 @@ struct DetailRow: View {
             Spacer()
             Text(value)
                 .fontWeight(.medium)
-        }
-    }
-}
-
-// MARK: - Glass Circle Button Modifier
-struct GlassCircleModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 26, *) {
-            content.glassEffect(.regular.interactive(), in: .circle)
-        } else {
-            content.background(.ultraThinMaterial, in: Circle())
         }
     }
 }

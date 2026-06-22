@@ -28,11 +28,7 @@ struct HomeView: View {
                 }
                 
                 // Header
-                if #available(iOS 26, *) {
-                    GlassHeader()
-                } else {
-                    FallbackHeader()
-                }
+                HomeHeader()
             }
             .navigationBarHidden(true)
         }
@@ -52,28 +48,23 @@ struct HeroSection: View {
             .frame(height: 500)
             .clipped()
             
-            // Dark Gradient Overlay matching Web's linear-gradient
+            // Dark Gradient Overlay
             LinearGradient(
                 gradient: Gradient(colors: [Color.black.opacity(0.4), Color.black.opacity(0.4)]),
                 startPoint: .top,
                 endPoint: .bottom
             )
             
-            // Blur effect
-            Color.black.opacity(0.5)
-                .background(.ultraThinMaterial)
-                .opacity(0.1) // Subtle blur overlay
-            
             VStack(alignment: .center, spacing: 24) {
                 VStack(spacing: -10) {
                     Text("SUBTILE")
                         .font(InterFont.black(size: 48))
                         .foregroundColor(.white)
-                        .tracking(-2) // tracking-tighter
+                        .tracking(-2)
                     Text("ÉLÉGANCE.")
                         .font(InterFont.black(size: 48))
-                        .foregroundColor(Color(white: 0.8)) // text-gray-300
-                        .tracking(-2) // tracking-tighter
+                        .foregroundColor(Color(white: 0.8))
+                        .tracking(-2)
                 }
                 .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
                 
@@ -82,11 +73,9 @@ struct HeroSection: View {
                     .foregroundColor(Color.white.opacity(0.9))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
-                    .lineSpacing(4) // leading-relaxed
+                    .lineSpacing(4)
                 
-                Button(action: {
-                    // Action
-                }) {
+                Button(action: {}) {
                     Text("DÉCOUVRIR LA COLLECTION")
                         .font(InterFont.black(size: 15))
                         .foregroundColor(.black)
@@ -95,7 +84,7 @@ struct HeroSection: View {
                         .background(Color.white)
                         .cornerRadius(16)
                         .shadow(color: .black.opacity(0.3), radius: 15, x: 0, y: 10)
-                        .tracking(3) // uppercase tracking-[0.2em]
+                        .tracking(3)
                 }
                 .padding(.top, 8)
                 
@@ -158,7 +147,6 @@ struct PinnedProductsSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     if isLoading {
-                        // Skeleton Loaders
                         ForEach(0..<3) { _ in
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(Color.newketLightGray)
@@ -173,7 +161,7 @@ struct PinnedProductsSection: View {
                     } else {
                         ForEach(products, id: \.id) { product in
                             SupabaseProductCard(product: product)
-                                .frame(width: 180) // Fixed width for horizontal scroll like web
+                                .frame(width: 180)
                         }
                     }
                 }
@@ -184,33 +172,8 @@ struct PinnedProductsSection: View {
     }
 }
 
-// MARK: - Glass Header
-@available(iOS 26, *)
-struct GlassHeader: View {
-    var body: some View {
-        HStack {
-            Text("NewKet")
-                .font(InterFont.bold(size: 24))
-                .foregroundColor(.newketDark)
-            Spacer()
-            Image(systemName: "bell.fill")
-                .font(.title2)
-                .foregroundColor(.newketDark)
-        }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 16)
-        .padding(.top, topSafeArea)
-        .glassEffect(.regular, in: .rect(bottomLeadingRadius: 24, bottomTrailingRadius: 24))
-        .ignoresSafeArea(.all, edges: .top)
-    }
-    
-    var topSafeArea: CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 44
-    }
-}
-
-// MARK: - Fallback Header
-struct FallbackHeader: View {
+// MARK: - Home Header (compatible iOS 17+)
+struct HomeHeader: View {
     var body: some View {
         HStack {
             Text("NewKet")
@@ -225,10 +188,16 @@ struct FallbackHeader: View {
         .padding(.bottom, 16)
         .padding(.top, topSafeArea)
         .background(.ultraThinMaterial)
-        .ignoresSafeArea(.all, edges: .top)
+        .overlay(
+            Rectangle()
+                .frame(height: 0.5)
+                .foregroundColor(Color.black.opacity(0.1)),
+            alignment: .bottom
+        )
+        .ignoresSafeArea(edges: .top)
     }
     
     var topSafeArea: CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 44
+        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.safeAreaInsets.top ?? 44
     }
 }

@@ -8,20 +8,16 @@ struct CartView: View {
             
             ScrollView {
                 VStack(spacing: 20) {
-                    Spacer().frame(height: 100) // Espace pour le header
+                    Spacer().frame(height: 100)
                     
-                    // Carte Produit dans le Panier
                     CartItemCard()
                         .padding(.horizontal, 24)
                     
-                    // Bouton de paiement avec style Tailwind
-                    Button(action: {
-                        // Action de paiement
-                    }) {
+                    Button(action: {}) {
                         Text("PASSER À LA CAISSE (AVADAPAY)")
                             .font(InterFont.bold(size: 14))
                             .foregroundColor(.white)
-                            .tracking(1) // uppercase tracking
+                            .tracking(1)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Color.newketDark)
@@ -31,11 +27,10 @@ struct CartView: View {
                     .padding(.horizontal, 24)
                     .padding(.top, 12)
                     
-                    Spacer().frame(height: 120) // Tab Bar Spacing
+                    Spacer().frame(height: 120)
                 }
             }
             
-            // Header Panier
             SimpleGlassHeader(title: "Mon Panier")
         }
     }
@@ -79,7 +74,7 @@ struct CartItemCard: View {
     }
 }
 
-// Header Réutilisable
+// MARK: - Reusable Glass Header (iOS 17+ compatible)
 struct SimpleGlassHeader: View {
     let title: String
     
@@ -93,22 +88,18 @@ struct SimpleGlassHeader: View {
         .padding(.horizontal, 24)
         .padding(.bottom, 16)
         .padding(.top, topSafeArea)
-        .modifier(HeaderGlassModifier())
-        .ignoresSafeArea(.all, edges: .top)
+        .background(.ultraThinMaterial)
+        .overlay(
+            Rectangle()
+                .frame(height: 0.5)
+                .foregroundColor(Color.black.opacity(0.1)),
+            alignment: .bottom
+        )
+        .ignoresSafeArea(edges: .top)
     }
     
     var topSafeArea: CGFloat {
-        UIApplication.shared.windows.first?.safeAreaInsets.top ?? 44
-    }
-}
-
-struct HeaderGlassModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 26, *) {
-            content.glassEffect(.regular, in: .rect(bottomLeadingRadius: 24, bottomTrailingRadius: 24))
-        } else {
-            content.background(.ultraThinMaterial)
-        }
+        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.windows.first?.safeAreaInsets.top ?? 44
     }
 }
 
