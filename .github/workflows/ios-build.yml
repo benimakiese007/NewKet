@@ -48,15 +48,13 @@ jobs:
             -configuration Debug \
             -derivedDataPath ../build \
             build \
-            CODE_SIGNING_ALLOWED=NO \
             | xcpretty --color || xcodebuild \
             -project NewKet.xcodeproj \
             -scheme NewKet \
             -destination "platform=iOS Simulator,name=iPhone 16 Pro" \
             -configuration Debug \
             -derivedDataPath ../build \
-            build \
-            CODE_SIGNING_ALLOWED=NO
+            build
 
       - name: 📦 Install App on Simulator
         run: |
@@ -71,6 +69,10 @@ jobs:
             echo "Error: APP_PATH is empty or does not exist"
             exit 1
           fi
+          
+          echo "📦 Contents of the .app package:"
+          ls -la "$APP_PATH"
+          
           xcrun simctl install ${{ env.SIMULATOR_UDID }} "$APP_PATH"
           echo "✅ App installed"
 
