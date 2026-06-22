@@ -130,7 +130,8 @@ export default defineConfig({
         admin_user: resolve(__dirname, 'src/pages/admin/user.html'),
         admin_user_details: resolve(__dirname, 'src/pages/admin/user-details.html'),
         admin_security: resolve(__dirname, 'src/pages/admin/security.html'),
-        admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html')
+        admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html'),
+        admin_notion_manager: resolve(__dirname, 'src/pages/admin/notion-manager.html')
       },
       output: {
         manualChunks(id) {

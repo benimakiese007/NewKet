@@ -3338,7 +3338,7 @@
                     setText('vendorAvgOrder', CurrencyManager.formatPrice(stats.averageOrderValue || 0));
                     setText('vendorOrders', stats.totalOrders || 0);
 
-                    const myProducts = products.filter(p => p.supplier_email === email);
+                    const myProducts = products.filter(p => p.supplier_email === email || p.user_id === userId);
                     setText('vendorProducts', myProducts.length);
 
                     // Calculate Total Product Views

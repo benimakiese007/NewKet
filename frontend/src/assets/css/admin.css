@@ -76,7 +76,7 @@ html.admin-embedded-mode .admin-shell > main {
     .admin-shell {
         display: grid !important;
         grid-template-columns: 18rem minmax(0, 1fr);
-        align-items: flex-start;
+        align-items: start;
     }
 
     /* Keep the injected admin sidebar in the flex flow and let the main area
@@ -473,11 +473,14 @@ html.admin-embedded-mode .admin-shell > main {
         top: calc(var(--dashboard-topbar-height) + 1rem) !important;
         inset: auto !important;
         transform: none !important;
-        height: calc(100vh - var(--dashboard-topbar-height) - 2rem) !important;
-        max-height: none !important;
+        /* FIX: use max-height instead of height so the sidebar never forces the page
+           to be taller than its actual content. height:100vh was inflating the document
+           height on short pages (activities, diagnostics, etc.) causing infinite scroll. */
+        height: auto !important;
+        max-height: calc(100vh - var(--dashboard-topbar-height) - 2rem) !important;
         overflow-y: auto !important;
         z-index: 20 !important;
-        align-self: flex-start;
+        align-self: start !important;
     }
 
     #customerSidebar {

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -324,6 +324,7 @@
                         </button>
 
                         <p id="formError" class="text-[11px] font-bold text-red-500 text-center mt-2 hidden"></p>
+                        <p id="formSuccess" class="text-[11px] font-bold text-green-500 text-center mt-2 hidden"></p>
                     </form>
 
                     <!-- Divider -->
@@ -451,6 +452,7 @@
         const submitBtnSpan = document.getElementById('submitBtn').querySelector('span');
         const authForm = document.getElementById('authForm');
         const formError = document.getElementById('formError');
+        const formSuccess = document.getElementById('formSuccess');
         const togglePwdBtn = document.getElementById('togglePassword');
         const pwdInput = document.getElementById('password');
         const confirmPasswordInput = document.getElementById('confirmPassword');
@@ -581,6 +583,7 @@
             isLogin = toLogin;
 
             formError.classList.add('hidden');
+            if (formSuccess) formSuccess.classList.add('hidden');
 
             // GSAP Transition for Form Elements
             const applyMode = () => {
@@ -727,6 +730,7 @@
         function showError(msg) {
             formError.textContent = msg;
             formError.classList.remove('hidden');
+            if (formSuccess) formSuccess.classList.add('hidden');
             const gsap = window.gsap;
             if (gsap) {
                 try {
@@ -737,9 +741,24 @@
             }
         }
 
+        function showSuccessMsg(msg) {
+            if (formSuccess) {
+                formSuccess.textContent = msg;
+                formSuccess.classList.remove('hidden');
+                formError.classList.add('hidden');
+                const gsap = window.gsap;
+                if (gsap) {
+                    try {
+                        gsap.fromTo(formSuccess, { opacity: 0, y: -5 }, { opacity: 1, y: 0, duration: 0.3 });
+                    } catch (_) {}
+                }
+            }
+        }
+
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             formError.classList.add('hidden');
+            if (formSuccess) formSuccess.classList.add('hidden');
 
             const email = document.getElementById('email').value.trim();
             const password = pwdInput.value;
@@ -990,21 +1009,30 @@
                 spinner.classList.add('hidden');
             }
         }
-
         function handleForgotPassword() {
             const email = document.getElementById('email').value.trim();
             if (!email) {
-                showError("Veuillez entrer votre email pour réinitialiser le mot de passe.");
+                showError("Veuillez entrer votre email dans le champ puis cliquer sur 'Oublié ?'.");
                 return;
             }
-            // Execute supabase reset (mock or real if configured)
+            const btn = document.getElementById('forgotPasswordBtn');
+            const originalText = btn.innerHTML;
+            btn.textContent = "Envoi...";
+            btn.style.pointerEvents = "none";
+
             supabaseClient.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + window.resolvePath('pages/login'),
+                redirectTo: window.location.origin + window.resolvePath('pages/reset-password'),
             }).then(({ error }) => {
-                if (error) showError("Erreur. L'email est-il correct ?");
-                else if (typeof showToast !== 'undefined') showToast("Email de réinitialisation envoyé.", "success");
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = "auto";
+                if (error) {
+                    showError("Erreur. L'email est-il correct ?");
+                } else {
+                    showSuccessMsg("Email de réinitialisation envoyé avec succès.");
+                }
             });
         }
+
         async function loadPublicUserStats() {
             const countEl = document.getElementById('activeMembersCount');
             const labelEl = document.getElementById('activeMembersLabel');
