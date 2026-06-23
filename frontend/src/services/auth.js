@@ -1106,7 +1106,7 @@ const AuthManager = {
     },
 
     updateAccountLink() {
-        const accountLinks = document.querySelectorAll('#accountLink, #accountLinkMobile, #accountLinkTablet, #accountLinkFooter, #mobileBottomAccountCustomer, #mobileBottomAccountVendor');
+        const accountLinks = document.querySelectorAll('#accountLink, #accountLinkMobile, #accountLinkTablet, #accountLinkFooter, #accountLinkMobileBottom');
         if (accountLinks.length === 0) return;
 
         const avatarUrl = localStorage.getItem('newketUserAvatar');
@@ -1156,10 +1156,19 @@ const AuthManager = {
                 let img = accountLink.querySelector('.nav-user-avatar');
                 if (!img) {
                     img = document.createElement('img');
-                    img.className = 'nav-user-avatar w-7 h-7 object-cover rounded-full';
+                    if (accountLink.id === 'accountLinkMobileBottom') {
+                        img.className = 'nav-user-avatar w-6 h-6 object-cover rounded-full border border-white/50 shadow-sm transition-transform';
+                    } else {
+                        img.className = 'nav-user-avatar w-7 h-7 object-cover rounded-full';
+                    }
                     img.crossOrigin = 'anonymous';
                     img.referrerPolicy = 'no-referrer';
-                    accountLink.appendChild(img);
+                    const spanText = accountLink.querySelector('span:not(.role-badge)');
+                    if (spanText) {
+                        accountLink.insertBefore(img, spanText);
+                    } else {
+                        accountLink.appendChild(img);
+                    }
                 }
                 img.alt = 'Photo de profil';
                 img.onerror = () => {
@@ -1186,20 +1195,27 @@ const AuthManager = {
                     icon.className = 'text-gray-900';
                 }
                 // Removed bg-gray-900 for a cleaner look with avatars
-                accountLink.classList.remove('text-white');
-
-                let badge = accountLink.querySelector('.role-badge');
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white';
-                    badge.title = 'Admin';
-                    accountLink.appendChild(badge);
+                if (accountLink.id !== 'accountLinkMobileBottom') {
+                    accountLink.classList.remove('text-white');
                 }
-                badge.style.display = 'block';
 
-                if (accountLink.id.includes('mobileBottomAccount')) {
-                    accountLink.classList.add('text-gray-900');
-                    accountLink.classList.remove('text-gray-400');
+                // No badge on bottom nav Profil
+                if (accountLink.id !== 'accountLinkMobileBottom') {
+                    let badge = accountLink.querySelector('.role-badge');
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white';
+                        badge.title = 'Admin';
+                        accountLink.appendChild(badge);
+                    }
+                    badge.style.display = 'block';
+                }
+
+                if (accountLink.id.includes('mobileBottomAccount') || accountLink.id === 'accountLinkMobileBottom') {
+                    if (accountLink.id !== 'accountLinkMobileBottom') {
+                        accountLink.classList.add('text-gray-900');
+                        accountLink.classList.remove('text-gray-400');
+                    }
                     if (accountLink.querySelector('iconify-icon')) {
                         accountLink.querySelector('iconify-icon').setAttribute('icon', 'solar:user-bold');
                     }
@@ -1210,38 +1226,50 @@ const AuthManager = {
                 accountLink.title = 'Tableau de bord Vendeur';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
-                    icon.className = 'text-gray-900';
+                    if (accountLink.id !== 'accountLinkMobileBottom') {
+                        icon.className = 'text-gray-900';
+                    }
                 }
                 // Retrait du fond gris pour garder l'icône transparente
-                let badge = accountLink.querySelector('.role-badge');
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-white';
-                    badge.title = 'Vendeur';
-                    accountLink.appendChild(badge);
+                // No badge on bottom nav Profil
+                if (accountLink.id !== 'accountLinkMobileBottom') {
+                    let badge = accountLink.querySelector('.role-badge');
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-white';
+                        badge.title = 'Vendeur';
+                        accountLink.appendChild(badge);
+                    }
+                    badge.style.display = 'block';
                 }
-                badge.style.display = 'block';
 
             } else if (this.role === 'customer') {
                 accountLink.href = window.resolvePath('customer-dashboard');
                 accountLink.title = 'Mon Espace';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
-                    icon.className = 'text-gray-900';
+                    if (accountLink.id !== 'accountLinkMobileBottom') {
+                        icon.className = 'text-gray-900';
+                    }
                 }
                 // Retrait du fond gris pour garder l'icône transparente
-                let badge = accountLink.querySelector('.role-badge');
-                if (!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white';
-                    badge.title = 'Connecté';
-                    accountLink.appendChild(badge);
+                // No badge on bottom nav Profil
+                if (accountLink.id !== 'accountLinkMobileBottom') {
+                    let badge = accountLink.querySelector('.role-badge');
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'role-badge absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white';
+                        badge.title = 'Connecté';
+                        accountLink.appendChild(badge);
+                    }
+                    badge.style.display = 'block';
                 }
-                badge.style.display = 'block';
 
-                if (accountLink.id.includes('mobileBottomAccount')) {
-                    accountLink.classList.add('text-gray-900');
-                    accountLink.classList.remove('text-gray-400');
+                if (accountLink.id.includes('mobileBottomAccount') || accountLink.id === 'accountLinkMobileBottom') {
+                    if (accountLink.id !== 'accountLinkMobileBottom') {
+                        accountLink.classList.add('text-gray-900');
+                        accountLink.classList.remove('text-gray-400');
+                    }
                     if (accountLink.querySelector('iconify-icon')) {
                         accountLink.querySelector('iconify-icon').setAttribute('icon', 'solar:user-bold');
                     }
@@ -1257,8 +1285,10 @@ const AuthManager = {
                 }
                 const existingImg = accountLink.querySelector('.nav-user-avatar');
                 if (existingImg) existingImg.style.display = 'none';
-                accountLink.classList.remove('bg-gray-900', 'bg-gray-100', 'text-white', 'bg-white');
-                accountLink.classList.add('hover:bg-gray-50');
+                if (accountLink.id !== 'accountLinkMobileBottom') {
+                    accountLink.classList.remove('bg-gray-900', 'bg-gray-100', 'text-white', 'bg-white');
+                    accountLink.classList.add('hover:bg-gray-50');
+                }
                 const badge = accountLink.querySelector('.role-badge');
                 if (badge) badge.style.display = 'none';
                 if (initialsBadge) initialsBadge.remove();

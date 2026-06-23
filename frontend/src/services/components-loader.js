@@ -61,24 +61,25 @@ const HEADER_HTML = `
                         <iconify-icon icon="mdi:wifi-off" width="18"></iconify-icon>
                     </div>
 
-                    <!-- Cart Icon (Mobile) -->
-                    <button onclick="window.CartManager && window.CartManager.toggleCartUI()" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
-                        title="Panier" aria-label="Mon panier">
-                        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22" class="text-white"></iconify-icon>
-                        <span class="cart-badge absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
-                    </button>
+                    <!-- Notifications Icon (Mobile) -->
+                    <a href="{{ROOT}}src/pages/notifications.html" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Notifications" aria-label="Voir les notifications">
+                        <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
+                        <span class="notification-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
+                    </a>
 
-                    <!-- Account Icon (Mobile) -->
-                    <a id="accountLinkMobile" href="{{ROOT}}{{ACCOUNT_PATH}}" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
-                        title="Compte" aria-label="Mon compte">
-                        <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
+                    <!-- Favorites Icon (Mobile) -->
+                    <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Favoris" aria-label="Voir les favoris">
+                        <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
+                        <span class="favorites-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
                     </a>
                 </div>
             </div>
 
             <!-- Search Bar (Full width on mobile, centered on desktop) -->
             <div id="mobileSearchContainer" 
-                class="header-search-row flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative group flex flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
+                class="header-search-row user-hidden-on-mobile sm:flex flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative group flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0"
                 style="max-width: 720px;">
                 <div class="search-bar">
                     <!-- Category Selector -->
@@ -115,14 +116,14 @@ const HEADER_HTML = `
 
                 </div>
 
-                <!-- Publish Button -->
-                <a href="{{ROOT}}src/pages/publish.html"
-                    class="shrink-0 bg-gray-900 text-white p-2 md:px-5 md:py-2 rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 publish-btn h-[44px] min-w-[44px] md:min-w-0 order-last btn-active-scale"
+                <!-- Publish Button (auth only) -->
+                {{AUTH_ONLY_START}}<a href="{{ROOT}}src/pages/publish.html"
+                    class="hidden md:flex shrink-0 bg-gray-900 text-white p-2 md:px-5 md:py-2 rounded-xl hover:bg-gray-800 transition-colors items-center justify-center gap-2 publish-btn h-[44px] min-w-[44px] md:min-w-0 order-last btn-active-scale"
                     data-track-action="navigation:publish_click"
                     aria-label="Vendre un article">
                     <iconify-icon icon="solar:add-circle-bold" width="22" class="md:w-5"></iconify-icon>
                     <span class="hidden md:inline text-sm font-bold">Vendre</span>
-                </a>
+                </a>{{AUTH_ONLY_END}}
 
                 <!-- Cart Icon (Tablet) -->
                 <button id="cartBtnTablet" onclick="window.CartManager && window.CartManager.toggleCartUI()" 
@@ -167,7 +168,7 @@ const HEADER_HTML = `
                     title="Notifications" aria-label="Voir les notifications">
                     <iconify-icon icon="solar:bell-linear" width="22" class="text-white"></iconify-icon>
                     <span
-                        class="notification-badge absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium"
+                        class="notification-badge absolute -top-0.5 -right-0.5 bg-gray-900 text-white text-xs rounded-full flex items-center justify-center font-medium"
                         style="display:none; font-size:10px; width:16px; height:16px; min-width: 16px;">0</span>
                 </a>
 
@@ -258,10 +259,10 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
                     <span>Boutiques</span>
                 </a>
-                <a href="{{ROOT}}src/pages/publish.html" class="mobile-menu-shortcut-card publish-btn" data-track-action="navigation:publish_click">
+                {{AUTH_ONLY_START}}<a href="{{ROOT}}src/pages/publish.html" class="mobile-menu-shortcut-card publish-btn" data-track-action="navigation:publish_click">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span>Vendre</span>
-                </a>
+                </a>{{AUTH_ONLY_END}}
                 <a href="{{ROOT}}src/pages/favorites.html" class="mobile-menu-shortcut-card">
                     <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
                     <span>Favoris</span>
@@ -310,7 +311,7 @@ const HEADER_HTML = `
                     <span class="flex items-center gap-3"><iconify-icon icon="solar:bell-linear"
                             width="20"></iconify-icon> Notifications</span>
                     <span
-                        class="notification-badge bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
+                        class="notification-badge bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
                 </a>
                 <button data-action="install-app" id="pwa-install-btn"
                     class="hidden mobile-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium mt-2 transition-all">
@@ -390,7 +391,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                     <li><a id="accountLinkFooter" href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
                     <li><a href="{{ROOT}}src/pages/support.html" class="text-gray-400 hover:text-white text-sm transition-colors">Support Technique</a></li>
                     <li><a href="{{ROOT}}src/pages/faq.html" class="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a></li>
-                    <li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn" data-track-action="navigation:publish_click">Vendre un article</a></li>
+                    {{AUTH_ONLY_START}}<li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn" data-track-action="navigation:publish_click">Vendre un article</a></li>{{AUTH_ONLY_END}}
                 </ul>
             </div>
             <div class="lg:col-span-4 space-y-4">
@@ -430,8 +431,40 @@ const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
     </div>
 </nav>`;
 
+const getBottomNavHTML = (role) => {
+    const isSeller = role === 'seller';
+    
+    return `<!-- Liquid Glass Bottom Navbar -->
+<nav class="liquid-glass-nav fixed bottom-0 w-full z-[9999] flex items-center justify-around px-6 py-4 sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-t-3xl">
+    <a href="{{ROOT}}index.html" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
+        <iconify-icon icon="solar:home-smile-linear" width="24"></iconify-icon>
+        <span class="text-[10px] font-medium tracking-wide">Accueil</span>
+    </a>
+    <a href="#" id="bottomNavSearchBtn" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Recherche">
+        <iconify-icon icon="solar:magnifer-linear" width="24"></iconify-icon>
+        <span class="text-[10px] font-medium tracking-wide">Recherche</span>
+    </a>
+    ${isSeller ? `
+    <a href="{{ROOT}}src/pages/publish.html" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Vendre">
+        <iconify-icon icon="solar:add-circle-linear" width="24"></iconify-icon>
+        <span class="text-[10px] font-medium tracking-wide">Vendre</span>
+    </a>` : ''}
+    <a href="#" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
+        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="24"></iconify-icon>
+        <span class="text-[10px] font-medium tracking-wide">Panier</span>
+    </a>
+    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Profil">
+        <iconify-icon icon="solar:user-linear" width="24"></iconify-icon>
+        <span class="text-[10px] font-medium tracking-wide">Profil</span>
+    </a>
+</nav>`;
+};
+
 const ComponentLoader = {
     async init() {
+        // Prevent double initialization
+        if (window.componentsLoading) return;
+        window.componentsLoading = true;
 
         // Determine current page status
         const currentPath = window.location.pathname;
@@ -446,10 +479,6 @@ const ComponentLoader = {
                 window.AuthManager.updateAccountLink();
             }
         });
-
-        // Prevent double initialization
-        if (window.componentsLoading) return;
-        window.componentsLoading = true;
 
         const componentsToLoad = [];
 
@@ -483,6 +512,22 @@ const ComponentLoader = {
         if (!isMinimalPage) {
             componentsToLoad.push(
                 this.loadComponent('footer-placeholder', 'components/footer.html', FOOTER_HTML)
+            );
+
+            let mobileNavPlaceholder = document.getElementById('mobile-nav-placeholder');
+            if (!mobileNavPlaceholder) {
+                mobileNavPlaceholder = document.createElement('div');
+                mobileNavPlaceholder.id = 'mobile-nav-placeholder';
+                document.body.appendChild(mobileNavPlaceholder);
+            }
+            
+            let userRole = 'buyer';
+            try {
+                userRole = localStorage.getItem('newketRole') || 'buyer';
+            } catch (e) {}
+
+            componentsToLoad.push(
+                this.loadComponent('mobile-nav-placeholder', '', getBottomNavHTML(userRole))
             );
         }
 
@@ -524,8 +569,30 @@ const ComponentLoader = {
         }
 
         this.initNetworkStatus();
+        this.initMobileSearchToggle();
 
         setTimeout(() => this.setupHeaderSpacing(), 50);
+    },
+
+    initMobileSearchToggle() {
+        // Hides mobile search when clicking or touching outside (fixes iOS delegation bug)
+        const hideSearchIfOutside = (e) => {
+            const searchContainer = document.getElementById('mobileSearchContainer');
+            const searchBtn = document.getElementById('bottomNavSearchBtn');
+            
+            if (searchContainer && searchBtn && window.innerWidth <= 1023) {
+                // If it's currently visible
+                if (!searchContainer.classList.contains('user-hidden-on-mobile')) {
+                    // And the click was outside both the container and the button
+                    if (!searchContainer.contains(e.target) && !searchBtn.contains(e.target)) {
+                        searchContainer.classList.add('user-hidden-on-mobile');
+                    }
+                }
+            }
+        };
+
+        document.addEventListener('click', hideSearchIfOutside);
+        document.addEventListener('touchstart', hideSearchIfOutside, { passive: true });
     },
 
     initNetworkStatus() {
@@ -747,7 +814,13 @@ const ComponentLoader = {
             else accountPath = 'src/pages/customer-dashboard.html';
         }
 
-        let processedHTML = html
+        // Resolve AUTH_ONLY blocks: show content only for authenticated users
+        const authOnlyRegex = /\{\{AUTH_ONLY_START\}\}([\s\S]*?)\{\{AUTH_ONLY_END\}\}/g;
+        const resolvedHTML = hasSession
+            ? html.replace(authOnlyRegex, '$1')
+            : html.replace(authOnlyRegex, '');
+
+        let processedHTML = resolvedHTML
             .replace(/{{ROOT}}/g, '/')
             .replace(/{{ACCOUNT_PATH}}/g, accountPath);
         

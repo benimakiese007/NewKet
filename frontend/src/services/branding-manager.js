@@ -77,7 +77,8 @@ const BrandingManager = {
         const headerFg = normalizeHex(config.headerFg) || '#ffffff';
         const footerBg = normalizeHex(config.footerBg) || '#013220';
         const footerFg = normalizeHex(config.footerFg) || '#ffffff';
-        const themeColor = normalizeHex(config.themeColor) || normalizeHex(headerBg) || '#064734';
+        // Force theme-color to match the header background so the notch/status bar is never white
+        const themeColor = normalizeHex(headerBg) || '#013220';
 
         // Colors (existing CSS variables)
         root.style.setProperty('--primary-color', primary);

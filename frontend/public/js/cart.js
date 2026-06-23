@@ -79,8 +79,10 @@ class CartManager {
     animateFlyToCart(imageUrl, clickEvent) {
         if (!clickEvent) return;
         
-        const cartButtons = Array.from(document.querySelectorAll('button[title="Panier"]'));
-        const visibleCartBtn = cartButtons.find(btn => btn.offsetParent !== null) || cartButtons[0];
+        const cartSelectors = '[title="Panier"], [aria-label="Panier"], [aria-label="Mon panier"], [aria-label="Voir le panier"], .cart-badge';
+        const cartButtons = Array.from(document.querySelectorAll(cartSelectors));
+        // Sort by whether they are visible (offsetParent !== null) and prefer elements that are more likely to be the actual icon
+        const visibleCartBtn = cartButtons.find(btn => btn.offsetParent !== null && window.getComputedStyle(btn).display !== 'none') || cartButtons[0];
         if (!visibleCartBtn) return;
         
         const cartRect = visibleCartBtn.getBoundingClientRect();

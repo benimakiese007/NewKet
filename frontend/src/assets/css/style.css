@@ -206,6 +206,19 @@ html.dark .skeleton {
   box-sizing: border-box;
 }
 
+html, body {
+  overscroll-behavior-y: none;
+}
+
+/* 
+ * Fix: La zone au-dessus du header fixe (notch, status-bar, overscroll) 
+ * affiche le fond de <html>. On la met en vert pour qu'elle corresponde 
+ * exactement à la couleur du header — plus de vide blanc visible.
+ */
+html {
+  background-color: #013220;
+}
+
 body {
   font-family: var(--font-body);
   color: var(--text-dark);
@@ -496,7 +509,7 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
   border-radius: var(--newket-btn-radius, 9999px);
   /* Pill shape */
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   font-size: 0.95rem;
 }
 
@@ -512,8 +525,8 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .btn-outline {
@@ -625,6 +638,8 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
 
 .main-header {
   padding: 0;
+  /* Handle notch / status bar safe area on mobile */
+  padding-top: env(safe-area-inset-top);
   /* Default spacing managed by Tailwind classes inside */
   background-color: var(--bg-white);
   box-shadow: var(--shadow-sm);
@@ -638,7 +653,9 @@ h6 { font-size: var(--text-sm); font-weight: 600; text-transform: uppercase; let
 }
 
 .main-header.scrolled {
+  /* Keep safe-area padding — do NOT reset to 0 or notch gap reappears */
   padding: 0;
+  padding-top: env(safe-area-inset-top);
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
   background-color: rgba(255, 255, 255, 0.88);
   border-color: rgba(148, 163, 184, 0.18);
@@ -863,6 +880,8 @@ html.ios-native-category #searchCategoryBtn {
 
 .main-header {
   padding: 0;
+  /* Handle notch / status bar safe area on mobile */
+  padding-top: env(safe-area-inset-top);
   /* Default spacing managed by Tailwind classes inside */
   background-color: var(--bg-white);
   box-shadow: var(--shadow-sm);
@@ -876,8 +895,9 @@ html.ios-native-category #searchCategoryBtn {
 }
 
 .main-header.scrolled {
+  /* Keep safe-area padding — do NOT reset to 0 or notch gap reappears */
   padding: 0;
-  /* Reduced padding on scroll */
+  padding-top: env(safe-area-inset-top);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   background-color: rgba(255, 255, 255, 0.95);
 }
@@ -1099,13 +1119,31 @@ body.search-focused .main-header {
 .newket-header-shell {
   background: var(--newket-green) !important;
   border-bottom-color: rgba(1, 50, 32, 0.6) !important;
+  /* Fill notch/status-bar area with green so no white gap appears */
+  padding-top: env(safe-area-inset-top) !important;
   /* Shadow is applied to the combined header+category-nav block to avoid a visible "gap" between them. */
   box-shadow: none !important;
+}
+
+/* Pseudo-element acts as a solid green "seal" that covers the safe-area zone */
+.newket-header-shell::before {
+  content: '';
+  display: block;
+  position: absolute;
+  /* Shift up by 1 extra pixel and increase height by 2px to prevent sub-pixel white line gaps */
+  top: calc(-1 * env(safe-area-inset-top, 0px) - 1px);
+  left: 0;
+  right: 0;
+  height: calc(env(safe-area-inset-top, 0px) + 2px);
+  background: #013220;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .newket-header-shell.scrolled {
   background: var(--newket-green) !important;
   border-bottom-color: rgba(1, 50, 32, 0.72) !important;
+  padding-top: env(safe-area-inset-top) !important;
   box-shadow: none !important;
 }
 
@@ -1475,6 +1513,10 @@ body.mobile-menu-open {
         margin-bottom: 0 !important;
         pointer-events: none;
         transform: translateY(-8px) scaleY(0.96);
+    }
+
+    #mobileSearchContainer.user-hidden-on-mobile {
+        display: none !important;
     }
 
     .main-header.header-compact .header-content {
@@ -3993,10 +4035,10 @@ body.sidebar-resizing {
 }
 
 
-/* Make header allow overflow for dropdown */
+/* Make header allow overflow for dropdown — but .newket-header-shell overrides to hidden to block top-edge bleed */
 
-.main-header,
-.main-header>div {
+.main-header:not(.newket-header-shell),
+.main-header:not(.newket-header-shell) > div {
   overflow: visible !important;
 }
 
@@ -9832,3 +9874,18 @@ html.dark .skeleton::after {
   -webkit-overflow-scrolling: touch;
 }
 
+/* Liquid Glass Bottom Navbar */
+.liquid-glass-nav {
+  background: rgba(15, 15, 15, 0.65);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 639px) {
+  body {
+    padding-bottom: 80px !important;
+  }
+}

@@ -97,8 +97,9 @@ canvas {
         position: absolute;
         left: 0;
         right: 0;
-        top: calc(-1 * env(safe-area-inset-top, 0px));
-        height: env(safe-area-inset-top, 0px);
+        /* Shift up by 1 extra pixel and increase height by 2px to prevent sub-pixel white line gaps */
+        top: calc(-1 * env(safe-area-inset-top, 0px) - 1px);
+        height: calc(env(safe-area-inset-top, 0px) + 2px);
         background: #013220;
         pointer-events: none;
     }
@@ -1888,5 +1889,15 @@ html.dark .glass-panel {
     .forum-compact-pill {
         gap: 0.75rem !important;
         letter-spacing: 0.12em !important;
+    }
+}
+
+/* Custom Mobile Visibility Overrides */
+@media (max-width: 1023px) {
+    #mobileSearchContainer.user-hidden-on-mobile {
+        display: none !important;
+    }
+    #mobileSearchContainer .publish-btn {
+        display: none !important;
     }
 }
