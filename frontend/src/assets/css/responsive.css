@@ -91,17 +91,17 @@ canvas {
         overflow: visible !important;
     }
 
-    .main-header.newket-header-shell::before,
-    .dashboard-topbar.newket-dashboard-header::before {
+    /* Universal Mobile Notch Cover: Fixed to body so it never scrolls when headers retract */
+    body::after {
         content: "";
-        position: absolute;
+        position: fixed;
         left: 0;
         right: 0;
-        /* Shift up by 1 extra pixel and increase height by 2px to prevent sub-pixel white line gaps */
-        top: calc(-1 * env(safe-area-inset-top, 0px) - 1px);
-        height: calc(env(safe-area-inset-top, 0px) + 2px);
+        top: 0;
+        height: calc(env(safe-area-inset-top, 0px) + 1px);
         background: #013220;
         pointer-events: none;
+        z-index: 999999;
     }
 
     .dashboard-topbar.newket-dashboard-header {

@@ -1125,21 +1125,6 @@ body.search-focused .main-header {
   box-shadow: none !important;
 }
 
-/* Pseudo-element acts as a solid green "seal" that covers the safe-area zone */
-.newket-header-shell::before {
-  content: '';
-  display: block;
-  position: absolute;
-  /* Shift up by 1 extra pixel and increase height by 2px to prevent sub-pixel white line gaps */
-  top: calc(-1 * env(safe-area-inset-top, 0px) - 1px);
-  left: 0;
-  right: 0;
-  height: calc(env(safe-area-inset-top, 0px) + 2px);
-  background: #013220;
-  pointer-events: none;
-  z-index: 1;
-}
-
 .newket-header-shell.scrolled {
   background: var(--newket-green) !important;
   border-bottom-color: rgba(1, 50, 32, 0.72) !important;
