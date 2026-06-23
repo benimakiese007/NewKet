@@ -282,7 +282,7 @@
                         <iconify-icon icon="solar:gallery-bold" class="text-gray-400"></iconify-icon>
                         <label class="text-sm font-bold text-gray-900 uppercase tracking-wider">Shooting Produit</label>
                     </div>
-                    <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-lg">MAX. 5 PHOTOS</span>
+                    <span class="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-lg">MAX. 10 PHOTOS</span>
                 </div>
 
                 <input type="file" id="pImageUpload" accept="image/png, image/jpeg, image/webp" multiple class="hidden">
@@ -702,7 +702,7 @@
                     </div>
                 `}).join('');
 
-                if (selectedProductImages.length < 5) {
+                if (selectedProductImages.length < 10) {
                     const addButton = document.createElement('div');
                     addButton.className = "flex-shrink-0 w-44 h-44 rounded-[2rem] border-2 border-dashed border-gray-100 flex flex-col items-center justify-center cursor-pointer hover:border-black hover:bg-gray-50 transition-all duration-300 group relative overflow-hidden";
                     addButton.onclick = () => pImageUpload.click();
@@ -734,7 +734,7 @@
             pImageUpload.addEventListener('change', function (e) {
                 if (e.target.files && e.target.files.length > 0) {
                     const files = Array.from(e.target.files);
-                    const remainingSlots = 5 - selectedProductImages.length;
+                    const remainingSlots = 10 - selectedProductImages.length;
                     const filesToProcess = files.slice(0, remainingSlots);
 
                     filesToProcess.forEach(file => {
