@@ -1893,7 +1893,7 @@ html.dark .glass-panel {
 }
 
 /* Custom Mobile Visibility Overrides */
-@media (max-width: 1023px) {
+@media (max-width: 639px) {
     #mobileSearchContainer.user-hidden-on-mobile {
         display: none !important;
     }

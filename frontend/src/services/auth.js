@@ -1076,7 +1076,7 @@ const AuthManager = {
             }
 
             if (window.location.pathname.includes('publish') || window.location.pathname.includes('vendor-dashboard')) {
-                window.location.href = '/index';
+                window.location.href = window.resolvePath('index');
             }
         }
 
@@ -1086,6 +1086,10 @@ const AuthManager = {
         }
 
         if (this.role === null) {
+            document.querySelectorAll('.publish-btn, .supplier-only').forEach(el => {
+                el.style.display = 'none';
+            });
+
             if (this._logoutInProgress) {
                 return;
             }
@@ -1192,12 +1196,13 @@ const AuthManager = {
                 accountLink.title = 'Dashboard Admin';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
-                    icon.className = 'text-gray-900';
+                    if (accountLink.id !== 'accountLinkMobileBottom') {
+                        icon.className = 'text-white';
+                    } else {
+                        icon.className = '';
+                    }
                 }
                 // Removed bg-gray-900 for a cleaner look with avatars
-                if (accountLink.id !== 'accountLinkMobileBottom') {
-                    accountLink.classList.remove('text-white');
-                }
 
                 // No badge on bottom nav Profil
                 if (accountLink.id !== 'accountLinkMobileBottom') {
@@ -1227,7 +1232,9 @@ const AuthManager = {
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
                     if (accountLink.id !== 'accountLinkMobileBottom') {
-                        icon.className = 'text-gray-900';
+                        icon.className = 'text-white';
+                    } else {
+                        icon.className = '';
                     }
                 }
                 // Retrait du fond gris pour garder l'icône transparente
@@ -1249,7 +1256,9 @@ const AuthManager = {
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-bold');
                     if (accountLink.id !== 'accountLinkMobileBottom') {
-                        icon.className = 'text-gray-900';
+                        icon.className = 'text-white';
+                    } else {
+                        icon.className = '';
                     }
                 }
                 // Retrait du fond gris pour garder l'icône transparente
@@ -1280,7 +1289,11 @@ const AuthManager = {
                 accountLink.title = 'Se connecter';
                 if (icon) {
                     icon.setAttribute('icon', 'solar:user-linear');
-                    icon.className = 'text-gray-600';
+                    if (accountLink.id !== 'accountLinkMobileBottom') {
+                        icon.className = 'text-white';
+                    } else {
+                        icon.className = '';
+                    }
                     showAccountIcon(icon);
                 }
                 const existingImg = accountLink.querySelector('.nav-user-avatar');

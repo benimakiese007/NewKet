@@ -81,8 +81,11 @@ class CartManager {
         
         const cartSelectors = '[title="Panier"], [aria-label="Panier"], [aria-label="Mon panier"], [aria-label="Voir le panier"], .cart-badge';
         const cartButtons = Array.from(document.querySelectorAll(cartSelectors));
-        // Sort by whether they are visible (offsetParent !== null) and prefer elements that are more likely to be the actual icon
-        const visibleCartBtn = cartButtons.find(btn => btn.offsetParent !== null && window.getComputedStyle(btn).display !== 'none') || cartButtons[0];
+        // Sort by whether they are visible (width/height > 0) and prefer elements that are more likely to be the actual icon
+        const visibleCartBtn = cartButtons.find(btn => {
+            const rect = btn.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0 && window.getComputedStyle(btn).display !== 'none' && window.getComputedStyle(btn).visibility !== 'hidden';
+        }) || cartButtons[0];
         if (!visibleCartBtn) return;
         
         const cartRect = visibleCartBtn.getBoundingClientRect();
