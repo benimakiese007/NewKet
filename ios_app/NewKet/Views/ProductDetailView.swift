@@ -89,7 +89,7 @@ struct ProductDetailView: View {
                                 Text("Protection Acheteur")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
-                                Text("Paiement sécurisé via AvadaPay avec escrow")
+                                Text("Paiement sécurisé via Stripe avec escrow")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }

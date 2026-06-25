@@ -14,7 +14,7 @@ struct CartView: View {
                         .padding(.horizontal, 24)
                     
                     Button(action: {}) {
-                        Text("PASSER À LA CAISSE (AVADAPAY)")
+                        Text("PASSER À LA CAISSE (STRIPE)")
                             .font(InterFont.bold(size: 14))
                             .foregroundColor(.white)
                             .tracking(1)

@@ -1,16 +1,16 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import crypto from 'crypto';
 import {
-    createNetikashPaymentRequest,
-    isNetikashConfigured,
-    verifyNetikashSignature
-} from '../services/netikash.js';
-import {
     createStripeCheckoutSession,
     getStripeConfig,
     isStripeConfigured,
     verifyStripeSignature
 } from '../services/stripe.js';
+import {
+    createFlexpaiePaymentRequest,
+    isFlexpaieConfigured,
+    verifyFlexpaieSignature
+} from '../services/flexpaie.js';
 import NotificationService from '../services/notificationService.js';
 import slackService from '../services/integrations/slackService.js';
 import {
@@ -179,7 +179,7 @@ function getRedirectUrl(req) {
         const baseUrl = process.env.FRONTEND_URL.replace(/\/$/, '');
         return `${baseUrl}/src/pages/payment-success.html`;
     }
-    if (process.env.NETIKASH_REDIRECT_URL) return process.env.NETIKASH_REDIRECT_URL;
+
 
     const host = req.headers.host || 'localhost:3001';
     
@@ -195,8 +195,11 @@ function getRedirectUrl(req) {
     return `${protocol}://${host}/src/pages/payment-success.html`;
 }
 
-function getActivePaymentProvider() {
-    return isStripeConfigured() ? 'stripe' : 'netikash';
+function getActivePaymentProvider(req) {
+    if (req?.body?.provider === 'flexpaie' && isFlexpaieConfigured()) {
+        return 'flexpaie';
+    }
+    return 'stripe';
 }
 
 function getCheckoutSuccessUrl(req, orderId, txId) {
@@ -253,12 +256,12 @@ export const initiatePayment = async (req, res) => {
             customer_email
         } = req.body;
 
-        if (!isStripeConfigured() && !isNetikashConfigured()) {
+        if (!isStripeConfigured() && !isFlexpaieConfigured()) {
             return res.status(503).json({
                 success: false,
                 code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
                 error: 'Paiement indisponible',
-                message: 'Le fournisseur de paiement n est pas configure. Ajoute les cles Stripe cote backend puis reessaie.'
+                message: 'Aucun fournisseur de paiement (Stripe ou FlexPaie) n\'est configuré.'
             });
         }
 
@@ -328,7 +331,7 @@ export const initiatePayment = async (req, res) => {
         const verifiedAmount = Number(pricing.total_amount || 0);
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
         const txId = generateTxId();
-        const provider = getActivePaymentProvider();
+        const provider = getActivePaymentProvider(req);
 
         if (!orderId) {
             const resolvedCustomerEmail = customer_email || req.user?.email;
@@ -448,21 +451,23 @@ export const initiatePayment = async (req, res) => {
                 'line_items[0][price_data][product_data][name]': `NewKet Marketplace - ${product.name}`
             });
             paymentUrl = stripeSession.payment_url;
-        } else {
-            if (!isNetikashConfigured()) {
-                throw new Error('Netikash n est pas configure (NETIKASH_CLIENT_ID / NETIKASH_CLIENT_SECRET)');
+        } else if (provider === 'flexpaie') {
+            if (!isFlexpaieConfigured()) {
+                throw new Error('FlexPaie n\'est pas configuré (clés manquantes)');
             }
 
             const paymentRequestPayload = {
                 amount: finalAmountUSD,
-                currency: 'USD',
+                currency: 'USD', // A adapter selon la devise requise par FlexPaie
                 ref: txId,
                 referer_url: getRedirectUrl(req),
                 label: `NewKet Marketplace - ${product.name}`
             };
 
-            const netikash = await createNetikashPaymentRequest(paymentRequestPayload);
-            paymentUrl = netikash.payment_url;
+            const flexpaie = await createFlexpaiePaymentRequest(paymentRequestPayload);
+            paymentUrl = flexpaie.payment_url;
+        } else {
+            throw new Error('Fournisseur de paiement non supporté');
         }
 
         return res.status(200).json({
@@ -494,41 +499,38 @@ export const paymentWebhook = async (req, res) => {
     if (req.headers?.['stripe-signature']) {
         return stripeWebhook(req, res);
     }
-    return netikashWebhook(req, res);
+    if (req.headers?.['x-flexpaie-signature']) {
+        return flexpaieWebhook(req, res);
+    }
+    return res.status(400).send('Provider not supported');
 };
 
-export const netikashWebhook = async (req, res) => {
+export const flexpaieWebhook = async (req, res) => {
     try {
-        const signatureValid = verifyNetikashSignature(req);
+        const signatureValid = verifyFlexpaieSignature(req);
         if (!signatureValid) {
-            console.warn('[NETIKASH Webhook] Invalid signature', {
-                signatureHeaderPresent: Boolean(req.headers?.['x-signature']),
-                timestampHeader: req.headers?.['x-timestamp'] || null
-            });
+            console.warn('[FLEXPAIE Webhook] Invalid signature');
             return res.status(401).send('Unauthorized');
         }
 
         const payload = req.body;
-        const ourTxId = payload?.ref || payload?.tx_ref || payload?.data?.ref || payload?.transaction_id || payload?.trans || payload?.data?.trans || null;
-        const providerTxId = payload?.trx || payload?.trans || payload?.id || payload?.data?.trx || payload?.data?.trans || payload?.payment_id || null;
-        const eventType = payload?.event || payload?.type || payload?.status || 'unknown';
+        const ourTxId = payload?.ref || payload?.transaction_id || null;
+        const providerTxId = payload?.id || payload?.payment_id || null;
+        const eventType = payload?.status || 'unknown';
         const providerEventId = `${String(providerTxId || 'unknown')}:${String(eventType || 'unknown')}`;
 
         if (!ourTxId) {
-            console.warn('[NETIKASH Webhook] Missing ref/tx_ref/trans in payload', {
-                eventType,
-                payloadKeys: Object.keys(payload || {})
-            });
             return res.status(400).send('ref manquant');
         }
 
         const client = supabaseAdmin || supabase;
         const nowIso = new Date().toISOString();
 
+        // 1. Stocker le webhook
         const { error: webhookInsertError } = await client
             .from('payment_webhook_events')
             .insert({
-                provider: 'netikash',
+                provider: 'flexpaie',
                 event_type: String(eventType),
                 provider_event_id: providerEventId,
                 tx_ref: String(ourTxId),
@@ -538,192 +540,30 @@ export const netikashWebhook = async (req, res) => {
                 process_status: 'RECEIVED'
             });
 
-        if (webhookInsertError) {
-            if (String(webhookInsertError.code) === '23505') return res.status(200).send('OK');
-            console.error('[NETIKASH Webhook] Failed to store webhook event:', webhookInsertError);
+        if (webhookInsertError && String(webhookInsertError.code) !== '23505') {
             return res.status(500).send('Erreur DB');
         }
 
-        const { data: order, error: orderError } = await client
-            .from('orders')
-            .select('id, transaction_id, status, payment_status, payment_expected_amount, payment_expected_currency, payment_provider_tx_id')
-            .eq('transaction_id', String(ourTxId))
-            .maybeSingle();
-
-        if (orderError || !order) {
-            await client
-                .from('payment_webhook_events')
-                .update({
-                    process_status: 'ORDER_NOT_FOUND',
-                    processing_error: orderError?.message || 'Order not found',
-                    processed_at: nowIso
-                })
-                .eq('provider', 'netikash')
-                .eq('provider_event_id', providerEventId);
-
-            return res.status(404).send('Commande introuvable');
-        }
-
-        const webhookAmount = getWebhookAmount(payload);
-        const webhookCurrency = getWebhookCurrency(payload);
-        const expectedAmount = normalizeAmount(order.payment_expected_amount);
-        const expectedCurrency = normalizeCurrency(order.payment_expected_currency);
-        const providerStatus = getWebhookSuccessState(payload);
-        const amountMismatch = expectedAmount !== null && webhookAmount !== null && expectedAmount !== webhookAmount;
-        const currencyMismatch = Boolean(expectedCurrency) && Boolean(webhookCurrency) && expectedCurrency !== webhookCurrency;
-
-        const eventUpdate = {
-            order_id: order.id,
-            processed_at: nowIso
-        };
-
-        if (providerTxId) {
-            await client
-                .from('orders')
-                .update({
-                    payment_provider: 'netikash',
-                    payment_provider_tx_id: String(providerTxId),
-                    updated_at: nowIso
-                })
-                .eq('id', order.id);
-        }
-
-        if (amountMismatch || currencyMismatch) {
-            eventUpdate.process_status = 'VERIFICATION_FAILED';
-            eventUpdate.processing_error = amountMismatch
-                ? `Amount mismatch: expected ${expectedAmount}, got ${webhookAmount}`
-                : `Currency mismatch: expected ${expectedCurrency}, got ${webhookCurrency}`;
-
-            await client
-                .from('payment_webhook_events')
-                .update(eventUpdate)
-                .eq('provider', 'netikash')
-                .eq('provider_event_id', providerEventId);
-
-            return res.status(400).send('Verification failed');
-        }
-
-        if (providerStatus.isFailure) {
-            await client
-                .from('orders')
-                .update({
-                    payment_status: 'FAILED',
-                    payment_provider: 'netikash',
-                    payment_provider_tx_id: providerTxId ? String(providerTxId) : order.payment_provider_tx_id,
-                    payment_locked_at: null,
-                    payment_lock_reason: null,
-                    updated_at: nowIso
-                })
-                .eq('id', order.id);
-
-            eventUpdate.process_status = 'FAILED';
-            eventUpdate.processing_error = providerStatus.raw || 'Provider reported failure';
-
-            await client
-                .from('payment_webhook_events')
-                .update(eventUpdate)
-                .eq('provider', 'netikash')
-                .eq('provider_event_id', providerEventId);
-
-            return res.status(200).send('OK');
-        }
-
-        if (!providerStatus.isSuccess) {
-            eventUpdate.process_status = 'IGNORED';
-            eventUpdate.processing_error = `Unhandled provider state: status=${providerStatus.statusRaw || 'unknown'} event=${providerStatus.eventRaw || 'unknown'}`;
-
-            await client
-                .from('payment_webhook_events')
-                .update(eventUpdate)
-                .eq('provider', 'netikash')
-                .eq('provider_event_id', providerEventId);
-
-            return res.status(200).send('OK');
-        }
-
+        // 2. Traiter le paiement
         const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
             p_transaction_id: String(ourTxId)
         });
 
-        if (rpcError) {
-            eventUpdate.process_status = 'PROCESSING_FAILED';
-            eventUpdate.processing_error = rpcError.message || 'RPC process_order_payment failed';
-
-            await client
-                .from('payment_webhook_events')
-                .update(eventUpdate)
-                .eq('provider', 'netikash')
-                .eq('provider_event_id', providerEventId);
-
-            return res.status(500).send('Erreur traitement paiement');
+        if (rpcError || rpcResult?.success === false) {
+            await client.from('payment_webhook_events').update({
+                process_status: 'PROCESSING_FAILED',
+                processing_error: rpcError?.message || rpcResult?.message
+            }).eq('provider', 'flexpaie').eq('provider_event_id', providerEventId);
+            return res.status(400).send('Erreur traitement');
         }
 
-        if (rpcResult?.success === false) {
-            eventUpdate.process_status = 'PROCESSING_FAILED';
-            eventUpdate.processing_error = rpcResult?.message || 'process_order_payment returned success=false';
-
-            await client
-                .from('payment_webhook_events')
-                .update(eventUpdate)
-                .eq('provider', 'netikash')
-                .eq('provider_event_id', providerEventId);
-
-            return res.status(400).send('Paiement non applique');
-        }
-
-        eventUpdate.process_status = 'PROCESSED';
-        eventUpdate.processing_error = null;
-
-        await client
-            .from('payment_webhook_events')
-            .update(eventUpdate)
-            .eq('provider', 'netikash')
-            .eq('provider_event_id', providerEventId);
-
-        const { data: paidOrder, error: paidOrderError } = await client
-            .from('orders')
-            .select('*')
-            .eq('transaction_id', String(ourTxId))
-            .maybeSingle();
-
-        if (paidOrderError) {
-            console.error('[netikashWebhook] Could not reload paid order for OTP notification:', paidOrderError);
-        } else {
-            if (paidOrder?.promo_id && Number(paidOrder?.promo_discount_amount || 0) > 0) {
-                try {
-                    await recordVendorPromoUsage({
-                        promoId: paidOrder.promo_id,
-                        orderId: paidOrder.id,
-                        customerId: paidOrder.customer_id || paidOrder.user_id || null,
-                        discountAmount: Number(paidOrder.promo_discount_amount || 0),
-                        dbClient: client
-                    });
-                } catch (usageError) {
-                    console.error('[netikashWebhook] Could not record promo usage:', usageError);
-                }
-            }
-
-            if (paidOrder?.otp_code && paidOrder?.customer_email) {
-                NotificationService.notifyCustomerOTP(paidOrder)
-                    .catch((notifyError) => {
-                        console.error('[netikashWebhook] OTP notification failed:', notifyError);
-                    });
-                
-                NotificationService.notifyCustomerReceipt(paidOrder);
-            }
-
-            if (paidOrder?.vendor_id) {
-                slackService.sendPaymentReceivedNotification(paidOrder.vendor_id, {
-                    totalAmount: paidOrder.total_amount,
-                    productName: paidOrder.items?.[0]?.name || 'Produit inconnu',
-                    customerName: paidOrder.customer_name || 'Client'
-                }).catch(err => console.error('[SlackService] Payment notification failed:', err));
-            }
-        }
+        await client.from('payment_webhook_events').update({
+            process_status: 'PROCESSED'
+        }).eq('provider', 'flexpaie').eq('provider_event_id', providerEventId);
 
         return res.status(200).send('OK');
     } catch (error) {
-        console.error('netikashWebhook error:', error);
+        console.error('flexpaieWebhook error:', error);
         return res.status(500).send('Erreur interne');
     }
 };

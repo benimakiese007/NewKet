@@ -24,12 +24,12 @@ npm run dev:frontend
 ## Variables importantes
 
 - `frontend/.env` : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-- `backend/.env` : `SUPABASE_SECRET_KEY`, SMTP, Sentry, AvadaPay
+- `backend/.env` : `SUPABASE_SECRET_KEY`, SMTP, Sentry, Stripe
 
 ## Paiement agrégateur
 
-- Le flux AvadaPay est déjà câblé côté backend et frontend.
-- Tant que `AVADAPAY_API_BASE_URL` et `AVADAPAY_SECRET_KEY` ne sont pas renseignés, l’API retourne `PAYMENT_PROVIDER_NOT_CONFIGURED`.
+- Le flux Stripe est déjà câblé côté backend et frontend.
+- Tant que les clés Stripe ne sont pas renseignées, l’API retourne `PAYMENT_PROVIDER_NOT_CONFIGURED`.
 - La libération d’escrow continue de fonctionner, mais le payout vendeur reste manuel jusqu’à l’activation des clés payout/provider.
 
 ## Validation locale
