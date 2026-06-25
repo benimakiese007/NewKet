@@ -207,21 +207,74 @@ export async function createEscrowEvent(client, { orderId, eventType, amount = n
 
 async function fetchVendorPayoutDetails(client, vendorId) {
     if (!vendorId) return null;
-    const { data } = await client
+
+    // Récupérer les infos du vendeur
+    const { data: vendor } = await client
         .from('users')
-        .select('id, email, name, bank_code, account_number, mobile_money_number')
+        .select('id, email, name')
         .eq('id', vendorId)
         .single();
-    return data || null;
+
+    if (!vendor) return null;
+
+    // Récupérer la méthode de paiement par défaut
+    const { data: methods } = await client
+        .from('vendor_payout_methods')
+        .select('*')
+        .eq('vendor_id', vendorId)
+        .order('is_default', { ascending: false })
+        .limit(1);
+
+    vendor.payout_method = (methods && methods.length > 0) ? methods[0] : null;
+    return vendor;
 }
 
-async function attemptVendorPayoutTransfer(vendor) {
-    // Provider payout is still not wired: keep escrow release working with manual payout until NewKet decides to automate vendor transfers.
-    if (!vendor || (!vendor.account_number && !vendor.mobile_money_number)) {
-        return { status: 'manual', message: 'Transfert automatique non disponible (coordonnées vendeur manquantes).' };
+async function getCommissionRate(client) {
+    const { data } = await client
+        .from('settings')
+        .select('platform_commission_rate')
+        .eq('id', 'global-settings')
+        .single();
+    return parseFloat(data?.platform_commission_rate) || 5.0;
+}
+
+async function attemptVendorPayoutTransfer(vendor, payoutAmount) {
+    if (!vendor?.payout_method) {
+        return { status: 'manual', message: 'Aucun compte de réception configuré par le vendeur.' };
     }
 
-    return { status: 'manual', message: 'Transfert automatique non activé. Paiement vendeur à traiter manuellement.' };
+    const method = vendor.payout_method;
+
+    // FlexPaie payout (sera activé avec les clés)
+    if (method.provider === 'flexpaie') {
+        try {
+            const { isFlexpaieConfigured } = await import('./flexpaie.js');
+            if (!isFlexpaieConfigured()) {
+                return { status: 'manual', message: 'FlexPaie non configuré. Payout manuel requis.' };
+            }
+            // TODO: Appeler l'API FlexPaie de transfert quand les clés seront disponibles
+            // await flexpaieTransfer({ to: method.account_id, amount: payoutAmount, name: method.account_name });
+            return { status: 'manual', message: 'Transfert FlexPaie en attente de configuration API.' };
+        } catch {
+            return { status: 'manual', message: 'Erreur lors du transfert FlexPaie.' };
+        }
+    }
+
+    // Stripe Connect payout
+    if (method.provider === 'stripe') {
+        try {
+            const { isStripeConfigured } = await import('./stripe.js');
+            if (!isStripeConfigured()) {
+                return { status: 'manual', message: 'Stripe non configuré. Payout manuel requis.' };
+            }
+            // TODO: Utiliser Stripe Connect Transfer quand les comptes Connect seront configurés
+            return { status: 'manual', message: 'Stripe Connect payout en attente de configuration.' };
+        } catch {
+            return { status: 'manual', message: 'Erreur lors du transfert Stripe.' };
+        }
+    }
+
+    return { status: 'manual', message: 'Fournisseur de paiement non supporté pour le payout.' };
 }
 
 export async function releaseOrderEscrow({
@@ -242,14 +295,25 @@ export async function releaseOrderEscrow({
     }
 
     const vendor = await fetchVendorPayoutDetails(client, getOrderVendorId(order));
+
+    // ─── Calcul de la commission ───
+    const commissionRate = await getCommissionRate(client);
+    const totalAmount = parseFloat(order.total_amount || order.total || 0);
+    const commissionAmount = Math.round(totalAmount * commissionRate) / 100;
+    const payoutAmount = Math.round((totalAmount - commissionAmount) * 100) / 100;
+
     let transfer = { status: 'manual', message: 'Transfert automatique non disponible.' };
 
     try {
-        transfer = await attemptVendorPayoutTransfer(vendor);
+        transfer = await attemptVendorPayoutTransfer(vendor, payoutAmount);
     } catch (error) {
         console.error('[Escrow] Transfer error:', error.message);
-        transfer = { status: 'manual', message: 'Erreur transfert automatique, traitement manuel requis.' };
+        transfer = { status: 'failed', message: error.message };
     }
+
+    // ─── Déterminer le statut du payout ───
+    const payoutStatus = transfer.status === 'failed' ? 'FAILED' : (transfer.status === 'success' ? 'SUCCESS' : 'PENDING');
+    const currentAttempts = parseInt(order.payout_attempts || 0, 10);
 
     const nextEscrowStatus = autoRelease ? ESCROW_STATUSES.AUTO_RELEASED : ESCROW_STATUSES.RELEASED;
     const releaseEventType = autoRelease ? ESCROW_EVENT_TYPES.AUTO_RELEASED : ESCROW_EVENT_TYPES.RELEASED;
@@ -262,7 +326,12 @@ export async function releaseOrderEscrow({
             escrow_status: nextEscrowStatus,
             released_at: nowIso,
             completed_at: nowIso,
-            updated_at: nowIso
+            updated_at: nowIso,
+            platform_commission_amount: commissionAmount,
+            payout_amount: payoutAmount,
+            payout_status: payoutStatus,
+            payout_attempts: currentAttempts + 1,
+            payout_last_error: transfer.status === 'failed' ? transfer.message : null
         })
         .eq('id', order.id)
         .select('*')
@@ -273,11 +342,14 @@ export async function releaseOrderEscrow({
     await createEscrowEvent(client, {
         orderId: order.id,
         eventType: releaseEventType,
-        amount: order.total_amount,
+        amount: totalAmount,
         metadata: {
             transfer_status: transfer.status,
             transfer_message: transfer.message,
-            initiated_by: initiatedBy
+            initiated_by: initiatedBy,
+            commission_rate: commissionRate,
+            commission_amount: commissionAmount,
+            payout_amount: payoutAmount
         },
         processedAt: nowIso
     });

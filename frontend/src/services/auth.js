@@ -984,6 +984,9 @@ const AuthManager = {
         document.querySelectorAll('.vendor-nav').forEach(el => el.classList.toggle('hidden', !isVendor));
         document.querySelectorAll('.customer-nav').forEach(el => el.classList.toggle('hidden', isVendor));
 
+        // Seller-only UI elements (Vendre buttons in header/menu)
+        if (window.ComponentLoader) ComponentLoader.updateSellerUI();
+
         // Mobile Menu Toggles (Guest vs Auth)
         const isLoggedIn = this.role !== null;
         const guestCTA = document.getElementById('mobileGuestCTA');

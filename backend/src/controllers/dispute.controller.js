@@ -125,11 +125,14 @@ async function applyDisputeResolution({ dispute, order, resolution, refundAmount
         await supabaseAdmin
             .from('orders')
             .update({
-                status: ORDER_STATUSES.COMPLETED,
+                status: ORDER_STATUSES.REFUNDED,
                 escrow_status: ESCROW_STATUSES.REFUNDED,
                 completed_at: nowIso,
                 released_at: nowIso,
-                updated_at: nowIso
+                updated_at: nowIso,
+                refund_status: 'APPROVED',
+                refund_amount: parseFloat(order.total_amount || 0),
+                refunded_at: nowIso
             })
             .eq('id', order.id);
 
@@ -152,7 +155,10 @@ async function applyDisputeResolution({ dispute, order, resolution, refundAmount
                 escrow_status: ESCROW_STATUSES.RELEASED,
                 completed_at: nowIso,
                 released_at: nowIso,
-                updated_at: nowIso
+                updated_at: nowIso,
+                refund_status: 'APPROVED',
+                refund_amount: parseFloat(refundAmount || 0),
+                refunded_at: nowIso
             })
             .eq('id', order.id);
 

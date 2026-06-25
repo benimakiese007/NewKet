@@ -116,14 +116,15 @@ const HEADER_HTML = `
 
                 </div>
 
-                <!-- Publish Button (auth only) -->
-                {{AUTH_ONLY_START}}<a href="{{ROOT}}src/pages/publish.html"
-                    class="hidden md:flex shrink-0 bg-gray-900 text-white p-2 md:px-5 md:py-2 rounded-xl hover:bg-gray-800 transition-colors items-center justify-center gap-2 publish-btn h-[44px] min-w-[44px] md:min-w-0 order-last btn-active-scale"
+                <!-- Publish Button (seller only - shown via JS) -->
+                <a href="{{ROOT}}src/pages/publish.html"
+                    class="seller-ui-element shrink-0 bg-gray-900 text-white p-2 rounded-xl hover:bg-gray-800 transition-colors items-center justify-center publish-btn h-[44px] w-[44px] order-last btn-active-scale"
                     data-track-action="navigation:publish_click"
-                    aria-label="Vendre un article">
-                    <iconify-icon icon="solar:add-circle-bold" width="22" class="md:w-5"></iconify-icon>
-                    <span class="hidden md:inline text-sm font-bold">Vendre</span>
-                </a>{{AUTH_ONLY_END}}
+                    aria-label="Vendre un article"
+                    title="Vendre un article"
+                    style="display:none">
+                    <iconify-icon icon="solar:add-circle-bold" width="22"></iconify-icon>
+                </a>
 
                 <!-- Cart Icon (Tablet) -->
                 <button id="cartBtnTablet" onclick="window.CartManager && window.CartManager.toggleCartUI()" 
@@ -259,10 +260,10 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:shop-2-linear" width="20"></iconify-icon>
                     <span>Boutiques</span>
                 </a>
-                {{AUTH_ONLY_START}}<a href="{{ROOT}}src/pages/publish.html" class="mobile-menu-shortcut-card publish-btn" data-track-action="navigation:publish_click">
+                <a href="{{ROOT}}src/pages/publish.html" class="mobile-menu-shortcut-card publish-btn seller-ui-element" data-track-action="navigation:publish_click" style="display:none">
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span>Vendre</span>
-                </a>{{AUTH_ONLY_END}}
+                </a>
                 <a href="{{ROOT}}src/pages/favorites.html" class="mobile-menu-shortcut-card">
                     <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
                     <span>Favoris</span>
@@ -432,30 +433,32 @@ const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 </nav>`;
 
 const getBottomNavHTML = (role) => {
-    const isSeller = role === 'seller';
+    const isSeller = role === 'seller' || role === 'supplier';
     
     return `<!-- Liquid Glass Bottom Navbar -->
-<nav class="liquid-glass-nav fixed bottom-0 w-full z-[9999] flex items-center justify-around px-6 py-4 sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-t-3xl">
+<nav class="liquid-glass-nav fixed bottom-0 w-full z-[9999] flex items-center justify-around px-${isSeller ? '4' : '6'} py-3 sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-t-3xl">
     <a href="{{ROOT}}index.html" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
-        <iconify-icon icon="solar:home-smile-linear" width="24"></iconify-icon>
-        <span class="text-[10px] font-medium tracking-wide">Accueil</span>
+        <iconify-icon icon="solar:home-smile-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
+        <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Accueil</span>
     </a>
     <a href="#" id="bottomNavSearchBtn" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Recherche">
-        <iconify-icon icon="solar:magnifer-linear" width="24"></iconify-icon>
-        <span class="text-[10px] font-medium tracking-wide">Recherche</span>
+        <iconify-icon icon="solar:magnifer-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
+        <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Recherche</span>
     </a>
     ${isSeller ? `
-    <a href="{{ROOT}}src/pages/publish.html" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Vendre">
-        <iconify-icon icon="solar:add-circle-linear" width="24"></iconify-icon>
-        <span class="text-[10px] font-medium tracking-wide">Vendre</span>
+    <a href="{{ROOT}}src/pages/publish.html" class="nav-item-sell relative flex flex-col items-center justify-center -mt-5 publish-btn" aria-label="Vendre" data-track-action="navigation:publish_click">
+        <span class="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#0A4A2E] to-[#1a7a4e] shadow-[0_4px_20px_rgba(10,74,46,0.5)] border-[3px] border-white/20 transition-transform active:scale-90 hover:scale-105">
+            <iconify-icon icon="solar:add-circle-bold" width="28" class="text-white"></iconify-icon>
+        </span>
+        <span class="text-[9px] font-bold tracking-wide text-white mt-1">Vendre</span>
     </a>` : ''}
     <a href="#" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
-        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="24"></iconify-icon>
-        <span class="text-[10px] font-medium tracking-wide">Panier</span>
+        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
+        <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Panier</span>
     </a>
     <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Profil">
-        <iconify-icon icon="solar:user-linear" width="24"></iconify-icon>
-        <span class="text-[10px] font-medium tracking-wide">Profil</span>
+        <iconify-icon icon="solar:user-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
+        <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Profil</span>
     </a>
 </nav>`;
 };
@@ -550,6 +553,13 @@ const ComponentLoader = {
             AuthManager.enforcePermissions();
             AuthManager.updateAccountLink();
         }
+
+        // Show seller-only UI elements when role is seller/supplier
+        this.updateSellerUI();
+        // Retry after AuthManager has likely resolved the role
+        setTimeout(() => this.updateSellerUI(), 1500);
+        // React to window resize for responsive header button
+        window.addEventListener('resize', () => this.updateSellerUI());
         if (window.FavoritesManager) FavoritesManager.updateUI();
         if (window.CurrencyManager) CurrencyManager.updateCurrencyUI();
         if (window.SearchManager) SearchManager.init();
@@ -608,6 +618,24 @@ const ComponentLoader = {
         window.addEventListener('online', updateNetworkStatus);
         window.addEventListener('offline', updateNetworkStatus);
         updateNetworkStatus();
+    },
+
+    updateSellerUI() {
+        const role = window.AuthManager?.role || localStorage.getItem('newketRole') || '';
+        const isSeller = role === 'seller' || role === 'supplier';
+        
+        document.querySelectorAll('.seller-ui-element').forEach(el => {
+            if (isSeller) {
+                // Show: remove inline hide, set flex display for header buttons
+                el.style.removeProperty('display');
+                // For header button: use flex on md+, hide on mobile
+                if (el.closest('.header-search-row')) {
+                    el.style.display = window.innerWidth >= 640 ? 'flex' : 'none';
+                }
+            } else {
+                el.style.setProperty('display', 'none', 'important');
+            }
+        });
     },
 
     async sanitizeGuestAuthState() {

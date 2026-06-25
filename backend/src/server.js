@@ -40,6 +40,7 @@ import cronRoutes from './routes/cron.routes.js';
 import systemHealthRoutes from './routes/systemHealth.routes.js';
 import manifestRoutes from './routes/manifest.routes.js';
 import integrationRoutes from './routes/integrationRoutes.js';
+import vendorPayoutRoutes from './routes/vendor-payout.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 import { processDuePushNotificationJobsJob } from './services/push-queue.service.js';
@@ -231,6 +232,7 @@ app.use('/api/cron', cronRoutes);
 app.use('/api/system-health', systemHealthRoutes);
 app.use('/api', manifestRoutes);
 app.use('/api/integrations', integrationRoutes);
+app.use('/api/vendor-payouts', vendorPayoutRoutes);
 
 app.use(sentryErrorHandler);
 

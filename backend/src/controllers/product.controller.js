@@ -164,6 +164,19 @@ export const createProduct = async (req, res) => {
             productData.supplier_email = req.user.email;
         }
 
+        // ─── Vérification : le vendeur a-t-il un compte de réception ? ───
+        const { count: payoutCount, error: payoutCheckError } = await supabaseAdmin
+            .from('vendor_payout_methods')
+            .select('id', { count: 'exact', head: true })
+            .eq('vendor_id', req.user.id);
+
+        if (!payoutCheckError && (payoutCount === 0 || payoutCount === null)) {
+            return res.status(403).json({
+                error: 'Compte de réception manquant',
+                message: 'Veuillez configurer votre compte de réception (Mobile Money) dans vos paramètres de paiement avant de publier un produit.'
+            });
+        }
+
         const supabase = getScopedClient(req);
         const { data, error } = await supabase
             .from('products')
