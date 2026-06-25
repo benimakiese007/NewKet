@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { randomUUID } from 'crypto';
 import { supabaseAdmin } from '../config/supabase.js';
 import { flushCache } from '../middlewares/cache.js';
 
@@ -152,6 +153,10 @@ export const createProduct = async (req, res) => {
             }
         }
         
+        // Génération d'un UUID côté serveur pour garantir la non-nullité de `id`
+        // même si la colonne n'a pas de DEFAULT dans la DB (défense en profondeur).
+        productData.id = randomUUID();
+
         // On s'assure d'assigner l'ID de l'utilisateur authentifié
         productData.user_id = req.user.id;
         // On force l'émail fournisseur s'il est dispo

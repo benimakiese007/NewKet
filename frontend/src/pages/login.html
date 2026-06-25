@@ -1041,9 +1041,7 @@
 
             try {
                 const stats = await window.ApiClient.get('/users/public-stats', {
-                    suppressNetworkError: true,
-                    cacheKey: 'login-public-user-stats',
-                    cacheTtlMs: 60000
+                    suppressNetworkError: true
                 });
 
                 const totalUsers = Number(stats?.totalUsers);
@@ -1066,16 +1064,14 @@
                         });
                     }
                 }
-            } catch (error) {
-                console.warn('[Login] Impossible de charger le total utilisateurs:', error);
-                countEl.textContent = '0';
-                labelEl.textContent = 'Utilisateurs';
-            } finally {
+
                 const statsContainer = document.getElementById('statsContainer');
                 if (statsContainer) {
                     statsContainer.classList.remove('opacity-0');
                     statsContainer.classList.add('opacity-100');
                 }
+            } catch (error) {
+                console.warn('[Login] Impossible de charger le total utilisateurs:', error);
             }
         }
 
