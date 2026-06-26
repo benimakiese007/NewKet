@@ -171,6 +171,24 @@
                                 class="w-full px-6 py-5 rounded-2xl outline-none text-gray-900 bg-transparent font-bold text-xl">
                         </div>
                     </div>
+                    
+                    <div class="col-span-full">
+                        <div class="flex items-center gap-2 mb-1">
+                            <iconify-icon icon="solar:history-bold" class="text-gray-400"></iconify-icon>
+                            <label for="escrowTimerInput" class="text-sm font-bold text-gray-900 uppercase tracking-wider">Délai d'Escrow (Séquestre)</label>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2">Choisissez le délai après la livraison avant que les fonds ne soient débloqués sur votre compte.</p>
+                        <div class="relative group input-focus border border-gray-100 rounded-2xl transition-all duration-300 bg-gray-50/50">
+                            <select id="escrowTimerInput" name="escrowTimerInput" class="w-full px-6 py-5 rounded-2xl outline-none text-gray-900 bg-transparent font-bold text-lg appearance-none cursor-pointer">
+                                <option value="24">24 Heures (Standard)</option>
+                                <option value="48">48 Heures</option>
+                                <option value="72">72 Heures (Recommandé pour expéditions longues)</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none">
+                                <iconify-icon icon="solar:alt-arrow-down-bold" class="text-gray-400"></iconify-icon>
+                            </div>
+                        </div>
+                    </div>
 
                 <div class="space-y-4">
                     <div class="flex items-center gap-2 mb-1">
@@ -623,6 +641,11 @@
 
                     document.getElementById('pTitleInput').value = product.name;
                     
+                    const escrowInput = document.getElementById('escrowTimerInput');
+                    if (escrowInput) {
+                        escrowInput.value = product.escrow_timer_hours || "24";
+                    }
+                    
                     // Restore per-product exchange rate when present
                     if (exchangeRateInput) {
                         const perProductRate = parseFloat(product.custom_exchange_rate);
@@ -875,7 +898,8 @@
                         is_new: document.getElementById('pConditionInput').value === 'new',
                         status: 'published',
                         custom_exchange_rate: exchangeRate,
-                        stock: stockVal
+                        stock: stockVal,
+                        escrow_timer_hours: parseInt(document.getElementById('escrowTimerInput')?.value || "24", 10)
                     };
 
                     if (isEditMode) {

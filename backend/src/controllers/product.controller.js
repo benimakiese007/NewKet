@@ -143,7 +143,7 @@ export const createProduct = async (req, res) => {
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
             'name', 'price', 'old_price', 'image', 'category', 
-            'description', 'is_new', 'is_promo', 'pinned', 'stock', 'custom_exchange_rate'
+            'description', 'is_new', 'is_promo', 'pinned', 'stock', 'custom_exchange_rate', 'escrow_timer_hours'
         ];
         
         const productData = {};
@@ -203,7 +203,7 @@ export const updateProduct = async (req, res) => {
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
             'name', 'price', 'old_price', 'image', 'category', 
-            'description', 'is_new', 'is_promo', 'pinned', 'stock', 'custom_exchange_rate'
+            'description', 'is_new', 'is_promo', 'pinned', 'stock', 'custom_exchange_rate', 'escrow_timer_hours'
         ];
         
         const updateData = {};

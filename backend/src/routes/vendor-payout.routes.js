@@ -143,36 +143,6 @@ router.delete('/methods/:id', async (req, res) => {
     }
 });
 
-/**
- * GET /api/vendor-payouts/escrow-timer
- * Récupère le délai d'escrow du vendeur
- */
-router.get('/escrow-timer', async (req, res) => {
-    try {
-        const hours = await getEscrowTimer(req.user.id);
-        return res.status(200).json({ success: true, escrow_timer_hours: hours });
-    } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
-    }
-});
 
-/**
- * PUT /api/vendor-payouts/escrow-timer
- * Met à jour le délai d'escrow (entre 24 et 72h)
- * Body: { hours: 24 | 48 | 72 }
- */
-router.put('/escrow-timer', async (req, res) => {
-    try {
-        const { hours } = req.body;
-        await updateEscrowTimer(req.user.id, hours);
-
-        return res.status(200).json({
-            success: true,
-            message: `Délai de sécurité mis à jour à ${hours}h`
-        });
-    } catch (error) {
-        return res.status(400).json({ success: false, message: error.message });
-    }
-});
 
 export default router;

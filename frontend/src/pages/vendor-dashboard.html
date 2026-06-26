@@ -175,6 +175,10 @@
                         <iconify-icon icon="solar:ticket-sale-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                         <span>Codes promo</span>
                     </a>
+                    <a href="#payouts" data-switch-vendor-tab="payouts" data-track-action="vendor_dashboard:tab_payouts_click" class="sidebar-link group btn-active-scale" aria-label="Paiements">
+                        <iconify-icon icon="solar:wallet-money-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
+                        <span>Paiements</span>
+                    </a>
                     <div class="pt-4 mt-4 border-t border-gray-100/50 space-y-1.5">
                         <a href="#settings" data-switch-vendor-tab="settings" data-track-action="vendor_dashboard:tab_settings_click" class="sidebar-link group btn-active-scale" aria-label="Paramètres">
                             <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
@@ -686,6 +690,48 @@
                                 <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                                 <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payouts Tab -->
+            <div id="tab-payouts" class="hidden">
+                <div class="space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-900">Comptes de réception</h2>
+                            <p class="text-sm text-gray-500 mt-1">Gérez vos méthodes de paiement pour recevoir vos fonds.</p>
+                        </div>
+                        <button onclick="openAddPayoutModal()" class="btn-primary py-2 px-4 rounded-xl text-sm font-medium flex items-center gap-2">
+                            <iconify-icon icon="solar:add-circle-bold" width="18"></iconify-icon>
+                            Ajouter un compte
+                        </button>
+                    </div>
+
+                    <!-- Payout Methods List -->
+                    <div class="glass-panel overflow-hidden">
+                        <div class="p-6 border-b border-gray-100/50">
+                            <h3 class="text-sm font-bold uppercase tracking-widest text-gray-900">Vos méthodes de paiement</h3>
+                        </div>
+                        <div id="payoutMethodsContainer" class="p-6">
+                            <!-- Loader -->
+                            <div id="payoutMethodsLoader" class="flex justify-center py-8 hidden">
+                                <iconify-icon icon="line-md:loading-twotone-loop" width="32" class="text-gray-400"></iconify-icon>
+                            </div>
+                            <!-- Error -->
+                            <div id="payoutMethodsError" class="bg-red-50 text-red-600 p-4 rounded-xl text-sm hidden"></div>
+                            <!-- Empty State -->
+                            <div id="payoutMethodsEmpty" class="text-center py-12 hidden">
+                                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <iconify-icon icon="solar:wallet-money-bold-duotone" width="32" class="text-gray-400"></iconify-icon>
+                                </div>
+                                <h4 class="text-gray-900 font-medium mb-1">Aucun compte configuré</h4>
+                                <p class="text-gray-500 text-sm max-w-md mx-auto mb-6">Vous devez ajouter au moins un compte de réception pour pouvoir publier et vendre des produits sur NewKet.</p>
+                                <button onclick="openAddPayoutModal()" class="text-[#013220] font-semibold hover:underline text-sm">Ajouter mon premier compte</button>
+                            </div>
+                            <!-- List -->
+                            <div id="payoutMethodsList" class="space-y-4 hidden"></div>
                         </div>
                     </div>
                 </div>
@@ -1415,7 +1461,7 @@
                     window.newketVendorActiveTab = tabId;
 
                     // Masquer tous les onglets (null-safe)
-                    ['dashboard', 'analytics', 'products', 'leads', 'purchases', 'promos', 'settings'].forEach(id => {
+                    ['dashboard', 'analytics', 'products', 'leads', 'purchases', 'promos', 'payouts', 'settings'].forEach(id => {
                         const el = document.getElementById('tab-' + id);
                         if (el) el.classList.add('hidden');
                     });
@@ -1447,6 +1493,7 @@
                     else if (tabId === 'leads') renderVendorLeads();
                     else if (tabId === 'purchases') renderVendorPurchases();
                     else if (tabId === 'promos') renderVendorPromos();
+                    else if (tabId === 'payouts') renderVendorPayouts();
                     else if (tabId === 'settings') {
                         refreshVendorDevicePushStatus();
                         if (typeof window.refreshVendorIntegrationsStatus === 'function') {
@@ -1466,7 +1513,7 @@
 
                 function syncVendorTabFromHash() {
                     const hash = window.location.hash.replace('#', '');
-                    const validTabs = ['dashboard', 'analytics', 'products', 'leads', 'purchases', 'promos', 'settings'];
+                    const validTabs = ['dashboard', 'analytics', 'products', 'leads', 'purchases', 'promos', 'payouts', 'settings'];
                     if (hash && validTabs.includes(hash)) {
                         switchVendorTab(hash);
                     } else {
