@@ -518,12 +518,21 @@
                             <h2 class="text-xl font-bold">Demandes clients</h2>
                             <p class="text-xs text-gray-400 mt-1">Filtre “À traiter” = demandes qui nécessitent une action.</p>
                         </div>
-                        <div class="flex items-center gap-2 w-full sm:w-auto">
-                            <button id="vendorLeadsFilterActionBtn" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white border-black" aria-pressed="true">
+                        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                            <button id="vFilterAction" onclick="setVendorLeadsFilter('action')" type="button" class="px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white border-black" aria-pressed="true">
                                 À traiter
                                 <span id="vendorLeadsActionCount" class="ml-2 inline-flex items-center justify-center min-w-[20px] h-5 px-2 rounded-full bg-white text-black text-[10px] font-black">0</span>
                             </button>
-                            <button id="vendorLeadsFilterAllBtn" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100" aria-pressed="false">
+                            <button id="vFilterAwaiting" onclick="setVendorLeadsFilter('awaiting_client')" type="button" class="px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100" aria-pressed="false">
+                                Attente client
+                            </button>
+                            <button id="vFilterDelivery" onclick="setVendorLeadsFilter('delivery')" type="button" class="px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100" aria-pressed="false">
+                                En Livraison
+                            </button>
+                            <button id="vFilterDone" onclick="setVendorLeadsFilter('done')" type="button" class="px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100" aria-pressed="false">
+                                Terminé
+                            </button>
+                            <button id="vFilterAll" onclick="setVendorLeadsFilter('all')" type="button" class="px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100" aria-pressed="false">
                                 Tout
                             </button>
                         </div>
@@ -1160,7 +1169,7 @@
                                         <h5 class="text-xs font-black text-purple-900 uppercase">Vérification de Livraison</h5>
                                         <p class="text-[10px] text-purple-600 leading-tight">Saisissez le code OTP fourni par le client pour valider la livraison et lancer le délai de libération des fonds.</p>
                                     </div>
-                                    <div class="flex gap-2">
+                                    <div class="flex flex-wrap gap-2">
                                         <input type="text" id="vOtpInput" maxlength="6" placeholder="000000" 
                                             class="flex-1 min-w-0 bg-white border border-purple-200 rounded-xl px-2 sm:px-4 py-3 text-center text-lg sm:text-xl font-black tracking-[0.3em] sm:tracking-[0.5em] focus:ring-2 focus:ring-purple-500 outline-none">
                                         <button id="btnVerifyVendorOtp"
@@ -3202,16 +3211,10 @@
                         if (window.__newketVendorLeadsFilterBound) return;
                         window.__newketVendorLeadsFilterBound = true;
 
-                        const actionBtn = document.getElementById('vendorLeadsFilterActionBtn');
-                        const allBtn = document.getElementById('vendorLeadsFilterAllBtn');
-                        if (!actionBtn || !allBtn) return;
-
-                        const setFilter = (mode) => {
+                        window.setVendorLeadsFilter = (mode) => {
                             window.vendorLeadsFilter = mode;
                             renderVendorLeads();
                         };
-                        actionBtn.addEventListener('click', () => setFilter('action'));
-                        allBtn.addEventListener('click', () => setFilter('all'));
 
                         // ── Search binding (Improvement 5) ──
                         const searchInput = document.getElementById('vendorLeadsSearch');
@@ -4369,8 +4372,27 @@
                     }
 
                     // Update leads tab filter UI
-                    const actionBtn = document.getElementById('vendorLeadsFilterActionBtn');
-                    const allBtn = document.getElementById('vendorLeadsFilterAllBtn');
+                    const filterIds = ['vFilterAction', 'vFilterAwaiting', 'vFilterDelivery', 'vFilterDone', 'vFilterAll'];
+                    const filterMode = window.vendorLeadsFilter || 'action';
+                    
+                    filterIds.forEach(id => {
+                        const btn = document.getElementById(id);
+                        if (btn) {
+                            let mappedId = 'vFilterAll';
+                            if (filterMode === 'action') mappedId = 'vFilterAction';
+                            else if (filterMode === 'awaiting_client') mappedId = 'vFilterAwaiting';
+                            else if (filterMode === 'delivery') mappedId = 'vFilterDelivery';
+                            else if (filterMode === 'done') mappedId = 'vFilterDone';
+                            
+                            const isActive = id === mappedId;
+                            
+                            btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                            btn.className = isActive
+                                ? 'px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white border-black'
+                                : 'px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100';
+                        }
+                    });
+
                     const actionCountEl = document.getElementById('vendorLeadsActionCount');
                     if (actionCountEl) {
                         actionCountEl.textContent = String(needsActionOrders.length);
@@ -4378,26 +4400,18 @@
                         else actionCountEl.classList.remove('hidden');
                     }
 
-                    const filterMode = window.vendorLeadsFilter || 'action';
-                    const setBtnState = () => {
-                        if (actionBtn) {
-                            const active = filterMode === 'action';
-                            actionBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-                            actionBtn.className = active
-                                ? 'flex-1 sm:flex-none px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white border-black'
-                                : 'flex-1 sm:flex-none px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100';
-                        }
-                        if (allBtn) {
-                            const active = filterMode === 'all';
-                            allBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-                            allBtn.className = active
-                                ? 'flex-1 sm:flex-none px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white border-black'
-                                : 'flex-1 sm:flex-none px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100';
-                        }
-                    };
-                    setBtnState();
-
-                    let shownOrders = filterMode === 'all' ? recentOrders : needsActionOrders;
+                    let shownOrders = recentOrders;
+                    if (filterMode === 'action') {
+                        shownOrders = needsActionOrders;
+                    } else if (filterMode === 'awaiting_client') {
+                        shownOrders = recentOrders.filter(o => ['QUOTE', 'READY_FOR_PAYMENT'].includes(o.status));
+                    } else if (filterMode === 'delivery') {
+                        shownOrders = recentOrders.filter(o => ['PAID_HELD', 'IN_DELIVERY'].includes(o.status));
+                    } else if (filterMode === 'done') {
+                        shownOrders = recentOrders.filter(o => ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(o.status));
+                    } else {
+                        shownOrders = recentOrders;
+                    }
                     // Sort: newest first
                     shownOrders = shownOrders.slice().sort((a, b) => {
                         const ta = new Date(a?.timestamp || a?.date || a?.created_at || 0).getTime();
