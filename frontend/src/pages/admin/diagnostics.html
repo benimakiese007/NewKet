@@ -501,7 +501,7 @@
 
             list.innerHTML = stats.topProducts.map(p => `
                 <div class="glass-panel p-4 flex gap-4 items-center">
-                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || '/assets/Images/default.png')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image, [48, 64, 96], { quality: 70 })}" sizes="64px"` : ''} class="w-16 h-16 rounded-xl object-contain bg-gray-50 p-2" onerror="this.src='/assets/Images/default.png'">
+                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image, [48, 64, 96], { quality: 70 })}" sizes="64px"` : ''} class="w-16 h-16 rounded-xl object-contain bg-gray-50 p-2" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
                     <div class="flex-1 min-w-0">
                         <h4 class="font-bold text-gray-900 truncate">${p.name}</h4>
                         <div class="text-[10px] font-black text-gray-400 uppercase">${p.salesCount} ventes régulières</div>

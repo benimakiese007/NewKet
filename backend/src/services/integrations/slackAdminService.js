@@ -39,11 +39,11 @@ class SlackAdminService {
     /**
      * Crée un canal privé pour un vendeur s'il n'existe pas déjà.
      * Retourne l'ID du canal créé ou existant.
-     * @param {string} vendorName - Nom du vendeur (ex: "Ben Dupont" → #vendeur-ben-dupont)
+     * @param {string} vendorName - Nom du vendeur (ex: "Prénom Nom" → #vendeur-prenom-nom)
      * @returns {string|null} Channel ID Slack
      */
     async createVendorChannel(vendorName, vendorEmail) {
-        // Normalise le nom : "Ben Dupont" → "vendeur-ben-dupont"
+        // Normalise le nom : "Prénom Nom" → "vendeur-prenom-nom"
         const channelName = 'vendeur-' + vendorName
             .toLowerCase()
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Supprime les accents

@@ -49,10 +49,10 @@ const HEADER_HTML = `
                 <!-- Logo Section -->
                 <div class="flex items-center sm:min-w-0">
                     <a href="{{ROOT}}index.html" class="header-logo-link flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
-                        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96"
+                        <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96"
                             data-site-logo="header"
                             class="header-brand-image h-8 sm:h-20 w-auto object-contain"
-                            onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+                            onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572406/newket_assets/racine/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                     </a>
                 </div>
 
@@ -214,7 +214,7 @@ const HEADER_HTML = `
 <div id="mobileMenu" class="fixed inset-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
     <div class="mobile-menu-header px-6 flex items-center justify-between bg-white text-gray-900 border-b border-gray-100/60" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
         <div class="mobile-menu-brand">
-            <img src="{{ROOT}}Images/Logo_Vert_Pour_Fond_Blanc.png" alt="NewKet" width="240" height="96" class="h-12 w-auto object-contain">
+            <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572411/newket_assets/racine/Logo_Vert_Pour_Fond_Blanc.png" alt="NewKet" width="240" height="96" class="h-12 w-auto object-contain">
             <p class="mobile-menu-subtitle text-gray-500">Votre navigation principale</p>
         </div>
         <button id="closeMobileMenu" class="p-4 rounded-full bg-gray-100/80 hover:bg-gray-200 transition-all btn-active-scale shadow-sm" aria-label="Fermer le menu">
@@ -366,7 +366,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-10">
             <div class="lg:col-span-4 space-y-4">
                 <div class="flex items-center justify-center lg:justify-start">
-                    <img src="{{ROOT}}Images/logo-newket.png" alt="NewKet" width="320" height="128" data-site-logo="footer" class="h-20 sm:h-24 lg:h-28 w-auto object-contain">
+                    <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" width="320" height="128" data-site-logo="footer" class="h-20 sm:h-24 lg:h-28 w-auto object-contain">
                 </div>
                 <p class="text-gray-400 text-sm leading-relaxed max-w-md">
                     L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
@@ -425,7 +425,7 @@ const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 <nav class="main-header newket-header-shell fixed top-0 w-full z-[100] transition-all duration-300" data-header-shell="minimal">
     <div class="relative flex h-[64px] sm:h-[92px] items-center justify-center">
     <a href="{{ROOT}}index.html" class="flex items-center group py-2" title="Retour à l'accueil">
-        <img src="{{ROOT}}Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-12 sm:h-20 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='{{ROOT}}Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+        <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-12 sm:h-20 w-auto object-contain transition-transform group-hover:scale-105" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572406/newket_assets/racine/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
     </a>
     <div class="absolute right-4 items-center hidden sm:flex text-white/40">
         <iconify-icon icon="solar:lock-password-bold" width="18"></iconify-icon>

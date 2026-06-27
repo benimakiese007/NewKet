@@ -610,7 +610,7 @@ const App = {
             id: productId,
             name: nameEl?.textContent.trim() || 'Produit',
             price: priceEl?.dataset.priceCdf ? parseFloat(priceEl.dataset.priceCdf) : 0,
-            image: imgEl?.src || 'Images/default.png',
+            image: imgEl?.src || 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg',
             category: 'Article'
         };
     }

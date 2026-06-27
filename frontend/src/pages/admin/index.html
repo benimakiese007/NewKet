@@ -912,7 +912,7 @@
 
             list.innerHTML = lowStockItems.map(p => `
                 <div class="flex items-center gap-3">
-                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || window.resolvePath('assets/Images/default.png'))}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image, [32, 40, 56], { quality: 70 })}" sizes="40px"` : ''} class="w-10 h-10 rounded-lg object-contain bg-gray-50 border border-gray-100 p-1" onerror="this.onerror=null; this.src=window.resolvePath('assets/Images/default.png')">
+                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'))}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image, [32, 40, 56], { quality: 70 })}" sizes="40px"` : ''} class="w-10 h-10 rounded-lg object-contain bg-gray-50 border border-gray-100 p-1" onerror="this.onerror=null; this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                     <div class="flex-1 min-w-0">
                         <div class="text-sm font-bold truncate">${p.name}</div>
                         <div class="h-1.5 w-full bg-gray-100 rounded-full mt-1.5 overflow-hidden">
@@ -971,7 +971,7 @@
 
             list.innerHTML = topProducts.map(p => `
                 <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || window.resolvePath('assets/Images/default.png'))}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image, [32, 40, 56], { quality: 70 })}" sizes="40px"` : ''} class="w-10 h-10 rounded-lg object-contain bg-white" onerror="this.onerror=null; this.src=window.resolvePath('assets/Images/default.png')">
+                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image) : (p.image || window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'))}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image, [32, 40, 56], { quality: 70 })}" sizes="40px"` : ''} class="w-10 h-10 rounded-lg object-contain bg-white" onerror="this.onerror=null; this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                     <div class="flex-1 min-w-0">
                         <div class="text-sm font-bold truncate">${p.name}</div>
                         <div class="text-[10px] text-gray-400 font-bold uppercase">${p.salesCount} ventes</div>

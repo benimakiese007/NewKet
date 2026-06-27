@@ -410,7 +410,7 @@
             const images = (Array.isArray(p.images) && p.images.length > 0)
                 ? p.images.slice(0, 5)
                 : (p.image || '').split(',').map(img => img.trim()).filter(img => img);
-            currentProductImages = images.length ? images : [window.resolvePath('assets/Images/default.png')];
+            currentProductImages = images.length ? images : [window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')];
             currentProductImageIndex = 0;
             const mainImgUrl = currentProductImages[0];
             const mainImageEl = document.getElementById('mainImage');

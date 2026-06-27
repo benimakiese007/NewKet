@@ -120,7 +120,7 @@ router.get('/test-slack', async (req, res) => {
             const success = await slackService.sendSaleNotification(sellerId, {
                 totalAmount: 4500,
                 productName: 'Sac Hermès Birkin Vintage (Test)',
-                customerName: 'Jean Dupont'
+                customerName: 'Prénom Nom'
             });
             return res.json({ message: 'Test de notification Slack vendeur déclenché.', success });
         } else {

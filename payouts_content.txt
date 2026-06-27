@@ -228,7 +228,7 @@
                                                 </div>
                                                 <div>
                                                     <label class="block text-sm font-semibold text-gray-900 mb-1.5">Nom sur le compte <span class="text-red-500">*</span></label>
-                                                    <input type="text" id="payoutAccountName" class="input-field w-full" placeholder="Ex: Jean Dupont">
+                                                    <input type="text" id="payoutAccountName" class="input-field w-full" placeholder="Ex: Prénom Nom">
                                                 </div>
                                                 <button id="payoutRequestOtpBtn" onclick="requestPayoutOtp()" class="btn-primary w-full py-3 rounded-xl font-bold mt-2 flex justify-center items-center gap-2">
                                                     Continuer

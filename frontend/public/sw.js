@@ -21,9 +21,9 @@ const ASSETS_TO_CACHE = [
     '/favicon-16x16.png',
     '/favicon-32x32.png',
     '/favicon.ico',
-    '/Images/Logo_Header_Officiel_PNG.png',
-    '/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png',
-    '/Images/Logo_Vert_Pour_Fond_Blanc.png'
+    'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572406/newket_assets/racine/Logo_Header_Officiel_PNG.png',
+    'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png',
+    'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572411/newket_assets/racine/Logo_Vert_Pour_Fond_Blanc.png'
 ];
 
 // Install Event

@@ -8,9 +8,9 @@ const HERO_LOCAL_KEY = 'newket_homepage_hero_content_v1';
 const HERO_LOCAL_TIME_KEY = 'newket_homepage_hero_content_time_v1';
 const HERO_DEFAULT_SWITCH_INTERVAL_SECONDS = 5;
 const HERO_PUBLIC_IMAGE_MAP = {
-    'marketplace-hero.jpg': '/Images/marketplace-hero.jpg',
-    'hero-black-friday.png': '/Images/hero-black-friday.png',
-    'hero-bf-definition.webp': '/Images/hero-bf-definition.webp'
+    'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572394/newket_assets/frontend/src/assets/Images/marketplace-hero.jpg': 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572394/newket_assets/frontend/src/assets/Images/marketplace-hero.jpg',
+    'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572388/newket_assets/frontend/src/assets/Images/hero-black-friday.png': 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572388/newket_assets/frontend/src/assets/Images/hero-black-friday.png',
+    'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572386/newket_assets/frontend/src/assets/Images/hero-bf-definition.webp': 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572386/newket_assets/frontend/src/assets/Images/hero-bf-definition.webp'
 };
 
 function nowIso() {
@@ -44,9 +44,9 @@ const HeroContentManager = {
     defaults: {
         id: HERO_ROW_ID,
         slides: [
-            { imageUrl: '/Images/marketplace-hero.jpg', overlay: 0.4 },
-            { imageUrl: '/Images/hero-black-friday.png', overlay: 0.4 },
-            { imageUrl: '/Images/hero-bf-definition.webp', overlay: 0.4 }
+            { imageUrl: 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572394/newket_assets/frontend/src/assets/Images/marketplace-hero.jpg', overlay: 0.4 },
+            { imageUrl: 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572388/newket_assets/frontend/src/assets/Images/hero-black-friday.png', overlay: 0.4 },
+            { imageUrl: 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572386/newket_assets/frontend/src/assets/Images/hero-bf-definition.webp', overlay: 0.4 }
         ],
         content: {
             titleLine1: 'SUBTILE',
