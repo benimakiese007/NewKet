@@ -392,10 +392,10 @@ class CartManager {
 
         const cartHtml = `
             <!-- Cart Overlay -->
-            <div id="cartOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[1000] opacity-0 pointer-events-none transition-opacity duration-300" onclick="window.CartManager._hideSlideOver()"></div>
+            <div id="cartOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000] opacity-0 pointer-events-none transition-opacity duration-300" onclick="window.CartManager._hideSlideOver()"></div>
             
             <!-- Cart Slide-over -->
-            <div id="cartSlideOver" class="fixed top-0 right-0 h-full w-full bg-gray-50 z-[1001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col overscroll-contain">
+            <div id="cartSlideOver" class="fixed top-0 right-0 h-full w-full bg-gray-50 z-[10001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col overscroll-contain">
                 <!-- Header -->
                 <div class="px-6 py-5 flex items-center justify-between shrink-0" style="background:#013220; border-bottom:1px solid rgba(1,50,32,0.6);">
                     <div class="flex items-center gap-3">

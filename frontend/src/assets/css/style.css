@@ -9853,7 +9853,13 @@ html.dark .skeleton::after {
 }
 
 @media (max-width: 639px) {
-  body {
+  /* Only push up the main content, not the footer */
+  main, #main-content, .main-content,
+  .page-content, #page-content, #app-body {
     padding-bottom: 80px !important;
+  }
+  /* Footer already has its own padding, remove any body-level shift */
+  body {
+    padding-bottom: 0 !important;
   }
 }

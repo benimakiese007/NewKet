@@ -296,19 +296,27 @@ export const ApiClient = {
             return await run();
         } catch (error) {
             const isTransientLocalGateway = isLocalTransientGatewayFailure(error);
+            // 502/503/504 = erreurs d'infrastructure (serveur redémarre, surcharge, déploiement).
+            // On ne les montre jamais au client : inutiles et anxiogènes.
+            const isGatewayError = [502, 503, 504].includes(Number(error?.status));
 
             if (options.suppressNetworkError && (isNetworkFailure(error) || isTransientLocalGateway)) {
                 return null;
             }
 
             if (!options.suppressErrorLogging && !isTransientLocalGateway) {
-                console.error(`[ApiClient] Error on ${endpoint}:`, error);
-                captureError(error, { endpoint, method: options.method || 'GET' });
+                // Pour les gateway errors, on log discrètement sans polluer la console en prod.
+                if (isGatewayError) {
+                    captureError(error, { endpoint, method: options.method || 'GET', silent: true });
+                } else {
+                    console.error(`[ApiClient] Error on ${endpoint}:`, error);
+                    captureError(error, { endpoint, method: options.method || 'GET' });
+                }
             }
 
             if (!options.suppressToast && typeof window.showToast === 'function' && !isTransientLocalGateway) {
-                // Show toast only for non-network errors.
-                if (!isNetworkFailure(error) && error.status !== 401 && error.status !== 403) {
+                // On n'affiche pas : erreurs réseau pures, auth (401/403), gateway (502/503/504).
+                if (!isNetworkFailure(error) && !isGatewayError && error.status !== 401 && error.status !== 403) {
                     window.showToast(error.message || "Une erreur est survenue.", "danger");
                 }
             }
