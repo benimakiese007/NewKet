@@ -5,9 +5,7 @@ import {
     verifyPayoutOtp,
     getVendorPayoutMethods,
     addVendorPayoutMethod,
-    removeVendorPayoutMethod,
-    updateEscrowTimer,
-    getEscrowTimer
+    removeVendorPayoutMethod
 } from '../services/vendor-payout.service.js';
 
 const router = express.Router();

@@ -19,7 +19,7 @@ CHECK (escrow_timer_hours >= 24 AND escrow_timer_hours <= 72);
 -- 2. Création de la table des méthodes de paiement (Payouts)
 CREATE TABLE IF NOT EXISTS public.vendor_payout_methods (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    vendor_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    vendor_id TEXT NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     provider TEXT NOT NULL CHECK (provider IN ('flexpaie', 'stripe')),
     account_id TEXT NOT NULL, -- Numéro de téléphone ou Stripe Account ID
     account_name TEXT, -- Nom associé au compte

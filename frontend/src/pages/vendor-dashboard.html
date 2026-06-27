@@ -4944,6 +4944,312 @@
                     }
                 }
 
+                async function renderVendorPayouts() {
+                    const loader = document.getElementById('payoutMethodsLoader');
+                    const errorEl = document.getElementById('payoutMethodsError');
+                    const emptyEl = document.getElementById('payoutMethodsEmpty');
+                    const listEl = document.getElementById('payoutMethodsList');
+
+                    loader.classList.remove('hidden');
+                    errorEl.classList.add('hidden');
+                    emptyEl.classList.add('hidden');
+                    listEl.classList.add('hidden');
+                    listEl.innerHTML = '';
+
+                    try {
+                        const { data: session } = await window.supabaseClient.auth.getSession();
+                        const token = session?.session?.access_token;
+                        if (!token) throw new Error("Non authentifié");
+
+                        const response = await fetch('/api/vendor-payouts/methods', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        
+                        if (!response.ok) throw new Error("Erreur serveur");
+                        const json = await response.json();
+                        
+                        if (!json.success || !json.data || json.data.length === 0) {
+                            emptyEl.classList.remove('hidden');
+                        } else {
+                            renderPayoutMethodsList(json.data);
+                            listEl.classList.remove('hidden');
+                        }
+                    } catch (error) {
+                        console.error('Erreur chargement paiements:', error);
+                        errorEl.textContent = error.message || 'Impossible de charger vos méthodes de paiement.';
+                        errorEl.classList.remove('hidden');
+                    } finally {
+                        loader.classList.add('hidden');
+                    }
+                }
+
+                function renderPayoutMethodsList(methods) {
+                    const container = document.getElementById('payoutMethodsList');
+                    container.innerHTML = '';
+                    
+                    methods.forEach(method => {
+                        const isMobileMoney = method.provider.toLowerCase().includes('mobile');
+                        const icon = isMobileMoney ? 'solar:smartphone-bold-duotone' : 'solar:banknote-bold-duotone';
+                        
+                        const card = document.createElement('div');
+                        card.className = "p-4 border border-gray-100 rounded-2xl flex items-center justify-between hover:border-[#013220]/20 transition-colors group";
+                        card.innerHTML = `
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-[#013220]/5 rounded-xl flex items-center justify-center shrink-0">
+                                    <iconify-icon icon="${icon}" width="20" class="text-[#013220]"></iconify-icon>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-900">${method.account_name}</div>
+                                    <div class="text-sm text-gray-500">${method.provider} •••••${method.account_number.slice(-4)}</div>
+                                </div>
+                            </div>
+                            <button onclick="requestRemovePayoutMethod('${method.id}')" class="text-gray-400 hover:text-red-500 transition-colors p-2" title="Supprimer">
+                                <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
+                            </button>
+                        `;
+                        container.appendChild(card);
+                    });
+                }
+
+                // Modals flow for Payout
+                let currentPayoutOtpToken = null;
+
+                function openAddPayoutModal() {
+                    // Create modal HTML dynamically if it doesn't exist
+                    let modal = document.getElementById('payoutAddModal');
+                    if (!modal) {
+                        modal = document.createElement('div');
+                        modal.id = 'payoutAddModal';
+                        modal.className = 'fixed inset-0 z-[10000] hidden';
+                        modal.innerHTML = `
+                            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeAddPayoutModal()"></div>
+                            <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
+                                <div class="bg-white rounded-2xl shadow-xl w-full max-w-md pointer-events-auto flex flex-col max-h-[90vh] overflow-hidden">
+                                    <div class="p-6 border-b border-gray-100 flex justify-between items-center shrink-0">
+                                        <h3 class="font-bold text-lg text-gray-900">Ajouter un compte de réception</h3>
+                                        <button onclick="closeAddPayoutModal()" class="text-gray-400 hover:text-gray-900 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+                                            <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                                        </button>
+                                    </div>
+                                    <div class="p-6 overflow-y-auto">
+                                        <!-- Step 1: Form -->
+                                        <div id="payoutStepForm">
+                                            <div id="payoutFormError" class="mb-4 bg-red-50 text-red-600 p-3 rounded-xl text-sm hidden"></div>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-semibold text-gray-900 mb-1.5">Fournisseur <span class="text-red-500">*</span></label>
+                                                    <select id="payoutProvider" class="input-field w-full">
+                                                        <option value="MOBILE_MONEY">Mobile Money</option>
+                                                        <option value="STRIPE">Stripe (Test)</option>
+                                                        <option value="BANK_TRANSFER">Virement Bancaire</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-semibold text-gray-900 mb-1.5">Numéro de compte / Téléphone <span class="text-red-500">*</span></label>
+                                                    <input type="text" id="payoutAccountId" class="input-field w-full" placeholder="Ex: +243810000000">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-semibold text-gray-900 mb-1.5">Nom sur le compte <span class="text-red-500">*</span></label>
+                                                    <input type="text" id="payoutAccountName" class="input-field w-full" placeholder="Ex: Jean Dupont">
+                                                </div>
+                                                <button id="payoutRequestOtpBtn" onclick="requestPayoutOtp()" class="btn-primary w-full py-3 rounded-xl font-bold mt-2 flex justify-center items-center gap-2">
+                                                    Continuer
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Step 2: OTP -->
+                                        <div id="payoutStepOtp" class="hidden text-center">
+                                            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
+                                                <iconify-icon icon="solar:shield-keyhole-bold" width="32"></iconify-icon>
+                                            </div>
+                                            <h4 class="font-bold text-gray-900 mb-2">Vérification de sécurité</h4>
+                                            <p class="text-sm text-gray-500 mb-6">Un code à 6 chiffres a été envoyé à votre adresse email pour confirmer l'ajout de ce compte.</p>
+                                            
+                                            <div id="payoutOtpError" class="mb-4 bg-red-50 text-red-600 p-3 rounded-xl text-sm hidden"></div>
+
+                                            <input type="text" id="payoutOtpInput" class="input-field text-center text-2xl tracking-widest font-mono mb-6" placeholder="000000" maxlength="6">
+
+                                            <button id="payoutVerifyOtpBtn" onclick="verifyPayoutOtpAndAdd()" class="btn-primary w-full py-3 rounded-xl font-bold flex justify-center items-center gap-2">
+                                                Vérifier et Ajouter
+                                            </button>
+                                            <button onclick="document.getElementById('payoutStepOtp').classList.add('hidden'); document.getElementById('payoutStepForm').classList.remove('hidden');" class="mt-4 text-sm text-gray-500 hover:text-gray-900 font-medium">
+                                                Annuler / Retour
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(modal);
+                    }
+                    
+                    // Reset form
+                    document.getElementById('payoutAccountId').value = '';
+                    document.getElementById('payoutAccountName').value = '';
+                    document.getElementById('payoutOtpInput').value = '';
+                    document.getElementById('payoutFormError').classList.add('hidden');
+                    document.getElementById('payoutOtpError').classList.add('hidden');
+                    document.getElementById('payoutStepOtp').classList.add('hidden');
+                    document.getElementById('payoutStepForm').classList.remove('hidden');
+                    
+                    currentPayoutOtpToken = null;
+                    modal.classList.remove('hidden');
+                }
+                window.openAddPayoutModal = openAddPayoutModal;
+
+                function closeAddPayoutModal() {
+                    const modal = document.getElementById('payoutAddModal');
+                    if(modal) modal.classList.add('hidden');
+                }
+                window.closeAddPayoutModal = closeAddPayoutModal;
+
+                async function requestPayoutOtp() {
+                    const provider = document.getElementById('payoutProvider').value;
+                    const accountId = document.getElementById('payoutAccountId').value.trim();
+                    const accountName = document.getElementById('payoutAccountName').value.trim();
+                    const errorEl = document.getElementById('payoutFormError');
+                    const btn = document.getElementById('payoutRequestOtpBtn');
+
+                    if(!accountId || !accountName) {
+                        errorEl.textContent = "Veuillez remplir tous les champs.";
+                        errorEl.classList.remove('hidden');
+                        return;
+                    }
+
+                    errorEl.classList.add('hidden');
+                    btn.disabled = true;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi...';
+
+                    try {
+                        const { data: session } = await window.supabaseClient.auth.getSession();
+                        const token = session?.session?.access_token;
+                        if (!token) throw new Error("Non authentifié");
+
+                        const response = await fetch('/api/vendor-payouts/request-otp', {
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ action: 'ADD_PAYOUT_METHOD' })
+                        });
+
+                        const result = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(result.message || "Erreur lors de l'envoi de l'OTP.");
+                        }
+
+                        currentPayoutOtpToken = 'requested'; // Backend does not return a token
+                        
+                        // Show OTP Step
+                        document.getElementById('payoutStepForm').classList.add('hidden');
+                        document.getElementById('payoutStepOtp').classList.remove('hidden');
+                        
+                    } catch (error) {
+                        errorEl.textContent = error.message;
+                        errorEl.classList.remove('hidden');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                }
+                window.requestPayoutOtp = requestPayoutOtp;
+
+                async function verifyPayoutOtpAndAdd() {
+                    const otpCode = document.getElementById('payoutOtpInput').value.trim();
+                    const provider = document.getElementById('payoutProvider').value;
+                    const accountId = document.getElementById('payoutAccountId').value.trim();
+                    const accountName = document.getElementById('payoutAccountName').value.trim();
+                    const errorEl = document.getElementById('payoutOtpError');
+                    const btn = document.getElementById('payoutVerifyOtpBtn');
+
+                    if(!otpCode || otpCode.length !== 6 || !currentPayoutOtpToken) {
+                        errorEl.textContent = "Veuillez entrer un code valide à 6 chiffres.";
+                        errorEl.classList.remove('hidden');
+                        return;
+                    }
+
+                    errorEl.classList.add('hidden');
+                    btn.disabled = true;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Vérification...';
+
+                    try {
+                        const { data: session } = await window.supabaseClient.auth.getSession();
+                        const token = session?.session?.access_token;
+                        if (!token) throw new Error("Non authentifié");
+
+                        const response = await fetch('/api/vendor-payouts/add', {
+                            method: 'POST',
+                            headers: { 
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ 
+                                provider,
+                                account_id: accountId,
+                                account_name: accountName,
+                                otp_code: otpCode
+                            })
+                        });
+
+                        const result = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(result.message || "Code invalide ou expiré.");
+                        }
+
+                        // Success
+                        closeAddPayoutModal();
+                        renderVendorPayouts(); // Refresh list
+                        
+                        // Show toast if ToastMaker exists
+                        if(window.ToastMaker) window.ToastMaker.success("Compte de réception ajouté avec succès !");
+
+                    } catch (error) {
+                        errorEl.textContent = error.message;
+                        errorEl.classList.remove('hidden');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                }
+                window.verifyPayoutOtpAndAdd = verifyPayoutOtpAndAdd;
+
+                async function requestRemovePayoutMethod(methodId) {
+                    if(!confirm("Êtes-vous sûr de vouloir supprimer ce compte de réception ?")) return;
+                    
+                    try {
+                        const { data: session } = await window.supabaseClient.auth.getSession();
+                        const token = session?.session?.access_token;
+                        if (!token) return;
+
+                        const response = await fetch(`/api/vendor-payouts/methods/${methodId}`, {
+                            method: 'DELETE',
+                            headers: { 
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({}) // Add token/code here if backend requires OTP for delete
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok) {
+                            throw new Error(result.message || "Erreur lors de la suppression.");
+                        }
+
+                        if(window.ToastMaker) window.ToastMaker.success("Compte supprimé.");
+                        renderVendorPayouts();
+
+                    } catch(e) {
+                        alert(e.message);
+                    }
+                }
+                window.requestRemovePayoutMethod = requestRemovePayoutMethod;
+
                 function openVendorQuoteModal(order) {
                     return new Promise((resolve) => {
                         const orderModal = document.getElementById('orderDetailModal');
