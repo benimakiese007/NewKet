@@ -4999,8 +4999,8 @@
                                     <iconify-icon icon="${icon}" width="20" class="text-[#013220]"></iconify-icon>
                                 </div>
                                 <div>
-                                    <div class="font-bold text-gray-900">${method.account_name}</div>
-                                    <div class="text-sm text-gray-500">${method.provider} •••••${method.account_number.slice(-4)}</div>
+                                    <div class="font-bold text-gray-900">${method.account_name || 'Sans nom'}</div>
+                                    <div class="text-sm text-gray-500">${method.provider || 'Inconnu'} •••••${(method.account_number || '').slice(-4)}</div>
                                 </div>
                             </div>
                             <button onclick="requestRemovePayoutMethod('${method.id}')" class="text-gray-400 hover:text-red-500 transition-colors p-2" title="Supprimer">

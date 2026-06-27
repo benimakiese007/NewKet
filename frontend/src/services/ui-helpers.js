@@ -643,7 +643,7 @@ export function buildProductCardHTML(p, options = {}) {
         && Date.now() - createdAtTime <= THIRTY_DAYS_MS;
 
     if (isNew) {
-        badgeHTML = `<span class="badge badge-new"><iconify-icon icon="solar:star-bold" width="10"></iconify-icon> Nouveau</span>`;
+        badgeHTML = `<span class="badge badge-new">Nouveau</span>`;
     }
 
     const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
@@ -702,7 +702,7 @@ export function buildProductCardHTML(p, options = {}) {
                         width="400"
                         height="400"
                         class="${productImgClass}"
-                        style="background:#f3f4f6; transition: opacity 0.3s ease; aspect-ratio: 1 / 1;"
+                        style="transition: opacity 0.3s ease;"
                         onerror="this.src='${fallbackImg}'"
                     >
                 </a>

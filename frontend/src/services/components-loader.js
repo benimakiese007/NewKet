@@ -359,7 +359,7 @@ const HEADER_HTML = `
 </div>`;
 
 const FOOTER_HTML = `<!-- NewKet Footer Component -->
-<footer class="newket-footer-shell text-white mt-16 pt-10 pb-7 border-t border-[#0A4A2E]" style="margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
+<footer class="newket-footer-shell text-white mt-16 pt-10 pb-7 border-t border-[#0A4A2E]" style="margin-top: 4rem; padding-top: 2.5rem; padding-bottom: calc(1.5rem + 80px + env(safe-area-inset-bottom));">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-10">
             <div class="lg:col-span-4 space-y-4">
@@ -452,8 +452,9 @@ const getBottomNavHTML = (role) => {
         </span>
         <span class="text-[9px] font-bold tracking-wide text-white mt-1">Vendre</span>
     </a>` : ''}
-    <a href="#" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
+    <a href="#" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
         <iconify-icon icon="solar:cart-large-minimalistic-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
+        <span class="cart-badge absolute -top-1 right-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
         <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Panier</span>
     </a>
     <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Profil">
