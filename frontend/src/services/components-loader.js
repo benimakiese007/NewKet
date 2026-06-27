@@ -1,3 +1,5 @@
+if (!window.ComponentLoader) {
+
 /* NewKet EMarket Component Loader */
 
 /**
@@ -937,4 +939,7 @@ if (document.readyState === 'loading') {
 } else {
     // DOM is already ready (module evaluated after DOMContentLoaded)
     ComponentLoader.init();
+}
+
+
 }
