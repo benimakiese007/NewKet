@@ -475,6 +475,7 @@ const ComponentLoader = {
         // Determine current page status
         const currentPath = window.location.pathname;
         const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish');
+        const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
 
         // If there is no active Supabase session, do not let stale role/email values
         // drive the UI (e.g. linking guests to vendor/admin surfaces). Keep buyer
@@ -488,7 +489,10 @@ const ComponentLoader = {
 
         const componentsToLoad = [];
 
-        if (isMinimalPage) {
+        if (isAdminPage) {
+            // Admin pages are handled entirely by admin-layout.js
+            // Do not inject consumer header, footer, or mobile nav.
+        } else if (isMinimalPage) {
             componentsToLoad.push(
                 this.loadComponent('header-placeholder', 'components/header-minimal.html', MINIMAL_HEADER_HTML)
             );
@@ -515,7 +519,7 @@ const ComponentLoader = {
             }
         }
 
-        if (!isMinimalPage) {
+        if (!isMinimalPage && !isAdminPage) {
             componentsToLoad.push(
                 this.loadComponent('footer-placeholder', 'components/footer.html', FOOTER_HTML)
             );

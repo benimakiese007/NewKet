@@ -58,12 +58,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="admin-page-actions">
-                <button onclick="openModal()" data-track-action="admin_products:add_product_click"
-                    class="bg-black text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2 shadow-2xl shadow-black/20">
-                    <iconify-icon icon="solar:add-circle-bold-duotone" width="20"></iconify-icon>
-                    Ajouter un Produit
-                </button>
+                <div class="admin-page-actions w-full sm:w-auto mt-4 sm:mt-0">
+                    <div class="relative w-full sm:w-72">
+                        <iconify-icon icon="solar:magnifer-linear" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
+                        <input type="text" id="searchInput" oninput="filterProducts()" placeholder="Rechercher un produit..." class="pl-11 pr-4 py-3.5 rounded-2xl bg-white border border-gray-200 text-sm focus:ring-2 focus:ring-black focus:border-black transition-all w-full font-medium shadow-sm">
+                    </div>
                 </div>
             </div>
 
@@ -274,10 +273,23 @@
             }
         }
 
+        function filterProducts() {
+            renderAdminProducts();
+        }
+
         function renderAdminProducts() {
             const tbody = document.getElementById('productsBody');
             const emptyState = document.getElementById('emptyState');
-            const products = ProductManager.getProducts();
+            let products = ProductManager.getProducts();
+
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            if (searchTerm) {
+                products = products.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || 
+                    (p.category && p.category.toLowerCase().includes(searchTerm)) ||
+                    (p.id && p.id.toLowerCase().includes(searchTerm))
+                );
+            }
 
             updateProductsTotal();
 
@@ -306,33 +318,33 @@
                     <td class="p-4">
                         <input type="checkbox" value="${p.id}" name="product-select-${p.id}" onclick="updateSelectedUI()" data-track-action="admin_products:row_select_change" class="product-checkbox rounded-md border-gray-300 text-black focus:ring-black">
                     </td>
-                    <td class="p-4">
+                    <td class="p-4 w-[200px] max-w-[200px] sm:w-[300px] sm:max-w-[300px]">
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-gray-50 rounded-2xl p-2 relative overflow-hidden group-hover:scale-110 transition-transform">
+                            <div class="w-16 h-16 bg-gray-50 rounded-2xl p-2 relative overflow-hidden group-hover:scale-110 transition-transform flex-shrink-0">
                                 <img loading="lazy" src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image ? p.image.split(',')[0] : '', [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full h-full object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
                                 ${isOut ? '<div class="absolute inset-0 bg-red-500/20 backdrop-blur-[1px] flex items-center justify-center text-[8px] font-black text-red-700 uppercase">Épuisé</div>' : ''}
                             </div>
-                            <div>
-                                <div class="font-black text-gray-900 leading-tight">${p.name}</div>
-                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">${p.id.substring(0, 8).toUpperCase()}</div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-black text-gray-900 leading-tight line-clamp-2" title="${p.name}">${p.name}</div>
+                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 truncate">${p.id.substring(0, 8).toUpperCase()}</div>
                             </div>
                         </div>
                     </td>
-                    <td>
-                        <div class="badge-premium bg-gray-100 text-gray-500">
+                    <td class="p-4">
+                        <div class="badge-premium bg-gray-100 text-gray-500 inline-block max-w-[120px] truncate align-middle" title="${p.category}">
                             ${p.category}
                         </div>
                     </td>
-                    <td>
+                    <td class="p-4">
                         <div class="font-black text-gray-900">${CurrencyManager.formatPrice(p.price)}</div>
                     </td>
-                    <td>
+                    <td class="p-4">
                         <div class="flex flex-col">
                             <span class="font-black ${isLowStock ? 'text-red-500' : 'text-gray-900'}">${p.stock || 0}</span>
                             ${isLowStock ? `<span class="text-[9px] font-bold text-red-400 uppercase tracking-tighter">${isOut ? 'Vente stoppée' : 'Stock critique'}</span>` : ''}
                         </div>
                     </td>
-                    <td class="text-center">
+                    <td class="p-4 text-center">
                         <button onclick="togglePin('${p.id}')" data-track-action="admin_products:pin_toggle_click"
                             class="w-10 h-10 rounded-xl transition-all flex items-center justify-center mx-auto ${isPinned ? 'bg-orange-50 text-orange-500 shadow-lg' : 'bg-gray-50 text-gray-300 hover:text-orange-500'}" title="${isPinned ? 'Retirer le sponsoring' : 'Mettre en avant'}">
                             <iconify-icon icon="solar:star-bold-duotone" width="20"></iconify-icon>

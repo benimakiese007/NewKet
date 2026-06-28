@@ -1309,3 +1309,10 @@ html.admin-embedded-mode .stagger-5 {
     min-height: 250px;
     padding-bottom: 24px;
 }
+
+/* Fix mobile scroll issue where admin pages get 80px padding-bottom meant for the consumer bottom nav */
+@media (max-width: 639px) {
+    .admin-shell > main {
+        padding-bottom: 0 !important;
+    }
+}
