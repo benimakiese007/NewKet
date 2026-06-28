@@ -104,11 +104,20 @@
             </div>
 
             <div class="glass-panel overflow-hidden animate-premium stagger-1">
-                <div class="overflow-x-auto">
-                    <table class="premium-table w-full">
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-products-table w-full">
+                        <colgroup>
+                            <col class="admin-products-table__col-select">
+                            <col class="admin-products-table__col-product">
+                            <col class="admin-products-table__col-category">
+                            <col class="admin-products-table__col-price">
+                            <col class="admin-products-table__col-stock">
+                            <col class="admin-products-table__col-sponsor">
+                            <col class="admin-products-table__col-actions">
+                        </colgroup>
                         <thead>
                             <tr>
-                                <th class="w-10">
+                                <th class="admin-products-table__select">
                                     <input type="checkbox" id="selectAll" name="selectAll" onclick="toggleSelectAll()" data-track-action="admin_products:select_all_change"
                                         class="rounded-md border-gray-300 text-black focus:ring-black">
                                 </th>
@@ -315,10 +324,10 @@
                 
                 return `
                 <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
-                    <td class="p-4">
+                    <td class="p-4 admin-products-table__select">
                         <input type="checkbox" value="${p.id}" name="product-select-${p.id}" onclick="updateSelectedUI()" data-track-action="admin_products:row_select_change" class="product-checkbox rounded-md border-gray-300 text-black focus:ring-black">
                     </td>
-                    <td class="p-4 w-[200px] max-w-[200px] sm:w-[300px] sm:max-w-[300px]">
+                    <td class="p-4">
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 bg-gray-50 rounded-2xl p-2 relative overflow-hidden group-hover:scale-110 transition-transform flex-shrink-0">
                                 <img loading="lazy" src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image ? p.image.split(',')[0] : '', [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full h-full object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
