@@ -482,7 +482,20 @@
             const badge = document.getElementById('orderBadge');
             if (!container || !badge) return;
 
-            const order = window.OrderManager ? OrderManager.getOrderById(orderId) : null;
+            // Try to get the order from cache first
+            let order = window.OrderManager ? OrderManager.getOrderById(orderId) : null;
+
+            // If not found in cache, force-load orders from API (happens when navigating directly to achat.html)
+            if (!order && window.OrderManager && typeof OrderManager.loadOrders === 'function') {
+                container.innerHTML = `<div class="text-center py-10 text-gray-400 text-sm font-semibold">Chargement de la commande...</div>`;
+                try {
+                    await OrderManager.loadOrders(true);
+                    order = OrderManager.getOrderById(orderId);
+                } catch (e) {
+                    console.warn('[achat] Impossible de charger les commandes:', e);
+                }
+            }
+
             if (!order) {
                 container.innerHTML = `
                     <div class="text-center py-10">

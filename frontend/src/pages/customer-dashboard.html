@@ -869,7 +869,7 @@
                             <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
                             Refuser le devis
                         </button>
-                        <button id="btnPayOrder" type="button"
+                        <button id="btnPayOrder" type="button" onclick="handlePayOrder()"
                             class="hidden flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:card-send-linear" width="20"></iconify-icon>
                             Passer au paiement
@@ -1124,7 +1124,7 @@
 
             document.getElementById('btnAcceptQuote')?.addEventListener('click', handleAcceptQuote);
             document.getElementById('btnRejectQuote')?.addEventListener('click', handleRejectQuote);
-            document.getElementById('btnPayOrder')?.addEventListener('click', handlePayOrder);
+            document.getElementById('btnPayOrder')?.addEventListener('click', () => window.handlePayOrder && window.handlePayOrder());
             document.getElementById('btnValidateDelivery')?.addEventListener('click', handleValidateDelivery);
             document.getElementById('btnOpenDispute')?.addEventListener('click', showDisputeModal);
             document.getElementById('btnSendDisputeMessage')?.addEventListener('click', () => {
@@ -2495,11 +2495,7 @@
                                 </div>
                             </div>
 
-                            ${timelineHTML ? `
-                                <div class="mb-3 mt-1 overflow-x-auto scrollbar-none pb-1">
-                                    ${timelineHTML}
-                                </div>
-                            ` : ''}
+
 
                             <div class="pt-2 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-2">
                                 <div class="order-items-strip flex items-center gap-1.5 overflow-x-auto pb-0 scrollbar-none min-w-0">
@@ -3487,11 +3483,17 @@
             }
         }
 
-        async function handlePayOrder() {
-            if (!currentSelectedOrder) return;
+        window.handlePayOrder = async function() {
+            console.log('[DEBUG handlePayOrder] called, currentSelectedOrder:', currentSelectedOrder);
+            if (!currentSelectedOrder) {
+                console.warn('[DEBUG handlePayOrder] currentSelectedOrder est NULL — navigation annulée');
+                return;
+            }
             const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/src/pages/achat.html';
-            window.location.href = `${path}?order_id=${encodeURIComponent(currentSelectedOrder.id)}`;
-        }
+            const targetUrl = `${path}?order_id=${encodeURIComponent(currentSelectedOrder.id)}`;
+            console.log('[DEBUG handlePayOrder] Navigation vers:', targetUrl);
+            window.location.href = targetUrl;
+        };
 
         // ========================== GESTION DES LITIGES ==========================
         function showDisputeModal() {
