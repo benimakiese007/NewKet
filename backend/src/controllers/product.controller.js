@@ -317,3 +317,44 @@ export const updateBulkCategory = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getRankedCategories = async (req, res) => {
+    try {
+        const supabase = getScopedClient(req);
+        
+        // Try to fetch from the view created by the migration
+        let { data, error } = await supabase
+            .from('ranked_categories')
+            .select('*')
+            .limit(10);
+            
+        if (error) {
+            // Fallback if view doesn't exist yet: get distinct categories with a simple query
+            console.warn('⚠️ ranked_categories view might not exist yet, falling back to products query', error);
+            const { data: rawData, error: rawError } = await supabase
+                .from('products')
+                .select('category')
+                .eq('status', 'active')
+                .neq('category', null)
+                .neq('category', '');
+                
+            if (rawError) throw rawError;
+            
+            // In-memory grouping as fallback
+            const counts = {};
+            rawData.forEach(p => {
+                counts[p.category] = (counts[p.category] || 0) + 1;
+            });
+            
+            data = Object.keys(counts)
+                .map(c => ({ category: c, product_count: counts[c], total_views: 0 }))
+                .sort((a, b) => b.product_count - a.product_count)
+                .slice(0, 10);
+        }
+
+        res.json({ success: true, categories: data || [] });
+    } catch (err) {
+        console.error('❌ getRankedCategories error:', err);
+        res.status(500).json({ error: 'Erreur lors de la récupération des catégories' });
+    }
+};

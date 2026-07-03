@@ -3,6 +3,10 @@
  * Common utilities for UI rendering and interactions.
  */
 
+function mountModalOverlay(modal) {
+    (document.documentElement || document.body).appendChild(modal);
+}
+
 /// Global Notification Queue (One by one system)
 let _toastQueue = [];
 let _isShowingToast = false;
@@ -1459,7 +1463,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
         } catch (_) {}
         
         const modalHtml = `
-            <div id="${modalId}" class="fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300" style="z-index:20000;">
+            <div id="${modalId}" class="nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300" style="z-index:20000;">
                 <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" style="z-index:20000;" onclick="closeCheckoutModal('${modalId}', null)"></div>
                 
                 <div class="relative w-full max-w-md max-h-[65vh] max-h-[65dvh] sm:max-h-[70vh] flex flex-col bg-white rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" style="z-index:20001; max-height: 65dvh !important;">
@@ -1480,7 +1484,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                             <span class="text-sm font-semibold text-indigo-900">Total à payer</span>
                             <div class="text-right">
                                 <span id="${modalId}-total-amount" class="text-xl font-black text-indigo-600">${priceStr}</span>
-                                <div id="${modalId}-total-meta" class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-1">1 x ${formatAmount(unitPrice)}</div>
                             </div>
                         </div>
 
@@ -1588,6 +1591,11 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
         `;
 
         document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const mountedCheckoutModal = document.getElementById(modalId);
+        if (mountedCheckoutModal) {
+            mountedCheckoutModal.classList.add('nk-modal-overlay');
+            document.documentElement.appendChild(mountedCheckoutModal);
+        }
         
         const modalEl = document.getElementById(modalId);
         
@@ -1597,7 +1605,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
         let selectedLng = savedHomeLocation?.lng ?? null;
         const quantityInput = () => document.getElementById(`${modalId}-quantity`);
         const totalAmountEl = () => document.getElementById(`${modalId}-total-amount`);
-        const totalMetaEl = () => document.getElementById(`${modalId}-total-meta`);
         const qtyMinusBtn = () => document.getElementById(`${modalId}-qty-minus`);
         const qtyPlusBtn = () => document.getElementById(`${modalId}-qty-plus`);
         const stockHintEl = () => document.getElementById(`${modalId}-stock-hint`);
@@ -1613,7 +1620,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             const input = quantityInput();
             if (input) input.value = String(q);
             if (totalAmountEl()) totalAmountEl().textContent = formatAmount(total);
-            if (totalMetaEl()) totalMetaEl().textContent = `${q} x ${formatAmount(unitPrice)}`;
             if (qtyMinusBtn()) qtyMinusBtn().disabled = q <= 1;
             if (qtyPlusBtn()) qtyPlusBtn().disabled = !!stockLimit && q >= stockLimit;
             if (stockHintEl()) {
@@ -1963,7 +1969,7 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false, op
         </div>
     `;
 
-    document.body.appendChild(modal);
+    mountModalOverlay(modal);
     
     if (options && options.actionText && typeof options.actionCallback === 'function') {
         setTimeout(() => {
@@ -1995,7 +2001,7 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
     const modalId = 'nk-confirm-modal-' + Date.now();
     const modal = document.createElement('div');
     modal.id = modalId;
-    modal.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300 pointer-events-none';
+    modal.className = 'nk-modal-overlay fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300 pointer-events-none';
     
     modal.innerHTML = `
         <div class="absolute inset-0 bg-gray-950/40 backdrop-blur-sm" onclick="window.closeConfirm('${modalId}', false)"></div>
@@ -2019,7 +2025,7 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
         </div>
     `;
 
-    document.body.appendChild(modal);
+    mountModalOverlay(modal);
     
     // Animate in
     setTimeout(() => {
@@ -2066,7 +2072,7 @@ window.showPromptModal = ({
         const modalId = 'nk-prompt-modal-' + Date.now();
         const modal = document.createElement('div');
         modal.id = modalId;
-        modal.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300 pointer-events-none';
+        modal.className = 'nk-modal-overlay fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300 pointer-events-none';
 
         const safeTitle = String(title || 'Saisie requise');
         const safeMessage = String(message || '');
@@ -2137,7 +2143,7 @@ window.showPromptModal = ({
             }, 220);
         };
 
-        document.body.appendChild(modal);
+        mountModalOverlay(modal);
 
         // Animate in
         setTimeout(() => {
@@ -2604,7 +2610,7 @@ window.showLogoutConfirm = () => {
         const modalId = 'logout-confirm-' + Date.now();
         const modal = document.createElement('div');
         modal.id = modalId;
-        modal.className = 'fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 pointer-events-none transition-opacity duration-400 opacity-0';
+        modal.className = 'nk-modal-overlay fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6 pointer-events-none transition-opacity duration-400 opacity-0';
         
         modal.innerHTML = `
             <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-[4px] pointer-events-auto transition-opacity duration-500 opacity-0" id="${modalId}-backdrop" onclick="window._closeLogoutConfirm('${modalId}', false)"></div>
@@ -2639,7 +2645,7 @@ window.showLogoutConfirm = () => {
             </div>
         `;
 
-        document.body.appendChild(modal);
+        mountModalOverlay(modal);
 
         // Animate in
         requestAnimationFrame(() => {

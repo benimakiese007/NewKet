@@ -27,7 +27,8 @@ const AdminLayout = {
         hero: 'hero',
         branding: 'branding',
         settings: 'settings',
-        'notion-manager': 'notion-manager'
+        'notion-manager': 'notion-manager',
+        comptabilite: 'comptabilite'
     },
 
     ensureNoFoucStyles() {
@@ -518,6 +519,7 @@ const AdminLayout = {
             { href: this.getShellHref('realtime'), icon: 'solar:users-group-two-rounded-bold-duotone', label: 'Temps réel', view: 'realtime', section: 'Général' },
 
             { href: this.getShellHref('analytics'), icon: 'solar:graph-up-bold', label: 'Comportements', view: 'analytics', section: 'Analytique' },
+            { href: this.getShellHref('comptabilite'), icon: 'solar:wallet-bold', label: 'Comptabilité', view: 'comptabilite', section: 'Analytique' },
             { href: this.getShellHref('activities'), icon: 'solar:history-bold', label: "Journal d'Activités", view: 'activities', section: 'Analytique' },
             { href: this.getShellHref('diagnostics'), icon: 'solar:chart-square-bold', label: 'Audit & Diagnostics', view: 'diagnostics', section: 'Analytique' },
 

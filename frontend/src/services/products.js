@@ -115,35 +115,32 @@ const ProductManager = {
 
             if (window.SupabaseAdapter && window.supabaseClient) {
                 try {
-                    const [fetchedProducts, totalCount] = await Promise.all([
-                        window.SupabaseAdapter.fetchWithFilters('products', {
-                            select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
-                            order: ['created_at', { ascending: false }],
-                            limit: PRODUCTS_PAGE_SIZE,
-                            skipCache: true
-                        }),
-                        window.SupabaseAdapter.countRows('products', {
-                            timeout: 7000
-                        })
-                    ]);
-                    products = fetchedProducts;
-                    this._totalCount = totalCount || products.length;
-                    this._hasMore = products.length < this._totalCount;
+                    const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        limit: PRODUCTS_PAGE_SIZE
+                    });
+                    products = fetchedProducts || [];
+                    this._totalCount = products.length;
+                    this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
+
+                    // Non-blocking count
+                    window.SupabaseAdapter.countRows('products', { timeout: 7000 })
+                        .then(count => { if(count) this._totalCount = count; })
+                        .catch(() => {});
                 } catch (joinErr) {
-                    const [fetchedProducts, totalCount] = await Promise.all([
-                        window.SupabaseAdapter.fetchWithFilters('products', {
-                            select: '*',
-                            order: ['created_at', { ascending: false }],
-                            limit: PRODUCTS_PAGE_SIZE,
-                            skipCache: true
-                        }),
-                        window.SupabaseAdapter.countRows('products', {
-                            timeout: 7000
-                        })
-                    ]);
-                    products = fetchedProducts;
-                    this._totalCount = totalCount || products.length;
-                    this._hasMore = products.length < this._totalCount;
+                    const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*',
+                        order: ['created_at', { ascending: false }],
+                        limit: PRODUCTS_PAGE_SIZE
+                    });
+                    products = fetchedProducts || [];
+                    this._totalCount = products.length;
+                    this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
+
+                    window.SupabaseAdapter.countRows('products', { timeout: 7000 })
+                        .then(count => { if(count) this._totalCount = count; })
+                        .catch(() => {});
                 }
             }
             else if (window.ApiClient) {
@@ -170,8 +167,7 @@ const ProductManager = {
                     const pinned = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
                         order: ['created_at', { ascending: false }],
-                        eq: [['pinned', true]],
-                        skipCache: true
+                        eq: [['pinned', true]]
                     });
                     if (pinned && pinned.length > 0) {
                         const mappedPinned = pinned.map(p => this._mapProduct(p));
@@ -219,8 +215,7 @@ const ProductManager = {
                 newProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
                     select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
                     order: ['created_at', { ascending: false }],
-                    range: [offset, offset + PRODUCTS_PAGE_SIZE - 1],
-                    skipCache: true
+                    range: [offset, offset + PRODUCTS_PAGE_SIZE - 1]
                 });
                 this._hasMore = newProducts.length === PRODUCTS_PAGE_SIZE;
             }

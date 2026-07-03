@@ -105,7 +105,7 @@
 
             <div class="glass-panel overflow-hidden animate-premium stagger-1">
                 <div class="overflow-x-auto admin-table-shell">
-                    <table class="premium-table admin-products-table w-full">
+                    <table class="premium-table admin-data-table admin-products-table w-full">
                         <colgroup>
                             <col class="admin-products-table__col-select">
                             <col class="admin-products-table__col-product">
@@ -333,14 +333,14 @@
                                 <img loading="lazy" src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image ? p.image.split(',')[0] : '', [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full h-full object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
                                 ${isOut ? '<div class="absolute inset-0 bg-red-500/20 backdrop-blur-[1px] flex items-center justify-center text-[8px] font-black text-red-700 uppercase">Épuisé</div>' : ''}
                             </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="font-black text-gray-900 leading-tight line-clamp-2" title="${p.name}">${p.name}</div>
-                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1 truncate">${p.id.substring(0, 8).toUpperCase()}</div>
+                            <div class="min-w-0 flex-1 admin-table-cell-text">
+                                <div class="font-black text-gray-900 leading-tight admin-table-clamp-2" title="${p.name}">${p.name}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1" title="${p.id.substring(0, 8).toUpperCase()}">${p.id.substring(0, 8).toUpperCase()}</div>
                             </div>
                         </div>
                     </td>
                     <td class="p-4">
-                        <div class="badge-premium bg-gray-100 text-gray-500 inline-block max-w-[120px] truncate align-middle" title="${p.category}">
+                        <div class="badge-premium bg-gray-100 text-gray-500 inline-block max-w-full admin-table-truncate align-middle" title="${p.category}">
                             ${p.category}
                         </div>
                     </td>

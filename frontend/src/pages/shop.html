@@ -192,10 +192,15 @@
             </div>
         </div>
 
-        <div id="noProductsMsg"
-            class="hidden text-center py-20 bg-gray-50 rounded-[2rem] border border-dashed border-gray-200">
-            <iconify-icon icon="solar:box-minimalistic-linear" width="48" class="text-gray-200 mb-4"></iconify-icon>
-            <p class="text-gray-400 font-bold uppercase tracking-widest">Aucun produit disponible pour le moment</p>
+        <div id="noProductsMsg" class="hidden flex flex-col items-center justify-center py-20 text-center col-span-full">
+            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <iconify-icon icon="solar:box-minimalistic-bold-duotone" width="40" class="text-gray-300"></iconify-icon>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Aucun résultat trouvé</h3>
+            <p class="text-sm text-gray-500 mb-6 max-w-sm mx-auto">Essayez d'autres mots-clés ou parcourez toutes nos sélections.</p>
+            <a href="/src/pages/catalog.html" class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm shadow hover:scale-[1.02] active:scale-[0.98] transition-all">
+                Voir tous les produits
+            </a>
         </div>
     </main>
 

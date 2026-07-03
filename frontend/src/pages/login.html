@@ -136,9 +136,24 @@
         }
 
         /* Loading Shield Styles */
-        html.auth-loading body {
+        html.auth-loading #mainFormContent {
             opacity: 0;
             pointer-events: none;
+        }
+
+        #globalAuthLoader {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: white;
+            z-index: 50;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        html.auth-loading #globalAuthLoader {
+            display: flex;
         }
 
         body {
@@ -194,8 +209,15 @@
         <div class="w-full lg:w-1/2 h-full flex flex-col relative bg-white overflow-y-auto">
 
             <!-- Form Container -->
-            <main class="flex-1 flex items-center justify-center px-6 pb-24 md:px-12 lg:px-20 w-full max-w-xl mx-auto pt-6">
-                <div class="w-full">
+            <main class="flex-1 flex items-center justify-center px-6 pb-24 md:px-12 lg:px-20 w-full max-w-xl mx-auto pt-6 relative">
+                
+                <!-- Loader -->
+                <div id="globalAuthLoader">
+                    <div class="w-12 h-12 border-4 border-gray-100 border-t-black rounded-full animate-spin mb-4"></div>
+                    <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Chargement...</p>
+                </div>
+                
+                <div class="w-full transition-opacity duration-300" id="mainFormContent">
 
                     <!-- Logo for Desktop inside form -->
                     <div class="hidden lg:block mb-10 animate-item">
@@ -314,6 +336,18 @@
                                 ?</button>
                         </div>
 
+                        <!-- Terms Checkbox (Signup Only) -->
+                        <div id="termsContainer" class="hidden animate-item pt-2 pb-2">
+                            <label class="flex items-start gap-3 cursor-pointer group">
+                                <input type="checkbox" id="termsCheckbox"
+                                    class="mt-0.5 w-4 h-4 rounded border-gray-300 text-black focus:ring-black transition-all cursor-pointer accent-black">
+                                <span
+                                    class="text-[11px] font-bold text-gray-500 leading-tight">
+                                    J'accepte nos <a href="/src/pages/terms.html" class="text-black hover:underline">Conditions d'utilisation</a> et notre <a href="/src/pages/privacy.html" class="text-black hover:underline">Politique de confidentialité</a>.
+                                </span>
+                            </label>
+                        </div>
+
                         <!-- Submit Button -->
                         <button type="submit" id="submitBtn" data-track-action="auth_login:submit_click"
                             class="w-full h-14 bg-black text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-900 active:scale-[0.98] transition-all flex items-center justify-center gap-3 group shadow-xl shadow-black/10 mt-6 animate-item">
@@ -363,13 +397,6 @@
                             </div>
                         </button>
                     </div>
-
-                    <p class="text-[10px] font-medium text-gray-500 text-center mt-12 animate-item">
-                        En continuant, vous acceptez nos <br><a href="/src/pages/terms.html"
-                            class="text-black font-bold hover:underline">Conditions d'utilisation</a> et notre <a
-                            href="/src/pages/privacy.html" class="text-black font-bold hover:underline">Politique de
-                            confidentialité</a>.
-                    </p>
 
                 </div>
             </main>
@@ -554,6 +581,7 @@
             loginActions.classList.add('hidden');
             confirmPasswordContainer.classList.remove('hidden');
             passwordStrengthContainer.classList.remove('hidden');
+            if (document.getElementById('termsContainer')) document.getElementById('termsContainer').classList.remove('hidden');
 
             formTitle.textContent = "Nouveau mot de passe";
             formSubtitle.textContent = "Veuillez entrer votre nouveau mot de passe.";
@@ -601,6 +629,7 @@
                     confirmPasswordContainer.classList.add('hidden');
                     passwordStrengthContainer.classList.add('hidden');
                     loginActions.classList.remove('hidden');
+                    if (document.getElementById('termsContainer')) document.getElementById('termsContainer').classList.add('hidden');
                     if (passkeyBtn) passkeyBtn.classList.remove('hidden');
                 } else {
                     tabSignup.classList.replace('text-gray-400', 'text-black');
@@ -616,6 +645,7 @@
                     confirmPasswordContainer.classList.remove('hidden');
                     passwordStrengthContainer.classList.remove('hidden');
                     loginActions.classList.add('hidden');
+                    if (document.getElementById('termsContainer')) document.getElementById('termsContainer').classList.remove('hidden');
                     if (passkeyBtn) passkeyBtn.classList.add('hidden');
                 }
 
@@ -788,6 +818,14 @@
                 }
                 if (password.length < 6) {
                     showError("Le mot de passe doit contenir au moins 6 caractères.");
+                    return;
+                }
+            }
+
+            if (!isLogin && !isRecovery) {
+                const termsCheckbox = document.getElementById('termsCheckbox');
+                if (termsCheckbox && !termsCheckbox.checked) {
+                    showError("Vous devez accepter les conditions d'utilisation et la politique de confidentialité.");
                     return;
                 }
             }
@@ -1079,6 +1117,51 @@
             loadPublicUserStats();
         } else {
             window.addEventListener('newketInitialized', loadPublicUserStats);
+        }
+
+        // --- UX: Inline Validation ---
+        function validateInput(input, type) {
+            let errorMsg = '';
+            if (type === 'email') {
+                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!input.value) errorMsg = 'L\'adresse email est requise.';
+                else if (!regex.test(input.value)) errorMsg = 'Format d\'email invalide.';
+            } else if (type === 'password') {
+                if (!input.value) errorMsg = 'Le mot de passe est requis.';
+                else if (input.value.length < 6) errorMsg = 'Au moins 6 caractères.';
+            }
+
+            let errorSpan = input.parentNode.querySelector('.inline-error');
+            if (errorMsg) {
+                input.classList.add('border-red-500');
+                input.classList.remove('border-transparent');
+                if (!errorSpan) {
+                    errorSpan = document.createElement('span');
+                    errorSpan.className = 'inline-error text-red-500 text-[10px] font-bold absolute -bottom-5 left-2';
+                    input.parentNode.appendChild(errorSpan);
+                }
+                errorSpan.textContent = errorMsg;
+            } else {
+                input.classList.remove('border-red-500');
+                input.classList.add('border-transparent');
+                if (errorSpan) errorSpan.remove();
+            }
+        }
+
+        const emailField = document.getElementById('email');
+        const passField = document.getElementById('password');
+        
+        if (emailField) {
+            emailField.addEventListener('blur', () => validateInput(emailField, 'email'));
+            emailField.addEventListener('input', () => {
+                if(emailField.classList.contains('border-red-500')) validateInput(emailField, 'email');
+            });
+        }
+        if (passField) {
+            passField.addEventListener('blur', () => validateInput(passField, 'password'));
+            passField.addEventListener('input', () => {
+                if(passField.classList.contains('border-red-500')) validateInput(passField, 'password');
+            });
         }
     </script>
 </body>

@@ -95,9 +95,12 @@
             </div>
         </div>
 
-        <form id="onboardingForm" class="space-y-8">
-            <!-- Business Info -->
-            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+        <form id="onboardingForm" class="space-y-8 relative">
+            
+            <!-- STEP 1 CONTAINER -->
+            <div id="step1Container" class="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <!-- Business Info -->
+                <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8">
                 <div class="flex items-center gap-4 mb-2">
                     <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
                         <iconify-icon icon="solar:shop-2-bold-duotone" width="20"></iconify-icon>
@@ -149,11 +152,19 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Next Button -->
+                <button type="button" id="nextToStep2" class="w-full hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                    Suivant (Documents KYC)
+                    <iconify-icon icon="solar:arrow-right-linear" width="24"></iconify-icon>
+                </button>
             </div>
 
-            <!-- Documents -->
-            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-100">
-                <div class="flex items-center gap-4">
+            <!-- STEP 2 CONTAINER -->
+            <div id="step2Container" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <!-- Documents -->
+                <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8">
+                    <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
                         <iconify-icon icon="solar:shield-user-bold-duotone" width="20"></iconify-icon>
                     </div>
@@ -195,7 +206,7 @@
             </div>
 
             <!-- Photos Optionnelles -->
-            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
+            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
                         <iconify-icon icon="solar:camera-bold-duotone" width="20"></iconify-icon>
@@ -251,11 +262,28 @@
                 </div>
             </div>
 
-            <button type="submit" data-track-action="seller_onboarding:submit_click" id="submitBtn"
-                class="w-full hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-                Soumettre mon dossier
-                <iconify-icon icon="solar:check-circle-linear" width="24"></iconify-icon>
-            </button>
+            <div class="mb-6 pt-4 border-t border-gray-100">
+                <label class="flex items-start gap-3 cursor-pointer group bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <input type="checkbox" id="termsCheckboxSeller" name="termsCheckboxSeller" required
+                        class="mt-1 w-5 h-5 rounded border-gray-300 text-black focus:ring-black transition-all cursor-pointer accent-black">
+                    <span class="text-xs font-semibold text-gray-600 leading-relaxed">
+                        J'accepte les <a href="/src/pages/terms.html" class="text-black font-bold hover:underline" target="_blank">Conditions d'utilisation</a>, la <a href="/src/pages/privacy.html" class="text-black font-bold hover:underline" target="_blank">Politique de confidentialité</a> et j'atteste l'exactitude des informations fournies pour devenir vendeur.
+                    </span>
+                </label>
+            </div>
+
+            <div class="flex gap-4">
+                <button type="button" id="backToStep1" class="w-1/3 bg-white border border-gray-200 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest text-gray-900 hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                    <iconify-icon icon="solar:arrow-left-linear" width="20"></iconify-icon> Précédent
+                </button>
+                <button type="submit" data-track-action="seller_onboarding:submit_click" id="submitBtn"
+                    class="w-2/3 hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                    Soumettre le dossier
+                    <iconify-icon icon="solar:check-circle-linear" width="24"></iconify-icon>
+                </button>
+            </div>
+            
+            </div> <!-- END STEP 2 CONTAINER -->
 
             <a id="backToDashboardBottom" data-track-action="seller_onboarding:back_dashboard_bottom_click" href="javascript:void(0)"
                 class="w-full inline-flex items-center justify-center gap-3 bg-white border border-gray-100 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest text-gray-900 hover:border-black transition-all soft-ring">
@@ -467,6 +495,12 @@
         onboardingForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const termsCheckbox = document.getElementById('termsCheckboxSeller');
+            if (termsCheckbox && !termsCheckbox.checked) {
+                if (window.showToast) window.showToast("Vous devez accepter les conditions pour devenir vendeur.", "error");
+                return;
+            }
+
             if (uploadedFiles.length === 0) {
                 if (window.showToast) window.showToast("Veuillez ajouter au moins un document justificatif.", "info", "Documents");
                 return;
@@ -611,6 +645,63 @@
 
         wireDashboardCtas();
         initStatusFromProfile();
+        /* WIZARD LOGIC */
+        const step1Container = document.getElementById('step1Container');
+        const step2Container = document.getElementById('step2Container');
+        const nextToStep2 = document.getElementById('nextToStep2');
+        const backToStep1 = document.getElementById('backToStep1');
+        
+        function validateStep1() {
+            const requiredFields = ['companyName', 'phone', 'storeDescription', 'storeAddress', 'payoutMethod'];
+            let isValid = true;
+            requiredFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.value.trim()) {
+                    isValid = false;
+                    el.classList.add('border-red-500');
+                    el.classList.remove('border-gray-100');
+                } else if (el) {
+                    el.classList.remove('border-red-500');
+                    el.classList.add('border-gray-100');
+                }
+            });
+            return isValid;
+        }
+
+        if (nextToStep2) {
+            nextToStep2.addEventListener('click', () => {
+                if (validateStep1()) {
+                    step1Container.classList.add('hidden');
+                    step2Container.classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    if (window.ToastManager) {
+                        window.ToastManager.error('Veuillez remplir tous les champs de l\'étape 1.', 'Erreur');
+                    }
+                }
+            });
+        }
+        
+        if (backToStep1) {
+            backToStep1.addEventListener('click', () => {
+                step2Container.classList.add('hidden');
+                step1Container.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        ['companyName', 'phone', 'storeDescription', 'storeAddress', 'payoutMethod'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => {
+                    if (el.classList.contains('border-red-500')) {
+                        el.classList.remove('border-red-500');
+                        el.classList.add('border-gray-100');
+                    }
+                });
+            }
+        });
+        /* END WIZARD LOGIC */
     </script>
 </body>
 </html>

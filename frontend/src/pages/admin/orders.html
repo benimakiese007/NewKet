@@ -96,8 +96,20 @@
             </div>
 
             <div class="glass-panel overflow-hidden animate-premium stagger-2">
-                <div class="overflow-x-auto">
-                    <table class="premium-table w-full">
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-data-table admin-orders-table w-full">
+                        <colgroup>
+                            <col class="admin-orders-table__col-id">
+                            <col class="admin-orders-table__col-client">
+                            <col class="admin-orders-table__col-source">
+                            <col class="admin-orders-table__col-contact">
+                            <col class="admin-orders-table__col-date">
+                            <col class="admin-orders-table__col-otp">
+                            <col class="admin-orders-table__col-potential">
+                            <col class="admin-orders-table__col-payment">
+                            <col class="admin-orders-table__col-status">
+                            <col class="admin-orders-table__col-actions">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>Lead ID</th>
@@ -242,10 +254,10 @@
             emptyState.classList.add('hidden');
             tbody.innerHTML = filteredOrders.map((o, i) => `
                 <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
-                    <td class="p-4 font-black text-gray-400">#${o.id.substring(0, 8).toUpperCase()}</td>
+                    <td class="p-4 font-black text-gray-400 admin-table-truncate" title="#${o.id.substring(0, 8).toUpperCase()}">#${o.id.substring(0, 8).toUpperCase()}</td>
                     <td class="p-4">
-                        <div class="font-black text-gray-900">${o.customer?.name || o.customer_name || 'Client Anonyme'}</div>
-                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none mt-1">${o.customer?.email || o.customer_email || 'Sans email'}</div>
+                        <div class="font-black text-gray-900 admin-table-truncate" title="${o.customer?.name || o.customer_name || 'Client Anonyme'}">${o.customer?.name || o.customer_name || 'Client Anonyme'}</div>
+                        <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none mt-1" title="${o.customer?.email || o.customer_email || 'Sans email'}">${o.customer?.email || o.customer_email || 'Sans email'}</div>
                     </td>
                     <td class="p-4">
                         <div class="badge-premium bg-blue-50 text-blue-600">
@@ -254,9 +266,9 @@
                     </td>
                     <td class="p-4">
                         ${o.phone_number ? `
-                            <a href="tel:${o.phone_number}" class="inline-flex items-center gap-2 text-black font-black hover:scale-105 transition-transform">
-                                <iconify-icon icon="solar:phone-bold" class="text-blue-500" width="16"></iconify-icon>
-                                ${o.phone_number}
+                            <a href="tel:${o.phone_number}" class="inline-flex items-center gap-2 text-black font-black hover:scale-105 transition-transform min-w-0 max-w-full" title="${o.phone_number}">
+                                <iconify-icon icon="solar:phone-bold" class="text-blue-500 shrink-0" width="16"></iconify-icon>
+                                <span class="admin-table-truncate">${o.phone_number}</span>
                             </a>
                         ` : '<span class="text-gray-300 font-bold italic">N/A</span>'}
                     </td>

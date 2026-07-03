@@ -29,6 +29,61 @@
         .card-link:hover { border-color: #000; transform: translateY(-1px); }
         .img-cover { width: 72px; height: 72px; border-radius: 18px; object-fit: cover; background: #f1f5f9; border: 1px solid #e2e8f0; }
 
+        /* Checkout progress steps */
+        .checkout-steps { display: flex; align-items: center; gap: 0; margin-bottom: 2rem; }
+        .checkout-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+        .checkout-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+        .checkout-step.done:not(:last-child)::after { background: #000; }
+        .checkout-step-circle {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #94a3b8;
+            font-size: 11px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 1;
+            transition: all 0.25s;
+        }
+        .checkout-step.active .checkout-step-circle { background: #000; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
+        .checkout-step.done .checkout-step-circle { background: #000; color: #fff; }
+        .checkout-step-label { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #94a3b8; margin-top: 5px; white-space: nowrap; }
+        .checkout-step.active .checkout-step-label { color: #0f172a; }
+        .checkout-step.done .checkout-step-label { color: #64748b; }
+
+        /* Trust badges */
+        .trust-badges { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin-top: 1rem; }
+        .trust-badge { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 0.04em; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 5px 12px; }
+        .trust-badge iconify-icon { color: #16a34a; }
+
+        /* Sticky mobile pay bar */
+        #sticky-pay-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid #e2e8f0;
+            padding: 0.875rem 1.25rem;
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            box-shadow: 0 -8px 24px -4px rgba(0,0,0,0.08);
+        }
+        @media (max-width: 1023px) {
+            #sticky-pay-bar { display: flex; }
+            main { padding-bottom: 90px; }
+        }
+
         @media (min-width: 640px) {
             .card-link { padding: 1.25rem; }
             .img-cover { width: 78px; height: 78px; }
@@ -98,6 +153,22 @@
         <section class="flex-1 min-w-0 w-full customer-main-content">
             <div class="max-w-[1200px] mx-auto">
                 <div class="glass-panel p-6 sm:p-10">
+                    <!-- Checkout progress indicator -->
+                    <nav id="checkout-progress" class="checkout-steps hidden" aria-label="Étapes du paiement">
+                        <div class="checkout-step done" id="cstep-cart">
+                            <div class="checkout-step-circle"><iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon></div>
+                            <div class="checkout-step-label">Panier</div>
+                        </div>
+                        <div class="checkout-step active" id="cstep-summary">
+                            <div class="checkout-step-circle">2</div>
+                            <div class="checkout-step-label">Récap</div>
+                        </div>
+                        <div class="checkout-step" id="cstep-payment">
+                            <div class="checkout-step-circle">3</div>
+                            <div class="checkout-step-label">Paiement</div>
+                        </div>
+                    </nav>
+
                     <div class="flex items-start justify-between gap-3 sm:gap-4">
                         <div class="min-w-0 flex-1">
                             <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Achat</h1>
@@ -366,11 +437,29 @@
                             <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                             Payer maintenant
                         </button>
-                        <span class="text-xs text-emerald-600 block mt-2 text-center font-bold">Paiement 100% sécurisé</span>
+                        <!-- Trust badges -->
+                        <div class="trust-badges">
+                            <span class="trust-badge"><iconify-icon icon="solar:shield-check-bold" width="13"></iconify-icon>Paiement sécurisé</span>
+                            <span class="trust-badge"><iconify-icon icon="solar:lock-password-bold" width="13"></iconify-icon>Données cryptées</span>
+                            <span class="trust-badge"><iconify-icon icon="solar:verified-check-bold" width="13"></iconify-icon>Garantie NewKet</span>
+                        </div>
                         `}
                         <button class="btn-ghost w-full mt-3" onclick="backToDashboard()">Retour à l'espace client</button>
                     </div>
                 </div>
+                
+                ${!isPaid ? `
+                <div id="sticky-pay-bar">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Total à payer</span>
+                        <span class="text-lg font-black text-gray-900">${formatAmount(total)}</span>
+                    </div>
+                    <button id="btnPayNowSticky" class="bg-black text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 active:scale-95 transition-all">
+                        <iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon>
+                        Payer
+                    </button>
+                </div>
+                ` : ''}
             `;
         }
 
@@ -527,10 +616,18 @@
                 } catch (e) {
                     if (window.showInlineFeedback) window.showInlineFeedback(btn, safeText(e?.message || "Erreur lors de l'ouverture du paiement"), 'error');
                 } finally {
-                    btn.disabled = false;
                     btn.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant';
+                    if(btnSticky) {
+                        btnSticky.disabled = false;
+                        btnSticky.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon> Payer';
+                    }
                 }
             });
+
+            const btnSticky = document.getElementById('btnPayNowSticky');
+            if (btnSticky) {
+                btnSticky.addEventListener('click', () => btn.click());
+            }
         }
 
         async function initAchatPage() {

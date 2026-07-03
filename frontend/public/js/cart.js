@@ -18,10 +18,21 @@ class CartManager {
             }
         });
 
-        // Track last click for animations
+        // Track last click/touch for animations
         document.addEventListener('click', (e) => {
             this.lastClickEvent = e;
         }, true);
+
+        // Also track touchstart for mobile fly animation
+        document.addEventListener('touchstart', (e) => {
+            this._lastTouch = e.touches[0];
+        }, { passive: true, capture: true });
+        document.addEventListener('touchend', (e) => {
+            if (this._lastTouch && !this.lastClickEvent) {
+                // Fabricate a click-like event from the last touch
+                this.lastClickEvent = { clientX: this._lastTouch.clientX, clientY: this._lastTouch.clientY };
+            }
+        }, { passive: true, capture: true });
     }
 
     init() {
@@ -70,10 +81,16 @@ class CartManager {
         }
         
         this.saveCart();
-        
+
+        // Update lastClickEvent from touch if no click event
+        if (!this.lastClickEvent && this._lastTouch) {
+            this.lastClickEvent = { clientX: this._lastTouch.clientX, clientY: this._lastTouch.clientY };
+        }
 
         // Trigger fly-to-cart animation
         this.animateFlyToCart(product.image, this.lastClickEvent);
+        // Reset after use so it doesn't repeat on next add
+        setTimeout(() => { this.lastClickEvent = null; this._lastTouch = null; }, 700);
     }
 
     animateFlyToCart(imageUrl, clickEvent) {
@@ -132,6 +149,8 @@ class CartManager {
             }, 200);
         }, 600);
     }
+
+
 
     /**
      * Update quantity of an item
@@ -235,7 +254,12 @@ class CartManager {
         if (cartUI && overlay) {
             overlay.classList.remove('opacity-0', 'pointer-events-none');
             cartUI.classList.remove('translate-x-full');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            // Use global scroll lock if available (works with position:fixed technique)
+            if (typeof window._newketLockScroll === 'function') {
+                window._newketLockScroll();
+            } else {
+                document.body.style.overflow = 'hidden';
+            }
             this.renderCartItems();
         }
     }
@@ -246,7 +270,13 @@ class CartManager {
         if (cartUI && overlay) {
             overlay.classList.add('opacity-0', 'pointer-events-none');
             cartUI.classList.add('translate-x-full');
-            document.body.style.overflow = ''; // Restore scrolling
+            // Use global scroll unlock if available (restores position + top correctly)
+            if (typeof window._newketUnlockScroll === 'function') {
+                window._newketUnlockScroll();
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.removeProperty('overflow');
+            }
         }
     }
 
@@ -395,7 +425,7 @@ class CartManager {
             <div id="cartOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000] opacity-0 pointer-events-none transition-opacity duration-300" onclick="window.CartManager._hideSlideOver()"></div>
             
             <!-- Cart Slide-over -->
-            <div id="cartSlideOver" class="fixed top-0 right-0 h-full w-full bg-gray-50 z-[10001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col overscroll-contain">
+            <div id="cartSlideOver" role="dialog" aria-modal="true" aria-label="Panier" class="fixed top-0 right-0 h-full w-full bg-gray-50 z-[10001] transform translate-x-full transition-transform duration-300 ease-in-out shadow-2xl flex flex-col overscroll-contain">
                 <!-- Header -->
                 <div class="px-6 py-5 flex items-center justify-between shrink-0" style="background:#013220; border-bottom:1px solid rgba(1,50,32,0.6);">
                     <div class="flex items-center gap-3">

@@ -45,10 +45,10 @@ async function loadIntegrations() {
         integrationsTableBody.innerHTML = data.map(vendor => `
             <tr class="hover:bg-gray-50/50 transition-colors">
                 <td class="px-6 py-4">
-                    <div class="text-sm font-bold text-gray-900">${vendor.name}</div>
-                    <div class="text-[10px] font-medium text-gray-400">${vendor.id.slice(0, 8)}...</div>
+                    <div class="text-sm font-bold text-gray-900 admin-table-truncate" title="${vendor.name}">${vendor.name}</div>
+                    <div class="admin-table-truncate text-[10px] font-medium text-gray-400" title="${vendor.id}">${vendor.id.slice(0, 8)}...</div>
                 </td>
-                <td class="px-6 py-4 text-sm font-medium text-gray-500">${vendor.email}</td>
+                <td class="px-6 py-4 text-sm font-medium text-gray-500 admin-table-truncate" title="${vendor.email}">${vendor.email}</td>
                 <td class="px-6 py-4 text-center">
                     ${vendor.slack 
                         ? '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/20" title="Connecté"><iconify-icon icon="solar:check-read-bold-duotone" width="14"></iconify-icon></span>' 

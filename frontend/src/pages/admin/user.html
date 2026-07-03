@@ -137,8 +137,16 @@
 
             <!-- Users Table -->
             <div class="glass-panel overflow-hidden animate-premium stagger-2">
-                <div class="overflow-x-auto">
-                    <table class="premium-table w-full">
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-data-table admin-users-table w-full">
+                        <colgroup>
+                            <col class="admin-users-table__col-user">
+                            <col class="admin-users-table__col-status">
+                            <col class="admin-users-table__col-articles">
+                            <col class="admin-users-table__col-sales">
+                            <col class="admin-users-table__col-nktoken">
+                            <col class="admin-users-table__col-actions">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>Utilisateur</th>
@@ -268,7 +276,14 @@
 
                             <div id="tabContent-orders" class="animate-premium">
                                 <div class="glass-panel overflow-hidden">
-                                    <table class="premium-table w-full">
+                                    <div class="overflow-x-auto admin-table-shell">
+                                    <table class="premium-table admin-data-table admin-user-orders-table w-full">
+                                        <colgroup>
+                                            <col class="admin-user-orders-table__col-date">
+                                            <col class="admin-user-orders-table__col-status">
+                                            <col class="admin-user-orders-table__col-items">
+                                            <col class="admin-user-orders-table__col-total">
+                                        </colgroup>
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
@@ -279,6 +294,7 @@
                                         </thead>
                                         <tbody id="modalUserOrdersList"></tbody>
                                     </table>
+                                    </div>
                                     <div id="modalUserOrdersEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Aucune interaction trouvée.</div>
                                 </div>
                             </div>
@@ -518,21 +534,21 @@
                         return `
                         <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
                             <td class="p-4 cursor-pointer" onclick="openUserDetails('${u.email}')">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
+                                <div class="flex items-center gap-4 min-w-0">
+                                    <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 shrink-0 ${hasNoLogo ? 'branding-alert' : ''}">
                                         ${avatarUrl
                                             ? `<img src="${avatarUrl}" class="w-full h-full object-cover" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; const s=this.parentElement.querySelector('span'); if(s){s.style.display='flex';}">`
                                             : ''
                                         }
                                         <span class="text-sm font-black" style="${avatarUrl ? 'display:none;' : 'display:flex;'}">${initials}</span>
                                     </div>
-                                    <div>
-                                        <div class="font-black text-gray-900 flex items-center gap-2">
-                                            ${UserManager.getDisplayName(u)}
-                                            ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping"></span>' : ''}
+                                    <div class="admin-table-cell-text min-w-0">
+                                        <div class="font-black text-gray-900 flex items-center gap-2 min-w-0">
+                                            <span class="admin-table-truncate" title="${UserManager.getDisplayName(u)}">${UserManager.getDisplayName(u)}</span>
+                                            ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping shrink-0"></span>' : ''}
                                         </div>
-                                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${u.email}</div>
-                                        ${sellerTypeLabel ? `<div class="mt-2"><span class="seller-type-badge ${sellerTypeClass}">${sellerTypeLabel}</span></div>` : ''}
+                                        <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest" title="${u.email}">${u.email}</div>
+                                        ${sellerTypeLabel ? `<div class="admin-table-cell-meta mt-2"><span class="seller-type-badge ${sellerTypeClass}">${sellerTypeLabel}</span></div>` : ''}
                                     </div>
                                 </div>
                             </td>

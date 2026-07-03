@@ -1092,11 +1092,188 @@ html.admin-embedded-mode .stagger-5 {
     border-bottom: 2px solid #f1f5f9;
 }
 
-/* Admin catalogue table — keep thead/tbody columns aligned on all breakpoints */
-.admin-products-table {
+/* Admin data tables — keep thead/tbody columns aligned on all breakpoints */
+.admin-data-table {
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
+}
+
+/* ── Shared text truncation (images, avatars, controls excluded) ─────────── */
+.admin-data-table td {
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+.admin-data-table td > .flex {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.admin-data-table .admin-table-cell-text {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.admin-data-table .admin-table-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-data-table .admin-table-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-data-table .admin-table-cell-meta {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.admin-data-table td > div:not(.flex):not(.badge-premium) {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.admin-data-table td > div:not(.flex) > .font-black:not(.flex),
+.admin-data-table td > div:not(.flex) > div.font-black:not(.flex),
+.admin-data-table td > div:not(.flex) > .font-medium,
+.admin-data-table td > div:not(.flex) > .font-bold:not(.flex),
+.admin-data-table td > .font-black:not(.flex),
+.admin-data-table td > .font-medium {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.admin-data-table td > div:not(.flex) > .text-\[10px\],
+.admin-data-table td > div:not(.flex) > div.text-\[10px\],
+.admin-data-table td > div:not(.flex) > .text-\[11px\],
+.admin-data-table td > div:not(.flex) > .text-xs {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .font-black:not(.flex),
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > div.font-black:not(.flex),
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > span.font-bold {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .font-black.flex {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .font-black.flex > .admin-table-truncate,
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .font-black.flex > span:first-child:not(.shrink-0):not(.flex-shrink-0) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .text-\[10px\],
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > div.text-\[10px\] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
+
+/* Plain-text cells (no nested elements) */
+.admin-data-table td:not(:has(*)) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Images, avatars, thumbnails — fixed size, never ellipsized */
+.admin-data-table img {
+    flex-shrink: 0;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    max-width: none;
+}
+
+.admin-data-table td .shrink-0,
+.admin-data-table td .flex-shrink-0,
+.admin-data-table td input,
+.admin-data-table td button,
+.admin-data-table td select,
+.admin-data-table td .badge-premium,
+.admin-data-table td .seller-type-badge,
+.admin-data-table td .role-badge,
+.admin-data-table td .stat-chip,
+.admin-data-table td .ref-link,
+.admin-data-table td iconify-icon {
+    flex-shrink: 0;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+}
+
+.admin-data-table td .badge-premium.admin-table-truncate {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.admin-data-table td [class*="rounded-2xl"].overflow-hidden,
+.admin-data-table td [class*="rounded-xl"].overflow-hidden {
+    flex-shrink: 0;
+}
+
+/* Action / control columns */
+.admin-data-table td.text-right,
+.admin-data-table td.admin-products-table__select,
+.admin-data-table td.text-center {
+    overflow: visible;
+}
+
+.admin-data-table td.text-right > .flex,
+.admin-data-table td.text-right > div {
+    overflow: visible;
+}
+
+/* Products */
+.admin-products-table {
+    --admin-table-min-width: 880px;
 }
 
 .admin-products-table col.admin-products-table__col-select {
@@ -1132,9 +1309,143 @@ html.admin-embedded-mode .stagger-5 {
     text-align: center;
 }
 
-.admin-products-table td:nth-child(2) .min-w-0 {
-    max-width: 100%;
+/* Orders */
+.admin-orders-table {
+    --admin-table-min-width: 1100px;
 }
+
+.admin-orders-table col.admin-orders-table__col-id { width: 6rem; }
+.admin-orders-table col.admin-orders-table__col-client { width: 9rem; }
+.admin-orders-table col.admin-orders-table__col-source { width: 7rem; }
+.admin-orders-table col.admin-orders-table__col-contact { width: 9rem; }
+.admin-orders-table col.admin-orders-table__col-date { width: 6.5rem; }
+.admin-orders-table col.admin-orders-table__col-otp { width: 5rem; }
+.admin-orders-table col.admin-orders-table__col-potential { width: 7rem; }
+.admin-orders-table col.admin-orders-table__col-payment { width: 6.5rem; }
+.admin-orders-table col.admin-orders-table__col-status { width: 6.5rem; }
+.admin-orders-table col.admin-orders-table__col-actions { width: 7rem; }
+
+/* Users */
+.admin-users-table {
+    --admin-table-min-width: 820px;
+}
+
+.admin-users-table col.admin-users-table__col-user { width: 14rem; }
+.admin-users-table col.admin-users-table__col-status { width: 7rem; }
+.admin-users-table col.admin-users-table__col-articles { width: 5.5rem; }
+.admin-users-table col.admin-users-table__col-sales { width: 7.5rem; }
+.admin-users-table col.admin-users-table__col-nktoken { width: 6.5rem; }
+.admin-users-table col.admin-users-table__col-actions { width: 7rem; }
+
+/* User modal orders */
+.admin-user-orders-table {
+    --admin-table-min-width: 560px;
+}
+
+.admin-user-orders-table col.admin-user-orders-table__col-date { width: 7rem; }
+.admin-user-orders-table col.admin-user-orders-table__col-status { width: 7rem; }
+.admin-user-orders-table col.admin-user-orders-table__col-items { width: 10rem; }
+.admin-user-orders-table col.admin-user-orders-table__col-total { width: 6rem; }
+
+/* Activities */
+.admin-activities-table {
+    --admin-table-min-width: 640px;
+}
+
+.admin-activities-table col.admin-activities-table__col-datetime { width: 9rem; }
+.admin-activities-table col.admin-activities-table__col-description { width: 18rem; }
+.admin-activities-table col.admin-activities-table__col-priority { width: 8rem; }
+
+/* OTP tracker */
+.admin-otp-table {
+    --admin-table-min-width: 920px;
+}
+
+.admin-otp-table col.admin-otp-table__col-otp { width: 5.5rem; }
+.admin-otp-table col.admin-otp-table__col-order { width: 8rem; }
+.admin-otp-table col.admin-otp-table__col-client { width: 8rem; }
+.admin-otp-table col.admin-otp-table__col-product { width: 9rem; }
+.admin-otp-table col.admin-otp-table__col-transaction { width: 9rem; }
+.admin-otp-table col.admin-otp-table__col-status { width: 6.5rem; }
+.admin-otp-table col.admin-otp-table__col-proof { width: 5.5rem; }
+
+/* Newsletter */
+.admin-newsletter-table {
+    --admin-table-min-width: 640px;
+}
+
+.admin-newsletter-table col.admin-newsletter-table__col-email { width: 14rem; }
+.admin-newsletter-table col.admin-newsletter-table__col-source { width: 7rem; }
+.admin-newsletter-table col.admin-newsletter-table__col-date { width: 8rem; }
+.admin-newsletter-table col.admin-newsletter-table__col-status { width: 6.5rem; }
+.admin-newsletter-table col.admin-newsletter-table__col-actions { width: 6rem; }
+
+/* Referrals */
+.admin-referrals-top-table {
+    --admin-table-min-width: 760px;
+}
+
+.admin-referrals-top-table col.admin-referrals-top-table__col-referrer { width: 11rem; }
+.admin-referrals-top-table col.admin-referrals-top-table__col-code { width: 6rem; }
+.admin-referrals-top-table col.admin-referrals-top-table__col-events { width: 6.5rem; }
+.admin-referrals-top-table col.admin-referrals-top-table__col-rewards { width: 7rem; }
+.admin-referrals-top-table col.admin-referrals-top-table__col-value { width: 6.5rem; }
+
+.admin-referrals-events-table {
+    --admin-table-min-width: 980px;
+}
+
+.admin-referrals-events-table col.admin-referrals-events-table__col-code { width: 6rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-referrer { width: 9rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-referee { width: 9rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-status { width: 6.5rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-reward { width: 7rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-actions { width: 6.5rem; }
+
+/* Analytics */
+.admin-analytics-events-table {
+    --admin-table-min-width: 720px;
+}
+
+.admin-analytics-events-table col.admin-analytics-events-table__col-when { width: 8rem; }
+.admin-analytics-events-table col.admin-analytics-events-table__col-type { width: 5.5rem; }
+.admin-analytics-events-table col.admin-analytics-events-table__col-page { width: 10rem; }
+.admin-analytics-events-table col.admin-analytics-events-table__col-action { width: 10rem; }
+.admin-analytics-events-table col.admin-analytics-events-table__col-role { width: 5.5rem; }
+
+/* User details */
+.admin-user-details-table {
+    --admin-table-min-width: 640px;
+}
+
+.admin-user-details-table col.admin-user-details-table__col-date { width: 7rem; }
+.admin-user-details-table col.admin-user-details-table__col-ref { width: 10rem; }
+.admin-user-details-table col.admin-user-details-table__col-details { width: 14rem; }
+.admin-user-details-table col.admin-user-details-table__col-amount { width: 6.5rem; }
+
+/* Settings integrations */
+.admin-settings-integrations-table {
+    --admin-table-min-width: 560px;
+}
+
+.admin-settings-integrations-table col.admin-settings-integrations-table__col-vendor { width: 10rem; }
+.admin-settings-integrations-table col.admin-settings-integrations-table__col-email { width: 12rem; }
+.admin-settings-integrations-table col.admin-settings-integrations-table__col-slack { width: 5.5rem; }
+.admin-settings-integrations-table col.admin-settings-integrations-table__col-notion { width: 5.5rem; }
+
+/* Vendor dashboard orders */
+.vendor-orders-table {
+    --admin-table-min-width: 960px;
+}
+
+.vendor-orders-table col.vendor-orders-table__col-select { width: 2.75rem; }
+.vendor-orders-table col.vendor-orders-table__col-id { width: 5rem; }
+.vendor-orders-table col.vendor-orders-table__col-client { width: 14rem; }
+.vendor-orders-table col.vendor-orders-table__col-contact { width: 8rem; }
+.vendor-orders-table col.vendor-orders-table__col-amount { width: 6.5rem; }
+.vendor-orders-table col.vendor-orders-table__col-payment { width: 7rem; }
+.vendor-orders-table col.vendor-orders-table__col-status { width: 6.5rem; }
+.vendor-orders-table col.vendor-orders-table__col-actions { width: 3rem; }
 
 @media (max-width: 1023px) {
     .admin-table-shell {
@@ -1143,31 +1454,31 @@ html.admin-embedded-mode .stagger-5 {
         overscroll-behavior-x: contain;
     }
 
-    .admin-table-shell .admin-products-table {
+    .admin-table-shell .admin-data-table {
         display: table !important;
         table-layout: fixed;
-        min-width: 880px;
+        min-width: var(--admin-table-min-width, 720px);
         width: 100%;
         white-space: normal;
     }
 
-    .admin-table-shell .admin-products-table thead {
+    .admin-table-shell .admin-data-table thead {
         display: table-header-group !important;
         width: auto !important;
     }
 
-    .admin-table-shell .admin-products-table tbody {
+    .admin-table-shell .admin-data-table tbody {
         display: table-row-group !important;
         width: auto !important;
     }
 
-    .admin-table-shell .admin-products-table tr {
+    .admin-table-shell .admin-data-table tr {
         display: table-row !important;
         width: auto !important;
     }
 
-    .admin-table-shell .admin-products-table th,
-    .admin-table-shell .admin-products-table td {
+    .admin-table-shell .admin-data-table th,
+    .admin-table-shell .admin-data-table td {
         width: auto !important;
         max-width: none;
     }
@@ -1191,50 +1502,18 @@ html.admin-embedded-mode .stagger-5 {
         width: 100%;
     }
 
-    #tab-dashboard .vendor-table-shell {
-        margin-inline: 0;
-        padding-inline: 0;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior-x: contain;
+    #tab-dashboard .admin-table-shell {
         scrollbar-width: thin;
         scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
-        display: block;
-        width: 100%;
-        max-width: 100%;
         padding-bottom: 24px;
-        min-height: 250px; /* Augmente la zone tactile en dessous des lignes */
+        min-height: 250px;
     }
 
-    #tab-dashboard .vendor-orders-table {
-        min-width: 760px;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    #tab-dashboard .vendor-orders-table th,
-    #tab-dashboard .vendor-orders-table td {
-        border-right: 1px solid #f1f5f9; /* gray-100 */
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-    }
-    #tab-dashboard .vendor-orders-table th:last-child,
-    #tab-dashboard .vendor-orders-table td:last-child {
-        border-right: none;
-    }
-
-    /* Make the horizontal scroll reach the very end on mobile */
-    #tab-dashboard .vendor-table-shell .vendor-orders-table {
-        display: table;
-        width: 100%;
-        min-width: 1120px;
-    }
-
-    #tab-dashboard .vendor-table-shell::-webkit-scrollbar {
+    #tab-dashboard .admin-table-shell::-webkit-scrollbar {
         height: 8px;
     }
 
-    #tab-dashboard .vendor-table-shell::-webkit-scrollbar-thumb {
+    #tab-dashboard .admin-table-shell::-webkit-scrollbar-thumb {
         background: rgba(15, 23, 42, 0.18);
         border-radius: 999px;
     }

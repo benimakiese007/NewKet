@@ -461,14 +461,38 @@ const App = {
                 window.scrollTo({ top: _savedScrollY, left: 0, behavior: 'instant' });
             };
 
+            // Expose globally so external scripts (cart.js, etc.) can use proper scroll lock
+            window._newketLockScroll = lockBodyScroll;
+            window._newketUnlockScroll = unlockBodyScroll;
+
             const isModalNode = (node) => {
                 if (node.nodeType !== Node.ELEMENT_NODE) return false;
-                const role = node.getAttribute('role');
+
+                // Exclude structural page elements that are never modals
+                const tag = node.tagName?.toLowerCase();
+                if (tag === 'header' || tag === 'nav' || tag === 'footer' || tag === 'aside') return false;
                 const id = node.id || '';
+                // Exclude known non-modal fixed elements (header, category nav, mobile nav, etc.)
+                if (
+                    id === 'mainHeader' || id === 'categoryNav' || id === 'mobileNav' ||
+                    id === 'mobile-nav-placeholder' || id === 'header-placeholder' ||
+                    id === 'category-nav-placeholder' || id === 'adminSidebar' ||
+                    node.hasAttribute('data-header-shell') || node.hasAttribute('data-nav-shell')
+                ) return false;
+
+                const role = node.getAttribute('role');
                 const classes = node.className || '';
-                if (role === 'dialog' || id.toLowerCase().endsWith('modal') || (typeof classes === 'string' && classes.includes('modal') && classes.includes('fixed'))) {
-                    return true;
-                }
+                // Must be a real dialog role, end with Modal/modal, or explicitly be a modal overlay
+                if (role === 'dialog') return true;
+                if (id.toLowerCase().endsWith('modal')) return true;
+                // Only match fixed + inset-0 if it also has aria-modal or a data-modal marker
+                if (
+                    typeof classes === 'string' &&
+                    classes.includes('modal') &&
+                    classes.includes('fixed') &&
+                    (node.getAttribute('aria-modal') === 'true' || node.hasAttribute('data-modal'))
+                ) return true;
+
                 return false;
             };
 
@@ -479,7 +503,10 @@ const App = {
             };
 
             const checkAnyModalOpen = () => {
-                const modals = document.querySelectorAll('.fixed.inset-0, [role="dialog"], [id$="Modal"], [id$="modal"]');
+                // Use a tighter selector: require aria-modal or data-modal to avoid matching the header
+                const modals = document.querySelectorAll(
+                    '[role="dialog"][aria-modal="true"], [id$="Modal"], [id$="modal"], [data-modal]'
+                );
                 let anyOpen = false;
                 for (const m of modals) {
                     if (isModalNode(m) && isNodeVisible(m) && (m.classList.contains('fixed') || window.getComputedStyle(m).position === 'fixed')) {
@@ -511,8 +538,20 @@ const App = {
             });
 
             modalObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
-            
+
+            // Initial check — but also add a safety failsafe:
+            // If after 1s the scroll is still locked but no real modal is detected, force-unlock.
             setTimeout(checkAnyModalOpen, 500);
+            setTimeout(() => {
+                if (_scrollLockActive) {
+                    checkAnyModalOpen();
+                    // If still locked with no modal, force-release
+                    if (_scrollLockActive) {
+                        console.warn('[NewKet] Scroll lock failsafe triggered — no visible modal found, releasing lock.');
+                        unlockBodyScroll();
+                    }
+                }
+            }, 1200);
 
             // Prevent touch scroll chaining: block touchmove on modal backdrop only
             document.addEventListener('touchmove', (e) => {

@@ -147,8 +147,17 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="premium-table w-full">
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-data-table admin-otp-table w-full">
+                        <colgroup>
+                            <col class="admin-otp-table__col-otp">
+                            <col class="admin-otp-table__col-order">
+                            <col class="admin-otp-table__col-client">
+                            <col class="admin-otp-table__col-product">
+                            <col class="admin-otp-table__col-transaction">
+                            <col class="admin-otp-table__col-status">
+                            <col class="admin-otp-table__col-proof">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th>OTP</th>
@@ -281,15 +290,15 @@
                             </button>
                         </td>
                         <td class="p-4">
-                            <div class="font-black text-gray-900 break-all">${order.id}</div>
+                            <div class="font-black text-gray-900 admin-table-truncate" title="${order.id}">${order.id}</div>
                             <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">${new Date(order.date).toLocaleDateString('fr-FR')}</div>
                         </td>
                         <td class="p-4">
-                            <div class="font-black text-gray-900">${order.customer_name || 'Client'}</div>
-                            <div class="text-[10px] text-gray-400 font-bold break-all mt-1">${order.customer_email || 'Sans email'}</div>
+                            <div class="font-black text-gray-900 admin-table-truncate" title="${order.customer_name || 'Client'}">${order.customer_name || 'Client'}</div>
+                            <div class="admin-table-truncate text-[10px] text-gray-400 font-bold mt-1" title="${order.customer_email || 'Sans email'}">${order.customer_email || 'Sans email'}</div>
                         </td>
-                        <td class="p-4 text-sm font-bold text-gray-700">${order.product_name || 'Produit'}</td>
-                        <td class="p-4 text-[11px] font-black text-gray-500 break-all">${order.transaction_id || 'N/A'}</td>
+                        <td class="p-4 text-sm font-bold text-gray-700 admin-table-truncate" title="${order.product_name || 'Produit'}">${order.product_name || 'Produit'}</td>
+                        <td class="p-4 text-[11px] font-black text-gray-500 admin-table-truncate" title="${order.transaction_id || 'N/A'}">${order.transaction_id || 'N/A'}</td>
                         <td class="p-4">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${this.getStatusBadgeClass(order.status)}">
                                 ${window.OrderManager ? window.OrderManager.getStatusLabel(order.status) : order.status}

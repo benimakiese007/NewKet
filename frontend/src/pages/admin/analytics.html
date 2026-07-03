@@ -309,8 +309,15 @@
                     <div><h2 class="font-bold text-gray-900">Evenements recents</h2><p class="text-sm text-gray-500">Journal brut des comportements captes par le frontend.</p></div>
                     <div class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="eventsMeta">0 ligne</div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm">
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-data-table admin-analytics-events-table w-full text-sm">
+                        <colgroup>
+                            <col class="admin-analytics-events-table__col-when">
+                            <col class="admin-analytics-events-table__col-type">
+                            <col class="admin-analytics-events-table__col-page">
+                            <col class="admin-analytics-events-table__col-action">
+                            <col class="admin-analytics-events-table__col-role">
+                        </colgroup>
                         <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">
                             <tr><th class="text-left px-6 py-4">Quand</th><th class="text-left px-6 py-4">Type</th><th class="text-left px-6 py-4">Page</th><th class="text-left px-6 py-4">Action</th><th class="text-left px-6 py-4">Role</th></tr>
                         </thead>
@@ -889,9 +896,9 @@
                 <tr class="align-top">
                     <td class="px-6 py-4 whitespace-nowrap text-gray-500">${new Date(eventRow.created_at).toLocaleString('fr-FR')}</td>
                     <td class="px-6 py-4"><span class="inline-flex px-2 py-1 rounded-full bg-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-600">${eventRow.event_type}</span></td>
-                    <td class="px-6 py-4 text-gray-900">${normalizeLabel(eventRow.path || '-')}</td>
-                    <td class="px-6 py-4 text-gray-600">${eventRow.target || '-'}</td>
-                    <td class="px-6 py-4 text-gray-500">${eventRow.user_role || 'guest'}</td>
+                    <td class="px-6 py-4 text-gray-900 admin-table-truncate" title="${normalizeLabel(eventRow.path || '-')}">${normalizeLabel(eventRow.path || '-')}</td>
+                    <td class="px-6 py-4 text-gray-600 admin-table-truncate" title="${eventRow.target || '-'}">${eventRow.target || '-'}</td>
+                    <td class="px-6 py-4 text-gray-500 admin-table-truncate" title="${eventRow.user_role || 'guest'}">${eventRow.user_role || 'guest'}</td>
                 </tr>
             `).join('') : `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400 italic">Aucun evenement sur la periode.</td></tr>`;
 
@@ -1053,9 +1060,9 @@
                     <tr class="align-top">
                         <td class="px-6 py-4 whitespace-nowrap text-gray-500">${new Date(eventRow.created_at).toLocaleString('fr-FR')}</td>
                         <td class="px-6 py-4"><span class="inline-flex px-2 py-1 rounded-full bg-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-600">${eventRow.event_type}</span></td>
-                        <td class="px-6 py-4 text-gray-900">${normalizeLabel(eventRow.path || '-')}</td>
-                        <td class="px-6 py-4 text-gray-600">${eventRow.target || '-'}</td>
-                        <td class="px-6 py-4 text-gray-500">${eventRow.user_role || 'guest'}</td>
+                        <td class="px-6 py-4 text-gray-900 admin-table-truncate" title="${normalizeLabel(eventRow.path || '-')}">${normalizeLabel(eventRow.path || '-')}</td>
+                        <td class="px-6 py-4 text-gray-600 admin-table-truncate" title="${eventRow.target || '-'}">${eventRow.target || '-'}</td>
+                        <td class="px-6 py-4 text-gray-500 admin-table-truncate" title="${eventRow.user_role || 'guest'}">${eventRow.user_role || 'guest'}</td>
                     </tr>
                 `).join('') : `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400 italic">Aucun évènement.</td></tr>`;
             } catch (error) {
@@ -1352,8 +1359,15 @@
                                 <div class="text-sm text-gray-500">Dernières lignes filtrées.</div>
                             </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full text-sm">
+                        <div class="overflow-x-auto admin-table-shell">
+                            <table class="premium-table admin-data-table admin-analytics-events-table w-full text-sm">
+                                <colgroup>
+                                    <col class="admin-analytics-events-table__col-when">
+                                    <col class="admin-analytics-events-table__col-type">
+                                    <col class="admin-analytics-events-table__col-page">
+                                    <col class="admin-analytics-events-table__col-action">
+                                    <col class="admin-analytics-events-table__col-role">
+                                </colgroup>
                                 <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">
                                     <tr><th class="text-left px-6 py-4">Quand</th><th class="text-left px-6 py-4">Type</th><th class="text-left px-6 py-4">Page</th><th class="text-left px-6 py-4">Action</th><th class="text-left px-6 py-4">Role</th></tr>
                                 </thead>

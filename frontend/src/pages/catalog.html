@@ -989,17 +989,15 @@
                     `;
                 } else {
                     grid.innerHTML = `
-                        <div class="col-span-full text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
-                            <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <iconify-icon icon="solar:magnifer-zoom-out-linear" width="48"></iconify-icon>
+                        <div class="col-span-full flex flex-col items-center justify-center py-24 text-center">
+                            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                                <iconify-icon icon="solar:box-minimalistic-bold-duotone" width="40" class="text-gray-300"></iconify-icon>
                             </div>
-                            <div class="text-2xl font-bold text-gray-900 mb-2">Quête infructueuse</div>
-                            <div class="text-gray-500 mb-8 max-w-sm mx-auto">L'article d'exception que vous recherchez semble s'être évanoui. Ajustez vos critères pour une nouvelle découverte.</div>
-                            <div class="mt-6">
-                                <button data-reset-filters class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
-                                    Réinitialiser l'horizon
-                                </button>
-                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Aucun résultat trouvé</h3>
+                            <p class="text-gray-500 mb-6 max-w-sm mx-auto">Essayez d'autres mots-clés ou parcourez toutes nos sélections.</p>
+                            <button data-reset-filters class="bg-black text-white px-6 py-3 rounded-2xl font-bold shadow hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                Voir tous les produits
+                            </button>
                         </div>
                     `;
                 }

@@ -61,8 +61,13 @@
             </div>
 
             <div class="glass-panel overflow-hidden animate-premium stagger-1">
-                <div class="overflow-x-auto">
-                    <table class="premium-table w-full">
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-data-table admin-activities-table w-full">
+                        <colgroup>
+                            <col class="admin-activities-table__col-datetime">
+                            <col class="admin-activities-table__col-description">
+                            <col class="admin-activities-table__col-priority">
+                        </colgroup>
                         <thead>
                             <tr>
                                 <th class="border-r border-gray-200">Date/Heure</th>
@@ -226,8 +231,8 @@
                                 <iconify-icon icon="${iconStr}" width="22" class="${colorClass}"></iconify-icon>
                             </div>
                             <div>
-                                <span class="font-bold text-gray-800 leading-snug block">${act.text}</span>
-                                ${act.id ? `<span class="text-[10px] font-black uppercase text-gray-300 tracking-tighter block mt-2 opacity-0 group-hover:opacity-100 transition-opacity">ID: ${act.id}</span>` : ''}
+                                <span class="font-bold text-gray-800 leading-snug block admin-table-truncate" title="${act.text}">${act.text}</span>
+                                ${act.id ? `<span class="admin-table-truncate text-[10px] font-black uppercase text-gray-300 tracking-tighter block mt-2 opacity-0 group-hover:opacity-100 transition-opacity" title="ID: ${act.id}">ID: ${act.id}</span>` : ''}
                             </div>
                         </div>
                     </td>

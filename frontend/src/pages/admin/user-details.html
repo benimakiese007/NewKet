@@ -215,8 +215,14 @@
                             Historique
                         </h3>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-[800px] w-full text-left" id="dataTable">
+                    <div class="overflow-x-auto admin-table-shell">
+                        <table class="premium-table admin-data-table admin-user-details-table w-full text-left" id="dataTable">
+                            <colgroup>
+                                <col class="admin-user-details-table__col-date">
+                                <col class="admin-user-details-table__col-ref">
+                                <col class="admin-user-details-table__col-details">
+                                <col class="admin-user-details-table__col-amount">
+                            </colgroup>
                             <thead>
                                 <tr class="bg-gray-50/50">
                                     <th
@@ -583,11 +589,11 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="p-4 text-xs font-bold text-gray-400">${new Date(o.date).toLocaleDateString()}</td>
                             <td class="p-4">
-                                <div class="font-black text-gray-900">#${o.id}</div>
-                                <div class="text-[10px] text-gray-400 uppercase font-bold">${o.customer_name || 'Client'}</div>
+                                <div class="font-black text-gray-900 admin-table-truncate" title="#${o.id}">#${o.id}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 uppercase font-bold" title="${o.customer_name || 'Client'}">${o.customer_name || 'Client'}</div>
                             </td>
                             <td class="p-4">
-                                <div class="text-[10px] text-gray-500 font-bold">${mine.length} art. parmis ${o.items.length}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-500 font-bold" title="${mine.length} art. parmis ${o.items.length}">${mine.length} art. parmis ${o.items.length}</div>
                             </td>
                             <td class="p-4 text-right font-black text-gray-900">${CurrencyManager.formatPrice(subtotal)}</td>
                         </tr>

@@ -41,6 +41,8 @@ import systemHealthRoutes from './routes/systemHealth.routes.js';
 import manifestRoutes from './routes/manifest.routes.js';
 import integrationRoutes from './routes/integrationRoutes.js';
 import vendorPayoutRoutes from './routes/vendor-payout.routes.js';
+import categoryRoutes from './routes/category.routes.js';
+import accountingRoutes from './routes/accounting.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 import { processDuePushNotificationJobsJob } from './services/push-queue.service.js';
@@ -233,6 +235,8 @@ app.use('/api/system-health', systemHealthRoutes);
 app.use('/api', manifestRoutes);
 app.use('/api/integrations', integrationRoutes);
 app.use('/api/vendor-payouts', vendorPayoutRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/admin/accounting', accountingRoutes);
 
 app.use(sentryErrorHandler);
 
@@ -255,9 +259,9 @@ const isDirectRun = process.argv[1]
   : false;
 
 if (isDirectRun) {
-  app.listen(PORT, () => {
-    console.log(`Serveur NewKet demarre sur http://localhost:${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/api/health`);
+  app.listen(PORT, '127.0.0.1', () => {
+    console.log(`Serveur NewKet demarre sur http://127.0.0.1:${PORT}`);
+    console.log(`Health check: http://127.0.0.1:${PORT}/api/health`);
   });
 }
 

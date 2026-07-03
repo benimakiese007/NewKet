@@ -6,7 +6,8 @@ import {
     updateProduct, 
     deleteProduct,
     deleteBulkProducts,
-    updateBulkCategory
+    updateBulkCategory,
+    getRankedCategories
 } from '../controllers/product.controller.js';
 import { optionalAuth, requireAuth } from '../middlewares/auth.js';
 import { cacheMiddleware } from '../middlewares/cache.js';
@@ -27,6 +28,7 @@ const productsReadLimiter = rateLimit({
 // Routes publiques / optionnelles
 // Durée de cache: 30 secondes pour les produits, pour être assez réactif mais encaisser les pics
 router.get('/', productsReadLimiter, optionalAuth, cacheMiddleware(30), getProducts);
+router.get('/categories/ranked', productsReadLimiter, cacheMiddleware(300), getRankedCategories);
 router.get('/:id', productsReadLimiter, optionalAuth, cacheMiddleware(30), getProductById);
 
 // Routes sécurisées

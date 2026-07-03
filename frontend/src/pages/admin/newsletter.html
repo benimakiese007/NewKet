@@ -112,8 +112,15 @@
                 </div>
 
                 <!-- Table -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-[600px] w-full text-left border-collapse">
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-data-table admin-newsletter-table w-full text-left border-collapse">
+                        <colgroup>
+                            <col class="admin-newsletter-table__col-email">
+                            <col class="admin-newsletter-table__col-source">
+                            <col class="admin-newsletter-table__col-date">
+                            <col class="admin-newsletter-table__col-status">
+                            <col class="admin-newsletter-table__col-actions">
+                        </colgroup>
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-100">
                                 <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Email</th>
@@ -242,7 +249,7 @@
 
                 return `
                     <tr class="hover:bg-gray-50/50 transition-colors text-sm">
-                        <td class="p-4 font-medium text-gray-900">${s.email}</td>
+                        <td class="p-4 font-medium text-gray-900 admin-table-truncate" title="${s.email}">${s.email}</td>
                         <td class="p-4">
                             <span class="px-2.5 py-0.5 bg-gray-100 text-gray-500 text-[9px] font-bold uppercase rounded-full">${source}</span>
                         </td>

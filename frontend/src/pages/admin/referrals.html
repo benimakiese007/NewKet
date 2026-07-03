@@ -226,8 +226,15 @@
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="topReferrersCount">0 comptes</span>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-[760px] w-full text-left">
+                    <div class="overflow-x-auto admin-table-shell">
+                        <table class="premium-table admin-data-table admin-referrals-top-table w-full text-left">
+                            <colgroup>
+                                <col class="admin-referrals-top-table__col-referrer">
+                                <col class="admin-referrals-top-table__col-code">
+                                <col class="admin-referrals-top-table__col-events">
+                                <col class="admin-referrals-top-table__col-rewards">
+                                <col class="admin-referrals-top-table__col-value">
+                            </colgroup>
                             <thead>
                                 <tr class="bg-gray-50/60">
                                     <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Parrain</th>
@@ -256,8 +263,16 @@
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="recentEventsCount">0 lignes</span>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-[980px] w-full text-left">
+                    <div class="overflow-x-auto admin-table-shell">
+                        <table class="premium-table admin-data-table admin-referrals-events-table w-full text-left">
+                            <colgroup>
+                                <col class="admin-referrals-events-table__col-code">
+                                <col class="admin-referrals-events-table__col-referrer">
+                                <col class="admin-referrals-events-table__col-referee">
+                                <col class="admin-referrals-events-table__col-status">
+                                <col class="admin-referrals-events-table__col-reward">
+                                <col class="admin-referrals-events-table__col-actions">
+                            </colgroup>
                             <thead>
                                 <tr class="bg-gray-50/60">
                                     <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Code</th>
@@ -410,11 +425,11 @@
                     return `
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="p-4">
-                                <div class="font-black text-gray-900">${escapeHtml(row.name || 'Utilisateur supprime')}</div>
-                                <div class="text-[10px] text-gray-400 font-bold">${escapeHtml(row.email || 'Sans email')}</div>
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.name || 'Utilisateur supprime')}">${escapeHtml(row.name || 'Utilisateur supprime')}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold" title="${escapeHtml(row.email || 'Sans email')}">${escapeHtml(row.email || 'Sans email')}</div>
                             </td>
                             <td class="p-4">
-                                <div class="font-black text-gray-900 break-all">${escapeHtml(row.referral_code || '-')}</div>
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.referral_code || '-')}">${escapeHtml(row.referral_code || '-')}</div>
                             </td>
                             <td class="p-4 font-black text-gray-900">${numberFormat(row.total_events || 0)}</td>
                             <td class="p-4">
@@ -452,16 +467,16 @@
                     return `
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="p-4">
-                                <div class="font-black text-gray-900 break-all">${escapeHtml(row.referral_code || '-')}</div>
-                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">${escapeHtml(row.source || 'signup')}</div>
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.referral_code || '-')}">${escapeHtml(row.referral_code || '-')}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest" title="${escapeHtml(row.source || 'signup')}">${escapeHtml(row.source || 'signup')}</div>
                             </td>
                             <td class="p-4">
-                                <div class="font-black text-gray-900">${escapeHtml(row.inviter?.name || 'Utilisateur supprime')}</div>
-                                <div class="text-[10px] text-gray-400 font-bold break-all">${escapeHtml(row.inviter?.email || 'Sans email')}</div>
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.inviter?.name || 'Utilisateur supprime')}">${escapeHtml(row.inviter?.name || 'Utilisateur supprime')}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold" title="${escapeHtml(row.inviter?.email || 'Sans email')}">${escapeHtml(row.inviter?.email || 'Sans email')}</div>
                             </td>
                             <td class="p-4">
-                                <div class="font-black text-gray-900">${escapeHtml(row.invitee?.name || 'Utilisateur supprime')}</div>
-                                <div class="text-[10px] text-gray-400 font-bold break-all">${escapeHtml(row.invitee?.email || 'Sans email')}</div>
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.invitee?.name || 'Utilisateur supprime')}">${escapeHtml(row.invitee?.name || 'Utilisateur supprime')}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold" title="${escapeHtml(row.invitee?.email || 'Sans email')}">${escapeHtml(row.invitee?.email || 'Sans email')}</div>
                             </td>
                             <td class="p-4">
                                 <span class="${meta.className}" data-status="${meta.status}">${meta.label}</span>

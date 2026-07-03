@@ -6,25 +6,16 @@ if (!window.ComponentLoader) {
  * Header HTML inlined to avoid CORS issues with file:// protocol.
  * When served via HTTP, fetch is used instead.
  */
-const CATEGORY_NAV_HTML = `
+const CATEGORY_NAV_HTML_TEMPLATE = `
         <!-- Category Nav -->
         <div id="categoryNav" class="category-nav newket-category-nav flex sm:block transition-all duration-300 ease-in-out transform origin-top border-b border-white/10">
             <div class="max-w-7xl mx-auto w-full px-4 sm:px-8">
-                <nav class="flex items-center gap-2 overflow-x-auto py-3 -mx-2 scroll-affordance" style="scrollbar-width:none;">
+                <nav id="categoryNavContainer" class="flex items-center gap-2 overflow-x-auto py-3 -mx-2 scroll-affordance" style="scrollbar-width:none;">
                     <a href="{{ROOT}}src/pages/catalog.html"
                         class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Toutes les pièces</a>
                     <a href="{{ROOT}}src/pages/shops.html"
                         class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Boutiques</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Femme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Femme</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Homme"
-                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Homme</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Tech & Gadgets"
-                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Tech & Gadgets</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=HIGH-TECH"
-                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">HIGH-TECH</a>
-                    <a href="{{ROOT}}src/pages/catalog.html?category=Art de vivre"
-                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Art de vivre</a>
+                    <!-- Dynamic Categories -->
                     <a href="{{ROOT}}src/pages/catalog.html?promo=true"
                         class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors flex items-center gap-1 shrink-0">
                         <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
@@ -88,11 +79,7 @@ const HEADER_HTML = `
                     <div id="mobileSearchCategoryNativeShell" class="mobile-search-category-shell">
                         <select id="mobileSearchCategorySelect" class="mobile-search-category-native" aria-label="Choisir une catégorie">
                             <option value="all">Tout</option>
-                            <option value="Femme">Femme</option>
-                            <option value="Homme">Homme</option>
-                            <option value="Tech & Gadgets">Tech</option>
-                            <option value="HIGH-TECH">HIGH-TECH</option>
-                            <option value="Art de vivre">Maison</option>
+                            <!-- Dynamic Categories -->
                         </select>
                     </div>
                     <div id="searchCategoryBtn" class="search-category-btn" title="Choisir une catégorie">
@@ -101,13 +88,9 @@ const HEADER_HTML = `
                         
                         <!-- Mini Dropdown for categories -->
                         <div id="searchCategoryMenu" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 z-[100] overflow-hidden">
-                            <div class="py-2">
+                            <div class="py-2" id="searchCategoryMenuList">
                                 <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="all">Tout</button>
-                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Femme">Femme</button>
-                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Homme">Homme</button>
-                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Tech & Gadgets">Tech</button>
-                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="HIGH-TECH">HIGH-TECH</button>
-                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="Art de vivre">Maison</button>
+                                <!-- Dynamic Categories -->
                             </div>
                         </div>
                     </div>
@@ -513,8 +496,28 @@ const ComponentLoader = {
             }
 
             if (catNavPlaceholder) {
+                // Fetch dynamic categories before loading nav
+                let dynamicCategoriesHTML = '';
+                try {
+                    const apiBase = window.API_BASE || '/api';
+                    const response = await fetch(`${apiBase}/products/categories/ranked`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success && data.categories) {
+                            dynamicCategoriesHTML = data.categories.map(c => `
+                                <a href="{{ROOT}}src/pages/catalog.html?category=${encodeURIComponent(c.category)}"
+                                    class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">${c.category}</a>
+                            `).join('');
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch dynamic categories:', e);
+                }
+                
+                const finalCategoryNavHTML = CATEGORY_NAV_HTML_TEMPLATE.replace('<!-- Dynamic Categories -->', dynamicCategoriesHTML);
+
                 componentsToLoad.push(
-                    this.loadComponent('category-nav-placeholder', '', CATEGORY_NAV_HTML)
+                    this.loadComponent('category-nav-placeholder', '', finalCategoryNavHTML)
                 );
             }
         }
@@ -542,6 +545,7 @@ const ComponentLoader = {
         }
 
         await Promise.all(componentsToLoad);
+        this.loadSearchCategories();
         this.bindGlobalActions();
         this.applyConfiguredSocialLinks();
         window.addEventListener('configUpdated', () => this.applyConfiguredSocialLinks());
@@ -582,6 +586,13 @@ const ComponentLoader = {
         if (!window.CartManager) {
             const script = document.createElement('script');
             script.src = this.getAdjustedPath('/js/cart.js');
+            document.head.appendChild(script);
+        }
+
+        // Load Cookie Consent globally
+        if (!window.cookieConsent) {
+            const script = document.createElement('script');
+            script.src = this.getAdjustedPath('src/services/cookie-consent.js');
             document.head.appendChild(script);
         }
 
@@ -681,7 +692,48 @@ const ComponentLoader = {
      * Moves the category nav inside the fixed header so the header + category nav behave like one block.
      * This avoids visible gaps from shadows/rounding differences on light pages.
      */
+    async loadSearchCategories() {
+        try {
+            const apiBase = window.API_BASE || '/api';
+            const response = await fetch(`${apiBase}/products/categories/ranked`);
+            if (!response.ok) return;
+            const data = await response.json();
+            if (!data.success || !data.categories) return;
+
+            const select = document.getElementById('mobileSearchCategorySelect');
+            const menuList = document.getElementById('searchCategoryMenuList');
+
+            if (select) {
+                select.innerHTML = '<option value="all">Tout</option>';
+                data.categories.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.category;
+                    option.textContent = c.category;
+                    select.appendChild(option);
+                });
+            }
+
+            if (menuList) {
+                menuList.innerHTML = '<button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="all">Tout</button>';
+                data.categories.forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900';
+                    btn.dataset.value = c.category;
+                    btn.textContent = c.category;
+                    menuList.appendChild(btn);
+                });
+            }
+        } catch (e) {
+            console.error('Failed to load search categories:', e);
+        }
+    },
+
     attachCategoryNavToHeader() {
+        const catNav = document.getElementById('categoryNav');
+        const searchContainer = document.getElementById('mobileSearchContainer');
+        if (catNav && searchContainer) {
+            // Nothing to do for now, handled via layout
+        }
         const header = document.querySelector('.main-header');
         const nav = document.getElementById('categoryNav');
         if (!header || !nav) return;

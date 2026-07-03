@@ -882,7 +882,7 @@
                         <button id="btnOpenDispute" type="button"
                             class="hidden flex-1 py-3 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon>
-                            Signaler un litige
+                            Signaler un problème
                         </button>
                     </div>
                 </div>
@@ -2496,10 +2496,8 @@
                             </div>
 
                             ${timelineHTML ? `
-                                <div class="mb-2">
-                                    <div class="grid grid-cols-1 sm:grid-cols-5 gap-1">
-                                        ${timelineHTML}
-                                    </div>
+                                <div class="mb-3 mt-1 overflow-x-auto scrollbar-none pb-1">
+                                    ${timelineHTML}
                                 </div>
                             ` : ''}
 
@@ -3293,6 +3291,7 @@
                 btnPayOrder.classList.remove('hidden');
             } else if (order.status === 'PAID_HELD') {
                 escrowSection.classList.remove('hidden');
+                btnDispute.classList.remove('hidden');
             } else if (order.status === 'DELIVERED') {
                 escrowSection.classList.remove('hidden');
                 btnValidate.classList.remove('hidden');
@@ -3319,6 +3318,7 @@
             } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
                 escrowSection.classList.remove('hidden');
                 otpSection.classList.remove('hidden');
+                btnDispute.classList.remove('hidden');
                 document.getElementById('otpValue').textContent = order.otp_code || '------';
                 if (otpHintEl) {
                     otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÈS avoir reçu et vérifié le produit.";
