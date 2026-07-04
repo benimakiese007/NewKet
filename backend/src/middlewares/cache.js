@@ -1,7 +1,7 @@
 import NodeCache from 'node-cache';
 import crypto from 'crypto';
 
-const ENABLE_MEMORY_CACHE = String(process.env.ENABLE_MEMORY_CACHE || '').toLowerCase() === '1';
+const ENABLE_MEMORY_CACHE = String(process.env.ENABLE_MEMORY_CACHE || '1').toLowerCase() === '1';
 
 // Keep cache small-medium: items expire after 60s by default, check every 120s for expired items.
 // NOTE: Memory cache is not shared across instances. Keep it opt-in via ENABLE_MEMORY_CACHE=1.

@@ -54,24 +54,30 @@ async function restoreStockIfNeeded(order) {
     if (!order?.stock_deducted_at) return;
 
     const items = order?.items || [];
-    for (const item of items) {
-        if (!item?.product_id) continue;
-        try {
-            const { data: product } = await client
-                .from('products')
-                .select('stock')
-                .eq('id', item.product_id)
-                .single();
+    const validItems = items.filter(i => i?.product_id);
+    if (validItems.length === 0) return;
 
-            if (product && product.stock !== undefined) {
-                await client
-                    .from('products')
-                    .update({ stock: product.stock + (item.quantity || 1) })
-                    .eq('id', item.product_id);
-            }
-        } catch (error) {
-            console.error('[Order] Stock restore error:', error.message);
-        }
+    try {
+        const productIds = validItems.map(i => i.product_id);
+        const { data: products } = await client
+            .from('products')
+            .select('id, stock')
+            .in('id', productIds);
+
+        if (!products || products.length === 0) return;
+
+        const updates = products.map(product => {
+            const item = validItems.find(i => i.product_id === product.id);
+            if (!item || product.stock === undefined || product.stock === null) return null;
+            return client
+                .from('products')
+                .update({ stock: product.stock + (item.quantity || 1) })
+                .eq('id', product.id);
+        }).filter(Boolean);
+
+        await Promise.allSettled(updates);
+    } catch (error) {
+        console.error('[Order] Stock restore error:', error.message);
     }
 }
 
