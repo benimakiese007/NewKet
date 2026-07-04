@@ -357,6 +357,36 @@ export const createDispute = async (req, res) => {
         }
 
         const normalizedEvidence = normalizeEvidence(evidence);
+
+        // --- Validation preuves ---
+        const photoItems = normalizedEvidence.filter((item) => item.kind === 'photo');
+        const videoLinkItems = normalizedEvidence.filter((item) => item.kind === 'video_link');
+
+        if (photoItems.length < 2) {
+            return res.status(400).json({
+                success: false,
+                message: 'Minimum 2 photos requises pour ouvrir un litige.',
+                required_min: 2,
+                provided: photoItems.length
+            });
+        }
+
+        if (photoItems.length > 5) {
+            return res.status(400).json({
+                success: false,
+                message: 'Maximum 5 photos autorisées.',
+                required_max: 5,
+                provided: photoItems.length
+            });
+        }
+
+        // Valider les liens vidéo externes (URL simple)
+        for (const vl of videoLinkItems) {
+            try { new URL(vl.url); } catch {
+                return res.status(400).json({ success: false, message: 'Le lien vidéo fourni n\'est pas une URL valide.' });
+            }
+        }
+
         const abuseCheck = await detectDisputeAbuse(customerId);
         const initialStatus = abuseCheck.directReview ? DISPUTE_STATUSES.UNDER_REVIEW : DISPUTE_STATUSES.OPEN;
         const createdAt = new Date().toISOString();

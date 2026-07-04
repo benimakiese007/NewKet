@@ -159,7 +159,7 @@
                             </div>
                             <span id="productOldPrice" class="hidden old-price old-price-large text-sm sm:text-base font-semibold text-gray-400"></span>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
                             <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Disponibilite</div>
                                 <div id="productAvailability" class="mt-2 text-sm font-black text-gray-900">...</div>
@@ -168,6 +168,14 @@
                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Livraison</div>
                                 <div id="productDeliveryInfo" class="mt-2 text-sm font-black text-gray-900">...</div>
                                 <div class="mt-1 text-xs text-gray-500 font-semibold">Les frais peuvent dependre du lieu et du devis.</div>
+                            </div>
+                            <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+                                <div class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                                    <iconify-icon icon="solar:shield-check-bold" class="text-sm"></iconify-icon>
+                                    Garantie Acheteur
+                                </div>
+                                <div id="productGuarantee" class="mt-2 text-sm font-black text-emerald-700">...</div>
+                                <div class="mt-1 text-xs text-emerald-500 font-semibold">Protection NewKet après réception</div>
                             </div>
                         </div>
                         <p id="productDescription" class="text-sm leading-relaxed text-gray-500 font-medium mb-10 max-w-md">...</p>
@@ -393,6 +401,18 @@
             if (deliveryEl) {
                 const ship = vendor.shipping_time || '24h';
                 deliveryEl.textContent = `Estimation: ${ship} (devis possible)`;
+            }
+
+            // --- Badge Garantie Acheteur ---
+            const guaranteeEl = document.getElementById('productGuarantee');
+            if (guaranteeEl) {
+                const hours = Number(p.escrow_timer_hours || p.dispute_window_hours || 24);
+                let label = '24 Heures';
+                if (hours >= 168) label = '7 Jours ⭐';
+                else if (hours >= 72) label = '72 Heures';
+                else if (hours >= 48) label = '48 Heures';
+                else label = '24 Heures';
+                guaranteeEl.textContent = label;
             }
 
             const orderBtn = document.getElementById('mainOrderBtn');
