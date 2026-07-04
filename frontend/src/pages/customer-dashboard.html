@@ -869,7 +869,7 @@
                             <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
                             Refuser le devis
                         </button>
-                        <button id="btnPayOrder" type="button" onclick="handlePayOrder()"
+                        <button id="btnPayOrder" type="button"
                             class="hidden flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:card-send-linear" width="20"></iconify-icon>
                             Passer au paiement
@@ -1124,7 +1124,11 @@
 
             document.getElementById('btnAcceptQuote')?.addEventListener('click', handleAcceptQuote);
             document.getElementById('btnRejectQuote')?.addEventListener('click', handleRejectQuote);
-            document.getElementById('btnPayOrder')?.addEventListener('click', () => window.handlePayOrder && window.handlePayOrder());
+            const btnPayOrderEl = document.getElementById('btnPayOrder');
+            if (btnPayOrderEl && btnPayOrderEl.dataset.bound !== 'true') {
+                btnPayOrderEl.addEventListener('click', () => window.handlePayOrder && window.handlePayOrder());
+                btnPayOrderEl.dataset.bound = 'true';
+            }
             document.getElementById('btnValidateDelivery')?.addEventListener('click', handleValidateDelivery);
             document.getElementById('btnOpenDispute')?.addEventListener('click', showDisputeModal);
             document.getElementById('btnSendDisputeMessage')?.addEventListener('click', () => {
