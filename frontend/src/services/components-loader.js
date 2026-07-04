@@ -613,7 +613,7 @@ const ComponentLoader = {
         // Load Cookie Consent globally
         if (!window.cookieConsent) {
             const script = document.createElement('script');
-            script.src = this.getAdjustedPath('src/services/cookie-consent.js');
+            script.src = this.getAdjustedPath('/js/cookie-consent.js');
             document.head.appendChild(script);
         }
 
