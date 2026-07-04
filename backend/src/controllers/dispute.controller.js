@@ -868,7 +868,7 @@ export const getDisputeMessages = async (req, res) => {
 
         const { data, error } = await supabaseAdmin
             .from('dispute_messages')
-            .select('*, users (name, avatar_url)')
+            .select('*, users (name, avatar)')
             .eq('dispute_id', id)
             .order('created_at', { ascending: true });
 
