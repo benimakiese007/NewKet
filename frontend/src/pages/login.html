@@ -43,7 +43,7 @@
 
         .floating-input:focus-within label,
         .floating-input input:not(:placeholder-shown)+label {
-            transform: translateY(-12px) scale(0.75);
+            transform: translateY(-14px) scale(0.75);
             font-weight: 800;
             color: #000;
         }
@@ -279,9 +279,9 @@
                         <!-- Email Input -->
                         <div id="emailContainer" class="relative floating-input animate-item">
                             <input type="email" id="email" name="email" required placeholder=" " autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"
-                                class="peer w-full h-14 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-5 pb-1 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
+                                class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="email"
-                                class="absolute left-5 top-4.5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Adresse
+                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Adresse
                                 email</label>
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 flex items-center justify-center">
                                 <iconify-icon icon="solar:letter-bold-duotone" width="20" id="emailDefaultIcon"></iconify-icon>
@@ -291,9 +291,9 @@
                         <!-- Password Input -->
                         <div class="relative floating-input animate-item">
                             <input type="password" id="password" name="password" required placeholder=" " autocomplete="current-password"
-                                class="peer w-full h-14 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl pl-5 pr-12 pt-5 pb-1 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
+                                class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl pl-5 pr-12 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="password"
-                                class="absolute left-5 top-4.5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Mot
+                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Mot
                                 de passe</label>
                             <button type="button" id="togglePassword" data-track-action="auth_login:toggle_password_click"
                                 class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors focus:outline-none">
@@ -316,9 +316,9 @@
                         <!-- Confirm Password Input (Signup Only) -->
                         <div id="confirmPasswordContainer" class="hidden relative floating-input animate-item">
                             <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" " autocomplete="new-password"
-                                class="peer w-full h-14 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl pl-5 pr-12 pt-5 pb-1 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
+                                class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl pl-5 pr-12 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="confirmPassword"
-                                class="absolute left-5 top-4.5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Confirmer
+                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Confirmer
                                 le mot de passe</label>
                         </div>
 
@@ -1137,7 +1137,7 @@
                 input.classList.remove('border-transparent');
                 if (!errorSpan) {
                     errorSpan = document.createElement('span');
-                    errorSpan.className = 'inline-error text-red-500 text-[10px] font-bold absolute -bottom-5 left-2';
+                    errorSpan.className = 'inline-error text-red-500 text-[10px] font-bold block mt-1 ml-2';
                     input.parentNode.appendChild(errorSpan);
                 }
                 errorSpan.textContent = errorMsg;

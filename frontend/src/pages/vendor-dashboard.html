@@ -271,9 +271,6 @@
                 <div class="glass-panel p-4 sm:p-8 min-w-0 xl:col-span-2">
                     <div class="flex items-center justify-between mb-4 sm:mb-6 vendor-card-header">
                         <h3 class="font-bold text-gray-900">Intérêt pour vos produits</h3>
-                        <div
-                            class="text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md">
-                            Netikash</div>
                     </div>
                     <div class="vendor-chart-shell" style="position:relative; width:100%; height:clamp(180px, 30vw, 320px);">
                         <div id="vendorSalesChartSkeleton" class="absolute inset-0 rounded-2xl skeleton skeleton-shimmer"></div>
@@ -1919,7 +1916,7 @@
                     });
                 })();
 
-                document.addEventListener('DOMContentLoaded', () => {
+                const initVendorDashboardDOM = () => {
                     // In Vite dev/HMR, inline scripts can be evaluated multiple times.
                     // Prevent duplicate listeners which cause 3x tab switching + extra renders.
                     if (window.__newketVendorDashboardDomBound) return;
@@ -1950,7 +1947,7 @@
                     const _fetchVendorProductsSafe = () => {
                         const email = localStorage.getItem('newketUserEmail');
                         const userId = localStorage.getItem('newketUserId');
-                        if (window.ProductManager && typeof ProductManager.fetchVendorProducts === 'function') {
+                        if (window.ProductManager && typeof ProductManager.fetchVendorProducts === 'function' && window.SupabaseAdapter && window.supabaseClient) {
                             ProductManager.fetchVendorProducts(userId, email).then(() => {
                                 window.__newketVendorProductsReady = true;
                                 if (typeof scheduleRerender === 'function') scheduleRerender();
@@ -1959,13 +1956,13 @@
                                 if (typeof scheduleRerender === 'function') scheduleRerender();
                             });
                         } else {
-                            // ProductManager pas encore chargé — réessayer dans 500ms (max 3 fois)
+                            // ProductManager pas encore chargé — réessayer dans 500ms (max 10 fois)
                             if (!_fetchVendorProductsSafe._retries) _fetchVendorProductsSafe._retries = 0;
                             _fetchVendorProductsSafe._retries++;
-                            if (_fetchVendorProductsSafe._retries < 4) {
+                            if (_fetchVendorProductsSafe._retries < 10) {
                                 setTimeout(_fetchVendorProductsSafe, 500);
                             } else {
-                                // Après 3 tentatives, forcer l'arrêt du skeleton pour ne pas bloquer l'UI
+                                // Après 10 tentatives, forcer l'arrêt du skeleton pour ne pas bloquer l'UI
                                 window.__newketVendorProductsReady = true;
                                 if (typeof scheduleRerender === 'function') scheduleRerender();
                             }
@@ -2896,7 +2893,13 @@
 
                     // Listened to updates previously
 
-                });
+                };
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initVendorDashboardDOM);
+                } else {
+                    initVendorDashboardDOM();
+                }
 
                 window.vendorPromoState = {
                     promos: [],

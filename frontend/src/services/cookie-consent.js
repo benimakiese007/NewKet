@@ -32,6 +32,11 @@ class CookieConsent {
         // Vérifier si le consentement a déjà été donné
         const hasConsent = localStorage.getItem(this.consentKey);
         
+        // Ne pas afficher la modale sur la page de politique de confidentialité
+        if (window.location.pathname.includes('privacy.html')) {
+            return;
+        }
+
         if (!hasConsent) {
             // Attendre que le DOM soit chargé
             if (document.readyState === 'loading') {
