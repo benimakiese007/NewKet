@@ -617,7 +617,10 @@ export function buildProductCardHTML(p, options = {}) {
 
     // Handle image (could be comma separated) — optimize first image for thumbnails
     const images = (p.image || '').split(',');
-    const rawImg = images[0].trim() || 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    let rawImg = images[0].trim() || 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    if (rawImg.toLowerCase() === '/images/placeholder.png') {
+        rawImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    }
     const mainImg = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(rawImg, { width: 320, quality: 75 }) : rawImg;
     const mainImgSrcSet = window.buildResponsiveImageSrcSet
         ? buildResponsiveImageSrcSet(rawImg, prioritizeImage ? [320, 480, 640] : [240, 320, 480], { quality: 75 })
