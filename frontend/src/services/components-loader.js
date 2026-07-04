@@ -10,17 +10,37 @@ const CATEGORY_NAV_HTML_TEMPLATE = `
         <!-- Category Nav -->
         <div id="categoryNav" class="category-nav newket-category-nav flex sm:block transition-all duration-300 ease-in-out transform origin-top border-b border-white/10">
             <div class="max-w-7xl mx-auto w-full px-4 sm:px-8">
-                <nav id="categoryNavContainer" class="flex items-center gap-2 overflow-x-auto py-3 -mx-2 scroll-affordance" style="scrollbar-width:none;">
-                    <a href="{{ROOT}}src/pages/catalog.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Toutes les pièces</a>
-                    <a href="{{ROOT}}src/pages/shops.html"
-                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Boutiques</a>
-                    <!-- Dynamic Categories -->
-                    <a href="{{ROOT}}src/pages/catalog.html?promo=true"
-                        class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors flex items-center gap-1 shrink-0">
-                        <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
-                    </a>
-                </nav>
+                <div class="relative">
+                    <!-- Scroll left button (hidden at start) -->
+                    <button id="catNavScrollLeft"
+                        class="hidden absolute left-0 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-all shrink-0 border border-white/10"
+                        aria-label="Défiler à gauche">
+                        <iconify-icon icon="solar:alt-arrow-left-bold" width="14"></iconify-icon>
+                    </button>
+                    <!-- Left fade gradient (hidden at start) -->
+                    <div id="catNavFadeLeft" class="hidden absolute left-0 top-0 bottom-0 w-14 bg-gradient-to-r from-[#0A4A2E] to-transparent z-10 pointer-events-none"></div>
+
+                    <nav id="categoryNavContainer" class="flex items-center gap-2 overflow-x-auto py-3 scroll-smooth" style="scrollbar-width:none; -webkit-overflow-scrolling:touch;">
+                        <a href="{{ROOT}}src/pages/catalog.html"
+                            class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Toutes les pièces</a>
+                        <a href="{{ROOT}}src/pages/shops.html"
+                            class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Boutiques</a>
+                        <!-- Dynamic Categories -->
+                        <a href="{{ROOT}}src/pages/catalog.html?promo=true"
+                            class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors flex items-center gap-1 shrink-0">
+                            <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
+                        </a>
+                    </nav>
+
+                    <!-- Right fade gradient -->
+                    <div id="catNavFadeRight" class="absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-[#0A4A2E] to-transparent z-10 pointer-events-none"></div>
+                    <!-- Scroll right button -->
+                    <button id="catNavScrollRight"
+                        class="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-all shrink-0 border border-white/10"
+                        aria-label="Défiler à droite">
+                        <iconify-icon icon="solar:alt-arrow-right-bold" width="14"></iconify-icon>
+                    </button>
+                </div>
             </div>
         </div>`;
 
@@ -550,6 +570,7 @@ const ComponentLoader = {
         this.applyConfiguredSocialLinks();
         window.addEventListener('configUpdated', () => this.applyConfiguredSocialLinks());
         this.attachCategoryNavToHeader();
+        this.initCategoryNavScroll();
 
         // Disabled auto‑move of #categoryNav into the fixed header so it scrolls separately.
         // regardless of whether the page provides a dedicated placeholder.
@@ -600,6 +621,39 @@ const ComponentLoader = {
         this.initMobileSearchToggle();
 
         setTimeout(() => this.setupHeaderSpacing(), 50);
+    },
+
+    initCategoryNavScroll() {
+        const nav = document.getElementById('categoryNavContainer');
+        const btnLeft = document.getElementById('catNavScrollLeft');
+        const btnRight = document.getElementById('catNavScrollRight');
+        const fadeLeft = document.getElementById('catNavFadeLeft');
+        const fadeRight = document.getElementById('catNavFadeRight');
+
+        if (!nav || !btnLeft || !btnRight) return;
+
+        const SCROLL_STEP = 220;
+
+        const refresh = () => {
+            const canScrollLeft = nav.scrollLeft > 4;
+            const canScrollRight = nav.scrollLeft < nav.scrollWidth - nav.clientWidth - 4;
+            const hasOverflow = nav.scrollWidth > nav.clientWidth;
+
+            // Show/hide arrows only when there's overflow
+            btnLeft.classList.toggle('hidden', !hasOverflow || !canScrollLeft);
+            btnRight.classList.toggle('hidden', !hasOverflow || !canScrollRight);
+            if (fadeLeft) fadeLeft.classList.toggle('hidden', !hasOverflow || !canScrollLeft);
+            if (fadeRight) fadeRight.classList.toggle('hidden', !hasOverflow || !canScrollRight);
+        };
+
+        btnLeft.addEventListener('click', () => nav.scrollBy({ left: -SCROLL_STEP, behavior: 'smooth' }));
+        btnRight.addEventListener('click', () => nav.scrollBy({ left: SCROLL_STEP, behavior: 'smooth' }));
+        nav.addEventListener('scroll', refresh, { passive: true });
+        window.addEventListener('resize', refresh, { passive: true });
+
+        // Run after icons are likely rendered
+        refresh();
+        setTimeout(refresh, 600);
     },
 
     initMobileSearchToggle() {

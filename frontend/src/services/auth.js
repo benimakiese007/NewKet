@@ -578,15 +578,9 @@ const AuthManager = {
 
     checkWelcomeBonus() {
         if (localStorage.getItem('newketWelcomeBonus') === 'true') {
-            if (typeof showToast === 'function') {
-                showToast('Bienvenue ! Profitez de -5% avec le code BIENVENUE', 'success');
-            }
             localStorage.removeItem('newketWelcomeBonus');
         }
         if (localStorage.getItem('newketSupplierBonus') === 'true') {
-            if (typeof showToast === 'function') {
-                showToast('Bienvenue ! Profitez de la marketplace NewKet.', 'success');
-            }
             localStorage.removeItem('newketSupplierBonus');
         }
     },
@@ -702,9 +696,6 @@ const AuthManager = {
         console.warn(`[NewKet Auth] Logout triggered. Reason: ${reason}`);
         
         // --- 1. Immediate UI Feedback ---
-        if (typeof showToast === 'function') {
-            showToast('Déconnexion réussie. À bientôt !', 'success');
-        }
 
         // --- 2. Clean Up Internal State & Storage ---
         // Do this immediately so even if redirect fails, the user is locally logged out.
@@ -1017,13 +1008,23 @@ const AuthManager = {
         }
 
         if (this.role === 'admin') {
-            // Admin has access to everything
-            document.querySelectorAll('.publish-btn, .supplier-only, .admin-only').forEach(el => {
+            // L'admin peut voir les éléments spécifiques admin et fournisseur (sauf publication)
+            document.querySelectorAll('.admin-only, .supplier-only').forEach(el => {
                 el.style.display = '';
             });
+            
+            // On cache explicitement les boutons de publication pour l'admin
+            document.querySelectorAll('.publish-btn').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // On cache explicitement les boutons d'achat / panier pour l'admin
+            document.querySelectorAll('#mainOrderBtn, .add-to-cart-btn, #floatingOrderBtn, .cart-icon, .checkout-btn').forEach(el => {
+                el.style.display = 'none';
+            });
 
-            // Safeguard: Redirect admin away from supplier-only pages (onboarding) if landed there by error
-            if (window.location.pathname.includes('seller-onboarding')) {
+            // Sauvegarde : Rediriger l'admin loin des pages exclusives aux fournisseurs (onboarding) ou de checkout
+            if (window.location.pathname.includes('seller-onboarding') || window.location.pathname.includes('achat.html')) {
                 window.location.href = window.resolvePath('admin/');
                 return;
             }

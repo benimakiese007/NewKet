@@ -971,10 +971,21 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
 
 /* Height overrides removed; aspect-ratio handles responsive sizing */
 
-@media (max-width: 1024px) {
-    .vendor-charts-grid {
-        grid-template-columns: 1fr;
-    }
+/* Vendor Charts Grid — toujours en colonne unique : Intérêt → Commandes → Activités */
+.vendor-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    width: 100%;
+    align-items: start;
+    overflow-x: hidden;
+}
+
+.vendor-chart-panel,
+.vendor-orders-panel,
+.vendor-activity-panel {
+    width: 100%;
+    min-width: 0;
 }
 
 @media (max-width: 640px) {

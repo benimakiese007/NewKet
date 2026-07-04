@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getSettings, saveSettings } from '../controllers/settings.controller.js';
+import { getSettings, saveSettings, requestTransactionResetOTP, verifyTransactionResetOTP } from '../controllers/settings.controller.js';
 import { requireAuth, requireAdmin, optionalAuth } from '../middlewares/auth.js';
 
 import { body } from 'express-validator';
@@ -22,5 +22,9 @@ router.put('/',
     ],
     saveSettings
 );
+
+// Danger Zone: Transaction Reset
+router.post('/reset-transactions/request-otp', requireAuth, requireAdmin, requestTransactionResetOTP);
+router.post('/reset-transactions/verify', requireAuth, requireAdmin, verifyTransactionResetOTP);
 
 export default router;

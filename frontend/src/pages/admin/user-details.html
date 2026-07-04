@@ -381,6 +381,10 @@
                 
                 const db = document.getElementById('dataBody');
                 if (db) db.innerHTML = "";
+                
+                const dataTable = document.getElementById('dataTable');
+                if (dataTable && dataTable.parentElement) dataTable.parentElement.classList.add('hidden');
+
                 const feed = document.getElementById('activityFeed');
                 if (feed) feed.innerHTML = "";
             }
@@ -452,9 +456,14 @@
 
             const tbody = document.getElementById('dataBody');
             if (orders.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('dataTable').parentElement.classList.add('hidden');
                 document.getElementById('emptyState').classList.remove('hidden');
                 return;
             }
+
+            document.getElementById('dataTable').parentElement.classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
 
             tbody.innerHTML = orders.map(o => `
                 <tr class="hover:bg-gray-50 transition-colors">
@@ -580,8 +589,12 @@
 
             const tbody = document.getElementById('dataBody');
             if (supplierRevenueOrders.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('dataTable').parentElement.classList.add('hidden');
                 document.getElementById('emptyState').classList.remove('hidden');
             } else {
+                document.getElementById('dataTable').parentElement.classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
                 tbody.innerHTML = supplierRevenueOrders.map(o => {
                     const mine = (o.items || []).filter(item => products.some(p => p.id === item.id));
                     const subtotal = mine.reduce((s, it) => s + (it.price * it.quantity), 0);

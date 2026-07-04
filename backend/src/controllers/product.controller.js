@@ -326,30 +326,31 @@ export const getRankedCategories = async (req, res) => {
         let { data, error } = await supabase
             .from('ranked_categories')
             .select('*')
-            .limit(10);
+            .limit(8);
             
-        if (error) {
-            // Fallback if view doesn't exist yet: get distinct categories with a simple query
-            console.warn('⚠️ ranked_categories view might not exist yet, falling back to products query', error);
+        if (error || !data || data.length === 0) {
+            // Fallback if view doesn't exist yet or is empty: get distinct categories directly
+            if (error) console.warn('⚠️ ranked_categories view error, falling back to products query', error);
+            else console.info('ℹ️ ranked_categories view is empty, falling back to products query');
+
             const { data: rawData, error: rawError } = await supabase
                 .from('products')
                 .select('category')
-                .eq('status', 'active')
-                .neq('category', null)
+                .not('category', 'is', null)
                 .neq('category', '');
                 
             if (rawError) throw rawError;
             
             // In-memory grouping as fallback
             const counts = {};
-            rawData.forEach(p => {
-                counts[p.category] = (counts[p.category] || 0) + 1;
+            (rawData || []).forEach(p => {
+                if (p.category) counts[p.category] = (counts[p.category] || 0) + 1;
             });
             
             data = Object.keys(counts)
                 .map(c => ({ category: c, product_count: counts[c], total_views: 0 }))
                 .sort((a, b) => b.product_count - a.product_count)
-                .slice(0, 10);
+                .slice(0, 8);
         }
 
         res.json({ success: true, categories: data || [] });

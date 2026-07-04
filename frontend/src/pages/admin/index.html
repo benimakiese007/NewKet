@@ -580,7 +580,8 @@
                 const funnelBar = document.getElementById('funnelBar');
                 if (funnelBar) funnelBar.style.width = Math.min(funnelRatio, 100) + '%';
                 
-                setTextIfPresent('statsNetSales', products.length);
+                const totalActiveProducts = typeof ProductManager.getTotalCount === 'function' ? Math.max(ProductManager.getTotalCount(), products.length) : products.length;
+                setTextIfPresent('statsNetSales', totalActiveProducts);
                 // Charts
                 initCharts(filteredLeads, currentTimeframe, currentDateRange);
                 
@@ -1052,13 +1053,20 @@
                 return;
             }
 
+            const defaultColors = ['#000000', '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#14B8A6', '#3B82F6', '#D946EF', '#EAB308', '#64748B'];
+            const dynamicColors = labels.map((_, index) => {
+                if (index < defaultColors.length) return defaultColors[index];
+                const hue = (index * 137.508) % 360;
+                return `hsl(${hue}, 70%, 50%)`;
+            });
+
             currentCharts.category = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: labels,
                     datasets: [{
                         data: data,
-                        backgroundColor: ['#000000', '#4F46E5', '#10B981', '#F59E0B', '#EF4444'],
+                        backgroundColor: dynamicColors,
                         borderWidth: 0,
                         hoverOffset: 4
                     }]

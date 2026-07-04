@@ -142,6 +142,32 @@ const EmailService = {
             </div>
         `;
         return this.sendMail({ to: adminEmail, subject: `⚠️ URGENT : Nouveau Litige [Cmd: ${orderId.substring(0,8)}]`, html });
+    },
+
+    /**
+     * Template: Admin OTP Verification
+     */
+    async sendAdminOTP(adminEmail, otpCode) {
+        const html = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="color: #000; margin: 0;">NewKet</h1>
+                    <p style="color: #dc2626; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 2px;">Vérification de Sécurité</p>
+                </div>
+                <div style="padding: 20px; background-color: #fef2f2; border: 1px dashed #ef4444; border-radius: 15px; text-align: center;">
+                    <h2 style="color: #b91c1c; margin-top: 0;">Action Critique ⚠️</h2>
+                    <p style="color: #333;">Vous avez demandé à effectuer une action critique sur le tableau de bord administrateur (ex: Réinitialisation des transactions).</p>
+                    <p style="color: #333;">Voici votre code de vérification, valable 5 minutes :</p>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px; margin: 25px 0;">
+                        <h1 style="margin: 0; font-size: 32px; letter-spacing: 5px; color: #000;">${otpCode}</h1>
+                    </div>
+
+                    <p style="color: #b91c1c; font-size: 13px; font-weight: bold;">Ne partagez ce code avec personne.</p>
+                </div>
+            </div>
+        `;
+        return this.sendMail({ to: adminEmail, subject: `⚠️ Code de vérification administrateur: ${otpCode}`, html });
     }
 };
 

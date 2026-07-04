@@ -263,21 +263,6 @@
                                 </div>
                             </label>
                         </div>
-
-                        <!-- Database Reset -->
-                        <div class="p-6 bg-red-50 rounded-[2rem] border border-red-100 flex flex-col gap-4">
-                            <div>
-                                <h4 class="font-black text-red-600 text-sm">Zone Critique</h4>
-                                <p class="text-[10px] text-red-400 font-bold uppercase tracking-tight mt-1 leading-relaxed">
-                                    Réinitialisation permanente des commandes et activités. Action irréversible.
-                                </p>
-                            </div>
-                            <button id="resetTestDataBtn" data-track-action="admin_settings:reset_test_data_click"
-                                class="w-full bg-red-600 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl shadow-red-500/20 hover:bg-red-700 transition-all flex items-center justify-center gap-2">
-                                <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
-                                Effacer les données de test
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -416,41 +401,6 @@
             }
         });
 
-        document.getElementById('resetTestDataBtn').addEventListener('click', () => {
-            if (typeof showPasswordConfirm === 'function') {
-                showPasswordConfirm(
-                    "Action Critique",
-                    "Cette opération supprimera TOUTES les commandes et activités de test. Confirmez avec le mot de passe maître.",
-                    async () => {
-                        window.LoaderManager.show('Purge des données...');
-                        try {
-                            const orders = await window.SupabaseAdapter.fetch('orders');
-                            for (let order of orders) {
-                                await window.SupabaseAdapter.delete('orders', order.id);
-                            }
-
-                            const activities = await window.SupabaseAdapter.fetch('activities');
-                            for (let activity of activities) {
-                                await window.SupabaseAdapter.delete('activities', activity.id);
-                            }
-
-                            window.LoaderManager.hide();
-                            if (typeof showToast === 'function') {
-                                showToast("Base de données nettoyée.", "success");
-                            }
-                            setTimeout(() => location.reload(), 1500);
-                        } catch (e) {
-                            console.error(e);
-                            window.LoaderManager.hide();
-                            if (typeof showToast === 'function') {
-                                showToast("échec de la réinitialisation.", "error");
-                            }
-                        }
-                    }
-                );
-            }
-        });
-
         document.getElementById('maintenanceMode').addEventListener('change', async (e) => {
             if (window.ConfigManager) {
                 const config = ConfigManager.getConfig();
@@ -502,9 +452,6 @@
             }
         });
     </script>
-</body>
-
-</html>
 
 
 
