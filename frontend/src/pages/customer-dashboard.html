@@ -3500,14 +3500,101 @@
         };
 
         // ========================== GESTION DES LITIGES ==========================
+
+        // --- État local photos litige ---
+        let disputePhotoFiles = []; // Array de { file, previewUrl }
+
+        function _updateDisputePhotoUI() {
+            const count = disputePhotoFiles.length;
+            const countEl = document.getElementById('disputePhotoCount');
+            const previewGrid = document.getElementById('disputePhotoPreview');
+            const progressBar = document.getElementById('disputePhotoProgressBar');
+            const progressLabel = document.getElementById('disputePhotoProgressLabel');
+            const progressFill = document.getElementById('disputePhotoProgressFill');
+            const dropzone = document.getElementById('disputePhotoDropzone');
+
+            if (countEl) {
+                countEl.textContent = `${count} / 5`;
+                countEl.className = `text-xs font-bold px-2.5 py-1 rounded-full ${
+                    count >= 2 ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-600'
+                }`;
+            }
+
+            // Masquer dropzone si 5 photos
+            if (dropzone) dropzone.style.display = count >= 5 ? 'none' : 'block';
+
+            // Barre progression
+            if (progressBar) progressBar.classList.toggle('hidden', count === 0);
+            if (progressLabel) progressLabel.textContent = `${count}/2 photos minimum`;
+            if (progressFill) progressFill.style.width = `${Math.min(100, (count / 2) * 100)}%`;
+            if (progressFill) progressFill.className = `h-full rounded-full transition-all duration-300 ${
+                count >= 2 ? 'bg-emerald-500' : 'bg-indigo-500'
+            }`;
+
+            // Aperçu miniatures
+            if (!previewGrid) return;
+            if (count === 0) { previewGrid.classList.add('hidden'); previewGrid.innerHTML = ''; return; }
+            previewGrid.classList.remove('hidden');
+            previewGrid.innerHTML = disputePhotoFiles.map((item, idx) => `
+                <div class="relative group aspect-square">
+                    <img src="${item.previewUrl}" class="w-full h-full object-cover rounded-xl border border-gray-200" alt="preuve ${idx + 1}">
+                    <button type="button" onclick="_removeDisputePhoto(${idx})"
+                        class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md text-xs font-bold">
+                        ×
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window._removeDisputePhoto = function(idx) {
+            const item = disputePhotoFiles[idx];
+            if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl);
+            disputePhotoFiles.splice(idx, 1);
+            _updateDisputePhotoUI();
+        };
+
+        function _initDisputePhotoInput() {
+            const input = document.getElementById('disputePhotoInput');
+            if (!input || input._disputeBound) return;
+            input._disputeBound = true;
+            input.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files || []);
+                const remaining = 5 - disputePhotoFiles.length;
+                const toAdd = files.slice(0, remaining);
+
+                for (const file of toAdd) {
+                    if (file.size > 5 * 1024 * 1024) {
+                        showToast(`"${file.name}" dépasse 5 Mo — ignoré.`, 'warning');
+                        continue;
+                    }
+                    disputePhotoFiles.push({ file, previewUrl: URL.createObjectURL(file) });
+                }
+
+                if (files.length > remaining) {
+                    showToast(`Maximum 5 photos. ${files.length - remaining} fichier(s) ignoré(s).`, 'warning');
+                }
+
+                _updateDisputePhotoUI();
+                input.value = ''; // reset pour permettre la re-sélection
+            });
+        }
+
         function showDisputeModal() {
             if (!currentSelectedOrder) return;
-            console.trace('showDisputeModal called'); // Trace to see if called automatically
+            console.trace('showDisputeModal called');
             document.getElementById('disputeOrderId').textContent = currentSelectedOrder.id;
             document.getElementById('disputeReason').value = '';
             document.getElementById('disputeDescription').value = '';
-            document.getElementById('disputeProof1').value = '';
-            document.getElementById('disputeProof2').value = '';
+            document.getElementById('disputeVideoLink').value = '';
+
+            // Reset photos
+            for (const item of disputePhotoFiles) URL.revokeObjectURL(item.previewUrl);
+            disputePhotoFiles = [];
+            _updateDisputePhotoUI();
+
+            // Init listener input file (une seule fois)
+            _initDisputePhotoInput();
+
             const modal = document.getElementById('disputeModal');
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
@@ -3520,6 +3607,10 @@
             modal.classList.add('hidden');
             modal.style.display = 'none';
             document.body.style.overflow = '';
+            // Libérer les object URLs
+            for (const item of disputePhotoFiles) URL.revokeObjectURL(item.previewUrl);
+            disputePhotoFiles = [];
+            _updateDisputePhotoUI();
         }
 
         async function submitDispute() {
@@ -3527,32 +3618,56 @@
 
             const category = document.getElementById('disputeReason').value;
             const description = document.getElementById('disputeDescription').value.trim();
-            const proof1 = document.getElementById('disputeProof1').value.trim();
-            const proof2 = document.getElementById('disputeProof2').value.trim();
+            const videoLink = document.getElementById('disputeVideoLink').value.trim();
 
             if (!category || !description) {
-                showToast('Raison et description sont obligatoires.', 'error');
+                showToast('Catégorie et description sont obligatoires.', 'error');
                 return;
             }
 
-            const evidence = [];
-            if (proof1) evidence.push({ url: proof1, kind: 'photo', source: 'client' });
-            if (proof2) evidence.push({ url: proof2, kind: 'photo', source: 'client' });
+            if (disputePhotoFiles.length < 2) {
+                showToast(`Minimum 2 photos requises. Vous en avez ${disputePhotoFiles.length}.`, 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitDispute');
+            btn.disabled = true;
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Upload en cours...';
 
             try {
-                const btn = document.getElementById('btnSubmitDispute');
-                btn.disabled = true;
-                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi...';
+                // 1. Upload des photos vers Supabase Storage
+                const uploadedPhotoUrls = [];
+                for (let i = 0; i < disputePhotoFiles.length; i++) {
+                    const { file } = disputePhotoFiles[i];
+                    const ext = file.name.split('.').pop() || 'jpg';
+                    const fileName = `${currentSelectedOrder.id}_${Date.now()}_${i}.${ext}`;
 
+                    let url = null;
+                    if (window.SupabaseAdapter && window.SupabaseAdapter.uploadFile) {
+                        url = await window.SupabaseAdapter.uploadFile('dispute-evidence', fileName, file);
+                    }
+
+                    if (!url) throw new Error(`Échec de l'upload de la photo ${i + 1}.`);
+                    uploadedPhotoUrls.push(url);
+                }
+
+                // 2. Construire le tableau de preuves
+                const evidence = [
+                    ...uploadedPhotoUrls.map(url => ({ url, kind: 'photo', source: 'client' })),
+                    ...(videoLink ? [{ url: videoLink, kind: 'video_link', source: 'client' }] : [])
+                ];
+
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi du litige...';
+
+                // 3. Soumettre le litige
                 await OrderManager.openDispute(currentSelectedOrder.id, category, description, evidence);
-                
-                showToast('Litige ouvert. Notre service client va analyser votre demande.', 'warning');
+
+                showToast('Litige ouvert. Notre équipe va analyser votre demande dans les 24h.', 'warning');
                 closeDisputeModal();
                 await loadDashboardData();
             } catch (error) {
                 showToast(error.message || 'Erreur lors de l\'ouverture du litige', 'error');
             } finally {
-                const btn = document.getElementById('btnSubmitDispute');
                 btn.disabled = false;
                 btn.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Soumettre le litige';
             }
@@ -4111,11 +4226,10 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Catégorie du problème</label>
                         <select id="disputeReason" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50">
                             <option value="">-- Sélectionnez une catégorie --</option>
-                            <option value="PRODUIT_NON_RECU">Produit non reçu</option>
-                            <option value="PRODUIT_ENDOMMAGE">Produit endommagé ou cassé</option>
-                            <option value="PRODUIT_NON_CONFORME">Produit non conforme à la description</option>
-                            <option value="CONTREFACON">Suspicion de contrefaçon</option>
-                            <option value="AUTRE">Autre raison</option>
+                            <option value="NOT_RECEIVED">Produit non reçu</option>
+                            <option value="DAMAGED">Produit endommagé ou cassé</option>
+                            <option value="NOT_AS_DESCRIBED">Produit non conforme à la description</option>
+                            <option value="OTHER">Autre raison</option>
                         </select>
                     </div>
 
@@ -4124,11 +4238,54 @@
                         <textarea id="disputeDescription" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="Décrivez précisément votre problème avec cette commande..."></textarea>
                     </div>
 
+                    <!-- Zone Photos de Preuves -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <iconify-icon icon="solar:camera-bold" class="text-indigo-500 mr-1"></iconify-icon>
+                                Photos de preuve
+                            </label>
+                            <span id="disputePhotoCount" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">0 / 5</span>
+                        </div>
+                        <p class="text-xs text-gray-500">Minimum <strong>2 photos</strong> requises, maximum 5. Formats acceptés : JPG, PNG, WEBP.</p>
+
+                        <!-- Zone Drag & Drop / Clic -->
+                        <div id="disputePhotoDropzone"
+                            class="relative border-2 border-dashed border-gray-200 rounded-xl p-5 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-all duration-200 group"
+                            onclick="document.getElementById('disputePhotoInput').click()">
+                            <input type="file" id="disputePhotoInput" accept="image/jpeg,image/png,image/webp" multiple class="hidden">
+                            <iconify-icon icon="solar:upload-minimalistic-bold" class="text-3xl text-gray-300 group-hover:text-indigo-400 transition-colors mb-2"></iconify-icon>
+                            <p class="text-sm text-gray-400 group-hover:text-indigo-500 font-medium transition-colors">Cliquez ou glissez vos photos ici</p>
+                            <p class="text-xs text-gray-300 mt-1">Max 5 Mo par photo</p>
+                        </div>
+
+                        <!-- Aperçu miniatures -->
+                        <div id="disputePhotoPreview" class="grid grid-cols-5 gap-2 hidden"></div>
+
+                        <!-- Barre de progression min -->
+                        <div id="disputePhotoProgressBar" class="hidden">
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Progression</span>
+                                <span id="disputePhotoProgressLabel">0/2 photos minimum</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div id="disputePhotoProgressFill" class="h-full bg-indigo-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lien Vidéo Externe (optionnel) -->
                     <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Preuves (Liens Web / Drive / Imgur)</label>
-                        <p class="text-xs text-gray-500 mb-2">Veuillez fournir au moins 1 lien menant vers une URL contenant vos photos ou vidéo de preuve.</p>
-                        <input type="url" id="disputeProof1" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50" placeholder="https://lien-preuve-1.com/img">
-                        <input type="url" id="disputeProof2" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50" placeholder="https://lien-preuve-2.com/img (Optionnel)">
+                        <label class="block text-sm font-semibold text-gray-700">
+                            <iconify-icon icon="solar:play-circle-bold" class="text-orange-400 mr-1"></iconify-icon>
+                            Lien vidéo de preuve
+                            <span class="font-normal text-gray-400">(optionnel)</span>
+                        </label>
+                        <p class="text-xs text-gray-500">Partagez un lien Google Drive, YouTube (non listé), Dropbox ou similaire.</p>
+                        <div class="relative">
+                            <iconify-icon icon="solar:link-bold" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-lg"></iconify-icon>
+                            <input type="url" id="disputeVideoLink" class="w-full pl-9 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none text-sm transition-all bg-gray-50" placeholder="https://drive.google.com/file/...">
+                        </div>
                     </div>
                 </div>
             </div>

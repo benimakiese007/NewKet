@@ -242,24 +242,6 @@
                                 </tr>
                             </thead>
                             <tbody id="dataBody" class="divide-y divide-gray-100">
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:90px;height:14px;"></div></td>
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:120px;height:14px;"></div></td>
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:140px;height:14px;"></div></td>
-                                    <td class="p-4 text-right"><div class="skeleton skeleton-text ml-auto" style="width:80px;height:14px;"></div></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:90px;height:14px;"></div></td>
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:120px;height:14px;"></div></td>
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:140px;height:14px;"></div></td>
-                                    <td class="p-4 text-right"><div class="skeleton skeleton-text ml-auto" style="width:80px;height:14px;"></div></td>
-                                </tr>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:90px;height:14px;"></div></td>
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:120px;height:14px;"></div></td>
-                                    <td class="p-4"><div class="skeleton skeleton-text" style="width:140px;height:14px;"></div></td>
-                                    <td class="p-4 text-right"><div class="skeleton skeleton-text ml-auto" style="width:80px;height:14px;"></div></td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -306,6 +288,11 @@
         async function loadUserDetails() {
             if (userDetailsBootStarted) return;
             userDetailsBootStarted = true;
+
+            const db = document.getElementById('dataBody');
+            if (db && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                db.innerHTML = window.buildSkeletonTableRowsHTML(5, 4);
+            }
 
             const initPromises = [];
             if (window.UserManager) {

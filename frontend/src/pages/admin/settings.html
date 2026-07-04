@@ -92,10 +92,6 @@
                             </tr>
                         </thead>
                         <tbody id="integrationsTableBody" class="divide-y divide-gray-50 bg-white">
-                            <!-- Rempli par JS -->
-                            <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-sm font-medium text-gray-400">Chargement des intégrations...</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -313,10 +309,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const tableBody = document.getElementById('integrationsTableBody');
+            if (tableBody && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                tableBody.innerHTML = window.buildSkeletonTableRowsHTML(3, 4);
+            }
             loadConfig();
             window.addEventListener('configUpdated', loadConfig);
             window.addEventListener('newketInitialized', loadConfig);
-
         });
 
         function loadConfig() {

@@ -169,17 +169,8 @@
                                 <th>Preuve</th>
                             </tr>
                         </thead>
-                        <tbody id="otpOrdersBody">
-                            <tr>
-                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 70px; height: 14px; margin-bottom: 0;"></div></td>
-                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 160px; height: 14px; margin-bottom: 0;"></div></td>
-                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 140px; height: 14px; margin-bottom: 0;"></div></td>
-                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 120px; height: 14px; margin-bottom: 0;"></div></td>
-                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 150px; height: 14px; margin-bottom: 0;"></div></td>
-                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 90px; height: 14px; margin-bottom: 0;"></div></td>
-                                <td class="p-4"><div class="skeleton skeleton-text" style="width: 90px; height: 14px; margin-bottom: 0;"></div></td>
-                            </tr>
-                        </tbody>
+                            <tbody id="otpOrdersBody" class="divide-y divide-gray-100">
+                            </tbody>
                     </table>
                 </div>
 
@@ -243,6 +234,9 @@
                 const emptyState = document.getElementById('otpEmptyState');
 
                 if (!window.OrderManager || window.OrderManager._initialized !== true || window.OrderManager._fetchPromise || !window.newketInitialized) {
+                    if (tbody && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                        tbody.innerHTML = window.buildSkeletonTableRowsHTML(5, 7);
+                    }
                     return;
                 }
 

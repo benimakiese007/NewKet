@@ -961,6 +961,11 @@
                 summaryList.innerHTML = window.buildSkeletonPanelListHTML(5, { lines: 1, cardClass: 'p-3 rounded-2xl bg-gray-50' });
             }
 
+            const recentBody = document.getElementById('recentEventsBody');
+            if (recentBody && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                recentBody.innerHTML = window.buildSkeletonTableRowsHTML(5, 5);
+            }
+
             setRangeButtons(state.start || state.end ? null : state.days);
             updateShareUrl();
             const qs = buildQueryParams().toString();
@@ -1007,23 +1012,11 @@
             } else {
                 listEl.innerHTML = '';
             }
-            tbody.innerHTML = Array.from({ length: 3 }, (_, index) => `
-                <tr>
-                    <td colspan="5" class="px-6 py-4">
-                        <div class="glass-panel p-4">
-                            <div class="flex items-center justify-between gap-4 mb-3">
-                                <div class="skeleton skeleton-text" style="width:${72 - index * 8}%;height:14px;margin:0;"></div>
-                                <div class="skeleton skeleton-text" style="width:14%;height:10px;margin:0;"></div>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div class="skeleton skeleton-text" style="width:100%;height:12px;margin:0;"></div>
-                                <div class="skeleton skeleton-text" style="width:100%;height:12px;margin:0;"></div>
-                                <div class="skeleton skeleton-text" style="width:100%;height:12px;margin:0;"></div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                tbody.innerHTML = window.buildSkeletonTableRowsHTML(5, 5);
+            } else {
+                tbody.innerHTML = '';
+            }
             modal.classList.remove('hidden');
 
             const base = buildQueryParams();

@@ -504,6 +504,15 @@
                 if (state.loading) return;
                 state.loading = true;
 
+                if (els.topReferrersBody && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    els.topReferrersEmpty?.classList.add('hidden');
+                    els.topReferrersBody.innerHTML = window.buildSkeletonTableRowsHTML(5, 5);
+                }
+                if (els.recentEventsBody && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    els.recentEventsEmpty?.classList.add('hidden');
+                    els.recentEventsBody.innerHTML = window.buildSkeletonTableRowsHTML(5, 6);
+                }
+
                 try {
                     const data = await window.ApiClient.get('/referrals/admin/overview', {
                         cacheKey: 'admin-referrals-overview',
