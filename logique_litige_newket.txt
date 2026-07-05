@@ -1,0 +1,79 @@
+=========================================================
+LOGIQUE COMPLÈTE DES LITIGES (DISPUTES) - NEWKET
+=========================================================
+
+1. CYCLE DE VIE GÉNÉRAL D'UN LITIGE
+-----------------------------------
+Lorsqu'un problème survient sur une commande (non livraison, article défectueux, etc.), un litige peut être ouvert. Son statut évolue de la manière suivante :
+
+- OPEN (Ouvert) : Le client a ouvert le litige. Le vendeur est notifié et a un délai (48h par défaut) pour répondre.
+- SELLER_PENDING (En attente du vendeur) : Le système attend que le vendeur propose une solution.
+- BUYER_PENDING (En attente de l'acheteur) : Le vendeur a proposé une solution (ex: remboursement partiel). Le client a un délai (48h) pour accepter ou refuser.
+- UNDER_REVIEW (En révision) : Les deux parties n'ont pas réussi à s'entendre (ex: client a refusé l'offre du vendeur) ou le délai a expiré sans réponse. L'administration NewKet doit trancher.
+- RESOLVED (Résolu) : Le litige a abouti à une résolution financière et est clôturé.
+- REJECTED (Rejeté) : Le litige a été rejeté par l'administration (non fondé).
+
+2. LES DÉLAIS (CRON JOBS)
+-------------------------
+Le système inclut une gestion automatique des délais :
+- Si le vendeur ne répond pas dans les 48h -> Le litige bascule automatiquement en UNDER_REVIEW (escalade à l'admin).
+- Si le client ne répond pas à l'offre du vendeur dans les 48h -> Le litige bascule automatiquement en UNDER_REVIEW.
+- L'administration a ensuite un délai pour statuer, sinon une alerte de dépassement est déclenchée.
+
+3. ACTIONS POSSIBLES PAR LES ACTEURS
+------------------------------------
+A. Le Vendeur :
+- Accepter le remboursement total : Clôture immédiate (FULL_REFUND).
+- Proposer un remboursement partiel : Met le litige en attente de validation par le client (BUYER_PENDING).
+- Refuser et apporter des preuves : Le litige est escaladé à l'administration (UNDER_REVIEW).
+
+B. Le Client :
+- Accepter l'offre partielle du vendeur : Clôture immédiate (PARTIAL_REFUND).
+- Refuser l'offre du vendeur : Le litige est escaladé à l'administration (UNDER_REVIEW).
+
+C. L'Administrateur :
+Peut examiner les preuves de chaque partie et décider de la résolution.
+
+4. LOGIQUE FINANCIÈRE ET COMMISSIONS (RÈGLES STRICTES)
+------------------------------------------------------
+Règle d'Or : "La commission est toujours prise parce que ça reste un mouvement financier".
+
+La répartition de l'argent (Escrow/Séquestre) se calcule sur le montant total payé par le client, MAIS la plateforme sécurise systématiquement sa commission avant toute distribution.
+
+- BASE DE CALCUL : 
+  Total Commande (Ex: 100€)
+  Commission Plateforme (Ex: 5%) = 5€
+  Montant Distribuable (Payout Amount) = 95€
+
+A. Résolution par Remboursement Total (FULL_REFUND) :
+- Le client reçoit le montant distribuable en entier (95€). 
+- Le vendeur ne reçoit rien (0€).
+- La plateforme conserve sa commission (5€).
+
+B. Résolution par Remboursement Partiel (PARTIAL_REFUND) :
+- Le montant remboursé au client est plafonné au montant distribuable (ne peut excéder 95€).
+- Le client reçoit le montant convenu (ex: 60€).
+- Le vendeur reçoit le solde du montant distribuable (ex: 95€ - 60€ = 35€).
+- La plateforme conserve sa commission (5€).
+
+C. Résolution en Faveur du Vendeur (RELEASE_TO_SELLER ou REJECTED) :
+- Le client ne reçoit rien (0€).
+- Le vendeur reçoit tout le montant distribuable (95€).
+- La plateforme conserve sa commission (5€).
+
+5. SAUVEGARDE EN BASE DE DONNÉES ET COMPTABILITÉ
+------------------------------------------------
+Afin d'assurer une comptabilité stricte pour le Dashboard Administrateur (bilan financier) :
+- Le script de résolution insère toujours la valeur "platform_commission_amount" dans la table 'orders'.
+- L'argent conservé par le vendeur est stocké dans 'payout_amount'.
+- Un historique détaillé est généré dans les événements de paiement (table EscrowEvents), gardant la trace des fractions (Commission vs Acheteur vs Vendeur).
+
+6. LE PANNEAU D'ADMINISTRATION
+------------------------------
+L'administrateur dispose d'une interface lui permettant :
+- De visualiser tous les détails, messages, et preuves envoyées par les parties.
+- De simuler en temps réel la répartition de l'argent avant de trancher. En saisissant un pourcentage (ex: 60% pour l'acheteur), le panneau affiche instantanément : 
+   -> La commission retenue.
+   -> La somme allouée au client.
+   -> La somme allouée au vendeur.
+- De forcer la décision en insérant une note explicative visible dans l'historique du litige.

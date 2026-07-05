@@ -229,7 +229,7 @@ async function fetchVendorPayoutDetails(client, vendorId) {
     return vendor;
 }
 
-async function getCommissionRate(client) {
+export async function getCommissionRate(client) {
     const { data } = await client
         .from('settings')
         .select('platform_commission_rate')

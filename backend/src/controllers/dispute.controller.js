@@ -20,7 +20,8 @@ import {
     getOrderVendorId,
     logOrderStatusHistory,
     mapLegacyOrderStatus,
-    releaseOrderEscrow
+    releaseOrderEscrow,
+    getCommissionRate
 } from '../services/order-workflow.js';
 
 const ABUSE_WINDOW_DAYS = 30;
@@ -120,8 +121,21 @@ async function setOrderDisputeState(order, disputeStatus, escrowStatus, changedB
 
 async function applyDisputeResolution({ dispute, order, resolution, refundAmount = 0, changedBy, source }) {
     const nowIso = new Date().toISOString();
+    
+    // ─── Calcul de la commission ───
+    const totalAmount = parseFloat(order.total_amount || order.total || 0);
+    let commissionAmount = parseFloat(order.platform_commission_amount || 0);
+    
+    if (!order.platform_commission_amount && order.platform_commission_amount !== 0) {
+        const commissionRate = await getCommissionRate(supabaseAdmin);
+        commissionAmount = Math.round(totalAmount * commissionRate) / 100;
+    }
+    
+    const maxPayoutAmount = Math.round((totalAmount - commissionAmount) * 100) / 100;
 
     if (resolution === DISPUTE_RESOLUTIONS.FULL_REFUND) {
+        const actualRefundAmount = maxPayoutAmount; // Le client reçoit tout sauf la commission
+        
         await supabaseAdmin
             .from('orders')
             .update({
@@ -131,23 +145,31 @@ async function applyDisputeResolution({ dispute, order, resolution, refundAmount
                 released_at: nowIso,
                 updated_at: nowIso,
                 refund_status: 'APPROVED',
-                refund_amount: parseFloat(order.total_amount || 0),
-                refunded_at: nowIso
+                refund_amount: actualRefundAmount,
+                refunded_at: nowIso,
+                platform_commission_amount: commissionAmount,
+                payout_amount: 0 // Le vendeur ne reçoit rien
             })
             .eq('id', order.id);
 
         await createEscrowEvent(supabaseAdmin, {
             orderId: order.id,
             eventType: ESCROW_EVENT_TYPES.REFUNDED,
-            amount: order.total_amount,
+            amount: totalAmount,
             metadata: {
                 dispute_id: dispute.id,
                 source,
-                refund_amount: order.total_amount
+                refund_amount: actualRefundAmount,
+                commission_amount: commissionAmount,
+                seller_amount: 0
             },
             processedAt: nowIso
         });
     } else if (resolution === DISPUTE_RESOLUTIONS.PARTIAL_REFUND) {
+        // Sécurité : le remboursement partiel ne peut pas dépasser ce qui est distribuable
+        const safeRefundAmount = Math.min(parseFloat(refundAmount || 0), maxPayoutAmount);
+        const sellerAmount = Math.max(0, maxPayoutAmount - safeRefundAmount);
+
         await supabaseAdmin
             .from('orders')
             .update({
@@ -157,20 +179,23 @@ async function applyDisputeResolution({ dispute, order, resolution, refundAmount
                 released_at: nowIso,
                 updated_at: nowIso,
                 refund_status: 'APPROVED',
-                refund_amount: parseFloat(refundAmount || 0),
-                refunded_at: nowIso
+                refund_amount: safeRefundAmount,
+                refunded_at: nowIso,
+                platform_commission_amount: commissionAmount,
+                payout_amount: sellerAmount
             })
             .eq('id', order.id);
 
         await createEscrowEvent(supabaseAdmin, {
             orderId: order.id,
             eventType: ESCROW_EVENT_TYPES.PARTIAL,
-            amount: refundAmount,
+            amount: totalAmount,
             metadata: {
                 dispute_id: dispute.id,
                 source,
-                refund_amount: refundAmount,
-                seller_amount: Math.max(0, Number(order.total_amount || 0) - Number(refundAmount || 0))
+                refund_amount: safeRefundAmount,
+                commission_amount: commissionAmount,
+                seller_amount: sellerAmount
             },
             processedAt: nowIso
         });
@@ -487,6 +512,8 @@ export const getDisputes = async (req, res) => {
                     id,
                     total,
                     total_amount,
+                    platform_commission_amount,
+                    payout_amount,
                     status,
                     escrow_status,
                     escrow_release_at,
