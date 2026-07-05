@@ -113,25 +113,19 @@
     <main class="dashboard-main-offset w-full max-w-none pt-28 pb-12 lg:pt-28 lg:pb-16 flex flex-col lg:flex-row lg:gap-8 relative">
         <aside id="vendorSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[9999] transform -translate-x-full lg:translate-x-0 lg:sticky lg:top-28 lg:self-start lg:inset-auto lg:w-72 lg:relative transition-transform duration-400 ease-in-out h-screen lg:h-[calc(100vh-7rem)] overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
-            <!-- Mobile Close Button -->
-            <button data-close-sidebar="vendor" onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
-                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
-            </button>
 
             <!-- Desktop/Tablet Collapse Toggle -->
             <button type="button" class="sidebar-toggle-btn hidden lg:flex" data-toggle-sidebar="vendor" aria-label="Réduire le menu" data-no-close>
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
             </button>
 
-            <div class="min-h-0 p-6 pt-24 lg:min-h-0 lg:px-4 lg:py-8">
-                <div class="glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm space-y-8 relative">
-
-                <!-- Brand Section -->
-                <div class="sidebar-header-card flex items-center gap-4 px-2 pb-6 border-b border-gray-100/50">
-                <div class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center shadow-sm border border-white/15 shrink-0 overflow-hidden">
-                    <img id="vendorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
-                    <iconify-icon id="vendorAvatarPlaceholder" icon="solar:shop-bold" width="18"></iconify-icon>
-                </div>
+            <div class="min-h-0 px-6 pb-6 pt-0 lg:min-h-0 lg:px-4 lg:pb-8 lg:pt-0">
+            <div class="mb-6">
+                <div class="sidebar-header-card flex items-center gap-4 p-3 rounded-2xl bg-gray-50/80 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
+                    <div class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center shadow-sm border border-white/15 shrink-0 overflow-hidden">
+                        <img id="vendorAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
+                        <iconify-icon id="vendorAvatarPlaceholder" icon="solar:shop-bold" width="18"></iconify-icon>
+                    </div>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-1.5 mb-0.5">
                             <p class="text-[9px] font-black uppercase tracking-[0.15em] text-gray-400">Ma Boutique</p>
@@ -143,7 +137,13 @@
                         </h2>
                         <div id="vendorTypeBadge" class="mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 hidden">Vendeur certifié</div>
                     </div>
+                    <button data-close-sidebar="vendor" onclick="SidebarManager.close()" class="lg:hidden p-2 bg-white rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all shadow-sm border border-gray-100/50 flex-shrink-0">
+                        <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
+                    </button>
                 </div>
+            </div>
+
+            <div class="glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
 
                 <!-- Navigation -->
                 <nav class="space-y-1.5">
@@ -184,10 +184,6 @@
                             <iconify-icon icon="solar:settings-bold" width="20" class="transition-transform group-hover:scale-110" aria-hidden="true"></iconify-icon>
                             <span>Paramètres</span>
                         </a>
-                        <button class="sidebar-link group !text-red-500 hover:!text-red-600 hover:!bg-red-50 mt-2 w-full" data-logout-safe data-track-action="vendor_dashboard:logout_click">
-                            <iconify-icon icon="solar:logout-2-bold" width="20" class="transition-transform group-hover:scale-110"></iconify-icon>
-                            <span>Se déconnecter</span>
-                        </button>
                     </div>
                 </nav>
 

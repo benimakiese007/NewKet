@@ -28,7 +28,8 @@ const AdminLayout = {
         branding: 'branding',
         settings: 'settings',
         'notion-manager': 'notion-manager',
-        comptabilite: 'comptabilite'
+        comptabilite: 'comptabilite',
+        disputes: 'disputes'
     },
 
     ensureNoFoucStyles() {
@@ -529,6 +530,7 @@ const AdminLayout = {
             { href: this.getShellHref('reviews'), icon: 'solar:star-bold', label: 'Avis & Modération', view: 'reviews', section: 'Catalogue' },
 
             { href: this.getShellHref('orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits', view: 'orders', section: 'Opérations' },
+            { href: this.getShellHref('disputes'), icon: 'solar:shield-warning-bold', label: 'Gestion des Litiges', view: 'disputes', section: 'Opérations' },
             { href: this.getShellHref('notifications-admin'), icon: 'solar:bell-bing-bold', label: 'Notifications', view: 'notifications-admin', section: 'Opérations' },
             { href: this.getShellHref('support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform', view: 'support', section: 'Opérations' },
             { href: this.getShellHref('newsletter'), icon: 'solar:letter-bold', label: 'Newsletter', view: 'newsletter', section: 'Opérations' },
@@ -551,30 +553,29 @@ const AdminLayout = {
                     <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
                 </button>
                 
-                <!-- Mobile Close Button -->
-                <button onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
-                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
-                </button>
 
-                <div class="min-h-0 p-6 pt-24 lg:min-h-0 lg:px-4 lg:py-8 lg:sticky lg:top-[64px]">
+                <div class="min-h-0 px-6 pb-6 pt-0 lg:min-h-0 lg:px-4 lg:pb-8 lg:pt-0 lg:sticky lg:top-[64px]">
                     <!-- Admin Profile Header -->
-                    <div class="px-4 mb-6 hidden lg:block">
+                    <div class="mb-6">
                         <div class="flex items-center gap-3 p-3 rounded-2xl bg-gray-50/50 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
                             <div class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center font-black text-[11px] uppercase tracking-widest shadow-sm border border-white/15 overflow-hidden shrink-0">
                                 <img id="adminAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
                                 <span id="adminAvatarPlaceholder">A</span>
                             </div>
-                            <div class="flex flex-col min-w-0">
+                            <div class="flex flex-col min-w-0 flex-1">
                                 <span id="adminDisplayName" class="text-sm font-bold text-gray-900 truncate">Admin</span>
                                 <span class="text-[9px] font-bold text-green-600 flex items-center gap-1 mt-0.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                                     Système Actif
                                 </span>
                             </div>
+                            <button onclick="SidebarManager.close()" class="lg:hidden p-2 bg-white rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all shadow-sm border border-gray-100/50 flex-shrink-0">
+                                <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="md:glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
+                    <div class="glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
                         <nav class="space-y-1" aria-label="Navigation Admin">
         `;
 
@@ -663,12 +664,6 @@ const AdminLayout = {
                             </div>
                         </div>
 
-                        <!-- Bouton Déconnexion dans la Sidebar -->
-                        <div class="mt-6 pt-5 border-t border-gray-100">
-                            <button onclick="AuthManager.handleLogoutClick(this)" class="flex items-center justify-center gap-2 w-full px-4 py-4 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-bold transition-all active:scale-[0.98]">
-                                <iconify-icon icon="solar:logout-linear" width="20"></iconify-icon> Déconnexion
-                            </button>
-                        </div>
                     </div>
                 </div>
             </aside>
@@ -894,6 +889,16 @@ function _adminRenderLayout() {
     AdminLayout.renderNavbar();
     AdminLayout.renderSidebar();
     AdminLayout.bindEvents();
+
+    // Initialise SidebarManager dès la Passe 1 pour que le burger soit
+    // fonctionnel avant même que l'auth soit résolue.
+    // setupGlobalClickHandlers() est protégé par `state.initialized` et
+    // ne s'enregistre qu'une seule fois ; un double appel en Passe 2 est
+    // donc sans effet secondaire.
+    if (window.SidebarManager) {
+        window.SidebarManager.init('adminSidebar', 'admin-content', 'adminOverlay');
+    }
+
     AdminLayout.maybeDebugLayout('pass1');
 }
 

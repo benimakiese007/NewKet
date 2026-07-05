@@ -236,19 +236,15 @@
         <!-- Sidebar -->
         <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-64 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
 
-            <!-- Mobile Close Button -->
-            <button onclick="SidebarManager.close()" class="lg:hidden absolute top-6 right-6 p-2 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all z-10">
-                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
-            </button>
 
             <!-- Desktop/Tablet Collapse Toggle -->
             <button type="button" class="sidebar-toggle-btn hidden lg:flex" data-toggle-sidebar="customer" aria-label="Réduire le menu" data-no-close>
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
             </button>
 
-            <div class="min-h-0 p-6 pt-24 lg:min-h-0 lg:px-4 lg:py-8">
-                <div class="glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
-                <div class="sidebar-header-card flex items-center gap-4 mb-8 p-3 rounded-2xl bg-gray-50/80 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
+            <div class="min-h-0 px-6 pb-6 pt-0 lg:min-h-0 lg:px-4 lg:pb-8 lg:pt-0">
+            <div class="mb-6">
+                <div class="sidebar-header-card flex items-center gap-4 p-3 rounded-2xl bg-gray-50/80 border border-gray-100/50 shadow-sm transition-all hover:bg-gray-100/50">
                     <div class="relative flex-shrink-0">
                         <div id="userAvatarDisplay" class="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center font-black text-[11px] uppercase tracking-widest shadow-sm border border-white/15 overflow-hidden shrink-0">
                             <img id="userAvatarImg" src="" alt="" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
@@ -256,14 +252,19 @@
                         </div>
                         <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
                     </div>
-                    <div class="flex flex-col min-w-0">
+                    <div class="flex flex-col min-w-0 flex-1">
                         <h2 id="userDisplayName" class="font-bold text-gray-900 truncate text-sm">Mon Compte</h2>
                         <div class="flex items-center gap-1.5 mt-0.5">
                             <span id="userStatusBadge" class="status-badge status-standard">Standard</span>
                         </div>
-
                     </div>
+                    <button onclick="SidebarManager.close()" class="lg:hidden p-2 bg-white rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all shadow-sm border border-gray-100/50 flex-shrink-0">
+                        <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
+                    </button>
                 </div>
+            </div>
+
+            <div class="glass-panel min-h-[calc(100vh-6rem)] rounded-none border-0 shadow-none p-6 md:px-6 md:py-4 lg:min-h-0 lg:rounded-[1.5rem] lg:border lg:shadow-sm">
                 <nav class="space-y-1">
                     <a href="#dashboard" data-switch-customer-tab="dashboard" class="sidebar-link active" id="link-dashboard">
                         <iconify-icon icon="solar:home-2-bold" width="20"></iconify-icon>
@@ -299,14 +300,6 @@
                         </a>
                     </div>
                 </nav>
-                <!-- Logout -->
-                <div class="mt-4 pt-4 border-t border-gray-100">
-                <button class="sidebar-logout" data-logout-safe data-track-action="customer_dashboard:logout_click">
-                        <iconify-icon icon="solar:logout-2-bold" width="20"></iconify-icon>
-                        <span>Se déconnecter</span>
-                    </button>
-                </div>
-
                 <div class="mt-6 pt-5 border-t border-gray-100 lg:hidden">
                     <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
                     <div class="currency-switch-segmented scale-90 origin-left w-fit" id="customerCurrencyToggle" data-active="CDF" title="Devise d'affichage">

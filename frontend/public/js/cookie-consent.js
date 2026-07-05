@@ -30,7 +30,7 @@ class CookieConsent {
 
     init() {
         // Vérifier si le consentement a déjà été donné
-        const hasConsent = localStorage.getItem(this.consentKey);
+        const hasConsent = this.getCookie(this.consentKey);
         
         // Ne pas afficher la modale sur la page de politique de confidentialité
         if (window.location.pathname.includes('privacy.html')) {
@@ -74,7 +74,7 @@ class CookieConsent {
     }
 
     handleConsent(status, modal) {
-        localStorage.setItem(this.consentKey, status);
+        this.setCookie(this.consentKey, status, 365); // Valable 1 an
         const overlay = document.getElementById('cookie-consent-overlay');
         
         // Animation de fermeture
@@ -94,6 +94,28 @@ class CookieConsent {
     enableAnalytics() {
         // Placeholder pour l'initialisation des scripts tiers (Google Analytics, Pixels, etc.)
         // console.log("Cookies analytiques activés.");
+    }
+
+    setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        // path=/ permet au cookie d'être lu sur toutes les pages
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/; SameSite=Lax";
+    }
+
+    getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i=0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
     }
 }
 

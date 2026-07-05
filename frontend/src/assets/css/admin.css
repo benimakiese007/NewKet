@@ -628,6 +628,14 @@ html.admin-embedded-mode .admin-shell > main {
     }
 
     .sidebar-collapsed .sidebar-header-card {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0.5rem 0 !important;
+        justify-content: center !important;
+        margin-bottom: 1rem !important;
+    }
+    .sidebar-collapsed .sidebar-header-card > *:not(:first-child) {
         display: none !important;
     }
 
@@ -1576,14 +1584,6 @@ html.admin-embedded-mode .stagger-5 {
 
     #tab-purchases .bg-gray-50.px-4.py-2.rounded-xl.border.border-gray-100 {
         width: 100% !important;
-    }
-}
-
-@media (max-width: 1023px) {
-    #adminSidebar > div,
-    #customerSidebar > div,
-    #vendorSidebar > div {
-        padding-top: calc(var(--dashboard-topbar-height) + 1.25rem) !important;
     }
 }
 
