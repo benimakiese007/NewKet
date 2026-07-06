@@ -8,7 +8,7 @@ if (!window.ComponentLoader) {
  */
 const CATEGORY_NAV_HTML_TEMPLATE = `
         <!-- Category Nav -->
-        <div id="categoryNav" class="category-nav newket-category-nav flex sm:block transition-all duration-300 ease-in-out transform origin-top border-b border-white/10">
+        <div id="categoryNav" class="category-nav newket-category-nav flex sm:block transition-all duration-300 ease-in-out transform origin-top">
             <div class="max-w-7xl mx-auto w-full px-4 sm:px-8">
                 <div class="relative">
                     <!-- Scroll left button (hidden at start) -->
@@ -413,6 +413,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
         <div class="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-5">
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience Luxe</p>
             <div class="flex gap-8">
+                <a href="{{ROOT}}src/pages/mentions-legales.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Mentions légales</a>
                 <a href="{{ROOT}}src/pages/privacy.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
                 <a href="{{ROOT}}src/pages/terms.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
             </div>

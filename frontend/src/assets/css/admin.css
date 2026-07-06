@@ -149,8 +149,8 @@ html.admin-embedded-mode .admin-shell > main {
 .newket-dashboard-header {
     background: #013220 !important;
     background-image: none !important;
-    border-bottom-color: rgba(1, 50, 32, 0.6) !important;
-    box-shadow: 0 20px 44px rgba(1, 50, 32, 0.24) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
     color: white !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;

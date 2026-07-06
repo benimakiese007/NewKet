@@ -1069,7 +1069,7 @@ body.search-focused .main-header {
 
 .category-nav {
   background-color: var(--bg-white);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: none;
   padding: 0;
   overflow: hidden;
   transform-origin: top center;
@@ -1102,7 +1102,7 @@ body.search-focused .main-header {
   transition: max-height 0.26s ease, opacity 0.22s ease, transform 0.26s ease;
   background: var(--newket-green);
   color: white;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
 }
 
 .main-header {
@@ -1113,16 +1113,13 @@ body.search-focused .main-header {
 
 .newket-header-shell {
   background: var(--newket-green) !important;
-  border-bottom-color: rgba(1, 50, 32, 0.6) !important;
   /* Fill notch/status-bar area with green so no white gap appears */
   padding-top: env(safe-area-inset-top) !important;
-  /* Shadow is applied to the combined header+category-nav block to avoid a visible "gap" between them. */
   box-shadow: none !important;
 }
 
 .newket-header-shell.scrolled {
   background: var(--newket-green) !important;
-  border-bottom-color: rgba(1, 50, 32, 0.72) !important;
   padding-top: env(safe-area-inset-top) !important;
   box-shadow: none !important;
 }
@@ -1201,10 +1198,9 @@ body.search-focused .main-header {
 
 .newket-category-nav {
   background: var(--newket-green) !important;
-  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
   /* Category nav is appended inside the fixed header; keep it flush. */
   margin-top: 0;
-  box-shadow: 0 22px 48px -26px rgba(1, 50, 32, 0.32) !important;
+  box-shadow: none !important;
 }
 
 .newket-category-nav .nav-link {
@@ -1480,9 +1476,9 @@ body.mobile-menu-open {
     #mobileSearchContainer {
         transform-origin: top center;
         transition: max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), margin 0.28s ease;
-        max-height: 100px;
+        max-height: none;
         opacity: 1;
-        overflow: hidden;
+        overflow: visible;
         will-change: max-height, opacity, transform;
     }
 

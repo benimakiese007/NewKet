@@ -743,7 +743,7 @@ export function buildProductCardHTML(p, options = {}) {
                 </div>
                 <div class="flex items-center gap-1 sm:gap-2 mt-auto pt-1 sm:pt-2">
                     <button 
-                        onclick="if(window.CartManager) window.CartManager.add({id: '${p.id}', title: '${(p.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${p.price}', image: '${p.images && p.images[0] ? p.images[0] : ''}', vendor_id: '${p.user_id || vendor?.id || ''}', vendor: '${(vendor?.company_name || vendor?.name || 'NewKet').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}'})"
+                        onclick="if(window.CartManager) window.CartManager.add({id: '${p.id}', title: '${(p.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${p.price}', image: '${(p.image||'').split(',')[0].trim()}', vendor_id: '${p.user_id || vendor?.id || ''}', vendor: '${(vendor?.company_name || vendor?.name || 'NewKet').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}'})"
                         class="add-to-cart-btn flex-1 btn-active-scale ${isAvailable ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-gray-200 text-gray-500'} py-2 sm:py-2.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
                         style="border:none; cursor:pointer;"
                         aria-label="Ajouter ${String(p.name).replace(/"/g, '&quot;')} au panier"

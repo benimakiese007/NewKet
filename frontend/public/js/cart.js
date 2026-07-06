@@ -73,6 +73,9 @@ class CartManager {
         
         if (existingItem) {
             existingItem.quantity += quantity;
+            if (product.image) existingItem.image = product.image;
+            if (product.title) existingItem.title = product.title;
+            if (product.price) existingItem.price = product.price;
         } else {
             this.cart.push({
                 ...product,
@@ -376,7 +379,7 @@ class CartManager {
             html += `
                 <div class="flex gap-4 p-3 bg-white rounded-2xl border border-gray-100 shadow-sm relative">
                     <div class="w-20 h-20 bg-gray-50 rounded-xl overflow-hidden shrink-0 flex items-center justify-center">
-                        <img src="${item.image && item.image !== '/Images/placeholder.png' ? item.image : 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'}" alt="${item.title}" class="w-full h-full object-cover">
+                        <img src="${item.image && item.image !== '/Images/placeholder.png' ? String(item.image).split(',')[0].trim() : 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
                     </div>
                     <div class="flex-1 flex flex-col justify-between py-1">
                         <div class="pr-6">

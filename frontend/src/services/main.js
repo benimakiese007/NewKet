@@ -366,43 +366,11 @@ const App = {
             accumulatedDelta += diff;
             mainHeader.classList.toggle('scrolled', shouldElevate);
 
-            if (clampedScrollTop <= 24) {
-                mobileSearch?.classList.remove('search-bar-hidden');
-                mainHeader.classList.remove('header-compact', 'header-retracted');
-                accumulatedDelta = 0;
-                lastScrollTop = clampedScrollTop;
-                return;
-            }
-
-            const scrollingDown = accumulatedDelta > deltaThreshold;
-            const scrollingUp = accumulatedDelta < -deltaThreshold;
-
-            if (clampedScrollTop > scrollThreshold && scrollingDown) {
-                if (headerScrollState.searchOnSeparateRow && clampedScrollTop > compactThreshold) {
-                    mobileSearch?.classList.add('search-bar-hidden');
-                    mainHeader.classList.add('header-compact');
-                    mainHeader.classList.remove('header-retracted');
-                } else if (clampedScrollTop > retractThreshold) {
-                    mainHeader.classList.remove('header-compact');
-                    mobileSearch?.classList.remove('search-bar-hidden');
-                    mainHeader.classList.add('header-retracted');
-                }
-
-                accumulatedDelta = 0;
-            } else if (scrollingUp) {
-                mobileSearch?.classList.remove('search-bar-hidden');
-                mainHeader.classList.remove('header-compact', 'header-retracted');
-                accumulatedDelta = 0;
-            }
-
-            if (clampedScrollTop <= compactThreshold) {
-                mobileSearch?.classList.remove('search-bar-hidden');
-                mainHeader.classList.remove('header-compact');
-            }
-
-            if (clampedScrollTop <= retractThreshold) {
-                mainHeader.classList.remove('header-retracted');
-            }
+            // Keep the mobile header fully visible: no compact/retract behavior,
+            // no hidden search row, and no collapsed sections while scrolling.
+            mobileSearch?.classList.remove('search-bar-hidden');
+            mainHeader.classList.remove('header-compact', 'header-retracted');
+            accumulatedDelta = 0;
 
             lastScrollTop = clampedScrollTop;
         };

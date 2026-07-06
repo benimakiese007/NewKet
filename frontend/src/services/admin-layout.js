@@ -388,7 +388,7 @@ const AdminLayout = {
         if (!navbarPlaceholder || navbarPlaceholder.dataset.rendered === 'true') return;
 
         navbarPlaceholder.innerHTML = `
-            <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] border-b transition-all duration-300">
+            <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] transition-all duration-300">
                 <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
                     <div class="flex items-center gap-4 sm:gap-6">
                         <button id="adminMobileMenuBtn" data-toggle-sidebar="admin" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
