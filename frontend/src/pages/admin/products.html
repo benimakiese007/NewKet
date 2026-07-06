@@ -478,7 +478,7 @@
                     <td class="p-4">
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 bg-gray-50 rounded-2xl p-2 relative overflow-hidden group-hover:scale-110 transition-transform flex-shrink-0">
-                                <img loading="lazy" src="${window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image ? p.image.split(',')[0] : '', [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full h-full object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
+                                <img loading="lazy" src="${window.resolveProductImageSource ? window.resolveProductImageSource(p) : window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(window.resolveProductImageSource ? window.resolveProductImageSource(p) : (p.image ? p.image.split(',')[0] : ''), [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full h-full object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
                                 ${isOut ? '<div class="absolute inset-0 bg-red-500/20 backdrop-blur-[1px] flex items-center justify-center text-[8px] font-black text-red-700 uppercase">Épuisé</div>' : ''}
                             </div>
                             <div class="min-w-0 flex-1 admin-table-cell-text">

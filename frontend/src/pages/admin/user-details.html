@@ -606,7 +606,7 @@
             const grid = document.getElementById('productsGrid');
             grid.innerHTML = products.map(p => `
                 <div class="group relative bg-gray-50 rounded-xl overflow-hidden border border-transparent hover:border-gray-200 transition-all p-3">
-                    <img loading="lazy" src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '') : '../' + p.image}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(p.image ? p.image.split(',')[0] : '', [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full aspect-square object-contain mb-3" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
+                    <img loading="lazy" src="${window.resolveProductImageSource ? window.resolveProductImageSource(p) : window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(window.resolveProductImageSource ? window.resolveProductImageSource(p) : (p.image ? p.image.split(',')[0] : ''), [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full aspect-square object-contain mb-3" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
                     <div class="font-bold text-xs truncate">${p.name}</div>
                     <div class="text-[10px] text-gray-400 font-black">${CurrencyManager.formatPrice(p.price)}</div>
                 </div>

@@ -677,6 +677,9 @@ export function buildProductCardHTML(p, options = {}) {
             : '';
     const avatarImgClass = prioritizeAvatar ? '' : 'lazy-img';
     const vendor = Array.isArray(p.users) ? p.users[0] : p.users;
+    const cartImage = window.resolveProductImageSource
+        ? window.resolveProductImageSource(p)
+        : (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.images || p.image || p.image_url || p.product_image || p.thumbnail || '') : (Array.isArray(p.images) ? p.images[0] : p.image || p.image_url || p.product_image || p.thumbnail || ''));
     const productPagePath = window.NewKetLinks?.buildProductPagePath
         ? window.NewKetLinks.buildProductPagePath({
             shopName: vendor?.company_name || vendor?.name,
@@ -743,7 +746,7 @@ export function buildProductCardHTML(p, options = {}) {
                 </div>
                 <div class="flex items-center gap-1 sm:gap-2 mt-auto pt-1 sm:pt-2">
                     <button 
-                        onclick="if(window.CartManager) window.CartManager.add({id: '${p.id}', title: '${(p.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${p.price}', image: '${(p.image||'').split(',')[0].trim()}', vendor_id: '${p.user_id || vendor?.id || ''}', vendor: '${(vendor?.company_name || vendor?.name || 'NewKet').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}'})"
+                        onclick="if(window.CartManager) window.CartManager.add({id: '${p.id}', title: '${(p.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${p.price}', image: '${String(cartImage || '').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', vendor_id: '${p.user_id || vendor?.id || ''}', vendor: '${(vendor?.company_name || vendor?.name || 'NewKet').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}'})"
                         class="add-to-cart-btn flex-1 btn-active-scale ${isAvailable ? 'bg-slate-900 hover:bg-slate-800 text-white' : 'bg-gray-200 text-gray-500'} py-2 sm:py-2.5 px-1 sm:px-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md"
                         style="border:none; cursor:pointer;"
                         aria-label="Ajouter ${String(p.name).replace(/"/g, '&quot;')} au panier"
@@ -1162,6 +1165,36 @@ export function getOptimizedImageUrl(url, opts = { width: 320, quality: 75 }) {
 
     return selectedVariant;
 }
+
+/**
+ * Resolves the best available product image from a product object or image token.
+ * Supports multi-image products, legacy field names, and comma-separated strings.
+ */
+export function resolveProductImageSource(productOrImage, opts = {}) {
+    const fallback = opts.fallback || 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    const candidates = Array.isArray(productOrImage)
+        ? productOrImage
+        : [
+            productOrImage?.image,
+            productOrImage?.images,
+            productOrImage?.image_url,
+            productOrImage?.imageUrl,
+            productOrImage?.product_image,
+            productOrImage?.thumbnail,
+            productOrImage?.cover_image,
+            productOrImage
+        ];
+
+    for (const candidate of candidates) {
+        const normalized = getOptimizedImageUrl(candidate, opts);
+        if (normalized && normalized !== fallback) {
+            return normalized;
+        }
+    }
+
+    return fallback;
+}
+window.resolveProductImageSource = resolveProductImageSource;
 
 
 /**

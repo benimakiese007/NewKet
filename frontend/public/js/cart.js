@@ -35,6 +35,32 @@ class CartManager {
         }, { passive: true, capture: true });
     }
 
+    resolveItemImage(product) {
+        const fallback = 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+        if (window.resolveProductImageSource) {
+            return window.resolveProductImageSource(product, { fallback });
+        }
+
+        const candidate = product?.image
+            || product?.images
+            || product?.image_url
+            || product?.imageUrl
+            || product?.product_image
+            || product?.thumbnail
+            || product?.cover_image
+            || '';
+
+        if (window.getOptimizedImageUrl) {
+            return window.getOptimizedImageUrl(candidate) || fallback;
+        }
+
+        if (Array.isArray(candidate)) {
+            return candidate[0] || fallback;
+        }
+
+        return String(candidate || '').trim() || fallback;
+    }
+
     init() {
         if (this.initialized) return;
         this.updateUI();
@@ -70,15 +96,18 @@ class CartManager {
         if (!product || !product.id) return;
 
         const existingItem = this.cart.find(item => item.id === product.id);
+        const resolvedImage = this.resolveItemImage(product);
+        const hasResolvedImage = resolvedImage && resolvedImage !== 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
         
         if (existingItem) {
             existingItem.quantity += quantity;
-            if (product.image) existingItem.image = product.image;
+            if (hasResolvedImage) existingItem.image = resolvedImage;
             if (product.title) existingItem.title = product.title;
             if (product.price) existingItem.price = product.price;
         } else {
             this.cart.push({
                 ...product,
+                image: resolvedImage,
                 quantity: quantity
             });
         }
@@ -91,7 +120,7 @@ class CartManager {
         }
 
         // Trigger fly-to-cart animation
-        this.animateFlyToCart(product.image, this.lastClickEvent);
+        this.animateFlyToCart(resolvedImage, this.lastClickEvent);
         // Reset after use so it doesn't repeat on next add
         setTimeout(() => { this.lastClickEvent = null; this._lastTouch = null; }, 700);
     }
@@ -376,10 +405,11 @@ class CartManager {
         let html = '<div class="space-y-4">';
         items.forEach(item => {
             const priceFormatted = this.formatCurrency(item.price);
+            const resolvedImage = this.resolveItemImage(item);
             html += `
                 <div class="flex gap-4 p-3 bg-white rounded-2xl border border-gray-100 shadow-sm relative">
                     <div class="w-20 h-20 bg-gray-50 rounded-xl overflow-hidden shrink-0 flex items-center justify-center">
-                        <img src="${item.image && item.image !== '/Images/placeholder.png' ? String(item.image).split(',')[0].trim() : 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
+                        <img src="${resolvedImage}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
                     </div>
                     <div class="flex-1 flex flex-col justify-between py-1">
                         <div class="pr-6">

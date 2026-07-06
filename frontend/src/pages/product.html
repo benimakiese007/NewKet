@@ -558,11 +558,14 @@
                 }
                 if (window.CartManager) {
                     const vendor = Array.isArray(p.users) ? p.users[0] : p.users;
+                    const cartImage = window.resolveProductImageSource
+                        ? window.resolveProductImageSource(p)
+                        : (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.images || p.image || p.image_url || p.product_image || p.thumbnail || '') : (Array.isArray(p.images) ? p.images[0] : p.image || p.image_url || p.product_image || p.thumbnail || ''));
                     window.CartManager.add({
                         id: p.id,
                         title: p.name,
                         price: p.price,
-                        image: (p.image || '').split(',')[0].trim(),
+                        image: cartImage,
                         vendor_id: p.user_id || vendor?.id || '',
                         vendor: vendor?.company_name || vendor?.name || 'NewKet Shop'
                     }, quantity);
