@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.payment_webhook_events (
     signature_valid BOOLEAN,
     received_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     processed_at TIMESTAMPTZ,
-    process_status TEXT NOT NULL DEFAULT 'RECEIVED' CHECK (process_status IN ('RECEIVED', 'IGNORED', 'PROCESSED', 'FAILED')),
+    process_status TEXT NOT NULL DEFAULT 'RECEIVED' CHECK (process_status IN ('RECEIVED', 'IGNORED', 'PROCESSED', 'FAILED', 'PROCESSING_FAILED')),
     process_error TEXT
 );
 

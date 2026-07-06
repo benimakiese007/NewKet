@@ -196,10 +196,16 @@ function getRedirectUrl(req) {
 }
 
 function getActivePaymentProvider(req) {
-    if (req?.body?.provider === 'flexpaie' && isFlexpaieConfigured()) {
+    // FlexPaie (Mobile Money) est le provider principal en production
+    if (isFlexpaieConfigured()) {
         return 'flexpaie';
     }
-    return 'stripe';
+    // Stripe est uniquement un fallback pour les tests (dev/staging)
+    // En production avec FlexPaie configuré, ce code n'est jamais atteint
+    if (isStripeConfigured()) {
+        return 'stripe';
+    }
+    return null;
 }
 
 function getCheckoutSuccessUrl(req, orderId, txId) {
@@ -289,6 +295,15 @@ export const initiatePayment = async (req, res) => {
                 return res.status(400).json({ error: `Paiement impossible depuis le statut ${existingOrder.status}.` });
             }
 
+            // Prevent multiple concurrent payments for the same order within a short window (5 minutes)
+            if (existingOrder.payment_status === 'INITIATED' && existingOrder.payment_locked_at) {
+                const lockedAt = new Date(existingOrder.payment_locked_at).getTime();
+                const now = new Date().getTime();
+                if (now - lockedAt < 5 * 60 * 1000) {
+                    return res.status(429).json({ error: "Une tentative de paiement est déjà en cours de création. Veuillez patienter quelques minutes." });
+                }
+            }
+
             order = existingOrder;
             firstItem = Array.isArray(existingOrder.items) ? existingOrder.items[0] : null;
             if (!firstItem?.product_id) {
@@ -332,6 +347,16 @@ export const initiatePayment = async (req, res) => {
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
         const txId = generateTxId();
         const provider = getActivePaymentProvider(req);
+
+        // Guard : aucun provider de paiement n'est configuré
+        if (!provider) {
+            return res.status(503).json({
+                success: false,
+                code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
+                error: 'Paiement indisponible',
+                message: 'Le système de paiement Mobile Money est temporairement indisponible. Veuillez réessayer plus tard.'
+            });
+        }
 
         if (!orderId) {
             const resolvedCustomerEmail = customer_email || req.user?.email;
@@ -486,6 +511,23 @@ export const initiatePayment = async (req, res) => {
             hint: error.hint || null,
             code: error.code || null
         });
+
+        // Release the payment lock so the user isn't stuck for 5 minutes if provider API fails
+        try {
+            if (typeof orderId !== 'undefined' && orderId) {
+                const client = supabaseAdmin || supabase;
+                await client
+                    .from('orders')
+                    .update({ 
+                        payment_status: 'PENDING',
+                        payment_locked_at: null,
+                        payment_lock_reason: null
+                    })
+                    .eq('id', orderId);
+            }
+        } catch (unlockError) {
+            console.error('Failed to release payment lock:', unlockError);
+        }
 
         return res.status(500).json({
             success: false,

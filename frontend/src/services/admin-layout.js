@@ -29,7 +29,8 @@ const AdminLayout = {
         settings: 'settings',
         'notion-manager': 'notion-manager',
         comptabilite: 'comptabilite',
-        disputes: 'disputes'
+        disputes: 'disputes',
+        payouts: 'payouts'
     },
 
     ensureNoFoucStyles() {
@@ -531,6 +532,7 @@ const AdminLayout = {
 
             { href: this.getShellHref('orders'), icon: 'solar:bag-bold', label: 'Commandes & Retraits', view: 'orders', section: 'Opérations' },
             { href: this.getShellHref('disputes'), icon: 'solar:shield-warning-bold', label: 'Gestion des Litiges', view: 'disputes', section: 'Opérations' },
+            { href: this.getShellHref('payouts'), icon: 'solar:wallet-money-bold', label: 'Payouts Vendeurs', view: 'payouts', section: 'Opérations' },
             { href: this.getShellHref('notifications-admin'), icon: 'solar:bell-bing-bold', label: 'Notifications', view: 'notifications-admin', section: 'Opérations' },
             { href: this.getShellHref('support'), icon: 'solar:chat-round-dots-bold', label: 'Support Platform', view: 'support', section: 'Opérations' },
             { href: this.getShellHref('newsletter'), icon: 'solar:letter-bold', label: 'Newsletter', view: 'newsletter', section: 'Opérations' },

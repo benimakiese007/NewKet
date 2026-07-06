@@ -966,6 +966,11 @@ const AuthManager = {
             return;
         }
 
+        if (this.role === 'admin' && (path.includes('customer-dashboard') || path.includes('favorites') || path.includes('achat'))) {
+            window.location.href = this.getRedirectPathForRole(this.role, this.status);
+            return;
+        }
+
         const body = document.body;
         body.classList.add(`role-${this.role}`);
         if (this.status) body.classList.add(`status-${this.status}`);
@@ -1013,15 +1018,26 @@ const AuthManager = {
                 el.style.display = '';
             });
             
-            // On cache explicitement les boutons de publication pour l'admin
-            document.querySelectorAll('.publish-btn').forEach(el => {
-                el.style.display = 'none';
-            });
-            
-            // On cache explicitement les boutons d'achat / panier pour l'admin
-            document.querySelectorAll('#mainOrderBtn, .add-to-cart-btn, #floatingOrderBtn, .cart-icon, .checkout-btn').forEach(el => {
-                el.style.display = 'none';
-            });
+            // Injection CSS globale pour garantir le masquage même sur les éléments chargés dynamiquement
+            if (!document.getElementById('admin-restrictions-style')) {
+                const style = document.createElement('style');
+                style.id = 'admin-restrictions-style';
+                style.innerHTML = `
+                    body.role-admin .admin-hidden,
+                    body.role-admin .add-to-cart-btn,
+                    body.role-admin .wishlist-btn,
+                    body.role-admin .cart-icon,
+                    body.role-admin #cartBtnTablet,
+                    body.role-admin #mainOrderBtn,
+                    body.role-admin #floatingOrderBtn,
+                    body.role-admin #mainWishlistBtn,
+                    body.role-admin .checkout-btn,
+                    body.role-admin .publish-btn {
+                        display: none !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
 
             // Sauvegarde : Rediriger l'admin loin des pages exclusives aux fournisseurs (onboarding) ou de checkout
             if (window.location.pathname.includes('seller-onboarding') || window.location.pathname.includes('achat.html')) {

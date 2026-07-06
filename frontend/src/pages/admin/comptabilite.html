@@ -36,7 +36,15 @@
                 </div>
                 <div class="admin-page-actions flex w-full flex-col gap-3 lg:w-auto lg:items-end">
                     <div class="grid w-full gap-3">
-                        <div class="flex flex-wrap gap-2 sm:w-auto sm:justify-end">
+                        <div class="flex flex-wrap items-center gap-4 sm:w-auto sm:justify-end">
+                            <div class="flex items-center gap-2 mr-2">
+                                <span class="text-[10px] font-black tracking-widest text-gray-900" id="label-cdf">CDF</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="currencySwitch" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-black"></div>
+                                </label>
+                                <span class="text-[10px] font-black tracking-widest text-gray-400" id="label-usd">USD</span>
+                            </div>
                             <button id="exportCsvBtn" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-black text-white border border-black hover:bg-gray-800 transition-colors flex items-center gap-2">
                                 <iconify-icon icon="lucide:download" width="16"></iconify-icon>
                                 EXPORTER EN CSV
@@ -102,8 +110,29 @@
     <script type="module">
         const BASE_URL = '/api/admin/accounting';
 
+        let currentCurrency = 'CDF';
+        let kpisData = null;
+
+        function getExchangeRate() {
+            return window.ConfigManager ? window.ConfigManager.getExchangeRate() : 2850;
+        }
+
         async function formatCurrency(amount) {
-            return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(amount);
+            if (currentCurrency === 'USD') {
+                const amountUsd = amount / getExchangeRate();
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(amountUsd);
+            }
+            return new Intl.NumberFormat('fr-CD', { style: 'currency', currency: 'CDF', maximumFractionDigits: 0 }).format(amount);
+        }
+
+        async function renderKPIs() {
+            if (!kpisData) return;
+            document.getElementById('kpi-mrr').textContent = await formatCurrency(kpisData.mrr);
+            document.getElementById('kpi-arr').textContent = await formatCurrency(kpisData.arr);
+            document.getElementById('kpi-gmv').textContent = await formatCurrency(kpisData.totalGMV);
+            document.getElementById('kpi-total-commissions').textContent = await formatCurrency(kpisData.totalCommissions);
+            document.getElementById('kpi-escrow-held').textContent = await formatCurrency(kpisData.totalEscrowHeld);
+            document.getElementById('kpi-escrow-released').textContent = await formatCurrency(kpisData.totalEscrowReleased);
         }
 
         async function fetchKPIs() {
@@ -121,12 +150,8 @@
 
                 const { kpis } = await res.json();
 
-                document.getElementById('kpi-mrr').textContent = await formatCurrency(kpis.mrr);
-                document.getElementById('kpi-arr').textContent = await formatCurrency(kpis.arr);
-                document.getElementById('kpi-gmv').textContent = await formatCurrency(kpis.totalGMV);
-                document.getElementById('kpi-total-commissions').textContent = await formatCurrency(kpis.totalCommissions);
-                document.getElementById('kpi-escrow-held').textContent = await formatCurrency(kpis.totalEscrowHeld);
-                document.getElementById('kpi-escrow-released').textContent = await formatCurrency(kpis.totalEscrowReleased);
+                kpisData = kpis;
+                await renderKPIs();
 
             } catch (err) {
                 console.error('Erreur chargement KPIs:', err);
@@ -254,6 +279,15 @@
                 console.error(err);
                 alert("Erreur lors de l'exportation CSV.");
             });
+        });
+
+        document.getElementById('currencySwitch').addEventListener('change', async (e) => {
+            currentCurrency = e.target.checked ? 'USD' : 'CDF';
+            document.getElementById('label-cdf').classList.toggle('text-gray-900', currentCurrency === 'CDF');
+            document.getElementById('label-cdf').classList.toggle('text-gray-400', currentCurrency !== 'CDF');
+            document.getElementById('label-usd').classList.toggle('text-gray-900', currentCurrency === 'USD');
+            document.getElementById('label-usd').classList.toggle('text-gray-400', currentCurrency !== 'USD');
+            await renderKPIs();
         });
 
         // Init

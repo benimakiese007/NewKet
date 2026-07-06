@@ -49,15 +49,19 @@
                 </div>
                 <div class="admin-page-actions flex w-full flex-col gap-3 lg:w-auto lg:items-end">
                     <div class="grid w-full gap-3">
-                        <div class="flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
-                            <div class="grid flex-1 grid-cols-3 gap-2">
+                        <div class="flex w-full flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm">
+                            <div class="grid w-full sm:w-auto grid-cols-3 gap-2 shrink-0">
                                 <button class="rt-range-btn bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest" data-days="7" data-track-action="admin_realtime:range_7d_click">7j</button>
                                 <button class="rt-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30" data-track-action="admin_realtime:range_30d_click">30j</button>
                                 <button class="rt-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90" data-track-action="admin_realtime:range_90d_click">90j</button>
                             </div>
-                            <button id="toggleRealtimeDateFiltersBtn" data-track-action="admin_realtime:toggle_filters_click" type="button" aria-expanded="false" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black sm:w-auto">Filtres</button>
+                            <div class="flex w-full sm:w-auto flex-wrap gap-2 justify-start sm:justify-end">
+                                <button id="toggleRealtimeDateFiltersBtn" data-track-action="admin_realtime:toggle_filters_click" type="button" aria-expanded="false" class="flex items-center justify-center px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors" title="Filtres de date">
+                                    <iconify-icon icon="lucide:filter" class="text-base"></iconify-icon>
+                                </button>
+                            </div>
                         </div>
-                        <div id="realtimeDateFilters" hidden class="grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+                        <div id="realtimeDateFilters" class="hidden grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
                             <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                 <span>Du</span>
                                 <input id="realtimeDateStart" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />

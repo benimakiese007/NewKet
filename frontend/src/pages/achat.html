@@ -615,24 +615,46 @@
 
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
+                if(btnSticky) btnSticky.disabled = true;
                 if (window.clearInlineFeedback) window.clearInlineFeedback(btn);
                 btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Ouverture...';
+                if(btnSticky) btnSticky.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon> Ouverture...';
+
+                // FIX #3: Timeout 15s — if server takes too long, unblock the button and inform the user
+                const PAYMENT_TIMEOUT_MS = 15000;
+                let timeoutId;
+                const timeoutPromise = new Promise((_, reject) => {
+                    timeoutId = setTimeout(() => reject(new Error('La connexion prend trop de temps. Vérifiez votre connexion et réessayez.')), PAYMENT_TIMEOUT_MS);
+                });
+
+                let isRedirecting = false;
                 try {
-                    const data = await OrderManager.initiatePayment(orderId, {
-                        promo_code: safeText(promoInput?.value).trim().toUpperCase() || null
-                    });
+                    const data = await Promise.race([
+                        OrderManager.initiatePayment(orderId, {
+                            promo_code: safeText(promoInput?.value).trim().toUpperCase() || null
+                        }),
+                        timeoutPromise
+                    ]);
+                    clearTimeout(timeoutId);
                     if (data?.payment_url) {
+                        isRedirecting = true;
                         window.location.href = data.payment_url;
                         return;
                     }
                     if (window.showInlineFeedback) window.showInlineFeedback(btn, safeText(data?.error || 'Lien de paiement non reçu'), 'error');
                 } catch (e) {
-                    if (window.showInlineFeedback) window.showInlineFeedback(btn, safeText(e?.message || "Erreur lors de l'ouverture du paiement"), 'error');
+                    clearTimeout(timeoutId);
+                    // FIX #4: Extract the server error message properly (handles 429 and other API errors)
+                    const serverMsg = e?.data?.error || e?.data?.message || e?.message || "Erreur lors de l'ouverture du paiement";
+                    if (window.showInlineFeedback) window.showInlineFeedback(btn, safeText(serverMsg), 'error');
                 } finally {
-                    btn.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant';
-                    if(btnSticky) {
-                        btnSticky.disabled = false;
-                        btnSticky.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon> Payer';
+                    if (!isRedirecting) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant';
+                        if(btnSticky) {
+                            btnSticky.disabled = false;
+                            btnSticky.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon> Payer';
+                        }
                     }
                 }
             });

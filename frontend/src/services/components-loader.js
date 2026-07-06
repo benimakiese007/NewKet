@@ -82,7 +82,7 @@ const HEADER_HTML = `
                     </a>
 
                     <!-- Favorites Icon (Mobile) -->
-                    <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button admin-hidden relative inline-flex items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                         title="Favoris" aria-label="Voir les favoris">
                         <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
                         <span class="favorites-badge absolute top-0 right-0 bg-gray-900 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
@@ -133,7 +133,7 @@ const HEADER_HTML = `
 
                 <!-- Cart Icon (Tablet) -->
                 <button id="cartBtnTablet" onclick="window.CartManager && window.CartManager.toggleCartUI()" 
-                    class="header-icon-button relative hidden items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                    class="header-icon-button admin-hidden relative hidden items-center justify-center p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Panier" aria-label="Mon panier">
                     <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22" class="text-white"></iconify-icon>
                     <span class="cart-badge absolute top-0 right-0 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:14px; height:14px;">0</span>
@@ -179,7 +179,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Favorites -->
-                <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                <a href="{{ROOT}}src/pages/favorites.html" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Favoris" aria-label="Voir les favoris">
                     <iconify-icon icon="solar:heart-linear" width="22" class="text-white"></iconify-icon>
                     <span
@@ -188,7 +188,7 @@ const HEADER_HTML = `
                 </a>
 
                 <!-- Cart -->
-                <button onclick="window.CartManager && window.CartManager.toggleCartUI()" class="header-icon-button relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                <button onclick="window.CartManager && window.CartManager.toggleCartUI()" class="header-icon-button admin-hidden relative p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                     title="Panier" aria-label="Voir le panier">
                     <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22" class="text-white"></iconify-icon>
                     <span
@@ -269,7 +269,7 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                     <span>Vendre</span>
                 </a>
-                <a href="{{ROOT}}src/pages/favorites.html" class="mobile-menu-shortcut-card">
+                <a href="{{ROOT}}src/pages/favorites.html" class="mobile-menu-shortcut-card admin-hidden">
                     <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
                     <span>Favoris</span>
                 </a>
@@ -457,7 +457,7 @@ const getBottomNavHTML = (role) => {
         </span>
         <span class="text-[9px] font-bold tracking-wide text-white mt-1">Vendre</span>
     </a>` : ''}
-    <a href="#" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
+    <a href="#" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item admin-hidden relative flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
         <iconify-icon icon="solar:cart-large-minimalistic-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
         <span class="cart-badge absolute -top-1 right-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
         <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Panier</span>

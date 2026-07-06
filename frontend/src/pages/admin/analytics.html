@@ -48,19 +48,22 @@
                 </div>
                 <div class="admin-page-actions flex w-full flex-col gap-3 lg:w-auto lg:items-end">
                     <div class="grid w-full gap-3">
-                        <div class="flex w-full flex-col gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm sm:flex-row sm:items-stretch">
-                            <div class="grid flex-1 grid-cols-3 gap-2">
+                        <div class="flex w-full flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm">
+                            <div class="grid w-full sm:w-auto grid-cols-3 gap-2 shrink-0">
                                 <button class="analytics-range-btn bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest" data-days="7" data-track-action="admin_analytics:range_7d_click">7j</button>
                                 <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30" data-track-action="admin_analytics:range_30d_click">30j</button>
                                 <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90" data-track-action="admin_analytics:range_90d_click">90j</button>
                             </div>
-                            <div class="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+                            <div class="flex w-full sm:w-auto flex-wrap gap-2 justify-start sm:justify-end">
                                 <button id="resetBehaviorBtn" data-track-action="admin_analytics:reset_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-red-200 text-red-700">Réinitialiser</button>
                                 <button id="exportCsvBtn" data-track-action="admin_analytics:export_csv_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">CSV</button>
                                 <button id="exportJsonBtn" data-track-action="admin_analytics:export_json_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">JSON</button>
+                                <button id="toggleQuickDateBtn" class="flex items-center justify-center px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50" title="Filtres de date">
+                                    <iconify-icon icon="lucide:filter" class="text-base"></iconify-icon>
+                                </button>
                             </div>
                         </div>
-                        <div class="grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+                        <div id="quickDateRangeBlock" class="hidden grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
                             <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
                                 <span>Du</span>
                                 <input id="analyticsQuickStart" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
@@ -1225,6 +1228,11 @@
 
             document.getElementById('applyQuickDateRangeBtn').addEventListener('click', applyAnalyticsQuickDateRange);
             document.getElementById('clearQuickDateRangeBtn').addEventListener('click', clearAnalyticsQuickDateRange);
+            
+            document.getElementById('toggleQuickDateBtn').addEventListener('click', () => {
+                const block = document.getElementById('quickDateRangeBlock');
+                block.classList.toggle('hidden');
+            });
 
             document.getElementById('applyFiltersBtn').addEventListener('click', () => {
                 applyStateFromControls();

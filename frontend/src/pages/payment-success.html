@@ -101,8 +101,11 @@
             let resolvedOrderId = null;
             let statusPollTimer = null;
 
-            const MAX_STATUS_POLLS = 6;
-            const STATUS_POLL_DELAY_MS = 2000;
+            // FIX #1 & #2: 20 attempts with exponential backoff (~60s total window).
+            // Redirect ONLY triggered after server confirms PAID — never on a fixed timer.
+            const MAX_STATUS_POLLS = 20;
+            const BASE_POLL_DELAY_MS = 2000;
+            const MAX_POLL_DELAY_MS = 6000;
             const PAID_PAYMENT_STATUSES = new Set(['paid', 'success', 'successful', 'succeeded', 'completed']);
             const PENDING_PAYMENT_STATUSES = new Set(['pending', 'initiated', 'processing', 'verification']);
             const FAILED_PAYMENT_STATUSES = new Set(['failed', 'failure', 'cancelled', 'canceled', 'expired', 'declined', 'refunded']);
@@ -176,6 +179,22 @@
                 if (statusIcon) statusIcon.setAttribute('icon', 'solar:clock-circle-bold');
             }
 
+            // FIX #2: After max polls, show clear guidance instead of leaving user stranded
+            function setPollingExhaustedUI() {
+                clearStatusPollTimer();
+                if (pageTitle) pageTitle.textContent = 'Verification paiement | NewKet';
+                if (statusTitle) statusTitle.textContent = 'Confirmation en attente';
+                if (statusDescription) {
+                    statusDescription.innerHTML = 'Le paiement a peut-être été effectué mais la confirmation prend plus de temps que prévu. <strong>Consultez vos commandes</strong> dans quelques minutes pour voir le statut mis à jour. Si vous avez été débité, votre commande sera bien enregistrée.';
+                }
+                if (statusLabel) statusLabel.textContent = 'En cours de traitement';
+                if (statusBadge) statusBadge.className = 'flex items-center gap-2 text-xs font-black uppercase tracking-widest text-amber-600';
+                if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-amber-500';
+                if (statusGlow) statusGlow.className = 'absolute inset-0 rounded-full bg-amber-500/10';
+                if (statusIconShell) statusIconShell.className = 'relative flex h-full w-full items-center justify-center rounded-full bg-amber-500 text-white shadow-xl shadow-amber-500/20';
+                if (statusIcon) statusIcon.setAttribute('icon', 'solar:clock-circle-bold');
+            }
+
             function setSuccessUI() {
                 clearStatusPollTimer();
                 try {
@@ -187,6 +206,7 @@
 
                 window.dispatchEvent(new CustomEvent('ordersUpdated'));
 
+                // FIX #1: Redirect ONLY after server confirms PAID, not on a fixed page-load timer
                 if (window.__newketPaymentRedirectTimer) {
                     clearTimeout(window.__newketPaymentRedirectTimer);
                 }
@@ -197,7 +217,7 @@
                             ? `/src/pages/customer-dashboard.html#orders?tx_ref=${encodeURIComponent(txRef)}`
                             : '/src/pages/customer-dashboard.html#orders');
                     window.location.href = target;
-                }, 2500);
+                }, 3000);
 
                 const count = 200;
                 const defaults = {
@@ -233,15 +253,23 @@
                 }
             }
 
+            // FIX #2: Exponential backoff (2s → 4s → 6s max) to be gentler on the server
+            function getNextPollDelay(attempt) {
+                return Math.min(BASE_POLL_DELAY_MS * Math.pow(1.3, attempt), MAX_POLL_DELAY_MS);
+            }
+
             function scheduleStatusRetry(attempt) {
                 clearStatusPollTimer();
                 if (attempt >= MAX_STATUS_POLLS) {
+                    // FIX #2: Don't leave user stranded — show meaningful message
+                    setPollingExhaustedUI();
                     return;
                 }
 
+                const delay = getNextPollDelay(attempt);
                 statusPollTimer = setTimeout(() => {
                     refreshStatus(attempt + 1);
-                }, STATUS_POLL_DELAY_MS);
+                }, delay);
             }
 
             async function refreshStatus(attempt = 0) {
@@ -305,5 +333,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>

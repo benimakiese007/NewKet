@@ -1174,13 +1174,19 @@ function getTopVendorDateRangeFromInputs() {
 function setTopVendorFiltersVisible(isVisible) {
     const panel = $id('realtimeDateFilters');
     const button = $id('toggleRealtimeDateFiltersBtn');
-    if (panel) panel.hidden = !isVisible;
+    if (panel) {
+        if (isVisible) {
+            panel.classList.remove('hidden');
+        } else {
+            panel.classList.add('hidden');
+        }
+    }
     if (button) button.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
 }
 
 function toggleTopVendorFilters() {
     const panel = $id('realtimeDateFilters');
-    setTopVendorFiltersVisible(!(panel && !panel.hidden));
+    setTopVendorFiltersVisible(panel ? panel.classList.contains('hidden') : false);
 }
 
 function applyTopVendorDateRange() {

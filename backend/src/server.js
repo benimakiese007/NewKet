@@ -43,6 +43,7 @@ import integrationRoutes from './routes/integrationRoutes.js';
 import vendorPayoutRoutes from './routes/vendor-payout.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import accountingRoutes from './routes/accounting.routes.js';
+import adminPayoutsRoutes from './routes/admin-payouts.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 import { processDuePushNotificationJobsJob } from './services/push-queue.service.js';
@@ -237,6 +238,7 @@ app.use('/api/integrations', integrationRoutes);
 app.use('/api/vendor-payouts', vendorPayoutRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admin/accounting', accountingRoutes);
+app.use('/api/admin/payouts', adminPayoutsRoutes);
 
 app.use(sentryErrorHandler);
 
