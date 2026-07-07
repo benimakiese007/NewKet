@@ -13,7 +13,7 @@ const CATEGORY_NAV_HTML_TEMPLATE = `
                 <div class="relative">
                     <!-- Scroll left button (hidden at start) -->
                     <button id="catNavScrollLeft"
-                        class="hidden absolute left-0 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-all shrink-0 border border-white/10"
+                        class="hidden absolute left-0 top-1/2 -translate-y-1/2 z-20 w-7 h-7 /15 /30 text-white flex items-center justify-center transition-all shrink-0 -white/10"
                         aria-label="Défiler à gauche">
                         <iconify-icon icon="solar:alt-arrow-left-bold" width="14"></iconify-icon>
                     </button>
@@ -220,7 +220,7 @@ const HEADER_HTML = `
             <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572411/newket_assets/racine/Logo_Vert_Pour_Fond_Blanc.png" alt="NewKet" width="240" height="96" class="h-12 w-auto object-contain">
             <p class="mobile-menu-subtitle text-gray-500">Votre navigation principale</p>
         </div>
-        <button id="closeMobileMenu" class="p-4 rounded-full bg-gray-100/80 hover:bg-gray-200 transition-all btn-active-scale shadow-sm" aria-label="Fermer le menu">
+        <button id="closeMobileMenu" class="p-2 transition-all btn-active-scale" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
         </button>
     </div>
@@ -273,6 +273,11 @@ const HEADER_HTML = `
                     <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
                     <span>Favoris</span>
                 </a>
+                <a href="{{ROOT}}src/pages/notifications.html" class="mobile-menu-shortcut-card non-seller-ui-element">
+                    <iconify-icon icon="solar:bell-linear" width="20"></iconify-icon>
+                    <span>Notifications</span>
+                    <span class="notification-badge bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden absolute top-2 right-2">0</span>
+                </a>
             </div>
         </div>
 
@@ -309,22 +314,7 @@ const HEADER_HTML = `
 
             <div class="mobile-menu-sections-right">
 
-	        <div class="mb-6">
-	            <h3 class="mobile-menu-section-title">Personnel</h3>
-	            <nav class="flex flex-col gap-1">
-	                <a href="{{ROOT}}src/pages/notifications.html"
-                    class="mobile-menu-link flex items-center justify-between px-4 py-3.5 rounded-xl hover:bg-gray-100/50 text-gray-700 font-medium transition-all active:scale-[0.98]">
-                    <span class="flex items-center gap-3"><iconify-icon icon="solar:bell-linear"
-                            width="20"></iconify-icon> Notifications</span>
-                    <span
-                        class="notification-badge bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded-full hidden">0</span>
-                </a>
-                <button data-action="install-app" id="pwa-install-btn"
-                    class="hidden mobile-menu-link flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-medium mt-2 transition-all">
-                    <iconify-icon icon="solar:download-square-bold" width="20"></iconify-icon> Installer l'Application
-                </button>
-                </nav>
-            </div>
+
 
             <div class="header-quick-links mb-6 border-t border-gray-50 pt-6">
                 <h3 class="mobile-menu-section-title">Liens utiles</h3>
@@ -614,7 +604,7 @@ const ComponentLoader = {
         // Load Cookie Consent globally
         if (!window.cookieConsent) {
             const script = document.createElement('script');
-            script.src = this.getAdjustedPath('/js/cookie-consent.js');
+            script.src = this.getAdjustedPath('/cookie-consent.js');
             document.head.appendChild(script);
         }
 
@@ -707,6 +697,14 @@ const ComponentLoader = {
                 }
             } else {
                 el.style.setProperty('display', 'none', 'important');
+            }
+        });
+
+        document.querySelectorAll('.non-seller-ui-element').forEach(el => {
+            if (isSeller) {
+                el.style.setProperty('display', 'none', 'important');
+            } else {
+                el.style.removeProperty('display');
             }
         });
     },

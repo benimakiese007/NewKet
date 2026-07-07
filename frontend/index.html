@@ -49,6 +49,8 @@
     <link rel="stylesheet" href="src/assets/css/input.css">
     <!-- Theme FOUC prevention — synchronous, blocks rendering -->
     <script src="/security-bootstrap.js"></script>
+    <!-- RGPD — Bannière de consentement cookies (chargée avant tout tracker tiers) -->
+    <script src="/cookie-consent.js" defer></script>
     <script type="module" src="src/services/app-home.js"></script>
     <script type="module" src="src/services/home-hero.js"></script>
         <script src="/vendor/iconify-preload.js" defer></script>
@@ -63,7 +65,7 @@
     <link rel="stylesheet" href="src/assets/css/responsive.css">
     <style>
         html, body {
-            overscroll-behavior-y: contain;
+            /* overscroll-behavior-y: contain; */
         }
 
         /* Evite le fond blanc visible dans la zone notch/overscroll */

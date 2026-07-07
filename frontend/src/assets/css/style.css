@@ -207,7 +207,7 @@ html.dark .skeleton {
 }
 
 html, body {
-  overscroll-behavior-y: none;
+  /* overscroll-behavior-y: none; Removed because it breaks touchpad scrolling on Windows */
 }
 
 /* 

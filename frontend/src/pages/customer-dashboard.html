@@ -199,7 +199,7 @@
 </head><body>    <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] transition-all duration-300">
         <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
         <div class="flex items-center gap-4 sm:gap-6">
-            <button id="customerMobileBtn" data-toggle-sidebar="customer" data-track-action="customer_dashboard:mobile_menu_click" class="p-2.5 bg-gray-50 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 focus:outline-none flex items-center justify-center transition-all">
+            <button id="customerMobileBtn" data-toggle-sidebar="customer" data-track-action="customer_dashboard:mobile_menu_click" class="p-2.5 text-gray-500 hover:text-black focus:outline-none flex items-center justify-center transition-all">
                 <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
             </button>
         </div>
@@ -344,7 +344,7 @@
                     </div>
                     <!-- Filter buttons -->
                     <div class="flex items-center gap-2 mb-8" id="purchasesFilterBar">
-                        <button type="button" class="purchases-filter-btn bg-black text-white shadow-lg px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="all">
+                        <button type="button" class="purchases-filter-btn bg-black text-white shadow-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all" data-filter="all">
                             Tout
                         </button>
                         <button type="button" class="purchases-filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="paid">
@@ -853,7 +853,7 @@
                     <!-- Actions Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3">
                         <button id="btnAcceptQuote" type="button"
-                            class="hidden flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                            class="hidden flex-1 py-3 bg-black text-white font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
                             Accepter le devis
                         </button>
@@ -1767,6 +1767,10 @@
             if (requiresCurrentPassword && !currentPass) { showToast('Veuillez saisir votre mot de passe actuel.', 'error'); return; }
             if (!np) { showToast('Veuillez saisir un nouveau mot de passe.', 'error'); return; }
             if (np.length < 8) { showToast('Le mot de passe doit faire au moins 8 caractères.', 'error'); return; }
+            if (!/[a-z]/.test(np)) { showToast('Le mot de passe doit contenir au moins une minuscule.', 'error'); return; }
+            if (!/[A-Z]/.test(np)) { showToast('Le mot de passe doit contenir au moins une majuscule.', 'error'); return; }
+            if (!/[0-9]/.test(np)) { showToast('Le mot de passe doit contenir au moins un chiffre.', 'error'); return; }
+            if (!/[^A-Za-z0-9]/.test(np)) { showToast('Le mot de passe doit contenir au moins un caractère spécial (!, @, #, $…).', 'error'); return; }
             if (np !== cp) { showToast('Les mots de passe ne correspondent pas.', 'error'); return; }
 
             try {

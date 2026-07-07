@@ -44,6 +44,8 @@ import vendorPayoutRoutes from './routes/vendor-payout.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import accountingRoutes from './routes/accounting.routes.js';
 import adminPayoutsRoutes from './routes/admin-payouts.routes.js';
+import gdprRoutes from './routes/gdpr.routes.js';
+import consentRoutes from './routes/consent.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 import { processDuePushNotificationJobsJob } from './services/push-queue.service.js';
@@ -154,13 +156,6 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: () => process.env.NODE_ENV === 'development',
-  // Prevent crash when request.ip is undefined (e.g. behind a proxy without trust proxy set)
-  keyGenerator: (req) => {
-    return req.ip
-      || req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-      || req.socket?.remoteAddress
-      || 'unknown';
-  },
   validate: { xForwardedForHeader: false },
 });
 app.use('/api', limiter);
@@ -239,6 +234,8 @@ app.use('/api/vendor-payouts', vendorPayoutRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admin/accounting', accountingRoutes);
 app.use('/api/admin/payouts', adminPayoutsRoutes);
+app.use('/api/gdpr', gdprRoutes);
+app.use('/api/consent', consentRoutes);
 
 app.use(sentryErrorHandler);
 

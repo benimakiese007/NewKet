@@ -1530,7 +1530,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                                 <span id="${modalId}-stock-hint" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${stockLimit ? `Stock dispo: ${stockLimit}` : 'Quantité libre'}</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <button type="button" id="${modalId}-qty-minus" class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 font-black text-2xl leading-none hover:bg-gray-100 transition-colors flex items-center justify-center" aria-label="Réduire la quantité">−</button>
+                                <button type="button" id="${modalId}-qty-minus" class="-gray-200 text-gray-700 font-black text-2xl leading-none transition-colors flex items-center justify-center" aria-label="Réduire la quantité">−</button>
                                 <input type="number" id="${modalId}-quantity" min="1" ${stockLimit ? `max="${stockLimit}"` : ''} value="${initialQuantity}" inputmode="numeric"
                                     class="flex-1 h-12 rounded-xl border border-gray-200 bg-gray-50 text-center text-base font-black text-gray-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                 <button type="button" id="${modalId}-qty-plus" class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 font-black text-2xl leading-none hover:bg-gray-100 transition-colors flex items-center justify-center" aria-label="Augmenter la quantité">+</button>
@@ -2050,7 +2050,7 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
                 <p class="text-sm text-gray-500 font-medium leading-relaxed mb-8">${message}</p>
                 
                 <div class="flex gap-3">
-                    <button onclick="window.closeConfirm('${modalId}', false)" class="flex-1 px-6 py-3.5 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95">
+                    <button onclick="window.closeConfirm('${modalId}', false)" class="flex-1 px-6 py-3.5 text-gray-600 font-bold transition-all active:scale-95">
                         Annuler
                     </button>
                     <button onclick="window.closeConfirm('${modalId}', true)" class="flex-1 px-6 py-3.5 bg-gray-900 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95">
