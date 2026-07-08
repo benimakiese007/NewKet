@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import { supabaseAdmin } from '../config/supabase.js';
 import { flushCache } from '../middlewares/cache.js';
+import { auditProductImageNow } from '../services/product-image-watchdog.service.js';
 
 // ─── Singleton Supabase client ─────────────────────────────────────────────
 // On réutilise une seule instance pour éviter la fuite de connexions WebSocket
@@ -221,6 +222,10 @@ export const createProduct = async (req, res) => {
         // Invalider le cache après création
         flushCache('/api/products');
 
+        void auditProductImageNow(data).catch((watchError) => {
+            console.warn('[ProductImageWatchdog] Immediate audit failed after create:', watchError.message);
+        });
+
         res.status(201).json(data);
     } catch (err) {
         console.error('❌ createProduct error:', err);
@@ -265,6 +270,10 @@ export const updateProduct = async (req, res) => {
 
         // Invalider le cache après mise à jour
         flushCache('/api/products');
+
+        void auditProductImageNow(data).catch((watchError) => {
+            console.warn('[ProductImageWatchdog] Immediate audit failed after update:', watchError.message);
+        });
 
         res.json(data);
     } catch (err) {

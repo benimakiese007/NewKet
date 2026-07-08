@@ -49,11 +49,13 @@ import consentRoutes from './routes/consent.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
 import { processDuePushNotificationJobsJob } from './services/push-queue.service.js';
+import { processProductImageWatchdogJob } from './services/product-image-watchdog.service.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ESCROW_JOB_INTERVAL_MS = 15 * 60 * 1000;
 const PUSH_JOB_INTERVAL_MS = 60 * 1000;
+const PRODUCT_IMAGE_WATCHDOG_INTERVAL_MS = 30 * 60 * 1000;
 const IS_VERCEL = String(process.env.VERCEL || '').toLowerCase() === '1' || Boolean(process.env.VERCEL);
 
 app.disable('x-powered-by');
@@ -309,6 +311,18 @@ if (!IS_VERCEL) {
       console.error('[PushJob] Scheduled run failed:', error.message);
     });
   }, PUSH_JOB_INTERVAL_MS);
+
+  setTimeout(() => {
+    processProductImageWatchdogJob().catch((error) => {
+      console.error('[ProductImageWatchdog] Startup run failed:', error.message);
+    });
+  }, 25000);
+
+  setInterval(() => {
+    processProductImageWatchdogJob().catch((error) => {
+      console.error('[ProductImageWatchdog] Scheduled run failed:', error.message);
+    });
+  }, PRODUCT_IMAGE_WATCHDOG_INTERVAL_MS);
 } else {
   console.log('[Jobs] Vercel detected: background intervals disabled. Use /api/cron/* endpoints with Vercel Cron Jobs.');
 }

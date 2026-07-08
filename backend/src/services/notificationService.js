@@ -13,7 +13,7 @@ async function createDbNotification(payload) {
 
     if (error) {
         console.error('[NotificationService] Error creating DB notification:', error);
-        return;
+        return null;
     }
 
     try {
@@ -24,6 +24,8 @@ async function createDbNotification(payload) {
     } catch (err) {
         console.error('[NotificationService] Web push error:', err);
     }
+
+    return payload;
 }
 
 async function fetchOrder(orderId) {
@@ -56,6 +58,43 @@ async function fetchUserById(userId) {
     }
 
     return data;
+}
+
+async function fetchUserByEmail(email) {
+    if (!email) return null;
+
+    const { data, error } = await supabaseAdmin
+        .from('users')
+        .select('id, email, name, role')
+        .eq('email', email)
+        .single();
+
+    if (error || !data) {
+        console.error(`[NotificationService] User ${email} not found:`, error);
+        return null;
+    }
+
+    return data;
+}
+
+async function resolveVendorRecipient(product = {}) {
+    if (product.user_id) {
+        const user = await fetchUserById(product.user_id);
+        if (user?.email) return user;
+    }
+
+    if (product.supplier_email) {
+        const user = await fetchUserByEmail(product.supplier_email);
+        if (user?.email) return user;
+        return {
+            id: null,
+            email: product.supplier_email,
+            name: product.supplier_name || 'Vendeur',
+            role: 'supplier'
+        };
+    }
+
+    return null;
 }
 
 const NotificationService = {
@@ -362,6 +401,38 @@ const NotificationService = {
             });
         } catch (error) {
             console.error('[NotificationService] notifyVendorManualPayout error:', error);
+        }
+    },
+
+    async notifyVendorProductImageIssue(product, issue = {}) {
+        if (!product?.id) return;
+
+        try {
+            const vendor = await resolveVendorRecipient(product);
+            if (!vendor?.email) return;
+
+            const productName = product.name || 'Produit NewKet';
+            const reason = issue.reason || 'image inaccessible';
+            const detail = issue.detail ? ` (${issue.detail})` : '';
+            const nowIso = new Date().toISOString();
+            const signature = issue.signature || 'unknown';
+
+            const created = await createDbNotification({
+                id: `notif-product-image-${product.id}-${signature}`,
+                ...(vendor.id ? { user_id: vendor.id } : {}),
+                user_email: vendor.email,
+                title: 'Image produit a verifier',
+                message: `Le garde-fou a detecte un probleme sur l'image de "${productName}"${detail}.`,
+                type: 'warning',
+                target_role: 'supplier',
+                read: false,
+                date: nowIso
+            });
+
+            return Boolean(created);
+        } catch (error) {
+            console.error('[NotificationService] notifyVendorProductImageIssue error:', error);
+            return false;
         }
     },
 

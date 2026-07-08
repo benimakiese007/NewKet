@@ -151,13 +151,15 @@
                         </div>
 
                         <div class="flex flex-col gap-2 mb-8">
-                            <div class="flex items-baseline gap-3 flex-wrap">
+                            <div class="flex flex-col gap-1">
                                 <span id="productPrice" class="text-2xl font-black text-gray-900 leading-none">... FC</span>
-                                <span id="productDiscountBadge" class="hidden promo-discount-badge inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-[0.12em]">
-                                    -0%
-                                </span>
+                                <div id="productPromoRow" class="hidden flex items-center gap-2 flex-wrap">
+                                    <span id="productOldPrice" class="hidden old-price old-price-large text-sm sm:text-base font-semibold text-gray-400"></span>
+                                    <span id="productDiscountBadge" class="hidden promo-discount-badge inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-[0.12em]">
+                                        -0%
+                                    </span>
+                                </div>
                             </div>
-                            <span id="productOldPrice" class="hidden old-price old-price-large text-sm sm:text-base font-semibold text-gray-400"></span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
                             <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
@@ -356,8 +358,9 @@
             const oldPrice = p.oldPrice || p.old_price;
             const oldPriceEl = document.getElementById('productOldPrice');
             const discountBadgeEl = document.getElementById('productDiscountBadge');
+            const promoRowEl = document.getElementById('productPromoRow');
             const hasPromo = oldPrice && Number(oldPrice) > Number(p.price);
-            if (oldPriceEl && discountBadgeEl) {
+            if (oldPriceEl && discountBadgeEl && promoRowEl) {
                 if (hasPromo) {
                     const oldPriceStr = window.CurrencyManager ? CurrencyManager.formatPrice(oldPrice) : `${Number(oldPrice).toLocaleString()} FC`;
                     const discountPercent = Math.round(((Number(oldPrice) - Number(p.price)) / Number(oldPrice)) * 100);
@@ -365,11 +368,13 @@
                     oldPriceEl.classList.remove('hidden');
                     discountBadgeEl.textContent = `-${discountPercent}%`;
                     discountBadgeEl.classList.remove('hidden');
+                    promoRowEl.classList.remove('hidden');
                 } else {
                     oldPriceEl.textContent = '';
                     oldPriceEl.classList.add('hidden');
                     discountBadgeEl.textContent = '';
                     discountBadgeEl.classList.add('hidden');
+                    promoRowEl.classList.add('hidden');
                 }
             }
 

@@ -645,6 +645,11 @@ export function buildProductCardHTML(p, options = {}) {
     const discountBadge = discountPercent > 0
         ? `<span class="promo-discount-badge" style="display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:10px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;">-${discountPercent}%</span>`
         : '';
+    const priceMetaHTML = discountBadge
+        ? (oldPriceDisplay
+            ? `<div class="flex items-center gap-2 flex-wrap">${oldPriceDisplay ? `<span class="old-price">${oldPriceDisplay}</span>` : ''}${discountBadge}</div>`
+            : `<div class="mt-1">${discountBadge}</div>`)
+        : (oldPriceDisplay ? `<span class="old-price">${oldPriceDisplay}</span>` : '');
 
     // Badge
     let badgeHTML = '';
@@ -746,8 +751,7 @@ export function buildProductCardHTML(p, options = {}) {
                 </div>
                 <div class="product-price">
                     <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
-                    ${oldPriceDisplay ? `<span class="old-price">${oldPriceDisplay}</span>` : ''}
-                    ${discountBadge}
+                    ${priceMetaHTML}
                 </div>
                 <div class="flex items-center gap-1 sm:gap-2 mt-auto pt-1 sm:pt-2">
                     <button 
