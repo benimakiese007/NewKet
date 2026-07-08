@@ -615,11 +615,18 @@ export function buildProductCardHTML(p, options = {}) {
     } = options;
     const isFavorite = window.FavoritesManager ? FavoritesManager.isInFavorites(p.id) : false;
 
-    // Handle image (could be comma separated) — optimize first image for thumbnails
-    const images = (p.image || '').split(',');
-    let rawImg = images[0].trim() || 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    // Handle image (could be comma separated or array-backed) — use the first real token.
+    const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    const primaryImageSource = Array.isArray(p.images) && p.images.length > 0
+        ? p.images[0]
+        : (p.image || p.image_url || p.imageUrl || p.product_image || p.thumbnail || p.cover_image || '');
+    const resolvedPrimaryImage = window.resolveProductImageSource
+        ? window.resolveProductImageSource(primaryImageSource || p)
+        : '';
+    const images = splitImageCandidates(primaryImageSource || resolvedPrimaryImage || '');
+    let rawImg = (resolvedPrimaryImage || images[0] || fallbackImg);
     if (rawImg.toLowerCase() === '/images/placeholder.png') {
-        rawImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+        rawImg = fallbackImg;
     }
     const mainImg = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(rawImg, { width: 320, quality: 75 }) : rawImg;
     const mainImgSrcSet = window.buildResponsiveImageSrcSet
@@ -628,8 +635,6 @@ export function buildProductCardHTML(p, options = {}) {
     const mainImgSizes = prioritizeImage
         ? '(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 240px'
         : '(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 200px';
-    const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
-
     // Format price
     const priceDisplay = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : `${(p.price || 0).toLocaleString()} FC`;
     const oldPrice = p.oldPrice || p.old_price;
@@ -1053,9 +1058,10 @@ function extractPrimaryImageToken(source) {
         }
     }
 
-    // Handle Postgres array syntax like "{url1,url2}" and stray brackets/quotes
+    // Handle Postgres array syntax like "{url1,url2}" and stray brackets/quotes.
+    // Do not blindly split on commas because Cloudinary transformation URLs use commas too.
     let cleanedValue = extractedValue.replace(/^\{|\}$/g, '').replace(/^\[|\]$/g, '');
-    let firstPart = cleanedValue.split(',')[0].trim();
+    let firstPart = splitImageCandidates(cleanedValue)[0] || '';
     
     // Clean wrapping quotes
     return firstPart.replace(/^"|"$/g, '').replace(/^'|'$/g, '').trim();
@@ -1092,9 +1098,85 @@ function isValidResponsiveImageBaseUrl(value) {
     return true;
 }
 
+function splitImageCandidates(value) {
+    if (Array.isArray(value)) {
+        return value.map((item) => String(item || '').trim()).filter(Boolean);
+    }
+
+    const raw = String(value || '').trim();
+    if (!raw) return [];
+
+    const multiTokenSplit = raw.split(/,(?=\s*(?:https?:\/\/|\/?(?:product-images|vendor-covers|user-assets|vendor-docs|site-assets)\/|Images\/))/i);
+    if (multiTokenSplit.length > 1) {
+        return multiTokenSplit.map((item) => item.trim()).filter(Boolean);
+    }
+
+    return [raw];
+}
+
+function isKnownPlaceholderImageUrl(value) {
+    const token = String(value || '').trim();
+    if (!token) return false;
+
+    try {
+        const parsed = new URL(token, window.location.origin);
+        return ['loremflickr.com', 'placehold.co', 'via.placeholder.com', 'picsum.photos'].includes(parsed.hostname);
+    } catch {
+        return /loremflickr|placehold|picsum/i.test(token);
+    }
+}
+
+function isOptimizableImageSource(value) {
+    const token = String(value || '').trim();
+    if (!token || token.startsWith('data:') || token.startsWith('blob:')) return false;
+    if (isKnownPlaceholderImageUrl(token)) return false;
+
+    try {
+        const parsed = new URL(token, window.location.origin);
+        if (parsed.origin === window.location.origin) return true;
+        return /\.supabase\.co$/i.test(parsed.hostname);
+    } catch {
+        return token.startsWith('Images/')
+            || token.startsWith('/Images/')
+            || token.startsWith('product-images/')
+            || token.startsWith('site-assets/')
+            || token.startsWith('user-assets/');
+    }
+}
+
+function appendImageQueryParam(url, key, value) {
+    const raw = String(url || '').trim();
+    if (!raw) return raw;
+
+    // Leave non-network sources untouched.
+    if (raw.startsWith('data:') || raw.startsWith('blob:')) return raw;
+
+    try {
+        const parsed = new URL(raw, window.location.origin);
+        parsed.searchParams.set(key, String(value));
+        // Preserve relative-looking URLs as site-relative paths.
+        if (/^(?:[a-zA-Z][a-zA-Z\d+\-.]*:)?\/\//.test(raw) || raw.startsWith('http')) {
+            return parsed.toString();
+        }
+        return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    } catch {
+        const hashIndex = raw.indexOf('#');
+        const queryIndex = raw.indexOf('?');
+        const pathEnd = hashIndex >= 0 ? hashIndex : raw.length;
+        const path = queryIndex >= 0 && queryIndex < pathEnd ? raw.slice(0, queryIndex) : raw.slice(0, pathEnd);
+        const existingQuery = queryIndex >= 0 && queryIndex < pathEnd ? raw.slice(queryIndex + 1, pathEnd) : '';
+        const hash = hashIndex >= 0 ? raw.slice(hashIndex) : '';
+        const params = new URLSearchParams(existingQuery);
+        params.set(key, String(value));
+        const query = params.toString();
+        return `${path}${query ? `?${query}` : ''}${hash}`;
+    }
+}
+
 function selectResponsiveImageUrl(source, opts = {}) {
     const token = extractPrimaryImageToken(source);
     if (!token || token === 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') return 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    if (isKnownPlaceholderImageUrl(token)) return 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
 
     if (token.startsWith('data:') || token.startsWith('blob:')) {
         return token;
@@ -1131,14 +1213,15 @@ export function buildResponsiveImageSrcSet(source, widths = [240, 320, 480], opt
     // Guard clauses for invalid, placeholder, or non-network images.
     if (!resolvedUrl || resolvedUrl === 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') return '';
     if (resolvedUrl.startsWith('data:') || resolvedUrl.startsWith('blob:')) return '';
+    if (isKnownPlaceholderImageUrl(resolvedUrl)) return '';
+    if (!isOptimizableImageSource(resolvedUrl)) return '';
     if (!isValidResponsiveImageBaseUrl(resolvedUrl)) return '';
 
     // If the token already points to a full image path, generate srcset using
     // the provided widths. We assume a Supabase image URL where we can append
     // the `?w=` query parameter to request a specific width.
-    const baseUrl = resolvedUrl.startsWith('Images/') ? `/${resolvedUrl}` : resolvedUrl;
     const srcset = widths
-        .map((w) => `${baseUrl}?w=${w} ${w}w`)
+        .map((w) => `${appendImageQueryParam(resolvedUrl.startsWith('Images/') ? `/${resolvedUrl}` : resolvedUrl, 'w', w)} ${w}w`)
         .join(', ');
     return srcset;
 }

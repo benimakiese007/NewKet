@@ -25,6 +25,7 @@ const ProductManager = {
     // Pagination state
     _currentPage: 1,
     _totalCount: 0,
+    _totalCountKnown: false,
     _hasMore: true,
     _loading: false,
     _error: false,
@@ -54,6 +55,7 @@ const ProductManager = {
 
         // Reset pagination and load first page from network
         this._currentPage = 1;
+        this._totalCountKnown = false;
         this._hasMore = true;
         this.fetchFreshData().finally(() => {
             this.loading = false;
@@ -123,11 +125,19 @@ const ProductManager = {
                     });
                     products = fetchedProducts || [];
                     this._totalCount = products.length;
+                    this._totalCountKnown = false;
                     this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
 
                     // Non-blocking count
                     window.SupabaseAdapter.countRows('products', { timeout: 7000 })
-                        .then(count => { if(count) this._totalCount = count; })
+                        .then(count => {
+                            if (typeof count === 'number') {
+                                this._totalCount = count;
+                                this._totalCountKnown = true;
+                                this._hasMore = this.products.length < this._totalCount;
+                                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                            }
+                        })
                         .catch(() => {});
                 } catch (joinErr) {
                     const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
@@ -137,10 +147,18 @@ const ProductManager = {
                     });
                     products = fetchedProducts || [];
                     this._totalCount = products.length;
+                    this._totalCountKnown = false;
                     this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
 
                     window.SupabaseAdapter.countRows('products', { timeout: 7000 })
-                        .then(count => { if(count) this._totalCount = count; })
+                        .then(count => {
+                            if (typeof count === 'number') {
+                                this._totalCount = count;
+                                this._totalCountKnown = true;
+                                this._hasMore = this.products.length < this._totalCount;
+                                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                            }
+                        })
                         .catch(() => {});
                 }
             }
@@ -148,8 +166,11 @@ const ProductManager = {
                 const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_PAGE_SIZE}`);
                 if (result && result.data) {
                     products = result.data;
-                    this._totalCount = result.count;
-                    this._hasMore = products.length < result.count;
+                    this._totalCount = result.count || products.length;
+                    this._totalCountKnown = typeof result.count === 'number';
+                    this._hasMore = typeof result.count === 'number'
+                        ? products.length < result.count
+                        : products.length === PRODUCTS_PAGE_SIZE;
                 }
             }
 
@@ -210,6 +231,7 @@ const ProductManager = {
         try {
             const offset = this._currentPage * PRODUCTS_PAGE_SIZE;
             let newProducts = [];
+            let moreResultsExist = null;
 
             // ── Priorité 1 : SupabaseAdapter ──
             if (window.SupabaseAdapter && window.supabaseClient) {
@@ -218,7 +240,19 @@ const ProductManager = {
                     order: ['created_at', { ascending: false }],
                     range: [offset, offset + PRODUCTS_PAGE_SIZE - 1]
                 });
-                this._hasMore = newProducts.length === PRODUCTS_PAGE_SIZE;
+                if (this._totalCountKnown && this._totalCount > 0) {
+                    this._hasMore = (this.products.length + newProducts.length) < this._totalCount;
+                } else if (newProducts.length === PRODUCTS_PAGE_SIZE) {
+                    const probe = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: 'id',
+                        order: ['created_at', { ascending: false }],
+                        range: [offset + PRODUCTS_PAGE_SIZE, offset + PRODUCTS_PAGE_SIZE]
+                    });
+                    moreResultsExist = Array.isArray(probe) && probe.length > 0;
+                    this._hasMore = moreResultsExist;
+                } else {
+                    this._hasMore = false;
+                }
             }
             // ── Fallback : ApiClient ──
             else if (window.ApiClient) {
@@ -226,7 +260,13 @@ const ProductManager = {
                 const result = await window.ApiClient.get(`/products?page=${nextPage}&limit=${PRODUCTS_PAGE_SIZE}`);
                 if (result && result.data) {
                     newProducts = result.data;
-                    this._hasMore = this.products.length + newProducts.length < this._totalCount;
+                    if (typeof result.count === 'number') {
+                        this._totalCount = result.count;
+                        this._totalCountKnown = true;
+                        this._hasMore = (this.products.length + newProducts.length) < this._totalCount;
+                    } else {
+                        this._hasMore = newProducts.length === PRODUCTS_PAGE_SIZE;
+                    }
                 }
             }
 
@@ -234,6 +274,15 @@ const ProductManager = {
                 const mappedNew = newProducts.map(p => this._mapProduct(p));
                 this.products = [...this.products, ...mappedNew];
                 this._currentPage++;
+
+                if (this._totalCountKnown) {
+                    this._hasMore = this.products.length < this._totalCount;
+                } else if (moreResultsExist !== null) {
+                    this._hasMore = moreResultsExist;
+                } else if (newProducts.length < PRODUCTS_PAGE_SIZE) {
+                    this._hasMore = false;
+                }
+
                 window.dispatchEvent(new CustomEvent('productsUpdated'));
             } else {
                 this._hasMore = false;

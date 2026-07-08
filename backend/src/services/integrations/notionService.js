@@ -1,7 +1,100 @@
 import { Client } from '@notionhq/client';
+import { createHash } from 'crypto';
+import sharp from 'sharp';
 import { supabaseAdmin } from '../../config/supabase.js';
 
+const PRODUCT_IMAGE_BUCKET = 'product-images';
+const DEFAULT_PRODUCT_IMAGE = 'https://ui-avatars.com/api/?name=NewKet&size=400&background=1a1a2e&color=ffffff';
+
+const PLACEHOLDER_HOSTS = new Set([
+    'loremflickr.com',
+    'placehold.co',
+    'via.placeholder.com',
+    'picsum.photos'
+]);
+
+function normalizeToken(value) {
+    return String(value || '').trim();
+}
+
+function isSupabasePublicImageUrl(value) {
+    const token = normalizeToken(value);
+    return /^https?:\/\/[^/]+\/storage\/v1\/object\/public\/(?:product-images|vendor-covers|user-assets|vendor-docs|site-assets)\//i.test(token);
+}
+
+function isPlaceholderImageUrl(value) {
+    const token = normalizeToken(value);
+    if (!token) return false;
+    try {
+        const parsed = new URL(token);
+        return PLACEHOLDER_HOSTS.has(parsed.hostname);
+    } catch {
+        return /loremflickr|placehold|picsum/i.test(token);
+    }
+}
+
+function extractNotionImageUrls(property) {
+    if (!property) return [];
+
+    if (typeof property.url === 'string' && property.url.trim()) {
+        return [property.url.trim()];
+    }
+
+    if (Array.isArray(property.files)) {
+        return property.files
+            .flatMap((file) => [file?.file?.url, file?.external?.url, file?.url])
+            .map(normalizeToken)
+            .filter(Boolean);
+    }
+
+    return [];
+}
+
 class NotionService {
+    async _uploadImageToBucket(sourceUrl, { vendorId, pageId, index, cache }) {
+        const token = normalizeToken(sourceUrl);
+        if (!token) return '';
+        if (isSupabasePublicImageUrl(token)) return token;
+        if (isPlaceholderImageUrl(token)) return token;
+
+        if (cache?.has(token)) {
+            return cache.get(token);
+        }
+
+        const response = await fetch(token, { redirect: 'follow' });
+        if (!response.ok) {
+            throw new Error(`Image fetch failed (${response.status}) for ${token}`);
+        }
+
+        const contentType = response.headers.get('content-type') || 'application/octet-stream';
+        const arrayBuffer = await response.arrayBuffer();
+        const inputBuffer = Buffer.from(arrayBuffer);
+
+        const outputBuffer = await sharp(inputBuffer)
+            .resize({ width: 1600, withoutEnlargement: true })
+            .webp({ quality: 82 })
+            .toBuffer();
+
+        const hash = createHash('sha1').update(token).digest('hex').slice(0, 16);
+        const objectPath = `notion/${vendorId || 'vendor'}/${pageId || 'page'}/${index}_${hash}.webp`;
+
+        const uploadRes = await supabaseAdmin.storage
+            .from(PRODUCT_IMAGE_BUCKET)
+            .upload(objectPath, outputBuffer, {
+                contentType: 'image/webp',
+                upsert: true
+            });
+
+        if (uploadRes.error) {
+            throw uploadRes.error;
+        }
+
+        const { data } = supabaseAdmin.storage.from(PRODUCT_IMAGE_BUCKET).getPublicUrl(objectPath);
+        const publicUrl = data?.publicUrl || token;
+        if (cache) cache.set(token, publicUrl);
+        return publicUrl;
+    }
+
     /**
      * Crée la base de données "Catalogue" dans le Notion du vendeur.
      * Si une base "📦 Catalogue NewKet" existe déjà, retourne son ID sans en créer une nouvelle.
@@ -231,19 +324,30 @@ class NotionService {
                     // Taux de change personnalisé
                     const customExchangeRate = props['Taux (FC/$)']?.number ?? null;
 
-                    // Collecter jusqu'à 5 images
-                    const imageUrls = [
-                        props['Image 1']?.url,
-                        props['Image 2']?.url,
-                        props['Image 3']?.url,
-                        props['Image 4']?.url,
-                        props['Image 5']?.url,
-                        // Compatibilité avec l'ancienne colonne "URL Image"
-                        props['URL Image']?.url
-                    ].filter(url => url && url.trim() !== '');
+                    // Collecter jusqu'à 5 images, puis les stabiliser dans Supabase Storage.
+                    const rawImageUrls = [
+                        ...extractNotionImageUrls(props['Image 1']),
+                        ...extractNotionImageUrls(props['Image 2']),
+                        ...extractNotionImageUrls(props['Image 3']),
+                        ...extractNotionImageUrls(props['Image 4']),
+                        ...extractNotionImageUrls(props['Image 5']),
+                        ...extractNotionImageUrls(props['URL Image'])
+                    ].filter((url, idx, arr) => url && arr.indexOf(url) === idx);
 
-                    // Image principale = la première (avec fallback auto si aucune)
-                    const image = imageUrls[0] || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=400&background=1a1a2e&color=ffffff`;
+                    const imageCache = new Map();
+                    const imageUrls = [];
+                    for (let i = 0; i < rawImageUrls.length && imageUrls.length < 5; i++) {
+                        const normalized = await this._uploadImageToBucket(rawImageUrls[i], {
+                            vendorId,
+                            pageId: page.id,
+                            index: i,
+                            cache: imageCache
+                        });
+                        if (normalized) imageUrls.push(normalized);
+                    }
+
+                    // Image principale = la première image normalisée.
+                    const image = imageUrls[0] || DEFAULT_PRODUCT_IMAGE;
                     // Tableau complet pour galerie (max 5)
                     const images = imageUrls.length > 0 ? imageUrls.slice(0, 5) : [image];
 
