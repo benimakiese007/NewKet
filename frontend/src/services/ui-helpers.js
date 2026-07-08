@@ -617,9 +617,9 @@ export function buildProductCardHTML(p, options = {}) {
 
     // Handle image (could be comma separated) — optimize first image for thumbnails
     const images = (p.image || '').split(',');
-    let rawImg = images[0].trim() || 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    let rawImg = images[0].trim() || 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
     if (rawImg.toLowerCase() === '/images/placeholder.png') {
-        rawImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+        rawImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
     }
     const mainImg = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(rawImg, { width: 320, quality: 75 }) : rawImg;
     const mainImgSrcSet = window.buildResponsiveImageSrcSet
@@ -628,7 +628,7 @@ export function buildProductCardHTML(p, options = {}) {
     const mainImgSizes = prioritizeImage
         ? '(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 240px'
         : '(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 200px';
-    const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    const fallbackImg = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
 
     // Format price
     const priceDisplay = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : `${(p.price || 0).toLocaleString()} FC`;
@@ -1094,7 +1094,7 @@ function isValidResponsiveImageBaseUrl(value) {
 
 function selectResponsiveImageUrl(source, opts = {}) {
     const token = extractPrimaryImageToken(source);
-    if (!token || token === 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') return 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    if (!token || token === 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') return 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
 
     if (token.startsWith('data:') || token.startsWith('blob:')) {
         return token;
@@ -1129,7 +1129,7 @@ function selectResponsiveImageUrl(source, opts = {}) {
 export function buildResponsiveImageSrcSet(source, widths = [240, 320, 480], opts = {}) {
     const resolvedUrl = selectResponsiveImageUrl(source, opts);
     // Guard clauses for invalid, placeholder, or non-network images.
-    if (!resolvedUrl || resolvedUrl === 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') return '';
+    if (!resolvedUrl || resolvedUrl === 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') return '';
     if (resolvedUrl.startsWith('data:') || resolvedUrl.startsWith('blob:')) return '';
     if (!isValidResponsiveImageBaseUrl(resolvedUrl)) return '';
 
@@ -1147,15 +1147,15 @@ export function buildResponsiveImageSrcSet(source, widths = [240, 320, 480], opt
  * Normalizes an image URL and applies Supabase image transformations when possible.
  */
 export function getOptimizedImageUrl(url, opts = { width: 320, quality: 75 }) {
-    if (!url) return 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    if (!url) return 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
     
     if (Array.isArray(url) && url.length === 0) {
-        return 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+        return 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
     }
 
     const firstImg = extractPrimaryImageToken(url);
-    if (!firstImg || firstImg === 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') {
-        return 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    if (!firstImg || firstImg === 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') {
+        return 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
     }
 
     const selectedVariant = selectResponsiveImageUrl(firstImg, opts);
@@ -1171,7 +1171,7 @@ export function getOptimizedImageUrl(url, opts = { width: 320, quality: 75 }) {
  * Supports multi-image products, legacy field names, and comma-separated strings.
  */
 export function resolveProductImageSource(productOrImage, opts = {}) {
-    const fallback = opts.fallback || 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+    const fallback = opts.fallback || 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
     const candidates = Array.isArray(productOrImage)
         ? productOrImage
         : [

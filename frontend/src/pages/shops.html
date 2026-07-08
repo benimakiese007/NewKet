@@ -44,7 +44,7 @@
         }
 
         .hero-bg-image {
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572394/newket_assets/frontend/src/assets/Images/marketplace-hero.jpg');
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572394/newket_assets/frontend/src/assets/Images/marketplace-hero.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -443,9 +443,9 @@
                             <div class="space-y-3">
                                 <h3 class="text-xl font-black text-gray-900 group-hover:text-black transition-colors leading-tight">${shopName}</h3>
                                 
-                                <div class="flex flex-col items-center gap-1">
+                                <div class="flex flex-col items-center gap-2 mt-1">
                                     ${ratingHtml}
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em]">${seller.store_description ? seller.store_description.substring(0,30)+'...' : 'Partenaire de Luxe'}</p>
+                                    <p class="text-xs text-gray-500 font-medium line-clamp-2 leading-relaxed px-4">${seller.store_description ? seller.store_description : 'Partenaire de Luxe'}</p>
                                 </div>
                             </div>
 

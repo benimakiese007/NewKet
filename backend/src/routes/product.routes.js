@@ -7,7 +7,10 @@ import {
     deleteProduct,
     deleteBulkProducts,
     updateBulkCategory,
-    getRankedCategories
+    getRankedCategories,
+    archiveProduct,
+    restoreProduct,
+    getVendorArchivedProducts
 } from '../controllers/product.controller.js';
 import { optionalAuth, requireAuth } from '../middlewares/auth.js';
 import { cacheMiddleware } from '../middlewares/cache.js';
@@ -57,6 +60,9 @@ router.put('/:id',
 );
 
 router.delete('/:id', requireAuth, deleteProduct);
+router.patch('/:id/archive', requireAuth, archiveProduct);
+router.patch('/:id/restore', requireAuth, restoreProduct);
+router.get('/vendor/archived', requireAuth, getVendorArchivedProducts);
 
 // Actions groupées
 router.post('/bulk-delete', 

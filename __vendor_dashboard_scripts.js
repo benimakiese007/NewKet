@@ -1762,10 +1762,13 @@
                         <div class="glass-panel p-4 flex flex-col group relative">
                             <div class="aspect-square bg-gray-50 rounded-xl mb-3 overflow-hidden relative">
                                  <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '') : (p.image ? p.image.split(',')[0] : '')}"${buildResponsiveImageAttrs(p.image ? p.image.split(',')[0] : '', [120, 180, 240], '120px', { quality: 75 })} alt="${p.name}" loading="lazy" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform" onerror="this.src='../assets/Images/default.png'">
-                                 <!-- Edit/Delete Overlay -->
+                                 <!-- Edit/Delete/Archive Overlay -->
                                  <div class="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                                      <button type="button" onclick="window.location.href='${window.resolvePath('pages/publish')}?edit=${p.id}'" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Modifier" aria-label="Modifier">
                                          <iconify-icon icon="solar:pen-bold" width="20"></iconify-icon>
+                                     </button>
+                                     <button type="button" onclick="archiveVendorProduct('${p.id}')" class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Archiver" aria-label="Archiver">
+                                         <iconify-icon icon="solar:archive-bold" width="20"></iconify-icon>
                                      </button>
                                      <button type="button" onclick="deleteProduct('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Supprimer" aria-label="Supprimer">
                                          <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
@@ -1787,6 +1790,9 @@
                                 <button type="button" onclick="window.location.href='${window.resolvePath('pages/publish')}?edit=${p.id}'" class="flex-1 py-2.5 bg-black text-white rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
                                     <iconify-icon icon="solar:pen-bold" width="14"></iconify-icon>
                                     Modifier
+                                </button>
+                                <button type="button" onclick="archiveVendorProduct('${p.id}')" class="w-10 h-10 rounded-xl border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 transition-all flex items-center justify-center shadow-sm" title="Archiver" aria-label="Archiver">
+                                    <iconify-icon icon="solar:archive-bold" width="16"></iconify-icon>
                                 </button>
                                 <button type="button" onclick="deleteProduct('${p.id}')" class="w-10 h-10 rounded-xl border border-gray-100 text-red-500 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm" title="Supprimer" aria-label="Supprimer">
                                     <iconify-icon icon="solar:trash-bin-trash-bold" width="16"></iconify-icon>
@@ -1825,7 +1831,192 @@
                     }
                 }
 
+                async function archiveVendorProduct(id) {
+                    const runArchive = async () => {
+                        try {
+                            if (!window.ProductManager || typeof ProductManager.archiveProduct !== 'function') {
+                                if (window.showToast) showToast('Fonctionnalité indisponible.', 'error');
+                                return;
+                            }
+                            const success = await ProductManager.archiveProduct(id);
+                            if (success) {
+                                if (window.showToast) showToast('Article archivé. Il n\'est plus visible dans le catalogue.', 'success');
+                                renderVendorDashboard();
+                                renderVendorProducts();
+                                renderVendorArchived();
+                                _updateArchivedCountBadge();
+                                if (window.ActivityManager) ActivityManager.log('Article archivé', 'stock');
+                            } else {
+                                if (window.showToast) showToast('Erreur lors de l\'archivage.', 'error');
+                            }
+                        } catch (err) {
+                            if (window.showToast) showToast('Erreur lors de l\'archivage.', 'error');
+                        }
+                    };
+
+                    if (typeof window.showConfirm === 'function') {
+                        window.showConfirm(
+                            'Archiver cet article',
+                            'L\'article sera masqué du catalogue mais pourra être restauré à tout moment.',
+                            runArchive
+                        );
+                        return;
+                    }
+                    if (confirm('Archiver cet article ? Il sera masqué du catalogue mais pourra être restauré.')) {
+                        await runArchive();
+                    }
+                }
+
+                async function restoreVendorProduct(id) {
+                    try {
+                        if (!window.ProductManager || typeof ProductManager.restoreProduct !== 'function') {
+                            if (window.showToast) showToast('Fonctionnalité indisponible.', 'error');
+                            return;
+                        }
+                        const success = await ProductManager.restoreProduct(id);
+                        if (success) {
+                            if (window.showToast) showToast('Article restauré ! Il est de nouveau visible dans le catalogue.', 'success');
+                            renderVendorDashboard();
+                            renderVendorProducts();
+                            renderVendorArchived();
+                            _updateArchivedCountBadge();
+                            if (window.ActivityManager) ActivityManager.log('Article restauré dans le catalogue', 'stock');
+                        } else {
+                            if (window.showToast) showToast('Erreur lors de la restauration.', 'error');
+                        }
+                    } catch (err) {
+                        if (window.showToast) showToast('Erreur lors de la restauration.', 'error');
+                    }
+                }
+
+                function _updateArchivedCountBadge() {
+                    const badge = document.getElementById('vendorArchivedCountBadge');
+                    if (!badge || !window.ProductManager) return;
+                    const count = ProductManager.getArchivedProducts ? ProductManager.getArchivedProducts().length : 0;
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                }
+
+                function renderVendorArchived() {
+                    const grid = document.getElementById('vendor-archived-grid');
+                    const emptyState = document.getElementById('vendor-archived-empty');
+                    if (!grid) return;
+
+                    if (!window.ProductManager) {
+                        grid.innerHTML = `<div class="col-span-full glass-panel p-12 text-center text-gray-500"><p>Catalogue indisponible</p></div>`;
+                        return;
+                    }
+
+                    const archivedProducts = ProductManager.getArchivedProducts ? ProductManager.getArchivedProducts() : [];
+
+                    if (!archivedProducts.length) {
+                        grid.innerHTML = '';
+                        if (emptyState) {
+                            emptyState.classList.remove('hidden');
+                            emptyState.style.display = 'flex';
+                        }
+                        _updateArchivedCountBadge();
+                        return;
+                    }
+
+                    if (emptyState) {
+                        emptyState.classList.add('hidden');
+                        emptyState.style.display = '';
+                    }
+
+                    grid.innerHTML = archivedProducts.map(p => `
+                        <div class="glass-panel p-4 flex flex-col group relative opacity-75 hover:opacity-100 transition-opacity">
+                            <!-- Archived badge -->
+                            <div class="absolute top-2 left-2 z-10 bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <iconify-icon icon="solar:archive-bold" width="10"></iconify-icon>
+                                Archivé
+                            </div>
+                            <div class="aspect-square bg-gray-50 rounded-xl mb-3 overflow-hidden relative">
+                                <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '') : (p.image ? p.image.split(',')[0] : '')}" alt="${p.name}" loading="lazy" class="w-full h-full object-contain p-4 grayscale group-hover:grayscale-0 transition-all" onerror="this.src='../assets/Images/default.png'">
+                            </div>
+                            <h3 class="font-bold text-sm mb-1 truncate text-gray-600">${p.name}</h3>
+                            <div class="flex items-center justify-between text-xs mb-3">
+                                <span class="font-black text-gray-400">${CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC'}</span>
+                                <span class="text-gray-400">Stock: ${p.stock || 0}</span>
+                            </div>
+                            <div class="flex gap-2 mt-auto">
+                                <button type="button" onclick="restoreVendorProduct('${p.id}')" class="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-700 transition-all flex items-center justify-center gap-2" title="Restaurer dans le catalogue" aria-label="Restaurer">
+                                    <iconify-icon icon="solar:restart-bold" width="14"></iconify-icon>
+                                    Restaurer
+                                </button>
+                                <button type="button" onclick="deleteProduct('${p.id}')" class="w-10 h-10 rounded-xl border border-gray-100 text-red-500 hover:bg-red-50 transition-all flex items-center justify-center shadow-sm" title="Supprimer définitivement" aria-label="Supprimer">
+                                    <iconify-icon icon="solar:trash-bin-trash-bold" width="16"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    _updateArchivedCountBadge();
+                }
+
+                function switchProductsView(view) {
+                    const onlineView = document.getElementById('vendor-online-view');
+                    const archivedView = document.getElementById('vendor-archived-view');
+                    const btnOnline = document.getElementById('vendorTabOnline');
+                    const btnArchived = document.getElementById('vendorTabArchived');
+                    const searchWrapper = document.getElementById('vendorSearchWrapper');
+
+                    if (!onlineView || !archivedView) return;
+
+                    if (view === 'archived') {
+                        onlineView.classList.add('hidden');
+                        archivedView.classList.remove('hidden');
+                        if (btnOnline) {
+                            btnOnline.className = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800';
+                            btnOnline.setAttribute('aria-pressed', 'false');
+                        }
+                        if (btnArchived) {
+                            btnArchived.className = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm';
+                            btnArchived.setAttribute('aria-pressed', 'true');
+                        }
+                        if (searchWrapper) searchWrapper.classList.add('hidden');
+                        // Load archived products if not already loaded
+                        if (window.ProductManager && typeof ProductManager.fetchVendorArchived === 'function') {
+                            ProductManager.fetchVendorArchived().then(() => renderVendorArchived());
+                        } else {
+                            renderVendorArchived();
+                        }
+                    } else {
+                        onlineView.classList.remove('hidden');
+                        archivedView.classList.add('hidden');
+                        if (btnOnline) {
+                            btnOnline.className = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm';
+                            btnOnline.setAttribute('aria-pressed', 'true');
+                        }
+                        if (btnArchived) {
+                            btnArchived.className = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800';
+                            btnArchived.setAttribute('aria-pressed', 'false');
+                        }
+                        if (searchWrapper) searchWrapper.classList.remove('hidden');
+                        renderVendorProducts();
+                    }
+                }
+
+                // Expose globally for onclick handlers
+                window.archiveVendorProduct = archiveVendorProduct;
+                window.restoreVendorProduct = restoreVendorProduct;
+                window.switchProductsView = switchProductsView;
+
+                // React to archived products data updates
+                window.addEventListener('archivedProductsUpdated', () => {
+                    const archivedView = document.getElementById('vendor-archived-view');
+                    if (archivedView && !archivedView.classList.contains('hidden')) {
+                        renderVendorArchived();
+                    }
+                    _updateArchivedCountBadge();
+                });
+
                 function renderVendorPurchases() {
+
                     const purchasesList = document.getElementById('vendor-purchases-list');
                     if (!purchasesList) return;
                     if (isVendorOrdersDataPending()) {

@@ -207,7 +207,7 @@
             <!-- Center Logo -->
             <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
-                    <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572406/newket_assets/racine/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+                    <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572406/newket_assets/racine/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                 </a>
             </div>
 
@@ -791,7 +791,7 @@
                 <!-- Summary -->
                 <div class="bg-gray-50 rounded-xl p-6 space-y-3">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-200">
-                        <img id="modalInvoiceLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
+                        <img id="modalInvoiceLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
                         <div class="min-w-0">
                             <div class="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Facture</div>
                             <div class="font-black text-gray-900">Aperçu compact</div>
@@ -932,7 +932,7 @@
                 <div class="invoice-header">
                     <div class="invoice-header-top">
                         <div class="invoice-brand">
-                            <img id="invLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="invoice-logo">
+                            <img id="invLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="invoice-logo">
                             <div class="invoice-brand-copy">
                                 <div class="invoice-title">FACTURE</div>
                             </div>
@@ -2450,6 +2450,201 @@
                         <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
                             <iconify-icon icon="solar:bag-broken" width="48"></iconify-icon>
                         </div>
+                return { label: 'Suivre la commande', icon: 'solar:map-point-wave-bold', required: false, kind: 'achat' };
+            }
+            return { label: 'Voir les détails', icon: 'solar:eye-bold', required: false, kind: 'modal' };
+        }
+
+        function renderCustomerOrdersFocusPanels() {
+            const listEl = document.getElementById('customer-active-orders-list');
+            const actionsEl = document.getElementById('customer-required-actions');
+            if (!listEl || !actionsEl) return;
+
+            const orders = getCustomerOrdersForDashboard()
+                .slice()
+                .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+
+            const isOrdersLoading = isCustomerOrdersDataPending() && orders.length === 0 && window.__newketCustomerOrdersFallbackReady !== true;
+            if (isOrdersLoading && typeof window.buildSkeletonPanelListHTML === 'function') {
+                listEl.innerHTML = window.buildSkeletonPanelListHTML(2, { lines: 2, cardClass: 'glass-panel p-4' });
+                actionsEl.innerHTML = window.buildSkeletonPanelListHTML(1, { lines: 2, cardClass: 'glass-panel p-4' });
+                return;
+            }
+
+            const active = orders.filter(o => isCustomerOrderActive(o.status));
+            const topActive = active.slice(0, 3);
+
+            if (topActive.length === 0) {
+                listEl.innerHTML = `
+                    <div class="glass-panel p-8 text-center text-gray-500">
+                        <iconify-icon icon="solar:bag-2-bold" width="44" class="mb-3 text-gray-300"></iconify-icon>
+                        <p class="font-bold text-gray-900">Aucune commande en cours</p>
+                        <p class="mt-2 text-sm">Explorez le catalogue et lancez une demande.</p>
+                        <a href="/src/pages/catalog.html" class="inline-block mt-4 text-xs font-black tracking-widest uppercase text-black border-b border-black">Voir le catalogue</a>
+                    </div>
+                `;
+            } else {
+                listEl.innerHTML = topActive.map(order => {
+                    const id = safeTextLite(order?.id);
+                    const productName = safeTextLite(order?.items?.[0]?.name || order?.product_name || 'Produit');
+                    const statusLabel = window.OrderManager ? safeTextLite(OrderManager.getStatusLabel(order?.status)) : safeTextLite(order?.status);
+                    const amount = (window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function')
+                        ? CurrencyManager.formatPrice(Number(order?.final_total_amount ?? order?.total ?? 0))
+                        : String(order?.final_total_amount ?? order?.total ?? 0);
+                    const next = getCustomerNextAction(order);
+                    const dateLabel = order?.date ? new Date(order.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
+
+                    const onClick = next.kind === 'achat'
+                        ? `window.goToAchatOrder && window.goToAchatOrder('${id}')`
+                        : `(typeof openOrderModal === 'function') && openOrderModal('${id}')`;
+
+                    return `
+                        <div class="glass-panel p-4 hover:border-black/20 transition-all">
+                            <div class="flex items-start justify-between gap-3 sm:gap-4">
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-gray-400 truncate">Commande #${id}${dateLabel ? `  -  ${dateLabel}` : ''}</div>
+                                    <div class="mt-1 font-black text-gray-900 truncate">${productName}</div>
+                                    <div class="mt-1 text-xs sm:text-sm text-gray-500 flex flex-wrap items-center gap-x-2 sm:gap-x-3 gap-y-1">
+                                        <span class="font-semibold text-gray-700">${statusLabel}</span>
+                                        <span class="text-gray-300">|</span>
+                                        <span>${safeTextLite(amount)}</span>
+                                    </div>
+                                </div>
+                                <button type="button"
+                                    class="flex-shrink-0 px-3 py-2 sm:px-4 sm:py-2 rounded-xl bg-black text-white text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest hover:bg-gray-900 transition-colors whitespace-nowrap flex items-center gap-1.5"
+                                    onclick="${onClick}">
+                                    <iconify-icon icon="${next.icon}" width="16"></iconify-icon>
+                                    <span class="hidden sm:inline">${next.label}</span>
+                                    <span class="sm:hidden">${next.label.replace('Voir les détails', 'Détails').replace('Voir le litige', 'Litige').replace('Voir le devis', 'Devis').replace('Payer maintenant', 'Payer').replace('Libérer les fonds', 'Libérer').replace('Suivre la commande', 'Suivre')}</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const required = active
+                .map(o => ({ order: o, next: getCustomerNextAction(o) }))
+                .filter(x => x.next.required)
+                .slice(0, 4);
+
+            if (required.length === 0) {
+                actionsEl.innerHTML = `
+                    <div class="glass-panel p-6 text-center text-gray-500">
+                        <iconify-icon icon="solar:check-circle-bold" width="40" class="mb-3 text-gray-300"></iconify-icon>
+                        <p class="font-bold text-gray-900">Rien d'urgent</p>
+                        <p class="mt-1 text-sm">Vos commandes avancent normalement.</p>
+                    </div>
+                `;
+            } else {
+                actionsEl.innerHTML = required.map(({ order, next }) => {
+                    const id = safeTextLite(order?.id);
+                    const productName = safeTextLite(order?.items?.[0]?.name || order?.product_name || 'Produit');
+                    const onClick = next.kind === 'achat'
+                        ? `window.goToAchatOrder && window.goToAchatOrder('${id}')`
+                        : `(typeof openOrderModal === 'function') && openOrderModal('${id}')`;
+                    return `
+                        <div class="glass-panel p-4 flex items-center justify-between gap-3 hover:border-black/20 transition-all">
+                            <div class="min-w-0">
+                                <div class="text-xs font-black uppercase tracking-widest text-gray-400 truncate">#${id}</div>
+                                <div class="mt-1 text-sm font-bold text-gray-900 truncate">${productName}</div>
+                                <div class="mt-1 text-xs text-gray-500 font-semibold">${next.label}</div>
+                            </div>
+                            <button type="button"
+                                class="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100 transition-colors flex items-center justify-center shrink-0"
+                                aria-label="${next.label}"
+                                onclick="${onClick}">
+                                <iconify-icon icon="${next.icon}" width="18"></iconify-icon>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Re-render dashboard values when currency changes
+        (function bindCustomerCurrencyRerender() {
+            if (window.__newketCustomerCurrencyBound) return;
+            window.__newketCustomerCurrencyBound = true;
+
+            window.addEventListener('currencyChanged', () => {
+                try {
+                    if (typeof renderCustomerDashboardStats === 'function') renderCustomerDashboardStats();
+                    if (typeof renderCustomerOrdersFocusPanels === 'function') renderCustomerOrdersFocusPanels();
+                    if (typeof renderOrders === 'function') renderOrders();
+                    if (typeof renderFavorites === 'function') renderFavorites();
+                } catch (e) {}
+            });
+        })();
+
+        function renderOrders() {
+            const email = localStorage.getItem('newketUserEmail');
+            const userId = localStorage.getItem('newketUserId');
+            let orders = [];
+
+            const ordersList = document.getElementById('orders-list');
+            if (!ordersList) return;
+
+            if (!window.OrderManager || typeof OrderManager.getOrders !== 'function') {
+                ordersList.innerHTML = `
+                    <div class="glass-panel p-12 text-center text-gray-500">
+                        <iconify-icon icon="solar:shield-warning-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                        <p>Module commandes indisponible</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const isOrdersLoading = isCustomerOrdersDataPending();
+            if (isOrdersLoading && typeof window.buildSkeletonPanelListHTML === 'function') {
+                ordersList.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
+                return;
+            }
+
+            if (!window.CurrencyManager || typeof CurrencyManager.formatPrice !== 'function') {
+                ordersList.innerHTML = `
+                    <div class="glass-panel p-12 text-center text-gray-500">
+                        <iconify-icon icon="solar:shield-warning-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                        <p>Module devise indisponible</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (email || userId) {
+                orders = OrderManager.getOrders().filter(o =>
+                    (email && o.customer_email === email) ||
+                    (userId && (o.user_id === userId || o.customer_id === userId))
+                );
+            }
+            // Exclude orders already shown in "Mes achats" (paid / completed / delivered)
+            orders = orders.filter(o => {
+                const s = String(o?.status || '').toUpperCase();
+                const ps = String(o?.payment_status || '').toUpperCase();
+                const isPurchase =
+                    ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED'].includes(ps) ||
+                    ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(s);
+                return !isPurchase;
+            });
+            orders = orders.slice().sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+
+            const ordersBadge = document.getElementById('customerOrdersBadge');
+            if (ordersBadge) {
+                if (orders.length > 0) {
+                    ordersBadge.textContent = String(orders.length);
+                    ordersBadge.classList.remove('hidden');
+                } else {
+                    ordersBadge.classList.add('hidden');
+                }
+            }
+
+            if (!ordersList) return; // Safeguard if DOM is not ready or element is missing
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <iconify-icon icon="solar:bag-broken" width="48"></iconify-icon>
+                        </div>
                         <div class="text-2xl font-bold text-gray-900 mb-2">Aucune commande pour le moment</div>
                         <div class="text-gray-500 mb-8 max-w-sm mx-auto">Vous n'avez pas encore envoyé de demande. L'exceptionnel vous attend, découvrez nos nouveautés.</div>
                         <div class="mt-6">
@@ -2467,10 +2662,7 @@
                     const actionOnClick = next.kind === 'achat'
                         ? `event.stopPropagation(); window.goToAchatOrder && window.goToAchatOrder('${order.id}')`
                         : `event.stopPropagation(); (typeof openOrderModal === 'function') && openOrderModal('${order.id}')`;
-                    const timelineHTML = (typeof buildCustomerOrderTimelineHTML === 'function')
-                        ? buildCustomerOrderTimelineHTML(order)
-                        : '';
-
+                    
                     // Déterminer si c'est au client d'agir sur cette commande
                     const isCustomerTurn = next.required;
                     const yourTurnBadge = isCustomerTurn
@@ -2480,11 +2672,17 @@
                            </span>`
                         : '';
 
+                    // Nom du vendeur / boutique
+                    const vendorDisplayName = order.vendor_company_name || order.vendor_name
+                        || (order.vendor && (order.vendor.company_name || order.vendor.name))
+                        || null;
+
                     return `
                         <div class="glass-panel p-3 sm:p-4 cursor-pointer hover:border-black transition-all group${isCustomerTurn ? ' border-green-200' : ''}" onclick="openOrderModal('${order.id}')">
                             <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-gray-100">
                                 <div>
                                     <div class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.14em]">Demande #${order.id}</div>
+                                    ${vendorDisplayName ? `<div class="text-[11px] font-semibold text-gray-700 mt-0.5 flex items-center gap-1"><iconify-icon icon="solar:shop-bold" width="11" class="text-gray-400"></iconify-icon>${vendorDisplayName}</div>` : ''}
                                     <div class="text-xs text-gray-500">${new Date(order.date).toLocaleDateString()}</div>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -2496,8 +2694,6 @@
                                 </div>
                             </div>
 
-
-
                             <div class="pt-2 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center gap-2">
                             <div class="order-items-strip flex items-center gap-1.5 overflow-x-auto pb-0 scrollbar-none min-w-0">
                                     ${order.items.slice(0, 3).map(item => {
@@ -2506,19 +2702,17 @@
                                             : (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(item.images || item.image || item.image_url || item.product_image || item.thumbnail || '') : (Array.isArray(item.images) ? item.images[0] : item.image || item.image_url || item.product_image || item.thumbnail || ''));
                                         return `
                                         <div class="w-8 h-8 bg-gray-50 rounded border border-gray-100 flex-shrink-0 p-1">
-                                            <img src="${itemImage}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(itemImage, [48, 72, 96], { quality: 70 })}" sizes="32px"` : ''} alt="${item.name || 'Produit'}" loading="lazy" class="w-full h-full object-contain" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                                            <img src="${itemImage}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(itemImage, [48, 72, 96], { quality: 70 })}" sizes="32px"` : ''} alt="${item.name || 'Produit'}" loading="lazy" class="w-full h-full object-contain" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                                         </div>
                                     `;}).join('')}
-                                    ${order.items.length > 3 ? `<div class="text-[10px] font-bold text-gray-400">+${order.items.length - 3}</div>` : ''}
+                                    ${order.items.length > 3 ? `<div class="text-[10px] text-gray-400 font-medium ml-1 flex-shrink-0">+${order.items.length - 3}</div>` : ''}
                                 </div>
-                                <div class="flex items-center gap-2 sm:ml-auto sm:shrink-0">
-                                    <button type="button"
-                                        class="px-2.5 py-1 rounded-xl bg-black text-white text-[9px] font-black uppercase tracking-widest hover:bg-gray-900 transition-colors whitespace-nowrap"
-                                        onclick="${actionOnClick}">
-                                        <iconify-icon icon="${next.icon}" width="14"></iconify-icon>
-                                        ${next.label}
-                                    </button>
-                                    <div class="text-sm font-black text-gray-900 whitespace-nowrap">${CurrencyManager.formatPrice(order.total)}</div>
+                                <div class="flex-1 min-w-0 sm:ml-2">
+                                    <div class="text-sm font-bold text-gray-900 truncate">${safeTextLite(order.items[0]?.name || order.product_name || 'Produit')}</div>
+                                    <div class="text-xs text-gray-500 truncate">${order.items.length} article(s)</div>
+                                </div>
+                                <div class="text-right mt-1 sm:mt-0 flex-shrink-0">
+                                    <div class="text-sm font-black text-gray-900 whitespace-nowrap">${window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(order.final_total_amount || order.total || 0)) : (order.final_total_amount || order.total || 0)}</div>
                                 </div>
                             </div>
                         </div>
@@ -2575,7 +2769,7 @@
                             <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon>
                         </button>
                         <div class="aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden">
-                             <img src="${cartImage}" ${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(cartImage, [120, 180, 240], { quality: 75 })}" sizes="(max-width: 640px) 50vw, 160px"` : ''} alt="${item.name || 'Produit favori'}" loading="lazy" class="w-full h-full object-contain p-2 sm:p-4 group-hover:scale-110 transition-transform duration-500" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                             <img src="${cartImage}" ${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(cartImage, [120, 180, 240], { quality: 75 })}" sizes="(max-width: 640px) 50vw, 160px"` : ''} alt="${item.name || 'Produit favori'}" loading="lazy" class="w-full h-full object-contain p-2 sm:p-4 group-hover:scale-110 transition-transform duration-500" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                         </div>
                         <h3 class="font-bold text-gray-900 text-[10px] sm:text-base mb-1 truncate">${item.name}</h3>
                         <div class="text-[9px] sm:text-sm text-gray-500 mb-4">${CurrencyManager.formatPrice(item.price)}</div>
@@ -2707,7 +2901,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                             <div class="flex items-center gap-4 min-w-0 flex-1">
                                 <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                    <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                                    <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                                 </div>
                                 <div class="min-w-0">
                                     <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${orderId}</div>
@@ -2779,7 +2973,7 @@
                                 <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${orderId}</div>
                                 <div class="mt-2 flex items-center gap-4">
                                     <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                        <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                                        <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                                     </div>
                                     <div class="min-w-0">
                                         <div class="font-black text-gray-900 truncate">${safeText(productName)}</div>
@@ -3087,7 +3281,7 @@
                 } else {
                     container.innerHTML = myPurchases.map((o, index) => {
                         const img = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(o.product_image) : (o.product_image || '');
-                        const fallbackImg = window.resolvePath ? window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') : 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+                        const fallbackImg = window.resolvePath ? window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') : 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
                         const statusBadge = getPurchaseStatusBadge(o);
                         return `
                             <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 cursor-pointer" style="animation-delay: ${index * 100}ms" onclick="openOrderModal('${o.id}')">
@@ -3222,7 +3416,7 @@
             itemsList.innerHTML = order.items.map(item => `
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-gray-50 rounded-xl border border-gray-100 p-2 flex-shrink-0">
-                        <img src="${window.resolveProductImageSource ? window.resolveProductImageSource(item) : window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(window.resolveProductImageSource ? window.resolveProductImageSource(item) : item.image, [48, 72, 96], { quality: 70 })}" sizes="56px"` : ''} loading="lazy" class="w-full h-full object-contain" alt="${item.name || 'Article'}" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                        <img src="${window.resolveProductImageSource ? window.resolveProductImageSource(item) : window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(window.resolveProductImageSource ? window.resolveProductImageSource(item) : item.image, [48, 72, 96], { quality: 70 })}" sizes="56px"` : ''} loading="lazy" class="w-full h-full object-contain" alt="${item.name || 'Article'}" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-sm sm:text-base truncate">${item.name}</div>
@@ -3904,12 +4098,12 @@
 
         function getNewketLogoUrl() {
             if (typeof window.resolvePath === 'function') {
-                return window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png');
+                return window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png');
             }
             try {
-                return new URL('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png', window.location.href).href;
+                return new URL('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png', window.location.href).href;
             } catch (error) {
-                return 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png';
+                return 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png';
             }
         }
 

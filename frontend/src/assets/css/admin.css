@@ -236,18 +236,19 @@ html.admin-embedded-mode .admin-shell > main {
     color: #ffffff !important;
 }
 
+.newket-dashboard-header #vendorMobileBtn {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
 .newket-dashboard-header iconify-icon,
 .newket-dashboard-header .theme-toggle iconify-icon,
 .newket-dashboard-header #adminMobileMenuBtn iconify-icon,
 .newket-dashboard-header #customerMobileBtn iconify-icon,
 .newket-dashboard-header #vendorMobileBtn iconify-icon {
     color: currentColor !important;
-}
-
-.newket-dashboard-header .currency-switch-segmented {
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
 }
 
 .newket-dashboard-header .currency-switch-segmented .segmented-track {

@@ -230,11 +230,19 @@ function getCheckoutCancelUrl(req, orderId, txId) {
 async function loadProductForPayment(client, productId) {
     const { data: product, error } = await client
         .from('products')
-        .select('id, price, name, supplier_email, custom_exchange_rate, user_id')
+        .select('id, price, name, supplier_email, custom_exchange_rate, user_id, is_promo, promo_expires_at, old_price')
         .eq('id', productId)
         .single();
 
     if (error || !product) return null;
+    
+    // Apply expiration logic
+    if (product.is_promo && product.promo_expires_at && new Date(product.promo_expires_at) < new Date()) {
+        product.price = product.old_price || product.price;
+        product.is_promo = false;
+        product.old_price = null;
+    }
+    
     return product;
 }
 

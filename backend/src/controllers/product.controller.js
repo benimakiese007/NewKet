@@ -93,9 +93,11 @@ export const getProducts = async (req, res) => {
             .from('products')
             .select(
                 'id, name, price, old_price, image, category, description, ' +
-                'supplier_email, user_id, is_new, is_promo, pinned, rating, reviews, stock, created_at, custom_exchange_rate',
+                'supplier_email, user_id, is_new, is_promo, promo_expires_at, pinned, rating, reviews, stock, created_at, custom_exchange_rate, ' +
+                'users ( id, name, company_name, avatar, shop_slug )',
                 { count: 'estimated' }
             )
+            .eq('is_archived', false)
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1);
 
@@ -106,8 +108,21 @@ export const getProducts = async (req, res) => {
         const { data, error, count } = await query;
 
         if (error) throw error;
+        
+        const now = new Date();
+        const processedData = data?.map(product => {
+            if (product.is_promo && product.promo_expires_at && new Date(product.promo_expires_at) < now) {
+                return { 
+                    ...product, 
+                    price: product.old_price || product.price,
+                    is_promo: false, 
+                    old_price: null 
+                };
+            }
+            return product;
+        }) || [];
 
-        res.json({ data, count, page });
+        res.json({ data: processedData, count, page });
     } catch (err) {
         console.error('❌ getProducts error:', err);
         res.status(500).json({ error: err.message });
@@ -123,13 +138,21 @@ export const getProductById = async (req, res) => {
             .from('products')
             .select(
                 'id, name, price, old_price, image, category, description, ' +
-                'supplier_email, user_id, is_new, is_promo, pinned, rating, reviews, stock, created_at, custom_exchange_rate'
+                'supplier_email, user_id, is_new, is_promo, promo_expires_at, pinned, rating, reviews, stock, created_at, custom_exchange_rate, ' +
+                'users ( id, name, company_name, avatar, shop_slug )'
             )
             .eq('id', id)
             .single();
 
         if (error) throw error;
         if (!data) return res.status(404).json({ error: 'Produit non trouvé' });
+
+        const now = new Date();
+        if (data.is_promo && data.promo_expires_at && new Date(data.promo_expires_at) < now) {
+            data.price = data.old_price || data.price;
+            data.is_promo = false;
+            data.old_price = null;
+        }
 
         res.json(data);
     } catch (err) {
@@ -143,7 +166,7 @@ export const createProduct = async (req, res) => {
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
             'name', 'price', 'old_price', 'image', 'category', 
-            'description', 'is_new', 'is_promo', 'pinned', 'stock', 'custom_exchange_rate', 'escrow_timer_hours'
+            'description', 'is_new', 'is_promo', 'promo_expires_at', 'pinned', 'stock', 'custom_exchange_rate', 'escrow_timer_hours'
         ];
         
         const productData = {};
@@ -159,9 +182,18 @@ export const createProduct = async (req, res) => {
 
         // On s'assure d'assigner l'ID de l'utilisateur authentifié
         productData.user_id = req.user.id;
-        // On force l'émail fournisseur s'il est dispo
+        // On force l'émail fournisseur s'il est dispo, sinon on va le chercher dans la table users
         if (req.user.email) {
             productData.supplier_email = req.user.email;
+        } else {
+            const { data: userData } = await supabaseAdmin
+                .from('users')
+                .select('email')
+                .eq('id', req.user.id)
+                .single();
+            if (userData && userData.email) {
+                productData.supplier_email = userData.email;
+            }
         }
 
         // ─── Vérification : le vendeur a-t-il un compte de réception ? ───
@@ -203,7 +235,7 @@ export const updateProduct = async (req, res) => {
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
             'name', 'price', 'old_price', 'image', 'category', 
-            'description', 'is_new', 'is_promo', 'pinned', 'stock', 'custom_exchange_rate', 'escrow_timer_hours'
+            'description', 'is_new', 'is_promo', 'promo_expires_at', 'pinned', 'stock', 'custom_exchange_rate', 'escrow_timer_hours', 'is_archived'
         ];
         
         const updateData = {};
@@ -262,6 +294,98 @@ export const deleteProduct = async (req, res) => {
         res.json({ success: true, message: 'Produit supprimé avec succès' });
     } catch (err) {
         console.error('❌ deleteProduct error:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const archiveProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const ownership = await assertProductOwnership(req, id);
+        if (!ownership.ok) {
+            return res.status(ownership.status).json({ error: ownership.error });
+        }
+
+        const { error } = await supabaseAdmin
+            .from('products')
+            .update({ is_archived: true })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        flushCache('/api/products');
+        res.json({ success: true, message: 'Produit archivé avec succès' });
+    } catch (err) {
+        console.error('❌ archiveProduct error:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const restoreProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const ownership = await assertProductOwnership(req, id);
+        if (!ownership.ok) {
+            return res.status(ownership.status).json({ error: ownership.error });
+        }
+
+        const { error } = await supabaseAdmin
+            .from('products')
+            .update({ is_archived: false })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        flushCache('/api/products');
+        res.json({ success: true, message: 'Produit restauré avec succès' });
+    } catch (err) {
+        console.error('❌ restoreProduct error:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const getVendorArchivedProducts = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const userEmail = normalizeEmail(req.user.email);
+
+        const supabase = getScopedClient(req);
+
+        let byEmail = [];
+        if (userEmail) {
+            const { data, error } = await supabase
+                .from('products')
+                .select('id, name, price, old_price, image, category, stock, created_at, is_archived, supplier_email, user_id')
+                .eq('supplier_email', userEmail)
+                .eq('is_archived', true)
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            byEmail = data || [];
+        }
+
+        let byUser = [];
+        if (userId) {
+            const { data, error } = await supabase
+                .from('products')
+                .select('id, name, price, old_price, image, category, stock, created_at, is_archived, supplier_email, user_id')
+                .eq('user_id', userId)
+                .eq('is_archived', true)
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            byUser = data || [];
+        }
+
+        // Deduplicate
+        const seen = new Set();
+        const allArchived = [...byEmail, ...byUser].filter(p => {
+            if (seen.has(p.id)) return false;
+            seen.add(p.id);
+            return true;
+        });
+
+        res.json({ data: allArchived, count: allArchived.length });
+    } catch (err) {
+        console.error('❌ getVendorArchivedProducts error:', err);
         res.status(500).json({ error: err.message });
     }
 };

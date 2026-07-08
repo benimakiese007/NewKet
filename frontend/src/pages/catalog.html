@@ -671,17 +671,36 @@
             // Handle category parameter
             const categoryParam = urlParams.get('category');
             if (categoryParam) {
-                document.querySelectorAll(`.category-filter`).forEach(cb => {
+                let foundCategory = false;
+                document.querySelectorAll('.category-filter').forEach(cb => {
                     if (cb.value === categoryParam || 
                         (categoryParam === 'Collections Femme' && cb.value === 'Femme') ||
                         (categoryParam === 'Style Homme' && cb.value === 'Homme')) {
                         cb.checked = true;
+                        foundCategory = true;
                     }
                 });
 
-
-
-
+                if (!foundCategory) {
+                    const desktopDropdown = document.querySelector('.filter-checkbox.category-filter')?.closest('div');
+                    if (desktopDropdown) {
+                        const newLabel = document.createElement('label');
+                        newLabel.className = 'flex items-center gap-3 cursor-pointer group';
+                        newLabel.innerHTML = `
+                            <input type="checkbox" value="${categoryParam}" class="filter-checkbox category-filter" checked>
+                            <span class="text-[13px] font-medium text-slate-600 group-hover:text-black">${categoryParam}</span>
+                        `;
+                        desktopDropdown.appendChild(newLabel);
+                        newLabel.querySelector('input').addEventListener('change', () => renderCatalog());
+                    }
+                    const mobileSelect = document.getElementById('mobileCategorySelect');
+                    if (mobileSelect) {
+                        const newOption = document.createElement('option');
+                        newOption.value = categoryParam;
+                        newOption.textContent = categoryParam;
+                        mobileSelect.appendChild(newOption);
+                    }
+                }
             }
 
             // Handle promo parameter

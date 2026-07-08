@@ -110,8 +110,8 @@
         <div id="productGrid" style="display:none;" class="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
             <!-- Image Section -->
             <div id="productImageCol">
-                <div class="w-full aspect-square glass-card rounded-3xl overflow-hidden group relative flex items-center justify-center p-1 sm:p-2 hover:shadow-2xl transition-all duration-700">
-                    <img id="mainImage" src="" alt="Image du produit" width="1200" height="1200" fetchpriority="high" decoding="async" class="w-full h-full object-contain mix-blend-multiply scale-105 group-hover:scale-125 transition-transform duration-1000 ease-out cursor-zoom-in" data-open-zoom onclick="window.openZoom()" onmouseenter="window._nkPreloadZoom && window._nkPreloadZoom()">
+                <div class="w-full aspect-square rounded-3xl overflow-hidden group relative flex items-center justify-center p-1 sm:p-2 hover:shadow-2xl transition-all duration-700" style="background:#ffffff;">
+                    <img id="mainImage" src="" alt="Image du produit" width="1200" height="1200" fetchpriority="high" decoding="async" class="w-full h-full object-contain scale-105 group-hover:scale-125 transition-transform duration-1000 ease-out cursor-zoom-in" data-open-zoom onclick="window.openZoom()" onmouseenter="window._nkPreloadZoom && window._nkPreloadZoom()">
                 </div>
                 <div class="flex flex-wrap gap-3 sm:gap-4 mt-6" id="thumbnailGrid"></div>
             </div>
@@ -430,7 +430,7 @@
             const images = (Array.isArray(p.images) && p.images.length > 0)
                 ? p.images.slice(0, 5)
                 : (p.image || '').split(',').map(img => img.trim()).filter(img => img);
-            currentProductImages = images.length ? images : [window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')];
+            currentProductImages = images.length ? images : [window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')];
             currentProductImageIndex = 0;
             const mainImgUrl = currentProductImages[0];
             const mainImageEl = document.getElementById('mainImage');
@@ -446,8 +446,8 @@
 
             const thumbs = document.getElementById('thumbnailGrid');
             thumbs.innerHTML = currentProductImages.map((img, i) => `
-                <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900 shadow-sm' : 'border-transparent'} hover:border-gray-300 transition-all p-1 glass-card" data-img-index="${i}" onclick="window.changeImageByIndex(${i}, this)">
-                    <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200, quality: 75 }) : img}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(img, [120, 200, 300], { quality: 75 })}" sizes="80px"` : ''} class="w-full h-full object-contain mix-blend-multiply" alt="Vue produit ${i + 1}">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl overflow-hidden cursor-pointer border-2 ${i === 0 ? 'border-gray-900 shadow-sm' : 'border-transparent'} hover:border-gray-300 transition-all p-1" style="background:#ffffff;" data-img-index="${i}" onclick="window.changeImageByIndex(${i}, this)">
+                    <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img, { width: 200, quality: 75 }) : img}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(img, [120, 200, 300], { quality: 75 })}" sizes="80px"` : ''} class="w-full h-full object-contain" alt="Vue produit ${i + 1}">
                 </div>
             `).join('');
 

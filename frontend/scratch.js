@@ -1484,7 +1484,7 @@
                                 <div class="order-items-strip flex items-center gap-1.5 overflow-x-auto pb-0 scrollbar-none min-w-0">
                                     ${order.items.slice(0, 3).map(item => `
                                         <div class="w-8 h-8 bg-gray-50 rounded border border-gray-100 flex-shrink-0 p-1">
-                                            <img src="${window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(item.image, [48, 72, 96], { quality: 70 })}" sizes="32px"` : ''} alt="${item.name || 'Produit'}" loading="lazy" class="w-full h-full object-contain" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                                            <img src="${window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(item.image, [48, 72, 96], { quality: 70 })}" sizes="32px"` : ''} alt="${item.name || 'Produit'}" loading="lazy" class="w-full h-full object-contain" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                                         </div>
                                     `).join('')}
                                     ${order.items.length > 3 ? `<div class="text-[10px] font-bold text-gray-400">+${order.items.length - 3}</div>` : ''}
@@ -1549,7 +1549,7 @@
                             <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon>
                         </button>
                         <div class="aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden">
-                             <img src="${window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(item.image, [120, 180, 240], { quality: 75 })}" sizes="(max-width: 640px) 50vw, 160px"` : ''} alt="${item.name || 'Produit favori'}" loading="lazy" class="w-full h-full object-contain p-2 sm:p-4 group-hover:scale-110 transition-transform duration-500" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                             <img src="${window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(item.image, [120, 180, 240], { quality: 75 })}" sizes="(max-width: 640px) 50vw, 160px"` : ''} alt="${item.name || 'Produit favori'}" loading="lazy" class="w-full h-full object-contain p-2 sm:p-4 group-hover:scale-110 transition-transform duration-500" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                         </div>
                         <h3 class="font-bold text-gray-900 text-[10px] sm:text-base mb-1 truncate">${item.name}</h3>
                         <div class="text-[9px] sm:text-sm text-gray-500 mb-4">${CurrencyManager.formatPrice(item.price)}</div>
@@ -1680,7 +1680,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-center gap-4">
                             <div class="flex items-center gap-4 min-w-0 flex-1">
                                 <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                    <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                                    <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                                 </div>
                                 <div class="min-w-0">
                                     <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${orderId}</div>
@@ -1752,7 +1752,7 @@
                                 <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${orderId}</div>
                                 <div class="mt-2 flex items-center gap-4">
                                     <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                        <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                                        <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                                     </div>
                                     <div class="min-w-0">
                                         <div class="font-black text-gray-900 truncate">${safeText(productName)}</div>
@@ -2041,7 +2041,7 @@
                 } else {
                     container.innerHTML = myPurchases.map((o, index) => {
                         const img = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(o.product_image) : (o.product_image || '');
-                        const fallbackImg = window.resolvePath ? window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') : 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+                        const fallbackImg = window.resolvePath ? window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') : 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
                         const statusBadge = getPurchaseStatusBadge(o);
                         return `
                             <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 cursor-pointer" style="animation-delay: ${index * 100}ms" onclick="openOrderModal('${o.id}')">
@@ -2176,7 +2176,7 @@
             itemsList.innerHTML = order.items.map(item => `
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-gray-50 rounded-xl border border-gray-100 p-2 flex-shrink-0">
-                        <img src="${window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(item.image, [48, 72, 96], { quality: 70 })}" sizes="56px"` : ''} loading="lazy" class="w-full h-full object-contain" alt="${item.name || 'Article'}" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                        <img src="${window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(item.image, [48, 72, 96], { quality: 70 })}" sizes="56px"` : ''} loading="lazy" class="w-full h-full object-contain" alt="${item.name || 'Article'}" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-sm sm:text-base truncate">${item.name}</div>
@@ -2735,12 +2735,12 @@
 
         function getNewketLogoUrl() {
             if (typeof window.resolvePath === 'function') {
-                return window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png');
+                return window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png');
             }
             try {
-                return new URL('https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png', window.location.href).href;
+                return new URL('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png', window.location.href).href;
             } catch (error) {
-                return 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png';
+                return 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png';
             }
         }
 

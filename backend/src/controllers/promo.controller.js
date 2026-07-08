@@ -302,12 +302,19 @@ export const validateVendorPromo = async (req, res) => {
 
             const { data, error } = await client
                 .from('products')
-                .select('id, price, user_id')
+                .select('id, price, user_id, is_promo, promo_expires_at, old_price')
                 .eq('id', productId)
                 .single();
 
             if (error || !data) {
                 return res.status(404).json({ error: 'Produit introuvable.' });
+            }
+            
+            // Apply expiration logic
+            if (data.is_promo && data.promo_expires_at && new Date(data.promo_expires_at) < new Date()) {
+                data.price = data.old_price || data.price;
+                data.is_promo = false;
+                data.old_price = null;
             }
 
             product = data;

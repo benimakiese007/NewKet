@@ -36,7 +36,7 @@ class CartManager {
     }
 
     resolveItemImage(product) {
-        const fallback = 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+        const fallback = 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
         if (window.resolveProductImageSource) {
             return window.resolveProductImageSource(product, { fallback });
         }
@@ -97,7 +97,7 @@ class CartManager {
 
         const existingItem = this.cart.find(item => item.id === product.id);
         const resolvedImage = this.resolveItemImage(product);
-        const hasResolvedImage = resolvedImage && resolvedImage !== 'https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+        const hasResolvedImage = resolvedImage && resolvedImage !== 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
         
         if (existingItem) {
             existingItem.quantity += quantity;
@@ -409,7 +409,7 @@ class CartManager {
             html += `
                 <div class="flex gap-4 p-3 bg-white rounded-2xl border border-gray-100 shadow-sm relative">
                     <div class="w-20 h-20 bg-gray-50 rounded-xl overflow-hidden shrink-0 flex items-center justify-center">
-                        <img src="${resolvedImage}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
+                        <img src="${resolvedImage}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
                     </div>
                     <div class="flex-1 flex flex-col justify-between py-1">
                         <div class="pr-6">

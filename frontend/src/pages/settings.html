@@ -163,6 +163,11 @@
                                 <div class="skeleton h-12 w-full rounded-xl" id="skPhone"></div>
                                 <input type="tel" id="profilePhone" placeholder="+243 ..." class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 hidden">
                             </div>
+                            <div class="space-y-2 md:col-span-2 hidden" id="vendorDescriptionContainer">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Description de la boutique</label>
+                                <div class="skeleton h-24 w-full rounded-xl" id="skStoreDescription"></div>
+                                <textarea id="profileStoreDescription" rows="3" placeholder="Décrivez votre boutique..." class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 hidden"></textarea>
+                            </div>
                         </div>
                     </div>
                     <div class="mt-8 flex justify-end">
@@ -393,11 +398,16 @@
                     const metadata = user.user_metadata || {};
 
                     // Remove skeleton and reveal inputs
-                    ['skFullName','skRole','skEmail','skPhone'].forEach(id => {
+                    ['skFullName','skRole','skEmail','skPhone','skStoreDescription'].forEach(id => {
                         const sk = document.getElementById(id);
                         if (sk) sk.remove();
                     });
-                    document.querySelectorAll('#profileFullName, #profileRole, #profileEmail, #profilePhone').forEach(el => el.classList.remove('hidden'));
+                    document.querySelectorAll('#profileFullName, #profileRole, #profileEmail, #profilePhone, #profileStoreDescription').forEach(el => el.classList.remove('hidden'));
+
+                    if (['supplier', 'vendor', 'seller', 'fournisseur'].includes(AuthManager.role)) {
+                        document.getElementById('vendorDescriptionContainer').classList.remove('hidden');
+                        document.getElementById('profileStoreDescription').value = metadata.store_description || '';
+                    }
 
                     const avatarContainer = document.querySelector('.settings-avatar-img');
                     avatarContainer.classList.remove('skeleton');
@@ -608,6 +618,7 @@
                 async saveProfile() {
                     const fullName = document.getElementById('profileFullName').value.trim();
                     const phone = document.getElementById('profilePhone').value.trim();
+                    const storeDescription = document.getElementById('profileStoreDescription') ? document.getElementById('profileStoreDescription').value.trim() : undefined;
 
                     if (!fullName) {
                         showToast('Le nom complet est obligatoire.', 'warning');
@@ -617,8 +628,13 @@
                     if (window.LoaderManager) LoaderManager.show('Mise à jour du profil...');
 
                     try {
+                        const updateData = { full_name: fullName, phone: phone };
+                        if (['supplier', 'vendor', 'seller', 'fournisseur'].includes(AuthManager.role) && storeDescription !== undefined) {
+                            updateData.store_description = storeDescription;
+                        }
+
                         const { data, error } = await window.supabaseClient.auth.updateUser({
-                            data: { full_name: fullName, phone: phone }
+                            data: updateData
                         });
 
                         if (error) throw error;

@@ -18,6 +18,7 @@ const PRODUCTS_ADMIN_MAX = 1000; // Max products to fetch in admin (no paginatio
 
 const ProductManager = {
     products: [],
+    _archivedProducts: [],
     _productByIdCache: new Map(),
     _viewedThisSession: new Set(),
 
@@ -423,13 +424,25 @@ const ProductManager = {
         if (Array.isArray(userInfo)) {
             userInfo = userInfo[0] || null;
         }
+        
+        let isPromo = p.is_promo;
+        let oldPrice = p.old_price;
+        let price = p.price;
+        
+        // Apply expiration logic
+        if (isPromo && p.promo_expires_at && new Date(p.promo_expires_at) < new Date()) {
+            price = oldPrice || price;
+            isPromo = false;
+            oldPrice = null;
+        }
 
         return {
             ...p,
             users: userInfo, // Standardize as an object or null
+            price: price,
             isNew: p.is_new,
-            isPromo: p.is_promo,
-            oldPrice: p.old_price,
+            isPromo: isPromo,
+            oldPrice: oldPrice,
             // Keep the original comma-separated string for multi-image support
             image: p.image,
         };
@@ -636,6 +649,60 @@ const ProductManager = {
         window.dispatchEvent(new CustomEvent('productsUpdated'));
         if (window.logVendorActivity) logVendorActivity(`${ids.length} produits supprimés par action groupée`, 'stock');
         else if (window.ActivityManager) ActivityManager.log(`${ids.length} produits supprimés par action groupée`, 'stock');
+    },
+
+    async archiveProduct(id) {
+        const result = await window.ApiClient.patch(`/products/${id}/archive`, {});
+        const success = result && result.success;
+        if (success) {
+            const product = this.products.find(p => p.id === id);
+            if (product) {
+                product.is_archived = true;
+                this._archivedProducts.push(product);
+                this.products = this.products.filter(p => p.id !== id);
+                this._totalCount--;
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                if (window.ActivityManager) ActivityManager.log(`Produit archivé : ${product.name}`, 'stock');
+            }
+        }
+        return success;
+    },
+
+    async restoreProduct(id) {
+        const result = await window.ApiClient.patch(`/products/${id}/restore`, {});
+        const success = result && result.success;
+        if (success) {
+            const product = this._archivedProducts.find(p => p.id === id);
+            if (product) {
+                product.is_archived = false;
+                this.products.unshift(product);
+                this._archivedProducts = this._archivedProducts.filter(p => p.id !== id);
+                this._totalCount++;
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                window.dispatchEvent(new CustomEvent('archivedProductsUpdated'));
+                if (window.ActivityManager) ActivityManager.log(`Produit restauré : ${product.name}`, 'stock');
+            }
+        }
+        return success;
+    },
+
+    async fetchVendorArchived() {
+        try {
+            if (!window.ApiClient) return [];
+            const result = await window.ApiClient.get('/products/vendor/archived');
+            if (result && result.data) {
+                this._archivedProducts = (result.data || []).map(p => this._mapProduct(p));
+                window.dispatchEvent(new CustomEvent('archivedProductsUpdated'));
+                return this._archivedProducts;
+            }
+        } catch (err) {
+            console.warn('[ProductManager] Failed to fetch archived products:', err);
+        }
+        return [];
+    },
+
+    getArchivedProducts() {
+        return this._archivedProducts;
     },
 
     async updateCategoryBulk(ids, newCategory) {

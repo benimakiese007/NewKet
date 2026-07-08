@@ -171,12 +171,19 @@ export const createOrder = async (req, res) => {
         const quantity = Math.max(1, Math.min(100, parseInt(requestedQuantity, 10) || 1));
         const { data: product, error: productError } = await client
             .from('products')
-            .select('id, name, price, image, supplier_email, user_id')
+            .select('id, name, price, old_price, is_promo, promo_expires_at, image, supplier_email, user_id')
             .eq('id', product_id)
             .single();
 
         if (productError || !product) {
             return res.status(404).json({ error: 'Produit introuvable' });
+        }
+        
+        // Apply expiration logic
+        if (product.is_promo && product.promo_expires_at && new Date(product.promo_expires_at) < new Date()) {
+            product.price = product.old_price || product.price;
+            product.is_promo = false;
+            product.old_price = null;
         }
 
         const resolvedCustomerEmail = customer_email || req.user?.email;

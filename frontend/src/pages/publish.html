@@ -133,7 +133,7 @@
 
         <form id="publishForm" class="space-y-6" novalidate>
             <!-- Basic Info Card -->
-            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div data-card="basicInfo" class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div class="space-y-3">
                     <div class="flex items-center gap-2 mb-1">
                         <iconify-icon icon="solar:pen-new-square-bold" class="text-gray-400"></iconify-icon>
@@ -208,6 +208,7 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
                 <div class="space-y-4">
                     <div class="flex items-center gap-2 mb-1">
@@ -268,7 +269,7 @@
             </div>
 
             <!-- Promotion Card -->
-            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
+            <div data-card="promo" class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="w-14 h-14 bg-orange-50 rounded-[1.25rem] flex items-center justify-center text-orange-600 shadow-sm ring-1 ring-orange-100/50">
@@ -304,6 +305,13 @@
                             </div>
                             <div id="promoPercentValue" class="text-sm font-black text-emerald-700 tabular-nums">0%</div>
                         </div>
+                        <div class="space-y-3 mt-4">
+                            <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Date d'expiration de la promotion (Optionnel)</label>
+                            <div class="relative group input-focus border border-gray-100 rounded-2xl transition-all duration-300 bg-gray-50/50 flex-1 min-w-0">
+                                <input type="date" id="promoExpiresAtInput" name="promoExpiresAtInput"
+                                    class="w-full px-4 sm:px-6 py-5 rounded-2xl outline-none text-gray-900 font-bold text-sm bg-transparent cursor-pointer">
+                            </div>
+                        </div>
                         <div class="flex items-center gap-2 p-4 bg-orange-50/50 rounded-2xl border border-orange-100/30">
                             <iconify-icon icon="solar:info-circle-linear" class="text-orange-500" width="18"></iconify-icon>
                             <p class="text-[11px] text-orange-800 font-medium">L'affichage "Promotion" augmente la visibilité de 40%.</p>
@@ -313,7 +321,7 @@
             </div>
 
             <!-- Media Card -->
-            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+            <div data-card="media" class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-2">
                         <iconify-icon icon="solar:gallery-bold" class="text-gray-400"></iconify-icon>
@@ -332,6 +340,13 @@
                         </div>
                         <h3 class="text-xl font-black text-gray-900 mb-2">Ajoutez vos visuels</h3>
                         <p class="text-gray-500 font-medium text-sm">Glissez-déposez ou <span class="text-black underline underline-offset-4 decoration-gray-200 group-hover:decoration-black transition-all">parcourez</span></p>
+                        
+                        <div class="mt-4 bg-orange-50 border border-orange-100 rounded-xl p-3 flex gap-3 text-left max-w-sm mx-auto">
+                            <iconify-icon icon="solar:shield-warning-bold-duotone" width="24" class="text-orange-500 shrink-0"></iconify-icon>
+                            <p class="text-xs font-semibold text-orange-800">
+                                <b>Attention :</b> Utilisez un vrai fond uni ou transparent. Les images avec un <b>faux damier</b> (gris/blanc incrusté) seront refusées.
+                            </p>
+                        </div>
                         
                         <div class="flex items-center justify-center gap-6 mt-10">
                             <div class="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
@@ -352,7 +367,7 @@
             </div>
 
             <!-- Details Card -->
-            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+            <div data-card="details" class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
                 <div class="space-y-4">
                     <div class="flex items-center gap-2 mb-1">
                         <iconify-icon icon="solar:document-text-bold" class="text-gray-400"></iconify-icon>
@@ -373,11 +388,11 @@
                         </span>
                     </label>
 
-                    <button type="submit" data-track-action="publish:submit_click"
-                        class="w-full hero-gradient text-white py-6 rounded-2xl font-black text-xl shadow-2xl shadow-gray-300 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-4 relative overflow-hidden group">
+                    <button type="submit" id="submitBtn" disabled data-track-action="publish:submit_click"
+                        class="w-full bg-gray-200 text-gray-400 cursor-not-allowed py-6 rounded-2xl font-black text-xl transition-all flex items-center justify-center gap-4 relative overflow-hidden group">
                         <span class="relative z-10 tracking-tight">PUBLIER L'ANNONCE</span>
                         <!-- Button shine effect -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full transition-transform duration-1000"></div>
                     </button>
                 </div>
             </div>
@@ -660,6 +675,14 @@
                     if (submitBtn) submitBtn.textContent = "METTRE À JOUR L'ARTICLE";
                 }
                 
+                // Auto-check terms in edit mode — user already accepted when they published
+                const termsCheckbox = document.getElementById('termsCheckboxPublish');
+                if (termsCheckbox) {
+                    termsCheckbox.checked = true;
+                    // Trigger change event to update the submit button state
+                    termsCheckbox.dispatchEvent(new Event('change'));
+                }
+                
                 loadProductToEdit(editId);
             }
 
@@ -724,17 +747,26 @@
                     document.getElementById('priceInput').value = product.price;
                     document.getElementById('currencyInput').value = 'CDF';
                     
-                    if (product.isPromo) {
+                    if (product.isPromo || product.is_promo) {
                         isPromoToggle.checked = true;
                         promoFields.classList.remove('hidden');
-                        document.getElementById('oldPriceInput').value = product.oldPrice;
+                        document.getElementById('oldPriceInput').value = product.oldPrice || product.old_price;
+                        if (product.promo_expires_at) {
+                            const dateObj = new Date(product.promo_expires_at);
+                            document.getElementById('promoExpiresAtInput').value = dateObj.toISOString().split('T')[0];
+                        }
                     }
 
-                    if (product.image) {
-                        const images = product.image.split(',').map(img => img.trim()).filter(img => img);
-                        selectedProductImages = images;
-                        // For editing, we don't need to populate selectedFileBlobs for existing images,
-                        // because submit handler filters by 'http' to identify existing ones.
+                    let loadedImages = [];
+                    if (Array.isArray(product.images) && product.images.length > 0) {
+                        loadedImages = product.images;
+                    } else if (product.image) {
+                        loadedImages = product.image.split(',').map(img => img.trim()).filter(img => img);
+                    }
+                    
+                    if (loadedImages.length > 0) {
+                        selectedProductImages = loadedImages;
+                        // For editing, we don't need to populate selectedFileBlobs for existing images
                         renderPreviews();
                     }
 
@@ -759,15 +791,17 @@
                 }
             }
 
-            const pImageUpload = document.getElementById('pImageUpload');
-            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-            const bgRemovalContainer = document.getElementById('bgRemovalContainer');
-            const uploadZone = document.getElementById('uploadZone');
-
             let selectedFileBlobs = []; 
             let selectedProductImages = []; 
 
             function renderPreviews() {
+                const uploadZone = document.getElementById('uploadZone');
+                const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+                const bgRemovalContainer = document.getElementById('bgRemovalContainer');
+                const pImageUpload = document.getElementById('pImageUpload');
+
+                if (!uploadZone || !imagePreviewContainer || !pImageUpload) return;
+
                 if (selectedProductImages.length === 0) {
                     uploadZone.classList.remove('hidden');
                     imagePreviewContainer.classList.add('hidden');
@@ -782,7 +816,7 @@
                 imagePreviewContainer.innerHTML = selectedProductImages.map((src, index) => {
                     const displaySrc = typeof src === 'string' && src.includes('||') ? src.split('||')[0] : src;
                     return `
-                    <div class="relative flex-shrink-0 w-44 h-44 rounded-[2rem] border border-gray-100 overflow-hidden group shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                    <div class="relative flex-shrink-0 w-44 h-44 rounded-[2rem] border border-gray-100 overflow-hidden group shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-emerald-300">
                         <img loading="lazy" src="${displaySrc}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <button type="button" onclick="window.removeImage(${index})" 
@@ -819,24 +853,34 @@
                 }
                 selectedProductImages.splice(index, 1);
                 renderPreviews();
-                if (selectedProductImages.length === 0) pImageUpload.value = '';
+                if (selectedProductImages.length === 0 && pImageUpload) pImageUpload.value = '';
             };
 
-            pImageUpload.addEventListener('change', function (e) {
-                if (e.target.files && e.target.files.length > 0) {
-                    const files = Array.from(e.target.files);
-                    const remainingSlots = 10 - selectedProductImages.length;
-                    const filesToProcess = files.slice(0, remainingSlots);
+            document.addEventListener('change', function (e) {
+                if (e.target && e.target.id === 'pImageUpload') {
+                    if (e.target.files && e.target.files.length > 0) {
+                        const files = Array.from(e.target.files);
+                        const remainingSlots = 10 - selectedProductImages.length;
+                        const filesToProcess = files.slice(0, remainingSlots);
 
-                    filesToProcess.forEach(file => {
-                        selectedFileBlobs.push(file);
-                        const reader = new FileReader();
-                        reader.onload = function (evt) {
-                            selectedProductImages.push(evt.target.result);
-                            renderPreviews();
-                        };
-                        reader.readAsDataURL(file);
-                    });
+                        filesToProcess.forEach(file => {
+                            selectedFileBlobs.push(file);
+                            const reader = new FileReader();
+                            reader.onload = function (evt) {
+                                selectedProductImages.push(evt.target.result);
+                                renderPreviews();
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                }
+            });
+
+            document.addEventListener('click', function (e) {
+                const uz = e.target.closest('#uploadZone');
+                if (uz) {
+                    const iu = document.getElementById('pImageUpload');
+                    if (iu) iu.click();
                 }
             });
 
@@ -855,8 +899,10 @@
                 const titleInput = document.getElementById('pTitleInput');
                 const categorySelect = document.getElementById('pCategoryInput');
                 const descInput = document.getElementById('pDescInput');
-                const priceVal = parseFloat(priceInput.value);
-                const currency = currencyInput.value;
+                const currentPriceInput = document.getElementById('priceInput');
+                const currentCurrencyInput = document.getElementById('currencyInput');
+                const priceVal = parseFloat(currentPriceInput?.value);
+                const currency = currentCurrencyInput?.value;
                 const stockVal = parseInt(document.getElementById('stockInput')?.value, 10);
 
                 const userId = localStorage.getItem('newketUserId');
@@ -866,7 +912,7 @@
                     return;
                 }
 
-                if (!titleInput.value.trim() || !categoryInput.value || !document.getElementById('pConditionInput').value || !priceVal || priceVal <= 0 || !Number.isInteger(stockVal) || stockVal <= 0) {
+                if (!titleInput.value.trim() || !categorySelect.value || !document.getElementById('pConditionInput').value || !priceVal || priceVal <= 0 || !Number.isInteger(stockVal) || stockVal <= 0) {
                     if (typeof showToast === 'function') showToast("Veuillez remplir tous les champs obligatoires (*).", "error");
                     return;
                 }
@@ -888,14 +934,17 @@
                 submitBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Publication...';
 
                 try {
-                    const exchangeRate = parseFloat(exchangeRateInput.value) || getConfigExchangeRate();
+                    const currentExchangeRateInput = document.getElementById('exchangeRate');
+                    const exchangeRate = parseFloat(currentExchangeRateInput?.value) || getConfigExchangeRate();
                     const finalPrice = currency === 'USD' ? priceVal * exchangeRate : priceVal;
                     
-                    const isPromo = isPromoToggle.checked;
+                    const isPromo = document.getElementById('isPromoToggle')?.checked;
                     let finalOldPrice = null;
+                    let finalPromoExpiresAt = null;
                     
                     if (isPromo) {
-                        const oldPriceVal = parseFloat(oldPriceInput.value);
+                        const currentOldPriceInput = document.getElementById('oldPriceInput');
+                        const oldPriceVal = parseFloat(currentOldPriceInput?.value);
                         const convertedOldPrice = currency === 'USD' ? oldPriceVal * exchangeRate : oldPriceVal;
                         if (!Number.isFinite(oldPriceVal) || !Number.isFinite(convertedOldPrice) || convertedOldPrice <= finalPrice) {
                             if (typeof showToast === 'function') {
@@ -906,6 +955,12 @@
                             return;
                         }
                         finalOldPrice = Math.round(convertedOldPrice);
+                        
+                        const expiresAtVal = document.getElementById('promoExpiresAtInput').value;
+                        if (expiresAtVal) {
+                            // Ensure it is saved as full ISO timestamp
+                            finalPromoExpiresAt = new Date(expiresAtVal + 'T23:59:59Z').toISOString();
+                        }
                     }
 
                     let finalImagePaths = [];
@@ -949,6 +1004,7 @@
                         user_id: userId,
                         is_promo: isPromo,
                         old_price: finalOldPrice,
+                        promo_expires_at: finalPromoExpiresAt,
                         is_new: document.getElementById('pConditionInput').value === 'new',
                         status: 'published',
                         custom_exchange_rate: exchangeRate,
@@ -1005,11 +1061,10 @@
             const step2 = document.createElement('div'); step2.id = 'step-2'; step2.className = 'publish-step space-y-6 hidden animate-in fade-in slide-in-from-bottom-4 duration-500';
             const step3 = document.createElement('div'); step3.id = 'step-3'; step3.className = 'publish-step space-y-6 hidden animate-in fade-in slide-in-from-bottom-4 duration-500';
             
-            const cards = form.querySelectorAll('.bg-white.rounded-\\[2.5rem\\].p-10');
-            const basicInfoCard = cards[0];
-            const promoCard = cards[1];
-            const mediaCard = cards[2];
-            const detailsCard = cards[3];
+            const basicInfoCard = form.querySelector('[data-card="basicInfo"]');
+            const promoCard = form.querySelector('[data-card="promo"]');
+            const mediaCard = form.querySelector('[data-card="media"]');
+            const detailsCard = form.querySelector('[data-card="details"]');
             
             if(basicInfoCard && promoCard && mediaCard && detailsCard) {
                 // Split basicInfoCard
@@ -1081,6 +1136,34 @@
                 form.appendChild(step3);
                 
                 bindFormListeners(form);
+            }
+            
+            // Validate Terms Checkbox to enable/disable Submit Button
+            const termsCheckbox = document.getElementById('termsCheckboxPublish');
+            const submitBtn = document.getElementById('submitBtn');
+            if (termsCheckbox && submitBtn) {
+                const activeClasses = ['hero-gradient', 'text-white', 'shadow-2xl', 'shadow-gray-300', 'hover:scale-[1.01]', 'active:scale-[0.99]'];
+                const disabledClasses = ['bg-gray-200', 'text-gray-400', 'cursor-not-allowed'];
+                
+                const updateSubmitBtn = () => {
+                    if (termsCheckbox.checked) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove(...disabledClasses);
+                        submitBtn.classList.add(...activeClasses);
+                        // Re-enable shine effect on hover
+                        submitBtn.lastElementChild.classList.add('group-hover:translate-x-full');
+                    } else {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.remove(...activeClasses);
+                        submitBtn.classList.add(...disabledClasses);
+                        // Disable shine effect
+                        submitBtn.lastElementChild.classList.remove('group-hover:translate-x-full');
+                    }
+                };
+                
+                termsCheckbox.addEventListener('change', updateSubmitBtn);
+                // Initialize state
+                updateSubmitBtn();
             }
             
             // 2. Wizard Logic
@@ -1204,18 +1287,7 @@
                 }
                 if(oP) oP.addEventListener('input', () => { if(window.updatePromoPercentage) window.updatePromoPercentage(); });
                 
-                const uz = f.querySelector('#uploadZone');
-                const iu = f.querySelector('#pImageUpload');
-                if(uz && iu) {
-                    uz.onclick = () => iu.click();
-                    iu.addEventListener('change', (evt) => {
-                        const oldIu = document.getElementById('pImageUpload');
-                        if(oldIu && oldIu !== iu) {
-                            oldIu.files = iu.files;
-                            oldIu.dispatchEvent(new Event('change'));
-                        }
-                    });
-                }
+                // Upload zone click and input change is now handled by document event delegation
             }
         });
     </script>
