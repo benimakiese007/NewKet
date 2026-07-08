@@ -182,7 +182,7 @@ const NotificationService = {
                     user_id: vendorId,
                     user_email: vendor.email,
                     title: 'Nouvelle commande payee',
-                    message: `Un paiement a ete recu pour la commande #${order.transaction_id}.`,
+                    message: 'Un paiement a ete recu pour votre commande.',
                     type: 'success',
                     target_role: 'supplier',
                     read: false,
@@ -198,11 +198,11 @@ const NotificationService = {
                             <p>Bonjour <b>${vendor.name || 'Vendeur'}</b>,</p>
                             <p>Une nouvelle commande a ete payee avec succes sur votre boutique NewKet.</p>
                             <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin: 20px 0;">
-                                <p><b>ID Transaction:</b> ${order.transaction_id}</p>
+                                <p><b>Commande:</b> ${order.id}</p>
                                 <p><b>Montant:</b> ${order.total_amount} ${process.env.CURRENCY || 'CDF'}</p>
                                 <p><b>Client:</b> ${order.customer_name || 'Client NewKet'}</p>
                             </div>
-                            <p>Les fonds sont maintenant sequestres. Vous pouvez organiser la livraison.</p>
+                            <p>Le paiement est maintenant en attente de validation. Vous pouvez organiser la livraison.</p>
                             <div style="text-align: center; margin-top: 30px;">
                                 <a href="${getFrontendBaseUrl()}/pages/vendor-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Voir mes commandes</a>
                             </div>
@@ -219,28 +219,28 @@ const NotificationService = {
         if (!order || !order.customer_email || !order.otp_code) return;
 
         try {
-            console.log(`[NotificationService] Sending OTP to customer ${order.customer_email} for order ${order.transaction_id}`);
+            console.log(`[NotificationService] Sending OTP to customer ${order.customer_email} for order ${order.id}`);
 
             const customerName = order.customer_name || 'Client';
 
             EmailService.sendMail({
                 to: order.customer_email,
-                subject: 'Votre code secret de livraison - NewKet',
+                subject: 'Votre code de livraison - NewKet',
                 html: `
                     <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
                         <h2 style="color: #000;">Votre commande est en route</h2>
                         <p>Bonjour <b>${customerName}</b>,</p>
-                        <p>Le paiement de votre commande <b>#${order.transaction_id}</b> est securise sur notre compte sequestre.</p>
+                        <p>Le paiement de votre commande est bien en attente de validation.</p>
                         <p>Le vendeur a ete notifie et peut demarrer la livraison.</p>
                         <div style="background: #fff8eb; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center; border: 2px dashed #f59e0b;">
-                            <p style="margin: 0; color: #b45309; font-size: 14px;">CODE DE LIVRAISON SECURISE (OTP)</p>
+                            <p style="margin: 0; color: #b45309; font-size: 14px;">CODE DE LIVRAISON</p>
                             <h1 style="font-size: 36px; margin: 10px 0; letter-spacing: 5px; color: #000;">${order.otp_code}</h1>
                         </div>
                         <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin: 20px 0; color: #991b1b; font-size: 14px;">
                             <strong>ATTENTION :</strong>
                             <ul style="margin-top: 5px; padding-left: 20px;">
                                 <li>Ne donnez ce code qu'apres reception et verification du produit.</li>
-                                <li>Si le produit n'est pas conforme, n'entrez pas ce code et ouvrez un litige.</li>
+                                <li>Si le produit n'est pas conforme, n'entrez pas ce code et signalez un probleme depuis votre espace client.</li>
                             </ul>
                         </div>
                         <div style="text-align: center; margin-top: 30px;">
@@ -264,17 +264,17 @@ const NotificationService = {
 
             EmailService.sendMail({
                 to: order.customer_email,
-                subject: 'Votre reçu de paiement - NewKet',
+                subject: 'Votre recu de paiement - NewKet',
                 html: `
                     <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
-                        <h2 style="color: #10b981;">Paiement confirmé</h2>
+                        <h2 style="color: #10b981;">Paiement confirme</h2>
                         <p>Bonjour <b>${customerName}</b>,</p>
-                        <p>Nous confirmons la réception de votre paiement pour la commande <b>#${order.transaction_id || order.id}</b>.</p>
+                        <p>Nous confirmons la reception de votre paiement pour votre commande.</p>
                         <div style="background: #f9f9f9; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #10b981;">
-                            <p><b>Total payé :</b> ${amount} ${currency}</p>
+                            <p><b>Total paye :</b> ${amount} ${currency}</p>
                             <p><b>Produit :</b> ${order.items && order.items[0] ? order.items[0].name : 'Article NewKet'}</p>
                         </div>
-                        <p>Votre paiement est conservé en sécurité dans notre compte séquestre jusqu'à la livraison.</p>
+                        <p>Votre paiement est conserve en securite jusqu'a la livraison.</p>
                         <p>Merci pour votre confiance !</p>
                     </div>
                 `
@@ -292,12 +292,12 @@ const NotificationService = {
 
             EmailService.sendMail({
                 to: order.customer_email,
-                subject: 'Commande livrée ! Laissez votre avis - NewKet',
+                subject: 'Commande livree ! Laissez votre avis - NewKet',
                 html: `
                     <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
-                        <h2 style="color: #000;">Livraison confirmée 🎉</h2>
+                        <h2 style="color: #000;">Livraison confirmee</h2>
                         <p>Bonjour <b>${customerName}</b>,</p>
-                        <p>Nous espérons que vous êtes satisfait de votre commande <b>#${order.transaction_id || order.id}</b>.</p>
+                        <p>Nous esperons que vous etes satisfait de votre commande.</p>
                         <p>Votre avis est précieux pour la communauté NewKet et aide les autres acheteurs à faire le bon choix.</p>
                         <div style="text-align: center; margin-top: 30px; margin-bottom: 30px;">
                             <a href="${getFrontendBaseUrl()}/pages/customer-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Laisser un avis au vendeur</a>
@@ -319,7 +319,6 @@ const NotificationService = {
             if (!vendor?.email) return;
 
             const amount = Number(order.total_amount || order.total || 0);
-            const transactionId = order.transaction_id || order.id;
             const nowIso = new Date().toISOString();
 
             await createDbNotification({
@@ -327,7 +326,7 @@ const NotificationService = {
                 user_id: vendor.id,
                 user_email: vendor.email,
                 title: 'Paiement vendeur en attente',
-                message: `La commande ${transactionId} a été libérée, mais le transfert vendeur reste à traiter manuellement.`,
+                message: 'La commande a ete validee, mais le versement au vendeur reste a traiter manuellement.',
                 type: 'warning',
                 target_role: 'supplier',
                 read: false,
@@ -336,17 +335,17 @@ const NotificationService = {
 
             EmailService.sendMail({
                 to: vendor.email,
-                subject: 'Paiement vendeur à traiter manuellement - NewKet',
+                subject: 'Paiement vendeur a traiter manuellement - NewKet',
                 html: `
                     <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
                         <h2 style="color: #111827;">Paiement vendeur en attente</h2>
                         <p>Bonjour <b>${vendor.name || 'Vendeur'}</b>,</p>
-                        <p>La commande <b>${transactionId}</b> a été libérée.</p>
+                        <p>La commande a ete validee.</p>
                         <div style="background: #fff7ed; padding: 15px; border-radius: 10px; margin: 20px 0;">
                             <p><b>Montant :</b> ${amount} ${process.env.CURRENCY || 'CDF'}</p>
                             <p><b>Statut :</b> transfert manuel requis</p>
                         </div>
-                        <p>L’intégration payout de l’agrégateur n’est pas encore active. Le règlement vendeur doit donc être finalisé manuellement.</p>
+                        <p>Le reglement vendeur doit encore etre finalise manuellement.</p>
                         <div style="text-align: center; margin-top: 30px;">
                             <a href="${getFrontendBaseUrl()}/pages/vendor-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Ouvrir mon tableau vendeur</a>
                         </div>
@@ -358,7 +357,7 @@ const NotificationService = {
                 user_email: vendor.email,
                 user_id: vendor.id,
                 type: 'warning',
-                text: `Commande ${transactionId} libérée : payout vendeur manuel à traiter.`,
+                text: 'Commande validee : versement vendeur manuel a traiter.',
                 time: nowIso
             });
         } catch (error) {
@@ -367,9 +366,9 @@ const NotificationService = {
     },
 
     /**
-     * T+0 — Notif immédiate après validation OTP.
-     * Avertit le client que le timer de 24h démarre et qu'il peut ouvrir un litige.
-     * Notifie aussi le vendeur que le timer est lancé.
+     * T+0 - Notification immediate after delivery-code validation.
+     * Tells the customer the 24h review period has started and that they can report a problem.
+     * Also tells the vendor that the review period has started.
      */
     async notifyEscrowTimerStarted(order) {
         if (!order?.id) return;
@@ -377,7 +376,6 @@ const NotificationService = {
         const releaseAt = order.escrow_release_at
             ? new Date(order.escrow_release_at).toLocaleString('fr-FR', { timeZone: 'Africa/Kinshasa' })
             : 'dans 24h';
-        const transactionId = order.transaction_id || order.id;
         const customerName = order.customer_name || 'Client';
         const nowIso = new Date().toISOString();
         const customerId = order.user_id || order.customer_id || null;
@@ -389,8 +387,8 @@ const NotificationService = {
                     id: `notif-escrow-start-${order.id}`,
                     ...(customerId ? { user_id: customerId } : {}),
                     user_email: order.customer_email,
-                    title: '\u23F3 Votre d\u00E9lai de v\u00E9rification d\u00E9marre',
-                    message: `Vous avez 24h pour v\u00E9rifier votre commande #${transactionId} et ouvrir un litige si n\u00E9cessaire.`,
+                    title: 'Votre delai de verification demarre',
+                    message: 'Vous avez 24h pour verifier votre commande et signaler un probleme si necessaire.',
                     type: 'info',
                     target_role: 'customer',
                     read: false,
@@ -399,30 +397,30 @@ const NotificationService = {
 
                 EmailService.sendMail({
                     to: order.customer_email,
-                    subject: '\u23F3 Livraison confirm\u00E9e \u2014 V\u00E9rifiez votre commande dans les 24h',
+                    subject: 'Livraison confirmee - Verifiez votre commande dans les 24h',
                     html: `
                         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
-                            <h2 style="color: #111827;">Livraison confirm\u00E9e \u2014 Timer d\u00E9marr\u00E9</h2>
+                            <h2 style="color: #111827;">Livraison confirmee</h2>
                             <p>Bonjour <b>${customerName}</b>,</p>
-                            <p>Votre commande <b>#${transactionId}</b> a \u00E9t\u00E9 livr\u00E9e et le code OTP a \u00E9t\u00E9 valid\u00E9.</p>
+                            <p>Votre commande a ete livree et le code de livraison a ete valide.</p>
                             <div style="background: #fffbeb; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f59e0b;">
-                                <p style="margin: 0; font-weight: bold;">\u23F3 D\u00E9lai de v\u00E9rification : 24 heures</p>
-                                <p style="margin: 8px 0 0; color: #92400e;">Lib\u00E9ration automatique pr\u00E9vue le : <b>${releaseAt}</b></p>
+                                <p style="margin: 0; font-weight: bold;">Delai de verification : 24 heures</p>
+                                <p style="margin: 8px 0 0; color: #92400e;">Envoi automatique prevu le : <b>${releaseAt}</b></p>
                             </div>
-                            <p>Pendant ce d\u00E9lai, v\u00E9rifiez soigneusement votre produit :</p>
+                            <p>Pendant ce delai, verifiez soigneusement votre produit :</p>
                             <ul>
-                                <li>\u2705 Tout est conforme \u2192 les fonds seront lib\u00E9r\u00E9s automatiquement</li>
-                                <li>\u274C Probl\u00E8me constat\u00E9 \u2192 ouvrez un litige depuis votre espace client</li>
+                                <li>Tout est conforme -> le paiement sera envoye automatiquement au vendeur</li>
+                                <li>Probleme constate -> signalez-le depuis votre espace client</li>
                             </ul>
                             <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin: 20px 0; color: #991b1b; font-size: 14px;">
-                                <strong>Important :</strong> Pass\u00E9 ce d\u00E9lai de 24h sans action de votre part, les fonds seront automatiquement vers\u00E9s au vendeur.
+                                <strong>Important :</strong> Passe ce delai de 24h sans action de votre part, le paiement sera automatiquement envoye au vendeur.
                             </div>
                             <div style="text-align: center; margin-top: 30px;">
                                 <a href="${getFrontendBaseUrl()}/pages/customer-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Voir ma commande</a>
                             </div>
                         </div>
                     `
-                }).catch(err => console.error('[NotificationService] escrowTimerStarted client email error:', err));
+                }).catch(err => console.error('[NotificationService] verificationTimerStarted client email error:', err));
             }
         } catch (err) {
             console.error('[NotificationService] notifyEscrowTimerStarted client error:', err);
@@ -437,8 +435,8 @@ const NotificationService = {
                         id: `notif-escrow-start-vendor-${order.id}`,
                         user_id: vendor.id,
                         user_email: vendor.email,
-                        title: '\u23F3 Timer escrow d\u00E9marr\u00E9',
-                        message: `La commande #${transactionId} a \u00E9t\u00E9 livr\u00E9e. Les fonds seront lib\u00E9r\u00E9s automatiquement dans 24h si aucun litige n'est ouvert.`,
+                        title: 'Delai de verification demarre',
+                        message: "La commande a ete livree. Le paiement sera envoye automatiquement dans 24h si aucun probleme n'est signale.",
                         type: 'info',
                         target_role: 'supplier',
                         read: false,
@@ -452,9 +450,9 @@ const NotificationService = {
     },
 
     /**
-     * T+12h \u2014 Rappel mi-timer.
-     * Envoy\u00E9 via push_notification_jobs avec available_at planifi\u00E9 \u00E0 delivered_at + 12h.
-     * Pr\u00E9vient le client qu'il reste 12h pour agir avant lib\u00E9ration automatique.
+     * T+12h - Reminder midway through the review period.
+     * Sent via push_notification_jobs with available_at scheduled to delivered_at + 12h.
+     * Reminds the customer that they have 12h left before automatic payment release.
      */
     async notifyEscrowReminder(order) {
         if (!order?.id || !order?.customer_email) return;
@@ -462,7 +460,6 @@ const NotificationService = {
         const releaseAt = order.escrow_release_at
             ? new Date(order.escrow_release_at).toLocaleString('fr-FR', { timeZone: 'Africa/Kinshasa' })
             : 'dans 12h';
-        const transactionId = order.transaction_id || order.id;
         const customerName = order.customer_name || 'Client';
         const customerId = order.user_id || order.customer_id || null;
         const nowIso = new Date().toISOString();
@@ -472,8 +469,8 @@ const NotificationService = {
                 id: `notif-escrow-reminder-${order.id}`,
                 ...(customerId ? { user_id: customerId } : {}),
                 user_email: order.customer_email,
-                title: '\u26A0\uFE0F Il vous reste 12h pour v\u00E9rifier votre commande',
-                message: `Les fonds de la commande #${transactionId} seront lib\u00E9r\u00E9s automatiquement le ${releaseAt}.`,
+                title: 'Il vous reste 12h pour verifier votre commande',
+                message: `Le paiement de votre commande sera envoye automatiquement le ${releaseAt}.`,
                 type: 'warning',
                 target_role: 'customer',
                 read: false,
@@ -482,29 +479,29 @@ const NotificationService = {
 
             EmailService.sendMail({
                 to: order.customer_email,
-                subject: '\u26A0\uFE0F Derni\u00E8re chance \u2014 12h pour ouvrir un litige sur votre commande',
+                subject: 'Derniere chance - 12h pour signaler un probleme sur votre commande',
                 html: `
                     <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
-                        <h2 style="color: #b45309;">\u26A0\uFE0F Rappel : 12h restantes</h2>
+                        <h2 style="color: #b45309;">Rappel : 12h restantes</h2>
                         <p>Bonjour <b>${customerName}</b>,</p>
-                        <p>Le d\u00E9lai de v\u00E9rification de votre commande <b>#${transactionId}</b> arrive bient\u00F4t \u00E0 terme.</p>
+                        <p>Le delai de verification de votre commande arrive bientot a terme.</p>
                         <div style="background: #fff7ed; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f97316;">
-                            <p style="margin: 0; color: #c2410c; font-weight: bold;">\u23F0 Lib\u00E9ration automatique pr\u00E9vue le : ${releaseAt}</p>
+                            <p style="margin: 0; color: #c2410c; font-weight: bold;">Liberation automatique prevue le : ${releaseAt}</p>
                         </div>
-                        <p>Si vous n'avez pas encore v\u00E9rifi\u00E9 votre produit, faites-le maintenant :</p>
+                        <p>Si vous n'avez pas encore verifie votre produit, faites-le maintenant :</p>
                         <ul>
-                            <li>\u2705 Produit conforme \u2192 aucune action n\u00E9cessaire, les fonds seront lib\u00E9r\u00E9s automatiquement</li>
-                            <li>\u274C Probl\u00E8me \u2192 ouvrez un litige imm\u00E9diatement depuis votre espace client</li>
+                            <li>Produit conforme -> aucune action necessaire, le paiement sera envoye automatiquement</li>
+                            <li>Probleme -> signalez-le immediatement depuis votre espace client</li>
                         </ul>
                         <div style="background: #fee2e2; padding: 15px; border-radius: 10px; margin: 20px 0; color: #991b1b; font-size: 14px;">
-                            <strong>Pass\u00E9 le d\u00E9lai</strong>, il ne sera plus possible d'ouvrir un litige pour cette commande.
+                            <strong>Passe le delai</strong>, il ne sera plus possible de signaler un probleme pour cette commande.
                         </div>
                         <div style="text-align: center; margin-top: 30px;">
                             <a href="${getFrontendBaseUrl()}/pages/customer-dashboard.html" style="background-color: #000; color: #fff; padding: 12px 25px; text-decoration: none; border-radius: 10px; font-weight: bold;">Voir ma commande</a>
                         </div>
                     </div>
                 `
-            }).catch(err => console.error('[NotificationService] escrowReminder email error:', err));
+            }).catch(err => console.error('[NotificationService] verificationReminder email error:', err));
         } catch (error) {
             console.error('[NotificationService] notifyEscrowReminder error:', error);
         }

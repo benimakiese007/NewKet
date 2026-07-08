@@ -13,6 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+function getAdminApiErrorMessage(status) {
+    const code = Number(status) || 0;
+    if (code === 401) return 'Votre session a expire. Reconnectez-vous puis reessayez.';
+    if (code === 403) return "Vous n'avez pas acces a cette page.";
+    if (code === 404) return 'Les donnees demandees sont introuvables.';
+    if (code >= 500) return 'Le service rencontre un probleme. Reessayez dans un instant.';
+    return 'Une erreur est survenue.';
+}
+
 async function loadIntegrations() {
     try {
         const integrationsTableBody = document.getElementById('integrationsTableBody');
@@ -28,7 +37,7 @@ async function loadIntegrations() {
         });
 
         if (!response.ok) {
-            throw new Error(`Erreur API: ${response.status}`);
+            throw new Error(getAdminApiErrorMessage(response.status));
         }
 
         const data = await response.json();
@@ -93,7 +102,7 @@ async function handleCsvExport() {
         });
 
         if (!response.ok) {
-            throw new Error(`Erreur API: ${response.status}`);
+            throw new Error(getAdminApiErrorMessage(response.status));
         }
 
         const blob = await response.blob();

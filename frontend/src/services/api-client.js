@@ -50,6 +50,20 @@ function isLocalDevHost() {
     }
 }
 
+function getFriendlyApiErrorMessage(status, fallbackMessage) {
+    const code = Number(status) || 0;
+
+    if (code === 400) return fallbackMessage || 'Votre demande est invalide. Verifiez les informations puis reessayez.';
+    if (code === 401) return 'Votre session a expire. Reconnectez-vous puis reessayez.';
+    if (code === 403) return "Vous n'avez pas acces a cette action.";
+    if (code === 404) return "L'element demande est introuvable.";
+    if (code === 409) return fallbackMessage || "Cette action n'est pas possible dans l'etat actuel.";
+    if (code === 422) return fallbackMessage || 'Certaines informations sont incorrectes. Verifiez puis reessayez.';
+    if (code === 429) return 'Trop de requetes. Attendez un instant puis reessayez.';
+    if (code >= 500) return 'Le service rencontre un probleme. Reessayez dans un instant.';
+    return fallbackMessage || 'Une erreur est survenue.';
+}
+
 /**
  * Fetch wrapper for connecting to the Express Backend.
  * Automatically injects the Supabase user session token into the 'Authorization' header.
@@ -263,7 +277,7 @@ export const ApiClient = {
                 }
 
                 if (!response.ok) {
-                    let baseMsg = data?.error || `Erreur API ${response.status}`;
+                    let baseMsg = getFriendlyApiErrorMessage(response.status, data?.error);
 
                     // Vercel generic 404 body (plain text) when the serverless function route is missing.
                     // This often happens when `/api/*` functions are not deployed/registered.
