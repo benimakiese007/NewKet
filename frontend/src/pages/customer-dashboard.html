@@ -2104,22 +2104,29 @@
                     const type = window.normalizeNotificationType ? window.normalizeNotificationType(n.type) : n.type;
                     let icon = 'solar:bell-linear';
                     let iconColor = 'bg-gray-50 text-gray-400';
+                    const isImageIssue = /image\s+produit/i.test(String(n.title || '')) || /image\s+produit/i.test(String(n.message || ''));
                     if (type === 'success') { icon = 'solar:check-circle-bold'; iconColor = 'bg-green-50 text-green-500'; }
                     else if (type === 'error' || type === 'danger') { icon = 'solar:danger-circle-bold'; iconColor = 'bg-red-50 text-red-500'; }
                     else if (type === 'warning') { icon = 'solar:bell-bing-bold'; iconColor = 'bg-orange-50 text-orange-500'; }
                     else if (type === 'info') { icon = 'solar:info-circle-bold'; iconColor = 'bg-blue-50 text-blue-500'; }
 
+                    const extraClass = isImageIssue ? 'border border-amber-200 bg-amber-50/60' : '';
+
                     return `
-                        <div class="glass-panel p-4 flex gap-4 items-center ${!n.read ? 'bg-black/[0.02] border-black/10' : ''} cursor-pointer hover:border-black/20 transition-all" onclick="NotificationManager.markAsRead('${n.id}'); renderDashboardNotifications();">
+                        <div class="glass-panel p-4 flex gap-4 items-center ${!n.read ? 'bg-black/[0.02] border-black/10' : ''} ${extraClass} cursor-pointer hover:border-black/20 transition-all" onclick="NotificationManager.markAsRead('${n.id}'); renderDashboardNotifications();">
                             <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center ${iconColor}">
                                 <iconify-icon icon="${icon}" width="20"></iconify-icon>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between mb-0.5">
-                                    <h3 class="font-bold text-sm ${!n.read ? 'text-black' : 'text-gray-600'}">${n.title}</h3>
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <h3 class="font-bold text-sm ${!n.read ? 'text-black' : 'text-gray-600'} truncate">${n.title}</h3>
+                                        ${isImageIssue ? '<span class="shrink-0 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-[0.18em]">Image</span>' : ''}
+                                    </div>
                                     <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">${new Date(n.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span>
                                 </div>
                                 <p class="text-xs text-gray-500 truncate">${n.message}</p>
+                                ${isImageIssue ? '<p class="mt-1 text-[10px] font-semibold text-amber-700">Image surveillée en arrière-plan.</p>' : ''}
                             </div>
                             ${!n.read ? '<div class="w-1.5 h-1.5 rounded-full bg-black"></div>' : ''}
                         </div>

@@ -293,6 +293,69 @@
         let shopStats = {};
         let searchDebounceId = null;
 
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getSellerAvatarUrl(seller = {}) {
+            return seller.avatar
+                || seller.avatar_url
+                || seller.picture
+                || seller.picture_url
+                || seller.photo_url
+                || seller.photoURL
+                || seller.cover_image
+                || seller.profile_picture
+                || '';
+        }
+
+        function buildSellerAvatarFallbackMarkup(shopName = '') {
+            const safeName = escapeHtml(shopName || 'Boutique');
+            const gmailSvg = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+                    <rect width="48" height="48" rx="24" fill="#F3F4F6"/>
+                    <path d="M12 15.5v17a2.5 2.5 0 0 0 2.5 2.5H15V18.2l9 7.2 9-7.2V35h.5a2.5 2.5 0 0 0 2.5-2.5v-17L24 24.2l-12-8.7Z" fill="#EA4335"/>
+                    <path d="M12 15.5l12 8.7 12-8.7V13A2.5 2.5 0 0 0 33.5 10.5h-19A2.5 2.5 0 0 0 12 13v2.5Z" fill="#4285F4"/>
+                    <path d="M12 15.5l12 8.7 12-8.7V13A2.5 2.5 0 0 0 33.5 10.5h-19A2.5 2.5 0 0 0 12 13v2.5Z" fill="#FBBC05" fill-opacity=".12"/>
+                </svg>
+            `;
+
+            return `
+                <div class="w-full h-full flex items-center justify-center bg-gray-50">
+                    <img
+                        src="data:image/svg+xml,${encodeURIComponent(gmailSvg)}"
+                        alt="${safeName}"
+                        class="w-full h-full object-cover"
+                    >
+                </div>
+            `;
+        }
+
+        function buildSellerAvatarMarkup(seller = {}, shopName = '') {
+            const avatarUrl = getSellerAvatarUrl(seller);
+            const safeName = escapeHtml(shopName || seller.company_name || seller.name || 'Boutique sans nom');
+
+            if (avatarUrl) {
+                return `
+                    <img
+                        src="${escapeHtml(avatarUrl)}"
+                        alt="${safeName}"
+                        loading="lazy"
+                        referrerpolicy="no-referrer"
+                        crossorigin="anonymous"
+                        class="w-full h-full object-cover"
+                    >
+                `;
+            }
+
+            return buildSellerAvatarFallbackMarkup(shopName || seller.company_name || seller.name || 'Boutique sans nom');
+        }
+
         function setResultsCountText(count, total) {
             const el = document.getElementById('shopsResultsCount');
             if (!el) return;
@@ -398,7 +461,7 @@
                 noShops.classList.add('hidden');
                 setResultsCountText(filteredSellers.length, allSellers.length);
                 grid.innerHTML = filteredSellers.map(seller => {
-                    const avatar = seller.avatar || ('https://ui-avatars.com/api/?name=' + encodeURIComponent(seller.company_name || seller.name || 'Vendor') + '&background=f3f4f6&color=000&bold=true');
+                    const avatar = getSellerAvatarUrl(seller);
                     const dateJoined = seller.date_joined ? new Date(seller.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
                     const shopName = seller.company_name || seller.name || 'Boutique sans nom';
                     const stats = shopStats[seller.email] || { avgRating: 0, ratingCount: 0, salesCount: 0 };
@@ -437,7 +500,7 @@
                             </div>
                             
                             <div class="w-24 h-24 rounded-full bg-gray-50 overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-500">
-                                <img src="${avatar}" alt="${shopName}" loading="lazy" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}'">
+                                ${buildSellerAvatarMarkup(seller, shopName)}
                             </div>
 
                             <div class="space-y-3">
