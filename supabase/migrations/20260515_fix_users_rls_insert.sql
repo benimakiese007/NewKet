@@ -38,16 +38,16 @@ DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
 
 CREATE POLICY "Users can view their own profile" ON public.users
 FOR SELECT
-USING (id = auth.uid() OR public.is_admin());
+USING (id = auth.uid()::text OR public.is_admin());
 
 CREATE POLICY "Users can insert their own profile" ON public.users
 FOR INSERT
-WITH CHECK (id = auth.uid() OR public.is_admin());
+WITH CHECK (id = auth.uid()::text OR public.is_admin());
 
 CREATE POLICY "Users can update their own profile" ON public.users
 FOR UPDATE
-USING (id = auth.uid() OR public.is_admin())
-WITH CHECK (id = auth.uid() OR public.is_admin());
+USING (id = auth.uid()::text OR public.is_admin())
+WITH CHECK (id = auth.uid()::text OR public.is_admin());
 
 CREATE POLICY "Admins can delete users" ON public.users
 FOR DELETE

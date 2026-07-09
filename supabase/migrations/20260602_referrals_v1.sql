@@ -53,7 +53,7 @@ CREATE POLICY "Users can view their own referral metadata"
 ON public.users
 FOR SELECT
 USING (
-    id = auth.uid()
+    id = auth.uid()::text
     OR public.is_admin()
 );
 
@@ -62,7 +62,7 @@ CREATE POLICY "Users can update their own referral metadata"
 ON public.users
 FOR UPDATE
 USING (
-    id = auth.uid()
+    id = auth.uid()::text
     OR public.is_admin()
 );
 
