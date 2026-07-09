@@ -50,6 +50,18 @@ BEGIN
     -- Withdrawals
     IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Suppliers can view their own withdrawals' AND tablename = 'withdrawals') THEN DROP POLICY "Suppliers can view their own withdrawals" ON withdrawals; END IF;
     IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Admins can manage all withdrawals' AND tablename = 'withdrawals') THEN DROP POLICY "Admins can manage all withdrawals" ON withdrawals; END IF;
+
+    -- Activities
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own activities' AND tablename = 'activities') THEN DROP POLICY "Users can view their own activities" ON activities; END IF;
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can create activities' AND tablename = 'activities') THEN DROP POLICY "Users can create activities" ON activities; END IF;
+
+    -- Notifications
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can view their own notifications' AND tablename = 'notifications') THEN DROP POLICY "Users can view their own notifications" ON notifications; END IF;
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Users can create notifications' AND tablename = 'notifications') THEN DROP POLICY "Users can create notifications" ON notifications; END IF;
+
+    -- Promos
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Anyone can view promos' AND tablename = 'promos') THEN DROP POLICY "Anyone can view promos" ON promos; END IF;
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Admins can manage promos' AND tablename = 'promos') THEN DROP POLICY "Admins can manage promos" ON promos; END IF;
 END $$;
 
 -- 5. IMPLEMENT POLICIES
