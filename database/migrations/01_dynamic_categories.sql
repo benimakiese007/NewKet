@@ -1,5 +1,5 @@
 -- Migration: Create a view for ranked categories based on product views
-CREATE OR REPLACE VIEW ranked_categories AS
+CREATE OR REPLACE VIEW ranked_categories WITH (security_invoker = true) AS
 SELECT 
     category,
     COUNT(id) as product_count,
