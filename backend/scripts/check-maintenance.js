@@ -24,16 +24,16 @@ async function readMaintenanceMode() {
     return { data, error };
   };
 
-  const snake = await query('maintenance_mode');
-  if (!snake.error) return { enabled: !!snake.data?.maintenance_mode, error: null };
+  const camel = await query('maintenanceMode');
+  if (!camel.error) return { enabled: !!camel.data?.maintenanceMode, error: null };
 
-  if (snake.error?.code === '42703') {
-    const camel = await query('maintenanceMode');
-    if (!camel.error) return { enabled: !!camel.data?.maintenanceMode, error: null };
-    return { enabled: null, error: camel.error };
+  if (camel.error?.code === '42703') {
+    const snake = await query('maintenance_mode');
+    if (!snake.error) return { enabled: !!snake.data?.maintenance_mode, error: null };
+    return { enabled: null, error: snake.error };
   }
 
-  return { enabled: null, error: snake.error };
+  return { enabled: null, error: camel.error };
 }
 
 async function tryWriteProbe() {
@@ -84,4 +84,3 @@ main().catch((err) => {
   console.error('❌ Unexpected error:', err?.message || String(err));
   process.exit(10);
 });
-

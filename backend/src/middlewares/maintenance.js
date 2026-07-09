@@ -14,17 +14,17 @@ async function readMaintenanceFlag() {
     return { data, error };
   };
 
-  // Schéma actuel: snake_case. Support legacy camelCase.
-  const snake = await query('maintenance_mode');
-  if (!snake.error) return { value: !!snake.data?.maintenance_mode, error: null };
+  // Schéma actuel côté production: camelCase. Support legacy snake_case.
+  const camel = await query('maintenanceMode');
+  if (!camel.error) return { value: !!camel.data?.maintenanceMode, error: null };
 
-  if (snake.error?.code === '42703') {
-    const camel = await query('maintenanceMode');
-    if (!camel.error) return { value: !!camel.data?.maintenanceMode, error: null };
-    return { value: false, error: camel.error };
+  if (camel.error?.code === '42703') {
+    const snake = await query('maintenance_mode');
+    if (!snake.error) return { value: !!snake.data?.maintenance_mode, error: null };
+    return { value: false, error: snake.error };
   }
 
-  return { value: false, error: snake.error };
+  return { value: false, error: camel.error };
 }
 
 function isMaintenanceExemptRequest(req) {

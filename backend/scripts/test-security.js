@@ -15,17 +15,17 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 async function setMaintenanceMode(enabled) {
-  // Prefer snake_case schema, but support legacy camelCase.
+  // Prefer camelCase schema, but support legacy snake_case.
   const tryUpdate = async (payload) => {
     const { error } = await supabase.from('settings').update(payload).eq('id', 'global-settings');
     return { error };
   };
 
-  let result = await tryUpdate({ maintenance_mode: enabled });
+  let result = await tryUpdate({ maintenanceMode: enabled });
   if (!result.error) return;
 
   if (result.error?.code === '42703') {
-    result = await tryUpdate({ maintenanceMode: enabled });
+    result = await tryUpdate({ maintenance_mode: enabled });
     if (!result.error) return;
   }
 
@@ -111,4 +111,3 @@ async function runTests() {
 }
 
 runTests();
-
