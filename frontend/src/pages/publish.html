@@ -392,7 +392,7 @@
                         class="w-full bg-gray-200 text-gray-400 cursor-not-allowed py-6 rounded-2xl font-black text-xl transition-all flex items-center justify-center gap-4 relative overflow-hidden group">
                         <span class="relative z-10 tracking-tight">PUBLIER L'ANNONCE</span>
                         <!-- Button shine effect -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full transition-transform duration-1000"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full transition-transform duration-1000 pointer-events-none"></div>
                     </button>
                 </div>
             </div>
@@ -423,7 +423,7 @@
             <div id="successState" class="hidden">
                 <!-- Checkmark Animation -->
                 <div class="relative w-24 h-24 mx-auto mb-8">
-                    <div class="absolute inset-0 bg-green-100 rounded-full scale-0 animate-[ping_1.5s_cubic-bezier(0,0,0.2,1)_1]"></div>
+                    <div class="absolute inset-0 bg-green-100 rounded-full scale-0 animate-[ping_1.5s_cubic-bezier(0,0,0.2,1)_1] pointer-events-none"></div>
                     <div class="relative flex items-center justify-center w-full h-full bg-green-50 text-green-500 rounded-full shadow-inner ring-4 ring-green-50/50 animate-[popIn_0.5s_cubic-bezier(0.34,1.56,0.64,1)_forwards]">
                         <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                             <path class="animate-[drawCheck_0.5s_ease-out_0.3s_forwards]" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" stroke-dasharray="24" stroke-dashoffset="24" />

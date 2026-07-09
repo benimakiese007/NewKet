@@ -1337,8 +1337,8 @@
 
     <div id="drilldownModal" class="fixed inset-0 z-[200] hidden">
         <div id="drilldownBackdrop" class="absolute inset-0 bg-black/30"></div>
-        <div class="absolute inset-0 flex items-end sm:items-center justify-center p-4">
-            <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div class="w-full max-w-4xl max-h-[calc(100dvh-2rem)] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-0">
                 <div class="p-6 border-b border-gray-100 flex items-start justify-between gap-4">
                     <div class="min-w-0">
                         <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Détail</div>
@@ -1348,7 +1348,7 @@
                     <button id="drilldownCloseBtn" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700">Fermer</button>
                 </div>
 
-                <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-y-auto">
                     <div class="lg:col-span-1">
                         <div class="font-bold text-gray-900 mb-3">Résumé</div>
                         <div class="space-y-3" id="drilldownList"></div>
