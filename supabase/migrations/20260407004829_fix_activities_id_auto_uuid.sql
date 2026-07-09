@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260407004829
+-- Remote name: fix_activities_id_auto_uuid

@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260417234814
+-- Remote name: rename_store_phone_whatsapp_to_store_phone

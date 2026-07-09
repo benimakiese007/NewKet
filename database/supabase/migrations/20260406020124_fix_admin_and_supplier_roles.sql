@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260406020124
+-- Remote name: fix_admin_and_supplier_roles

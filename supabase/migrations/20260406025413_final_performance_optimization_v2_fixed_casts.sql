@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260406025413
+-- Remote name: final_performance_optimization_v2_fixed_casts

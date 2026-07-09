@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260407231419
+-- Remote name: add_physical_shop_url_to_users

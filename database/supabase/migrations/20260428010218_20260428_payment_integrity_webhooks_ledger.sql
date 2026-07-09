@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260428010218
+-- Remote name: 20260428_payment_integrity_webhooks_ledger

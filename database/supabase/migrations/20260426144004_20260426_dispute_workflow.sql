@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260426144004
+-- Remote name: 20260426_dispute_workflow

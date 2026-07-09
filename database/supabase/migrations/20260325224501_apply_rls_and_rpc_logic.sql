@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260325224501
+-- Remote name: apply_rls_and_rpc_logic
