@@ -1044,6 +1044,38 @@ function extractPrimaryImageToken(source) {
     if (Array.isArray(source)) {
         source = String(source[0] || '').trim();
     }
+
+    if (source && typeof source === 'object') {
+        const objectCandidates = [
+            source.url,
+            source.src,
+            source.image,
+            source.image_url,
+            source.imageUrl,
+            source.primary,
+            source.thumb,
+            source.thumbnail,
+            source.photo,
+            source.picture,
+            source.avatar,
+            source.avatar_url,
+            source.avatarUrl,
+            source.profile_image,
+            source.profileImage,
+            source.logo,
+            source.cover,
+            source.cover_image,
+            source.path
+        ];
+
+        for (const candidate of objectCandidates) {
+            const resolved = extractPrimaryImageToken(candidate);
+            if (resolved) return resolved;
+        }
+
+        return '';
+    }
+
     let value = String(source || '').trim();
     if (!value) return '';
 

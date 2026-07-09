@@ -349,6 +349,9 @@ export const ApiClient = {
     put(endpoint, body, options = {}) {
         return this.fetch(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) });
     },
+    patch(endpoint, body, options = {}) {
+        return this.fetch(endpoint, { ...options, method: 'PATCH', body: body ? JSON.stringify(body) : '{}' });
+    },
     delete(endpoint, body, options = {}) {
         return this.fetch(endpoint, { ...options, method: 'DELETE', body: body ? JSON.stringify(body) : undefined });
     }

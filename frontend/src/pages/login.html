@@ -581,6 +581,13 @@
         );
         let isLogin = !isRecovery && !shouldOpenSignup;
 
+        async function getRuntimeAdminEmails(force = false) {
+            if (window.NewKetAdminEmails?.refresh) {
+                return window.NewKetAdminEmails.refresh(force);
+            }
+            return (window.ADMIN_EMAILS || []).map(email => String(email || '').trim().toLowerCase()).filter(Boolean);
+        }
+
         const tabLogin = document.getElementById('tabLogin');
         const tabSignup = document.getElementById('tabSignup');
         const tabsContainer = document.getElementById('tabsContainer');
@@ -1108,13 +1115,13 @@
                 } else {
                     // SIGNUP Logic
                     let role = document.querySelector('input[name="role"]:checked').value;
-                    const adminEmails = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-                    if (adminEmails.includes(email.toLowerCase())) {
+                    const adminEmails = await getRuntimeAdminEmails(true);
+                    if (adminEmails.includes(email.toLowerCase().trim().toLowerCase())) {
                         role = 'admin';
                     }
 
                     // Determine initial status: customers are approved immediately, suppliers must go through KYC
-                    const initialStatus = (role === 'customer') ? 'approved' : 'pending';
+                    const initialStatus = (role === 'customer' || role === 'admin') ? 'approved' : 'pending';
                     const referralCode = localStorage.getItem('newketReferralCode') || '';
 
                     const { data, error } = await supabaseClient.auth.signUp({
@@ -1168,12 +1175,12 @@
         });
 
         // Redirect based on role
-        function finalizeAuth(user, email) {
+        async function finalizeAuth(user, email) {
             if (typeof showToast !== 'undefined') showToast("Authentification réussie", "success");
 
             let role = user?.user_metadata?.role || null;
-            const adminEmails = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-            if (adminEmails.includes(email.toLowerCase())) role = 'admin';
+            const adminEmails = await getRuntimeAdminEmails(true);
+            if (adminEmails.includes(String(email || '').trim().toLowerCase())) role = 'admin';
 
             if (!role) {
                 localStorage.removeItem('newketRole');

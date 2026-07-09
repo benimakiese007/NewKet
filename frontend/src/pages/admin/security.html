@@ -71,7 +71,7 @@
                 <div class="glass-panel p-8">
                     <div class="flex items-center gap-3 mb-8">
                         <span class="w-2 h-8 bg-black rounded-full"></span>
-                        <h3 class="font-black text-xl text-gray-900">Whitelist Administrateurs</h3>
+                        <h3 class="font-black text-xl text-gray-900">Admins autorisés</h3>
                     </div>
 
                     <div id="adminList" class="space-y-2">
@@ -113,7 +113,7 @@
                 <div class="space-y-6">
                     <div class="glass-panel p-8 premium-gradient-dark text-white">
                         <h3 class="font-black text-xl mb-4 text-white">Ajouter un Admin</h3>
-                        <p class="text-white/90 text-sm mb-6">L'adresse e-mail doit être associée à un compte utilisateur existant sur NewKet pour que les privilèges s'activent.</p>
+                        <p class="text-white/90 text-sm mb-6">Si le compte existe déjà sur NewKet, il est promu administrateur. Sinon, le premier compte créé avec cette adresse recevra directement le rôle admin.</p>
                         
                         <div class="space-y-4">
                             <div>
@@ -248,7 +248,7 @@
 
         async function loadAdminProfiles() {
             adminProfilesByEmail = {};
-            if (!window.supabaseClient || adminEmails.length === 0) return;
+            if (adminEmails.length === 0) return;
 
             try {
                 const emails = adminEmails
@@ -257,14 +257,31 @@
 
                 if (emails.length === 0) return;
 
-                const { data, error } = await window.supabaseClient
-                    .from('users')
-                    .select('email, name, full_name, avatar, avatar_url, picture, picture_url, photo_url, photoURL, avatarUrl')
-                    .in('email', emails);
+                let profiles = [];
 
-                if (error) throw error;
+                if (window.ApiClient?.get) {
+                    try {
+                        const data = await window.ApiClient.get('/users', {
+                            suppressToast: true,
+                            suppressErrorLogging: true
+                        });
+                        profiles = Array.isArray(data) ? data : [];
+                    } catch (apiError) {
+                        console.warn('[Security] /api/users avatar enrichment failed, falling back to Supabase:', apiError);
+                    }
+                }
 
-                (data || []).forEach(profile => {
+                if (profiles.length === 0 && window.supabaseClient) {
+                    const { data, error } = await window.supabaseClient
+                        .from('users')
+                        .select('email, name, full_name, avatar, avatar_url, picture, picture_url, photo_url, photoURL, avatarUrl')
+                        .in('email', emails);
+
+                    if (error) throw error;
+                    profiles = Array.isArray(data) ? data : [];
+                }
+
+                profiles.forEach(profile => {
                     const email = String(profile.email || '').trim().toLowerCase();
                     if (!email) return;
                     adminProfilesByEmail[email] = profile;
@@ -310,6 +327,7 @@
 
                 if (error) throw error;
                 adminEmails = data?.admin_emails || [];
+                window.ADMIN_EMAILS = Array.isArray(adminEmails) ? adminEmails.slice() : [];
                 await loadAdminProfiles();
                 renderAdmins();
             } catch (err) {
@@ -382,6 +400,13 @@
                 if (error) throw error;
                 
                 adminEmails = newList;
+                window.ADMIN_EMAILS = Array.isArray(newList) ? newList.slice() : [];
+                if (window.NewKetAdminEmails?.clearCache) {
+                    window.NewKetAdminEmails.clearCache();
+                }
+                if (window.refreshNewKetAdminEmails) {
+                    window.refreshNewKetAdminEmails(true).catch(() => {});
+                }
                 await loadAdminProfiles();
                 renderAdmins();
                 

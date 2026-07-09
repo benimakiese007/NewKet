@@ -27,9 +27,8 @@ import { awardReferralNkToken } from '../services/referral-rewards.js';
 const client = supabaseAdmin || supabase;
 
 function isAdminActor(user) {
-    const email = String(user?.email || '').toLowerCase();
     const role = user?.app_metadata?.role || user?.user_metadata?.role || '';
-    return role === 'admin' || email === 'benimakiese1234@gmail.com';
+    return role === 'admin';
 }
 
 function assertOrderMutableOrFail({ order, user, res, actionLabel }) {

@@ -5,8 +5,7 @@ window.newketConfig = {
     exchangeRate: 2500
 };
 
-// Admin email list is now centralized in auth.js for early initialization.
-// window.ADMIN_EMAILS is available here via AuthManager/auth.js.
+// Admin emails are made available early by auth/admin-config so shell code can read them.
 // ADMIN_PASSWORD intentionally removed — use Supabase Auth only.
 
 const App = {

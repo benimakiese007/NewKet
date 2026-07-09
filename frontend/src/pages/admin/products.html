@@ -479,7 +479,7 @@
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 bg-gray-50 rounded-2xl p-2 relative overflow-hidden group-hover:scale-110 transition-transform flex-shrink-0">
                                 <img loading="lazy" src="${window.resolveProductImageSource ? window.resolveProductImageSource(p) : window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(window.resolveProductImageSource ? window.resolveProductImageSource(p) : (p.image ? p.image.split(',')[0] : ''), [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full h-full object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
-                                ${isOut ? '<div class="absolute inset-0 bg-red-500/20 backdrop-blur-[1px] flex items-center justify-center text-[8px] font-black text-red-700 uppercase">Épuisé</div>' : ''}
+                                ${isOut ? '<div class="absolute inset-0 bg-red-500/20 backdrop-blur-[1px] flex items-center justify-center text-[8px] font-black text-red-700 uppercase pointer-events-none">Épuisé</div>' : ''}
                             </div>
                             <div class="min-w-0 flex-1 admin-table-cell-text">
                                 <div class="font-black text-gray-900 leading-tight admin-table-clamp-2" title="${p.name}">${p.name}</div>
@@ -508,7 +508,7 @@
                         </button>
                     </td>
                     <td class="p-4 text-right">
-                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
                             <button onclick="editProduct('${p.id}')" data-track-action="admin_products:edit_click" class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 hover:bg-black hover:text-white transition-all flex items-center justify-center">
                                 <iconify-icon icon="solar:pen-bold" width="20"></iconify-icon>
                             </button>

@@ -105,21 +105,36 @@ let adminEmailCache = {
  */
 const getAdminEmails = async () => {
     const now = Date.now();
-    // Cache for 5 minutes
-    if (adminEmailCache.emails.length > 0 && (now - adminEmailCache.lastFetched) < 5 * 60 * 1000) {
-        return adminEmailCache.emails;
-    }
 
     try {
-        const { data, error } = await supabase
+        const normalize = (value) => String(value || '').trim().toLowerCase();
+        const mergedEmails = new Set();
+
+        const { data: settingsRow, error: settingsError } = await supabase
+            .from('settings')
+            .select('admin_emails')
+            .eq('id', 'global-settings')
+            .maybeSingle();
+
+        if (settingsError) throw settingsError;
+
+        const adminEmails = Array.isArray(settingsRow?.admin_emails) ? settingsRow.admin_emails : [];
+        adminEmails.map(normalize).filter(Boolean).forEach((email) => mergedEmails.add(email));
+
+        const { data: adminUsers, error } = await supabase
             .from('users')
             .select('email')
             .eq('role', 'admin');
 
         if (error) throw error;
 
+        (Array.isArray(adminUsers) ? adminUsers : [])
+            .map((row) => normalize(row?.email))
+            .filter(Boolean)
+            .forEach((email) => mergedEmails.add(email));
+
         adminEmailCache = {
-            emails: Array.isArray(data) ? data.map(u => u.email?.toLowerCase()).filter(Boolean) : [],
+            emails: Array.from(mergedEmails),
             lastFetched: now
         };
         return adminEmailCache.emails;

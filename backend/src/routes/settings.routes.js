@@ -13,14 +13,16 @@ router.get('/', optionalAuth, getSettings);
 // Seul l'admin peut modifier
 router.put('/', 
     requireAuth, 
-    requireAdmin, 
-    [
-        body('exchangeRate').optional().isNumeric(),
-        body('admin_emails').optional().isArray(),
-        body('admin_emails.*').isEmail().withMessage('Email invalide'),
-        validate
-    ],
-    saveSettings
+        requireAdmin, 
+        [
+            body('exchangeRate').optional().isNumeric(),
+            body('adminEmails').optional().isArray(),
+            body('admin_emails').optional().isArray(),
+            body('adminEmails.*').optional().isEmail().withMessage('Email invalide'),
+            body('admin_emails.*').optional().isEmail().withMessage('Email invalide'),
+            validate
+        ],
+        saveSettings
 );
 
 // Danger Zone: Transaction Reset

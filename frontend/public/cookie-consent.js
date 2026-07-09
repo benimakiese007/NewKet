@@ -7,6 +7,14 @@
 (function () {
     'use strict';
 
+    // Empêche les doubles injections quand la bannière est chargée à la fois
+    // directement dans une page et via components-loader.js.
+    if (window.__nkCookieConsentLoaded) {
+        return;
+    }
+    window.__nkCookieConsentLoaded = true;
+    window.cookieConsent = true;
+
     const CONSENT_KEY = 'nk_cookie_consent';
     const CONSENT_VERSION = 'v1.1';
     const API_CONSENT_URL = '/api/consent';
@@ -270,15 +278,23 @@
     }
 
     function init() {
+        const existingBanner = document.getElementById('nk-cookie-banner');
+        if (existingBanner) {
+            window.cookieConsent = true;
+            return;
+        }
+
         const stored = getStoredConsent();
         if (stored) {
             // Consentement déjà donné et à jour → appliquer directement
             applyConsent(stored.choices);
+            window.cookieConsent = true;
             return;
         }
 
         const banner = createBanner();
         document.body.appendChild(banner);
+        window.cookieConsent = true;
 
         // Accepter tout
         document.getElementById('nk-cookie-accept').addEventListener('click', async () => {

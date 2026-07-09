@@ -140,6 +140,10 @@
 
                 if (!window.AuthManager) return;
 
+                if (window.refreshNewKetAdminEmails) {
+                    await window.refreshNewKetAdminEmails(true).catch(() => {});
+                }
+
                 if (window.AuthManager.role && !window.AuthManager.hasPendingRoleSelection()) {
                     window.location.href = window.AuthManager.getRedirectPathForRole(window.AuthManager.role, window.AuthManager.status);
                     return;
@@ -150,6 +154,14 @@
                 if (!user) {
                     window.location.href = window.resolvePath('login');
                     return;
+                }
+
+                if (window.AuthManager?.applyAdminAccess) {
+                    const adminProfile = await window.AuthManager.applyAdminAccess(user);
+                    if (adminProfile) {
+                        window.location.href = window.resolvePath('admin/');
+                        return;
+                    }
                 }
 
                 const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email;

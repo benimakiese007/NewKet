@@ -13,8 +13,7 @@ export function isVendorUser(user) {
 
 export function isAdminUser(user) {
     const role = user?.app_metadata?.role || user?.user_metadata?.role || '';
-    const email = String(user?.email || '').toLowerCase();
-    return role === 'admin' || email === 'benimakiese1234@gmail.com';
+    return role === 'admin';
 }
 
 export async function fetchVendorPromoProductIds(promoIds = [], dbClient = client) {

@@ -4,7 +4,7 @@
  * Rôle interne: 'customer'. Label UI: 'Client'.
  * Rôle interne: 'admin'. Label UI: 'Administrateur'.
  */
-// Admin email list is now centralized in admin-config.js (synchronous script)
+// Admin emails are hydrated from admin-config.js at runtime, with DB as source of truth.
 const ADMIN_EMAILS = window.ADMIN_EMAILS || [];
 const ALLOWED_ROLES = new Set(['customer', 'supplier', 'admin']);
 const REFERRAL_CODE_STORAGE_KEY = 'newketReferralCode';
@@ -46,6 +46,7 @@ const AuthManager = {
     _authChecking: true, // Start as true to block UI
     _initialized: false,
     _realtimeChannel: null,
+    _adminWhitelistChannel: null,
     _syncInterval: null,
     _sessionUpdatePromise: null,
     _logoutInProgress: false,
@@ -121,6 +122,7 @@ const AuthManager = {
 
             // Start periodic role validation
             this.startRoleValidation();
+            this.setupAdminWhitelistSync();
 
             // Listen for components-loader events (Re-enforce once DOM is populated)
             if (window.componentsLoaded) {
@@ -143,6 +145,7 @@ const AuthManager = {
             try {
                 this._logoutInProgress = false;
                 const email = user.email;
+                await this.refreshAdminWhitelist(true);
                 const explicitRole = this.resolveRoleFromUser(user);
 
                 this.user = user;
@@ -150,6 +153,10 @@ const AuthManager = {
                 localStorage.setItem('newketUserId', user.id);
 
                 let profile = await this.getUserProfile(user.id);
+                profile = await this.applyAdminAccess(user, profile) || profile;
+                if (this.role === 'admin') {
+                    return;
+                }
 
                 const oauthAvatar =
                     user.user_metadata.avatar_url ||
@@ -279,6 +286,17 @@ const AuthManager = {
             this._realtimeChannel = null;
         }
 
+        if (this._adminWhitelistChannel) {
+            try {
+                if (window.supabaseClient) {
+                    window.supabaseClient.removeChannel(this._adminWhitelistChannel);
+                }
+            } catch (err) {
+                console.error('[NewKet Auth] Error removing admin whitelist channel during cleanup:', err);
+            }
+            this._adminWhitelistChannel = null;
+        }
+
         // Reset local state
         this.role = null;
         this.status = null;
@@ -384,8 +402,84 @@ const AuthManager = {
         }
     },
 
+    clearPendingRoleSelection() {
+        this._pendingRoleSelection = false;
+        localStorage.removeItem('newketPendingRoleChoice');
+        localStorage.setItem('newketRoleSelectionConfirmed', 'true');
+    },
+
     hasPendingRoleSelection() {
         return this._pendingRoleSelection || localStorage.getItem('newketPendingRoleChoice') === 'true';
+    },
+
+    async refreshAdminWhitelist(force = false) {
+        if (window.NewKetAdminEmails?.refresh) {
+            return window.NewKetAdminEmails.refresh(force);
+        }
+        return (window.ADMIN_EMAILS || []).map(e => String(e || '').trim().toLowerCase()).filter(Boolean);
+    },
+
+    async isAdminEmail(email, force = false) {
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+        if (!normalizedEmail) return false;
+        const emails = await this.refreshAdminWhitelist(force);
+        return emails.includes(normalizedEmail);
+    },
+
+    async promoteExistingProfileToAdmin(user, profile) {
+        if (!user?.id || !user?.email) return profile || null;
+        if (!await this.isAdminEmail(user.email)) return profile || null;
+        if (profile?.role === 'admin') return profile;
+
+        const updatedProfile = await this.updateExistingProfileRole(user.id, 'admin', 'approved');
+        await this.syncRoleSelectionMetadata(
+            user,
+            'admin',
+            'approved',
+            updatedProfile?.name || profile?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0]
+        );
+
+        return updatedProfile || profile || null;
+    },
+
+    async applyAdminAccess(user, profile = null) {
+        if (!user?.id || !user?.email) return null;
+        if (!await this.isAdminEmail(user.email, true)) return null;
+
+        let effectiveProfile = profile || await this.getUserProfile(user.id);
+
+        if (!effectiveProfile || effectiveProfile.role !== 'admin') {
+            if (effectiveProfile) {
+                effectiveProfile = await this.updateExistingProfileRole(user.id, 'admin', 'approved');
+            } else {
+                effectiveProfile = await this.createUserProfile(user, 'admin');
+            }
+        }
+
+        await this.syncRoleSelectionMetadata(
+            user,
+            'admin',
+            'approved',
+            effectiveProfile?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0]
+        );
+
+        this.clearPendingRoleSelection();
+        this.user = user;
+        this.role = 'admin';
+        this.status = 'approved';
+        this.sellerType = null;
+
+        localStorage.setItem('newketRole', 'admin');
+        localStorage.setItem('newketUserEmail', user.email);
+        localStorage.setItem('newketUserId', user.id);
+        localStorage.setItem('newketUserStatus', 'approved');
+        localStorage.removeItem('newketSellerType');
+
+        this.setupRealtimeSync(user.id);
+        this.enforcePermissions();
+        this.updateAccountLink();
+
+        return effectiveProfile;
     },
 
     isRoleSelectionPage() {
@@ -590,6 +684,7 @@ const AuthManager = {
     },
 
     async fetchUserStatus(email) {
+        await this.refreshAdminWhitelist();
         if (!window.supabaseClient) {
             // Fall back to role-based default
             const role = this.role || localStorage.getItem('newketRole');
@@ -603,9 +698,8 @@ const AuthManager = {
                 .maybeSingle();
             if (error) throw error;
             
-            // If user is a known admin (from admin-config.js), force status 'approved'
-            const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-            if (email && admins.includes(email.toLowerCase())) {
+            // Known admins stay approved, whether they come from fallback or the persisted allowlist.
+            if (email && await this.isAdminEmail(email)) {
                 return 'approved';
             }
             
@@ -736,10 +830,56 @@ const AuthManager = {
         }, 1000 * 60 * 10);
     },
 
+    setupAdminWhitelistSync() {
+        if (!window.supabaseClient) return;
+
+        if (this._adminWhitelistChannel) {
+            try {
+                window.supabaseClient.removeChannel(this._adminWhitelistChannel);
+            } catch (_) {}
+        }
+
+        this._adminWhitelistChannel = window.supabaseClient
+            .channel('settings-admin-whitelist')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'settings',
+                    filter: 'id=eq.global-settings'
+                },
+                async (payload) => {
+                    const nextEmails = Array.isArray(payload?.new?.admin_emails)
+                        ? payload.new.admin_emails
+                        : Array.isArray(payload?.new?.adminEmails)
+                            ? payload.new.adminEmails
+                            : [];
+
+                    window.ADMIN_EMAILS = Array.from(
+                        new Set(
+                            nextEmails
+                                .map((email) => String(email || '').trim().toLowerCase())
+                                .filter(Boolean)
+                        )
+                    );
+
+                    if (window.NewKetAdminEmails?.clearCache) {
+                        window.NewKetAdminEmails.clearCache();
+                    }
+
+                    await this.refreshAdminWhitelist(true);
+                    await this.refreshAndValidateRole();
+                }
+            )
+            .subscribe();
+    },
+
     async refreshAndValidateRole() {
         if (!window.supabaseClient) return;
         
         try {
+            await this.refreshAdminWhitelist(true);
             const session = window.SupabaseAdapter ? await window.SupabaseAdapter.getSession(5000) : null;
             
             if (!session) {
@@ -755,7 +895,11 @@ const AuthManager = {
                 return;
             }
 
-            const profile = await this.getUserProfile(user.id);
+            let profile = await this.getUserProfile(user.id);
+            profile = await this.applyAdminAccess(user, profile) || profile;
+            if (this.role === 'admin') {
+                return;
+            }
             const newRole = this.resolveRoleFromUser(user) || profile?.role || null;
 
             if (this.shouldRequireRoleSelection(user, profile) || (!profile && !newRole)) {
@@ -905,6 +1049,8 @@ const AuthManager = {
     async adminLogin(email, password) {
         if (!window.supabaseClient) return { error: 'Système non initialisé' };
 
+        await this.refreshAdminWhitelist(true);
+
         const { data, error } = await window.supabaseClient.auth.signInWithPassword({
             email,
             password
@@ -915,8 +1061,7 @@ const AuthManager = {
         const user = data.user;
         let role = this.resolveRoleFromUser(user);
 
-        const admins = (window.ADMIN_EMAILS || []).map(e => e.toLowerCase());
-        if (user.email && admins.includes(user.email.toLowerCase())) {
+        if (user.email && await this.isAdminEmail(user.email)) {
             role = 'admin';
         }
 

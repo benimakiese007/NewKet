@@ -10,9 +10,8 @@ function assertAdmin(req, res) {
         res.status(401).json({ error: 'Non autorisé' });
         return false;
     }
-    const email = String(user.email || '').toLowerCase();
     const role = user.app_metadata?.role || user.user_metadata?.role || '';
-    if (role !== 'admin' && email !== 'benimakiese1234@gmail.com') {
+    if (role !== 'admin') {
         res.status(403).json({ error: 'Accès refusé. Réservé aux administrateurs.' });
         return false;
     }

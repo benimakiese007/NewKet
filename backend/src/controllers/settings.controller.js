@@ -39,6 +39,7 @@ const mapSettingsRow = (row) => {
             shippingFee: row.shippingFee,
             freeShippingThreshold: row.freeShippingThreshold,
             maintenanceMode: row.maintenanceMode,
+            adminEmails: Array.isArray(row.adminEmails) ? row.adminEmails : Array.isArray(row.admin_emails) ? row.admin_emails : [],
             socialLinks: getSocialLinks(row)
         };
     }
@@ -54,6 +55,7 @@ const mapSettingsRow = (row) => {
         shippingFee: row.shipping_fee,
         freeShippingThreshold: row.free_shipping_threshold,
         maintenanceMode: row.maintenance_mode,
+        adminEmails: Array.isArray(row.admin_emails) ? row.admin_emails : Array.isArray(row.adminEmails) ? row.adminEmails : [],
         socialLinks: getSocialLinks(row)
     };
 };
@@ -98,6 +100,7 @@ export const saveSettings = async (req, res) => {
             exchangeRate: config.exchangeRate,
             currencySymbol: config.currencySymbol,
             maintenanceMode: config.maintenanceMode,
+            adminEmails: Array.isArray(config.adminEmails) ? config.adminEmails : Array.isArray(config.admin_emails) ? config.admin_emails : undefined,
             socialLinks,
             shippingFee: config.shippingFee,
             freeShippingThreshold: config.freeShippingThreshold,
@@ -113,6 +116,7 @@ export const saveSettings = async (req, res) => {
             currency_symbol: config.currencySymbol,
             target_aov: config.targetAOV,
             maintenance_mode: config.maintenanceMode,
+            admin_emails: Array.isArray(config.adminEmails) ? config.adminEmails : Array.isArray(config.admin_emails) ? config.admin_emails : undefined,
             instagram_link: socialLinks.instagram,
             facebook_link: socialLinks.facebook,
             twitter_link: socialLinks.x,

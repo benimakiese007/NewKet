@@ -44,6 +44,7 @@ import vendorPayoutRoutes from './routes/vendor-payout.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import accountingRoutes from './routes/accounting.routes.js';
 import adminPayoutsRoutes from './routes/admin-payouts.routes.js';
+import metaRoutes from './routes/meta.routes.js';
 import gdprRoutes from './routes/gdpr.routes.js';
 import consentRoutes from './routes/consent.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
@@ -236,6 +237,7 @@ app.use('/api/vendor-payouts', vendorPayoutRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admin/accounting', accountingRoutes);
 app.use('/api/admin/payouts', adminPayoutsRoutes);
+app.use('/api/meta', metaRoutes);
 app.use('/api/gdpr', gdprRoutes);
 app.use('/api/consent', consentRoutes);
 
