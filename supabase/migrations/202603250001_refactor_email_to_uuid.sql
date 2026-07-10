@@ -3,7 +3,7 @@
 -- =========================================================================
 
 -- Cette migration ajoute des colonnes user_id (UUID) aux tables existantes,
--- migre les données depuis les colonnes email, et met à jour les politiques RLS.
+-- migre les donnÃ©es depuis les colonnes email, et met Ã  jour les politiques RLS.
 
 BEGIN;
 
@@ -16,7 +16,7 @@ ALTER TABLE public.activities ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES a
 ALTER TABLE public.notifications ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
 
 -- 2. MIGRATION DES DONNEES
--- On récupère les UUID depuis auth.users en se basant sur l'email
+-- On rÃ©cupÃ¨re les UUID depuis auth.users en se basant sur l'email
 
 -- Users
 UPDATE public.users u
@@ -54,8 +54,8 @@ SET user_id = au.id
 FROM auth.users au
 WHERE n.user_email = au.email;
 
--- 3. MISE À JOUR DES POLITIQUES RLS
--- On remplace les vérifications basées sur l'email par auth.uid()
+-- 3. MISE Ã€ JOUR DES POLITIQUES RLS
+-- On remplace les vÃ©rifications basÃ©es sur l'email par auth.uid()
 
 -- Suppression des anciennes politiques
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
@@ -67,7 +67,7 @@ DROP POLICY IF EXISTS "Suppliers can manage their own withdrawals" ON public.wit
 DROP POLICY IF EXISTS "Users can view their own activities" ON public.activities;
 DROP POLICY IF EXISTS "Users can view their own notifications" ON public.notifications;
 
--- Nouvelles politiques basées sur UUID
+-- Nouvelles politiques basÃ©es sur UUID
 CREATE POLICY "Users can view their own profile" ON public.users
 FOR SELECT USING (id = auth.uid()::text OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
 
@@ -98,3 +98,4 @@ CREATE POLICY "Users can view their own notifications" ON public.notifications
 FOR SELECT USING (user_id = auth.uid() OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
 
 COMMIT;
+
