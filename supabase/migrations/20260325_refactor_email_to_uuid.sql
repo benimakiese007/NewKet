@@ -89,7 +89,7 @@ FOR SELECT USING (
 );
 
 CREATE POLICY "Suppliers can manage their own withdrawals" ON public.withdrawals
-FOR ALL USING (supplier_id = auth.uid() OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+FOR ALL USING (supplier_id = auth.uid()::text OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
 
 CREATE POLICY "Users can view their own activities" ON public.activities
 FOR SELECT USING (user_id = auth.uid() OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
