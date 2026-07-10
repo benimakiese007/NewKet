@@ -118,7 +118,7 @@
     },
     {
       "path": "/api/cron/products/image-watchdog",
-      "schedule": "*/30 * * * *"
+      "schedule": "30 0 * * *"
     }
   ]
 }
