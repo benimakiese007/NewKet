@@ -36,9 +36,9 @@ CREATE POLICY "Anyone can view products" ON public.products FOR SELECT USING (tr
 -- Ensure suppliers can manage their own
 DROP POLICY IF EXISTS "Suppliers can manage their own products" ON public.products;
 CREATE POLICY "Suppliers can manage their own products" ON public.products
-FOR ALL USING (supplier_email = auth.jwt() ->> 'email' OR (SELECT role FROM public.users WHERE email = auth.jwt() ->> 'email') = 'admin');
+FOR ALL USING (supplier_email = auth.jwt() ->> 'email' OR public.is_admin());
 
 -- 4. Fix User Status (KYC) Reliability
 -- Ensure users can read their own row to check their status
 DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
-CREATE POLICY "Users can view own profile" ON public.users FOR SELECT USING (email = auth.jwt() ->> 'email' OR role = 'admin');
+CREATE POLICY "Users can view own profile" ON public.users FOR SELECT USING (email = auth.jwt() ->> 'email' OR public.is_admin());

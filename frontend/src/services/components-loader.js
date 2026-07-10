@@ -433,27 +433,28 @@ const getBottomNavHTML = (role) => {
     
     return `<!-- Liquid Glass Bottom Navbar -->
 <nav class="liquid-glass-nav fixed bottom-0 w-full z-[9999] flex items-center justify-around px-${isSeller ? '4' : '6'} py-3 sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-t-3xl">
-    <a href="{{ROOT}}index.html" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
+    <div class="nav-indicator" aria-hidden="true"></div>
+    <a href="{{ROOT}}index.html" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
         <iconify-icon icon="solar:home-smile-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
         <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Accueil</span>
     </a>
-    <a href="#" id="bottomNavSearchBtn" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Recherche">
+    <a href="#" id="bottomNavSearchBtn" data-bottom-nav-item="search" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Recherche">
         <iconify-icon icon="solar:magnifer-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
         <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Recherche</span>
     </a>
     ${isSeller ? `
-    <a href="{{ROOT}}src/pages/publish.html" class="nav-item-sell relative flex flex-col items-center justify-center -mt-5 publish-btn" aria-label="Vendre" data-track-action="navigation:publish_click">
+    <a href="{{ROOT}}src/pages/publish.html" data-bottom-nav-item="sell" class="nav-item-sell relative flex flex-col items-center justify-center -mt-5 publish-btn" aria-label="Vendre" data-track-action="navigation:publish_click">
         <span class="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#0A4A2E] to-[#1a7a4e] shadow-[0_4px_20px_rgba(10,74,46,0.5)] border-[3px] border-white/20 transition-transform active:scale-90 hover:scale-105">
             <iconify-icon icon="solar:add-circle-bold" width="28" class="text-white"></iconify-icon>
         </span>
         <span class="text-[9px] font-bold tracking-wide text-white mt-1">Vendre</span>
     </a>` : ''}
-    <a href="#" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item admin-hidden relative flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
+    <a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item admin-hidden relative flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
         <iconify-icon icon="solar:cart-large-minimalistic-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
         <span class="cart-badge absolute -top-1 right-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
         <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Panier</span>
     </a>
-    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Profil">
+    <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Profil">
         <iconify-icon icon="solar:user-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
         <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Profil</span>
     </a>

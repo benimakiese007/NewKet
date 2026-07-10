@@ -20,10 +20,10 @@ CREATE POLICY "Anyone can view hero content" ON public.hero_content
 CREATE POLICY "Admins can manage hero content" ON public.hero_content
   FOR ALL
   USING (
-    (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin')
+    COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE)
   )
   WITH CHECK (
-    (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin')
+    COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE)
   );
 
 -- Default row (matches current hardcoded homepage HERO)

@@ -69,16 +69,16 @@ DROP POLICY IF EXISTS "Users can view their own notifications" ON public.notific
 
 -- Nouvelles politiques basÃ©es sur UUID
 CREATE POLICY "Users can view their own profile" ON public.users
-FOR SELECT USING (id = auth.uid()::text OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+FOR SELECT USING (id = auth.uid()::text OR public.is_admin());
 
 CREATE POLICY "Users can update their own profile" ON public.users
 FOR UPDATE USING (id = auth.uid()::text);
 
 CREATE POLICY "Suppliers can manage their own products" ON public.products
-FOR ALL USING (user_id = auth.uid() OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+FOR ALL USING (user_id = auth.uid() OR public.is_admin());
 
 CREATE POLICY "Customers can view their own orders" ON public.orders
-FOR SELECT USING (customer_id = auth.uid()::text OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+FOR SELECT USING (customer_id = auth.uid()::text OR public.is_admin());
 
 CREATE POLICY "Suppliers can view orders containing their products" ON public.orders
 FOR SELECT USING (
@@ -89,13 +89,12 @@ FOR SELECT USING (
 );
 
 CREATE POLICY "Suppliers can manage their own withdrawals" ON public.withdrawals
-FOR ALL USING (supplier_id = auth.uid()::text OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+FOR ALL USING (supplier_id = auth.uid()::text OR public.is_admin());
 
 CREATE POLICY "Users can view their own activities" ON public.activities
-FOR SELECT USING (user_id = auth.uid() OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+FOR SELECT USING (user_id = auth.uid() OR public.is_admin());
 
 CREATE POLICY "Users can view their own notifications" ON public.notifications
-FOR SELECT USING (user_id = auth.uid() OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+FOR SELECT USING (user_id = auth.uid() OR public.is_admin());
 
 COMMIT;
-

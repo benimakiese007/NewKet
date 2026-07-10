@@ -16,26 +16,20 @@ CREATE POLICY "Admin Insert Site Assets" ON storage.objects
   FOR INSERT
   WITH CHECK (
     bucket_id = 'site-assets'
-    AND EXISTS (
-      SELECT 1 FROM public.users WHERE email = auth.jwt() ->> 'email' AND role = 'admin'
-    )
+    AND public.is_admin()
   );
 
 CREATE POLICY "Admin Update Site Assets" ON storage.objects
   FOR UPDATE
   USING (
     bucket_id = 'site-assets'
-    AND EXISTS (
-      SELECT 1 FROM public.users WHERE email = auth.jwt() ->> 'email' AND role = 'admin'
-    )
+    AND public.is_admin()
   );
 
 CREATE POLICY "Admin Delete Site Assets" ON storage.objects
   FOR DELETE
   USING (
     bucket_id = 'site-assets'
-    AND EXISTS (
-      SELECT 1 FROM public.users WHERE email = auth.jwt() ->> 'email' AND role = 'admin'
-    )
+    AND public.is_admin()
   );
 

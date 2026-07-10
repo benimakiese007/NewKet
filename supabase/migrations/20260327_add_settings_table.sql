@@ -27,7 +27,7 @@ CREATE POLICY "Anyone can view settings" ON public.settings
 
 CREATE POLICY "Admins can manage settings" ON public.settings
     FOR ALL USING (
-        (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin')
+        COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE)
     );
 
 -- Insert global settings row if not exists

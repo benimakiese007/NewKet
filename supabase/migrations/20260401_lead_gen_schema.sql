@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS public.whatsapp_clicks (
 -- - Seul l'admin ou le vendeur peuvent LIRE
 ALTER TABLE public.whatsapp_clicks ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public can insert clicks" ON public.whatsapp_clicks FOR INSERT WITH CHECK (true);
-CREATE POLICY "Vendors can see their clicks" ON public.whatsapp_clicks FOR SELECT USING (vendor_id = auth.uid() OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+CREATE POLICY "Vendors can see their clicks" ON public.whatsapp_clicks FOR SELECT USING (vendor_id = auth.uid() OR public.is_admin());
 
 -- 3. ABONNEMENTS VENDOR (STRIPE)
 CREATE TABLE IF NOT EXISTS public.subscriptions (
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 
 -- RLS sur Subscriptions:
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Vendors can view own sub" ON public.subscriptions FOR SELECT USING (vendor_id = auth.uid() OR (SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+CREATE POLICY "Vendors can view own sub" ON public.subscriptions FOR SELECT USING (vendor_id = auth.uid() OR public.is_admin());
 
 -- 4. PUBLICITES (Bannières externes)
 CREATE TABLE IF NOT EXISTS public.advertisements (
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS public.advertisements (
 );
 ALTER TABLE public.advertisements ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public can view active ads" ON public.advertisements FOR SELECT USING (active = true);
-CREATE POLICY "Admin can completely manage ads" ON public.advertisements FOR ALL USING ((SELECT role FROM public.users WHERE id = auth.uid()::text) = 'admin');
+CREATE POLICY "Admin can completely manage ads" ON public.advertisements FOR ALL USING (public.is_admin());
 
 -- 5. NETTOYAGE DU LEGACY (CART ET COMMANDES)
 -- ATTENTION : Ceci supprime les commandes et factures du modèle précédent.

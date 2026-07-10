@@ -15,7 +15,5 @@ CREATE POLICY "Owner Access KYC" ON storage.objects FOR SELECT USING (bucket_id 
 -- Allow Admins to access all documents (Checking role in users table)
 CREATE POLICY "Admin Access KYC" ON storage.objects FOR SELECT USING (
   bucket_id = 'vendor-docs' AND 
-  EXISTS (
-    SELECT 1 FROM public.users WHERE email = auth.jwt() ->> 'email' AND role = 'admin'
-  )
+  public.is_admin()
 );

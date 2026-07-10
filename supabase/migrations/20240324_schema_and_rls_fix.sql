@@ -68,7 +68,7 @@ END $$;
 
 -- USERS
 CREATE POLICY "Users can view their own profile" ON public.users
-FOR SELECT USING (email = auth.jwt() ->> 'email' OR (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin'));
+FOR SELECT USING (email = auth.jwt() ->> 'email' OR COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE));
 
 CREATE POLICY "Users can update their own profile" ON public.users
 FOR UPDATE USING (email = auth.jwt() ->> 'email');
@@ -78,11 +78,11 @@ CREATE POLICY "Anyone can view products" ON public.products
 FOR SELECT USING (true);
 
 CREATE POLICY "Suppliers can manage their own products" ON public.products
-FOR ALL USING (supplier_email = auth.jwt() ->> 'email' OR (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin'));
+FOR ALL USING (supplier_email = auth.jwt() ->> 'email' OR COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE));
 
 -- ORDERS
 CREATE POLICY "Customers can view their own orders" ON public.orders
-FOR SELECT USING (customer_email = auth.jwt() ->> 'email' OR (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin'));
+FOR SELECT USING (customer_email = auth.jwt() ->> 'email' OR COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE));
 
 CREATE POLICY "Suppliers can view orders containing their products" ON public.orders
 FOR SELECT USING (
@@ -94,21 +94,21 @@ FOR SELECT USING (
 
 -- WITHDRAWALS
 CREATE POLICY "Suppliers can manage their own withdrawals" ON public.withdrawals
-FOR ALL USING (supplier_email = auth.jwt() ->> 'email' OR (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin'));
+FOR ALL USING (supplier_email = auth.jwt() ->> 'email' OR COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE));
 
 -- ACTIVITIES & NOTIFICATIONS
 CREATE POLICY "Users can view their own activities" ON public.activities
-FOR SELECT USING (user_email = auth.jwt() ->> 'email' OR (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin'));
+FOR SELECT USING (user_email = auth.jwt() ->> 'email' OR COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE));
 
 CREATE POLICY "Users can view their own notifications" ON public.notifications
-FOR SELECT USING (user_email = auth.jwt() ->> 'email' OR (auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin'));
+FOR SELECT USING (user_email = auth.jwt() ->> 'email' OR COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE));
 
 -- PROMOS
 CREATE POLICY "Anyone can view promos" ON public.promos
 FOR SELECT USING (true);
 
 CREATE POLICY "Admins can manage promos" ON public.promos
-FOR ALL USING ((auth.jwt() ->> 'email') IN (SELECT email FROM public.users WHERE role = 'admin'));
+FOR ALL USING (COALESCE((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin', FALSE));
 
 -- DEFAULT: FALLBACK FOR OTHERS
 -- Deny by default is inherent to RLS being enabled without a matching policy.

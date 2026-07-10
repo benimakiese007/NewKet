@@ -215,6 +215,93 @@ const App = {
             }
         };
 
+        const normalizeBottomNavPath = (value) => {
+            if (!value) return '/';
+
+            try {
+                const url = new URL(value, window.location.origin);
+                let path = url.pathname || '/';
+                path = path.replace(/\/index\.html$/i, '/');
+                if (path.length > 1 && path.endsWith('/')) {
+                    path = path.slice(0, -1);
+                }
+                return path || '/';
+            } catch (_) {
+                let path = String(value).split('?')[0].split('#')[0] || '/';
+                path = path.replace(/\/index\.html$/i, '/');
+                if (path.length > 1 && path.endsWith('/')) {
+                    path = path.slice(0, -1);
+                }
+                return path || '/';
+            }
+        };
+
+        let bottomNavRaf = 0;
+        let bottomNavObserver = null;
+        const syncMobileBottomNav = () => {
+            const nav = document.getElementById('mobileBottomNav');
+            const indicator = nav?.querySelector('.nav-indicator');
+            const items = nav ? Array.from(nav.querySelectorAll('[data-bottom-nav-item]')) : [];
+
+            if (!nav || !indicator || items.length === 0) return;
+
+            const currentPath = normalizeBottomNavPath(window.location.href);
+            const activeItem = items.find((item) => {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') return false;
+                if (href.startsWith('javascript:')) return false;
+                return normalizeBottomNavPath(href) === currentPath;
+            }) || items.find((item) => item.dataset.bottomNavItem === 'home') || items[0];
+
+            items.forEach((item) => {
+                const isActive = item === activeItem;
+                item.classList.toggle('active', isActive);
+                if (isActive) {
+                    item.setAttribute('aria-current', 'page');
+                } else {
+                    item.removeAttribute('aria-current');
+                }
+            });
+
+            if (!activeItem) return;
+
+            const navRect = nav.getBoundingClientRect();
+            const itemRect = activeItem.getBoundingClientRect();
+            const left = Math.max(0, itemRect.left - navRect.left);
+
+            indicator.style.width = `${Math.max(0, itemRect.width)}px`;
+            indicator.style.transform = `translate3d(${left}px, 0, 0)`;
+            indicator.style.opacity = '1';
+        };
+
+        const scheduleMobileBottomNavSync = () => {
+            if (bottomNavRaf) return;
+
+            bottomNavRaf = window.requestAnimationFrame(() => {
+                bottomNavRaf = 0;
+                syncMobileBottomNav();
+            });
+        };
+
+        const watchForMobileBottomNav = () => {
+            if (document.getElementById('mobileBottomNav') || bottomNavObserver || !window.MutationObserver) {
+                return;
+            }
+
+            const observerTarget = document.body || document.documentElement;
+            if (!observerTarget) return;
+
+            bottomNavObserver = new MutationObserver(() => {
+                if (!document.getElementById('mobileBottomNav')) return;
+
+                bottomNavObserver?.disconnect();
+                bottomNavObserver = null;
+                scheduleMobileBottomNavSync();
+            });
+
+            bottomNavObserver.observe(observerTarget, { childList: true, subtree: true });
+        };
+
         // Sync Favorites across tabs
         window.addEventListener('storage', (e) => {
             if (e.key === 'newketFavorites' && window.FavoritesManager) FavoritesManager.updateUI();
@@ -269,6 +356,13 @@ const App = {
                 setMobileMenuState(false, true);
             }
         });
+
+        window.addEventListener('componentsLoaded', scheduleMobileBottomNavSync);
+        window.addEventListener('resize', scheduleMobileBottomNavSync);
+        window.addEventListener('orientationchange', scheduleMobileBottomNavSync);
+        window.addEventListener('load', scheduleMobileBottomNavSync, { once: true });
+        scheduleMobileBottomNavSync();
+        watchForMobileBottomNav();
 
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 640) {
