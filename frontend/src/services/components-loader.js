@@ -50,16 +50,18 @@ const HEADER_HTML = `
         <!-- Main header content (Logo, Search, Icons) -->
             <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
-            <div class="header-brand-row flex items-center justify-between w-full sm:w-auto sm:flex-none h-12 sm:h-auto relative px-1 sm:px-0">
-                <!-- Hamburger Menu (Mobile) -->
-                <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors sm:hidden btn-active-scale"
-                    title="Menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
-                    <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-white"></iconify-icon>
-                </button>
+            <div class="header-brand-row grid grid-cols-3 items-center w-full sm:flex sm:w-auto sm:flex-none h-12 sm:h-auto sm:relative px-1 sm:px-0">
+                <!-- Hamburger Menu (Mobile) — col gauche -->
+                <div class="flex items-center justify-start sm:hidden">
+                    <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
+                        title="Menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
+                        <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-white"></iconify-icon>
+                    </button>
+                </div>
 
-                <!-- Logo Section -->
-                <div class="flex items-center sm:min-w-0">
-                    <a href="{{ROOT}}index.html" class="header-logo-link flex-shrink-0 flex items-center py-1 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:static sm:translate-x-0 sm:translate-y-0 z-10 transition-transform hover:scale-105 duration-300">
+                <!-- Logo Section — col centre (parfaitement centré sur mobile, statique sur desktop) -->
+                <div class="flex items-center justify-center sm:min-w-0 sm:justify-start">
+                    <a href="{{ROOT}}index.html" class="header-logo-link flex-shrink-0 flex items-center py-1 sm:static z-10 transition-transform hover:scale-105 duration-300">
                         <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_400,f_auto,q_auto/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96"
                             data-site-logo="header"
                             class="header-brand-image h-8 sm:h-20 w-auto object-contain"
@@ -67,8 +69,8 @@ const HEADER_HTML = `
                     </a>
                 </div>
 
-                <!-- Right Icons (Mobile) -->
-                <div class="flex items-center gap-2 sm:hidden">
+                <!-- Right Icons (Mobile) — col droite -->
+                <div class="flex items-center gap-2 justify-end sm:hidden">
                     <!-- Offline Network Status Icon (Mobile) -->
                     <div class="network-status-icon hidden flex items-center justify-center text-red-500 bg-red-500/20 h-8 w-8 rounded-lg border border-red-500/30" title="Vous êtes hors ligne">
                         <iconify-icon icon="mdi:wifi-off" width="18"></iconify-icon>
@@ -433,7 +435,6 @@ const getBottomNavHTML = (role) => {
     
     return `<!-- Liquid Glass Bottom Navbar -->
 <nav class="liquid-glass-nav fixed bottom-0 w-full z-[9999] flex items-center justify-around px-${isSeller ? '4' : '6'} py-3 sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-t-3xl">
-    <div class="nav-indicator" aria-hidden="true"></div>
     <a href="{{ROOT}}index.html" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
         <iconify-icon icon="solar:home-smile-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
         <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Accueil</span>

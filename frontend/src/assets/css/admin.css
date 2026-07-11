@@ -17,14 +17,16 @@ body {
 
 :root {
     /* Matches admin-layout.js mobile topbar height (h-[64px]) */
-    --admin-navbar-offset: 4rem;
+    --admin-navbar-height: 4rem;
+    --admin-navbar-offset: calc(var(--admin-navbar-height) + env(safe-area-inset-top, 0px));
     --dashboard-topbar-height: 4rem;
 }
 
 @media (min-width: 640px) {
     :root {
         /* Matches admin-layout.js >=sm topbar height (sm:h-[96px]) */
-        --admin-navbar-offset: 6rem;
+        --admin-navbar-height: 6rem;
+        --admin-navbar-offset: calc(var(--admin-navbar-height) + env(safe-area-inset-top, 0px));
         --dashboard-topbar-height: 6rem;
     }
 }
@@ -154,13 +156,13 @@ html.admin-embedded-mode .admin-shell > main {
     color: white !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
 }
 
 .newket-dashboard-header .dashboard-topbar-inner {
     color: white !important;
 }
 
-.newket-dashboard-header #adminMobileMenuBtn,
 .newket-dashboard-header [data-theme-toggle],
 .newket-dashboard-header a[href="/"]:not(.nk-header-logo-link) {
     background: rgba(255, 255, 255, 0.1) !important;
@@ -192,6 +194,7 @@ html.admin-embedded-mode .admin-shell > main {
     color: white !important;
 }
 
+/* === Boutons avec effet Glassmorphism === */
 .newket-dashboard-header #adminMobileMenuBtn,
 .newket-dashboard-header #customerMobileBtn,
 .newket-dashboard-header #vendorMobileBtn,
@@ -199,11 +202,12 @@ html.admin-embedded-mode .admin-shell > main {
 .newket-dashboard-header button[data-logout-safe],
 .newket-dashboard-header button[onclick*="handleLogoutClick"],
 .newket-dashboard-header .hidden.sm\:flex[href="/"] {
-    border-color: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
     background: rgba(255, 255, 255, 0.13) !important;
     box-shadow: 0 12px 26px rgba(5, 150, 105, 0.18);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
+    border-radius: 0.5rem; /* Optionnel, pour arrondir un peu si ce n'est pas fait ailleurs */
 }
 
 .newket-dashboard-header #adminMobileMenuBtn,
@@ -236,12 +240,7 @@ html.admin-embedded-mode .admin-shell > main {
     color: #ffffff !important;
 }
 
-.newket-dashboard-header #vendorMobileBtn {
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-}
+/* vendorMobileBtn — déjà couvert par la règle burger ci-dessus */
 
 .newket-dashboard-header iconify-icon,
 .newket-dashboard-header .theme-toggle iconify-icon,

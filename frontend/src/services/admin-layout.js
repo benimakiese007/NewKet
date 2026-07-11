@@ -391,7 +391,7 @@ const AdminLayout = {
             <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] transition-all duration-300">
                 <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
                     <div class="flex items-center gap-4 sm:gap-6">
-                        <button id="adminMobileMenuBtn" data-toggle-sidebar="admin" class="p-2.5 text-gray-500 hover:text-black focus:outline-none flex items-center justify-center transition-all">
+                        <button id="adminMobileMenuBtn" data-toggle-sidebar="admin" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center transition-all">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                         </button>
                     </div>
