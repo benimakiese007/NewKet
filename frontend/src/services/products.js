@@ -31,6 +31,43 @@ const ProductManager = {
     _error: false,
     _realtimeChannel: null,
 
+    // ========== QUICK CACHE (localStorage, par produit) ==========
+    // TTL : 10 minutes — assez long pour une session normale, assez court pour
+    // que les changements de prix/stock soient visibles rapidement.
+    _QUICK_CACHE_TTL: 10 * 60 * 1000,
+
+    /**
+     * Sauvegarde un produit mappé dans localStorage pour un accès instantané.
+     * @param {Object} p - Produit déjà mappé via _mapProduct
+     */
+    _cacheProduct(p) {
+        if (!p || !p.id) return;
+        try {
+            localStorage.setItem(`nk_p_${p.id}`, JSON.stringify({ d: p, t: Date.now() }));
+        } catch (e) { /* localStorage plein ou désactivé */ }
+    },
+
+    /**
+     * Lit un produit depuis le cache localStorage.
+     * Retourne null si inexistant ou expiré.
+     * @param {string} id - ID du produit
+     * @returns {Object|null}
+     */
+    _getProductFromQuickCache(id) {
+        if (!id) return null;
+        try {
+            const raw = localStorage.getItem(`nk_p_${id}`);
+            if (!raw) return null;
+            const entry = JSON.parse(raw);
+            if (!entry || !entry.d || !entry.t) return null;
+            if (Date.now() - entry.t > this._QUICK_CACHE_TTL) {
+                localStorage.removeItem(`nk_p_${id}`);
+                return null;
+            }
+            return entry.d;
+        } catch (e) { return null; }
+    },
+
     async init() {
         if (!window.SupabaseAdapter) {
             console.error('[NewKet] SupabaseAdapter not found. Cannot initialize ProductManager.');
@@ -485,7 +522,7 @@ const ProductManager = {
             oldPrice = null;
         }
 
-        return {
+        const mapped = {
             ...p,
             users: userInfo, // Standardize as an object or null
             price: price,
@@ -495,6 +532,12 @@ const ProductManager = {
             // Keep the original comma-separated string for multi-image support
             image: p.image,
         };
+
+        // Mise en cache silencieuse — tout produit affiché (home/catalogue)
+        // sera disponible instantanément sur la page détail.
+        this._cacheProduct(mapped);
+
+        return mapped;
     },
 
     getProducts() {
@@ -509,47 +552,6 @@ const ProductManager = {
         return this.products.find(p => p.id === id);
     },
 
-    /**
-     * Fetches a single product by ID from the network if not in cache.
-     * @param {string} id - The product ID
-     * @returns {Promise<Object|null>} The product object or null
-     */
-    async fetchProductById(id) {
-        if (!id) return null;
-        
-        // 1. Check local cache
-        const cached = this.getProduct(id);
-        if (cached) return cached;
-
-        // 2. Fetch from network
-        try {
-            if (window.SupabaseAdapter && window.supabaseClient) {
-                // We use fetchWithFilters which handles the client call
-                const results = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
-                    eq: [['id', id]]
-                });
-                
-                if (results && results.length > 0) {
-                    const mapped = this._mapProduct(results[0]);
-                    // Add to cache to avoid refetching
-                    this.products.push(mapped);
-                    return mapped;
-                }
-            } else if (window.ApiClient) {
-                const result = await window.ApiClient.get(`/products/${id}`);
-                if (result && result.data) {
-                    const mapped = this._mapProduct(result.data);
-                    this.products.push(mapped);
-                    return mapped;
-                }
-            }
-        } catch (e) {
-            console.error('[ProductManager] Error fetching product:', id, e);
-        }
-        return null;
-    },
-
     _isValidProductId(value) {
         return typeof value === 'string'
             && (
@@ -559,48 +561,50 @@ const ProductManager = {
     },
 
     /**
-     * Increment the view counter for a product in the backend.
+     * Increment the view counter for a product in the backend (fire-and-forget).
      */
     async recordView(id) {
         if (!id) return;
         if (!window.ApiClient) return;
         if (!this._isValidProductId(id)) return;
-
-        // Dedupe per tab session to avoid spamming analytics when UI re-renders
         if (this._viewedThisSession.has(id)) return;
         this._viewedThisSession.add(id);
-        
         try {
-            // Send to Express Backend (which increments Supabase)
-            // We use a fire-and-forget style to not slow down the UI
-            window.ApiClient.post(
-                `/analytics/view/${id}`,
-                {},
-                {
-                    suppressNetworkError: true,
-                    suppressErrorLogging: true,
-                    suppressToast: true,
-                    dedupe: false
-                }
-            ).catch(() => {});
-        } catch (err) {
-        }
+            window.ApiClient.post(`/analytics/view/${id}`, {}, {
+                suppressNetworkError: true,
+                suppressErrorLogging: true,
+                suppressToast: true,
+                dedupe: false
+            }).catch(() => {});
+        } catch (err) {}
     },
 
     /**
-     * Attempts to find a product locally, then fetches from Supabase if missing.
-     * Essential for direct links to products not in the first 20 results.
+     * Fetches a single product by ID.
+     * Priority:
+     *   0. localStorage quick-cache (< 10 min) → instantané, zéro réseau
+     *   1. Mémoire vive (this.products)         → instantané
+     *   2. _productByIdCache (Map interne)      → instantané
+     *   3. Supabase direct avec jointure        → ~500ms–1s
+     *   4. ApiClient fallback                   → ~500ms–1s
      */
     async fetchProductById(id) {
-        // 1. Check local memory
+        if (!id) return null;
+
+        // 0. Quick-cache localStorage (chargement instantané)
+        const quickCached = this._getProductFromQuickCache(id);
+        if (quickCached) return quickCached;
+
+        // 1. Mémoire vive
         const local = this.getProduct(id);
         if (local) return local;
-        const cached = this._productByIdCache.get(id);
-        if (cached) return cached;
 
-        // 2. Fetch from network
+        // 2. Map interne
+        const memCached = this._productByIdCache.get(id);
+        if (memCached) return memCached;
+
+        // 3. Réseau — Supabase avec jointure vendeur
         try {
-            // Priority 1: Supabase (direct join)
             if (window.SupabaseAdapter && window.supabaseClient) {
                 const product = await window.SupabaseAdapter.fetchWithFilters('products', {
                     select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
@@ -608,27 +612,29 @@ const ProductManager = {
                     single: true
                 });
                 if (product) {
-                    const mapped = this._mapProduct(product);
+                    const mapped = this._mapProduct(product); // _cacheProduct appelé dans _mapProduct
                     this._productByIdCache.set(id, mapped);
                     return mapped;
                 }
             }
 
-            // Fallback: ApiClient
-            const product = await window.ApiClient.get(`/products/${id}`, {
-                cacheKey: `product:${id}`,
-                cacheTtlMs: 60_000
-            });
-            if (product) {
-                const mapped = this._mapProduct(product);
-                this._productByIdCache.set(id, mapped);
-                return mapped;
+            // 4. Fallback ApiClient
+            if (window.ApiClient) {
+                const product = await window.ApiClient.get(`/products/${id}`, {
+                    cacheKey: `product:${id}`,
+                    cacheTtlMs: 60_000
+                });
+                if (product) {
+                    const mapped = this._mapProduct(product);
+                    this._productByIdCache.set(id, mapped);
+                    return mapped;
+                }
             }
-
-            return null;
         } catch (err) {
-            return null;
+            console.error('[ProductManager] Error fetching product:', id, err);
         }
+
+        return null;
     },
 
     async addProduct(product) {

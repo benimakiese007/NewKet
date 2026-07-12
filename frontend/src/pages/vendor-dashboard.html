@@ -74,7 +74,7 @@
 
 <body class="bg-gray-50 transition-colors duration-200">
     <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[9998] transition-all duration-300">
-        <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 grid grid-cols-3 items-center h-[64px] sm:h-[96px] px-4">
+        <div class="dashboard-topbar-inner max-w-[1800px] mx-auto grid grid-cols-3 items-center h-[64px] sm:h-[96px] px-4">
 
             <!-- Col gauche : Hamburger -->
             <div class="flex items-center justify-start gap-4 sm:gap-6">
@@ -2097,11 +2097,14 @@
                         // Avoid double-binding even if this block ever runs again.
                         if (link.dataset.newketVendorTabBound === '1') return;
                         link.dataset.newketVendorTabBound = '1';
-                            }
+                        link.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const tabId = link.getAttribute('data-switch-vendor-tab');
+                            if (typeof switchVendorTab === 'function') switchVendorTab(tabId, e);
                         });
-                    }
+                    });
 
-                    if (window.newketInitialized) {
+                    if (window.newketConfig && window.newketConfig.initialized) {
                         checkIntegrationQueryParams();
                         refreshVendorIntegrationsStatus();
                     } else {
@@ -5528,6 +5531,11 @@
                 url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
             }
             window.open(url, '_blank');
+        };
+    </script>
+    <script>
+        window.NewKetPageRefresh = async () => {
+            window.location.reload();
         };
     </script>
 </body>

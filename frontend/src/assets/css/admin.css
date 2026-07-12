@@ -154,8 +154,6 @@ html.admin-embedded-mode .admin-shell > main {
     border-bottom: none !important;
     box-shadow: none !important;
     color: white !important;
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
     padding-top: env(safe-area-inset-top, 0px) !important;
 }
 
@@ -205,8 +203,8 @@ html.admin-embedded-mode .admin-shell > main {
     border: 1px solid rgba(255, 255, 255, 0.18) !important;
     background: rgba(255, 255, 255, 0.13) !important;
     box-shadow: 0 12px 26px rgba(5, 150, 105, 0.18);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
     border-radius: 0.5rem; /* Optionnel, pour arrondir un peu si ce n'est pas fait ailleurs */
 }
 
