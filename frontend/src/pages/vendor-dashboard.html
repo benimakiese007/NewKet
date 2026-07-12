@@ -518,8 +518,8 @@
                             <!-- Search -->
                             <div id="vendorSearchWrapper" class="flex gap-2 w-full sm:flex-1 sm:w-auto min-w-0">
                                 <input type="text" id="dashboardSearch" name="dashboardSearch" placeholder="Rechercher..."
-                                    inputmode="search" autocomplete="new-password" autocapitalize="off" autocorrect="off"
-                                    spellcheck="false" readonly aria-label="Rechercher dans mes produits"
+                                    inputmode="search" autocomplete="off" autocapitalize="off" autocorrect="off"
+                                    spellcheck="false" aria-label="Rechercher dans mes produits"
                                     class="flex-1 min-w-0 text-sm px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all">
                                 <button type="button" id="vendorSearchClearBtn" class="hidden h-10 w-10 bg-gray-50 border border-gray-100 rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all flex items-center justify-center" aria-label="Effacer la recherche" title="Effacer">
                                     <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon>
@@ -2104,15 +2104,15 @@
                         });
                     });
 
-                    if (window.newketConfig && window.newketConfig.initialized) {
-                        checkIntegrationQueryParams();
-                        refreshVendorIntegrationsStatus();
-                    } else {
-                        window.addEventListener('newketInitialized', () => {
-                            checkIntegrationQueryParams();
-                            refreshVendorIntegrationsStatus();
-                        });
-                    }
+                    // if (window.newketConfig && window.newketConfig.initialized) {
+                    //     checkIntegrationQueryParams();
+                    //     refreshVendorIntegrationsStatus();
+                    // } else {
+                    //     window.addEventListener('newketInitialized', () => {
+                    //         checkIntegrationQueryParams();
+                    //         refreshVendorIntegrationsStatus();
+                    //     });
+                    // }
                     // ===== END INTEGRATIONS LOGIC =====
 
                     // Listened to updates previously
@@ -2440,9 +2440,6 @@
                     if (searchInput) {
                         let t = null;
                         const clearBtn = document.getElementById('vendorSearchClearBtn');
-                        searchInput.addEventListener('focus', () => {
-                            searchInput.removeAttribute('readonly');
-                        }, { once: true });
                         const syncClearBtn = () => {
                             if (!clearBtn) return;
                             if (String(searchInput.value || '').trim().length > 0) clearBtn.classList.remove('hidden');
@@ -2483,16 +2480,8 @@
                         const searchInput = document.getElementById('vendorLeadsSearch');
                         const searchClearBtn = document.getElementById('vendorLeadsSearchClear');
                         if (searchInput) {
-                            searchInput.setAttribute('autocomplete', 'new-password');
-                            searchInput.setAttribute('autocapitalize', 'off');
-                            searchInput.setAttribute('autocorrect', 'off');
-                            searchInput.setAttribute('spellcheck', 'false');
-                            searchInput.setAttribute('readonly', 'readonly');
-                            searchInput.value = ''; // Forcer vide au chargement (anti-autofill)
+                            searchInput.value = ''; // Forcer vide au chargement
                             let searchDebounce = null;
-                            searchInput.addEventListener('focus', () => {
-                                searchInput.removeAttribute('readonly');
-                            }, { once: true });
                             searchInput.addEventListener('input', () => {
                                 clearTimeout(searchDebounce);
                                 searchDebounce = setTimeout(() => renderVendorLeads(), 200);

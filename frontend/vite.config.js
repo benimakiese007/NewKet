@@ -9,6 +9,44 @@ const buildVersion = process.env.VERCEL_DEPLOYMENT_ID
 export default defineConfig({
   plugins: [
     {
+      name: 'newket-html-inject',
+      enforce: 'pre',
+      transformIndexHtml(html, ctx) {
+        const path = ctx.path || '';
+        const isMinimalPage = path.includes('/login') || path.includes('/publish') || path.includes('/choose-role') || path.includes('/reset-password') || path.includes('/seller-onboarding');
+        const isAdminPage = path.includes('/admin/') || path.endsWith('/admin') || path.includes('/pages/admin/');
+        
+        let newHtml = html;
+        let rootPath = '/';
+        
+        if (!isAdminPage) {
+          if (isMinimalPage) {
+            let minimalHtml = readFileSync(resolve(__dirname, 'src/partials/header-minimal.html'), 'utf8');
+            minimalHtml = minimalHtml.replace(/\{\{ROOT\}\}/g, rootPath);
+            newHtml = newHtml.replace('<div id="header-placeholder"></div>', minimalHtml);
+          } else {
+            let headerHtml = readFileSync(resolve(__dirname, 'src/partials/header.html'), 'utf8');
+            let catNavHtml = readFileSync(resolve(__dirname, 'src/partials/category-nav.html'), 'utf8');
+            
+            headerHtml = headerHtml.replace(/\{\{ROOT\}\}/g, rootPath).replace(/\{\{ACCOUNT_PATH\}\}/g, rootPath + 'src/pages/login.html');
+            catNavHtml = catNavHtml.replace(/\{\{ROOT\}\}/g, rootPath);
+            
+            // Note: components-loader dynamically fetches categories, so we inject the template directly.
+            // But we keep the <!-- Dynamic Categories --> placeholder for JS to replace later.
+            
+            newHtml = newHtml.replace('<div id="header-placeholder"></div>', headerHtml + '\n<div id="category-nav-placeholder">' + catNavHtml + '</div>');
+            
+            let footerHtml = readFileSync(resolve(__dirname, 'src/partials/footer.html'), 'utf8');
+            footerHtml = footerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
+            footerHtml = footerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');
+            newHtml = newHtml.replace('<div id="footer-placeholder"></div>', footerHtml);
+          }
+        }
+        
+        return newHtml;
+      }
+    },
+    {
       name: 'newket-service-worker-build-version',
       closeBundle() {
         const swPath = resolve(__dirname, 'dist/sw.js');
@@ -62,7 +100,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3000',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path
@@ -96,7 +134,7 @@ export default defineConfig({
         shop: resolve(__dirname, 'src/pages/shop.html'),
         notifications: resolve(__dirname, 'src/pages/notifications.html'),
         favorites: resolve(__dirname, 'src/pages/favorites.html'),
-        forum: resolve(__dirname, 'src/pages/forum.html'),
+
         about: resolve(__dirname, 'src/pages/about.html'),
         privacy: resolve(__dirname, 'src/pages/privacy.html'),
         terms: resolve(__dirname, 'src/pages/terms.html'),
@@ -130,8 +168,7 @@ export default defineConfig({
         admin_user: resolve(__dirname, 'src/pages/admin/user.html'),
         admin_user_details: resolve(__dirname, 'src/pages/admin/user-details.html'),
         admin_security: resolve(__dirname, 'src/pages/admin/security.html'),
-        admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html'),
-        admin_notion_manager: resolve(__dirname, 'src/pages/admin/notion-manager.html')
+        admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html')
       },
       output: {
         manualChunks(id) {

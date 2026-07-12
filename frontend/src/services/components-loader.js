@@ -404,14 +404,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
         </div>
         <div class="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-5">
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience Luxe</p>
-            <div class="flex gap-8">
-                <a href="{{ROOT}}src/pages/mentions-legales.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Mentions légales</a>
-                <a href="{{ROOT}}src/pages/privacy.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
-                <a href="{{ROOT}}src/pages/terms.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Conditions</a>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-gray-500 text-[10px] uppercase tracking-widest font-semibold italic">Designed by</span>
-                <span class="text-white text-[11px] font-black tracking-tighter hover:text-red-500 transition-colors cursor-pointer">SITYZEN</span>
+                           <a href="{{ROOT}}src/pages/mentions-legales.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Mentions légales</a>
             </div>
         </div>
     </div>
@@ -464,7 +457,6 @@ const getBottomNavHTML = (role) => {
 
 const ComponentLoader = {
     async init() {
-        // Prevent double initialization
         if (window.componentsLoading) return;
         window.componentsLoading = true;
 
@@ -472,6 +464,7 @@ const ComponentLoader = {
         const currentPath = window.location.pathname;
         const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish');
         const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
+        const isDashboardPage = currentPath.includes('-dashboard');
 
         // If there is no active Supabase session, do not let stale role/email values
         // drive the UI (e.g. linking guests to vendor/admin surfaces). Keep buyer
@@ -518,7 +511,7 @@ const ComponentLoader = {
                         const data = await response.json();
                         if (data.success && data.categories) {
                             dynamicCategoriesHTML = data.categories.map(c => `
-                                <a href="{{ROOT}}src/pages/catalog.html?category=${encodeURIComponent(c.category)}"
+                                <a href="/src/pages/catalog.html?category=${encodeURIComponent(c.category)}"
                                     class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">${c.category}</a>
                             `).join('');
                         }
@@ -526,16 +519,33 @@ const ComponentLoader = {
                 } catch (e) {
                     console.error('Failed to fetch dynamic categories:', e);
                 }
-                
-                const finalCategoryNavHTML = CATEGORY_NAV_HTML_TEMPLATE.replace('<!-- Dynamic Categories -->', dynamicCategoriesHTML);
 
-                componentsToLoad.push(
-                    this.loadComponent('category-nav-placeholder', '', finalCategoryNavHTML)
-                );
-            }
-        }
+                // If pre-injected by Vite, find the <!-- Dynamic Categories --> comment and insert after it
+                const container = catNavPlaceholder.querySelector('#categoryNavContainer');
+                if (container && catNavPlaceholder.children.length > 0 && dynamicCategoriesHTML) {
+                    // Walk the comment nodes to find the injection point
+                    let insertAfterNode = null;
+                    for (const node of container.childNodes) {
+                        if (node.nodeType === Node.COMMENT_NODE && node.textContent.trim() === 'Dynamic Categories') {
+                            insertAfterNode = node;
+                            break;
+                        }
+                    }
+                    if (insertAfterNode) {
+                        const frag = document.createRange().createContextualFragment(dynamicCategoriesHTML);
+                        insertAfterNode.parentNode.insertBefore(frag, insertAfterNode.nextSibling);
+                    }
+                } else if (catNavPlaceholder.children.length === 0) {
+                    // No pre-injected content: do full replacement (dev fallback)
+                    const finalCategoryNavHTML = CATEGORY_NAV_HTML_TEMPLATE.replace('<!-- Dynamic Categories -->', dynamicCategoriesHTML);
+                    componentsToLoad.push(
+                        this.loadComponent('category-nav-placeholder', '', finalCategoryNavHTML)
+                    );
+                }
+            } // end if (catNavPlaceholder)
+        } // end else (standard page)
 
-        if (!isMinimalPage && !isAdminPage) {
+        if (!isMinimalPage && !isAdminPage && !isDashboardPage) {
             componentsToLoad.push(
                 this.loadComponent('footer-placeholder', 'components/footer.html', FOOTER_HTML)
             );
@@ -914,6 +924,14 @@ const ComponentLoader = {
     async loadComponent(elementId, path, fallbackHTML = '') {
         const element = document.getElementById(elementId);
         if (!element) return;
+
+        // If the element already has content (pre-injected by Vite at build time),
+        // just re-process its innerHTML for dynamic tokens (AUTH_ONLY, ACCOUNT_PATH, etc.)
+        // This avoids FOUC: the nav is visible instantly without waiting for JS.
+        if (element.children.length > 0) {
+            this.injectHTML(element, element.innerHTML);
+            return;
+        }
 
         // Use inline HTML directly to avoid 404 errors and speed up loading
         if (fallbackHTML) {

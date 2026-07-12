@@ -10,7 +10,7 @@ const ASSETS_TO_CACHE = [
     '/src/pages/shop.html',
     '/src/pages/support.html',
     '/src/pages/faq.html',
-    '/src/pages/forum.html',
+
     '/src/assets/css/style.css',
     '/src/assets/css/responsive.css',
     '/src/services/main.js',

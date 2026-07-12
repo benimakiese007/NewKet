@@ -255,14 +255,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-const isDirectRun = process.argv[1]
-  ? import.meta.url === pathToFileURL(process.argv[1]).href
-  : false;
+const isDirectRun = !IS_VERCEL;
 
 if (isDirectRun) {
-  app.listen(PORT, '127.0.0.1', () => {
-    console.log(`Serveur NewKet demarre sur http://127.0.0.1:${PORT}`);
-    console.log(`Health check: http://127.0.0.1:${PORT}/api/health`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Serveur NewKet demarre sur le port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
   });
 }
 

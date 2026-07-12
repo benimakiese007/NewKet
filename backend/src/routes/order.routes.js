@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import {
-    createOrder,
     getOrders,
     updateOrderStatus,
     createDeliveryQuote,
@@ -17,7 +16,7 @@ import { otpRateLimit } from '../middlewares/otp-rate-limit.js';
 
 const router = Router();
 
-router.post('/', requireAuth, createOrder);
+// router.post('/', requireAuth, createOrder);
 router.get('/', requireAuth, getOrders);
 router.post('/:id/quote', requireAuth, createDeliveryQuote);
 router.post('/:id/quote/respond', requireAuth, respondToDeliveryQuote);
