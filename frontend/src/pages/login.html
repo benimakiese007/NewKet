@@ -53,7 +53,7 @@
         .split-image {
             position: sticky;
             top: 0;
-            height: 100vh;
+            height: 100%;
             align-self: flex-start;
         }
 
@@ -264,10 +264,10 @@
 
     <div id="header-placeholder"></div>
 
-    <div class="flex w-full relative" style="min-height: 100vh;">
+    <div class="flex w-full relative flex-1 min-h-0">
         <!-- Left Side: Immersive Image (Hidden on smaller screens) -->
         <div class="hidden lg:flex lg:w-1/2 relative split-image overflow-hidden items-end p-16">
-            <img loading="lazy" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572395/newket_assets/racine/Image_De_La_Section_A_Gauche_Du_Login.webp" width="960" height="1280"
+            <img loading="lazy" src="/Images/mobile-iPhone_17_Pro_Max.png" width="960" height="1280"
                 alt="NewKet Experience"
                 class="absolute inset-0 w-full h-full object-cover object-top scale-100 transform origin-center" id="bgImage">
 
@@ -281,7 +281,7 @@
                 <p class="text-lg text-gray-300 font-medium mb-8 leading-relaxed">Rejoignez des milliers d'acheteurs et de
                     vendeurs. Une plateforme pensée pour la performance et le raffinement.</p>
 
-                <div class="flex items-center gap-4 opacity-0 transition-opacity duration-500" id="statsContainer">
+                <div class="flex items-center gap-4" id="statsContainer">
                     <div class="flex -space-x-3" id="avatarContainer">
                         <img loading="lazy" width="40" height="40" class="w-10 h-10 rounded-full border-2 border-black object-cover"
                             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"
@@ -1361,11 +1361,6 @@
                     }
                 }
 
-                const statsContainer = document.getElementById('statsContainer');
-                if (statsContainer) {
-                    statsContainer.classList.remove('opacity-0');
-                    statsContainer.classList.add('opacity-100');
-                }
             } catch (error) {
                 console.warn('[Login] Impossible de charger le total utilisateurs:', error);
             }
