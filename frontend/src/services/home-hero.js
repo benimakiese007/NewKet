@@ -24,7 +24,7 @@ function renderHero(config) {
     if (!heroSection) return;
 
     const slider = document.getElementById('heroSlider');
-    const slides = Array.isArray(config?.slides) ? config.slides.slice(0, 2) : [];
+    const slides = Array.isArray(config?.slides) ? config.slides : [];
     if (slider && slides.length > 0) {
         const isMobile = window.matchMedia?.('(max-width: 768px)')?.matches;
         const mobileFallback = '/Images/What-is-a-online-marketplace-services.webp';
@@ -42,6 +42,7 @@ function renderHero(config) {
     setText(document.getElementById('heroTitleLine2'), c.titleLine2);
     setText(document.getElementById('heroDescription'), c.description);
     setLink(document.getElementById('heroPrimaryCta'), c?.primaryCta?.label, c?.primaryCta?.href);
+    setText(document.getElementById('heroSecondaryCtaPrefix'), c?.secondaryCta?.prefix);
     setLink(document.getElementById('heroSecondaryCta'), c?.secondaryCta?.label, c?.secondaryCta?.href);
 
     setText(document.getElementById('heroPromoHeadline'), c?.promo?.headline);

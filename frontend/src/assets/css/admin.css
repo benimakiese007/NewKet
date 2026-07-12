@@ -1442,16 +1442,6 @@ html.admin-embedded-mode .stagger-5 {
 .admin-user-details-table col.admin-user-details-table__col-details { width: 14rem; }
 .admin-user-details-table col.admin-user-details-table__col-amount { width: 6.5rem; }
 
-/* Settings integrations */
-.admin-settings-integrations-table {
-    --admin-table-min-width: 560px;
-}
-
-.admin-settings-integrations-table col.admin-settings-integrations-table__col-vendor { width: 10rem; }
-.admin-settings-integrations-table col.admin-settings-integrations-table__col-email { width: 12rem; }
-.admin-settings-integrations-table col.admin-settings-integrations-table__col-slack { width: 5.5rem; }
-.admin-settings-integrations-table col.admin-settings-integrations-table__col-notion { width: 5.5rem; }
-
 /* Vendor dashboard orders */
 .vendor-orders-table {
     --admin-table-min-width: 960px;

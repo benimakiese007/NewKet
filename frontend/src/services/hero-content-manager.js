@@ -80,9 +80,7 @@ const HeroContentManager = {
         const promo = content.promo && typeof content.promo === 'object' ? content.promo : {};
         const slideIntervalSeconds = clampNumber(
             content.slideIntervalSeconds ?? raw?.slideIntervalSeconds,
-            2,
-            30,
-            HERO_DEFAULT_SWITCH_INTERVAL_SECONDS
+            2, 31536000, HERO_DEFAULT_SWITCH_INTERVAL_SECONDS
         );
 
         return {
@@ -97,6 +95,7 @@ const HeroContentManager = {
                     href: safeString(primaryCta.href || base.content.primaryCta.href)
                 },
                 secondaryCta: {
+                    prefix: safeString(secondaryCta.prefix || base.content.secondaryCta.prefix || 'Vous possédez une pièce rare ?'),
                     label: safeString(secondaryCta.label || base.content.secondaryCta.label),
                     href: safeString(secondaryCta.href || base.content.secondaryCta.href)
                 },

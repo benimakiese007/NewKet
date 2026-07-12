@@ -4,13 +4,13 @@ const HeroSlider = {
     currentIndex: 0,
     slides: [],
     interval: null,
-    pauseOnHover: true,
+    pauseOnHover: false,
     intervalMs: 5000,
 
     setIntervalSeconds(seconds) {
         const value = Number(seconds);
         if (!Number.isFinite(value)) return;
-        const clamped = Math.min(30, Math.max(2, value));
+        const clamped = Math.min(31536000, Math.max(2, value));
         this.intervalMs = clamped * 1000;
     },
 

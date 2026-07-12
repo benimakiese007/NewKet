@@ -75,7 +75,7 @@ function makeSlideRow(slide, index, total) {
 function readFormIntoConfig(currentConfig, slides) {
     const slideIntervalSecondsRaw = Number($('heroSlideIntervalSecondsInput')?.value);
     const slideIntervalSeconds = Number.isFinite(slideIntervalSecondsRaw)
-        ? Math.min(30, Math.max(2, slideIntervalSecondsRaw))
+        ? Math.min(31536000, Math.max(2, slideIntervalSecondsRaw))
         : 5;
 
     const content = {
@@ -87,6 +87,7 @@ function readFormIntoConfig(currentConfig, slides) {
             href: ($('heroPrimaryCtaHref')?.value || '').trim()
         },
         secondaryCta: {
+            prefix: ($('heroSecondaryCtaPrefixInput')?.value || '').trim(),
             label: ($('heroSecondaryCtaLabel')?.value || '').trim(),
             href: ($('heroSecondaryCtaHref')?.value || '').trim()
         },
@@ -125,6 +126,7 @@ async function render(config) {
     $('heroDescriptionInput').value = config?.content?.description || '';
     $('heroPrimaryCtaLabel').value = config?.content?.primaryCta?.label || '';
     $('heroPrimaryCtaHref').value = config?.content?.primaryCta?.href || '';
+    $('heroSecondaryCtaPrefixInput').value = config?.content?.secondaryCta?.prefix || '';
     $('heroSecondaryCtaLabel').value = config?.content?.secondaryCta?.label || '';
     $('heroSecondaryCtaHref').value = config?.content?.secondaryCta?.href || '';
     $('heroPromoHeadlineInput').value = config?.content?.promo?.headline || '';

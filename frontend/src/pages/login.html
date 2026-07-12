@@ -346,7 +346,12 @@
                         <!-- Role Selection (Signup Only) -->
                         <div id="roleContainer" class="hidden overflow-hidden transition-all duration-500 animate-item">
                             <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 block tracking-[0.15em]">Je souhaite</label>
-                            <div class="grid grid-cols-2 gap-3">
+                            <style>
+                                @media (min-width: 416px) {
+                                    .role-grid-custom { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+                                }
+                            </style>
+                            <div class="grid grid-cols-1 role-grid-custom gap-3">
                                 <label class="cursor-pointer role-card">
                                     <input type="radio" name="role" id="roleCustomer" value="customer" class="peer sr-only" checked>
                                     <div class="p-4 rounded-2xl border-2 border-gray-100 bg-white peer-checked:border-black peer-checked:bg-gray-50 text-gray-400 peer-checked:text-black transition-all flex items-center gap-3 hover:bg-gray-50 hover:border-gray-200">

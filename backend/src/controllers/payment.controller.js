@@ -12,7 +12,6 @@ import {
     verifyFlexpaieSignature
 } from '../services/flexpaie.js';
 import NotificationService from '../services/notificationService.js';
-import slackService from '../services/integrations/slackService.js';
 import {
     ESCROW_STATUSES,
     ORDER_STATUSES,
@@ -726,12 +725,6 @@ export const stripeWebhook = async (req, res) => {
             .maybeSingle();
             
         if (paidOrderStripe && paidOrderStripe.vendor_id) {
-             slackService.sendPaymentReceivedNotification(paidOrderStripe.vendor_id, {
-                 totalAmount: paidOrderStripe.total_amount,
-                 productName: paidOrderStripe.items?.[0]?.name || 'Produit inconnu',
-                 customerName: paidOrderStripe.customer_name || 'Client'
-             }).catch(err => console.error('[SlackService] Payment notification failed:', err));
-             
              if (paidOrderStripe.customer_email) {
                  NotificationService.notifyCustomerReceipt(paidOrderStripe);
                  NotificationService.notifyCustomerOTP(paidOrderStripe).catch(console.error);

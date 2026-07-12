@@ -1177,6 +1177,7 @@ const AuthManager = {
                     body.role-admin #floatingOrderBtn,
                     body.role-admin #mainWishlistBtn,
                     body.role-admin .checkout-btn,
+                    body.role-admin .supplier-only,
                     body.role-admin .publish-btn {
                         display: none !important;
                     }

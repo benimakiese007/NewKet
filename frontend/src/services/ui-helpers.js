@@ -1151,15 +1151,8 @@ function splitImageCandidates(value) {
 }
 
 function isKnownPlaceholderImageUrl(value) {
-    const token = String(value || '').trim();
-    if (!token) return false;
-
-    try {
-        const parsed = new URL(token, window.location.origin);
-        return ['loremflickr.com', 'placehold.co', 'via.placeholder.com', 'picsum.photos'].includes(parsed.hostname);
-    } catch {
-        return /loremflickr|placehold|picsum/i.test(token);
-    }
+    // Désactivé pour permettre l'affichage des images (loremflickr, placehold, etc.)
+    return false;
 }
 
 function isOptimizableImageSource(value) {
