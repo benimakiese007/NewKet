@@ -55,3 +55,19 @@ try {
 } catch (err) {
     console.warn('[NewKet] Google Analytics disabled:', err?.message || err);
 }
+
+// Global fallback for broken images
+window.addEventListener('error', function(e) {
+    if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'img') {
+        const fallbackUrl = 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+        const finalUrl = typeof window.resolvePath === 'function' ? window.resolvePath(fallbackUrl) : fallbackUrl;
+        
+        // Prevent infinite loops if the fallback itself fails
+        if (e.target.src !== finalUrl && !e.target.hasAttribute('data-global-fallback-applied')) {
+            e.target.setAttribute('data-global-fallback-applied', 'true');
+            e.target.removeAttribute('srcset');
+            e.target.removeAttribute('sizes');
+            e.target.src = finalUrl;
+        }
+    }
+}, true); // Use capture phase to catch the error event

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * NewKet UI Helpers
  * Common utilities for UI rendering and interactions.
  */
@@ -723,7 +723,7 @@ export function buildProductCardHTML(p, options = {}) {
                         height="400"
                         class="${productImgClass}"
                         style="transition: opacity 0.3s ease;"
-                        onerror="this.src='${fallbackImg}'"
+                        onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='${fallbackImg}';"
                     >
                 </a>
             </div>
@@ -2559,6 +2559,13 @@ export function initLazyImages(root = document) {
                         img.removeAttribute('data-src');
                         img.removeAttribute('data-srcset');
                         img.removeAttribute('data-sizes');
+                        if (!img.hasAttribute('data-fallback-applied')) {
+                            img.setAttribute('data-fallback-applied', 'true');
+                            img.removeAttribute('srcset');
+                            img.removeAttribute('sizes');
+                            const fallback = 'https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_800,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+                            img.src = typeof window.resolvePath === 'function' ? window.resolvePath(fallback) : fallback;
+                        }
                     };
 
                     _lazyObserver.unobserve(img);
