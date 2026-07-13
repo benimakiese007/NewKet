@@ -6,7 +6,7 @@
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
             <div class="header-brand-row grid grid-cols-3 items-center w-full sm:flex sm:w-auto sm:flex-none h-12 sm:h-auto sm:relative px-1 sm:px-0">
                 <!-- Hamburger Menu (Mobile) — col gauche -->
-                <div class="flex items-center justify-start sm:hidden">
+                <div class="flex items-center justify-start lg:hidden">
                     <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                         title="Menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
                         <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-white"></iconify-icon>
@@ -168,7 +168,7 @@
 
 <!-- Mobile Menu Sidebar -->
 <div id="mobileOverlay"
-    class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" style="z-index: 9000;" aria-hidden="true">
+    class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" style="z-index: 9000;" aria-hidden="true">
 </div>
 <div id="mobileMenu" class="fixed inset-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
     <div class="mobile-menu-header px-6 flex items-center justify-between bg-white text-gray-900 border-b border-gray-100/60" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">

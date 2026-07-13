@@ -281,17 +281,8 @@
                 <p class="text-lg text-gray-300 font-medium mb-8 leading-relaxed">Rejoignez des milliers d'acheteurs et de
                     vendeurs. Une plateforme pensée pour la performance et le raffinement.</p>
 
-                <div class="flex items-center gap-4" id="statsContainer">
+                <div class="flex items-center gap-4 opacity-0 transition-opacity duration-500" id="statsContainer">
                     <div class="flex -space-x-3" id="avatarContainer">
-                        <img loading="lazy" width="40" height="40" class="w-10 h-10 rounded-full border-2 border-black object-cover"
-                            src="https://randomuser.me/api/portraits/women/44.jpg"
-                            alt="User">
-                        <img loading="lazy" width="40" height="40" class="w-10 h-10 rounded-full border-2 border-black object-cover"
-                            src="https://randomuser.me/api/portraits/men/32.jpg"
-                            alt="User">
-                        <img loading="lazy" width="40" height="40" class="w-10 h-10 rounded-full border-2 border-black object-cover"
-                            src="https://randomuser.me/api/portraits/women/68.jpg"
-                            alt="User">
                         <div
                             class="min-w-[3rem] h-10 px-2 rounded-full border-2 border-black bg-white text-black flex items-center justify-center text-xs font-black tabular-nums"
                             id="activeMembersCount">...</div>
@@ -548,7 +539,7 @@
                 gsap.to("#bgImage", { scale: 1, duration: 10, ease: "power1.out" });
 
                 const tl = gsap.timeline();
-                tl.from("#heroContent > *", { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: "power2.out", delay: 0.2 })
+                tl.from("#heroContent > *:not(#statsContainer)", { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: "power2.out", delay: 0.2 })
                     .from(".animate-item", { opacity: 0, y: 15, stagger: 0.05, duration: 0.6, ease: "power2.out", clearProps: "all" }, "-=0.6");
             } else {
                 console.warn('[NewKet Login] GSAP unavailable, showing content without animation.');
@@ -1351,14 +1342,31 @@
 
                 if (stats?.recentAvatars && Array.isArray(stats.recentAvatars)) {
                     const avatarContainer = document.getElementById('avatarContainer');
-                    if (avatarContainer) {
-                        const imgs = avatarContainer.querySelectorAll('img');
-                        stats.recentAvatars.forEach((avatarUrl, index) => {
-                            if (imgs[index] && avatarUrl) {
-                                imgs[index].src = avatarUrl;
+                    const activeMembersCount = document.getElementById('activeMembersCount');
+                    if (avatarContainer && activeMembersCount) {
+                        // Clear any existing images
+                        avatarContainer.querySelectorAll('img').forEach(img => img.remove());
+                        
+                        // Insert new images
+                        stats.recentAvatars.forEach((avatarUrl) => {
+                            if (avatarUrl) {
+                                const img = document.createElement('img');
+                                img.loading = 'lazy';
+                                img.width = 40;
+                                img.height = 40;
+                                img.className = 'w-10 h-10 rounded-full border-2 border-black object-cover';
+                                img.src = avatarUrl;
+                                img.alt = 'User';
+                                avatarContainer.insertBefore(img, activeMembersCount);
                             }
                         });
                     }
+                }
+
+                // Show the stats container
+                const statsContainerEl = document.getElementById('statsContainer');
+                if (statsContainerEl) {
+                    statsContainerEl.classList.remove('opacity-0');
                 }
 
             } catch (error) {
