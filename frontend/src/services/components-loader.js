@@ -6,43 +6,7 @@ if (!window.ComponentLoader) {
  * Header HTML inlined to avoid CORS issues with file:// protocol.
  * When served via HTTP, fetch is used instead.
  */
-const CATEGORY_NAV_HTML_TEMPLATE = `
-        <!-- Category Nav -->
-        <div id="categoryNav" class="category-nav newket-category-nav flex sm:block transition-all duration-300 ease-in-out transform origin-top">
-            <div class="max-w-7xl mx-auto w-full px-4 sm:px-8">
-                <div class="relative">
-                    <!-- Scroll left button (hidden at start) -->
-                    <button id="catNavScrollLeft"
-                        class="hidden absolute left-0 top-1/2 -translate-y-1/2 z-20 w-7 h-7 /15 /30 text-white flex items-center justify-center transition-all shrink-0 -white/10"
-                        aria-label="Défiler à gauche">
-                        <iconify-icon icon="solar:alt-arrow-left-bold" width="14"></iconify-icon>
-                    </button>
-                    <!-- Left fade gradient (hidden at start) -->
-                    <div id="catNavFadeLeft" class="hidden absolute left-0 top-0 bottom-0 w-14 bg-gradient-to-r from-[#0A4A2E] to-transparent z-10 pointer-events-none"></div>
-
-                    <nav id="categoryNavContainer" class="flex items-center gap-2 overflow-x-auto py-3 scroll-smooth" style="scrollbar-width:none; -webkit-overflow-scrolling:touch;">
-                        <a href="{{ROOT}}src/pages/catalog.html"
-                            class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Toutes les pièces</a>
-                        <a href="{{ROOT}}src/pages/shops.html"
-                            class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">Boutiques</a>
-                        <!-- Dynamic Categories -->
-                        <a href="{{ROOT}}src/pages/catalog.html?promo=true"
-                            class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors flex items-center gap-1 shrink-0">
-                            <iconify-icon icon="solar:fire-bold" width="14"></iconify-icon>Promos
-                        </a>
-                    </nav>
-
-                    <!-- Right fade gradient -->
-                    <div id="catNavFadeRight" class="absolute right-0 top-0 bottom-0 w-14 bg-gradient-to-l from-[#0A4A2E] to-transparent z-10 pointer-events-none"></div>
-                    <!-- Scroll right button -->
-                    <button id="catNavScrollRight"
-                        class="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-white/15 hover:bg-white/30 text-white flex items-center justify-center transition-all shrink-0 border border-white/10"
-                        aria-label="Défiler à droite">
-                        <iconify-icon icon="solar:alt-arrow-right-bold" width="14"></iconify-icon>
-                    </button>
-                </div>
-            </div>
-        </div>`;
+const CATEGORY_NAV_HTML_TEMPLATE = ``;
 
 const HEADER_HTML = `
     <!-- Main header container -->
@@ -51,8 +15,8 @@ const HEADER_HTML = `
             <div class="header-content relative w-full px-4 sm:px-8 py-2 sm:py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
             <!-- Top section for mobile: Menu, Centered Logo, Account -->
             <div class="header-brand-row grid grid-cols-3 items-center w-full sm:flex sm:w-auto sm:flex-none h-12 sm:h-auto sm:relative px-1 sm:px-0">
-                <!-- Hamburger Menu (Mobile) — col gauche -->
-                <div class="flex items-center justify-start sm:hidden">
+                <!-- Hamburger Menu (tous écrans) — col gauche -->
+                <div class="flex items-center justify-start">
                     <button id="mobileMenuBtn" class="header-icon-button p-2 rounded-lg hover:bg-white/10 transition-colors btn-active-scale"
                         title="Menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobileMenu">
                         <iconify-icon icon="solar:hamburger-menu-linear" width="24" class="text-white"></iconify-icon>
@@ -490,59 +454,7 @@ const ComponentLoader = {
                 this.loadComponent('header-placeholder', 'components/header.html', HEADER_HTML)
             );
 
-            // Handle Category Nav standalone injection
-            let catNavPlaceholder = document.getElementById('category-nav-placeholder');
-            const headerPlaceholder = document.getElementById('header-placeholder');
-            
-            // If placeholder missing on a non-minimal page, inject it dynamically after header
-            if (!catNavPlaceholder && headerPlaceholder) {
-                catNavPlaceholder = document.createElement('div');
-                catNavPlaceholder.id = 'category-nav-placeholder';
-                headerPlaceholder.parentNode.insertBefore(catNavPlaceholder, headerPlaceholder.nextSibling);
-            }
-
-            if (catNavPlaceholder) {
-                // Fetch dynamic categories before loading nav
-                let dynamicCategoriesHTML = '';
-                try {
-                    const apiBase = window.API_BASE || '/api';
-                    const response = await fetch(`${apiBase}/products/categories/ranked`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.success && data.categories) {
-                            dynamicCategoriesHTML = data.categories.map(c => `
-                                <a href="/src/pages/catalog.html?category=${encodeURIComponent(c.category)}"
-                                    class="nav-link px-4 py-2 text-sm font-medium text-white/90 hover:text-white whitespace-nowrap rounded-lg hover:bg-white/10 transition-colors shrink-0">${c.category}</a>
-                            `).join('');
-                        }
-                    }
-                } catch (e) {
-                    console.error('Failed to fetch dynamic categories:', e);
-                }
-
-                // If pre-injected by Vite, find the <!-- Dynamic Categories --> comment and insert after it
-                const container = catNavPlaceholder.querySelector('#categoryNavContainer');
-                if (container && catNavPlaceholder.children.length > 0 && dynamicCategoriesHTML) {
-                    // Walk the comment nodes to find the injection point
-                    let insertAfterNode = null;
-                    for (const node of container.childNodes) {
-                        if (node.nodeType === Node.COMMENT_NODE && node.textContent.trim() === 'Dynamic Categories') {
-                            insertAfterNode = node;
-                            break;
-                        }
-                    }
-                    if (insertAfterNode) {
-                        const frag = document.createRange().createContextualFragment(dynamicCategoriesHTML);
-                        insertAfterNode.parentNode.insertBefore(frag, insertAfterNode.nextSibling);
-                    }
-                } else if (catNavPlaceholder.children.length === 0) {
-                    // No pre-injected content: do full replacement (dev fallback)
-                    const finalCategoryNavHTML = CATEGORY_NAV_HTML_TEMPLATE.replace('<!-- Dynamic Categories -->', dynamicCategoriesHTML);
-                    componentsToLoad.push(
-                        this.loadComponent('category-nav-placeholder', '', finalCategoryNavHTML)
-                    );
-                }
-            } // end if (catNavPlaceholder)
+            // CategoryNav supprimé — navigation via le menu burger
         } // end else (standard page)
 
         if (!isMinimalPage && !isAdminPage && !isDashboardPage) {

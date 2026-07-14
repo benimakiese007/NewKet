@@ -364,11 +364,7 @@ const App = {
         scheduleMobileBottomNavSync();
         watchForMobileBottomNav();
 
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 640) {
-                setMobileMenuState(false);
-            }
-        });
+
 
         // Scroll Direction Detection for Category Nav
         let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;

@@ -427,10 +427,6 @@ canvas {
    3b. DESKTOP (≥ 1024px) — Masquer le burger
    ========================================== */
 @media (min-width: 1024px) {
-    /* Masquer le wrapper du bouton hamburger sur desktop */
-    #mobileMenuBtn {
-        display: none !important;
-    }
 
     /* Masquer les icônes droite mobile (cloche, cœur) sur desktop */
     .header-brand-row > div:last-child {

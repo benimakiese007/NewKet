@@ -26,15 +26,9 @@ export default defineConfig({
             newHtml = newHtml.replace('<div id="header-placeholder"></div>', minimalHtml);
           } else {
             let headerHtml = readFileSync(resolve(__dirname, 'src/partials/header.html'), 'utf8');
-            let catNavHtml = readFileSync(resolve(__dirname, 'src/partials/category-nav.html'), 'utf8');
-            
             headerHtml = headerHtml.replace(/\{\{ROOT\}\}/g, rootPath).replace(/\{\{ACCOUNT_PATH\}\}/g, rootPath + 'src/pages/login.html');
-            catNavHtml = catNavHtml.replace(/\{\{ROOT\}\}/g, rootPath);
             
-            // Note: components-loader dynamically fetches categories, so we inject the template directly.
-            // But we keep the <!-- Dynamic Categories --> placeholder for JS to replace later.
-            
-            newHtml = newHtml.replace('<div id="header-placeholder"></div>', headerHtml + '\n<div id="category-nav-placeholder">' + catNavHtml + '</div>');
+            newHtml = newHtml.replace('<div id="header-placeholder"></div>', headerHtml);
             
             let footerHtml = readFileSync(resolve(__dirname, 'src/partials/footer.html'), 'utf8');
             footerHtml = footerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
