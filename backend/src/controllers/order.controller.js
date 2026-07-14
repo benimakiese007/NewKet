@@ -29,6 +29,129 @@ function isAdminActor(user) {
     return role === 'admin';
 }
 
+function toFiniteNumber(value, fallback = 0) {
+    const normalized = typeof value === 'string' ? value.replace(',', '.').trim() : value;
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function toNullableNumber(value) {
+    if (value === undefined || value === null || value === '') return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
+export const createOrder = async (req, res) => {
+    try {
+        const productId = String(req.body?.product_id || '').trim();
+        const vendorIdFromBody = String(req.body?.vendor_id || '').trim();
+        const quantity = Math.max(1, parseInt(req.body?.quantity, 10) || 1);
+        const customerPhone = String(req.body?.customer_phone || '').trim() || null;
+        const customerName = String(req.body?.customer_name || req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || 'Client NewKet').trim();
+        const customerEmail = String(req.body?.customer_email || req.user?.email || '').trim() || null;
+        const customerCity = String(req.body?.customer_city || '').trim() || null;
+        const customerLat = toNullableNumber(req.body?.customer_lat);
+        const customerLng = toNullableNumber(req.body?.customer_lng);
+
+        if (!productId) {
+            return res.status(400).json({ success: false, error: 'product_id est requis.' });
+        }
+
+        const { data: product, error: productError } = await client
+            .from('products')
+            .select('id, name, price, old_price, image, category, user_id, supplier_email')
+            .eq('id', productId)
+            .maybeSingle();
+
+        if (productError) throw productError;
+        if (!product) {
+            return res.status(404).json({ success: false, error: 'Produit introuvable.' });
+        }
+
+        if (!customerEmail) {
+            return res.status(400).json({ success: false, error: 'customer_email est requis.' });
+        }
+
+        const vendorId = vendorIdFromBody || product.user_id || null;
+        const unitPrice = toFiniteNumber(product.price ?? req.body?.price ?? product.old_price, 0);
+        const totalAmount = Number((unitPrice * quantity).toFixed(2));
+        const nowIso = new Date().toISOString();
+
+        const orderPayload = {
+            id: generateOrderId(),
+            status: ORDER_STATUSES.PENDING,
+            payment_status: 'N/A',
+            payment_provider: null,
+            payment_expected_amount: null,
+            payment_expected_currency: null,
+            payment_locked_at: null,
+            payment_lock_reason: null,
+            transaction_id: null,
+            user_id: req.user?.id || null,
+            customer_id: req.user?.id || null,
+            vendor_id: vendorId,
+            items: [{
+                product_id: product.id,
+                vendor_id: vendorId,
+                price: unitPrice,
+                name: product.name,
+                quantity,
+                category: product.category || null,
+                image: String(product.image || '').split(',')[0] || null,
+                supplier_email: product.supplier_email || null
+            }],
+            total: totalAmount,
+            total_amount: totalAmount,
+            merchandise_amount: totalAmount,
+            subtotal_amount: totalAmount,
+            delivery_fee_amount: 0,
+            final_total_amount: totalAmount,
+            customer_name: customerName,
+            customer_email: customerEmail,
+            customer_phone: customerPhone,
+            customer_city: customerCity,
+            customer_lat: customerLat,
+            customer_lng: customerLng,
+            phone_number: customerPhone,
+            escrow_status: ESCROW_STATUSES.NONE,
+            proof_status: 'PENDING',
+            updated_at: nowIso
+        };
+
+        const { data: createdOrder, error: insertError } = await client
+            .from('orders')
+            .insert(orderPayload)
+            .select('*')
+            .single();
+
+        if (insertError) throw insertError;
+
+        await logOrderStatusHistory(client, {
+            orderId: createdOrder.id,
+            previousStatus: null,
+            newStatus: ORDER_STATUSES.PENDING,
+            changedBy: req.user?.id || 'system',
+            notes: 'Order created from checkout'
+        });
+
+        NotificationService.notifyVendorOrderRequest(createdOrder).catch((error) => {
+            console.error('[OrderController] notifyVendorOrderRequest error:', error.message);
+        });
+
+        return res.status(201).json({
+            success: true,
+            order_id: createdOrder.id,
+            order: createdOrder
+        });
+    } catch (error) {
+        console.error('❌ Erreur createOrder:', error.message);
+        return res.status(500).json({
+            success: false,
+            error: 'Impossible de créer la commande.'
+        });
+    }
+};
+
 export const getOrders = async (req, res) => {
     try {
         const page = Math.max(1, parseInt(req.query.page, 10) || 1);
