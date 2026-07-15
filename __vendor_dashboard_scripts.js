@@ -2534,10 +2534,10 @@
                         const presetNote = currentQuote?.note ?? '';
 
                         const container = document.createElement('div');
-                        container.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm';
+                        container.className = 'fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm';
                         container.innerHTML = `
-                            <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-100">
-                                <div class="p-5 sm:p-6 border-b border-gray-100 bg-gray-50 flex items-start justify-between gap-3">
+                            <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-100 max-h-[90vh] flex flex-col">
+                                <div class="p-5 sm:p-6 border-b border-gray-100 bg-gray-50 flex items-start justify-between gap-3 shrink-0">
                                     <div class="min-w-0">
                                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Devis de livraison</p>
                                         <h3 class="text-lg font-black text-gray-900 truncate">${currentQuote ? 'Modifier le devis' : 'Proposer un devis'}</h3>
@@ -2547,7 +2547,7 @@
                                         <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
                                     </button>
                                 </div>
-                                <div class="p-5 sm:p-6 space-y-4">
+                                <div class="p-5 sm:p-6 space-y-4 overflow-y-auto">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div class="space-y-1">
                                             <label class="block text-xs font-bold text-gray-600">Montant livraison (CDF)</label>
@@ -2575,7 +2575,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="p-5 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row gap-3">
+                                <div class="p-5 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row gap-3 shrink-0">
                                     <button type="button" data-quote-cancel class="flex-1 py-3 bg-white text-gray-700 border border-gray-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition-all">Annuler</button>
                                     <button type="button" data-quote-submit class="flex-1 py-3 bg-black text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
                                         <iconify-icon icon="solar:send-square-bold" width="16"></iconify-icon>
@@ -2655,6 +2655,12 @@
                         await renderVendorDashboard();
                     } catch (error) {
                         showToast(error.message || 'Erreur lors de la creation du devis', 'error');
+                        const orderModal = document.getElementById('orderDetailModal');
+                        if (orderModal) {
+                            orderModal.classList.remove('hidden');
+                            orderModal.classList.add('flex');
+                            document.documentElement.classList.add('overflow-hidden');
+                        }
                     }
                 }
 

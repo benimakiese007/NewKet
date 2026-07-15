@@ -1205,6 +1205,10 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>
+
             <!-- Order Detail Modal (New for Vendor) -->
             <div id="orderDetailModal"
                 class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/60 p-4">
@@ -1375,10 +1379,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
 </div> <!-- End of vendor-main-content (169) -->
 </main> <!-- End of main container (85) -->
 
@@ -2743,7 +2743,7 @@
                         `;
                     } else {
                         ordersTable.innerHTML = recentOrders.map(o => `
-                        <tr class="hover:bg-gray-50 transition-all cursor-pointer group" onclick="if(!event.target.closest('input[type=checkbox]')) openOrderDetailModal('${o.id}')">
+                        <tr class="hover:bg-gray-50 transition-all cursor-pointer group" data-order-id="${o.id}" onclick="if(!event.target.closest('input[type=checkbox]')) openOrderDetailModal('${o.id}')">
                             <td class="py-4 w-10" onclick="event.stopPropagation()">
                                 <input type="checkbox" value="${o.id}" class="vendor-order-checkbox rounded border-gray-300 text-black focus:ring-black cursor-pointer" ${window.vendorOrderState.selectedOrders.has(o.id) ? 'checked' : ''} onchange="window.toggleOrderSelection(this, '${o.id}')">
                             </td>
@@ -4050,7 +4050,7 @@
                         : '';
 
                         return `
-                            <div class="group relative overflow-hidden bg-white border ${isVendorTurn ? 'border-green-200' : 'border-gray-100'} rounded-[2rem] hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 cursor-pointer" style="animation-delay: ${index * 80}ms" onclick="openOrderDetailModal('${o.id}')">
+                            <div class="group relative overflow-hidden bg-white border ${isVendorTurn ? 'border-green-200' : 'border-gray-100'} rounded-[2rem] hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 cursor-pointer" style="animation-delay: ${index * 80}ms" data-order-id="${o.id}" onclick="openOrderDetailModal('${o.id}')">
                                 <!-- Top: Product + Client info -->
                                 <div class="p-5 pb-3">
                                     <div class="flex items-start gap-4">
@@ -5084,10 +5084,10 @@
                         const presetNote = currentQuote?.note ?? '';
 
                         const container = document.createElement('div');
-                        container.className = 'fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm';
+                        container.className = 'fixed inset-0 z-[10050] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm';
                         container.innerHTML = `
-                            <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-100">
-                                <div class="p-5 sm:p-6 border-b border-gray-100 bg-gray-50 flex items-start justify-between gap-3">
+                            <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-100 max-h-[90vh] flex flex-col">
+                                <div class="p-5 sm:p-6 border-b border-gray-100 bg-gray-50 flex items-start justify-between gap-3 shrink-0 rounded-t-2xl">
                                     <div class="min-w-0">
                                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Devis de livraison</p>
                                         <h3 class="text-lg font-black text-gray-900 truncate">${currentQuote ? 'Modifier le devis' : 'Proposer un devis'}</h3>
@@ -5101,7 +5101,7 @@
                                         <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
                                     </button>
                                 </div>
-                                <div class="p-5 sm:p-6 space-y-4">
+                                <div class="p-5 sm:p-6 space-y-4 overflow-y-auto">
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div class="space-y-1">
                                             <label class="block text-xs font-bold text-gray-600">Montant livraison (CDF)</label>
@@ -5200,7 +5200,14 @@
 
                 async function handleVendorQuote(order) {
                     const payload = await openVendorQuoteModal(order);
-                    if (!payload) return;
+                    if (!payload) {
+                        const orderModal = document.getElementById('orderDetailModal');
+                        if (orderModal) {
+                            orderModal.classList.remove('hidden');
+                            orderModal.classList.add('flex');
+                        }
+                        return;
+                    }
 
                     try {
                         await OrderManager.createDeliveryQuote(order.id, payload);
@@ -5209,6 +5216,11 @@
                         await renderVendorDashboard();
                     } catch (error) {
                         showToast(error.message || 'Erreur lors de la creation du devis', 'error');
+                        const orderModal = document.getElementById('orderDetailModal');
+                        if (orderModal) {
+                            orderModal.classList.remove('hidden');
+                            orderModal.classList.add('flex');
+                        }
                     }
                 }
 
@@ -5526,6 +5538,39 @@
         window.NewKetPageRefresh = async () => {
             window.location.reload();
         };
+    </script>
+    <script>
+        // ── Safety net: ensure openOrderDetailModal is always callable ──
+        // This runs AFTER all other scripts. If the main script block above
+        // failed to define openOrderDetailModal (e.g. due to a runtime error),
+        // this block defines a fallback that will look up the order and show the modal.
+        if (typeof window.openOrderDetailModal !== 'function') {
+            window.openOrderDetailModal = async function(orderId) {
+                if (!orderId) return;
+                const order = window.OrderManager ? window.OrderManager.getOrderById(orderId) : null;
+                if (!order) {
+                    console.warn('[openOrderDetailModal] Order not found:', orderId);
+                    return;
+                }
+                const modal = document.getElementById('orderDetailModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    document.documentElement.classList.add('overflow-hidden');
+                }
+            };
+        }
+
+        // ── Event delegation fallback for order card clicks ──
+        // Catches clicks on cards that use onclick="openOrderDetailModal('...')"
+        // in case the inline onclick fails to resolve the function.
+        document.addEventListener('click', function(e) {
+            const card = e.target.closest('[data-order-id]');
+            if (card && typeof window.openOrderDetailModal === 'function') {
+                e.stopPropagation();
+                window.openOrderDetailModal(card.dataset.orderId);
+            }
+        }, true);
     </script>
 </body>
 

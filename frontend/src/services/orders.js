@@ -221,7 +221,7 @@ const OrderManager = {
     },
 
     getOrderById(id) {
-        return this.data.find(o => o.id === id) || null;
+        return this.data.find(o => String(o.id) === String(id)) || null;
     },
 
     // ========== STATS ==========
