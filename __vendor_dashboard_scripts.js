@@ -114,6 +114,23 @@
                         const boutiqueName = profile.company_name || 'Ma Boutique';
                         const resolvedPhone = profile.store_phone || profile.phone || '';
 
+                        // Sidebar / General Display
+                        const vendorNameEl = document.getElementById('vendorName');
+                        if (vendorNameEl) {
+                            const spanEl = vendorNameEl.querySelector('span');
+                            if (spanEl) spanEl.textContent = boutiqueName;
+                            else vendorNameEl.textContent = boutiqueName;
+                        }
+                        
+                        const vendorAvatarImg = document.getElementById('vendorAvatarImg');
+                        const vendorAvatarPlaceholder = document.getElementById('vendorAvatarPlaceholder');
+                        if (vendorAvatarImg && profile.avatar) {
+                            vendorAvatarImg.src = profile.avatar;
+                            vendorAvatarImg.classList.remove('hidden');
+                            if (vendorAvatarPlaceholder) vendorAvatarPlaceholder.classList.add('hidden');
+                        }
+
+                        // Settings Inputs
                         if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = boutiqueName || '';
                         if (document.getElementById('vSetEmail')) document.getElementById('vSetEmail').value = localStorage.getItem('newketUserEmail') || profile.email;
                         if (document.getElementById('vSetPhone')) {

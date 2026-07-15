@@ -5572,9 +5572,45 @@
             }
         }, true);
     </script>
+    <script>
+        // Update Sidebar Vendor Profile
+        function updateSidebarProfile() {
+            if (!window.ProfileManager) return;
+            const profile = window.ProfileManager.getProfile();
+            if (!profile) return;
+            
+            const boutiqueName = profile.company_name || 'Ma Boutique';
+            const vendorNameEl = document.getElementById('vendorName');
+            if (vendorNameEl) {
+                const spanEl = vendorNameEl.querySelector('span');
+                if (spanEl) spanEl.textContent = boutiqueName;
+                else vendorNameEl.textContent = boutiqueName;
+            }
+            
+            const vendorAvatarImg = document.getElementById('vendorAvatarImg');
+            const vendorAvatarPlaceholder = document.getElementById('vendorAvatarPlaceholder');
+            if (vendorAvatarImg && profile.avatar) {
+                vendorAvatarImg.src = profile.avatar;
+                vendorAvatarImg.classList.remove('hidden');
+                if (vendorAvatarPlaceholder) vendorAvatarPlaceholder.classList.add('hidden');
+            }
+        }
+        window.addEventListener('profileUpdated', updateSidebarProfile);
+        window.addEventListener('componentsLoaded', updateSidebarProfile);
+        window.addEventListener('newketInitialized', updateSidebarProfile);
+        // Fallback polling
+        let profilePollAttempts = 0;
+        const profilePoll = setInterval(() => {
+            profilePollAttempts++;
+            if (window.ProfileManager && window.ProfileManager.getProfile()) {
+                updateSidebarProfile();
+                clearInterval(profilePoll);
+            } else if (profilePollAttempts >= 40) {
+                clearInterval(profilePoll);
+            }
+        }, 250);
+    </script>
 </body>
-
-
 </html>
 
 
