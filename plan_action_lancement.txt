@@ -1,0 +1,58 @@
+PLAN D'ACTION COMPLET : LANCEMENT DE LA MARKETPLACE NEWKET
+===========================================================
+
+PHASE 0 : CENTRALISATION & INFRASTRUCTURE (En cours)
+---------------------------------------------------
+- Créer la structure d'adresses emails séparées :
+   * Mail Technique (newketmarket@gmail.com) : Boîte secrète pour tous les comptes (Hostinger, Vercel, Supabase, FlexPaie, Github).
+   * Mail Public (contact@newket.app) : Boîte publique pour le service client et les emails envoyés par la plateforme.
+- Acheter le nom de domaine (recommandation : newket.app sur Hostinger pour ~10$).
+   * IMPORTANT : Refuser l'option "Add hosting" (hébergement géré par Vercel).
+   * ACHETER l'option "Starter Business plan" (email pro) pour 48 mois (~18$) afin d'avoir l'adresse contact@newket.app.
+- Lier le nom de domaine acheté à l'hébergement Vercel via les paramètres DNS.
+
+
+PHASE 1 : RÉGULARISATION & PAIEMENTS (Pré-requis)
+---------------------------------------------------
+- Finaliser la régularisation légale de l'entreprise (Budget : ~500$).
+- Payer les frais d'intégration auprès de FlexPaie (Budget : 100$).
+- Soumettre les documents légaux validés à FlexPaie.
+- Réceptionner les clés API de Production.
+- Insérer ces clés de production dans les variables d'environnement (.env) du serveur Vercel.
+
+
+PHASE 2 : LE TEST "GRANDEUR NATURE" (Jour J+1)
+---------------------------------------------------
+- Créer un produit "Test" sur la plateforme (ex: 1 USD / 1000 CDF).
+- Acheter le produit soi-même avec une vraie carte bancaire ou via Mobile Money.
+- Vérifier les points suivants :
+   1. L'argent est bien débité de ton compte personnel.
+   2. La commande s'affiche correctement (côté acheteur et vendeur).
+   3. Valider la livraison côté acheteur pour libérer le séquestre.
+   4. Vérifier que l'argent passe bien en attente des 72h (statut : DEFERRED_CLEARANCE).
+   5. Après 72h, s'assurer que le Cron Job transfère bien l'argent sur le compte marchand FlexPaie.
+- Objectif : S'assurer que l'argent circule sans faille et que la sécurité du séquestre est inviolable.
+
+
+PHASE 3 : LE "SOFT LAUNCH" OU LANCEMENT DOUX (Jour J+4)
+---------------------------------------------------
+- Inviter un petit groupe fermé (personnes de confiance, amis, famille, quelques vendeurs proches).
+- Leur demander de créer leurs boutiques, d'ajouter des produits et de faire quelques vrais achats.
+- Objectif : Déceler et corriger les petits bugs (affichage, emails non reçus) dans un environnement contrôlé, avant que le grand public n'arrive.
+
+
+PHASE 4 : L'ONBOARDING DES PREMIERS VENDEURS (Semaine 2)
+---------------------------------------------------
+- Démarcher activement les marchands (WhatsApp, réseaux sociaux, démarchage physique).
+- Mettre en avant la sécurité de NewKet (paiement local CDF/USD, argent protégé par séquestre, libération après 72h).
+- Objectif : Remplir le catalogue. Une marketplace a besoin de produits pour attirer des acheteurs.
+
+
+PHASE 5 : LANCEMENT PUBLIC ET MARKETING (Semaine 3 à 4)
+---------------------------------------------------
+- La plateforme est robuste, les paiements fonctionnent, et le catalogue est fourni.
+- Lancer la machine marketing :
+   * Campagnes publicitaires (Facebook Ads, Instagram, etc.).
+   * Partenariats avec des influenceurs locaux.
+   * Communication sur les réseaux sociaux.
+- Objectif : Attirer le trafic de masse et générer les premières vraies ventes organiques.
