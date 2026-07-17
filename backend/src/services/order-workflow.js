@@ -282,16 +282,72 @@ export async function releaseOrderEscrow({
     order,
     initiatedBy = 'system',
     autoRelease = false,
-    force = false
+    force = false,
+    isDeferredPayout = false
 }) {
     const normalizedStatus = mapLegacyOrderStatus(order?.status);
 
-    if (normalizedStatus !== ORDER_STATUSES.DELIVERED && !force) {
+    if (normalizedStatus !== ORDER_STATUSES.DELIVERED && !force && !isDeferredPayout) {
         throw new Error('Les fonds ne peuvent être libérés que pour une commande livrée.');
     }
 
     if (autoRelease && order.escrow_release_at && new Date(order.escrow_release_at) > new Date()) {
         throw new Error('Le délai de séquestre n\'est pas encore expiré.');
+    }
+
+    // ─── Vérification de la compensation (Clearance) pour FlexPaie (72h) ───
+    let fundsCleared = true;
+    if (order.payment_provider === 'flexpaie') {
+        const paymentDate = new Date(order.payment_locked_at || order.created_at);
+        const clearanceDate = new Date(paymentDate.getTime() + 72 * 60 * 60 * 1000);
+        if (new Date() < clearanceDate && !force) {
+            fundsCleared = false;
+        }
+    }
+
+    const nextEscrowStatus = autoRelease ? ESCROW_STATUSES.AUTO_RELEASED : ESCROW_STATUSES.RELEASED;
+    const releaseEventType = autoRelease ? ESCROW_EVENT_TYPES.AUTO_RELEASED : ESCROW_EVENT_TYPES.RELEASED;
+    const nowIso = new Date().toISOString();
+
+    // Si les fonds ne sont pas encore disponibles chez nous, on valide le séquestre mais on retarde le payout
+    if (!fundsCleared && !isDeferredPayout) {
+        const { data: updatedOrder, error } = await client
+            .from('orders')
+            .update({
+                status: ORDER_STATUSES.COMPLETED,
+                escrow_status: nextEscrowStatus,
+                released_at: nowIso,
+                completed_at: nowIso,
+                updated_at: nowIso,
+                payout_status: 'DEFERRED_CLEARANCE'
+            })
+            .eq('id', order.id)
+            .select('*')
+            .single();
+
+        if (error) throw error;
+
+        await createEscrowEvent(client, {
+            orderId: order.id,
+            eventType: releaseEventType,
+            amount: parseFloat(order.total_amount || order.total || 0),
+            metadata: {
+                transfer_status: 'deferred',
+                transfer_message: 'Attente du délai de 72h FlexPaie pour compenser les fonds.',
+                initiated_by: initiatedBy
+            },
+            processedAt: nowIso
+        });
+
+        await logOrderStatusHistory(client, {
+            orderId: order.id,
+            previousStatus: normalizedStatus,
+            newStatus: ORDER_STATUSES.COMPLETED,
+            changedBy: initiatedBy,
+            notes: autoRelease ? 'Auto release (Payout deferred)' : 'Escrow released (Payout deferred)'
+        });
+
+        return { order: updatedOrder, transfer: { status: 'deferred', message: 'Paiement vendeur en attente des 72h FlexPaie.' } };
     }
 
     const vendor = await fetchVendorPayoutDetails(client, getOrderVendorId(order));
@@ -315,62 +371,82 @@ export async function releaseOrderEscrow({
     const payoutStatus = transfer.status === 'failed' ? 'FAILED' : (transfer.status === 'success' ? 'SUCCESS' : 'PENDING');
     const currentAttempts = parseInt(order.payout_attempts || 0, 10);
 
-    const nextEscrowStatus = autoRelease ? ESCROW_STATUSES.AUTO_RELEASED : ESCROW_STATUSES.RELEASED;
-    const releaseEventType = autoRelease ? ESCROW_EVENT_TYPES.AUTO_RELEASED : ESCROW_EVENT_TYPES.RELEASED;
-    const nowIso = new Date().toISOString();
+    const updatePayload = {
+        updated_at: nowIso,
+        platform_commission_amount: commissionAmount,
+        payout_amount: payoutAmount,
+        payout_status: payoutStatus,
+        payout_attempts: currentAttempts + 1,
+        payout_last_error: transfer.status === 'failed' ? transfer.message : null
+    };
+
+    // Si on fait le payout dans le flux normal (pas différé)
+    if (!isDeferredPayout) {
+        updatePayload.status = ORDER_STATUSES.COMPLETED;
+        updatePayload.escrow_status = nextEscrowStatus;
+        updatePayload.released_at = nowIso;
+        updatePayload.completed_at = nowIso;
+    }
 
     const { data: updatedOrder, error } = await client
         .from('orders')
-        .update({
-            status: ORDER_STATUSES.COMPLETED,
-            escrow_status: nextEscrowStatus,
-            released_at: nowIso,
-            completed_at: nowIso,
-            updated_at: nowIso,
-            platform_commission_amount: commissionAmount,
-            payout_amount: payoutAmount,
-            payout_status: payoutStatus,
-            payout_attempts: currentAttempts + 1,
-            payout_last_error: transfer.status === 'failed' ? transfer.message : null
-        })
+        .update(updatePayload)
         .eq('id', order.id)
         .select('*')
         .single();
 
     if (error) throw error;
 
-    await createEscrowEvent(client, {
-        orderId: order.id,
-        eventType: releaseEventType,
-        amount: totalAmount,
-        metadata: {
-            transfer_status: transfer.status,
-            transfer_message: transfer.message,
-            initiated_by: initiatedBy,
-            commission_rate: commissionRate,
-            commission_amount: commissionAmount,
-            payout_amount: payoutAmount
-        },
-        processedAt: nowIso
-    });
-
-    await logOrderStatusHistory(client, {
-        orderId: order.id,
-        previousStatus: normalizedStatus,
-        newStatus: ORDER_STATUSES.COMPLETED,
-        changedBy: initiatedBy,
-        notes: autoRelease ? 'Auto release after escrow delay' : 'Escrow released'
-    });
-
-    try {
-        await awardReferralNkToken({
-            client,
-            inviteeId: updatedOrder.customer_id || updatedOrder.user_id || null,
-            orderId: updatedOrder.id,
-            rewardAmount: 1
+    if (!isDeferredPayout) {
+        await createEscrowEvent(client, {
+            orderId: order.id,
+            eventType: releaseEventType,
+            amount: totalAmount,
+            metadata: {
+                transfer_status: transfer.status,
+                transfer_message: transfer.message,
+                initiated_by: initiatedBy,
+                commission_rate: commissionRate,
+                commission_amount: commissionAmount,
+                payout_amount: payoutAmount
+            },
+            processedAt: nowIso
         });
-    } catch (rewardError) {
-        console.warn('[ReferralReward] Could not grant NKToken reward:', rewardError.message);
+
+        await logOrderStatusHistory(client, {
+            orderId: order.id,
+            previousStatus: normalizedStatus,
+            newStatus: ORDER_STATUSES.COMPLETED,
+            changedBy: initiatedBy,
+            notes: autoRelease ? 'Auto release after escrow delay' : 'Escrow released'
+        });
+
+        try {
+            await awardReferralNkToken({
+                client,
+                inviteeId: updatedOrder.customer_id || updatedOrder.user_id || null,
+                orderId: updatedOrder.id,
+                rewardAmount: 1
+            });
+        } catch (rewardError) {
+            console.warn('[ReferralReward] Could not grant NKToken reward:', rewardError.message);
+        }
+    } else {
+        // Enregistrement spécifique au traitement différé
+        await createEscrowEvent(client, {
+            orderId: order.id,
+            eventType: 'PAYOUT_PROCESSED',
+            amount: totalAmount,
+            metadata: {
+                transfer_status: transfer.status,
+                transfer_message: transfer.message,
+                initiated_by: initiatedBy,
+                commission_rate: commissionRate,
+                commission_amount: commissionAmount,
+                payout_amount: payoutAmount
+            },
+            processedAt: nowIso
+        });
     }
 
     if (transfer.status === 'manual') {
@@ -413,5 +489,48 @@ export async function releaseDueEscrowsJob() {
         }
     }
 
+    return { processed, failed };
+}
+
+export async function processDeferredPayoutsJob() {
+    const client = supabaseAdmin || supabase;
+    
+    // On récupère toutes les commandes en DEFERRED_CLEARANCE
+    const { data: deferredOrders, error } = await client
+        .from('orders')
+        .select('*')
+        .eq('payout_status', 'DEFERRED_CLEARANCE');
+        
+    if (error) {
+        console.error('[DeferredPayoutsJob] Failed to query deferred payouts:', error.message);
+        return { processed: 0, failed: 0 };
+    }
+    
+    let processed = 0;
+    let failed = 0;
+    
+    for (const order of deferredOrders || []) {
+        // On vérifie si les 72h sont écoulées
+        const paymentDate = new Date(order.payment_locked_at || order.created_at);
+        const clearanceDate = new Date(paymentDate.getTime() + 72 * 60 * 60 * 1000);
+        
+        if (new Date() >= clearanceDate) {
+            try {
+                await releaseOrderEscrow({
+                    client,
+                    order,
+                    initiatedBy: 'deferred-payout-job',
+                    autoRelease: false,
+                    force: true,
+                    isDeferredPayout: true
+                });
+                processed += 1;
+            } catch (jobError) {
+                failed += 1;
+                console.error(`[DeferredPayoutsJob] Failed for order ${order.id}:`, jobError.message);
+            }
+        }
+    }
+    
     return { processed, failed };
 }

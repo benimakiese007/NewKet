@@ -1,6 +1,6 @@
 import express from 'express';
 import { requireCronAuth } from '../middlewares/cronAuth.js';
-import { releaseDueEscrowsJob } from '../services/order-workflow.js';
+import { releaseDueEscrowsJob, processDeferredPayoutsJob } from '../services/order-workflow.js';
 import { processDueDisputesJob } from '../controllers/dispute.controller.js';
 import { processDuePushNotificationJobsJob } from '../services/push-queue.service.js';
 import { processProductImageWatchdogJob } from '../services/product-image-watchdog.service.js';
@@ -14,6 +14,15 @@ router.get('/escrows/release-due', requireCronAuth, async (req, res) => {
     res.json({ ok: true, job: 'releaseDueEscrowsJob', ...result, ran_at: new Date().toISOString() });
   } catch (error) {
     res.status(500).json({ ok: false, job: 'releaseDueEscrowsJob', error: error.message });
+  }
+});
+
+router.get('/payouts/process-deferred', requireCronAuth, async (req, res) => {
+  try {
+    const result = await processDeferredPayoutsJob();
+    res.json({ ok: true, job: 'processDeferredPayoutsJob', ...result, ran_at: new Date().toISOString() });
+  } catch (error) {
+    res.status(500).json({ ok: false, job: 'processDeferredPayoutsJob', error: error.message });
   }
 });
 
