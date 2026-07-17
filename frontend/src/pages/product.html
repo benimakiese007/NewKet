@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <title>Chargement... — NewKet</title>
+    <meta name="description" content="Découvrez une sélection exclusive d'articles de luxe sur NewKet.">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="Produit d'exception — NewKet">
+    <meta property="og:description" content="Une pièce unique sélectionnée pour son excellence.">
+    <meta property="og:url" content="https://newket.vercel.app/src/pages/product.html">
+    <meta property="og:image" content="https://newket.vercel.app/Images/Logo NewKet PNG.png">
+    <meta id="og-price-amount" property="product:price:amount" content="0">
+    <meta id="og-price-currency" property="product:price:currency" content="CDF">
+
+    <!-- Structured Data Placeholder -->
+    <script type="application/ld+json" id="product-schema">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Chargement...",
+      "description": "Chargement..."
+    }
+    </script>
+    <script src="/security-bootstrap.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .hero-gradient { background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%); }
+        .breadcrumb-sep { opacity: 0.8; }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <div id="header-placeholder"></div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-6 pt-24 sm:pt-28 lg:pt-32" id="main-content">
+        <!-- Breadcrumbs -->
+        <nav class="flex flex-nowrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs">
+            <a href="/index.html" class="hover:text-gray-900 transition-colors" style="flex: 0 0 auto;">Accueil</a>
+            <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
+            <a href="/src/pages/catalog.html" class="hover:text-gray-900 transition-colors" style="flex: 0 0 auto;">Catalogue</a>
+            <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
+            <span class="text-gray-900" id="breadcrumb-current" style="flex: 0 0 auto;">Produit</span>
+        </nav>
+
+        <!-- Skeleton Loading Premium -->
+        <div id="productSkeleton" class="block" aria-hidden="true">
+            <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
+                <!-- Image Skeleton -->
+                <div class="aspect-square bg-white rounded-3xl p-6 border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="skeleton skeleton-image w-full h-full rounded-2xl"></div>
+                </div>
+                <!-- Content Skeleton -->
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="skeleton h-3 w-24 rounded-full"></div>
+                            <div class="skeleton h-10 w-10 rounded-xl"></div>
+                        </div>
+                        <div class="skeleton h-10 w-3/4 mb-6 rounded-xl"></div>
+                        <div class="skeleton h-4 w-32 mb-8 rounded-full"></div>
+                        
+                        <!-- Vendor Box Skeleton -->
+                        <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-100 mb-8 flex items-center gap-4">
+                            <div class="skeleton h-10 w-10 rounded-xl"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="skeleton h-2 w-16 rounded-full"></div>
+                                <div class="skeleton h-3 w-32 rounded-full"></div>
+                            </div>
+                            <div class="skeleton h-6 w-16 rounded-full"></div>
+                        </div>
+
+                        <div class="skeleton h-8 w-40 mb-8 rounded-xl"></div>
+                        <div class="space-y-3 mb-10">
+                            <div class="skeleton h-3 w-full rounded-full"></div>
+                            <div class="skeleton h-3 w-full rounded-full"></div>
+                            <div class="skeleton h-3 w-2/3 rounded-full"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="skeleton h-14 w-32 rounded-2xl"></div>
+                        <div class="flex gap-3">
+                            <div class="skeleton h-14 flex-1 rounded-2xl"></div>
+                            <div class="skeleton h-14 w-14 rounded-2xl"></div>
+                        </div>
+                    </div>
+                </div>
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <title>Chargement... — NewKet</title>
+    <meta name="description" content="Découvrez une sélection exclusive d'articles de luxe sur NewKet.">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="Produit d'exception — NewKet">
+    <meta property="og:description" content="Une pièce unique sélectionnée pour son excellence.">
+    <meta property="og:url" content="https://newket.vercel.app/src/pages/product.html">
+    <meta property="og:image" content="https://newket.vercel.app/Images/Logo NewKet PNG.png">
+    <meta id="og-price-amount" property="product:price:amount" content="0">
+    <meta id="og-price-currency" property="product:price:currency" content="CDF">
+
+    <!-- Structured Data Placeholder -->
+    <script type="application/ld+json" id="product-schema">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Chargement...",
+      "description": "Chargement..."
+    }
+    </script>
+    <script src="/security-bootstrap.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .hero-gradient { background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%); }
+        .breadcrumb-sep { opacity: 0.8; }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <div id="header-placeholder"></div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-6 pt-24 sm:pt-28 lg:pt-32" id="main-content">
+        <!-- Breadcrumbs -->
+        <nav class="flex flex-nowrap items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8 overflow-x-auto whitespace-nowrap pb-2 sm:pb-0" id="breadcrumbs">
+            <a href="/index.html" class="hover:text-gray-900 transition-colors" style="flex: 0 0 auto;">Accueil</a>
+            <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
+            <a href="/src/pages/catalog.html" class="hover:text-gray-900 transition-colors" style="flex: 0 0 auto;">Catalogue</a>
+            <span class="breadcrumb-sep" aria-hidden="true" style="flex: 0 0 auto;">&gt;</span>
+            <span class="text-gray-900" id="breadcrumb-current" style="flex: 0 0 auto;">Produit</span>
+        </nav>
+
+        <!-- Skeleton Loading Premium -->
+        <div id="productSkeleton" class="block" aria-hidden="true">
+            <div class="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
+                <!-- Image Skeleton -->
+                <div class="aspect-square bg-white rounded-3xl p-6 border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="skeleton skeleton-image w-full h-full rounded-2xl"></div>
+                </div>
+                <!-- Content Skeleton -->
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="skeleton h-3 w-24 rounded-full"></div>
+                            <div class="skeleton h-10 w-10 rounded-xl"></div>
+                        </div>
+                        <div class="skeleton h-10 w-3/4 mb-6 rounded-xl"></div>
+                        <div class="skeleton h-4 w-32 mb-8 rounded-full"></div>
+                        
+                        <!-- Vendor Box Skeleton -->
+                        <div class="bg-gray-50/80 p-4 rounded-2xl border border-gray-100 mb-8 flex items-center gap-4">
+                            <div class="skeleton h-10 w-10 rounded-xl"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="skeleton h-2 w-16 rounded-full"></div>
+                                <div class="skeleton h-3 w-32 rounded-full"></div>
+                            </div>
+                            <div class="skeleton h-6 w-16 rounded-full"></div>
+                        </div>
+
+                        <div class="skeleton h-8 w-40 mb-8 rounded-xl"></div>
+                        <div class="space-y-3 mb-10">
+                            <div class="skeleton h-3 w-full rounded-full"></div>
+                            <div class="skeleton h-3 w-full rounded-full"></div>
+                            <div class="skeleton h-3 w-2/3 rounded-full"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="skeleton h-14 w-32 rounded-2xl"></div>
+                        <div class="flex gap-3">
+                            <div class="skeleton h-14 flex-1 rounded-2xl"></div>
+                            <div class="skeleton h-14 w-14 rounded-2xl"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="productGrid" style="display:none;" class="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
+            <!-- Image Section -->
+            <div id="productImageCol">
+                <div class="w-full aspect-square rounded-3xl overflow-hidden group relative flex items-center justify-center p-1 sm:p-2 hover:shadow-2xl transition-all duration-700" style="background:#ffffff;">
+                    <img id="mainImage" src="" alt="Image du produit" width="1200" height="1200" fetchpriority="high" decoding="async" class="w-full h-full object-contain scale-105 group-hover:scale-125 transition-transform duration-1000 ease-out cursor-zoom-in" data-open-zoom onclick="window.openZoom()" onmouseenter="window._nkPreloadZoom && window._nkPreloadZoom()" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg');">
+                </div>
+                <div class="flex flex-wrap gap-3 sm:gap-4 mt-6" id="thumbnailGrid"></div>
+            </div>
+
+            <!-- Details Section -->
+            <div id="productDetailsCol">
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex items-center justify-between gap-4 mb-2">
+                            <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">Catégorie</div>
+                            <div class="flex items-center gap-2">
+                                <button data-share-product data-track-action="product:share_click" class="flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all -gray-100 hover:shadow-md" aria-label="Partager">
+                                    <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <h1 id="productName" class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-[1.1] mb-4">Chargement...</h1>
+                        
+                        <div id="headerRating" class="flex items-center gap-4 mb-4 invisible">
+                            <div class="flex gap-0.5 text-amber-400" id="headerStars"></div>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest" id="headerReviewCount">...</span>
+                        </div>
+
+                        <div id="vendorInfo" class="flex items-center gap-4 mb-8 bg-gray-50/80 p-4 rounded-2xl border border-gray-100">
+                             <div class="w-10 h-10 bg-gray-900 text-white rounded-xl flex items-center justify-center font-black text-xs overflow-hidden" id="vendorAvatarDetail">V</div>
+                             <div class="flex-1">
+                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Vendu par</div>
+                                 <a href="#" id="vendorLink" class="text-sm font-black text-gray-900 hover:text-blue-600 transition-colors uppercase tracking-tight">Chargement...</a>
+                             </div>
+                             <div class="text-right">
+                                 <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none mb-1">Expédition</div>
+                                 <div class="text-xs font-black text-gray-900 flex items-center justify-end gap-1">
+                                     <iconify-icon icon="solar:delivery-bold" class="text-green-500"></iconify-icon>
+                                     <span id="shippingValue">...</span>
+                                 </div>
+                             </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2 mb-8">
+                            <div class="flex flex-col gap-1">
+                                <span id="productPrice" class="text-2xl font-black text-gray-900 leading-none">... FC</span>
+                                <div id="productPromoRow" class="hidden flex items-center gap-2 flex-wrap">
+                                    <span id="productOldPrice" class="hidden old-price old-price-large text-sm sm:text-base font-semibold text-gray-400"></span>
+                                    <span id="productDiscountBadge" class="hidden promo-discount-badge inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-[0.12em]">
+                                        -0%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Disponibilite</div>
+                                <div id="productAvailability" class="mt-2 text-sm font-black text-gray-900">...</div>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Livraison</div>
+                                <div id="productDeliveryInfo" class="mt-2 text-sm font-black text-gray-900">...</div>
+                                <div class="mt-1 text-xs text-gray-500 font-semibold">Les frais peuvent dependre du lieu et du devis.</div>
+                            </div>
+                            <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4">
+                                <div class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                                    <iconify-icon icon="solar:shield-check-bold" class="text-sm"></iconify-icon>
+                                    Garantie Acheteur
+                                </div>
+                                <div id="productGuarantee" class="mt-2 text-sm font-black text-emerald-700">...</div>
+                                <div class="mt-1 text-xs text-emerald-500 font-semibold">Protection NewKet après réception</div>
+                            </div>
+                        </div>
+                        <p id="productDescription" class="text-sm leading-relaxed text-gray-500 font-medium mb-10 max-w-md">...</p>
+                        <div class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Apres la commande</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-700 font-semibold">
+                                <div class="flex items-start gap-2"><iconify-icon icon="solar:chat-round-line-bold" width="18" class="text-gray-400"></iconify-icon><span>Demande envoyee au vendeur</span></div>
+                                <div class="flex items-start gap-2"><iconify-icon icon="solar:bill-list-bold" width="18" class="text-gray-400"></iconify-icon><span>Devis de livraison (si besoin)</span></div>
+                                <div class="flex items-start gap-2"><iconify-icon icon="solar:card-send-bold" width="18" class="text-gray-400"></iconify-icon><span>Paiement en sequestre NewKet</span></div>
+                                <div class="flex items-start gap-2"><iconify-icon icon="solar:check-read-bold" width="18" class="text-gray-400"></iconify-icon><span>Reception + validation OTP</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm w-fit">
+                            <button data-update-qty="-1" aria-label="Réduire la quantité" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
+                                <span aria-hidden="true">-</span>
+                            </button>
+                            <input type="number" id="qty-input" value="1" min="1" class="w-12 text-center font-bold text-gray-900 bg-transparent border-none outline-none">
+                            <button data-update-qty="1" aria-label="Augmenter la quantité" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
+                                <span aria-hidden="true">+</span>
+                            </button>
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="mainOrderBtn" data-track-action="product:order_click" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all hover:-translate-y-1 shadow-lg shadow-green-600/20 flex items-center justify-center gap-2">
+                                <span>Ajouter au panier</span>
+                                <iconify-icon icon="solar:cart-plus-bold" width="24"></iconify-icon>
+                            </button>
+                            <button id="mainWishlistBtn" data-track-action="product:wishlist_toggle" class="w-12 h-12 flex items-center justify-center rounded-2xl border-2 border-gray-100 text-gray-300 hover:text-red-500 hover:border-red-50 transition-all">
+                                <iconify-icon icon="solar:heart-bold" width="28"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-8 border-t border-gray-100">
+            <h2 class="text-3xl font-black text-gray-900 uppercase tracking-tighter mb-4">Avis Clients</h2>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-16" id="reviewCountText">0 avis vérifiés</p>
+            <div id="reviewsList" class="space-y-12"></div>
+            <div id="reviewFormContainer" class="mt-10"></div>
+        </div>
+
+        <section class="mt-8 pb-8 border-t border-gray-100 pt-8">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900">Articles similaires</h2>
+                <a href="/src/pages/catalog.html" class="text-sm font-bold text-gray-900 hover:underline flex items-center gap-2">
+                    Voir tout <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
+                </a>
+            </div>
+            <div id="recommendedGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-6"></div>
+        </section>
+    </main>
+
+    <div id="zoomModal" class="fixed inset-0 z-[200] invisible opacity-0 transition-all duration-300 bg-black/95 flex items-center justify-center p-4 backdrop-blur-2xl" data-close-zoom>
+        <button class="absolute top-8 right-8 text-white/50 hover:text-white transition-all" onclick="window.closeZoom()" aria-label="Fermer le zoom">
+            <iconify-icon icon="solar:close-circle-bold" width="40"></iconify-icon>
+        </button>
+        <!-- Spinner visible pendant le chargement -->
+        <div id="zoomSpinner" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.15);border-top-color:#fff;border-radius:50%;animation:nk-spin 0.7s linear infinite;"></div>
+        </div>
+        <img id="zoomModalImg" src="" class="max-w-full max-h-[90vh] object-contain select-none opacity-0 transition-opacity duration-200" alt="Zoom">
+    </div>
+    <style>
+        @keyframes nk-spin { to { transform: rotate(360deg); } }
+    </style>
+
+
+
+    <script shadow>
+        function _nkExtractProductIdFromPathname() {
+            try {
+                const path = (window.location.pathname || '').replace(/\/+$/, '');
+                const parts = path.split('/').filter(Boolean);
+                if (!parts.length) return null;
+
+                // /Boutique/<shop>/<product>/<1-100>/NewKet
+                if (parts.length >= 5 && String(parts[0]).toLowerCase() === 'boutique') {
+                    const productToken = decodeURIComponent(parts[2] || '').trim();
+                    if (/^(prod-[a-z0-9-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(productToken)) {
+                        return productToken;
+                    }
+                }
+
+                // /boutique/<shop>/produit/<product>
+                if (parts.length >= 4 && String(parts[0]).toLowerCase() === 'boutique' && String(parts[2]).toLowerCase() === 'produit') {
+                    const productToken = decodeURIComponent(parts[3] || '').trim();
+                    if (/^(prod-[a-z0-9-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(productToken)) {
+                        return productToken;
+                    }
+                }
+
+                return null;
+            } catch {
+                return null;
+            }
+        }
+
+        let productId = new URLSearchParams(window.location.search).get('id');
+        if (!productId) productId = _nkExtractProductIdFromPathname();
+        let currentProduct = null;
+        let _nkShareMeta = null;
+        let currentRating = 0;
+        let currentProductImages = [];
+        let currentProductImageIndex = 0;
+
+        function showSkeleton() {
+            const sk = document.getElementById('productSkeleton');
+            const grid = document.getElementById('productGrid');
+            if (sk) sk.style.display = 'block';
+            if (grid) grid.style.display = 'none';
+        }
+        function hideSkeleton() {
+            const sk = document.getElementById('productSkeleton');
+            const grid = document.getElementById('productGrid');
+            if (sk) sk.style.display = 'none';
+            if (grid) grid.style.display = 'grid';
+        }
+
+        async function initPage() {
+            showSkeleton();
+            if (!productId) {
+                window.location.href = window.resolvePath('catalog');
+                return;
+            }
+
+            const p = await ProductManager.fetchProductById(productId);
+            if (!p) {
+                document.getElementById('main-content').innerHTML = `
+                    <div class="py-32 text-center">
+                        <iconify-icon icon="solar:ghost-broken" width="80" class="text-gray-200 mb-8"></iconify-icon>
+                        <h1 class="text-4xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Article Introuvable</h1>
+                        <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all">Retour au catalogue</a>
+                    </div>
+                `;
+                return;
+            }
+
+            currentProduct = p;
+
+            // Record view for analytics
+            if (window.ProductManager && ProductManager.recordView) {
+                ProductManager.recordView(p.id);
+            }
+
+            renderProductDetails(p);
+            loadReviews(p.id);
+            renderRecommended(p.category);
+            setupListeners(p);
+            initRecentlyViewed(p);
+        }
+
+        window.NewKetPageRefresh = async function () {
+            if (window.ProductManager?._productByIdCache && productId) {
+                window.ProductManager._productByIdCache.delete(productId);
+            }
+
+            if (window.ProductManager?.products && productId) {
+                window.ProductManager.products = window.ProductManager.products.filter((p) => p?.id !== productId);
+            }
+
+            await initPage();
+        };
+
+        function renderProductDetails(p) {
+            hideSkeleton();
+            document.getElementById('productName').textContent = p.name;
+            document.getElementById('breadcrumb-current').textContent = p.name;
+            document.getElementById('productCategory').textContent = p.category;
+            document.getElementById('productDescription').textContent = p.description || "Aucune description disponible.";
+
+            const priceStr = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC';
+            document.getElementById('productPrice').textContent = priceStr;
+
+            const oldPrice = p.oldPrice || p.old_price;
+            const oldPriceEl = document.getElementById('productOldPrice');
+            const discountBadgeEl = document.getElementById('productDiscountBadge');
+            const promoRowEl = document.getElementById('productPromoRow');
+            const hasPromo = oldPrice && Number(oldPrice) > Number(p.price);
+            if (oldPriceEl && discountBadgeEl && promoRowEl) {
+                if (hasPromo) {
+                    const oldPriceStr = window.CurrencyManager ? CurrencyManager.formatPrice(oldPrice) : `${Number(oldPrice).toLocaleString()} FC`;
+                    const discountPercent = Math.round(((Number(oldPrice) - Number(p.price)) / Number(oldPrice)) * 100);
+                    oldPriceEl.textContent = oldPriceStr;
+                    oldPriceEl.classList.remove('hidden');
+                    discountBadgeEl.textContent = `-${discountPercent}%`;
+                    discountBadgeEl.classList.remove('hidden');
+                    promoRowEl.classList.remove('hidden');
+                } else {
+                    oldPriceEl.textContent = '';
+                    oldPriceEl.classList.add('hidden');
+                    discountBadgeEl.textContent = '';
+                    discountBadgeEl.classList.add('hidden');
+                    promoRowEl.classList.add('hidden');
+                }
+            }
+            const isFav = FavoritesManager.isInFavorites(p.id);
+            const favBtn = document.getElementById('mainWishlistBtn');
+            favBtn.classList.toggle('text-red-500', isFav);
+            favBtn.classList.toggle('border-red-50', isFav);
+            favBtn.classList.toggle('bg-red-50/50', isFav);
+
+            // SEO Dynamic Updates
+            document.title = `${p.name} à NewKet`;
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if (metaDesc) metaDesc.content = p.description || `Découvrez ${p.name} sur NewKet.`;
+            
+            document.querySelector('meta[property="og:title"]').content = p.name;
+            document.querySelector('meta[property="og:description"]').content = p.description || `Achetez ${p.name} sur NewKet.`;
+            document.querySelector('meta[property="og:image"]').content = mainImgUrl;
+            
+            const priceMeta = document.getElementById('og-price-amount');
+            if (priceMeta) priceMeta.content = p.price;
+
+            // Update JSON-LD
+            const schemaScript = document.getElementById('product-schema');
+            if (schemaScript) {
+                const schema = {
+                    "@context": "https://schema.org",
+                    "@type": "Product",
+                    "name": p.name,
+                    "image": currentProductImages,
+                    "description": p.description,
+                    "offers": {
+                        "@type": "Offer",
+                        "price": p.price,
+                        "priceCurrency": "CDF",
+                        "availability": "https://schema.org/InStock"
+                    }
+                };
+                schemaScript.textContent = JSON.stringify(schema);
+            }
+        }
+
+        function updateImageUI(index) {
+            if (!currentProductImages.length) return;
+            currentProductImageIndex = (index + currentProductImages.length) % currentProductImages.length;
+            const url = currentProductImages[currentProductImageIndex];
+            const mainImage = document.getElementById('mainImage');
+            if (mainImage) {
+                mainImage.src = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(url, { width: 800, quality: 80 }) : url;
+                if (window.buildResponsiveImageSrcSet) {
+                    mainImage.srcset = window.buildResponsiveImageSrcSet(url, [480, 800, 1200], { quality: 80 });
+                    mainImage.sizes = '(max-width: 768px) 100vw, 50vw';
+                }
+            }
+
+            document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900'));
+            const active = document.querySelector(`#thumbnailGrid > div[data-img-index="${currentProductImageIndex}"]`);
+            if (active) active.classList.add('border-gray-900');
+        }
+
+        function setupImageSwipe() {
+            const mainImage = document.getElementById('mainImage');
+            if (!mainImage) return;
+            if (mainImage.dataset.swipeReady === '1') return;
+            mainImage.dataset.swipeReady = '1';
+
+            const SWIPE_MIN_X = 50;
+            const SWIPE_MAX_Y = 60;
+            let startX = null;
+            let startY = null;
+
+            const onTouchStart = (e) => {
+                const t = e.touches && e.touches[0];
+                if (!t) return;
+                startX = t.clientX;
+                startY = t.clientY;
+            };
+            const onTouchEnd = (e) => {
+                const t = e.changedTouches && e.changedTouches[0];
+                if (!t || startX == null || startY == null) return;
+                const dx = t.clientX - startX;
+                const dy = t.clientY - startY;
+                startX = null;
+                startY = null;
+                if (Math.abs(dy) > SWIPE_MAX_Y) return;
+                if (Math.abs(dx) < SWIPE_MIN_X) return;
+                if (dx < 0) updateImageUI(currentProductImageIndex + 1);
+                else updateImageUI(currentProductImageIndex - 1);
+            };
+
+            mainImage.addEventListener('touchstart', onTouchStart, { passive: true });
+            mainImage.addEventListener('touchend', onTouchEnd, { passive: true });
+        }
+
+        function setupListeners(p) {
+            document.getElementById('mainOrderBtn').onclick = () => {
+                const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
+                const qtyInput = document.getElementById('qty-input');
+                const quantity = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+                if (!(Number.isFinite(stock) && stock > 0)) {
+                    if (window.showToast) showToast('Produit indisponible pour le moment.', 'warning');
+                    return;
+                }
+                if (quantity > stock) {
+                    if (window.showToast) showToast(`Quantite indisponible. Stock actuel: ${stock}.`, 'warning');
+                    return;
+                }
+                if (window.CartManager) {
+                    const vendor = Array.isArray(p.users) ? p.users[0] : p.users;
+                    const cartImage = window.resolveProductImageSource
+                        ? window.resolveProductImageSource(p)
+                        : (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.images || p.image || p.image_url || p.product_image || p.thumbnail || '') : (Array.isArray(p.images) ? p.images[0] : p.image || p.image_url || p.product_image || p.thumbnail || ''));
+                    window.CartManager.add({
+                        id: p.id,
+                        title: p.name,
+                        price: p.price,
+                        image: cartImage,
+                        vendor_id: p.user_id || vendor?.id || '',
+                        vendor: vendor?.company_name || vendor?.name || 'NewKet Shop'
+                    }, quantity);
+                }
+            };
+            document.getElementById('mainWishlistBtn').onclick = () => {
+                if (FavoritesManager.isInFavorites(p.id)) FavoritesManager.removeItem(p.id);
+                else FavoritesManager.addItem(p);
+                renderProductDetails(p);
+            };
+        }
+
+        async function loadReviews(pid) {
+            try {
+                const reviews = await SupabaseAdapter.fetchWithFilters('product_reviews', {
+                    eq: [['product_id', pid]],
+                    order: ['created_at', { ascending: false }]
+                });
+                const list = document.getElementById('reviewsList');
+                const countText = document.getElementById('reviewCountText');
+                if (!reviews || reviews.length === 0) {
+                    list.innerHTML = `<div class="text-center py-24 bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100 text-gray-400 font-black uppercase tracking-widest text-[10px]">Soyez le premier à donner votre avis</div>`;
+                    countText.textContent = "0 avis vérifiés";
+                    renderReviewForm(pid);
+                    return;
+                }
+
+
+
+                const avg = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+                const reviewUserIds = [...new Set(reviews.map(r => r.user_id).filter(Boolean))];
+                const reviewUsers = reviewUserIds.length
+                    ? await SupabaseAdapter.fetchWithFilters('users', {
+                        select: 'id, avatar',
+                        in: [['id', reviewUserIds]],
+                        skipCache: true
+                    })
+                    : [];
+                const userAvatarById = new Map(
+                    (Array.isArray(reviewUsers) ? reviewUsers : []).map(user => [user.id, user.avatar || null])
+                );
+                const starsHTML = Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < Math.round(avg) ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('');
+                document.getElementById('headerRating').classList.remove('invisible');
+                document.getElementById('headerStars').innerHTML = starsHTML;
+                document.getElementById('headerReviewCount').textContent = `${reviews.length} avis client${reviews.length > 1 ? 's' : ''}`;
+                countText.innerHTML = `<div class="flex items-center gap-3"><div class="flex gap-0.5">${starsHTML}</div><span class="text-gray-400 font-black uppercase tracking-widest text-[10px]">${reviews.length} avis vérifiés</span></div>`;
+                list.innerHTML = reviews.map(r => {
+                    const isAuthor = AuthManager.user && AuthManager.user.id === r.user_id;
+                    const isAdmin = AuthManager.user && (AuthManager.user.user_metadata?.role === 'admin' || AuthManager.user.app_metadata?.role === 'admin');
+                    const canDelete = isAuthor || isAdmin;
+                    const avatarUrl = r.user_avatar || userAvatarById.get(r.user_id) || null;
+                    const initial = r.user_name?.charAt(0) || '?';
+                    const avatarHTML = avatarUrl
+                        ? `<div class="w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-inner ring-1 ring-black/5"><img src="${avatarUrl}" alt="${r.user_name || ''}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase\\'>${initial}</div>'"></div>`
+                        : `<div class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase">${initial}</div>`;
+
+                    return `
+                    <div class="glass-card p-10 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                        <div class="flex items-start justify-between mb-8">
+                            <div class="flex items-center gap-4">
+                                ${avatarHTML}
+                                <div><div class="font-black text-gray-900 uppercase tracking-tighter text-sm mb-1">${r.user_name || 'Anonyme'}</div><div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${new Date(r.created_at).toLocaleDateString()}</div></div>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90">${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < r.rating ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('')}</div>
+                                ${canDelete ? `
+                                    <button onclick="window.confirmDeleteReview('${r.id}')" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Supprimer mon avis">
+                                        <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <p class="text-base text-gray-600 font-medium leading-relaxed italic border-l-4 border-gray-100 pl-6 capitalize-first">${r.comment}</p>
+                    </div>
+                `}).join('');
+                renderReviewForm(pid);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderReviewForm(pid) {
+            const cont = document.getElementById('reviewFormContainer');
+            if (!AuthManager.user) {
+                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100"><a href="/src/pages/login.html" class="inline-flex bg-gray-900 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px]">Se connecter pour donner mon avis</a></div>`;
+                return;
+            }
+
+            if (currentProduct && AuthManager.user.id === currentProduct.user_id) {
+                cont.innerHTML = `<div class="bg-gray-50 rounded-[3rem] p-16 text-center border border-gray-100 text-gray-400 font-black uppercase tracking-widest text-[10px]">Vous ne pouvez pas donner votre avis sur votre propre produit</div>`;
+                return;
+            }
+            cont.innerHTML = `
+                <div class="rounded-[2.5rem] border border-gray-100 bg-white p-6 sm:p-8 shadow-sm">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-2xl sm:text-3xl font-black text-gray-900 uppercase tracking-tighter">Votre avis d'exception</h3>
+                            <p class="mt-2 text-sm text-gray-500 font-medium">Partagez votre ressenti sur ce produit en quelques lignes.</p>
+                        </div>
+                        <button type="button" id="reviewToggleBtn" onclick="window.toggleReviewForm()" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gray-900 px-6 py-4 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-gray-800">
+                            <span id="reviewToggleBtnLabel">Noter le produit</span>
+                            <iconify-icon id="reviewToggleBtnIcon" icon="solar:alt-arrow-down-linear" width="18"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <div id="reviewFormPanel" class="hidden mt-6 border-t border-gray-100 pt-6">
+                        <div class="space-y-5">
+                            <div>
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Votre note</div>
+                                <div class="flex flex-wrap gap-3" id="starSelector">${[1, 2, 3, 4, 5].map(i => `<button type="button" aria-label="Noter ${i} sur 5" data-star="${i}" class="flex h-12 w-12 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 transition-all hover:-translate-y-0.5 hover:border-amber-300 hover:bg-amber-50" onclick="window.setRating(${i})"><iconify-icon icon="solar:star-bold" width="24" class="pointer-events-none text-gray-300 transition-colors"></iconify-icon></button>`).join('')}</div>
+                                <p id="reviewRatingHint" class="mt-3 text-sm text-gray-500 font-medium">Sélectionnez une note de 1 à 5 étoiles.</p>
+                            </div>
+
+                            <div>
+                                <textarea id="reviewText" placeholder="Confiez-nous votre avis..." class="w-full min-h-[170px] resize-none rounded-[1.75rem] border border-gray-200 bg-gray-50 px-5 py-5 text-base text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-gray-900 focus:bg-white"></textarea>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button onclick="window.submitReview('${pid}')" id="reviewSubmitBtn" class="inline-flex items-center justify-center rounded-2xl bg-gray-900 px-8 py-4 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-gray-800">
+                                    Publier mon avis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        window.toggleReviewForm = () => {
+            const panel = document.getElementById('reviewFormPanel');
+            const label = document.getElementById('reviewToggleBtnLabel');
+            const icon = document.getElementById('reviewToggleBtnIcon');
+            if (!panel) return;
+            const isHidden = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden', !isHidden);
+            if (label) label.textContent = isHidden ? 'Fermer la note' : 'Noter le produit';
+            if (icon) icon.setAttribute('icon', isHidden ? 'solar:alt-arrow-up-linear' : 'solar:alt-arrow-down-linear');
+        };
+
+        window.setRating = (v) => {
+            currentRating = v;
+            document.querySelectorAll('#starSelector [data-star]').forEach(s => {
+                const active = parseInt(s.dataset.star) <= v;
+                s.classList.toggle('border-amber-300', active);
+                s.classList.toggle('bg-amber-50', active);
+                const icon = s.querySelector('iconify-icon');
+                if (icon) {
+                    icon.classList.toggle('text-amber-400', active);
+                    icon.classList.toggle('text-gray-300', !active);
+                }
+            });
+            const hint = document.getElementById('reviewRatingHint');
+            if (hint) {
+                const labels = {
+                    1: 'Très décevant',
+                    2: 'Peut mieux faire',
+                    3: 'Correct',
+                    4: 'Très satisfaisant',
+                    5: 'Exceptionnel'
+                };
+                hint.textContent = `${v}/5 - ${labels[v] || 'Sélectionnez une note de 1 à 5 étoiles.'}`;
+            }
+        };
+
+        window.submitReview = async (pid) => {
+            if (!currentRating) return showToast('Veuillez sélectionner une note', 'warning');
+            const txt = document.getElementById('reviewText').value.trim();
+            if (!txt) return showToast('Veuillez écrire un commentaire', 'warning');
+
+            if (currentProduct && AuthManager.user && AuthManager.user.id === currentProduct.user_id) {
+                return showToast('Vous ne pouvez pas évaluer votre propre produit', 'error');
+            }
+
+            try {
+                const _profile = window.ProfileManager?.getProfile?.() || {};
+                const _meta = AuthManager.user.user_metadata || {};
+                const _reviewName = _profile.name || _profile.company_name || _meta.full_name || _meta.name || _meta.company_name || (AuthManager.user.email ? AuthManager.user.email.split('@')[0] : 'Utilisateur');
+                const _avatar = _profile.avatar || _profile.avatar_url || _profile.photo_url || _profile.picture || _meta.avatar_url || _meta.picture || null;
+                const success = await SupabaseAdapter.insert('product_reviews', { 
+                    product_id: pid, 
+                    user_id: AuthManager.user.id, 
+                    user_name: _reviewName, 
+                    user_avatar: _avatar,
+                    rating: currentRating, 
+                    comment: txt 
+                });
+                if (success) { showToast('Avis publié !', 'success'); loadReviews(pid); }
+            } catch (e) { showToast('Erreur', 'error'); }
+        };
+
+        function renderRecommended(cat) {
+            const grid = document.getElementById('recommendedGrid');
+            const pms = ProductManager.getProducts().filter(p => p.id !== productId && p.category === cat).slice(0, 4);
+            grid.innerHTML = (pms.length ? pms : ProductManager.getProducts().slice(0, 4)).map((p, idx) =>
+                window.buildProductCardHTML(p, {
+                    imageLoading: idx < 2 ? 'eager' : 'lazy',
+                    prioritizeImage: idx < 2,
+                    prioritizeAvatar: idx === 0
+                })
+            ).join('');
+            // à Activer le lazy loading sur les images .lazy-img injectées
+            if (window.initLazyImages) window.initLazyImages(grid);
+        }
+
+        window.confirmDeleteReview = async (rid) => {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
+            try {
+                const res = await ReviewManager.deleteReview(rid);
+                if (res.success) {
+                    showToast('Avis supprimé', 'success');
+                    loadReviews(productId);
+                } else {
+                    showToast(res.error || 'Erreur lors de la suppression', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Erreur lors de la suppression', 'error');
+            }
+        };
+
+        window.updateQty = (val) => {
+            const inp = document.getElementById('qty-input');
+            if (!inp) return;
+            const stock = Number(currentProduct?.stock ?? currentProduct?.stock_quantity ?? currentProduct?.quantity ?? 0);
+            const next = Math.max(1, (parseInt(inp.value, 10) || 1) + val);
+            inp.value = (Number.isFinite(stock) && stock > 0) ? String(Math.min(next, stock)) : String(next);
+        };
+        window.changeImageByIndex = (idx, el) => { updateImageUI(parseInt(idx) || 0); if (el) { document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); } };
+        window.openZoom = () => {
+            const modal = document.getElementById('zoomModal');
+            const img = document.getElementById('zoomModalImg');
+            const spinner = document.getElementById('zoomSpinner');
+            const mainImage = document.getElementById('mainImage');
+            const originalUrl = currentProductImages[currentProductImageIndex] || '';
+
+            // Afficher IMMÉDIATEMENT l'image déjà chargée en mémoire (pas de loader)
+            const cachedSrc = mainImage.currentSrc || mainImage.src || '';
+            if (cachedSrc) {
+                img.src = cachedSrc;
+                img.classList.remove('opacity-0');
+                img.classList.add('opacity-100');
+                if (spinner) spinner.style.display = 'none';
+            } else {
+                // Cas rare : aucune image chargée → spinner court
+                img.src = '';
+                img.classList.remove('opacity-100');
+                img.classList.add('opacity-0');
+                if (spinner) spinner.style.display = 'flex';
+                const loader = new Image();
+                loader.onload = () => {
+                    img.src = loader.src;
+                    img.classList.remove('opacity-0');
+                    img.classList.add('opacity-100');
+                    if (spinner) spinner.style.display = 'none';
+                };
+                loader.src = originalUrl;
+            }
+
+            modal.classList.remove('invisible', 'opacity-0');
+            document.body.style.overflow = 'hidden';
+
+            // Upgrade silencieux vers l'URL originale pleine qualité si différente
+            if (originalUrl && originalUrl !== cachedSrc) {
+                const loader = new Image();
+                loader.onload = () => {
+                    if (!modal.classList.contains('invisible')) img.src = originalUrl;
+                };
+                loader.src = originalUrl;
+            }
+        };
+        window.closeZoom = () => {
+            const modal = document.getElementById('zoomModal');
+            const img = document.getElementById('zoomModalImg');
+            modal.classList.add('invisible', 'opacity-0');
+            document.body.style.overflow = '';
+            // Libérer la mémoire après fermeture
+            setTimeout(() => { if (img) { img.src = ''; img.classList.remove('opacity-100'); img.classList.add('opacity-0'); } }, 350);
+        };
+        window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copié !', 'info'); } };
+        function initRecentlyViewed(p) { let list = JSON.parse(localStorage.getItem('newketRecentlyViewed') || '[]'); list = [p, ...list.filter(item => item.id !== p.id)].slice(0, 10); localStorage.setItem('newketRecentlyViewed', JSON.stringify(list)); }
+
+        // Précharger l'image zoom au survol pour affichage instantané au clic
+        let _nkZoomPreloadCache = null;
+        window._nkPreloadZoom = () => {
+            const url = currentProductImages[currentProductImageIndex];
+            if (!url || _nkZoomPreloadCache === url) return;
+            _nkZoomPreloadCache = url;
+            const preloader = new Image();
+            preloader.src = url;
+        };
+
+        // Fermer zoom avec la touche Échap
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('zoomModal');
+                if (modal && !modal.classList.contains('invisible')) window.closeZoom();
+            }
+        });
+
+        // Réinitialiser le cache préchargé quand l'image principale change
+        const _origUpdateImageUI = updateImageUI;
+        // (déjà défini ci-dessus, on patch juste le cache)
+        const _patchUpdateImage = () => { _nkZoomPreloadCache = null; };
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('thumbnailGrid')?.addEventListener('click', _patchUpdateImage);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => { if (window.newketInitialized) initPage(); else window.addEventListener('newketInitialized', initPage); });
+    </script>
+
+    <div id="confirmModal" role="dialog" aria-modal="true" class="fixed inset-0 z-[110] invisible opacity-0 transition-opacity bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl">
+            <p class="text-xl font-black text-gray-900 uppercase tracking-tighter mb-4" id="confirmModalTitle">Confirmer</p>
+            <p class="text-sm text-gray-500 font-medium mb-8" id="confirmModalMessage"></p>
+            <div class="flex gap-3">
+                <button class="flex-1 py-4 bg-gray-50 text-gray-400 font-bold rounded-xl uppercase tracking-widest text-[10px]" id="confirmModalCancel">Annuler</button>
+                <button class="flex-1 py-4 bg-gray-900 text-white font-black rounded-xl uppercase tracking-widest text-[10px]" id="confirmModalOk">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+

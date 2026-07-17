@@ -1,0 +1,87 @@
+## ✅ MISE À JOUR — LOGIQUE LIVRAISON NEWKET
+
+Choix validé : **Architecture propre**
+
+---
+
+### 🚚 RESPONSABILITÉ DE LIVRAISON
+
+La plateforme **ne gère pas les livreurs**.
+
+* La livraison est entièrement sous la responsabilité du vendeur
+* Le vendeur peut :
+
+  * livrer lui-même
+  * ou utiliser son propre livreur
+
+👉 La plateforme considère uniquement :
+
+> **le vendeur comme responsable unique de la livraison**
+
+---
+
+### 📦 CONSÉQUENCE TECHNIQUE
+
+* Pas de table `delivery_agents`
+* Pas de gestion de comptes livreurs
+* Pas de relation directe plateforme ↔ livreur
+
+---
+
+### 🧩 TABLE `deliveries` (simplifiée)
+
+* id
+* order_id
+* seller_id
+* status (`pending`, `in_transit`, `delivered`)
+* proof_type (`otp`)
+* delivered_at
+* created_at
+
+---
+
+### 🔐 VALIDATION LIVRAISON
+
+* OTP généré côté serveur
+* OTP connu uniquement du client
+* Le vendeur (ou son livreur) demande le code au client
+* Validation via l’app → preuve de livraison
+
+---
+
+### ⚠️ RESPONSABILITÉ
+
+En cas de problème :
+
+* la plateforme ne traite **qu’avec le vendeur**
+* le livreur est invisible dans le système
+
+---
+
+### 🧠 PHILOSOPHIE
+
+NewKet ne gère pas la logistique.
+NewKet sécurise la transaction.
+
+---
+
+### 🎯 AVANTAGE
+
+* système plus simple
+* moins de complexité backend
+* pas de gestion RH/logistique
+* plus rapide à scaler
+
+---
+
+### ⚖️ COMPENSATION
+
+Comme la plateforme ne contrôle pas la livraison :
+
+→ le système doit être strict sur :
+
+* OTP
+* litiges
+* réputation vendeur
+
+---

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Utilisateurs | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        .role-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .role-customer { background-color: #f0fdf4; color: #16a34a; }
+        .role-supplier { background-color: #eff6ff; color: #2563eb; }
+        .role-admin { background-color: #fff7ed; color: #ea580c; }
+
+        .seller-type-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .seller-type-normal { background-color: #f8fafc; color: #64748b; }
+        .seller-type-certified { background-color: #dbeafe; color: #1d4ed8; }
+
+        .branding-alert {
+            position: relative;
+        }
+        .branding-alert::after {
+            content: '!';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+</head>
+
+<body class="text-gray-900 bg-[#f8fafc]">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-8">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+            <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-premium">
+                <div class="admin-page-header__content">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Gestion des Utilisateurs</h1>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Gérez l'ensemble des comptes et validez les nouveaux vendeurs.</p>
+                </div>
+            </div>
+
+            <!-- Filters & Search -->
+            <div class="glass-panel p-6 space-y-6 animate-premium stagger-1">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="filterUsers('all')" data-filter="all" data-track-action="admin_users:filter_all_click" class="filter-btn px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white shadow-lg">
+                            Tous <span id="count-all" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </button>
+                        <button onclick="filterUsers('supplier')" id="btn-supplier" data-filter="supplier" data-track-action="admin_users:filter_supplier_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
+                            Vendeurs <span id="count-supplier" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </button>
+                        <button onclick="filterUsers('customer')" data-filter="customer" data-track-action="admin_users:filter_customer_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-500">
+                            Clients <span id="count-customer" class="ml-1"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </button>
+                        <button onclick="filterUsers('pending')" id="btn-pending" data-filter="pending" data-track-action="admin_users:filter_pending_click" class="filter-btn px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all bg-orange-50 text-orange-600 border border-orange-100 flex items-center gap-2">
+                            <iconify-icon icon="solar:shield-warning-bold" width="16"></iconify-icon>
+                            En Attente <span id="count-pending"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 max-w-md relative">
+                        <iconify-icon icon="solar:magnifer-bold"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="18"></iconify-icon>
+                        <input type="text" id="userSearch" data-track-action="admin_users:search_change" placeholder="Rechercher par profil, boutique ou email..."
+                            class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl outline-none focus:bg-white focus:border-black/10 focus:ring-4 focus:ring-black/5 transition-all text-sm font-medium">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="glass-panel overflow-hidden animate-premium stagger-2">
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-data-table admin-users-table w-full">
+                        <colgroup>
+                            <col class="admin-users-table__col-user">
+                            <col class="admin-users-table__col-status">
+                            <col class="admin-users-table__col-articles">
+                            <col class="admin-users-table__col-sales">
+                            <col class="admin-users-table__col-nktoken">
+                            <col class="admin-users-table__col-actions">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Statut</th>
+                                <th>Articles</th>
+                                <th>Ventes (Brut)</th>
+                                <th>NKToken</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersBody">
+                            <tr class="animate-pulse" style="animation-delay: 0s">
+                                <td class="p-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="skeleton w-12 h-12 rounded-2xl shrink-0"></div>
+                                        <div class="space-y-2 w-full max-w-[150px]">
+                                            <div class="skeleton h-4 rounded w-full"></div>
+                                            <div class="skeleton h-3 rounded w-2/3"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><div class="skeleton h-6 w-16 rounded-full"></div></td>
+                                <td><div class="skeleton h-4 w-8 rounded"></div></td>
+                                <td><div class="skeleton h-4 w-16 rounded"></div></td>
+                                <td>
+                                    <div class="space-y-1">
+                                        <div class="skeleton h-4 w-20 rounded"></div>
+                                        <div class="skeleton h-3 w-12 rounded"></div>
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="skeleton w-8 h-8 rounded-xl"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="animate-pulse" style="animation-delay: 0.05s">
+                                <td class="p-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="skeleton w-12 h-12 rounded-2xl shrink-0"></div>
+                                        <div class="space-y-2 w-full max-w-[150px]">
+                                            <div class="skeleton h-4 rounded w-11/12"></div>
+                                            <div class="skeleton h-3 rounded w-1/2"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><div class="skeleton h-6 w-16 rounded-full"></div></td>
+                                <td><div class="skeleton h-4 w-8 rounded"></div></td>
+                                <td><div class="skeleton h-4 w-16 rounded"></div></td>
+                                <td>
+                                    <div class="space-y-1">
+                                        <div class="skeleton h-4 w-20 rounded"></div>
+                                        <div class="skeleton h-3 w-12 rounded"></div>
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="skeleton w-8 h-8 rounded-xl"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="animate-pulse" style="animation-delay: 0.1s">
+                                <td class="p-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="skeleton w-12 h-12 rounded-2xl shrink-0"></div>
+                                        <div class="space-y-2 w-full max-w-[150px]">
+                                            <div class="skeleton h-4 rounded w-4/5"></div>
+                                            <div class="skeleton h-3 rounded w-3/4"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><div class="skeleton h-6 w-16 rounded-full"></div></td>
+                                <td><div class="skeleton h-4 w-8 rounded"></div></td>
+                                <td><div class="skeleton h-4 w-16 rounded"></div></td>
+                                <td>
+                                    <div class="space-y-1">
+                                        <div class="skeleton h-4 w-20 rounded"></div>
+                                        <div class="skeleton h-3 w-12 rounded"></div>
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="skeleton w-8 h-8 rounded-xl"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="animate-pulse" style="animation-delay: 0.15s">
+                                <td class="p-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="skeleton w-12 h-12 rounded-2xl shrink-0"></div>
+                                        <div class="space-y-2 w-full max-w-[150px]">
+                                            <div class="skeleton h-4 rounded w-full"></div>
+                                            <div class="skeleton h-3 rounded w-2/3"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><div class="skeleton h-6 w-16 rounded-full"></div></td>
+                                <td><div class="skeleton h-4 w-8 rounded"></div></td>
+                                <td><div class="skeleton h-4 w-16 rounded"></div></td>
+                                <td>
+                                    <div class="space-y-1">
+                                        <div class="skeleton h-4 w-20 rounded"></div>
+                                        <div class="skeleton h-3 w-12 rounded"></div>
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="skeleton w-8 h-8 rounded-xl"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="animate-pulse" style="animation-delay: 0.2s">
+                                <td class="p-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="skeleton w-12 h-12 rounded-2xl shrink-0"></div>
+                                        <div class="space-y-2 w-full max-w-[150px]">
+                                            <div class="skeleton h-4 rounded w-11/12"></div>
+                                            <div class="skeleton h-3 rounded w-1/2"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><div class="skeleton h-6 w-16 rounded-full"></div></td>
+                                <td><div class="skeleton h-4 w-8 rounded"></div></td>
+                                <td><div class="skeleton h-4 w-16 rounded"></div></td>
+                                <td>
+                                    <div class="space-y-1">
+                                        <div class="skeleton h-4 w-20 rounded"></div>
+                                        <div class="skeleton h-3 w-12 rounded"></div>
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="skeleton w-8 h-8 rounded-xl"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="hidden p-20 text-center">
+                    <div class="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="text-gray-200" width="48"></iconify-icon>
+                    </div>
+                    <p class="text-gray-400 font-bold">Aucun utilisateur trouvé dans cette catégorie.</p>
+                </div>
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div id="paginationControls" class="flex items-center justify-between p-6 bg-white border-t border-gray-100 hidden">
+                <div class="text-[11px] font-black uppercase tracking-widest text-gray-400">
+                    Page <span id="currentPageDisplay" class="text-black">1</span> sur <span id="totalPagesDisplay" class="text-black">1</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="prevPage()" data-track-action="admin_users:prev_page_click" class="p-3 bg-gray-50 text-gray-400 hover:bg-black hover:text-white rounded-xl transition-all disabled:opacity-30 disabled:pointer-events-none" id="prevBtn">
+                        <iconify-icon icon="solar:alt-arrow-left-bold" width="20"></iconify-icon>
+                    </button>
+                    <button onclick="nextPage()" data-track-action="admin_users:next_page_click" class="p-3 bg-gray-50 text-gray-400 hover:bg-black hover:text-white rounded-xl transition-all disabled:opacity-30 disabled:pointer-events-none" id="nextBtn">
+                        <iconify-icon icon="solar:alt-arrow-right-bold" width="20"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+
+            <!-- User Details Modal (Premium Redesign) -->
+            <div id="userDetailsModal" class="hidden fixed inset-0 z-[200] items-center justify-center p-4 sm:p-6">
+                <div class="absolute inset-0 bg-gray-950/60 backdrop-blur-md transition-opacity" onclick="closeUserDetailsModal()"></div>
+
+                <div class="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] scale-95 opacity-0 transition-all duration-300 border border-white/20" id="userDetailsModalContent">
+                    <!-- Premium Header -->
+                    <div class="relative p-8 border-b border-gray-100 bg-gradient-to-br from-gray-50 to-white">
+                        <div class="flex items-center justify-between relative z-10">
+                            <div class="flex items-center gap-6">
+                                <div id="modalUserAvatar" class="w-20 h-20 rounded-[2rem] bg-black text-white flex items-center justify-center text-3xl font-black shadow-2xl shadow-black/20 overflow-hidden ring-4 ring-white">
+                                    U
+                                </div>
+                                <div>
+                                    <h3 id="modalUserName" class="text-2xl font-black text-gray-900 tracking-tight leading-none mb-2"><span class="skeleton skeleton-title inline-block" style="width:220px;height:24px;margin:0;"></span></h3>
+                                    <div class="flex items-center gap-3">
+                                        <p id="modalUserEmail" class="text-sm text-gray-400 font-bold">email@example.com</p>
+                                        <div id="modalUserRole" class="role-badge">Rôle</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="closeUserDetailsModal()" data-track-action="admin_users:close_details_modal_click" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-white border border-gray-100 text-gray-400 hover:text-black hover:scale-110 transition-all shadow-sm">
+                                <iconify-icon icon="solar:close-circle-bold" width="32"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-8 overflow-y-auto flex-1 space-y-8 scrollbar-hide">
+                        <!-- Quick Stats -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="glass-panel p-6 premium-gradient-blue border-none">
+                                <p class="stat-card-label">Membre Depuis</p>
+                                <p id="modalUserDate" class="stat-card-value">--/--/----</p>
+                            </div>
+                            <div class="glass-panel p-6 premium-gradient-orange border-none">
+                                <p class="stat-card-label">Commandes / Leads</p>
+                                <p id="modalUserOrderCount" class="stat-card-value"><span class="skeleton skeleton-text" style="width:48px;height:14px;margin:0;display:inline-block;"></span></p>
+                            </div>
+                            <div class="glass-panel p-6 premium-gradient-green border-none">
+                                <p id="modalUserRevenueLabel" class="stat-card-label">Montant Global</p>
+                                <p id="modalUserRevenue" class="stat-card-value text-green-700"><span class="skeleton skeleton-text" style="width:90px;height:14px;margin:0;display:inline-block;"></span></p>
+                            </div>
+                        </div>
+
+                        <!-- Main Display Area -->
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4 border-b border-gray-100">
+                                <button onclick="switchTab('orders')" id="tabBtn-orders" data-track-action="admin_users:tab_orders_click" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-black transition-all">Activités & Commandes</button>
+                                <button onclick="switchTab('products')" id="tabBtn-products" data-track-action="admin_users:tab_products_click" class="hidden px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400 border-b-4 border-transparent hover:text-black transition-all">Catalogue Boutique</button>
+                            </div>
+
+                            <div id="tabContent-orders" class="animate-premium">
+                                <div class="glass-panel overflow-hidden">
+                                    <div class="overflow-x-auto admin-table-shell">
+                                    <table class="premium-table admin-data-table admin-user-orders-table w-full">
+                                        <colgroup>
+                                            <col class="admin-user-orders-table__col-date">
+                                            <col class="admin-user-orders-table__col-status">
+                                            <col class="admin-user-orders-table__col-items">
+                                            <col class="admin-user-orders-table__col-total">
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Statut</th>
+                                                <th>Articles</th>
+                                                <th class="text-right">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="modalUserOrdersList"></tbody>
+                                    </table>
+                                    </div>
+                                    <div id="modalUserOrdersEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Aucune interaction trouvée.</div>
+                                </div>
+                            </div>
+
+                            <div id="tabContent-products" class="hidden animate-premium">
+                                <div id="modalUserProductsList" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
+                                <div id="modalUserProductsEmpty" class="hidden p-12 text-center text-gray-400 font-bold italic">Catalogue vide.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let usersBootStarted = false;
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let currentPage = 1;
+        const itemsPerPage = 20;
+
+        let _renderLock = false;
+        let _statsCache = null; // High-performance cache for sales totals
+
+        function getFilteredCounts(users) {
+            const visibleUsers = users.filter(u => u.role !== 'admin');
+            return {
+                all: visibleUsers.length,
+                supplier: visibleUsers.filter(u => u.role === 'supplier').length,
+                customer: visibleUsers.filter(u => u.role === 'customer').length,
+                pending: visibleUsers.filter(u => (u.status === 'pending' || u.status === 'submitted') && u.role === 'supplier').length
+            };
+        }
+
+        function updateFilterCounts(users) {
+            const counts = getFilteredCounts(users);
+            const mappings = {
+                all: 'count-all',
+                supplier: 'count-supplier',
+                customer: 'count-customer',
+                pending: 'count-pending'
+            };
+
+            Object.entries(mappings).forEach(([key, id]) => {
+                const node = document.getElementById(id);
+                if (node) node.textContent = counts[key];
+            });
+        }
+
+        function getUserSearchText(user) {
+            if (!user) return '';
+
+            const emailPrefix = (user.email || '').split('@')[0];
+            const candidates = [
+                user.name,
+                user.full_name,
+                user.display_name,
+                user.username,
+                user.company_name,
+                user.store_name,
+                user.shop_name,
+                user.boutique_name,
+                user.business_name,
+                user.phone,
+                user.store_phone,
+                user.store_phone_whatsapp,
+                user.whatsapp,
+                user.referral_code,
+                UserManager.getDisplayName(user),
+                user.email,
+                emailPrefix
+            ];
+
+            return candidates
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+        }
+
+        // Debounce search to prevent UI stutters
+        const debouncedSearch = (val) => {
+            searchQuery = val;
+            currentPage = 1;
+            renderUsers();
+        };
+
+        let searchTimeout;
+        document.getElementById('userSearch')?.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => debouncedSearch(e.target.value), 300);
+        });
+
+        const getUserSkeletonHTML = () => {
+            return Array.from({ length: 5 }).map((_, i) => `
+                <tr class="animate-pulse" style="animation-delay: ${i * 0.05}s">
+                    <td class="p-4">
+                        <div class="flex items-center gap-4">
+                            <div class="skeleton w-12 h-12 rounded-2xl shrink-0"></div>
+                            <div class="space-y-2 w-full max-w-[150px]">
+                                <div class="skeleton h-4 rounded w-full"></div>
+                                <div class="skeleton h-3 rounded w-2/3"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><div class="skeleton h-6 w-16 rounded-full"></div></td>
+                    <td><div class="skeleton h-4 w-8 rounded"></div></td>
+                    <td><div class="skeleton h-4 w-16 rounded"></div></td>
+                    <td>
+                        <div class="space-y-1">
+                            <div class="skeleton h-4 w-20 rounded"></div>
+                            <div class="skeleton h-3 w-12 rounded"></div>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <div class="skeleton w-8 h-8 rounded-xl"></div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        function renderUsers() {
+            if (_renderLock) return;
+            const tbody = document.getElementById('usersBody');
+            const emptyState = document.getElementById('emptyState');
+            const pagControls = document.getElementById('paginationControls');
+
+            const setCountSkeletons = () => {
+                const ids = ['count-all', 'count-supplier', 'count-customer', 'count-pending'];
+                ids.forEach((id) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.innerHTML = '<span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span>';
+                });
+            };
+
+            if (!tbody || !emptyState) return;
+
+            if (!window.UserManager || !window.ProductManager || !window.OrderManager) {
+                setCountSkeletons();
+                if (!tbody.querySelector('.animate-pulse')) tbody.innerHTML = getUserSkeletonHTML();
+                emptyState.classList.add('hidden');
+                if (pagControls) pagControls.classList.add('hidden');
+                return;
+            }
+
+            if (UserManager._initialized !== true || OrderManager._initialized !== true || OrderManager._fetchPromise) {
+                setCountSkeletons();
+                if (!tbody.querySelector('.animate-pulse')) tbody.innerHTML = getUserSkeletonHTML();
+                emptyState.classList.add('hidden');
+                if (pagControls) pagControls.classList.add('hidden');
+                return;
+            }
+
+            if (ProductManager.loading !== false && (ProductManager.getProducts() || []).length === 0) {
+                setCountSkeletons();
+                if (!tbody.querySelector('.animate-pulse')) tbody.innerHTML = getUserSkeletonHTML();
+                emptyState.classList.add('hidden');
+                if (pagControls) pagControls.classList.add('hidden');
+                return;
+            }
+
+            _renderLock = true;
+
+            const doRender = () => {
+                try {
+                    const allUsers = UserManager.getUsers();
+                    const allProducts = ProductManager.getProducts();
+                    const allOrders = OrderManager.getOrders();
+                    updateFilterCounts(allUsers);
+
+                    // 1. COMPUTE STATS ONLY ONCE (High-perf cache)
+                    if (!_statsCache) {
+                        const salesByEmail = {};
+                        const productsByEmail = {};
+                        const productSupplierMap = {};
+                        
+                        allProducts.forEach(p => {
+                            if (!p.supplier_email) return;
+                            if (!productsByEmail[p.supplier_email]) productsByEmail[p.supplier_email] = [];
+                            productsByEmail[p.supplier_email].push(p.id);
+                            productSupplierMap[p.id] = p.supplier_email;
+                        });
+                        
+                        allOrders.forEach(o => {
+                            (o.items || []).forEach(item => {
+                                const email = productSupplierMap[item.id];
+                                if (!email) return;
+                                if (!salesByEmail[email]) salesByEmail[email] = 0;
+                                salesByEmail[email] += (item.price || 0) * (item.quantity || 1);
+                            });
+                        });
+                        _statsCache = { salesByEmail, productsByEmail };
+                    }
+
+                    // 2. FILTER USERS
+                    const filteredUsers = allUsers.filter(u => {
+                        if (u.role === 'admin') return false;
+                        const matchesRole = currentFilter === 'all' || 
+                                           (currentFilter === 'pending' 
+                                                ? (u.status === 'pending' || u.status === 'submitted') 
+                                                : u.role === currentFilter);
+                        
+                        const normalizedQuery = searchQuery.trim().toLowerCase();
+                        const matchesSearch = !normalizedQuery || getUserSearchText(u).includes(normalizedQuery);
+                        return matchesRole && matchesSearch;
+                    });
+
+                    // 3. PAGINATION MATH
+                    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage) || 1;
+                    if (currentPage > totalPages) currentPage = totalPages;
+                    
+                    const start = (currentPage - 1) * itemsPerPage;
+                    const paginatedUsers = filteredUsers.slice(start, start + itemsPerPage);
+
+                    // Update Pagination UI
+                    if (pagControls) {
+                        pagControls.classList.toggle('hidden', filteredUsers.length <= itemsPerPage);
+                        const currDisplay = document.getElementById('currentPageDisplay');
+                        const totalDisplay = document.getElementById('totalPagesDisplay');
+                        const pBtn = document.getElementById('prevBtn');
+                        const nBtn = document.getElementById('nextBtn');
+                        
+                        if (currDisplay) currDisplay.textContent = currentPage;
+                        if (totalDisplay) totalDisplay.textContent = totalPages;
+                        if (pBtn) pBtn.disabled = currentPage === 1;
+                        if (nBtn) nBtn.disabled = currentPage === totalPages;
+                    }
+
+                    if (filteredUsers.length === 0) {
+                        tbody.innerHTML = '';
+                        emptyState.classList.remove('hidden');
+                        return;
+                    }
+
+                    emptyState.classList.add('hidden');
+                    
+                    // 4. RENDER PAGE
+                    tbody.innerHTML = paginatedUsers.map((u, i) => {
+                        const userProducts = _statsCache.productsByEmail[u.email] || [];
+                        const userSales = _statsCache.salesByEmail[u.email] || 0;
+                        const nkTokenBalance = Number(u.nk_token_balance || 0);
+                        const nkTokenUsd = nkTokenBalance * 0.5;
+
+                        const isSubmitted = u.status === 'submitted';
+                        const isPending = u.status === 'pending';
+                        const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
+                        const avatarUrl = u.avatar || u.avatar_url || u.picture || u.photo_url || u.picture_url || u.cover_image || null;
+                        const initialsSource = u.name || UserManager.getDisplayName(u) || (u.email ? u.email.split('@')[0] : '');
+                        const initials = (window.getInitials ? window.getInitials(initialsSource) : (initialsSource || '?').trim().charAt(0).toUpperCase());
+                        const hasNoLogo = u.role === 'supplier' && !avatarUrl;
+                        const sellerType = String(u.seller_type || 'certified').toLowerCase();
+                        const sellerTypeLabel = u.role === 'supplier' ? 'Vendeur certifié' : '';
+                        const sellerTypeClass = 'seller-type-certified';
+
+                        const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
+                        const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
+
+                        return `
+                        <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
+                            <td class="p-4 cursor-pointer" onclick="openUserDetails('${u.email}')">
+                                <div class="flex items-center gap-4 min-w-0">
+                                    <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 shrink-0 ${hasNoLogo ? 'branding-alert' : ''}">
+                                        ${avatarUrl
+                                            ? `<img src="${avatarUrl}" class="w-full h-full object-cover" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; const s=this.parentElement.querySelector('span'); if(s){s.style.display='flex';}">`
+                                            : ''
+                                        }
+                                        <span class="text-sm font-black" style="${avatarUrl ? 'display:none;' : 'display:flex;'}">${initials}</span>
+                                    </div>
+                                    <div class="admin-table-cell-text min-w-0">
+                                        <div class="font-black text-gray-900 flex items-center gap-2 min-w-0">
+                                            <span class="admin-table-truncate" title="${UserManager.getDisplayName(u)}">${UserManager.getDisplayName(u)}</span>
+                                            ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping shrink-0"></span>' : ''}
+                                        </div>
+                                        <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest" title="${u.email}">${u.email}</div>
+                                        ${sellerTypeLabel ? `<div class="admin-table-cell-meta mt-2"><span class="seller-type-badge ${sellerTypeClass}">${sellerTypeLabel}</span></div>` : ''}
+                                    </div>
+                                </div>
+                            </td>
+                            <td><div class="badge-premium ${statusColor}">${statusLabel}</div></td>
+                            <td><span class="font-black text-gray-900">${userProducts.length}</span></td>
+                            <td><span class="font-black text-gray-900">${CurrencyManager.formatPrice(userSales)}</span></td>
+                            <td>
+                                <div class="flex flex-col">
+                                    <span class="font-black text-gray-900">${nkTokenBalance.toLocaleString('fr-FR')} NKToken</span>
+                                    <span class="text-[10px] text-emerald-600 font-bold">${CurrencyManager.formatPrice(nkTokenUsd)}</span>
+                                </div>
+                            </td>
+                            <td class="text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    ${needsReview ? `
+                                        <button onclick="approveVendor('${u.id}', '${u.name}')" data-track-action="admin_users:approve_vendor_click" class="px-4 py-2 bg-black text-white text-[10px] font-black uppercase rounded-xl hover:bg-gray-800 transition-all shadow-lg">Approuver</button>
+                                        <button onclick="rejectVendor('${u.id}', '${u.name}')" data-track-action="admin_users:reject_vendor_click" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon></button>
+                                    ` : `
+                                        <button onclick="confirmDelete('${u.id}', '${u.name}')" data-track-action="admin_users:delete_user_click" class="p-2 text-gray-200 hover:text-red-500 transition-colors">
+                                            <iconify-icon icon="solar:trash-bin-trash-linear" width="22"></iconify-icon>
+                                        </button>
+                                    `}
+                                </div>
+                            </td>
+                        </tr>
+                        `;
+                    }).join('');
+                } catch (err) {
+                    console.error('[UserPage] renderUsers error:', err);
+                } finally {
+                    _renderLock = false;
+                }
+            };
+
+            if (window.requestIdleCallback) {
+                requestIdleCallback(doRender, { timeout: 300 });
+            } else {
+                setTimeout(doRender, 0);
+            }
+        }
+
+        function prevPage() { if (currentPage > 1) { currentPage--; renderUsers(); } }
+        function nextPage() { currentPage++; renderUsers(); }
+
+        function openUserDetails(email) {
+            const target = `/src/pages/admin/index.html?view=user-details&email=${encodeURIComponent(email)}`;
+            const isEmbedded = new URLSearchParams(window.location.search).get('embedded') === '1';
+
+            if (isEmbedded && window.top) {
+                window.top.location.href = target;
+                return;
+            }
+
+            window.location.href = target;
+        }
+
+        function initializeUsers() {
+            if (usersBootStarted) return;
+            usersBootStarted = true;
+
+            // Always listen for future updates
+            window.addEventListener('usersUpdated', () => { _statsCache = null; renderUsers(); });
+            window.addEventListener('ordersUpdated', () => { _statsCache = null; renderUsers(); });
+
+            // If UserManager already has data ready, render immediately
+            if (window.UserManager && UserManager._initialized) {
+                renderUsers();
+            } else if (window.UserManager && !UserManager._initialized && !UserManager._initPromise) {
+                // Kick off init — usersUpdated event will trigger renderUsers()
+                UserManager.init().catch(() => {});
+            } else {
+                // Show skeleton while waiting
+                renderUsers();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.newketInitialized) {
+                initializeUsers();
+            } else {
+                window.addEventListener('newketInitialized', initializeUsers, { once: true });
+            }
+        });
+
+        async function approveVendor(id, name) {
+            window.showConfirm("Approuver", `Approuver le vendeur ${name} ?`, async () => {
+                try {
+                    if (window.LoaderManager) LoaderManager.show(`Activation de ${name}...`);
+                    const { error } = await window.supabaseClient.from('users').update({ status: 'approved', role: 'supplier', seller_type: 'certified' }).eq('id', id);
+                    if (error) throw error;
+                    if (window.showToast) showToast(`Vendeur activé !`, "success");
+                    UserManager.init().then(() => renderUsers());
+                    if (window.LoaderManager) LoaderManager.hide();
+                } catch (err) {
+                    console.error(err);
+                    if (window.LoaderManager) LoaderManager.hide();
+                    if (window.showToast) showToast("Erreur activation.", "danger");
+                }
+            });
+        }
+
+        async function rejectVendor(id, name) {
+            window.showConfirm("Rejeter", `Refuser le dossier de ${name} ?`, async () => {
+                try {
+                    if (window.LoaderManager) LoaderManager.show(`Rejet...`);
+                    const { error } = await window.supabaseClient.from('users').update({ status: 'rejected', seller_type: null }).eq('id', id);
+                    if (error) throw error;
+                    if (window.showToast) showToast(`Rejeté.`, "warning");
+                    UserManager.init().then(() => renderUsers());
+                    if (window.LoaderManager) LoaderManager.hide();
+                } catch (err) {
+                    console.error(err);
+                    if (window.LoaderManager) LoaderManager.hide();
+                    if (window.showToast) showToast("Erreur lors du rejet.", "danger");
+                }
+            });
+        }
+
+        function getRoleLabel(role) {
+            switch (role) {
+                case 'customer': return 'Client';
+                case 'supplier': return 'Vendeur';
+                case 'admin': return 'Admin';
+                default: return role;
+            }
+        }
+
+        function filterUsers(role) {
+            currentFilter = role;
+            currentPage = 1; // Reset to page 1 on filter change
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const buttonRole = btn.dataset.filter;
+                if (buttonRole === role) {
+                    btn.classList.add('bg-black', 'text-white', 'shadow-lg');
+                    btn.classList.remove('bg-gray-50', 'text-gray-500', 'bg-orange-50', 'text-orange-600');
+                } else {
+                    btn.classList.remove('bg-black', 'text-white', 'shadow-lg');
+                    btn.classList.add('bg-gray-50', 'text-gray-500');
+                }
+            });
+            renderUsers();
+        }
+
+        async function confirmDelete(id, name) {
+            if (window.showConfirm) {
+                showConfirm("Supprimer ?", `Voulez-vous supprimer définitivement ${name} ?`, async () => {
+                    await UserManager.deleteUser(id);
+                    renderUsers();
+                    showToast("Supprimé", "success");
+                });
+            } else {
+                // Fallback for emergency
+                if (confirm(`Supprimer ${name} ?`)) {
+                    await UserManager.deleteUser(id);
+                    renderUsers();
+                }
+            }
+        }
+
+        function switchTab(tabId) {
+            ['orders', 'products'].forEach(id => {
+                const btn = document.getElementById(`tabBtn-${id}`);
+                const content = document.getElementById(`tabContent-${id}`);
+                if (!btn || !content) return;
+                if (id === tabId) {
+                    btn.classList.add('text-black', 'border-black');
+                    btn.classList.remove('text-gray-400', 'border-transparent');
+                    content.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('text-black', 'border-black');
+                    btn.classList.add('text-gray-400', 'border-transparent');
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        // Note: initializeUsers and DOMContentLoaded are already defined above (lines 406-418).
+
+        // User Details Modal
+        function closeUserDetailsModal() {
+            const modal = document.getElementById('userDetailsModal');
+            const content = document.getElementById('userDetailsModalContent');
+            if (!modal) return;
+            if (content) {
+                content.classList.add('scale-95', 'opacity-0');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if (content) content.classList.remove('scale-95', 'opacity-0');
+            }, 300);
+        }
+
+        function openUserDetailsModal(userId) {
+            const modal = document.getElementById('userDetailsModal');
+            const content = document.getElementById('userDetailsModalContent');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                if (content) {
+                    content.classList.remove('scale-95', 'opacity-0');
+                }
+            });
+        }
+
+        window.closeUserDetailsModal = closeUserDetailsModal;
+        window.openUserDetailsModal = openUserDetailsModal;
+
+        // Closing modal on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeUserDetailsModal();
+        });
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+

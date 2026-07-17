@@ -1,0 +1,185 @@
+- main [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e8]
+      - heading "Produits épinglés" [level=2] [ref=e10]
+    - link "Voir tout" [ref=e11] [cursor=pointer]:
+      - /url: /src/pages/catalog.html
+      - text: Voir tout
+      - img [ref=e13]
+  - generic [ref=e24]:
+    - heading "SUBTILE ÉLÉGANCE." [level=1] [ref=e25]:
+      - text: SUBTILE
+      - text: ÉLÉGANCE.
+    - paragraph [ref=e26]: L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment.
+    - generic [ref=e27]:
+      - link "Découvrir" [ref=e28] [cursor=pointer]:
+        - /url: /src/pages/catalog.html
+      - link "Vendre" [ref=e29] [cursor=pointer]:
+        - /url: /src/pages/publish.html
+  - generic [ref=e31]:
+    - generic [ref=e32]:
+      - heading "Récemment publiés" [level=2] [ref=e33]
+      - paragraph [ref=e38]: Nouveaux arrivages
+    - link "Voir tout" [ref=e39] [cursor=pointer]:
+      - /url: /src/pages/catalog.html
+      - text: Voir tout
+  - generic [ref=e46]:
+    - generic:
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+      - generic:
+        - generic:
+          - generic: Livraison rapide
+          - generic: Dès 125 000 FC d'achat
+      - generic:
+        - generic:
+          - generic: Paiement sécurisé
+          - generic: Transactions 100% cryptées
+      - generic:
+        - generic:
+          - generic: Paiement Mobile
+          - generic: M-Pesa, Orange, Airtel
+  - generic [ref=e48]:
+    - heading "Tous les produits" [level=2] [ref=e49]
+    - generic [ref=e50]:
+      - button "Toutes les pièces" [ref=e51] [cursor=pointer]
+      - button "Femme" [ref=e52] [cursor=pointer]
+      - button "Homme" [ref=e53] [cursor=pointer]
+      - button "Tech & Gadgets" [ref=e54] [cursor=pointer]
+      - button "Art de vivre" [ref=e55] [cursor=pointer]
+      - button "Promos" [ref=e56] [cursor=pointer]
+      - combobox "Trier les produits par" [ref=e58] [cursor=pointer]:
+        - option "Plus récents" [selected]
+        - option "Prix croissant"
+        - option "Prix décroissant"

@@ -1,0 +1,360 @@
+import { captureError } from './sentry.js';
+
+// En production (Vercel) et en developpement (vercel dev), les appels /api/* sont routés vers les Serverless Functions.
+let API_BASE_URL = (import.meta.env.VITE_API_URL ?? '').trim() || '/api';
+
+// If VITE_API_URL is an absolute URL, always normalize to "<origin>/api".
+// This prevents common misconfigs like:
+// - https://newket.vercel.app/src/pages/admin  (would become .../src/pages/admin/api => 404)
+// - https://newket.vercel.app/anything         (should still be .../api)
+if (API_BASE_URL.startsWith('http')) {
+    try {
+        const url = new URL(API_BASE_URL);
+        API_BASE_URL = `${url.origin}/api`;
+    } catch {
+        if (!API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
+            API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+        }
+    }
+}
+
+// Common misconfig: VITE_API_URL="/". That would make calls like "/products/..." (404 on Vercel)
+// instead of "/api/products/...".
+if (API_BASE_URL === '/' || API_BASE_URL === '') {
+    API_BASE_URL = '/api';
+}
+
+// If someone configured a relative base that is not /api, force /api to match Vercel routing.
+// Examples: VITE_API_URL="." or "./" or "/src" (all wrong for serverless functions).
+if (!API_BASE_URL.startsWith('http') && !API_BASE_URL.startsWith('/api')) {
+    API_BASE_URL = '/api';
+}
+
+function isNetworkFailure(error) {
+    const message = error?.message || '';
+    return error instanceof TypeError
+        || /Failed to fetch|NetworkError|ERR_CONNECTION_REFUSED|Load failed/i.test(message);
+}
+
+function isLocalTransientGatewayFailure(error) {
+    if (!isLocalDevHost()) return false;
+    const status = Number(error?.status || 0);
+    return [502, 503, 504].includes(status);
+}
+
+function isLocalDevHost() {
+    try {
+        return /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
+    } catch {
+        return false;
+    }
+}
+
+function getFriendlyApiErrorMessage(status, fallbackMessage) {
+    const code = Number(status) || 0;
+
+    if (code === 400) return fallbackMessage || 'Votre demande est invalide. Verifiez les informations puis reessayez.';
+    if (code === 401) return 'Votre session a expire. Reconnectez-vous puis reessayez.';
+    if (code === 403) return "Vous n'avez pas acces a cette action.";
+    if (code === 404) return "L'element demande est introuvable.";
+    if (code === 409) return fallbackMessage || "Cette action n'est pas possible dans l'etat actuel.";
+    if (code === 422) return fallbackMessage || 'Certaines informations sont incorrectes. Verifiez puis reessayez.';
+    if (code === 429) return 'Trop de requetes. Attendez un instant puis reessayez.';
+    if (code >= 500) return 'Le service rencontre un probleme. Reessayez dans un instant.';
+    return fallbackMessage || 'Une erreur est survenue.';
+}
+
+/**
+ * Fetch wrapper for connecting to the Express Backend.
+ * Automatically injects the Supabase user session token into the 'Authorization' header.
+ */
+export const ApiClient = {
+    _sessionCache: {
+        token: null,
+        expiresAt: 0
+    },
+    _inflight: new Map(),
+    _responseCache: new Map(),
+    _localApiReadyPromise: null,
+
+    _getCachedResponse(cacheKey) {
+        if (!cacheKey) return null;
+        const entry = this._responseCache.get(cacheKey);
+        if (!entry) return null;
+        if (Date.now() > entry.expiresAt) {
+            this._responseCache.delete(cacheKey);
+            return null;
+        }
+        return entry.data;
+    },
+
+    _setCachedResponse(cacheKey, data, ttlMs) {
+        if (!cacheKey) return;
+        const ttl = Math.max(0, Number(ttlMs) || 0);
+        if (!ttl) return;
+        this._responseCache.set(cacheKey, { data, expiresAt: Date.now() + ttl });
+    },
+
+    async _getAuthHeaderCached() {
+        const now = Date.now();
+        if (this._sessionCache.token && now < this._sessionCache.expiresAt) {
+            return { Authorization: `Bearer ${this._sessionCache.token}` };
+        }
+
+        let token = null;
+
+        if (window.getSupabaseAccessToken) {
+            token = window.getSupabaseAccessToken();
+        }
+
+        if (!token && window.getSupabaseSession) {
+            const session = await window.getSupabaseSession(3000); // 3s timeout
+            token = session?.access_token || null;
+        }
+
+        if (token) {
+            this._sessionCache.token = token;
+            this._sessionCache.expiresAt = now + 60_000; // 60s
+            return { Authorization: `Bearer ${token}` };
+        }
+
+        this._sessionCache.token = null;
+        this._sessionCache.expiresAt = 0;
+        return {};
+    },
+
+    _invalidateAuthCache() {
+        // Clear cached auth token.
+        this._sessionCache.token = null;
+        this._sessionCache.expiresAt = 0;
+    },
+
+    _wait(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    },
+
+    async _probeLocalApiHealth(timeoutMs = 1200) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            const response = await fetch('http://localhost:3000/api/health', {
+                method: 'GET',
+                cache: 'no-store',
+                signal: controller.signal
+            });
+            return response.ok;
+        } catch {
+            return false;
+        } finally {
+            clearTimeout(timeout);
+        }
+    },
+
+    async _waitForLocalApiReady(maxWaitMs = 4500) {
+        if (!isLocalDevHost()) return false;
+        if (this._localApiReadyPromise) return await this._localApiReadyPromise;
+
+        this._localApiReadyPromise = (async () => {
+            const deadline = Date.now() + maxWaitMs;
+            while (Date.now() < deadline) {
+                if (await this._probeLocalApiHealth()) {
+                    return true;
+                }
+                await this._wait(350);
+            }
+            return false;
+        })();
+
+        try {
+            return await this._localApiReadyPromise;
+        } finally {
+            this._localApiReadyPromise = null;
+        }
+    },
+
+    async fetch(endpoint, options = {}) {
+        const url = `${API_BASE_URL}${endpoint}`;
+
+        const baseHeaders = {
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+        };
+
+        const config = {
+            ...options,
+            headers: baseHeaders
+        };
+
+        try {
+            const isGet = (config.method || 'GET').toUpperCase() === 'GET';
+            const cacheKey = options.cacheKey && isGet ? String(options.cacheKey) : null;
+            const cached = this._getCachedResponse(cacheKey);
+            if (cached != null) return cached;
+
+            const dedupe = options.dedupe !== false;
+            const inflightKey = (dedupe && isGet) ? url : null;
+            if (inflightKey && this._inflight.has(inflightKey)) {
+                return await this._inflight.get(inflightKey);
+            }
+
+            const run = async () => {
+                const method = (config.method || 'GET').toUpperCase();
+                const isGet = method === 'GET';
+
+                let didAuthRetry = false;
+                let response;
+
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    // Auth header (cached) to reduce repeated async session lookups
+                    let authHeaders = {};
+                    try {
+                        authHeaders = await this._getAuthHeaderCached();
+                    } catch {
+                    }
+
+                    try {
+                        response = await fetch(url, { ...config, headers: { ...baseHeaders, ...authHeaders } });
+                    } catch (error) {
+                        if (isGet && attempt < 2 && isLocalDevHost() && isNetworkFailure(error)) {
+                            const apiReady = await this._waitForLocalApiReady();
+                            if (apiReady) {
+                                continue;
+                            }
+                        }
+                        throw error;
+                    }
+
+                    // If the API says the token is invalid/expired, clear cache and retry once.
+                    if (!didAuthRetry && response && response.status === 401) {
+                        didAuthRetry = true;
+                        this._invalidateAuthCache();
+
+                        // Also clear potentially stale Supabase persisted tokens to avoid endless 401 loops
+                        // after switching Supabase projects in dev.
+                        try {
+                            const keys = [];
+                            for (let i = 0; i < localStorage.length; i++) {
+                                const key = localStorage.key(i);
+                                if (key && /^sb-[a-z0-9]+-auth-token$/i.test(key)) keys.push(key);
+                            }
+                            keys.forEach((k) => localStorage.removeItem(k));
+                        } catch {
+                        }
+
+                        continue;
+                    }
+
+                    // In local dev, Vite may come up before the backend. Wait for /api/health
+                    // before retrying transient gateway responses during startup.
+                    if (isGet && attempt < 2 && response && [502, 503, 504].includes(response.status)) {
+                        if (isLocalDevHost()) {
+                            const apiReady = await this._waitForLocalApiReady();
+                            if (apiReady) {
+                                continue;
+                            }
+                        }
+                        await this._wait(500);
+                        continue;
+                    }
+
+                    break;
+                }
+
+                // Safe JSON parse - SW may return plain text (e.g. "Offline") on network failure
+                let data;
+                const contentType = response.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    try {
+                        data = JSON.parse(text);
+                    } catch {
+                        // Plain text fallback (e.g. Service Worker offline response)
+                        data = { error: text || `Erreur reseau (${response.status})` };
+                    }
+                }
+
+                if (!response.ok) {
+                    let baseMsg = getFriendlyApiErrorMessage(response.status, data?.error);
+
+                    // Vercel generic 404 body (plain text) when the serverless function route is missing.
+                    // This often happens when `/api/*` functions are not deployed/registered.
+                    if (response.status === 404 && typeof baseMsg === 'string') {
+                        const msg = baseMsg.toLowerCase();
+                        if (msg.includes('the page could not be found') || msg.includes('not_found') || msg.includes('not found')) {
+                            baseMsg = "Erreur 404: l'API est introuvable. Vérifiez que Vercel déploie bien les routes `/api/*` (testez `/api/health`) puis réessayez.";
+                        }
+                    }
+                    const details = data?.details ? `: ${data.details}` : '';
+                    const err = new Error(`${baseMsg}${details}`);
+                    err.status = response.status;
+                    err.data = data;
+                    throw err;
+                }
+
+                if (cacheKey && options.cacheTtlMs) {
+                    this._setCachedResponse(cacheKey, data, options.cacheTtlMs);
+                }
+
+                return data;
+            };
+
+            if (inflightKey) {
+                const promise = run().finally(() => this._inflight.delete(inflightKey));
+                this._inflight.set(inflightKey, promise);
+                return await promise;
+            }
+
+            return await run();
+        } catch (error) {
+            const isTransientLocalGateway = isLocalTransientGatewayFailure(error);
+            // 502/503/504 = erreurs d'infrastructure (serveur redémarre, surcharge, déploiement).
+            // On ne les montre jamais au client : inutiles et anxiogènes.
+            const isGatewayError = [502, 503, 504].includes(Number(error?.status));
+
+            if (options.suppressNetworkError && (isNetworkFailure(error) || isTransientLocalGateway)) {
+                return null;
+            }
+
+            if (!options.suppressErrorLogging && !isTransientLocalGateway) {
+                // Pour les gateway errors, on log discrètement sans polluer la console en prod.
+                if (isGatewayError) {
+                    captureError(error, { endpoint, method: options.method || 'GET', silent: true });
+                } else {
+                    console.error(`[ApiClient] Error on ${endpoint}:`, error);
+                    captureError(error, { endpoint, method: options.method || 'GET' });
+                }
+            }
+
+            if (!options.suppressToast && typeof window.showToast === 'function' && !isTransientLocalGateway) {
+                // On n'affiche pas : erreurs réseau pures, auth (401/403), gateway (502/503/504).
+                if (!isNetworkFailure(error) && !isGatewayError && error.status !== 401 && error.status !== 403) {
+                    window.showToast(error.message || "Une erreur est survenue.", "danger");
+                }
+            }
+
+            throw error;
+        }
+    },
+
+    // Short-hands
+    get(endpoint, options = {}) {
+        return this.fetch(endpoint, { ...options, method: 'GET' });
+    },
+    post(endpoint, body, options = {}) {
+        return this.fetch(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) });
+    },
+    put(endpoint, body, options = {}) {
+        return this.fetch(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) });
+    },
+    patch(endpoint, body, options = {}) {
+        return this.fetch(endpoint, { ...options, method: 'PATCH', body: body ? JSON.stringify(body) : '{}' });
+    },
+    delete(endpoint, body, options = {}) {
+        return this.fetch(endpoint, { ...options, method: 'DELETE', body: body ? JSON.stringify(body) : undefined });
+    }
+};
+
+window.ApiClient = ApiClient;

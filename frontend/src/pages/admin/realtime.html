@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Temps reel | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+</head>
+
+<body class="text-gray-900">
+    <div id="adminNavbarPlaceholder"></div>
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <main class="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+            <div class="admin-page-header flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="admin-page-header__content min-w-0">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900">Temps reel</h1>
+                    <p class="text-gray-500 font-medium">Flux live, presence active, canaux suivis et boutiques en mouvement.</p>
+                    <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-400">
+                        <span id="realtimeMeta">Connexion...</span>
+                        <span class="rounded-full border border-gray-200 bg-white px-2.5 py-1 font-black uppercase tracking-widest text-gray-500" id="realtimeStatusPill">En attente</span>
+                    </div>
+                </div>
+                <div class="admin-page-actions flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+                    <div class="grid w-full gap-3">
+                        <div class="flex w-full flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm">
+                            <div class="grid w-full sm:w-auto grid-cols-3 gap-2 shrink-0">
+                                <button class="rt-range-btn bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest" data-days="7" data-track-action="admin_realtime:range_7d_click">7j</button>
+                                <button class="rt-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30" data-track-action="admin_realtime:range_30d_click">30j</button>
+                                <button class="rt-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90" data-track-action="admin_realtime:range_90d_click">90j</button>
+                            </div>
+                            <div class="flex w-full sm:w-auto flex-wrap gap-2 justify-start sm:justify-end">
+                                <button id="toggleRealtimeDateFiltersBtn" data-track-action="admin_realtime:toggle_filters_click" type="button" aria-expanded="false" class="flex items-center justify-center px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors" title="Filtres de date">
+                                    <iconify-icon icon="lucide:filter" class="text-base"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="realtimeDateFilters" class="hidden grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Du</span>
+                                <input id="realtimeDateStart" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Au</span>
+                                <input id="realtimeDateEnd" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <button id="applyRealtimeDateBtn" data-track-action="admin_realtime:apply_date_range_click" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
+                            <button id="clearRealtimeDateBtn" data-track-action="admin_realtime:clear_date_range_click" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Flux en direct</div>
+                        <div class="mt-1 text-sm font-medium text-gray-500" id="liveStatusCaption">Les mises a jour apparaissent ici en temps reel.</div>
+                    </div>
+                    <div class="flex flex-col gap-3 lg:items-end">
+                        <div class="flex flex-wrap gap-2">
+                            <label class="relative min-w-[280px] flex-1">
+                                <span class="sr-only">Rechercher un evenement</span>
+                                <input id="liveSearchInput" data-track-action="admin_realtime:search_change" type="search" placeholder="Rechercher un evenement, une boutique, un statut..." class="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-black focus:bg-white focus:outline-none" />
+                            </label>
+                            <button id="livePauseBtn" data-track-action="admin_realtime:pause_click" type="button" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black">Pause</button>
+                            <button id="liveRefreshBtn" data-track-action="admin_realtime:refresh_click" type="button" class="rounded-2xl bg-black px-4 py-3 text-[10px] font-black uppercase tracking-widest text-white transition-colors hover:bg-gray-800">Actualiser</button>
+                            <button id="liveExportBtn" data-track-action="admin_realtime:export_click" type="button" class="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black">Exporter</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2" id="liveFilterButtons">
+                            <button class="live-filter-btn rounded-full bg-black px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white" data-live-filter="all" data-track-action="admin_realtime:filter_all_click">Tout</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="presence" data-track-action="admin_realtime:filter_presence_click">Presence</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="order" data-track-action="admin_realtime:filter_orders_click">Commandes</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="product" data-track-action="admin_realtime:filter_products_click">Produits</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="notification" data-track-action="admin_realtime:filter_notifications_click">Notifications</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="activity" data-track-action="admin_realtime:filter_activities_click">Activites</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="traffic" data-track-action="admin_realtime:filter_traffic_click">Trafic</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="incident" data-track-action="admin_realtime:filter_incidents_click">Incidents</button>
+                            <button class="live-filter-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-filter="system" data-track-action="admin_realtime:filter_system_click">Systeme</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2" id="liveWindowButtons">
+                            <button class="live-window-btn rounded-full bg-black px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white" data-live-window="60" data-track-action="admin_realtime:window_1h_click">1h</button>
+                            <button class="live-window-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-window="15" data-track-action="admin_realtime:window_15m_click">15m</button>
+                            <button class="live-window-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-window="1440" data-track-action="admin_realtime:window_24h_click">24h</button>
+                            <button class="live-window-btn rounded-full border border-gray-200 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-gray-500" data-live-window="0" data-track-action="admin_realtime:window_all_click">Tout</button>
+                        </div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="liveWindowLabel">Fenetre: 1h</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="incidentBanner" hidden class="rounded-3xl border border-red-100 bg-gradient-to-r from-red-50 to-white p-4 shadow-sm">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-red-500">Alerte</div>
+                        <div class="mt-1 text-lg font-black text-gray-900" id="incidentBannerTitle">Incident en cours</div>
+                        <p class="mt-1 text-sm text-gray-600" id="incidentBannerDetail">Aucun incident actif pour le moment.</p>
+                    </div>
+                    <a href="/src/pages/system-health.html" class="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-700 transition-colors hover:border-red-400 hover:text-red-800">
+                        Voir System Health
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1.6fr)_minmax(340px,0.9fr)] gap-6">
+                <section class="glass-panel p-6 flex flex-col gap-6 min-h-[760px]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3" id="realtimeMetricGrid">
+                        <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Utilisateurs actifs</div>
+                            <div class="mt-2 text-2xl font-black text-gray-900" id="metricActiveUsers">0</div>
+                            <div class="mt-1 text-xs text-gray-400">Sans compter l'admin</div>
+                        </div>
+                        <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Evenements visibles</div>
+                            <div class="mt-2 text-2xl font-black text-gray-900" id="metricVisibleEvents">0</div>
+                            <div class="mt-1 text-xs text-gray-400">Dans la fenetre filtree</div>
+                        </div>
+                        <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Dernier signal</div>
+                            <div class="mt-2 text-base font-black text-gray-900" id="metricLastEvent">-</div>
+                            <div class="mt-1 text-xs text-gray-400" id="metricLastEventAt">En attente</div>
+                        </div>
+                        <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Canaux suivis</div>
+                            <div class="mt-2 text-2xl font-black text-gray-900" id="metricChannelCount">0</div>
+                            <div class="mt-1 text-xs text-gray-400">Supabase + modules locaux</div>
+                        </div>
+                        <div class="rounded-3xl border border-red-100 bg-red-50 p-4 shadow-sm">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-red-500">Incidents actifs</div>
+                            <div class="mt-2 text-2xl font-black text-red-700" id="metricIncidentCount">0</div>
+                            <div class="mt-1 text-xs text-red-500">Signaux critiques et prioritaires</div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm flex-1 min-h-0">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <div>
+                                <h2 class="font-bold text-gray-900">Timeline live</h2>
+                                <p class="text-sm text-gray-500">Chaque ligne affiche l'heure, la source et le signal exact observe.</p>
+                            </div>
+                            <div class="shrink-0 self-start sm:self-auto text-[10px] font-black uppercase tracking-widest text-gray-400" id="liveFeedMeta">0 evenement</div>
+                        </div>
+                        <div id="liveEventList" class="mt-4 max-h-[560px] overflow-y-auto pr-1 space-y-3"></div>
+                    </div>
+                </section>
+
+                <div class="space-y-6">
+                    <article class="glass-panel p-6" id="livePresencePanel">
+                        <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-500"></span>
+                            </span>
+                            Utilisateurs actifs
+                        </h2>
+                        <div class="text-xs text-gray-400 mb-4" id="presenceCountLine">
+                            <span class="skeleton skeleton-text inline-block align-middle" style="width: 55%; height: 12px; margin: 0;"></span>
+                        </div>
+                        <div id="livePresenceList" class="space-y-3">
+                            <div class="flex items-center gap-3 p-2 rounded-xl">
+                                <div class="skeleton skeleton-avatar flex-shrink-0" style="width: 32px; height: 32px; border-radius: 9999px;"></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="skeleton skeleton-text" style="width: 55%; height: 12px; margin: 0 0 6px 0;"></div>
+                                    <div class="skeleton skeleton-text" style="width: 35%; height: 10px; margin: 0;"></div>
+                                </div>
+                                <div class="skeleton skeleton-text flex-shrink-0" style="width: 44px; height: 14px; margin: 0;"></div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="glass-panel p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <div>
+                                <h2 class="font-bold text-gray-900">Sante des canaux</h2>
+                                <p class="text-sm text-gray-500">Statut du client, des tables publiees et de la presence.</p>
+                            </div>
+                            <button id="reconnectRealtimeBtn" data-track-action="admin_realtime:reconnect_click" type="button" class="shrink-0 self-start sm:self-auto rounded-xl border border-gray-200 bg-white px-3 py-2 text-[10px] font-black uppercase tracking-widest text-gray-700 transition-colors hover:border-black hover:text-black">Reconnecter</button>
+                        </div>
+                        <div id="channelHealthList" class="mt-4 space-y-3">
+                            <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                <div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin: 0 0 8px;"></div>
+                                <div class="skeleton skeleton-text" style="width: 72%; height: 10px; margin: 0;"></div>
+                            </div>
+                            <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                                <div class="skeleton skeleton-text" style="width: 28%; height: 12px; margin: 0 0 8px;"></div>
+                                <div class="skeleton skeleton-text" style="width: 68%; height: 10px; margin: 0;"></div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="glass-panel p-6">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                            <div>
+                                <h2 class="font-bold text-gray-900">Top Boutiques du moment</h2>
+                                <p class="text-sm text-gray-500">Classement base sur les interactions recentes (leads).</p>
+                            </div>
+                            <div class="shrink-0 self-start sm:self-auto text-[10px] font-black uppercase tracking-widest text-gray-400" id="topVendorsMeta">
+                                <span class="skeleton skeleton-text inline-block align-middle" style="width: 110px; height: 12px; margin: 0;"></span>
+                            </div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6" id="topVendorsGrid">
+                            <div class="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm text-center">
+                                <div class="w-16 h-16 mx-auto skeleton skeleton-avatar" style="border-radius: 9999px;"></div>
+                                <div class="mt-4 skeleton skeleton-text" style="width: 70%; height: 12px; margin: 0 auto 8px auto;"></div>
+                                <div class="skeleton skeleton-text" style="width: 45%; height: 10px; margin: 0 auto;"></div>
+                            </div>
+                            <div class="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm text-center">
+                                <div class="w-16 h-16 mx-auto skeleton skeleton-avatar" style="border-radius: 9999px;"></div>
+                                <div class="mt-4 skeleton skeleton-text" style="width: 78%; height: 12px; margin: 0 auto 8px auto;"></div>
+                                <div class="skeleton skeleton-text" style="width: 50%; height: 10px; margin: 0 auto;"></div>
+                            </div>
+                            <div class="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm text-center">
+                                <div class="w-16 h-16 mx-auto skeleton skeleton-avatar" style="border-radius: 9999px;"></div>
+                                <div class="mt-4 skeleton skeleton-text" style="width: 62%; height: 12px; margin: 0 auto 8px auto;"></div>
+                                <div class="skeleton skeleton-text" style="width: 42%; height: 10px; margin: 0 auto;"></div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="/src/services/admin-realtime-page.js"></script>
+</body>
+
+</html>
+

@@ -1,0 +1,155 @@
+## 💳 ARBORESCENCE — PAIEMENT NEWKET
+
+### 1. 🌱 PRÉ-CONDITION
+
+* `ORDER = PENDING`
+* Adresse renseignée
+* `DELIVERY_QUOTE = ACCEPTED`
+
+👉 Le paiement n’est possible que si le prix total est connu
+
+---
+
+### 2. 🔵 PRÉPARATION DU PAIEMENT
+
+Le système calcule :
+
+* prix produit
+* prix livraison
+* total final
+
+→ `ORDER = READY_FOR_PAYMENT`
+
+---
+
+### 3. 💳 INITIATION PAIEMENT
+
+Client clique “Payer”
+
+→ création :
+
+* `PAYMENT = PENDING`
+* génération `transaction_ref`
+
+---
+
+### 4. 🟡 TRAITEMENT (PSP / Mobile Money)
+
+Deux cas :
+
+#### CAS A — Succès
+
+→ `PAYMENT = SUCCESS`
+
+#### CAS B — Échec
+
+→ `PAYMENT = FAILED`
+→ retour à `READY_FOR_PAYMENT`
+
+---
+
+### 5. 🔒 ACTIVATION ESCROW
+
+SI paiement réussi :
+
+* `ESCROW = HELD`
+* montant bloqué
+* `ORDER = PAID_HELD`
+
+👉 L’argent est sécurisé, non accessible au vendeur
+
+---
+
+### 6. 📩 NOTIFICATION VENDEUR
+
+* “Commande payée”
+* prêt pour livraison
+
+→ `ORDER = PROCESSING`
+
+---
+
+### 7. 🚚 TRANSITION VERS LIVRAISON
+
+* vendeur expédie
+
+→ `ORDER = IN_DELIVERY`
+
+---
+
+### 8. 🔁 LIEN AVEC LIVRAISON
+
+Paiement reste bloqué tant que :
+
+* `DELIVERY != DELIVERED`
+
+---
+
+### 9. 🔐 APRÈS LIVRAISON (OTP VALIDÉ)
+
+→ `ORDER = DELIVERED`
+→ démarrage timer escrow (72h)
+
+---
+
+### 10. ⏳ SORTIE ESCROW
+
+#### CAS A — Client confirme
+
+→ `ESCROW = RELEASED`
+→ `PAYMENT = COMPLETED`
+
+---
+
+#### CAS B — Délai expiré
+
+→ `ESCROW = AUTO_RELEASED`
+→ `PAYMENT = COMPLETED`
+
+---
+
+#### CAS C — Litige
+
+→ `ESCROW = FROZEN`
+→ `PAYMENT = BLOCKED`
+
+---
+
+### 11. 🔄 REMBOURSEMENT
+
+En cas de décision litige :
+
+* total → `REFUNDED`
+* partiel → `PARTIAL_REFUND`
+
+---
+
+### 12. 🧠 RÈGLE STRUCTURELLE
+
+Le paiement suit toujours ce chemin :
+
+`PENDING → SUCCESS → HELD → (RELEASED | REFUNDED | FROZEN)`
+
+---
+
+### 13. ⚠️ CONTRAINTES IMPORTANTES
+
+* 1 paiement = 1 commande
+* paiement unique (produit + livraison)
+* aucune modification après paiement
+* aucune libération sans :
+
+  * OTP validé
+  * ou décision litige
+
+---
+
+### 14. 🎯 OBJECTIF
+
+Garantir que :
+
+* le vendeur ne peut pas toucher l’argent sans livrer
+* le client ne peut pas récupérer l’argent sans raison valable
+* la plateforme contrôle toute la logique
+
+---

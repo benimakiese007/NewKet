@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Comptabilité | NewKet Admin</title>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="text-gray-900 bg-gray-50">
+    <div id="adminNavbarPlaceholder"></div>
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+        <main class="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 py-8 pt-24 sm:pt-28 lg:pt-32">
+            <div class="admin-page-header flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                <div class="admin-page-header__content min-w-0">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900">Comptabilité & Finance</h1>
+                    <p class="text-gray-500 font-medium">Suivez le volume d'affaires, vos commissions et l'état des fonds Escrow.</p>
+                </div>
+                <div class="admin-page-actions flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+                    <div class="grid w-full gap-3">
+                        <div class="flex flex-wrap items-center gap-4 sm:w-auto sm:justify-end">
+                            <div class="flex items-center gap-2 mr-2">
+                                <span class="text-[10px] font-black tracking-widest text-gray-900" id="label-cdf">CDF</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="currencySwitch" class="sr-only peer">
+                                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-black"></div>
+                                </label>
+                                <span class="text-[10px] font-black tracking-widest text-gray-400" id="label-usd">USD</span>
+                            </div>
+                            <button id="exportCsvBtn" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-black text-white border border-black hover:bg-gray-800 transition-colors flex items-center gap-2">
+                                <iconify-icon icon="lucide:download" width="16"></iconify-icon>
+                                EXPORTER EN CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <article class="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-sm">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Commissions (MRR)</div>
+                    <div class="text-3xl font-black text-green-600" id="kpi-mrr">...</div>
+                    <div class="text-xs text-gray-500 mt-1">Généré sur les 30 derniers jours</div>
+                </article>
+                <article class="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-sm">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Commissions (ARR)</div>
+                    <div class="text-3xl font-black text-gray-900" id="kpi-arr">...</div>
+                    <div class="text-xs text-gray-500 mt-1">Projection annuelle (MRR x 12)</div>
+                </article>
+                <article class="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-sm">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Total GMV</div>
+                    <div class="text-3xl font-black text-gray-900" id="kpi-gmv">...</div>
+                    <div class="text-xs text-gray-500 mt-1">Volume global d'affaires (Toutes les commandes)</div>
+                </article>
+                <article class="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-sm">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Total Commissions</div>
+                    <div class="text-3xl font-black text-blue-600" id="kpi-total-commissions">...</div>
+                    <div class="text-xs text-gray-500 mt-1">Revenu net de la plateforme (Global)</div>
+                </article>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <article class="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Fonds en Escrow (Bloqués)</div>
+                        <div class="text-2xl font-black text-orange-500" id="kpi-escrow-held">...</div>
+                        <div class="text-xs text-gray-500 mt-1">En attente de livraison / libération</div>
+                    </div>
+                    <iconify-icon icon="lucide:lock" class="text-orange-200 text-5xl"></iconify-icon>
+                </article>
+                <article class="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Fonds Libérés (Payouts)</div>
+                        <div class="text-2xl font-black text-green-500" id="kpi-escrow-released">...</div>
+                        <div class="text-xs text-gray-500 mt-1">Total payé aux vendeurs</div>
+                    </div>
+                    <iconify-icon icon="lucide:unlock" class="text-green-200 text-5xl"></iconify-icon>
+                </article>
+            </section>
+
+            <!-- Chart -->
+            <section class="glass-panel p-6 rounded-3xl bg-white border border-gray-100 shadow-sm mt-8">
+                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4">Évolution des Revenus (30 jours)</div>
+                <div style="position: relative; height:400px; width:100%">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module">
+        const BASE_URL = '/api/admin/accounting';
+
+        let currentCurrency = 'CDF';
+        let kpisData = null;
+
+        function getExchangeRate() {
+            return window.ConfigManager ? window.ConfigManager.getExchangeRate() : 2850;
+        }
+
+        async function formatCurrency(amount) {
+            if (currentCurrency === 'USD') {
+                const amountUsd = amount / getExchangeRate();
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(amountUsd);
+            }
+            return new Intl.NumberFormat('fr-CD', { style: 'currency', currency: 'CDF', maximumFractionDigits: 0 }).format(amount);
+        }
+
+        async function renderKPIs() {
+            if (!kpisData) return;
+            document.getElementById('kpi-mrr').textContent = await formatCurrency(kpisData.mrr);
+            document.getElementById('kpi-arr').textContent = await formatCurrency(kpisData.arr);
+            document.getElementById('kpi-gmv').textContent = await formatCurrency(kpisData.totalGMV);
+            document.getElementById('kpi-total-commissions').textContent = await formatCurrency(kpisData.totalCommissions);
+            document.getElementById('kpi-escrow-held').textContent = await formatCurrency(kpisData.totalEscrowHeld);
+            document.getElementById('kpi-escrow-released').textContent = await formatCurrency(kpisData.totalEscrowReleased);
+        }
+
+        async function fetchKPIs() {
+            try {
+                const session = await window.SupabaseAdapter.getSession();
+                if (!session) throw new Error('Non authentifié');
+                const token = session.access_token;
+                const res = await fetch(`${BASE_URL}/kpis`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!res.ok) {
+                    throw new Error('Erreur réseau / non autorisé');
+                }
+
+                const { kpis } = await res.json();
+
+                kpisData = kpis;
+                await renderKPIs();
+
+            } catch (err) {
+                console.error('Erreur chargement KPIs:', err);
+            }
+        }
+
+        async function fetchCharts() {
+            try {
+                const session = await window.SupabaseAdapter.getSession();
+                if (!session) throw new Error('Non authentifié');
+                const token = session.access_token;
+                const res = await fetch(`${BASE_URL}/charts`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Erreur réseau');
+
+                const data = await res.json();
+                renderChart(data.labels, data.datasets);
+
+            } catch (err) {
+                console.error('Erreur chargement graphiques:', err);
+            }
+        }
+
+        function renderChart(labels, datasets) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'GMV (Brut)',
+                            data: datasets[0].data,
+                            backgroundColor: 'rgba(229, 231, 235, 0.5)',
+                            borderColor: 'rgba(156, 163, 175, 1)',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Commissions (Net)',
+                            type: 'line',
+                            data: datasets[1].data,
+                            borderColor: 'rgba(37, 99, 235, 1)',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(243, 244, 246, 1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                font: {
+                                    family: "'Inter', sans-serif",
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleFont: { family: "'Inter', sans-serif", size: 13 },
+                            bodyFont: { family: "'Inter', sans-serif", size: 12 },
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        document.getElementById('exportCsvBtn').addEventListener('click', async () => {
+            const session = await window.SupabaseAdapter.getSession();
+            if (!session) {
+                alert('Non authentifié');
+                return;
+            }
+            const token = session.access_token;
+            
+            fetch(`${BASE_URL}/export`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => {
+                if(!res.ok) throw new Error('Export échoué');
+                return res.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `comptabilite_export_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erreur lors de l'exportation CSV.");
+            });
+        });
+
+        document.getElementById('currencySwitch').addEventListener('change', async (e) => {
+            currentCurrency = e.target.checked ? 'USD' : 'CDF';
+            document.getElementById('label-cdf').classList.toggle('text-gray-900', currentCurrency === 'CDF');
+            document.getElementById('label-cdf').classList.toggle('text-gray-400', currentCurrency !== 'CDF');
+            document.getElementById('label-usd').classList.toggle('text-gray-900', currentCurrency === 'USD');
+            document.getElementById('label-usd').classList.toggle('text-gray-400', currentCurrency !== 'USD');
+            await renderKPIs();
+        });
+
+        // Init
+        fetchKPIs();
+        fetchCharts();
+    </script>
+</body>
+</html>

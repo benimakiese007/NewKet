@@ -1,0 +1,774 @@
+/* newket EMarket Product Manager — V2.1 (Paginated + Image Optimization) */
+
+const PRODUCTS_PAGE_SIZE = 20; // Load 20 at a time instead of 200
+const PRODUCTS_ADMIN_MAX = 1000; // Max products to fetch in admin (no pagination limit)
+
+// ========== IMAGE URL HELPER ==========
+/**
+ * Appends Supabase image transformation params to a product image URL.
+ * This dramatically reduces image file size sent over the network.
+ * Only applies to Supabase storage URLs to avoid breaking external URLs.
+ * @param {string} url - The original image URL
+ * @param {object} opts - Transformation options
+ * @returns {string} The optimized URL
+ */
+// Removed duplicate getOptimizedImageUrl - now using standard one from ui-helpers.js
+
+
+
+const ProductManager = {
+    products: [],
+    _archivedProducts: [],
+    _productByIdCache: new Map(),
+    _viewedThisSession: new Set(),
+
+    // Pagination state
+    _currentPage: 1,
+    _totalCount: 0,
+    _totalCountKnown: false,
+    _hasMore: true,
+    _loading: false,
+    _error: false,
+    _realtimeChannel: null,
+
+    // ========== QUICK CACHE (localStorage, par produit) ==========
+    // TTL : 10 minutes — assez long pour une session normale, assez court pour
+    // que les changements de prix/stock soient visibles rapidement.
+    _QUICK_CACHE_TTL: 10 * 60 * 1000,
+
+    /**
+     * Sauvegarde un produit mappé dans localStorage pour un accès instantané.
+     * @param {Object} p - Produit déjà mappé via _mapProduct
+     */
+    _cacheProduct(p) {
+        if (!p || !p.id) return;
+        try {
+            localStorage.setItem(`nk_p_${p.id}`, JSON.stringify({ d: p, t: Date.now() }));
+        } catch (e) { /* localStorage plein ou désactivé */ }
+    },
+
+    /**
+     * Lit un produit depuis le cache localStorage.
+     * Retourne null si inexistant ou expiré.
+     * @param {string} id - ID du produit
+     * @returns {Object|null}
+     */
+    _getProductFromQuickCache(id) {
+        if (!id) return null;
+        try {
+            const raw = localStorage.getItem(`nk_p_${id}`);
+            if (!raw) return null;
+            const entry = JSON.parse(raw);
+            if (!entry || !entry.d || !entry.t) return null;
+            if (Date.now() - entry.t > this._QUICK_CACHE_TTL) {
+                localStorage.removeItem(`nk_p_${id}`);
+                return null;
+            }
+            return entry.d;
+        } catch (e) { return null; }
+    },
+
+    async init() {
+        if (!window.SupabaseAdapter) {
+            console.error('[NewKet] SupabaseAdapter not found. Cannot initialize ProductManager.');
+            return;
+        }
+
+        this.loading = true;
+
+        // --- FLASH CACHE (LOAD) ---
+        // Reads from localStorage to display UI instantly before network finishes
+        const localCache = localStorage.getItem('newket_products_cache');
+        if (localCache) {
+            try {
+                const parsed = JSON.parse(localCache);
+                if (parsed && Array.isArray(parsed) && parsed.length > 0) {
+                    this.products = parsed;
+                    window.dispatchEvent(new CustomEvent('productsUpdated'));
+                }
+            } catch (e) {
+            }
+        }
+
+        // Reset pagination and load first page from network
+        this._currentPage = 1;
+        this._totalCountKnown = false;
+        this._hasMore = true;
+        this.fetchFreshData().finally(() => {
+            this.loading = false;
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+        });
+
+        // --- REALTIME SUBSCRIPTION ---
+        this._setupRealtime();
+
+        return Promise.resolve();
+    },
+
+    /**
+     * Set up Supabase Realtime subscription for new products.
+     */
+    _setupRealtime() {
+        if (this._realtimeChannel) return; // Already subscribed
+
+        this._realtimeChannel = window.SupabaseAdapter.subscribeToTable('products', 'INSERT', (payload) => {
+            this._handleNewProductRealtime(payload.new);
+        });
+    },
+
+    /**
+     * Handles a new product arriving via Supabase Realtime.
+     */
+    _handleNewProductRealtime(rawProduct) {
+        // 1. Map to UI format
+        const product = this._mapProduct(rawProduct);
+
+        // 2. Check if already exists (avoid duplicates from current user's unshift)
+        if (this.products.some(p => p.id === product.id)) return;
+
+        // 3. Add to list
+        this.products.unshift(product);
+        this._totalCount++;
+
+        // 4. Update UI
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
+
+        // 5. Notify user
+        if (window.AppNotifications) {
+            AppNotifications.showToast(
+                'Nouveau produit ! 🆕',
+                `"${product.name}" vient d'être publié par un vendeur.`,
+                'info',
+                'solar:shop-2-bold'
+            );
+        }
+    },
+
+    /**
+     * Fetches the first page of products, replacing any cached/stale state.
+     * Uses SupabaseAdapter directly (same as catalog.html) for production compatibility.
+     */
+    async fetchFreshData() {
+        this._error = false;
+        try {
+            let products = [];
+
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                try {
+                    const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        limit: PRODUCTS_PAGE_SIZE
+                    });
+                    products = fetchedProducts || [];
+                    this._totalCount = products.length;
+                    this._totalCountKnown = false;
+                    this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
+
+                    // Non-blocking count
+                    window.SupabaseAdapter.countRows('products', { timeout: 7000 })
+                        .then(count => {
+                            if (typeof count === 'number') {
+                                this._totalCount = count;
+                                this._totalCountKnown = true;
+                                this._hasMore = this.products.length < this._totalCount;
+                                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                            }
+                        })
+                        .catch(() => {});
+                } catch (joinErr) {
+                    const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*',
+                        order: ['created_at', { ascending: false }],
+                        limit: PRODUCTS_PAGE_SIZE
+                    });
+                    products = fetchedProducts || [];
+                    this._totalCount = products.length;
+                    this._totalCountKnown = false;
+                    this._hasMore = products.length === PRODUCTS_PAGE_SIZE;
+
+                    window.SupabaseAdapter.countRows('products', { timeout: 7000 })
+                        .then(count => {
+                            if (typeof count === 'number') {
+                                this._totalCount = count;
+                                this._totalCountKnown = true;
+                                this._hasMore = this.products.length < this._totalCount;
+                                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                            }
+                        })
+                        .catch(() => {});
+                }
+            }
+            else if (window.ApiClient) {
+                const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_PAGE_SIZE}`);
+                if (result && result.data) {
+                    products = result.data;
+                    this._totalCount = result.count || products.length;
+                    this._totalCountKnown = typeof result.count === 'number';
+                    this._hasMore = typeof result.count === 'number'
+                        ? products.length < result.count
+                        : products.length === PRODUCTS_PAGE_SIZE;
+                }
+            }
+
+            // Map and update state
+            const mappedProducts = (products || []).map(p => this._mapProduct(p));
+            this._currentPage = 1;
+            
+            // Merge with existing products to avoid overwriting vendor products fetched concurrently
+            const newIds = new Set(mappedProducts.map(p => p.id));
+            const existingToKeep = this.products.filter(p => !newIds.has(p.id));
+            this.products = [...mappedProducts, ...existingToKeep];
+
+            // Ensure pinned products are always fetched, even if older than the first page
+            try {
+                if (window.SupabaseAdapter && window.supabaseClient) {
+                    const pinned = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        eq: [['pinned', true]]
+                    });
+                    if (pinned && pinned.length > 0) {
+                        const mappedPinned = pinned.map(p => this._mapProduct(p));
+                        const existingIds = new Set(this.products.map(p => p.id));
+                        const newPinned = mappedPinned.filter(p => !existingIds.has(p.id));
+                        if (newPinned.length > 0) {
+                            this.products = [...this.products, ...newPinned];
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('[ProductManager] Failed to merge pinned products:', err);
+            }
+
+            // Cache subset for instant next load
+            if (this.products.length > 0) {
+                localStorage.setItem('newket_products_cache', JSON.stringify(this.products.slice(0, 20)));
+            }
+
+            // Always dispatch to clear loading state
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+            
+        } catch (err) {
+            this._error = true;
+            window.dispatchEvent(new CustomEvent('productsError', { detail: err }));
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+        }
+    },
+
+    /**
+     * Loads the next page and appends to existing products.
+     * Used by "Voir plus" button.
+     */
+    async loadMore() {
+        if (this._loading || !this._hasMore) return;
+        this._loading = true;
+        this._error = false;
+
+        try {
+            const offset = this._currentPage * PRODUCTS_PAGE_SIZE;
+            let newProducts = [];
+            let moreResultsExist = null;
+
+            // ── Priorité 1 : SupabaseAdapter ──
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                newProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                    order: ['created_at', { ascending: false }],
+                    range: [offset, offset + PRODUCTS_PAGE_SIZE - 1]
+                });
+                if (this._totalCountKnown && this._totalCount > 0) {
+                    this._hasMore = (this.products.length + newProducts.length) < this._totalCount;
+                } else if (newProducts.length === PRODUCTS_PAGE_SIZE) {
+                    const probe = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: 'id',
+                        order: ['created_at', { ascending: false }],
+                        range: [offset + PRODUCTS_PAGE_SIZE, offset + PRODUCTS_PAGE_SIZE]
+                    });
+                    moreResultsExist = Array.isArray(probe) && probe.length > 0;
+                    this._hasMore = moreResultsExist;
+                } else {
+                    this._hasMore = false;
+                }
+            }
+            // ── Fallback : ApiClient ──
+            else if (window.ApiClient) {
+                const nextPage = this._currentPage + 1;
+                const result = await window.ApiClient.get(`/products?page=${nextPage}&limit=${PRODUCTS_PAGE_SIZE}`);
+                if (result && result.data) {
+                    newProducts = result.data;
+                    if (typeof result.count === 'number') {
+                        this._totalCount = result.count;
+                        this._totalCountKnown = true;
+                        this._hasMore = (this.products.length + newProducts.length) < this._totalCount;
+                    } else {
+                        this._hasMore = newProducts.length === PRODUCTS_PAGE_SIZE;
+                    }
+                }
+            }
+
+            if (newProducts && newProducts.length > 0) {
+                const mappedNew = newProducts.map(p => this._mapProduct(p));
+                this.products = [...this.products, ...mappedNew];
+                this._currentPage++;
+
+                if (this._totalCountKnown) {
+                    this._hasMore = this.products.length < this._totalCount;
+                } else if (moreResultsExist !== null) {
+                    this._hasMore = moreResultsExist;
+                } else if (newProducts.length < PRODUCTS_PAGE_SIZE) {
+                    this._hasMore = false;
+                }
+
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+            } else {
+                this._hasMore = false;
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+            }
+        } catch (err) {
+            this._error = true;
+            window.dispatchEvent(new CustomEvent('productsError', { detail: err }));
+        } finally {
+            this._loading = false;
+        }
+    },
+
+    /**
+     * Returns true if there are more pages to load.
+     */
+    hasMore() {
+        return this._hasMore;
+    },
+
+    /**
+     * Fetches ALL products from the database without any pagination limit.
+     * Intended for admin pages only (Gestion du Catalogue).
+     * Replaces this.products with the full list and dispatches productsUpdated.
+     */
+    async fetchAll() {
+        this._error = false;
+        try {
+            let products = [];
+
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                try {
+                    const [fetchedProducts, totalCount] = await Promise.all([
+                        window.SupabaseAdapter.fetchWithFilters('products', {
+                            select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                            order: ['created_at', { ascending: false }],
+                            limit: PRODUCTS_ADMIN_MAX,
+                            skipCache: true
+                        }),
+                        window.SupabaseAdapter.countRows('products', { timeout: 10000 })
+                    ]);
+                    products = fetchedProducts;
+                    this._totalCount = totalCount || products.length;
+                } catch (joinErr) {
+                    const [fetchedProducts, totalCount] = await Promise.all([
+                        window.SupabaseAdapter.fetchWithFilters('products', {
+                            select: '*',
+                            order: ['created_at', { ascending: false }],
+                            limit: PRODUCTS_ADMIN_MAX,
+                            skipCache: true
+                        }),
+                        window.SupabaseAdapter.countRows('products', { timeout: 10000 })
+                    ]);
+                    products = fetchedProducts;
+                    this._totalCount = totalCount || products.length;
+                }
+            } else if (window.ApiClient) {
+                const result = await window.ApiClient.get(`/products?page=1&limit=${PRODUCTS_ADMIN_MAX}`);
+                if (result && result.data) {
+                    products = result.data;
+                    this._totalCount = result.count || products.length;
+                }
+            }
+
+            const mappedProducts = (products || []).map(p => this._mapProduct(p));
+            this._currentPage = 1;
+            this._hasMore = false; // Admin loaded everything
+            this.products = mappedProducts;
+
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+        } catch (err) {
+            this._error = true;
+            window.dispatchEvent(new CustomEvent('productsError', { detail: err }));
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+        }
+    },
+
+    /**
+     * Fetches all pinned/sponsored products, regardless of age.
+     * Merges them into the global products list so they are accessible to the UI.
+     */
+    async fetchPinnedProducts() {
+        if (!window.SupabaseAdapter || !window.supabaseClient) return [];
+        try {
+            let products = [];
+            
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                products = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                    order: ['created_at', { ascending: false }],
+                    eq: [['pinned', true]],
+                    skipCache: true
+                });
+            }
+
+            if (!products || products.length === 0) return [];
+
+            const mapped = products.map(p => this._mapProduct(p));
+
+            const existingIds = new Set(this.products.map(p => p.id));
+            const newProds = mapped.filter(p => !existingIds.has(p.id));
+            if (newProds.length > 0) {
+                this.products = [...this.products, ...newProds];
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+            }
+
+            return mapped;
+        } catch (err) {
+            console.warn('[ProductManager] Failed to fetch pinned products:', err);
+            return [];
+        }
+    },
+
+    /**
+     * Fetches all products belonging to a specific vendor.
+     * Merges them into the global products list so they are accessible to the UI.
+     */
+    async fetchVendorProducts(userId, email) {
+        if (!window.SupabaseAdapter || !window.supabaseClient) return [];
+        try {
+            let products = [];
+            
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                let byEmail = [];
+                if (email) {
+                    byEmail = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        eq: [['supplier_email', email]],
+                        skipCache: true
+                    });
+                }
+
+                let byUser = [];
+                if (userId && userId !== 'null' && userId !== 'undefined') {
+                    byUser = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        order: ['created_at', { ascending: false }],
+                        eq: [['user_id', userId]],
+                        skipCache: true
+                    });
+                }
+
+                const allProducts = [...(byEmail || []), ...(byUser || [])];
+                const seen = new Set();
+                products = allProducts.filter(p => {
+                    if (seen.has(p.id)) return false;
+                    seen.add(p.id);
+                    return true;
+                });
+            }
+
+            if (!products || products.length === 0) {
+                // Toujours signaler que le fetch est terminé, même avec 0 résultats,
+                // pour que le skeleton loading s'arrête et affiche l'état vide.
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                return [];
+            }
+
+            const mapped = products.map(p => this._mapProduct(p));
+
+            // Remove old version of this vendor's products from the local array
+            this.products = this.products.filter(p => {
+                if (email && p.supplier_email === email) return false;
+                if (userId && p.user_id === userId) return false;
+                return true;
+            });
+
+            if (mapped.length > 0) {
+                this.products = [...this.products, ...mapped];
+            }
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+
+            return mapped;
+        } catch (err) {
+            console.warn('[ProductManager] Failed to fetch vendor products:', err);
+            return [];
+        }
+    },
+
+    /**
+     * Maps a raw Supabase product row to the camelCase format expected by the UI.
+     * Also applies image URL optimization.
+     */
+    _mapProduct(p) {
+        // Handle joined 'users' which can sometimes be returned as an array [] by PostgREST
+        let userInfo = p.users;
+        if (Array.isArray(userInfo)) {
+            userInfo = userInfo[0] || null;
+        }
+        
+        let isPromo = p.is_promo;
+        let oldPrice = p.old_price;
+        let price = p.price;
+        
+        // Apply expiration logic
+        if (isPromo && p.promo_expires_at && new Date(p.promo_expires_at) < new Date()) {
+            price = oldPrice || price;
+            isPromo = false;
+            oldPrice = null;
+        }
+
+        const mapped = {
+            ...p,
+            users: userInfo, // Standardize as an object or null
+            price: price,
+            isNew: p.is_new,
+            isPromo: isPromo,
+            oldPrice: oldPrice,
+            // Keep the original comma-separated string for multi-image support
+            image: p.image,
+        };
+
+        // Mise en cache silencieuse — tout produit affiché (home/catalogue)
+        // sera disponible instantanément sur la page détail.
+        this._cacheProduct(mapped);
+
+        return mapped;
+    },
+
+    getProducts() {
+        return this.products;
+    },
+
+    getTotalCount() {
+        return Math.max(this._totalCount || 0, this.products.length || 0);
+    },
+
+    getProduct(id) {
+        return this.products.find(p => p.id === id);
+    },
+
+    _isValidProductId(value) {
+        return typeof value === 'string'
+            && (
+                /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value) ||
+                /^prod-[a-z0-9-]+$/i.test(value)
+            );
+    },
+
+    /**
+     * Increment the view counter for a product in the backend (fire-and-forget).
+     */
+    async recordView(id) {
+        if (!id) return;
+        if (!window.ApiClient) return;
+        if (!this._isValidProductId(id)) return;
+        if (this._viewedThisSession.has(id)) return;
+        this._viewedThisSession.add(id);
+        try {
+            window.ApiClient.post(`/analytics/view/${id}`, {}, {
+                suppressNetworkError: true,
+                suppressErrorLogging: true,
+                suppressToast: true,
+                dedupe: false
+            }).catch(() => {});
+        } catch (err) {}
+    },
+
+    /**
+     * Fetches a single product by ID.
+     * Priority:
+     *   0. localStorage quick-cache (< 10 min) → instantané, zéro réseau
+     *   1. Mémoire vive (this.products)         → instantané
+     *   2. _productByIdCache (Map interne)      → instantané
+     *   3. Supabase direct avec jointure        → ~500ms–1s
+     *   4. ApiClient fallback                   → ~500ms–1s
+     */
+    async fetchProductById(id) {
+        if (!id) return null;
+
+        // 0. Quick-cache localStorage (chargement instantané)
+        const quickCached = this._getProductFromQuickCache(id);
+        if (quickCached) return quickCached;
+
+        // 1. Mémoire vive
+        const local = this.getProduct(id);
+        if (local) return local;
+
+        // 2. Map interne
+        const memCached = this._productByIdCache.get(id);
+        if (memCached) return memCached;
+
+        // 3. Réseau — Supabase avec jointure vendeur
+        try {
+            if (window.SupabaseAdapter && window.supabaseClient) {
+                const product = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                    eq: [['id', id]],
+                    single: true
+                });
+                if (product) {
+                    const mapped = this._mapProduct(product); // _cacheProduct appelé dans _mapProduct
+                    this._productByIdCache.set(id, mapped);
+                    return mapped;
+                }
+            }
+
+            // 4. Fallback ApiClient
+            if (window.ApiClient) {
+                const product = await window.ApiClient.get(`/products/${id}`, {
+                    cacheKey: `product:${id}`,
+                    cacheTtlMs: 60_000
+                });
+                if (product) {
+                    const mapped = this._mapProduct(product);
+                    this._productByIdCache.set(id, mapped);
+                    return mapped;
+                }
+            }
+        } catch (err) {
+            console.error('[ProductManager] Error fetching product:', id, err);
+        }
+
+        return null;
+    },
+
+    async addProduct(product) {
+        const userId = localStorage.getItem('newketUserId');
+        
+        // Support both array and existing string formats for images
+        let imageData = product.image;
+        if (Array.isArray(imageData)) {
+            imageData = imageData.join(',');
+        }
+
+        const productWithSupplier = {
+            ...product,
+            image: imageData,
+            user_id: userId
+        };
+
+        const newProd = await window.ApiClient.post('/products', productWithSupplier);
+        if (newProd) {
+            const mappedProd = this._mapProduct(newProd);
+            this.products.unshift(mappedProd); // Add to front (newest first)
+            this._totalCount++;
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+            if (window.logVendorActivity) logVendorActivity(`Produit ajouté : ${product.name}`, 'stock');
+            else if (window.ActivityManager) ActivityManager.log(`Produit ajouté : ${product.name}`, 'stock');
+        }
+        return newProd;
+    },
+
+    async updateProduct(id, updatedData) {
+        // Support both array and existing string formats for images
+        if (updatedData.image && Array.isArray(updatedData.image)) {
+            updatedData.image = updatedData.image.join(',');
+        }
+
+        const updated = await window.ApiClient.put(`/products/${id}`, updatedData);
+        if (updated) {
+            const index = this.products.findIndex(p => p.id === id);
+            if (index !== -1) {
+                this.products[index] = this._mapProduct(updated);
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                if (window.logVendorActivity) logVendorActivity(`Produit modifié : ${updated.name}`, 'stock');
+                else if (window.ActivityManager) ActivityManager.log(`Produit modifié : ${updated.name}`, 'stock');
+            }
+        }
+        return updated;
+    },
+
+    async deleteProduct(id) {
+        const result = await window.ApiClient.delete(`/products/${id}`);
+        const success = result && result.success;
+        if (success) {
+            const product = this.products.find(p => p.id === id);
+            this.products = this.products.filter(p => p.id !== id);
+            this._totalCount--;
+            window.dispatchEvent(new CustomEvent('productsUpdated'));
+            if (product && window.logVendorActivity) logVendorActivity(`Produit supprimé : ${product.name}`, 'stock');
+            else if (product && window.ActivityManager) ActivityManager.log(`Produit supprimé : ${product.name}`, 'stock');
+        }
+        return success;
+    },
+
+    async deleteBulk(ids) {
+        await window.ApiClient.post('/products/bulk-delete', { ids });
+        this.products = this.products.filter(p => !ids.includes(p.id));
+        this._totalCount -= ids.length;
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
+        if (window.logVendorActivity) logVendorActivity(`${ids.length} produits supprimés par action groupée`, 'stock');
+        else if (window.ActivityManager) ActivityManager.log(`${ids.length} produits supprimés par action groupée`, 'stock');
+    },
+
+    async archiveProduct(id) {
+        const result = await window.ApiClient.patch(`/products/${id}/archive`, {});
+        const success = result && result.success;
+        if (success) {
+            const product = this.products.find(p => p.id === id);
+            if (product) {
+                product.is_archived = true;
+                this._archivedProducts.push(product);
+                this.products = this.products.filter(p => p.id !== id);
+                this._totalCount--;
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                if (window.ActivityManager) ActivityManager.log(`Produit archivé : ${product.name}`, 'stock');
+            }
+        }
+        return success;
+    },
+
+    async restoreProduct(id) {
+        const result = await window.ApiClient.patch(`/products/${id}/restore`, {});
+        const success = result && result.success;
+        if (success) {
+            const product = this._archivedProducts.find(p => p.id === id);
+            if (product) {
+                product.is_archived = false;
+                this.products.unshift(product);
+                this._archivedProducts = this._archivedProducts.filter(p => p.id !== id);
+                this._totalCount++;
+                window.dispatchEvent(new CustomEvent('productsUpdated'));
+                window.dispatchEvent(new CustomEvent('archivedProductsUpdated'));
+                if (window.ActivityManager) ActivityManager.log(`Produit restauré : ${product.name}`, 'stock');
+            }
+        }
+        return success;
+    },
+
+    async fetchVendorArchived() {
+        try {
+            if (!window.ApiClient) return [];
+            const result = await window.ApiClient.get('/products/vendor/archived');
+            if (result && result.data) {
+                this._archivedProducts = (result.data || []).map(p => this._mapProduct(p));
+                window.dispatchEvent(new CustomEvent('archivedProductsUpdated'));
+                return this._archivedProducts;
+            }
+        } catch (err) {
+            console.warn('[ProductManager] Failed to fetch archived products:', err);
+        }
+        return [];
+    },
+
+    getArchivedProducts() {
+        return this._archivedProducts;
+    },
+
+    async updateCategoryBulk(ids, newCategory) {
+        await window.ApiClient.post('/products/bulk-category', { ids, category: newCategory });
+        this.products.forEach(p => {
+            if (ids.includes(p.id)) p.category = newCategory;
+        });
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
+        if (window.logVendorActivity) logVendorActivity(`Catégorie mise à jour pour ${ids.length} produits`, 'stock');
+        else if (window.ActivityManager) ActivityManager.log(`Catégorie mise à jour pour ${ids.length} produits`, 'stock');
+    }
+};
+
+window.ProductManager = ProductManager;

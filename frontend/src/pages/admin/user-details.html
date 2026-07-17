@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Profil Utilisateur | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .activity-dot {
+            position: relative;
+        }
+
+        .activity-dot::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 2rem;
+            bottom: -1rem;
+            width: 2px;
+            background: #e2e8f0;
+            transform: translateX(-50%);
+        }
+
+        .activity-item:last-child .activity-dot::after {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="text-gray-900">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <main class="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+        <!-- Top Section: Profile & Stats -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Profile Card -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass-panel p-8 text-center space-y-4">
+                    <div class="w-24 h-24 rounded-full bg-black mx-auto flex items-center justify-center text-3xl font-black text-white shadow-2xl skeleton skeleton-avatar"
+                        id="userAvatar">U</div>
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight" id="userName"><span class="skeleton skeleton-title inline-block" style="width:220px;height:24px;margin:0 auto;"></span></h2>
+                        <div class="mt-2 flex flex-wrap items-center justify-center gap-2">
+                            <p class="text-gray-500 font-medium" id="userEmail"><span class="skeleton skeleton-text skeleton-line" style="width:180px;height:14px;"></span></p>
+                            <span id="roleBadge" class="px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500">Profil</span>
+                            <span id="sellerTypeBadge" class="hidden px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500">Vendeur normal</span>
+                        </div>
+                    </div>
+                    <div class="pt-4 flex justify-center gap-4 border-t border-gray-50">
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Membre depuis</p>
+                            <p class="font-bold text-gray-900" id="joinDate"><span class="skeleton skeleton-text skeleton-line" style="width:110px;height:14px;"></span></p>
+                        </div>
+                    </div>
+                    <button onclick="window.print()" data-track-action="admin_user_details:print_click"
+                        class="w-full py-3 text-gray-900 font-bold flex items-center justify-center gap-2 transition-colors">
+                        <iconify-icon icon="solar:printer-bold" width="18"></iconify-icon>
+                        Imprimer le rapport
+                    </button>
+                </div>
+
+                <!-- Vendor Info Panel -->
+                <div id="vendorDetailsPanel" class="hidden glass-panel p-6 space-y-4">
+                    <h3 class="font-black text-gray-900 flex items-center gap-2">
+                        <iconify-icon icon="solar:shop-bold" width="20" class="text-blue-500"></iconify-icon>
+                        Détails Boutique
+                    </h3>
+                    <div id="vendorDetailsContent" class="space-y-4 text-sm">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <div class="glass-panel p-6 space-y-6">
+                    <h3 class="font-black text-gray-900 flex items-center gap-2">
+                        <iconify-icon icon="solar:bell-bing-bold" width="20" class="text-orange-500"></iconify-icon>
+                        Activité Récente
+                    </h3>
+                    <div id="activityFeed" class="space-y-4">
+                        <div class="flex gap-4">
+                            <div class="skeleton skeleton-avatar flex-shrink-0" style="width:32px;height:32px;border-radius:9999px;"></div>
+                            <div class="flex-1 space-y-2 pt-1">
+                                <div class="skeleton skeleton-text" style="width:72%;height:14px;"></div>
+                                <div class="skeleton skeleton-text" style="width:54%;height:12px;"></div>
+                                <div class="skeleton skeleton-text" style="width:38%;height:10px;"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="skeleton skeleton-avatar flex-shrink-0" style="width:32px;height:32px;border-radius:9999px;"></div>
+                            <div class="flex-1 space-y-2 pt-1">
+                                <div class="skeleton skeleton-text" style="width:66%;height:14px;"></div>
+                                <div class="skeleton skeleton-text" style="width:50%;height:12px;"></div>
+                                <div class="skeleton skeleton-text" style="width:42%;height:10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Referral & NKToken -->
+                <div id="referralPanel" class="hidden glass-panel p-6 space-y-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h3 class="font-black text-gray-900 flex items-center gap-2">
+                            <iconify-icon icon="solar:gift-bold" width="20" class="text-emerald-500"></iconify-icon>
+                            Parrainage / NKToken
+                        </h3>
+                        <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
+                            1 NKToken = 0,5$
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                            <p class="text-[10px] uppercase font-black tracking-widest text-gray-400">Code parrainage</p>
+                            <p id="adminReferralCode" class="mt-2 font-black text-gray-900 break-all">-</p>
+                        </div>
+                        <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                            <p class="text-[10px] uppercase font-black tracking-widest text-gray-400">Parrain actuel</p>
+                            <p id="adminReferralParent" class="mt-2 font-black text-gray-900">-</p>
+                        </div>
+                        <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                            <p class="text-[10px] uppercase font-black tracking-widest text-gray-400">Solde NKToken</p>
+                            <p id="adminReferralBalance" class="mt-2 font-black text-gray-900">0 NKToken</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="rounded-2xl bg-emerald-50/60 border border-emerald-100 p-4">
+                            <p class="text-[10px] uppercase font-black tracking-widest text-emerald-600">Total gagné</p>
+                            <p id="adminReferralTotalEarned" class="mt-2 font-black text-emerald-700">0 NKToken</p>
+                        </div>
+                        <div class="rounded-2xl bg-emerald-50/60 border border-emerald-100 p-4">
+                            <p class="text-[10px] uppercase font-black tracking-widest text-emerald-600">Valeur estimée</p>
+                            <p id="adminReferralValue" class="mt-2 font-black text-emerald-700">0$</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-[10px] uppercase font-black tracking-widest text-gray-400">Historique des récompenses</p>
+                            <span id="adminReferralHistoryCount" class="text-[10px] font-black uppercase tracking-widest text-gray-300">0</span>
+                        </div>
+                        <div id="adminReferralHistory" class="space-y-3"></div>
+                        <div id="adminReferralEmpty" class="hidden rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
+                            Aucune récompense NKToken enregistrée pour ce profil.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats & Lists -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="glass-panel p-6 border-b-4 border-blue-500">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1" id="stat1Label">
+                            Commandes</p>
+                        <div class="text-3xl font-black text-gray-900" id="stat1Value"><div class="skeleton skeleton-text" style="width:55%;height:32px;margin:0;"></div></div>
+                    </div>
+                    <div class="glass-panel p-6 border-b-4 border-green-500">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1" id="stat2Label">
+                            Dépenses</p>
+                        <div class="text-3xl font-black text-gray-900" id="stat2Value"><div class="skeleton skeleton-text" style="width:45%;height:32px;margin:0;"></div></div>
+                    </div>
+                    <div class="glass-panel p-6 border-b-4 border-purple-500">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1" id="stat3Label">
+                            Moyenne</p>
+                        <div class="text-3xl font-black text-gray-900" id="stat3Value"><div class="skeleton skeleton-text" style="width:45%;height:32px;margin:0;"></div></div>
+                    </div>
+                </div>
+
+                <!-- Main Content List (Orders or Products) -->
+                <div class="glass-panel overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h3 class="text-lg font-black text-gray-900 flex items-center gap-2" id="listTitle">
+                            Historique
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto admin-table-shell">
+                        <table class="premium-table admin-data-table admin-user-details-table w-full text-left" id="dataTable">
+                            <colgroup>
+                                <col class="admin-user-details-table__col-date">
+                                <col class="admin-user-details-table__col-ref">
+                                <col class="admin-user-details-table__col-details">
+                                <col class="admin-user-details-table__col-amount">
+                            </colgroup>
+                            <thead>
+                                <tr class="bg-gray-50/50">
+                                    <th
+                                        class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        Date
+                                    </th>
+                                    <th
+                                        class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        Réf /
+                                        Nom</th>
+                                    <th
+                                        class="whitespace-nowrap p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        Détails</th>
+                                    <th
+                                        class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right whitespace-nowrap">
+                                        Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataBody" class="divide-y divide-gray-100">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="emptyState" class="hidden p-12 text-center text-gray-400">
+                        <iconify-icon icon="solar:box-linear" width="48" class="mb-4 text-gray-200"></iconify-icon>
+                        <p>Aucune donnée disponible pour cet utilisateur.</p>
+                    </div>
+                </div>
+
+                <!-- If Supplier: Show Products too -->
+                <div id="supplierProductsSection" class="hidden glass-panel overflow-hidden">
+                    <div class="p-6 border-b border-gray-100">
+                        <h3 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                            Catalogue du vendeur
+                        </h3>
+                    </div>
+                    <div class="p-6 grid grid-cols-2 sm:grid-cols-3 gap-4" id="productsGrid">
+                        <!-- Products injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        </main>
+    </div>
+
+    <script>
+        let userDetailsBootStarted = false;
+
+        function getSellerTypeConfig(value) {
+            const normalized = String(value || 'normal').toLowerCase();
+            if (normalized === 'certified') {
+                return {
+                    label: 'Vendeur certifié',
+                    className: 'px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-blue-100 text-blue-700'
+                };
+            }
+
+            return {
+                label: 'Vendeur normal',
+                className: 'px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-gray-100 text-gray-500'
+            };
+        }
+
+        async function loadUserDetails() {
+            if (userDetailsBootStarted) return;
+            userDetailsBootStarted = true;
+
+            const db = document.getElementById('dataBody');
+            if (db && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                db.innerHTML = window.buildSkeletonTableRowsHTML(5, 4);
+            }
+
+            const initPromises = [];
+            if (window.UserManager) {
+                if (UserManager._fetchPromise) initPromises.push(UserManager._fetchPromise.catch(() => {}));
+                else if (!UserManager._initialized) initPromises.push(UserManager.init().catch(() => {}));
+            }
+            if (window.OrderManager) {
+                if (OrderManager._fetchPromise) initPromises.push(OrderManager._fetchPromise.catch(() => {}));
+                else if (!OrderManager._initialized) initPromises.push(OrderManager.init().catch(() => {}));
+            }
+            if (window.ProductManager) {
+                if (ProductManager._fetchPromise) initPromises.push(ProductManager._fetchPromise.catch(() => {}));
+                else if (!ProductManager._initialized) initPromises.push(ProductManager.init().catch(() => {}));
+            }
+            await Promise.all(initPromises);
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+
+            if (!email) {
+                clearSkeletons("Utilisateur introuvable");
+                return;
+            }
+
+            // Get User from Database
+            const users = UserManager.getUsers();
+            let user = users.find(u => u.email === email);
+
+            // If not found in users list (maybe he's just an order customer), infer from order
+            const allOrders = OrderManager.getOrders();
+            const clientOrders = allOrders.filter(o =>
+                (o.customer && o.customer.email === email) ||
+                o.customer_email === email ||
+                o.user_email === email
+            );
+
+            if (!user && clientOrders.length > 0) {
+                user = {
+                    name: clientOrders[0].customer?.name || clientOrders[0].customer_name,
+                    email: email,
+                    role: 'customer',
+                    dateJoined: clientOrders[clientOrders.length - 1].date
+                };
+            }
+
+            if (!user) {
+                clearSkeletons("Utilisateur inconnu", email);
+                return;
+            }
+
+            function clearSkeletons(title, emailText = "") {
+                document.getElementById('userName').innerHTML = title;
+                document.getElementById('userEmail').textContent = emailText;
+                document.getElementById('roleBadge').textContent = "Erreur";
+                const avatarEl = document.getElementById('userAvatar');
+                if (avatarEl) {
+                    avatarEl.classList.remove('skeleton', 'skeleton-img');
+                    avatarEl.classList.add('bg-gray-100', 'text-gray-500', 'text-4xl', 'font-black');
+                    avatarEl.textContent = "?";
+                }
+                const joinDateEl = document.getElementById('joinDate');
+                if (joinDateEl) joinDateEl.textContent = "N/A";
+                
+                const s1 = document.getElementById('stat1Value');
+                if (s1) s1.innerHTML = "0";
+                const s2 = document.getElementById('stat2Value');
+                if (s2) s2.innerHTML = "0";
+                const s3 = document.getElementById('stat3Value');
+                if (s3) s3.innerHTML = "0";
+                
+                const emptyState = document.getElementById('emptyState');
+                if (emptyState) emptyState.classList.remove('hidden');
+                
+                const db = document.getElementById('dataBody');
+                if (db) db.innerHTML = "";
+                
+                const dataTable = document.getElementById('dataTable');
+                if (dataTable && dataTable.parentElement) dataTable.parentElement.classList.add('hidden');
+
+                const feed = document.getElementById('activityFeed');
+                if (feed) feed.innerHTML = "";
+            }
+
+            const role = user.role || 'customer';
+            const sellerType = String(user.seller_type || (role === 'supplier' ? 'normal' : '')).toLowerCase();
+
+            // UI Setup
+            const displayName = UserManager.getDisplayName(user);
+            document.getElementById('userName').innerHTML = `${displayName} ${user.status === 'submitted' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-orange-100 text-orange-600 align-middle">Dossier soumis</span>'
+                : user.status === 'pending' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-yellow-100 text-yellow-700 align-middle">En attente</span>'
+                    : (user.status === 'approved' || user.status === 'verified') ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-green-100 text-green-700 align-middle">Approuvé</span>'
+                        : user.status === 'rejected' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-red-100 text-red-600 align-middle">Rejeté</span>'
+                            : ''
+                }`;
+            document.getElementById('userEmail').textContent = user.email;
+            const avatarEl = document.getElementById('userAvatar');
+            if (user.avatar) {
+                avatarEl.innerHTML = `<img src="${user.avatar}" class="w-full h-full object-cover rounded-full shadow-lg">`;
+                avatarEl.classList.remove('bg-black', 'text-white', 'skeleton', 'skeleton-img', 'skeleton-avatar');
+            } else {
+                avatarEl.textContent = displayName.substring(0, 2).toUpperCase();
+                avatarEl.classList.remove('skeleton', 'skeleton-img', 'skeleton-avatar');
+            }
+            const joinedAt = getValidDate(getUserJoinedAt(user));
+            const joinDateLabel = joinedAt
+                ? joinedAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+                : 'N/A';
+            document.getElementById('joinDate').textContent = joinDateLabel;
+
+            const badge = document.getElementById('roleBadge');
+            badge.textContent = role === 'supplier' ? 'Vendeur / Fournisseur' : 'Client / Acheteur';
+            badge.className = `px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest ${role === 'supplier' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}`;
+
+            const sellerBadge = document.getElementById('sellerTypeBadge');
+            if (sellerBadge) {
+                if (role === 'supplier') {
+                    const cfg = getSellerTypeConfig(sellerType);
+                    sellerBadge.textContent = cfg.label;
+                    sellerBadge.className = cfg.className;
+                    sellerBadge.classList.remove('hidden');
+                } else {
+                    sellerBadge.classList.add('hidden');
+                }
+            }
+
+            if (role === 'supplier') {
+                renderSupplierView(user, allOrders);
+            } else {
+                renderCustomerView(user, clientOrders);
+            }
+
+            await renderReferralPanel(user);
+            renderActivityFeed(user, clientOrders);
+        }
+
+        function renderCustomerView(user, orders) {
+            const validOrders = orders.filter(o => o.status !== 'Annulé' && o.status !== 'cancelled').sort((a, b) => new Date(b.date) - new Date(a.date));
+            const totalSpent = validOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+            document.getElementById('stat1Label').textContent = "Total Commandes";
+            document.getElementById('stat1Value').textContent = validOrders.length;
+            document.getElementById('stat2Label').textContent = "Dépenses Totales";
+            document.getElementById('stat2Value').textContent = CurrencyManager.formatPrice(totalSpent);
+            document.getElementById('stat3Label').textContent = "Panier Moyen";
+            document.getElementById('stat3Value').textContent = validOrders.length > 0 ? CurrencyManager.formatPrice(totalSpent / validOrders.length) : '0';
+
+            document.getElementById('listTitle').textContent = "Historique des achats";
+
+            const tbody = document.getElementById('dataBody');
+            if (orders.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('dataTable').parentElement.classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('dataTable').parentElement.classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+
+            tbody.innerHTML = orders.map(o => `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="p-4 text-xs font-bold text-gray-400">${new Date(o.date).toLocaleDateString()}</td>
+                    <td class="p-4 font-black text-gray-900">#${o.id}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-gray-100 text-gray-500">${o.status}</span>
+                    </td>
+                    <td class="p-4 text-right font-black text-gray-900">${CurrencyManager.formatPrice(o.total)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderSupplierView(user, allOrders) {
+            const products = ProductManager.getProducts().filter(p => p.supplier_email === user.email);
+            const documentUrls = Array.isArray(user.documents_url)
+                ? user.documents_url
+                : (typeof user.documents_url === 'string' && user.documents_url.trim()
+                    ? (() => {
+                        try {
+                            const parsed = JSON.parse(user.documents_url);
+                            return Array.isArray(parsed) ? parsed : [];
+                        } catch (_) {
+                            return [];
+                        }
+                    })()
+                    : []);
+
+            // Filter orders that contain this supplier's products
+            const supplierRevenueOrders = allOrders.filter(o =>
+                (o.items || []).some(item => products.some(p => p.id === item.id))
+            );
+
+            const totalGross = supplierRevenueOrders.reduce((sum, o) => {
+                const supplierTotal = (o.items || []).filter(item => products.some(p => p.id === item.id))
+                    .reduce((s, it) => s + (it.price * it.quantity), 0);
+                return sum + supplierTotal;
+            }, 0);
+
+            document.getElementById('stat1Label').textContent = "Produits en vente";
+            document.getElementById('stat1Value').textContent = products.length;
+            document.getElementById('stat2Label').textContent = "Volume de Ventes";
+            document.getElementById('stat2Value').textContent = CurrencyManager.formatPrice(totalGross);
+            document.getElementById('stat3Label').textContent = "Frais Plateforme (0%)";
+            document.getElementById('stat3Value').textContent = CurrencyManager.formatPrice(0);
+
+            // Populate Vendor Details Panel
+            const detailsPanel = document.getElementById('vendorDetailsPanel');
+            const detailsContent = document.getElementById('vendorDetailsContent');
+            if (user.company_name || user.store_description || documentUrls.length > 0 || user.status === 'submitted' || user.status === 'pending') {
+                detailsPanel.classList.remove('hidden');
+
+                let docsHtml = '';
+                if (documentUrls.length > 0) {
+                    docsHtml = `
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Documents <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-1">${documentUrls.length} fichier(s)</span></p>
+                            <div class="flex flex-col gap-2">
+                                ${documentUrls.map((url, idx) => {
+                        // S'assurer que l'URL est complète et pointe vers le bon domaine Supabase
+                        const finalUrl = url.startsWith('http') ? url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-docs/${url}`;
+                        return `
+                                        <a href="${finalUrl}" target="_blank" class="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded-xl hover:bg-blue-100 transition-colors">
+                                            <iconify-icon icon="solar:document-bold"></iconify-icon> Voir Document ${idx + 1}
+                                        </a>
+                                    `;
+                    }).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else if (user.status === 'submitted' || user.status === 'pending') {
+                    docsHtml = `
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                           <p class="text-xs text-red-500 font-bold bg-red-50 p-2 rounded-xl"><iconify-icon icon="solar:danger-triangle-bold"></iconify-icon> Aucun document fourni par ce vendeur.</p>
+                        </div>
+                    `;
+                }
+
+                let actionButtonsHtml = '';
+                if (user.status === 'submitted' || user.status === 'pending') {
+                    const safeName = UserManager.getDisplayName(user).replace(/'/g, "\\'");
+                    actionButtonsHtml = `
+                        <div class="mt-6 pt-4 border-t border-gray-100 flex gap-2">
+                            <button onclick="approveVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:approve_vendor_click" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:check-read-bold" width="18"></iconify-icon> Approuver
+                            </button>
+                            <button onclick="rejectVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:reject_vendor_click" class="flex-1 py-3 bg-red-50 text-red-500 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon> Rejeter
+                            </button>
+                        </div>
+                    `;
+                }
+
+                const sellerType = String(user.seller_type || 'normal').toLowerCase();
+                const typeButtonsHtml = (user.status === 'approved' || user.status === 'verified')
+                    ? `
+                        <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
+                            <button onclick="setVendorSellerType('${user.id}', 'normal', '${UserManager.getDisplayName(user).replace(/'/g, "\\'")}')" data-track-action="admin_user_details:set_seller_type_normal_click" class="flex-1 min-w-[180px] py-3 bg-gray-50 text-gray-700 rounded-xl font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:users-group-rounded-bold" width="18"></iconify-icon> Passer en normal
+                            </button>
+                            <button onclick="setVendorSellerType('${user.id}', 'certified', '${UserManager.getDisplayName(user).replace(/'/g, "\\'")}')" data-track-action="admin_user_details:set_seller_type_certified_click" class="flex-1 min-w-[180px] py-3 bg-blue-50 text-blue-700 rounded-xl font-bold hover:bg-blue-100 transition-all flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:verified-check-bold" width="18"></iconify-icon> Passer en certifié
+                            </button>
+                        </div>
+                    `
+                    : '';
+
+                detailsContent.innerHTML = `
+                    ${user.role === 'supplier' ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Type de compte</p><p class="font-bold text-gray-900">${getSellerTypeConfig(sellerType).label}</p></div>` : ''}
+                    ${user.company_name ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Nom Professionnel</p><p class="font-bold text-gray-900">${user.company_name}</p></div>` : ''}
+                    ${user.shipping_time ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Délai d'expédition</p><p class="font-bold text-blue-600">${user.shipping_time}</p></div>` : ''}
+                    ${user.store_description ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Description</p><p class="text-gray-600 leading-relaxed">${user.store_description}</p></div>` : ''}
+                    ${user.store_address ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Adresse/Ville</p><p class="font-medium text-gray-900">${user.store_address}</p></div>` : ''}
+                    ${user.store_phone ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Contact Paiement</p><a href="tel:${user.store_phone}" class="font-bold text-blue-600 flex items-center gap-1"><iconify-icon icon="solar:phone-bold"></iconify-icon> ${user.store_phone}</a></div>` : ''}
+                    ${user.preferred_payout_method ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Paiement</p><p class="font-medium text-gray-900">${user.preferred_payout_method}</p></div>` : ''}
+                    ${docsHtml}
+                    ${actionButtonsHtml}
+                    ${typeButtonsHtml}
+                `;
+            }
+
+            document.getElementById('listTitle').textContent = "Commandes reçues";
+
+            const tbody = document.getElementById('dataBody');
+            if (supplierRevenueOrders.length === 0) {
+                tbody.innerHTML = '';
+                document.getElementById('dataTable').parentElement.classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+            } else {
+                document.getElementById('dataTable').parentElement.classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+                tbody.innerHTML = supplierRevenueOrders.map(o => {
+                    const mine = (o.items || []).filter(item => products.some(p => p.id === item.id));
+                    const subtotal = mine.reduce((s, it) => s + (it.price * it.quantity), 0);
+                    return `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-4 text-xs font-bold text-gray-400">${new Date(o.date).toLocaleDateString()}</td>
+                            <td class="p-4">
+                                <div class="font-black text-gray-900 admin-table-truncate" title="#${o.id}">#${o.id}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 uppercase font-bold" title="${o.customer_name || 'Client'}">${o.customer_name || 'Client'}</div>
+                            </td>
+                            <td class="p-4">
+                                <div class="admin-table-truncate text-[10px] text-gray-500 font-bold" title="${mine.length} art. parmis ${o.items.length}">${mine.length} art. parmis ${o.items.length}</div>
+                            </td>
+                            <td class="p-4 text-right font-black text-gray-900">${CurrencyManager.formatPrice(subtotal)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Products Grid
+            document.getElementById('supplierProductsSection').classList.remove('hidden');
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = products.map(p => `
+                <div class="group relative bg-gray-50 rounded-xl overflow-hidden border border-transparent hover:border-gray-200 transition-all p-3">
+                    <img loading="lazy" src="${window.resolveProductImageSource ? window.resolveProductImageSource(p) : window.getOptimizedImageUrl(p.image ? p.image.split(',')[0] : '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(window.resolveProductImageSource ? window.resolveProductImageSource(p) : (p.image ? p.image.split(',')[0] : ''), [120, 180, 240], { quality: 75 })}" sizes="160px"` : ''} class="w-full aspect-square object-contain mb-3" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
+                    <div class="font-bold text-xs truncate">${p.name}</div>
+                    <div class="text-[10px] text-gray-400 font-black">${CurrencyManager.formatPrice(p.price)}</div>
+                </div>
+            `).join('');
+        }
+
+        function getUserJoinedAt(user) {
+            return user.dateJoined || user.date_joined || user.created_at || null;
+        }
+
+        function getValidDate(value) {
+            if (!value) return null;
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatNkTokenUsd(value) {
+            const amount = Number(value || 0);
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        async function renderReferralPanel(user) {
+            const panel = document.getElementById('referralPanel');
+            const codeEl = document.getElementById('adminReferralCode');
+            const parentEl = document.getElementById('adminReferralParent');
+            const balanceEl = document.getElementById('adminReferralBalance');
+            const totalEarnedEl = document.getElementById('adminReferralTotalEarned');
+            const valueEl = document.getElementById('adminReferralValue');
+            const historyEl = document.getElementById('adminReferralHistory');
+            const emptyEl = document.getElementById('adminReferralEmpty');
+            const countEl = document.getElementById('adminReferralHistoryCount');
+
+            if (!panel || !user?.id) return;
+
+            panel.classList.remove('hidden');
+            codeEl.textContent = user.referral_code || '-';
+
+            const parentUser = user.referred_by_user_id ? UserManager.getUser(user.referred_by_user_id) : null;
+            parentEl.textContent = parentUser
+                ? UserManager.getDisplayName(parentUser)
+                : (user.referred_by_code || 'Aucun parrain');
+
+            try {
+                const summary = await ApiClient.get(`/users/${user.id}/referral-summary`);
+                const history = Array.isArray(summary?.reward_history) ? summary.reward_history : [];
+                const balance = Number(summary?.nk_token_balance || user.nk_token_balance || 0);
+                const totalEarned = Number(summary?.nk_token_total_earned || user.nk_token_total_earned || 0);
+                const rate = Number(summary?.nk_token_rate_usd || 0.5);
+                const balanceUsd = Number(summary?.nk_token_balance_usd || (balance * rate));
+                const totalEarnedUsd = Number(summary?.nk_token_total_earned_usd || (totalEarned * rate));
+
+                balanceEl.textContent = `${balance.toLocaleString('fr-FR')} NKToken`;
+                totalEarnedEl.textContent = `${totalEarned.toLocaleString('fr-FR')} NKToken`;
+                valueEl.textContent = `${formatNkTokenUsd(balanceUsd)} / ${formatNkTokenUsd(totalEarnedUsd)}`;
+                countEl.textContent = `${history.length} mouvement(s)`;
+
+                if (history.length === 0) {
+                    historyEl.innerHTML = '';
+                    emptyEl.classList.remove('hidden');
+                    return;
+                }
+
+                emptyEl.classList.add('hidden');
+                historyEl.innerHTML = history.map((entry) => {
+                    const inviteeName = entry?.invitee ? UserManager.getDisplayName(entry.invitee) : 'Client';
+                    const rewardedAt = entry.rewarded_at ? new Date(entry.rewarded_at).toLocaleString('fr-FR') : 'Date indisponible';
+                    return `
+                        <div class="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <p class="font-black text-gray-900">${escapeHtml(inviteeName)}</p>
+                                    <p class="text-[11px] text-gray-500 font-medium">Commande conclue le ${escapeHtml(rewardedAt)}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-black text-emerald-700">${Number(entry.reward_amount || 0).toLocaleString('fr-FR')} NKToken</p>
+                                    <p class="text-[11px] text-emerald-600 font-medium">${formatNkTokenUsd(entry.reward_amount_usd || 0)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Erreur chargement NKToken admin:', error);
+                balanceEl.textContent = `${Number(user.nk_token_balance || 0).toLocaleString('fr-FR')} NKToken`;
+                totalEarnedEl.textContent = `${Number(user.nk_token_total_earned || 0).toLocaleString('fr-FR')} NKToken`;
+                valueEl.textContent = formatNkTokenUsd((Number(user.nk_token_balance || 0)) * 0.5);
+                countEl.textContent = 'Historique indisponible';
+                historyEl.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+            }
+        }
+
+        function renderActivityFeed(user, orders) {
+            const feed = document.getElementById('activityFeed');
+            if (!feed) return;
+            const items = [];
+            const joinedAt = getUserJoinedAt(user);
+
+            // 1. Join
+            items.push({
+                type: 'join',
+                title: 'Inscription sur la plateforme',
+                desc: 'Compte créé avec succès.',
+                date: joinedAt,
+                icon: 'solar:user-plus-bold',
+                color: 'text-blue-500'
+            });
+
+            // 2. Orders
+            orders.forEach(o => {
+                items.push({
+                    type: 'order',
+                    title: `Commande #${o.id}`,
+                    desc: user.role === 'supplier' ? 'Vendu un ou plusieurs articles.' : 'Achat effectué.',
+                    date: o.date || o.created_at,
+                    icon: 'solar:bag-large-bold',
+                    color: 'text-green-500'
+                });
+            });
+
+            // Sort desc
+            items.sort((a, b) => {
+                const dateA = getValidDate(a.date);
+                const dateB = getValidDate(b.date);
+                return (dateB ? dateB.getTime() : 0) - (dateA ? dateA.getTime() : 0);
+            });
+
+            feed.innerHTML = items.map(item => `
+                <div class="activity-item flex gap-4">
+                    <div class="activity-dot flex-shrink-0">
+                        <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center ${item.color} shadow-sm border border-white">
+                            <iconify-icon icon="${item.icon}" width="16"></iconify-icon>
+                        </div>
+                    </div>
+                    <div class="flex-1 pb-4">
+                        <p class="text-sm font-bold text-gray-900">${item.title}</p>
+                        <p class="text-[11px] text-gray-500 font-medium">${item.desc}</p>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-gray-300 mt-1">${getValidDate(item.date)?.toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) || 'Date indisponible'}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function approveVendor(id, name) {
+            window.showConfirm("Approuver", `Confirmer l'approbation du vendeur ${name} ?`, async () => {
+                if (window.LoaderManager) LoaderManager.show("Approbation...");
+
+                try {
+                    const res = await window.SupabaseAdapter.update('users', id, { status: 'verified', role: 'supplier', seller_type: 'certified' });
+                    if (res) {
+                        try {
+                            const users = window.UserManager ? UserManager.getUsers() : [];
+                            const user = users.find(u => u.id === id);
+                            if (user && user.email) {
+                                await window.SupabaseAdapter.insert('notifications', {
+                                    id: 'notif-' + Date.now(),
+                                    title: "Boutique validée !",
+                                    message: "Félicitations, votre demande pour devenir vendeur a été approuvée.",
+                                    type: "success",
+                                    date: new Date().toISOString(),
+                                    read: false,
+                                    user_email: user.email
+                                });
+                            }
+                        } catch (e) {
+                            console.error("Erreur notification:", e);
+                        }
+
+                        if (window.showToast) window.showToast(`Le vendeur ${name} a été approuvé.`, 'success', 'Approbation');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        throw new Error("Mise à jour échouée (aucun retour).");
+                    }
+                } catch (err) {
+                    console.error("Erreur approbation:", err);
+                    if (window.showToast) window.showToast("Erreur lors de l'approbation : " + err.message, 'danger', 'Erreur');
+                } finally {
+                    if (window.LoaderManager) LoaderManager.hide();
+                }
+            });
+        }
+
+        async function setVendorSellerType(id, sellerType, name) {
+            const normalizedType = sellerType === 'certified' ? 'certified' : 'normal';
+            window.showConfirm(
+                normalizedType === 'certified' ? 'Certifier' : 'Rétablir en normal',
+                `Confirmer le passage du vendeur ${name} en ${normalizedType === 'certified' ? 'certifié' : 'normal'} ?`,
+                async () => {
+                    if (window.LoaderManager) LoaderManager.show("Mise à jour...");
+
+                    try {
+                        const res = await window.SupabaseAdapter.update('users', id, { seller_type: normalizedType });
+                        if (res) {
+                            if (window.showToast) {
+                                window.showToast(`Le vendeur ${name} est maintenant ${normalizedType === 'certified' ? 'certifié' : 'normal'}.`, 'success');
+                            }
+                            setTimeout(() => window.location.reload(), 1200);
+                        } else {
+                            throw new Error('Mise à jour échouée.');
+                        }
+                    } catch (err) {
+                        console.error('Erreur seller type:', err);
+                        if (window.showToast) window.showToast("Erreur lors de la mise à jour du type vendeur : " + err.message, 'danger', 'Erreur');
+                    } finally {
+                        if (window.LoaderManager) LoaderManager.hide();
+                    }
+                }
+            );
+        }
+
+        async function rejectVendor(id, name) {
+            window.showConfirm("Rejeter", `Rejeter le vendeur ${name} ? Son compte repassera en client simple.`, async () => {
+                if (window.LoaderManager) LoaderManager.show("Rejet...");
+
+                try {
+                    const res = await window.SupabaseAdapter.update('users', id, {
+                        status: 'rejected',
+                        documents_url: [],
+                        company_name: null
+                    });
+                    if (res) {
+                        if (window.showToast) window.showToast(`Le vendeur ${name} a été rejeté.`, 'info', 'Rejet');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        throw new Error("Mise à jour échouée.");
+                    }
+                } catch (err) {
+                    console.error("Erreur rejet:", err);
+                    if (window.showToast) window.showToast("Erreur lors du rejet: " + err.message, 'danger', 'Erreur');
+                } finally {
+                    if (window.LoaderManager) LoaderManager.hide();
+                }
+            });
+        }
+
+        function initUserDetails() {
+            if (window.newketInitialized) {
+                loadUserDetails();
+            } else {
+                window.addEventListener('newketInitialized', loadUserDetails, { once: true });
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initUserDetails);
+        } else {
+            initUserDetails();
+        }
+    </script>
+</body>
+
+
+
+
+</html>
+

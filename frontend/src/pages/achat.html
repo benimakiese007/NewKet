@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head><script type="module" src="/src/services/app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <title>Achat | NewKet</title>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+        <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .glass-panel { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-radius: 1.5rem; }
+        .btn-primary { background: #000; color: #fff; border-radius: 0.9rem; padding: 0.85rem 1.1rem; font-weight: 800; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-ghost { border: 1px solid #e2e8f0; background: #fff; border-radius: 0.9rem; padding: 0.85rem 1.1rem; font-weight: 800; color: #0f172a; }
+        .muted { color: #64748b; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 9999px; background: #eef2ff; color: #4338ca; }
+        .card-link { border: 1px solid #e2e8f0; border-radius: 1.25rem; padding: 1.1rem; background: white; transition: all .15s ease; }
+        .card-link:hover { border-color: #000; transform: translateY(-1px); }
+        .img-cover { width: 72px; height: 72px; border-radius: 18px; object-fit: cover; background: #f1f5f9; border: 1px solid #e2e8f0; }
+
+        /* Checkout progress steps */
+        .checkout-steps { display: flex; align-items: center; gap: 0; margin-bottom: 2rem; }
+        .checkout-step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+        .checkout-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+        .checkout-step.done:not(:last-child)::after { background: #000; }
+        .checkout-step-circle {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #94a3b8;
+            font-size: 11px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 1;
+            transition: all 0.25s;
+        }
+        .checkout-step.active .checkout-step-circle { background: #000; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
+        .checkout-step.done .checkout-step-circle { background: #000; color: #fff; }
+        .checkout-step-label { font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #94a3b8; margin-top: 5px; white-space: nowrap; }
+        .checkout-step.active .checkout-step-label { color: #0f172a; }
+        .checkout-step.done .checkout-step-label { color: #64748b; }
+
+        /* Trust badges */
+        .trust-badges { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; margin-top: 1rem; }
+        .trust-badge { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 0.04em; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 5px 12px; }
+        .trust-badge iconify-icon { color: #16a34a; }
+
+        /* Sticky mobile pay bar */
+        #sticky-pay-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid #e2e8f0;
+            padding: 0.875rem 1.25rem;
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            box-shadow: 0 -8px 24px -4px rgba(0,0,0,0.08);
+        }
+        @media (max-width: 1023px) {
+            #sticky-pay-bar { display: flex; }
+            main { padding-bottom: 90px; }
+        }
+
+        @media (min-width: 640px) {
+            .card-link { padding: 1.25rem; }
+            .img-cover { width: 78px; height: 78px; }
+        }
+
+        /* Sidebar styles (align with customer dashboard) */
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+        .sidebar-logout {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            width: 100%;
+            cursor: pointer;
+            background: none;
+            border: none;
+            text-align: left;
+        }
+        .sidebar-logout:hover { background: #fef2f2; }
+    </style>
+</head>
+
+<body>
+<nav class="bg-[#013220] fixed top-0 w-full z-[100] transition-all duration-300">
+        <div class="max-w-4xl mx-auto px-4 sm:px-8 py-3 grid grid-cols-3 items-center h-[64px] sm:h-[80px]">
+<a href="/src/pages/customer-dashboard.html" class="justify-self-start flex items-center gap-2 text-sm font-bold text-white/75 hover:text-white transition-colors group">
+                <iconify-icon icon="solar:alt-arrow-left-linear" width="20" class="group-hover:-translate-x-1 transition-transform"></iconify-icon>
+                <span class="hidden sm:inline">Retour à l'espace client</span>
+            </a>
+            
+            <a href="/" class="justify-self-center flex items-center justify-center">
+<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="h-9 sm:h-14 w-auto object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572406/newket_assets/racine/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+            </a>
+
+            <div class="justify-self-end w-20 sm:w-24" aria-hidden="true"></div> <!-- Placeholder pour centrer le logo -->
+        </div>
+    </nav>
+
+    <!-- Overlay pour Mobile -->
+    <div id="customerSidebarOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] hidden transition-all duration-300"></div>
+
+    <main class="w-full max-w-5xl mx-auto px-4 sm:px-6 pb-12 relative flex justify-center pt-24 sm:pt-28 lg:pt-32">
+        <!-- Content -->
+        <section class="flex-1 min-w-0 w-full customer-main-content">
+            <div class="max-w-[1200px] mx-auto">
+                <div class="glass-panel p-6 sm:p-10">
+                    <!-- Checkout progress indicator -->
+                    <nav id="checkout-progress" class="checkout-steps hidden" aria-label="Étapes du paiement">
+                        <div class="checkout-step done" id="cstep-cart">
+                            <div class="checkout-step-circle"><iconify-icon icon="solar:check-circle-bold" width="14"></iconify-icon></div>
+                            <div class="checkout-step-label">Panier</div>
+                        </div>
+                        <div class="checkout-step active" id="cstep-summary">
+                            <div class="checkout-step-circle">2</div>
+                            <div class="checkout-step-label">Récap</div>
+                        </div>
+                        <div class="checkout-step" id="cstep-payment">
+                            <div class="checkout-step-circle">3</div>
+                            <div class="checkout-step-label">Paiement</div>
+                        </div>
+                    </nav>
+
+                    <div class="flex items-start justify-between gap-3 sm:gap-4">
+                        <div class="min-w-0 flex-1">
+                            <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Achat</h1>
+                            <p class="muted mt-1 text-sm sm:text-base">Finalisez votre paiement en toute sécurité (séquestre NewKet).</p>
+                        </div>
+                        <div class="shrink-0 self-start pt-1">
+                            <div id="orderBadge" class="badge hidden w-fit whitespace-nowrap" style="position: static; top: auto; left: auto; z-index: auto; animation: none;">
+                            <iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon>
+                            <span>Prêt pour paiement</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="achatContent" class="mt-8 space-y-5">
+                        <!-- Skeleton cards -->
+                        <div class="card-link">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                                <div class="flex items-center gap-4 min-w-0 flex-1">
+                                    <div class="skeleton shrink-0" style="width:72px;height:72px;border-radius:18px;"></div>
+                                    <div class="min-w-0 flex-1 space-y-2">
+                                        <div class="skeleton h-3 w-1/4 rounded-full"></div>
+                                        <div class="skeleton h-5 w-3/5 rounded-full"></div>
+                                        <div class="skeleton h-3 w-2/5 rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between sm:flex-col sm:items-end gap-3">
+                                    <div class="skeleton h-6 w-24 rounded-full"></div>
+                                    <div class="skeleton h-10 w-28 rounded-xl"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-link">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                                <div class="flex items-center gap-4 min-w-0 flex-1">
+                                    <div class="skeleton shrink-0" style="width:72px;height:72px;border-radius:18px;"></div>
+                                    <div class="min-w-0 flex-1 space-y-2">
+                                        <div class="skeleton h-3 w-1/4 rounded-full"></div>
+                                        <div class="skeleton h-5 w-3/5 rounded-full"></div>
+                                        <div class="skeleton h-3 w-2/5 rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between sm:flex-col sm:items-end gap-3">
+                                    <div class="skeleton h-6 w-24 rounded-full"></div>
+                                    <div class="skeleton h-10 w-28 rounded-xl"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function getQueryParam(name) {
+            try {
+                const url = new URL(window.location.href);
+                return url.searchParams.get(name);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function safeText(v) {
+            if (v === null || v === undefined) return '';
+            return String(v);
+        }
+
+        function formatAmount(amount) {
+            if (window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function') {
+                return CurrencyManager.formatPrice(amount || 0);
+            }
+            return `${amount || 0}`;
+        }
+
+        async function waitForAppReady() {
+            if (window.newketInitialized) return;
+
+            await new Promise((resolve) => {
+                window.addEventListener('newketInitialized', resolve, { once: true });
+            });
+        }
+
+        function buildOrderCard(order, { showButton = true } = {}) {
+            const img = (order?.items?.[0]?.image || order?.product_image || '').split(',')[0];
+            const productName = order?.items?.[0]?.name || order?.product_name || 'Produit';
+            const dateLabel = order?.date ? new Date(order.date).toLocaleDateString() : '';
+            const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : (order.status || '');
+            const total = formatAmount(order.total);
+            const orderId = safeText(order.id);
+
+            const btn = showButton
+                ? `<button class="btn-primary text-sm flex items-center justify-center gap-2 w-full sm:w-auto" onclick="goToOrder('${orderId}')">
+                        <iconify-icon icon="solar:arrow-right-bold" width="18"></iconify-icon>
+                        Continuer
+                   </button>`
+                : '';
+
+            return `
+                <div class="card-link">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div class="flex items-center gap-4 min-w-0 flex-1">
+                            <img class="img-cover shrink-0" src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : '/Images/Logo NewKet PNG.png'}" onerror="this.src='/Images/Logo NewKet PNG.png'; this.onerror=null;" alt="">
+                            <div class="min-w-0">
+                                <div class="text-[11px] font-black uppercase tracking-wider text-gray-400">Demande #${orderId}</div>
+                                <div class="mt-1 font-black text-gray-900 truncate">${safeText(productName)}</div>
+                                <div class="mt-1 text-sm muted flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <span>${safeText(dateLabel)}</span>
+                                    <span class="text-gray-300">•</span>
+                                    <span class="font-semibold text-gray-700">${safeText(statusLabel)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between sm:flex-col sm:items-end sm:justify-start gap-3 sm:gap-2">
+                            <div class="text-lg sm:text-xl font-black tracking-tight text-gray-900 whitespace-nowrap">${total}</div>
+                            <div class="w-full sm:w-auto flex justify-end">${btn}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.goToOrder = function(orderId) {
+            const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/src/pages/achat.html';
+            window.location.href = `${path}?order_id=${encodeURIComponent(orderId)}`;
+        };
+
+        async function renderListMode() {
+            const container = document.getElementById('achatContent');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const email = localStorage.getItem('newketUserEmail');
+            const userId = localStorage.getItem('newketUserId');
+
+            let orders = [];
+            try {
+                orders = (window.OrderManager ? OrderManager.getOrders() : []).filter(o =>
+                    o && (
+                        (email && o.customer_email === email) ||
+                        (userId && (o.user_id === userId || o.customer_id === userId))
+                    )
+                );
+            } catch (e) {
+                orders = [];
+            }
+
+            const ready = orders.filter(o => o.status === 'READY_FOR_PAYMENT');
+
+            if (ready.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <div class="w-24 h-24 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <iconify-icon icon="solar:cart-large-minimalistic-broken" width="48"></iconify-icon>
+                        </div>
+                        <div class="text-2xl font-bold text-gray-900 mb-2">Votre panier est vide pour le moment</div>
+                        <div class="text-gray-500 mb-8 max-w-sm mx-auto">Laissez-vous séduire par nos pièces d'exception et découvrez nos dernières nouveautés.</div>
+                        <div class="mt-6">
+                            <a href="/src/pages/catalog.html" class="inline-flex items-center gap-2 bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-black transition-all">
+                                Voir nos produits
+                            </a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.insertAdjacentHTML('beforeend', `
+                <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-900 flex items-start gap-3">
+                    <iconify-icon icon="solar:info-circle-bold" width="22"></iconify-icon>
+                    <div>
+                        <div class="font-black">Sélectionnez une demande</div>
+                        <div class="mt-1 text-indigo-800">Vous serez redirigé vers le paiement sécurisé après confirmation.</div>
+                    </div>
+                </div>
+            `);
+
+            ready.forEach(o => container.insertAdjacentHTML('beforeend', buildOrderCard(o)));
+        }
+
+        function buildDetailView(order) {
+            const img = (order?.items?.[0]?.image || order?.product_image || '').split(',')[0];
+            const productName = order?.items?.[0]?.name || order?.product_name || 'Produit';
+            const qty = order?.items?.[0]?.quantity || 1;
+            const subtotal = order?.subtotal_amount ?? order?.merchandise_amount ?? order?.total ?? 0;
+            const deliveryFee = order?.delivery_fee_amount ?? 0;
+            const discount = order?.promo_discount_amount ?? 0;
+            const total = order?.final_total_amount ?? order?.total ?? 0;
+            const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : (order.status || '');
+            const appliedCode = safeText(order?.promo_code || '');
+
+            const paymentState = String(order?.payment_status || '').toUpperCase();
+            const isPaid = ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED'].includes(paymentState) || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
+
+            return `
+                <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)] gap-6">
+                    <div class="lg:col-span-2 space-y-5">
+                        <div class="card-link">
+                            <div class="flex items-center gap-4">
+                                <img class="img-cover" src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : '/Images/Logo NewKet PNG.png'}" onerror="this.src='/Images/Logo NewKet PNG.png'; this.onerror=null;" alt="">
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-[11px] font-black uppercase tracking-wider text-gray-400">Commande</div>
+                                    <div class="mt-1 font-black text-gray-900 text-lg truncate">${safeText(productName)}</div>
+                                    <div class="mt-1 text-sm muted">Quantité: <span class="font-semibold text-gray-700">${qty}</span></div>
+                                    <div class="mt-2 text-sm muted">Statut: <span class="font-semibold text-gray-900">${safeText(statusLabel)}</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-sm text-emerald-900 flex items-start gap-3">
+                            <iconify-icon icon="solar:shield-check-bold" width="22"></iconify-icon>
+                            <div>
+                                <div class="font-black">Paiement protégé</div>
+                                <div class="mt-1 text-emerald-800">Votre paiement passe en séquestre et ne sera libéré au vendeur qu'après validation OTP et expiration du délai de libération.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="card-link">
+                            <div class="font-black text-gray-900">Récapitulatif</div>
+                            <div class="mt-4 space-y-3 text-sm">
+                                <div class="flex justify-between gap-3">
+                                    <span class="muted">Sous-total</span>
+                                    <span class="font-bold text-gray-900">${formatAmount(subtotal)}</span>
+                                </div>
+                                <div class="flex justify-between gap-3">
+                                    <span class="muted">Livraison</span>
+                                    <span class="font-bold text-gray-900">${formatAmount(deliveryFee)}</span>
+                                </div>
+                                <div class="flex justify-between gap-3">
+                                    <span class="muted">Remise promo</span>
+                                    <span id="promoDiscountValue" class="font-bold text-emerald-700">${discount > 0 ? '-' : ''}${formatAmount(discount)}</span>
+                                </div>
+                                <div class="border-t border-gray-100 pt-3 flex justify-between gap-3">
+                                    <span class="font-black text-gray-900">Total</span>
+                                    <span id="promoTotalValue" class="font-black text-gray-900">${formatAmount(total)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${isPaid ? '' : `
+                        <div class="card-link space-y-3">
+                            <div>
+                                <div class="font-black text-gray-900">Code promo</div>
+                                <p class="mt-1 text-xs muted">Appliquez une remise proposée par la boutique avant de payer.</p>
+                            </div>
+                            <div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-2">
+                                <input id="promoCodeInput" type="text" value="${appliedCode}" placeholder="Ex: MAMAN10" class="w-full min-w-0 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
+                                <button id="btnApplyPromo" class="btn-ghost w-full sm:w-auto whitespace-nowrap">Appliquer</button>
+                            </div>
+                            <button id="btnRemovePromo" class="text-sm font-bold text-gray-500 hover:text-black text-left ${appliedCode ? '' : 'hidden'}">Retirer le code promo</button>
+                            <div id="promoSuccess" class="text-xs text-emerald-700 font-semibold ${appliedCode ? '' : 'hidden'}">${appliedCode ? `Code appliqué: ${appliedCode}` : ''}</div>
+                            <div id="promoError" class="text-xs text-red-600 font-semibold hidden"></div>
+                        </div>
+                        `}
+
+                        ${isPaid ? `
+                        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-emerald-900 flex items-center justify-center gap-3">
+                            <iconify-icon icon="solar:shield-check-bold" width="24"></iconify-icon>
+                            <span class="font-black tracking-tight text-sm uppercase">Paiement sécurisé effectué</span>
+                        </div>
+                        ` : `
+                        <button id="btnPayNow" class="btn-primary w-full flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
+                            Payer maintenant
+                        </button>
+                        <!-- Trust badges -->
+                        <div class="trust-badges">
+                            <span class="trust-badge"><iconify-icon icon="solar:shield-check-bold" width="13"></iconify-icon>Paiement sécurisé</span>
+                            <span class="trust-badge"><iconify-icon icon="solar:lock-password-bold" width="13"></iconify-icon>Données cryptées</span>
+                            <span class="trust-badge"><iconify-icon icon="solar:verified-check-bold" width="13"></iconify-icon>Garantie NewKet</span>
+                        </div>
+                        `}
+                        <button class="btn-ghost w-full mt-3" onclick="backToDashboard()">Retour à l'espace client</button>
+                    </div>
+                </div>
+                
+                ${!isPaid ? `
+                <div id="sticky-pay-bar">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Total à payer</span>
+                        <span class="text-lg font-black text-gray-900">${formatAmount(total)}</span>
+                    </div>
+                    <button id="btnPayNowSticky" class="bg-black text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 active:scale-95 transition-all">
+                        <iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon>
+                        Payer
+                    </button>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        function backToDashboard() {
+            if (typeof window.resolvePath === 'function') {
+                window.location.href = window.resolvePath('customer-dashboard');
+                return;
+            }
+            window.location.href = '/src/pages/customer-dashboard.html';
+        }
+
+        window.goDashboard = function(tab) {
+            const base = (typeof window.resolvePath === 'function') ? window.resolvePath('customer-dashboard') : '/src/pages/customer-dashboard.html';
+            const hash = tab ? `#${encodeURIComponent(tab)}` : '';
+            window.location.href = `${base}${hash}`;
+        };
+
+        async function renderDetailMode(orderId) {
+            const container = document.getElementById('achatContent');
+            const badge = document.getElementById('orderBadge');
+            if (!container || !badge) return;
+
+            // Try to get the order from cache first
+            let order = window.OrderManager ? OrderManager.getOrderById(orderId) : null;
+
+            // If not found in cache, force-load orders from API (happens when navigating directly to achat.html)
+            if (!order && window.OrderManager && typeof OrderManager.loadOrders === 'function') {
+                container.innerHTML = `<div class="text-center py-10 text-gray-400 text-sm font-semibold">Chargement de la commande...</div>`;
+                try {
+                    await OrderManager.loadOrders(true);
+                    order = OrderManager.getOrderById(orderId);
+                } catch (e) {
+                    console.warn('[achat] Impossible de charger les commandes:', e);
+                }
+            }
+
+            if (!order) {
+                container.innerHTML = `
+                    <div class="text-center py-10">
+                        <div class="w-14 h-14 rounded-2xl bg-gray-100 mx-auto flex items-center justify-center text-gray-700">
+                            <iconify-icon icon="solar:danger-triangle-bold" width="28"></iconify-icon>
+                        </div>
+                        <div class="mt-4 font-black text-gray-900">Commande introuvable</div>
+                        <div class="mt-1 text-sm muted">Retournez à votre espace client et réessayez.</div>
+                        <div class="mt-6">
+                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller à mon espace client</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (order.status === 'READY_FOR_PAYMENT') {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            container.innerHTML = buildDetailView(order);
+
+            const btn = document.getElementById('btnPayNow');
+            const promoInput = document.getElementById('promoCodeInput');
+            const promoApplyBtn = document.getElementById('btnApplyPromo');
+            const promoRemoveBtn = document.getElementById('btnRemovePromo');
+            const promoError = document.getElementById('promoError');
+            const promoSuccess = document.getElementById('promoSuccess');
+            const promoDiscountValue = document.getElementById('promoDiscountValue');
+            const promoTotalValue = document.getElementById('promoTotalValue');
+
+            const syncPromoSummary = (pricing, promo) => {
+                const subtotalAmount = pricing?.subtotal_amount ?? order?.subtotal_amount ?? order?.merchandise_amount ?? 0;
+                const discountAmount = pricing?.promo_discount_amount ?? order?.promo_discount_amount ?? 0;
+                const totalAmount = pricing?.total_amount ?? order?.final_total_amount ?? order?.total ?? 0;
+
+                order.subtotal_amount = subtotalAmount;
+                order.promo_id = promo?.id || null;
+                order.promo_code = promo?.code || null;
+                order.promo_discount_amount = discountAmount;
+                order.final_total_amount = totalAmount;
+                order.total = totalAmount;
+
+                if (promoDiscountValue) {
+                    promoDiscountValue.textContent = `${discountAmount > 0 ? '-' : ''}${formatAmount(discountAmount)}`;
+                }
+                if (promoTotalValue) {
+                    promoTotalValue.textContent = formatAmount(totalAmount);
+                }
+                if (promoSuccess) {
+                    promoSuccess.textContent = promo?.code ? `Code appliqué: ${promo.code}` : '';
+                    promoSuccess.classList.toggle('hidden', !promo?.code);
+                }
+                if (promoRemoveBtn) {
+                    promoRemoveBtn.classList.toggle('hidden', !promo?.code);
+                }
+            };
+
+            const clearPromoFeedback = () => {
+                if (!promoError) return;
+                promoError.textContent = '';
+                promoError.classList.add('hidden');
+            };
+
+            if (order.status !== 'READY_FOR_PAYMENT') {
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="solar:info-circle-bold" width="20"></iconify-icon> Paiement indisponible';
+                return;
+            }
+
+            syncPromoSummary({
+                subtotal_amount: order?.subtotal_amount ?? order?.merchandise_amount ?? 0,
+                promo_discount_amount: order?.promo_discount_amount ?? 0,
+                total_amount: order?.final_total_amount ?? order?.total ?? 0
+            }, order?.promo_code ? { id: order.promo_id, code: order.promo_code } : null);
+
+            promoApplyBtn?.addEventListener('click', async () => {
+                const promoCode = safeText(promoInput?.value).trim().toUpperCase();
+                clearPromoFeedback();
+
+                if (!promoCode) {
+                    promoError.textContent = 'Saisissez un code promo.';
+                    promoError.classList.remove('hidden');
+                    return;
+                }
+
+                promoApplyBtn.disabled = true;
+                promoApplyBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>';
+
+                try {
+                    const data = await window.ApiClient.post('/promos/validate', {
+                        order_id: orderId,
+                        promo_code: promoCode
+                    });
+                    syncPromoSummary(data?.pricing, data?.promo);
+                    promoInput.value = promoCode;
+                } catch (e) {
+                    promoError.textContent = safeText(e?.data?.error || e?.message || 'Impossible de valider ce code promo.');
+                    promoError.classList.remove('hidden');
+                } finally {
+                    promoApplyBtn.disabled = false;
+                    promoApplyBtn.innerHTML = 'Appliquer';
+                }
+            });
+
+            promoRemoveBtn?.addEventListener('click', () => {
+                clearPromoFeedback();
+                if (promoInput) promoInput.value = '';
+                syncPromoSummary({
+                    subtotal_amount: order?.subtotal_amount ?? order?.merchandise_amount ?? 0,
+                    promo_discount_amount: 0,
+                    total_amount: (order?.subtotal_amount ?? order?.merchandise_amount ?? 0) + (order?.delivery_fee_amount ?? 0)
+                }, null);
+            });
+
+            btn.addEventListener('click', async () => {
+                btn.disabled = true;
+                if(btnSticky) btnSticky.disabled = true;
+                if (window.clearInlineFeedback) window.clearInlineFeedback(btn);
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Ouverture...';
+                if(btnSticky) btnSticky.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon> Ouverture...';
+
+                // FIX #3: Timeout 15s — if server takes too long, unblock the button and inform the user
+                const PAYMENT_TIMEOUT_MS = 15000;
+                let timeoutId;
+                const timeoutPromise = new Promise((_, reject) => {
+                    timeoutId = setTimeout(() => reject(new Error('La connexion prend trop de temps. Vérifiez votre connexion et réessayez.')), PAYMENT_TIMEOUT_MS);
+                });
+
+                let isRedirecting = false;
+                try {
+                    const data = await Promise.race([
+                        OrderManager.initiatePayment(orderId, {
+                            promo_code: safeText(promoInput?.value).trim().toUpperCase() || null
+                        }),
+                        timeoutPromise
+                    ]);
+                    clearTimeout(timeoutId);
+                    if (data?.payment_url) {
+                        isRedirecting = true;
+                        window.location.href = data.payment_url;
+                        return;
+                    }
+                    if (window.showInlineFeedback) window.showInlineFeedback(btn, safeText(data?.error || 'Lien de paiement non reçu'), 'error');
+                } catch (e) {
+                    clearTimeout(timeoutId);
+                    // FIX #4: Extract the server error message properly (handles 429 and other API errors)
+                    const serverMsg = e?.data?.error || e?.data?.message || e?.message || "Erreur lors de l'ouverture du paiement";
+                    if (window.showInlineFeedback) window.showInlineFeedback(btn, safeText(serverMsg), 'error');
+                } finally {
+                    if (!isRedirecting) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant';
+                        if(btnSticky) {
+                            btnSticky.disabled = false;
+                            btnSticky.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon> Payer';
+                        }
+                    }
+                }
+            });
+
+            const btnSticky = document.getElementById('btnPayNowSticky');
+            if (btnSticky) {
+                btnSticky.addEventListener('click', () => btn.click());
+            }
+        }
+
+        async function initAchatPage() {
+            document.getElementById('btnLogout')?.addEventListener('click', function () {
+                if (window.AuthManager && typeof AuthManager.handleLogoutClick === 'function') {
+                    AuthManager.handleLogoutClick(this);
+                    return;
+                }
+                localStorage.clear();
+                window.location.href = (typeof window.resolvePath === 'function') ? window.resolvePath('login') : '/src/pages/login.html';
+            });
+
+            const initCustomerSidebar = () => {
+                if (window.SidebarManager) {
+                    window.SidebarManager.init('customerSidebar', 'customer-main-content', 'customerSidebarOverlay');
+                }
+            };
+            if (window.SidebarManager) initCustomerSidebar();
+            else window.addEventListener('newketInitialized', initCustomerSidebar, { once: true });
+
+            await waitForAppReady();
+
+            try {
+                const profile = window.ProfileManager ? ProfileManager.getProfile() : {};
+                const name = profile.name || localStorage.getItem('newketUserName') || 'Mon Compte';
+                const initials = (typeof window.getInitials === 'function') ? window.getInitials(name) : (name?.trim()?.charAt(0)?.toUpperCase() || '?');
+                const nameEl = document.getElementById('userDisplayName');
+                if (nameEl) nameEl.textContent = name;
+                const placeholder = document.getElementById('userAvatarPlaceholder');
+                if (placeholder) placeholder.textContent = initials;
+                const avatarUrl = localStorage.getItem('newketUserAvatar');
+                const img = document.getElementById('userAvatarImg');
+                if (avatarUrl && img) {
+                    img.src = avatarUrl;
+                    img.classList.remove('hidden');
+                }
+            } catch (e) {}
+
+            const orderId = getQueryParam('order_id');
+            if (orderId) {
+                await renderDetailMode(orderId);
+                return;
+            }
+            await renderListMode();
+        }
+
+        initAchatPage();
+    </script>
+</body>
+
+</html>
+
+

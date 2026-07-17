@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260413012244
+-- Remote name: 20260413_performance_boost

@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260323155038
+-- Remote name: 20240324_schema_and_rls_fix

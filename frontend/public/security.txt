@@ -1,0 +1,6 @@
+Contact: mailto:security@newket.cd
+Contact: mailto:support@newket.cd
+Policy: https://newket.vercel.app/src/pages/privacy.html
+Canonical: https://newket.vercel.app/security.txt
+Preferred-Languages: fr, en
+Expires: 2027-05-09T00:00:00.000Z

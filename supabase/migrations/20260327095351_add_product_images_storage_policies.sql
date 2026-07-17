@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260327095351
+-- Remote name: add_product_images_storage_policies

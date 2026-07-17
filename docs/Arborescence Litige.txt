@@ -1,0 +1,137 @@
+## ⚖️ NEWKET — SYSTÈME DE LITIGES (SPÉCIFICATION)
+
+### 1) Périmètre
+
+* Ouvrable **uniquement après `DELIVERED` (OTP validé)**
+* Fenêtre : pendant le délai escrow (ex : 72h)
+* Un seul litige actif par commande
+
+---
+
+### 2) États (state machine)
+
+* `OPEN` → litige créé (escrow gelé)
+* `SELLER_PENDING` → attente réponse vendeur
+* `BUYER_PENDING` → attente réponse client
+* `UNDER_REVIEW` → arbitrage plateforme
+* `RESOLVED` → décision finale
+* `REJECTED` → litige abusif/irrecevable
+
+---
+
+### 3) Déclenchement
+
+Action client → “Signaler un problème”
+Champs obligatoires :
+
+* `reason` (enum) : `NOT_RECEIVED`, `DAMAGED`, `NOT_AS_DESCRIBED`, `OTHER`
+* `description`
+* `evidence[]` (photos/vidéos facultatives mais recommandées)
+
+Effet immédiat :
+
+* `escrow.status = FROZEN`
+* arrêt du timer de libération
+
+---
+
+### 4) Délais (SLA)
+
+* Réponse vendeur : **24h** → sinon bascule `UNDER_REVIEW`
+* Réponse client après proposition : **24h** → sinon auto-acceptation de la proposition vendeur
+* Arbitrage : **≤ 72h** → sinon décision automatique basée sur règles
+
+---
+
+### 5) Actions possibles
+
+**Vendeur :**
+
+* `ACCEPT_REFUND` (total)
+* `OFFER_PARTIAL_REFUND` (montant)
+* `CONTEST` (avec preuves)
+
+**Client :**
+
+* `ACCEPT` (clôture)
+* `REJECT` (passe en `UNDER_REVIEW`)
+
+---
+
+### 6) Règles de décision (automatisées d’abord)
+
+* Si **OTP validé + aucune preuve client** → tendance `RELEASE`
+* Si **preuves client solides (photos cohérentes)** → `REFUND` ou `PARTIAL`
+* Si vendeur accepte remboursement → exécution immédiate
+* En cas de silence vendeur (timeout) → **refund** par défaut
+* En cas de silence client après offre → **acceptation** de l’offre
+
+---
+
+### 7) Résolutions
+
+* `FULL_REFUND` → `escrow = refunded`
+* `PARTIAL_REFUND` → split (client/vendeur)
+* `RELEASE_TO_SELLER` → `escrow = released`
+
+Mettre à jour :
+
+* `order.status = COMPLETED` (ou `RESOLVED`)
+* `dispute.status = RESOLVED`
+
+---
+
+### 8) Preuves supportées
+
+* OTP (preuve de remise)
+* photos/vidéos (client/vendeur)
+* métadonnées (timestamps, éventuellement localisation approximative)
+* historique de la commande
+
+---
+
+### 9) Anti-abus
+
+* Limite de litiges par client (rolling window)
+* Score vendeur/client (taux de litige, décisions passées)
+* Détection basique : comptes récents + litiges fréquents → `UNDER_REVIEW` direct
+
+---
+
+### 10) Modèle de données (minimal)
+
+**`disputes`**
+
+* id, order_id, opened_by
+* reason, description
+* status (`OPEN`, `SELLER_PENDING`, `BUYER_PENDING`, `UNDER_REVIEW`, `RESOLVED`, `REJECTED`)
+* resolution (`FULL_REFUND`, `PARTIAL_REFUND`, `RELEASE_TO_SELLER`)
+* created_at, resolved_at
+
+**`dispute_messages`** (échanges structurés)
+
+* id, dispute_id, sender_id
+* type (`MESSAGE`, `OFFER`, `EVIDENCE`)
+* payload (JSON : montant, liens preuves)
+* created_at
+
+**`escrow_events`** (si pas déjà)
+
+* id, order_id, type (`HELD`, `FROZEN`, `RELEASED`, `REFUNDED`, `PARTIAL`)
+* amount, created_at
+
+---
+
+### 11) Transitions clés
+
+* `DELIVERED` → (open dispute) → `DISPUTE_OPEN` + `ESCROW_FROZEN`
+* `OPEN` → `SELLER_PENDING` → `BUYER_PENDING` → (`ACCEPT`) → `RESOLVED`
+* `OPEN` → timeout vendeur → `UNDER_REVIEW` → décision
+* `UNDER_REVIEW` → décision → `RESOLVED`
+
+---
+
+### 12) Règle d’or
+
+Le litige est **un processus déterministe**, pas un chat libre.
+Toutes les décisions déclenchent des **événements escrow**.

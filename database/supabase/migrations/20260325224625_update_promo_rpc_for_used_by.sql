@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260325224625
+-- Remote name: update_promo_rpc_for_used_by

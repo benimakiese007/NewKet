@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Notifications | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+
+        .notif-card {
+            transition: all 0.2s;
+        }
+
+        .notif-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .badge {
+            position: static;
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-info {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .badge-success {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .badge-warning {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .badge-danger {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .badge-promo {
+            background: #faf5ff;
+            color: #9333ea;
+        }
+    </style>
+
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+</head>
+
+<body class="text-gray-900">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+
+                <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="admin-page-header__content">
+                        <h1 class="admin-page-title text-3xl font-black tracking-tight text-gray-900">Notifications</h1>
+                        <p class="text-gray-500">Gérez et envoyez des alertes à vos utilisateurs.</p>
+                    </div>
+                    <div class="admin-page-actions flex items-center gap-3">
+                        <button onclick="forceRefresh()" data-track-action="admin_notifications:refresh_click"
+                            class="border border-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center gap-2">
+                            <iconify-icon icon="solar:refresh-bold" width="16"></iconify-icon>
+                            Actualiser
+                        </button>
+                        <button onclick="openNewNotifModal()" data-track-action="admin_notifications:new_notification_click"
+                            class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-xl shadow-black/10">
+                            <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
+                            Nouvelle Notification
+                        </button>
+                    </div>
+                </div>
+
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total envoyées</div>
+                    <div class="text-2xl font-black text-gray-900" id="statTotal"><div class="skeleton skeleton-text" style="width:45%;height:24px;margin:0;"></div></div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Non lues</div>
+                    <div class="text-2xl font-black text-blue-500" id="statUnread"><div class="skeleton skeleton-text" style="width:35%;height:24px;margin:0;"></div></div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Promotions</div>
+                    <div class="text-2xl font-black text-purple-500" id="statPromos"><div class="skeleton skeleton-text" style="width:35%;height:24px;margin:0;"></div></div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Alertes système</div>
+                    <div class="text-2xl font-black text-red-500" id="statAlerts"><div class="skeleton skeleton-text" style="width:35%;height:24px;margin:0;"></div></div>
+                </div>
+            </div>
+
+            <!-- Compose Section -->
+            <div class="glass-panel p-6">
+                <h2 class="font-bold text-gray-900 mb-6 flex items-center gap-2">
+                    <iconify-icon icon="solar:letter-bold-duotone" width="20" class="text-blue-500"></iconify-icon>
+                    Composer une Notification
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Titre</label>
+                        <input id="notifTitle" data-track-action="admin_notifications:title_change" type="text" placeholder="Ex: Nouvelle promotion..."
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors">
+                    </div>
+                    <div>
+                        <label
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Type</label>
+                        <select id="notifType" data-track-action="admin_notifications:type_change"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors bg-white">
+                            <option value="info">Information</option>
+                            <option value="success">Succès</option>
+                            <option value="warning">Avertissement</option>
+                            <option value="danger">Alerte</option>
+                            <option value="promo">Promotion</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Message</label>
+                        <textarea id="notifMessage" placeholder="Rédigez votre message ici..." rows="3"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label
+                            class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Destinataires</label>
+                        <select id="notifTarget" data-track-action="admin_notifications:target_change"
+                            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:border-black transition-colors bg-white">
+                            <option value="all">Tous les utilisateurs</option>
+                            <option value="customers">Clients uniquement</option>
+                            <option value="suppliers">Fournisseurs uniquement</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-3 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="broadcastToggle" data-track-action="admin_notifications:broadcast_toggle_change" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                        <div>
+                            <span class="text-xs font-bold text-indigo-900 block">Diffuser (Broadcast)</span>
+                            <span class="text-[10px] text-indigo-600/70 font-medium">Affiche un Pop-up immédiat à tous</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 bg-violet-50/70 p-4 rounded-xl border border-violet-100">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="broadcastModalToggle" data-track-action="admin_notifications:broadcast_modal_toggle_change" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
+                        </label>
+                        <div>
+                            <span class="text-xs font-bold text-violet-900 block">Broadcast modale</span>
+                            <span class="text-[10px] text-violet-600/70 font-medium">Force un modale immédiat chez chaque utilisateur</span>
+                        </div>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="sendNotification()" data-track-action="admin_notifications:send_click"
+                            class="w-full bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:send-bold" width="18"></iconify-icon>
+                            Envoyer la Notification
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications History -->
+            <div class="glass-panel overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h2 class="font-bold text-gray-900 flex items-center gap-2">
+                        <iconify-icon icon="solar:history-bold-duotone" width="20" class="text-gray-400"></iconify-icon>
+                        Historique des Notifications
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <select id="filterType" onchange="renderNotifications()" data-track-action="admin_notifications:filter_type_change"
+                            class="text-[10px] font-black uppercase tracking-widest bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-black cursor-pointer">
+                            <option value="all">Tous les types</option>
+                            <option value="info">Information</option>
+                            <option value="success">Succès</option>
+                            <option value="warning">Avertissement</option>
+                            <option value="danger">Alerte</option>
+                            <option value="promo">Promotion</option>
+                        </select>
+                        <button onclick="clearAllNotifications()" data-track-action="admin_notifications:clear_all_click"
+                            class="text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-600 px-3 py-2 rounded-lg border border-transparent hover:border-red-200 transition-all">
+                            Tout effacer
+                        </button>
+                    </div>
+                </div>
+                <div id="notifList" class="divide-y divide-gray-50">
+                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // =========================================================
+        // Notifications Admin Page à Database-first approach
+        // Local key kept only for display of sent-by-me tracking
+        // =========================================================
+        const SENT_KEY = 'newket_admin_sent_notifs'; // lightweight sent-log for this session
+
+        function getSentLog() {
+            try { return JSON.parse(localStorage.getItem(SENT_KEY)) || []; } catch { return []; }
+        }
+        function saveSentLog(log) {
+            localStorage.setItem(SENT_KEY, JSON.stringify(log.slice(0, 100)));
+        }
+
+        /** Force les managers de ré-interroger le serveur */
+        async function forceRefresh() {
+            const list = document.getElementById('notifList');
+            list.innerHTML = '<div class="p-12 text-center text-gray-400">Rafraîchissement...</div>';
+            // Purge cache timestamps so init() will re-fetch
+            localStorage.removeItem('newket_notifications_sync_time');
+            if (window.NotificationManager) {
+                NotificationManager._fetchPromise = null;
+                await NotificationManager.init(true);
+            }
+            renderNotifications();
+            updateStats();
+        }
+
+        function sendNotification() {
+            const title = document.getElementById('notifTitle').value.trim();
+            const message = document.getElementById('notifMessage').value.trim();
+            const baseType = document.getElementById('notifType').value;
+            const isBroadcast = document.getElementById('broadcastToggle').checked || document.getElementById('broadcastModalToggle').checked;
+            const isBroadcastModal = document.getElementById('broadcastModalToggle').checked;
+            const type = isBroadcast
+                ? `${isBroadcastModal ? 'broadcast-modal' : 'broadcast'}:${baseType}`
+                : baseType;
+            const target = document.getElementById('notifTarget').value;
+
+            if (!title || !message) {
+                showToast('Veuillez remplir le titre et le message.', 'error');
+                return;
+            }
+
+            // Add to database via NotificationManager for actual user delivery
+            if (window.NotificationManager) {
+                window.NotificationManager.addNotification(title, message, type, target).then(() => {
+                    // Keep a local sent-trail so history survives without a page reload
+                    const log = getSentLog();
+                    log.unshift({
+                        id: Date.now().toString(),
+                        title, message, type, target,
+                        date: new Date().toISOString(),
+                        read: false,
+                        sentBy: localStorage.getItem('newketUserEmail') || 'admin'
+                    });
+                    saveSentLog(log);
+                    renderNotifications();
+                    updateStats();
+                });
+            }
+
+            document.getElementById('notifTitle').value = '';
+            document.getElementById('notifMessage').value = '';
+            showToast('Notification envoyée avec succès !', 'success');
+            if (window.ActivityManager) ActivityManager.log(`Notification envoyée : "${title}"`, 'system');
+        }
+
+        function prefillNotificationComposer(encodedNotification) {
+            if (!encodedNotification) return;
+
+            let notification = null;
+            try {
+                notification = JSON.parse(decodeURIComponent(encodedNotification));
+            } catch (err) {
+                console.error('Unable to restore notification for resend', err);
+                showToast('Impossible de charger cette notification.', 'error');
+                return;
+            }
+
+            const displayType = getDisplayType(notification.type);
+            const isBroadcast = isPopupType(notification.type) || String(notification.type || '').startsWith('broadcast:');
+            const isBroadcastModal = String(notification.type || '').startsWith('broadcast-modal:');
+            const target = notification.target_role || notification.target || 'all';
+
+            document.getElementById('notifTitle').value = notification.title || '';
+            document.getElementById('notifMessage').value = notification.message || '';
+            document.getElementById('notifType').value = ['info', 'success', 'warning', 'danger', 'promo'].includes(displayType) ? displayType : 'info';
+            document.getElementById('notifTarget').value = ['all', 'customers', 'suppliers'].includes(target) ? target : 'all';
+            document.getElementById('broadcastToggle').checked = isBroadcast;
+            document.getElementById('broadcastModalToggle').checked = isBroadcastModal || isBroadcast;
+
+            document.querySelector('.glass-panel.p-6')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('notifTitle')?.focus();
+            showToast('Notification chargée dans le composeur.', 'success');
+        }
+
+        function getDisplayType(type) {
+            if (window.normalizeNotificationType) return window.normalizeNotificationType(type);
+            if (!type) return 'info';
+            if (type === 'broadcast') return 'info';
+            if (String(type || '').startsWith('broadcast-modal:')) return (type.split(':').slice(1).join(':') || 'info');
+            return type.startsWith('broadcast:') ? (type.split(':')[1] || 'info') : type;
+        }
+
+        function isPopupType(type) {
+            if (window.isPopupNotification) return window.isPopupNotification(type);
+            return type === 'broadcast'
+                || String(type || '').startsWith('broadcast:')
+                || String(type || '').startsWith('broadcast-modal:');
+        }
+
+        function getNotificationIcon(type) {
+            if (isPopupType(type)) return '\u{1F4E2}';
+
+            const displayType = getDisplayType(type);
+            const icons = {
+                info: '\u{1F514}',
+                success: '\u2705',
+                warning: '\u26A0\uFE0F',
+                danger: '\u{1F6A8}',
+                promo: '\u{1F381}'
+            };
+
+            return icons[displayType] || '\u{1F514}';
+        }
+
+        function getTypeBadge(type) {
+            const displayType = getDisplayType(type);
+            if (String(type || '').startsWith('broadcast-modal:')) {
+                return '<span class="badge" style="background:#6d28d9;color:white;">Broadcast modal</span>' +
+                    '<span class="badge" style="background:#ede9fe;color:#6d28d9;">Pop-up forcé</span>';
+            }
+            if (String(type || '').startsWith('broadcast:') || type === 'broadcast') {
+                return '<span class="badge" style="background:#312e81;color:white;">Broadcast</span>' +
+                    '<span class="badge" style="background:#ddd6fe;color:#5b21b6;">Pop-up</span>';
+            }
+
+            const badges = {
+                'info': '<span class="badge badge-info">Info</span>',
+                'success': '<span class="badge badge-success">Succès</span>',
+                'warning': '<span class="badge badge-warning">Avertiss.</span>',
+                'danger': '<span class="badge badge-danger">Alerte</span>',
+                'promo': '<span class="badge badge-promo">Promo</span>'
+            };
+            const popupBadge = isPopupType(type)
+                ? '<span class="badge" style="background:#312e81;color:white;">Pop-up</span>'
+                : '';
+            return (badges[displayType] || '<span class="badge badge-info">Info</span>') + popupBadge;
+        }
+
+        function getTargetLabel(target) {
+            const labels = { 'all': 'Tous', 'customers': 'Clients', 'suppliers': 'Fournisseurs' };
+            return labels[target] || target;
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notifList');
+            const filterType = document.getElementById('filterType').value;
+
+            if (!window.NotificationManager || typeof window.NotificationManager.getNotifications !== 'function') {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    list.innerHTML = window.buildSkeletonPanelListHTML(2, { lines: 2, cardClass: 'glass-panel p-4 m-4' });
+                }
+                return;
+            }
+
+            // Merge DB notifications with local sent-log (deduplicated by ID)
+            let notifs = [];
+            if (window.NotificationManager) {
+                notifs = [...window.NotificationManager.getNotifications()];
+            }
+            // Also surface anything created in this session that hasn't arrived via DB yet
+            const sentLog = getSentLog();
+            sentLog.forEach(s => {
+                if (!notifs.find(n => n.title === s.title && n.date === s.date)) {
+                    notifs.unshift(s);
+                }
+            });
+
+            if (filterType !== 'all') notifs = notifs.filter(n => getDisplayType(n.type) === filterType);
+
+            if (notifs.length === 0) {
+                list.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucune notification trouvée.</div>`;
+                return;
+            }
+
+            list.innerHTML = notifs.map(n => `
+                <div class="notif-card p-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-4 flex-1 min-w-0">
+                            <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center flex-shrink-0 text-lg">
+                                ${getNotificationIcon(n.type)}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap mb-1">
+                                    <span class="text-sm font-bold text-gray-900">${n.title}</span>
+                                    ${getTypeBadge(n.type)}
+                                    <span class="badge" style="background:#f1f5f9;color:#475569;">${getTargetLabel(n.target_role || n.target || 'all')}</span>
+                                    ${!n.read ? '<span class="badge" style="background:#eff6ff;color:#3b82f6;">Non lue</span>' : ''}
+                                </div>
+                                <p class="text-sm text-gray-600 mb-2">${n.message}</p>
+                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                    ${new Date(n.date || n.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    ${n.sentBy ? '· Par ' + n.sentBy : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <button onclick="prefillNotificationComposer('${encodeURIComponent(JSON.stringify(n))}')" data-track-action="admin_notifications:prefill_click"
+                                    class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                    title="Reprendre cette notification">
+                                <iconify-icon icon="solar:refresh-bold" width="18"></iconify-icon>
+                            </button>
+                            <button onclick="deleteNotification('${n.id}')" data-track-action="admin_notifications:delete_click" 
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" 
+                                    title="Supprimer définitivement">
+                                <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            if (!window.NotificationManager || typeof window.NotificationManager.getNotifications !== 'function') return;
+            let notifs = window.NotificationManager ? window.NotificationManager.getNotifications() : [];
+            document.getElementById('statTotal').textContent = notifs.length;
+            document.getElementById('statUnread').textContent = notifs.filter(n => !n.read).length;
+            document.getElementById('statPromos').textContent = notifs.filter(n => getDisplayType(n.type) === 'promo').length;
+            document.getElementById('statAlerts').textContent = notifs.filter(n => getDisplayType(n.type) === 'danger').length;
+        }
+
+        async function deleteNotification(id) {
+            if (!confirm('Voulez-vous supprimer définitivement cette notification ?')) return;
+            
+            if (window.NotificationManager) {
+                const ok = await window.NotificationManager.deleteNotification(id);
+                if (ok) {
+                    showToast('Notification supprimée.', 'success');
+                    renderNotifications();
+                    updateStats();
+                } else {
+                    showToast('Erreur lors de la suppression.', 'error');
+                }
+            }
+            
+            // Clean local log too
+            const log = getSentLog().filter(s => s.id !== id);
+            saveSentLog(log);
+        }
+
+        async function clearAllNotifications() {
+            if (!confirm('Effacer TOUTES les notifications définitivement (BDD + local) ?')) return;
+            
+            if (window.NotificationManager) {
+                const ok = await window.NotificationManager.clearAll();
+                if (ok) {
+                    localStorage.removeItem(SENT_KEY);
+                    renderNotifications();
+                    updateStats();
+                    showToast('Historique effacé avec succès.', 'success');
+                } else {
+                    showToast('Erreur lors du nettoyage.', 'error');
+                }
+            }
+        }
+
+        function openNewNotifModal() {
+            document.getElementById('notifTitle').focus();
+        }
+
+        function initPage() {
+            // Re-render when NotificationManager updates
+            window.addEventListener('notificationsUpdated', () => {
+                renderNotifications();
+                updateStats();
+            });
+
+            const broadcastToggle = document.getElementById('broadcastToggle');
+            const broadcastModalToggle = document.getElementById('broadcastModalToggle');
+            if (broadcastModalToggle && broadcastToggle) {
+                broadcastToggle.addEventListener('change', () => {
+                    if (!broadcastToggle.checked) {
+                        broadcastModalToggle.checked = false;
+                    }
+                });
+                broadcastModalToggle.addEventListener('change', () => {
+                    if (broadcastModalToggle.checked) {
+                        broadcastToggle.checked = true;
+                    }
+                });
+            }
+
+            renderNotifications();
+            updateStats();
+
+            // Role check
+            const role = localStorage.getItem('newketRole');
+            document.querySelectorAll('.admin-only').forEach(el => {
+                if (role === 'admin') el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.newketInitialized) { initPage(); }
+            else { window.addEventListener('newketInitialized', initPage); }
+        });
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+

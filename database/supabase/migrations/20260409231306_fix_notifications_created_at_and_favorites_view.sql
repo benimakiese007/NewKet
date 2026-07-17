@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260409231306
+-- Remote name: fix_notifications_created_at_and_favorites_view

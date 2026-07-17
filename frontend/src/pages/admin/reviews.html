@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Avis & évaluations | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .sidebar-link.active {
+            background: #000000;
+            color: white;
+        }
+    </style>
+
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+</head>
+
+<body class="text-gray-900">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <main class="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+            <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="admin-page-header__content">
+                    <h1 class="admin-page-title text-3xl font-black tracking-tight text-gray-900">Avis & Évaluations</h1>
+                    <p class="text-gray-500">Modérez et analysez les retours clients sur vos produits.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <select id="filterRating" onchange="renderReviews()"
+                        class="text-xs font-black uppercase tracking-widest bg-white border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-black cursor-pointer">
+                        <option value="all">Toutes les notes</option>
+                        <option value="5">5 étoiles</option>
+                        <option value="4">4 étoiles</option>
+                        <option value="3">3 étoiles</option>
+                        <option value="low">1-2 étoiles</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats for Reviews -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Avis</div>
+                    <div class="text-2xl font-black text-gray-900" id="statTotalReviews"><div class="skeleton skeleton-text" style="width:40%;height:24px;margin:0;"></div></div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Note Moyenne</div>
+                    <div class="text-2xl font-black text-orange-500 flex items-center gap-2" id="statAvgRating"><span class="skeleton skeleton-text" style="width:48px;height:24px;margin:0;display:inline-block;"></span>
+                        <iconify-icon icon="solar:star-bold" width="20"></iconify-icon>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Avis 5 étoiles</div>
+                    <div class="text-2xl font-black text-green-500" id="stat5Star"><div class="skeleton skeleton-text" style="width:32px;height:24px;margin:0;"></div></div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">À modérer</div>
+                    <div class="text-2xl font-black text-red-500" id="statLowStar"><div class="skeleton skeleton-text" style="width:32px;height:24px;margin:0;"></div></div>
+                </div>
+            </div>
+
+            <div class="glass-panel overflow-hidden">
+                <div class="p-6 border-b border-gray-100">
+                    <h2 class="font-bold text-gray-900 flex items-center gap-2">
+                        <iconify-icon icon="solar:list-bold-duotone" width="20"
+                            class="text-gray-400"></iconify-icon>Derniers Avis
+                    </h2>
+                </div>
+                <div id="reviewsContainer">
+                    <div class="divide-y divide-gray-50" id="reviewsBody">
+                        <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                        <div class="glass-panel p-4 m-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function renderReviews() {
+            const tbody = document.getElementById('reviewsBody');
+            const filterRating = document.getElementById('filterRating').value;
+
+            if (!window.ReviewManager || typeof ReviewManager.getReviews !== 'function') {
+                if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                    tbody.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4 m-4' });
+                }
+                return;
+            }
+
+            const allReviews = ReviewManager.getReviews();
+            let filtered = allReviews;
+            if (filterRating === 'low') filtered = filtered.filter(r => r.rating <= 2);
+            else if (filterRating !== 'all') filtered = filtered.filter(r => r.rating == filterRating);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<div class="p-12 text-center text-gray-400 text-sm italic">Aucun avis trouvé.</div>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(r => `
+                <div class="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            ${r.user_avatar ? 
+                                `<img src="${r.user_avatar}" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">` : ''
+                            }
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-sm font-bold shadow-sm" style="${r.user_avatar ? 'display:none' : 'display:flex'}">
+                                ${(r.user_name || 'A').charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-900 leading-none mb-1">${r.user_name || 'Anonyme'}</div>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex text-orange-400 text-[10px]">
+                                        ${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-${i < r.rating ? 'bold' : 'linear'}"></iconify-icon>`).join('')}
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 font-medium">${new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-1">"${r.comment}"</div>
+                        <div class="text-[10px] font-black uppercase text-gray-400">Sur le produit: <span class="text-black">${r.productName}</span></div>
+                    </div>
+                    <div class="flex items-center gap-2 mt-4 md:mt-0">
+                        <button onclick="deleteReview('${r.id}')" data-track-action="admin_reviews:delete_review_click" class="text-[10px] font-black uppercase tracking-widest text-red-500 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors">Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+
+        async function deleteReview(id) {
+            if (!confirm('Supprimer définitivement cet avis ?')) return;
+            const success = await ReviewManager.deleteReview(id);
+            if (success) {
+                showToast('Avis supprimé du serveur', 'success');
+            } else {
+                showToast('Erreur lors de la suppression', 'error');
+            }
+        }
+
+        function updateStats() {
+            if (!window.ReviewManager || typeof ReviewManager.getReviews !== 'function') return;
+            const allReviews = ReviewManager.getReviews();
+            document.getElementById('statTotalReviews').textContent = allReviews.length;
+            const avg = allReviews.length ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length).toFixed(1) : '0.0';
+            document.getElementById('statAvgRating').innerHTML = `${avg} <iconify-icon icon="solar:star-bold" width="16"></iconify-icon>`;
+            document.getElementById('stat5Star').textContent = allReviews.filter(r => r.rating === 5).length;
+            document.getElementById('statLowStar').textContent = allReviews.filter(r => r.rating <= 2).length;
+        }
+
+        async function initPage() {
+            await ReviewManager.init();
+            window.addEventListener('reviewsUpdated', renderReviews);
+            renderReviews();
+            
+            const role = localStorage.getItem('newketRole');
+            document.querySelectorAll('.admin-only').forEach(el => { 
+                if (role === 'admin') el.classList.remove('hidden'); 
+                else el.classList.add('hidden'); 
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.newketInitialized) { initPage(); } 
+            else { window.addEventListener('newketInitialized', initPage); }
+        });
+    </script>
+</body>
+
+</html>
+
+
+
+
+

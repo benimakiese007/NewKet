@@ -1,0 +1,36 @@
+# Dépendances
+node_modules/
+dist/
+
+# Fichiers d'environnement (racine et sous-dossiers)
+.env
+.env.local
+.env.production
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build
+frontend/dist/
+frontend/api/_backend/
+
+.vercel
+
+# Local sidecar app (do not commit)
+newket-ad/
+
+# IA Agents (do not commit)
+.agents/
+antigravity-workflows/

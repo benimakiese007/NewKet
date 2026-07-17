@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>500 - Erreur Serveur | NewKet Luxury</title>
+    <meta name="description" content="Une erreur inattendue s'est produite sur NewKet. Nos équipes travaillent pour rétablir le service.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- NewKet Brand Identity -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconify -->
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
+        }
+        .pulse-anim { animation: pulse-red 3s ease-in-out infinite; }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(200%) skewX(-15deg); }
+        }
+        .animate-shine { animation: shine 3s infinite; }
+    </style>
+<script type="module" src="/src/services/app.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_bottom_left,_#fef2f2_0%,_#ffffff_100%)]">
+
+    <div class="max-w-xl w-full text-center relative">
+        <!-- Decoration -->
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-red-100 rounded-full blur-3xl opacity-30 -z-10"></div>
+
+        <!-- Logo -->
+        <a href="/index.html" class="inline-block mb-12">
+            <span class="text-3xl font-black tracking-tighter text-gray-900">NEWKET</span>
+        </a>
+
+        <!-- 500 Display -->
+        <div class="relative inline-block mb-8 pulse-anim">
+            <h1 class="text-[120px] sm:text-[180px] font-black text-red-500 leading-none tracking-tighter">500</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="space-y-4 mb-10">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">Une faille dans l'excellence</h2>
+            <p class="text-gray-500 text-base leading-relaxed">
+                Nos serveurs rencontrent une difficulté momentanée. Nos équipes techniques sont déjà mobilisées pour rétablir votre expérience shopping.
+            </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button onclick="window.location.reload()" class="bg-red-500 text-white font-bold px-10 py-4 rounded-2xl hover:bg-red-600 transition-all shadow-2xl shadow-red-500/20 flex items-center justify-center gap-2 group overflow-hidden relative">
+                <div class="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
+                <iconify-icon icon="solar:refresh-bold" width="20"></iconify-icon>
+                Réessayer
+            </button>
+            <a href="/index.html" class="bg-white text-gray-950 font-bold px-10 py-4 rounded-2xl border border-gray-200 hover:border-gray-950 transition-all flex items-center justify-center gap-2">
+                <iconify-icon icon="solar:home-bold" width="20"></iconify-icon>
+                Retour Accueil
+            </a>
+        </div>
+
+        <!-- Contact Support -->
+        <div class="mt-16 pt-8 border-t border-gray-100">
+            <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Besoin d'aide immédiate ?</p>
+            <a href="/src/pages/support.html" class="inline-flex items-center gap-2 text-sm font-bold text-gray-900 hover:text-red-500 transition-colors">
+                <iconify-icon icon="solar:chat-round-dots-bold" width="18"></iconify-icon>
+                Contacter le Support NewKet
+            </a>
+        </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="mt-auto py-8 text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">
+        © 2026 NEWKET — L'Expérience Luxe
+    </div>
+
+</body>
+</html>
+
+
+
+
+
+

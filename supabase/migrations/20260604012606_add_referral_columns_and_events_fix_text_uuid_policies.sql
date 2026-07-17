@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260604012606
+-- Remote name: add_referral_columns_and_events_fix_text_uuid_policies

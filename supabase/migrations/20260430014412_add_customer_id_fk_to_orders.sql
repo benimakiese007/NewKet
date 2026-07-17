@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260430014412
+-- Remote name: add_customer_id_fk_to_orders

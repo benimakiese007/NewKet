@@ -1,0 +1,54 @@
+{
+  "name": "newket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "dev:full": "node scripts/dev-full.mjs",
+    "api": "node api/index.js",
+    "prebuild": "node scripts/sync-backend-for-vercel.mjs",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benimakiese007/NOVA-V2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/benimakiese007/NOVA-V2/issues"
+  },
+  "homepage": "https://github.com/benimakiese007/NOVA-V2#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.27",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.0.2"
+  },
+  "dependencies": {
+    "@iconify-json/line-md": "^1.2.16",
+    "@iconify-json/logos": "^1.2.11",
+    "@iconify-json/solar": "^1.2.5",
+    "@sentry/browser": "^10.49.0",
+    "@sentry/node": "^10.49.0",
+    "@supabase/supabase-js": "^2.107.0",
+    "@vercel/analytics": "^2.0.1",
+    "chart.js": "^4.5.1",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.3.2",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.1.0",
+    "iconify-icon": "^3.0.2",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^9.0.3",
+    "qrcode": "^1.5.4",
+    "web-push": "^3.6.7"
+  }
+}

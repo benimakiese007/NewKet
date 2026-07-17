@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>404 - Page non trouvee | NewKet Luxury</title>
+    <meta name="description" content="La page que vous cherchez n'existe pas sur NewKet. Explorez nos collections de luxe.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .float-anim { animation: floating 4s ease-in-out infinite; }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(200%) skewX(-15deg); }
+        }
+
+        .animate-shine { animation: shine 3s infinite; }
+    </style>
+<script type="module" src="/src/services/app.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_top_right,_#f3f4f6_0%,_#ffffff_100%)]">
+
+    <div class="max-w-xl w-full text-center relative">
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-gray-200 rounded-full blur-3xl opacity-30 -z-10"></div>
+        <div class="absolute -bottom-24 -right-24 w-64 h-64 bg-slate-200 rounded-full blur-3xl opacity-30 -z-10"></div>
+
+        <a href="/index.html" class="inline-block mb-12">
+            <span class="text-3xl font-black tracking-tighter text-gray-900">NEWKET</span>
+        </a>
+
+        <div class="relative inline-block mb-8">
+            <h1 class="text-[120px] sm:text-[180px] font-black text-gray-950 leading-none tracking-tighter float-anim">404</h1>
+            <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 w-32 h-2 bg-gray-900/10 blur-xl rounded-full"></div>
+        </div>
+
+        <div class="space-y-4 mb-10">
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">Tresor introuvable</h2>
+            <p class="text-gray-500 text-base leading-relaxed">
+                Il semble que la piece que vous recherchez ne soit plus disponible ou n'ait jamais existe. Nos collections evoluent chaque jour.
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/index.html" class="bg-gray-950 text-white font-bold px-10 py-4 rounded-2xl hover:bg-black transition-all shadow-2xl shadow-black/20 flex items-center justify-center gap-2 group overflow-hidden relative">
+                <div class="absolute inset-0 bg-white/20 -translate-x-full group-hover:animate-shine pointer-events-none"></div>
+                <iconify-icon icon="solar:home-bold" width="20"></iconify-icon>
+                Retour a l'accueil
+            </a>
+            <a href="/src/pages/catalog.html" class="bg-white text-gray-950 font-bold px-10 py-4 rounded-2xl border border-gray-200 hover:border-gray-950 transition-all flex items-center justify-center gap-2">
+                <iconify-icon icon="solar:magnifer-bold" width="20"></iconify-icon>
+                Parcourir le catalogue
+            </a>
+        </div>
+
+        <div class="mt-16 pt-8 border-t border-gray-100 flex flex-wrap justify-center gap-x-8 gap-y-4">
+            <a href="/src/pages/support.html" class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">Support</a>
+            <a href="/src/pages/faq.html" class="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">FAQ</a>
+        </div>
+    </div>
+
+    <div class="mt-auto py-8 text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">
+        © 2026 NEWKET - L'Experience Luxe
+    </div>
+
+</body>
+</html>
+
+
+
+

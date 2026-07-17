@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260415012513
+-- Remote name: 20260415_atomic_stock_and_payment_v2

@@ -1,0 +1,144 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - link "NewKet" [ref=e5] [cursor=pointer]:
+        - /url: /index.html
+        - img "NewKet" [ref=e6]
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic "Choisir une catégorie" [ref=e9] [cursor=pointer]:
+            - generic [ref=e10]: Tout
+            - img [ref=e12]
+          - textbox "Rechercher des produits" [ref=e14]:
+            - /placeholder: Rechercher sur NewKet...
+        - link "Vendre un article" [ref=e15] [cursor=pointer]:
+          - /url: /src/pages/publish.html
+          - img [ref=e17]
+      - generic [ref=e19]:
+        - generic "Devise d'affichage" [ref=e21] [cursor=pointer]:
+          - generic [ref=e22]:
+            - generic [ref=e24]: USD
+            - generic [ref=e25]: CDF
+        - link "Voir les notifications" [ref=e26] [cursor=pointer]:
+          - /url: /src/pages/notifications.html
+          - img [ref=e28]
+        - link "Voir les favoris" [ref=e32] [cursor=pointer]:
+          - /url: /src/pages/favorites.html
+          - img [ref=e34]
+        - link "Mon compte" [ref=e36] [cursor=pointer]:
+          - /url: /src/pages/login.html
+          - img [ref=e38]
+    - navigation [ref=e44]:
+      - link "Toutes les pièces" [ref=e45] [cursor=pointer]:
+        - /url: /src/pages/catalog.html
+      - link "Boutiques" [ref=e46] [cursor=pointer]:
+        - /url: /src/pages/shops.html
+      - link "Femme" [ref=e47] [cursor=pointer]:
+        - /url: /src/pages/catalog.html?category=Femme
+      - link "Homme" [ref=e48] [cursor=pointer]:
+        - /url: /src/pages/catalog.html?category=Homme
+      - link "Tech & Gadgets" [ref=e49] [cursor=pointer]:
+        - /url: /src/pages/catalog.html?category=Tech & Gadgets
+      - link "HIGH-TECH" [ref=e50] [cursor=pointer]:
+        - /url: /src/pages/catalog.html?category=HIGH-TECH
+      - link "Art de vivre" [ref=e51] [cursor=pointer]:
+        - /url: /src/pages/catalog.html?category=Art de vivre
+      - link "Promos" [ref=e52] [cursor=pointer]:
+        - /url: /src/pages/catalog.html?promo=true
+        - img [ref=e54]
+        - text: Promos
+  - generic:
+    - generic:
+      - generic: Mise à jour...
+  - main [ref=e56]:
+    - heading "Explorez l'Exceptionnel" [level=1] [ref=e58]
+    - generic [ref=e60]:
+      - generic [ref=e62]:
+        - combobox [ref=e63] [cursor=pointer]:
+          - option "Pertinence" [selected]
+          - option "Prix Croissant"
+          - option "Prix Décroissant"
+          - option "Nouveautés"
+        - generic:
+          - img
+      - generic [ref=e64]:
+        - generic [ref=e65]:
+          - button "Catégorie" [ref=e67] [cursor=pointer]:
+            - generic [ref=e68]:
+              - img [ref=e70]
+              - text: Catégorie
+            - img [ref=e76]
+          - button "Prix" [ref=e79] [cursor=pointer]:
+            - generic [ref=e80]:
+              - img [ref=e82]
+              - text: Prix
+            - img [ref=e88]
+          - button "État" [ref=e91] [cursor=pointer]:
+            - generic [ref=e92]:
+              - img [ref=e94]
+              - text: État
+            - img [ref=e100]
+          - button "Note" [ref=e103] [cursor=pointer]:
+            - generic [ref=e104]:
+              - img [ref=e106]
+              - text: Note
+            - img [ref=e111]
+        - generic [ref=e113]:
+          - generic [ref=e115] [cursor=pointer]:
+            - img [ref=e117]
+            - text: En Promo
+          - button "Réinitialiser" [ref=e119] [cursor=pointer]:
+            - img [ref=e121]
+  - contentinfo [ref=e137]:
+    - generic [ref=e138]:
+      - generic [ref=e139]:
+        - generic [ref=e140]:
+          - img "NewKet" [ref=e142]
+          - paragraph [ref=e143]: L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
+          - generic [ref=e144]:
+            - link "+243990924254" [ref=e145] [cursor=pointer]:
+              - /url: tel:+243990924254
+              - generic [ref=e146]: "+243990924254"
+            - link "benimakiese1234@gmail.com" [ref=e147] [cursor=pointer]:
+              - /url: mailto:benimakiese1234@gmail.com
+              - generic [ref=e148]: benimakiese1234@gmail.com
+          - generic [ref=e149]:
+            - link "NewKet sur Instagram" [ref=e150] [cursor=pointer]:
+              - /url: https://www.instagram.com/Benimakiese007
+            - link "NewKet sur Facebook" [ref=e151] [cursor=pointer]:
+              - /url: https://www.facebook.com/Benimakiese007
+            - link "NewKet sur X" [ref=e152] [cursor=pointer]:
+              - /url: https://x.com/lephoenixman
+            - link "NewKet sur LinkedIn" [ref=e153] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/newket
+        - generic [ref=e154]:
+          - heading "Services" [level=4] [ref=e155]
+          - list [ref=e156]:
+            - listitem [ref=e157]:
+              - link "Mon Compte" [ref=e158] [cursor=pointer]:
+                - /url: /src/pages/login.html
+            - listitem [ref=e159]:
+              - link "Support Technique" [ref=e160] [cursor=pointer]:
+                - /url: /src/pages/support.html
+            - listitem [ref=e161]:
+              - link "FAQ" [ref=e162] [cursor=pointer]:
+                - /url: /src/pages/faq.html
+            - listitem [ref=e163]:
+              - link "Vendre un article" [ref=e164] [cursor=pointer]:
+                - /url: /src/pages/publish.html
+        - generic [ref=e165]:
+          - heading "Inspiration & Offres" [level=4] [ref=e166]
+          - paragraph [ref=e167]: Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.
+          - generic [ref=e168]:
+            - textbox "Votre email" [ref=e169]
+            - button "S'inscrire" [ref=e170] [cursor=pointer]
+      - generic [ref=e171]:
+        - paragraph [ref=e172]: © 2026 NEWKET — Expérience Luxe
+        - generic [ref=e173]:
+          - link "Confidentialité" [ref=e174] [cursor=pointer]:
+            - /url: /src/pages/privacy.html
+          - link "Conditions" [ref=e175] [cursor=pointer]:
+            - /url: /src/pages/terms.html
+        - generic [ref=e176]:
+          - generic [ref=e177]: Designed by
+          - generic [ref=e178] [cursor=pointer]: SITYZEN

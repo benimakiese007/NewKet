@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Parametres | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    
+    <script type="module" src="/src/services/config-manager.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+</head>
+
+<body class="text-gray-900 bg-[#f8fafc]">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-8">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 space-y-12 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+            <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-premium">
+                <div class="admin-page-header__content">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900" id="pageTitle">Paramètres Plateforme</h1>
+                    <p class="text-gray-500 font-medium" id="pageSubtitle">Contrôle global et configuration du système.</p>
+                </div>
+                <div id="saveStatus"
+                    class="admin-page-actions hidden flex items-center gap-3 px-6 py-3 bg-green-50 text-green-600 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-green-100 shadow-xl shadow-green-500/10">
+                    <iconify-icon icon="solar:check-circle-bold-duotone" width="20"></iconify-icon>
+                    Modifications Enregistrées
+                </div>
+            </div>
+
+
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Informations de la Boutique -->
+                <div class="glass-panel p-10 space-y-10 animate-premium stagger-1">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:shop-2-bold-duotone" width="32"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Identité & Contact</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Branding et informations publiques</p>
+                        </div>
+                    </div>
+
+                    <form id="identityForm" class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Nom de l'enseigne</label>
+                            <div class="relative">
+                                <iconify-icon icon="solar:pen-bold" class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300" width="18"></iconify-icon>
+                                <input type="text" id="shopName" data-track-action="admin_settings:shop_name_change"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold placeholder:text-gray-200"
+                                    placeholder="NewKet EMarket">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Email public</label>
+                                <input type="email" id="shopEmail" data-track-action="admin_settings:shop_email_change"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold"
+                                    placeholder="contact@newket.com">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Téléphone support</label>
+                                <input type="text" id="supportPhone" data-track-action="admin_settings:support_phone_change"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold"
+                                    placeholder="+243 ...">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- économie & Devises -->
+                <div class="glass-panel p-10 space-y-10 animate-premium stagger-2">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-orange-50 text-orange-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:wallet-money-bold-duotone" width="32"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">économie & Devises</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Devises et Objectifs Financiers</p>
+                        </div>
+                    </div>
+
+                    <form id="economyForm" class="space-y-6">
+                        
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Devise d'affichage par défaut</label>
+                            <select id="shopCurrency" data-track-action="admin_settings:currency_change"
+                                class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black appearance-none cursor-pointer">
+                                <option value="CDF">Franc Congolais (FC)</option>
+                                <option value="USD">Dollar Américain ($)</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Taux de Change (1 USD = X FC)</label>
+                                <input type="number" id="exchangeRate" data-track-action="admin_settings:exchange_rate_change"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black text-blue-600"
+                                    placeholder="2500">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Objectif Panier Moyen ($)</label>
+                                <input type="number" id="targetAOV" data-track-action="admin_settings:target_aov_change"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black text-purple-600"
+                                    placeholder="20">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Réseaux Sociaux -->
+                <div class="glass-panel p-10 space-y-10 animate-premium stagger-3">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:share-circle-bold-duotone" width="32"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Liens Sociaux</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Visibilité et communauté</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Instagram</label>
+                            <div class="relative">
+                                <iconify-icon icon="line-md:instagram" width="20"
+                                    class="absolute left-6 top-1/2 -translate-y-1/2 text-pink-500"></iconify-icon>
+                                <input type="text" id="socialInstagram" data-track-action="admin_settings:social_instagram_change"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="Lien Instagram">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Facebook</label>
+                            <div class="relative">
+                                <iconify-icon icon="line-md:facebook" width="20"
+                                    class="absolute left-6 top-1/2 -translate-y-1/2 text-blue-600"></iconify-icon>
+                                <input type="text" id="socialFacebook" data-track-action="admin_settings:social_facebook_change"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="Lien Facebook">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">X</label>
+                            <div class="relative">
+                                <iconify-icon icon="line-md:twitter-x" width="20"
+                                    class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-900"></iconify-icon>
+                                <input type="text" id="socialX" data-track-action="admin_settings:social_x_change"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="Lien X">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">LinkedIn</label>
+                            <div class="relative">
+                                <iconify-icon icon="line-md:linkedin" width="20"
+                                    class="absolute left-6 top-1/2 -translate-y-1/2 text-sky-700"></iconify-icon>
+                                <input type="text" id="socialLinkedin" data-track-action="admin_settings:social_linkedin_change"
+                                    class="w-full pl-14 pr-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-medium text-sm"
+                                    placeholder="Lien LinkedIn">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Site Management -->
+                <div class="glass-panel p-10 space-y-10 animate-premium stagger-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:shield-warning-bold-duotone" width="32"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Centre de Sécurité</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Maintenance et intégrité</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem] border border-gray-100 group hover:bg-white hover:shadow-2xl hover:shadow-black/5 transition-all">
+                            <div>
+                                <div class="text-sm font-black text-gray-900">Mode Maintenance</div>
+                                <div class="text-[9px] text-gray-400 uppercase tracking-widest font-black mt-1">Désactiver l'accès public</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="maintenanceMode" data-track-action="admin_settings:maintenance_toggle_change" class="sr-only peer">
+                                <div
+                                    class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500 shadow-inner">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="max-w-xl mx-auto mt-16 pb-12 animate-premium stagger-6">
+                <button id="saveAllBtn" data-track-action="admin_settings:save_all_click"
+                    class="w-full bg-black text-white py-6 rounded-3xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-black/20 hover:bg-gray-800 hover:-translate-y-1 transition-all flex items-center justify-center gap-4">
+                    <iconify-icon icon="solar:check-read-bold" width="22"></iconify-icon>
+                    Enregistrer tous les paramètres
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfig();
+            window.addEventListener('configUpdated', loadConfig);
+            window.addEventListener('newketInitialized', loadConfig);
+        });
+
+        function loadConfig() {
+            if (window.ConfigManager) {
+                const config = ConfigManager.getConfig();
+
+                document.getElementById('shopName').value = config.shopName || '';
+                document.getElementById('shopEmail').value = config.email || '';
+                document.getElementById('supportPhone').value = config.supportPhone || '';
+
+
+                document.getElementById('shopCurrency').value = config.currencySymbol || 'CDF';
+                document.getElementById('exchangeRate').value = config.exchangeRate || 2500;
+                document.getElementById('targetAOV').value = config.targetAOV || 0;
+
+                if (config.socialLinks) {
+                    document.getElementById('socialInstagram').value = config.socialLinks.instagram || '';
+                    document.getElementById('socialFacebook').value = config.socialLinks.facebook || '';
+                    document.getElementById('socialX').value = config.socialLinks.x || config.socialLinks.twitter || '';
+                    document.getElementById('socialLinkedin').value = config.socialLinks.linkedin || '';
+                }
+
+                document.getElementById('maintenanceMode').checked = config.maintenanceMode || false;
+            }
+        }
+
+        document.getElementById('saveAllBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('saveAllBtn');
+            const status = document.getElementById('saveStatus');
+            const originalText = btn.innerHTML;
+
+            const newConfig = {
+                shopName: document.getElementById('shopName').value,
+                email: document.getElementById('shopEmail').value,
+                supportPhone: document.getElementById('supportPhone').value,
+
+                sellerCommission: 0,
+                currencySymbol: document.getElementById('shopCurrency').value,
+                socialLinks: {
+                    instagram: document.getElementById('socialInstagram').value,
+                    facebook: document.getElementById('socialFacebook').value,
+                    x: document.getElementById('socialX').value,
+                    twitter: document.getElementById('socialX').value,
+                    linkedin: document.getElementById('socialLinkedin').value
+                },
+                maintenanceMode: document.getElementById('maintenanceMode').checked,
+                exchangeRate: parseFloat(document.getElementById('exchangeRate').value) || 2800,
+                targetAOV: parseFloat(document.getElementById('targetAOV').value) || 0,
+                primaryColor: window.newketConfig ? window.newketConfig.primaryColor : '#000000'
+            };
+
+            if (window.ConfigManager) {
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="22"></iconify-icon> Sauvegarde...';
+
+                try {
+                    await ConfigManager.saveConfig(newConfig);
+                    window.CurrencyManager?.setCurrency?.(newConfig.currencySymbol);
+
+                    btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="22"></iconify-icon> Configuration Enregistrée';
+                    btn.classList.add('bg-green-600');
+                    status.classList.remove('hidden');
+
+                    if (typeof showToast === 'function') {
+                        showToast('Configuration sauvegardée avec succès', 'success');
+                    }
+                } catch (error) {
+                    console.error('[NewKet] Settings save failed:', error);
+                    btn.innerHTML = originalText;
+                    btn.classList.add('bg-red-600');
+                    if (typeof showToast === 'function') {
+                        showToast("La sauvegarde distante a échoué. Vérifiez la connexion Supabase puis réessayez.", "error");
+                    }
+                } finally {
+                    btn.disabled = false;
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.classList.remove('bg-green-600', 'bg-red-600');
+                        status.classList.add('hidden');
+                    }, 3000);
+                }
+            }
+        });
+
+        document.getElementById('maintenanceMode').addEventListener('change', async (e) => {
+            if (window.ConfigManager) {
+                const config = ConfigManager.getConfig();
+                const previousMaintenanceMode = !!config.maintenanceMode;
+                config.maintenanceMode = e.target.checked;
+                try {
+                    await ConfigManager.saveConfig(config);
+
+                    if (typeof showToast === 'function') {
+                        showToast(e.target.checked ? "Mode Maintenance Activé : Accès public désactivé" : "Mode Maintenance Désactivé : Accès public rétabli", "success");
+                    }
+                } catch (error) {
+                    console.error('[NewKet] Maintenance mode save failed:', error);
+                    config.maintenanceMode = previousMaintenanceMode;
+                    e.target.checked = previousMaintenanceMode;
+                    if (typeof showToast === 'function') {
+                        showToast("Impossible de sauvegarder le mode maintenance.", "error");
+                    }
+                }
+            }
+        });
+
+
+    </script>
+
+
+
+
+
+
+

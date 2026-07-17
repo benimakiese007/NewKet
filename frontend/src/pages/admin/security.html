@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#013220">
+    <title>Sécurité & Accès | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+    <style>
+        .admin-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .admin-item:hover {
+            transform: translateX(5px);
+            background: white;
+            border-color: black;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <main class="flex-1 min-w-0 space-y-8 animate-premium px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+            <!-- Header -->
+            <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="admin-page-header__content">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900">Sécurité & Accès</h1>
+                    <p class="text-gray-500 font-medium">Gestion dynamique des rôles administrateurs et privilèges plateforme.</p>
+                </div>
+                
+                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-full text-xs font-black uppercase tracking-widest border border-green-100">
+                    <iconify-icon icon="solar:shield-check-bold" width="16"></iconify-icon>
+                    Système Sécurisé
+                </div>
+            </div>
+
+            <!-- Management Card -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Admin List -->
+                <div class="glass-panel p-8">
+                    <div class="flex items-center gap-3 mb-8">
+                        <span class="w-2 h-8 bg-black rounded-full"></span>
+                        <h3 class="font-black text-xl text-gray-900">Admins autorisés</h3>
+                    </div>
+
+                    <div id="adminList" class="space-y-2">
+                        <!-- Iterated by JS -->
+                        <div class="admin-item pointer-events-none">
+                            <div class="flex items-center gap-3 w-full">
+                                <div class="w-10 h-10 rounded-full overflow-hidden"><div class="skeleton skeleton-shimmer w-10 h-10"></div></div>
+                                <div class="flex-1">
+                                    <div class="skeleton skeleton-text" style="width:65%;height:12px;margin:0 0 10px 0;"></div>
+                                    <div class="skeleton skeleton-text" style="width:40%;height:10px;margin:0;"></div>
+                                </div>
+                                <div class="w-8 h-8 rounded-lg overflow-hidden"><div class="skeleton skeleton-shimmer w-8 h-8"></div></div>
+                            </div>
+                        </div>
+                        <div class="admin-item pointer-events-none">
+                            <div class="flex items-center gap-3 w-full">
+                                <div class="w-10 h-10 rounded-full overflow-hidden"><div class="skeleton skeleton-shimmer w-10 h-10"></div></div>
+                                <div class="flex-1">
+                                    <div class="skeleton skeleton-text" style="width:58%;height:12px;margin:0 0 10px 0;"></div>
+                                    <div class="skeleton skeleton-text" style="width:35%;height:10px;margin:0;"></div>
+                                </div>
+                                <div class="w-8 h-8 rounded-lg overflow-hidden"><div class="skeleton skeleton-shimmer w-8 h-8"></div></div>
+                            </div>
+                        </div>
+                        <div class="admin-item pointer-events-none">
+                            <div class="flex items-center gap-3 w-full">
+                                <div class="w-10 h-10 rounded-full overflow-hidden"><div class="skeleton skeleton-shimmer w-10 h-10"></div></div>
+                                <div class="flex-1">
+                                    <div class="skeleton skeleton-text" style="width:72%;height:12px;margin:0 0 10px 0;"></div>
+                                    <div class="skeleton skeleton-text" style="width:42%;height:10px;margin:0;"></div>
+                                </div>
+                                <div class="w-8 h-8 rounded-lg overflow-hidden"><div class="skeleton skeleton-shimmer w-8 h-8"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="space-y-6">
+                    <div class="glass-panel p-8 premium-gradient-dark text-white">
+                        <h3 class="font-black text-xl mb-4 text-white">Ajouter un Admin</h3>
+                        <p class="text-white/90 text-sm mb-6">Si le compte existe déjà sur NewKet, il est promu administrateur. Sinon, le premier compte créé avec cette adresse recevra directement le rôle admin.</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-[10px] font-black uppercase tracking-widest text-white/80 mb-2 block">Adresse E-mail</label>
+                                <input type="email" id="newAdminEmail" placeholder="admin@newket.com" 
+                                    class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-white transition-all">
+                            </div>
+                            <button onclick="handleAddAdmin()" data-track-action="admin_security:add_admin_click" class="w-full bg-white text-black font-black py-3 rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl">
+                                Ajouter un Admin
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-6 border-l-4 border-amber-500">
+                        <div class="flex gap-4">
+                            <iconify-icon icon="solar:danger-bold" class="text-amber-500" width="24"></iconify-icon>
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-sm">Zone Critique</h4>
+                                <p class="text-xs text-gray-500 mt-1">Les modifications sont appliquées instantanément. Retirer votre propre e-mail vous fera perdre l'accès immédiatement.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Security (Passkey) -->
+                    <div class="glass-panel p-8">
+                        <h3 class="font-black text-xl mb-2">Sécurité Personnelle</h3>
+                        <p class="text-sm text-gray-400 mb-6">Sécurisez votre propre accès Administrateur avec une Clé d'accès (Face ID, Empreinte).</p>
+                        
+                        <div id="adminPasskeysList" class="space-y-3 mb-6 hidden"></div>
+
+                        <button id="registerPasskeyBtnAdmin" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
+                            Créer une clé d'accès
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        let adminEmails = [];
+        let adminProfilesByEmail = {};
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function normalizeAvatarUrl(profile = {}) {
+            return profile.avatar ||
+                profile.avatar_url ||
+                profile.picture ||
+                profile.picture_url ||
+                profile.photo_url ||
+                profile.photoURL ||
+                profile.avatarUrl ||
+                null;
+        }
+
+        function normalizeUserAvatar(user = {}) {
+            return user?.user_metadata?.avatar_url ||
+                user?.user_metadata?.avatarUrl ||
+                user?.user_metadata?.pictureUrl ||
+                user?.user_metadata?.pictureURL ||
+                user?.user_metadata?.picture ||
+                user?.user_metadata?.picture_url ||
+                user?.user_metadata?.photo_url ||
+                user?.user_metadata?.photoURL ||
+                user?.user_metadata?.avatar ||
+                user?.identities?.[0]?.identity_data?.avatar ||
+                user?.identities?.[0]?.identity_data?.avatar_url ||
+                user?.identities?.[0]?.identity_data?.picture ||
+                user?.identities?.[0]?.identity_data?.picture_url ||
+                null;
+        }
+
+        function getCurrentAuthContext() {
+            const user = window.AuthManager?.user || null;
+            const email = String(user?.email || localStorage.getItem('newketUserEmail') || '').trim().toLowerCase();
+            const profile = window.ProfileManager?.getProfile?.() || {};
+            const name = profile.name || user?.user_metadata?.full_name || user?.user_metadata?.name || localStorage.getItem('newketUserName') || '';
+            const avatar = profile.avatar || localStorage.getItem('newketUserAvatar') || normalizeUserAvatar(user);
+            return { email, name, avatar, user };
+        }
+
+        function getAdminInitials(email, profile = {}) {
+            const raw = String(profile.name || profile.full_name || email || 'A').trim();
+            const base = raw.includes('@') ? raw.split('@')[0] : raw;
+            const cleaned = base.replace(/[^a-zA-Z0-9\s_-]/g, ' ').trim();
+            const parts = cleaned.split(/\s+/).filter(Boolean);
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return cleaned.slice(0, 2).toUpperCase() || 'A';
+        }
+
+        function avatarMarkup(email) {
+            const key = String(email || '').trim().toLowerCase();
+            const current = getCurrentAuthContext();
+            const profile = {
+                ...(adminProfilesByEmail[key] || {}),
+                ...(current.email && current.email === key ? { name: current.name, avatar: current.avatar } : {})
+            };
+            const avatarUrl = normalizeAvatarUrl(profile);
+            const initials = getAdminInitials(email, profile);
+            const bg = window.getAvatarColor ? window.getAvatarColor(email) : '#d1d5db';
+
+            if (avatarUrl) {
+                return `
+                    <img
+                        src="${escapeHtml(avatarUrl)}"
+                        alt="${escapeHtml(profile.name || email)}"
+                        class="w-full h-full object-cover"
+                        referrerpolicy="no-referrer"
+                        crossorigin="anonymous"
+                        onerror="this.style.display='none'; const fallback = this.nextElementSibling; if (fallback) fallback.style.display='flex';"
+                    >
+                    <span class="w-full h-full hidden items-center justify-center font-black text-[11px] uppercase tracking-widest" style="background:${bg}; color:#fff;">${escapeHtml(initials)}</span>
+                `;
+            }
+
+            return `
+                <span class="w-full h-full flex items-center justify-center font-black text-[11px] uppercase tracking-widest" style="background:${bg}; color:#fff;">${escapeHtml(initials)}</span>
+            `;
+        }
+
+        async function loadAdminProfiles() {
+            adminProfilesByEmail = {};
+            if (adminEmails.length === 0) return;
+
+            try {
+                const emails = adminEmails
+                    .map(email => String(email || '').trim().toLowerCase())
+                    .filter(Boolean);
+
+                if (emails.length === 0) return;
+
+                let profiles = [];
+
+                if (window.ApiClient?.get) {
+                    try {
+                        const data = await window.ApiClient.get('/users', {
+                            suppressToast: true,
+                            suppressErrorLogging: true
+                        });
+                        profiles = Array.isArray(data) ? data : [];
+                    } catch (apiError) {
+                        console.warn('[Security] /api/users avatar enrichment failed, falling back to Supabase:', apiError);
+                    }
+                }
+
+                if (profiles.length === 0 && window.supabaseClient) {
+                    const { data, error } = await window.supabaseClient
+                        .from('users')
+                        .select('email, name, full_name, avatar, avatar_url, picture, picture_url, photo_url, photoURL, avatarUrl')
+                        .in('email', emails);
+
+                    if (error) throw error;
+                    profiles = Array.isArray(data) ? data : [];
+                }
+
+                profiles.forEach(profile => {
+                    const email = String(profile.email || '').trim().toLowerCase();
+                    if (!email) return;
+                    adminProfilesByEmail[email] = profile;
+                });
+            } catch (err) {
+                console.warn('[Security] Failed to load admin profiles:', err);
+            }
+        }
+
+        function renderAdminsSkeleton() {
+            const listContainer = document.getElementById('adminList');
+            if (!listContainer) return;
+            // Keep existing skeleton markup if already present.
+            if ((listContainer.children || []).length > 0) return;
+            listContainer.innerHTML = Array.from({ length: 3 }).map((_, i) => `
+                <div class="admin-item pointer-events-none" style="opacity:${1 - i * 0.08}">
+                    <div class="flex items-center gap-3 w-full">
+                        <div class="w-10 h-10 rounded-full overflow-hidden"><div class="skeleton skeleton-shimmer w-10 h-10"></div></div>
+                        <div class="flex-1">
+                            <div class="skeleton skeleton-text" style="width:${60 + (i * 7)}%;height:12px;margin:0 0 10px 0;"></div>
+                            <div class="skeleton skeleton-text" style="width:${35 + (i * 5)}%;height:10px;margin:0;"></div>
+                        </div>
+                        <div class="w-8 h-8 rounded-lg overflow-hidden"><div class="skeleton skeleton-shimmer w-8 h-8"></div></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadAdmins() {
+            const listContainer = document.getElementById('adminList');
+            renderAdminsSkeleton();
+
+            if (!window.supabaseClient) {
+                // Keep skeleton until app.js finishes wiring Supabase.
+                return;
+            }
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('settings')
+                    .select('admin_emails')
+                    .eq('id', 'global-settings')
+                    .single();
+
+                if (error) throw error;
+                adminEmails = data?.admin_emails || [];
+                window.ADMIN_EMAILS = Array.isArray(adminEmails) ? adminEmails.slice() : [];
+                await loadAdminProfiles();
+                renderAdmins();
+            } catch (err) {
+                console.error('[Security] Failed to load admins:', err);
+                listContainer.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">Erreur de chargement. Vérifiez vos permissions.</div>`;
+            }
+        }
+
+        function renderAdmins() {
+            const listContainer = document.getElementById('adminList');
+            if (adminEmails.length === 0) {
+                listContainer.innerHTML = `<div class="p-12 text-center text-gray-400 italic">Aucun administrateur configuré.</div>`;
+                return;
+            }
+
+            listContainer.innerHTML = adminEmails.map(email => `
+                <div class="admin-item group">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-gray-400 group-hover:bg-black group-hover:text-white transition-all shrink-0">
+                            ${avatarMarkup(email)}
+                        </div>
+                        <div class="min-w-0">
+                            <span class="block font-bold text-gray-700 truncate">${escapeHtml(adminProfilesByEmail[String(email || '').trim().toLowerCase()]?.name || email)}</span>
+                            <span class="block text-[11px] text-gray-400 truncate">${escapeHtml(email)}</span>
+                        </div>
+                    </div>
+                    <button onclick="removeAdmin('${escapeHtml(email)}')" class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all rounded-lg">
+                        <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function handleAddAdmin() {
+            const input = document.getElementById('newAdminEmail');
+            const email = input.value.trim().toLowerCase();
+
+            if (!email || !email.includes('@')) {
+                if (window.showToast) window.showToast('Veuillez entrer une adresse e-mail valide.', 'warning', 'Saisie invalide');
+                return;
+            }
+
+            if (adminEmails.includes(email)) {
+                if (window.showToast) window.showToast('Cet e-mail est déjà dans la liste.', 'info', 'Doublon');
+                return;
+            }
+
+            const updatedList = [...adminEmails, email];
+            await saveAdmins(updatedList);
+            input.value = '';
+        }
+
+        async function removeAdmin(email) {
+            window.showConfirm("Retirer l'accès", `Voulez-vous vraiment retirer les accès admin pour ${email} ?`, async () => {
+                const updatedList = adminEmails.filter(e => e !== email);
+                await saveAdmins(updatedList);
+            });
+        }
+
+        async function saveAdmins(newList) {
+            try {
+                const { error } = await window.supabaseClient
+                    .from('settings')
+                    .update({ 
+                        admin_emails: newList,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', 'global-settings');
+
+                if (error) throw error;
+                
+                adminEmails = newList;
+                window.ADMIN_EMAILS = Array.isArray(newList) ? newList.slice() : [];
+                if (window.NewKetAdminEmails?.clearCache) {
+                    window.NewKetAdminEmails.clearCache();
+                }
+                if (window.refreshNewKetAdminEmails) {
+                    window.refreshNewKetAdminEmails(true).catch(() => {});
+                }
+                await loadAdminProfiles();
+                renderAdmins();
+                
+                if (window.showToast) window.showToast('Liste des administrateurs mise à jour.', 'success', 'Sauvegardé');
+            } catch (err) {
+                console.error('[Security] Save failed:', err);
+                if (window.showToast) window.showToast('Échec de la sauvegarde. Vérifiez votre connexion.', 'danger', 'Erreur');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.newketInitialized) {
+                loadAdmins();
+            } else {
+                window.addEventListener('newketInitialized', loadAdmins);
+            }
+
+            const registerPasskeyBtnAdmin = document.getElementById('registerPasskeyBtnAdmin');
+            const passkeysListContainer = document.getElementById('adminPasskeysList');
+            
+            const renderAdminPasskeys = (passkeys) => {
+                if (!passkeysListContainer) return;
+                if (!passkeys || passkeys.length === 0) {
+                    passkeysListContainer.classList.add('hidden');
+                    passkeysListContainer.innerHTML = '';
+                    return;
+                }
+                
+                passkeysListContainer.classList.remove('hidden');
+                passkeysListContainer.innerHTML = passkeys.map(pk => {
+                    const date = new Date(pk.created_at).toLocaleDateString('fr-FR', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                    });
+                    const name = pk.friendly_name || pk.name || 'Appareil inconnu';
+                    
+                    let pkType = 'WebAuthn / Biométrie';
+                    let icon = 'solar:key-minimalistic-bold';
+                    const lowerName = name.toLowerCase();
+                    
+                    if (lowerName.includes('apple') || lowerName.includes('mac') || lowerName.includes('iphone') || lowerName.includes('ipad')) {
+                        pkType = 'Passkey Apple (Face ID / Touch ID)';
+                        icon = 'bi:apple';
+                    } else if (lowerName.includes('windows')) {
+                        pkType = 'Windows Hello (Empreinte / Code)';
+                        icon = 'bi:windows';
+                    } else if (lowerName.includes('android')) {
+                        pkType = 'Passkey Android';
+                        icon = 'bi:android2';
+                    } else if (lowerName.includes('yubikey') || lowerName.includes('security key')) {
+                        pkType = 'Clé de sécurité physique';
+                        icon = 'solar:usb-bold';
+                    }
+                    
+                    return `
+                        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50 gap-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100 text-gray-500 shrink-0">
+                                    <iconify-icon icon="${icon}" width="18"></iconify-icon>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold text-gray-900 truncate">${name}</p>
+                                    <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Ajoutée le ${date}</p>
+                                        <span class="text-[10px] text-gray-300 hidden sm:inline">•</span>
+                                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Type : ${pkType}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-green-100 text-green-800 rounded">
+                                Opérationnelle
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            const loadAdminPasskeys = () => {
+                if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                    window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                        renderAdminPasskeys(data);
+                        if (data && data.length > 0) {
+                            const title = registerPasskeyBtnAdmin.closest('div').querySelector('h3');
+                            if (title && !title.innerHTML.includes('Activée')) {
+                                title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                            }
+                            registerPasskeyBtnAdmin.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                        } else {
+                            const title = registerPasskeyBtnAdmin.closest('div').querySelector('h3');
+                            if (title && title.innerHTML.includes('Activée')) {
+                                title.innerHTML = "Sécurité Personnelle";
+                            }
+                            registerPasskeyBtnAdmin.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une clé d\'accès';
+                        }
+                    }).catch(err => console.error("Erreur passkeys:", err));
+                }
+            };
+
+            loadAdminPasskeys();
+
+            if (registerPasskeyBtnAdmin) {
+                registerPasskeyBtnAdmin.addEventListener('click', async () => {
+                    if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
+                        if (window.showToast) window.showToast("Votre navigateur ne supporte pas encore cette fonctionnalité.", "error", "Sécurité");
+                        return;
+                    }
+                    const originalText = registerPasskeyBtnAdmin.innerHTML;
+                    registerPasskeyBtnAdmin.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Création...';
+                    registerPasskeyBtnAdmin.disabled = true;
+                    try {
+                        const { data, error } = await window.supabaseClient.auth.registerPasskey();
+                        if (error) throw error;
+                        if (window.showToast) window.showToast("Clé d'accès créée avec succès !", "success", "Sécurité");
+                        loadAdminPasskeys();
+                    } catch (err) {
+                        console.error('Passkey registration error:', err);
+                        let msg = err.message || "Erreur lors de la création de la clé d'accès.";
+                        if (msg.includes('cancelled') || msg.includes('cancel')) {
+                            msg = "Création annulée.";
+                        }
+                        if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                    } finally {
+                        registerPasskeyBtnAdmin.innerHTML = originalText;
+                        registerPasskeyBtnAdmin.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
+
+
+
+
+

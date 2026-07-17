@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta name="theme-color" content="#013220">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Introuvable — NewKet</title>
+    <link rel="icon" type="image/png" href="/src/assets/Images/logo-newket-v2.jpeg">
+    <link rel="stylesheet" href="/src/assets/css/index.css">
+    <link rel="stylesheet" href="/src/assets/css/main.css">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --dark: #111827;
+        }
+
+        body {
+            background-color: var(--dark);
+            color: white;
+            font-family: 'Outfit', 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0) 70%);
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 2rem;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px rgba(255, 255, 255, 0.05) solid;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            line-height: 1;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.05em;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            color: #f9fafb;
+        }
+
+        .description {
+            color: #9ca3af;
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+
+        .actions {
+            margin-top: 2.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--dark);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-outline {
+            border: 1px rgba(255, 255, 255, 0.1) solid;
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 640px) {
+            .error-code { font-size: 6rem; }
+            .actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    
+    <div class="container">
+        <a href="/">
+            <img src="/src/assets/Images/logo-newket-v2.jpeg" alt="NewKet Logo" class="logo">
+        </a>
+        
+        <h1 class="error-code">404</h1>
+        <p class="title">Oups ! Trésor introuvable.</p>
+        <p class="description">
+            La page que vous recherchez semble avoir disparu ou a été déplacée vers un autre rayon de notre marketplace.
+        </p>
+        
+        <div class="actions">
+            <a href="/" class="btn btn-primary">
+                Retour à l'accueil
+            </a>
+            <a href="/src/pages/catalog.html" class="btn btn-outline">
+                Découvrir le catalogue
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts pour charger le layout global si besoin -->
+    
+</body>
+</html>
+

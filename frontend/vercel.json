@@ -1,0 +1,157 @@
+{
+  "version": 2,
+  "framework": "vite",
+  "cleanUrls": true,
+  "outputDirectory": "dist",
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/api/manifest",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/src/pages/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/vendor/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/Images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/icons/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.iconify.design https://va.vercel-scripts.com https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://unpkg.com https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://*.ingest.sentry.io https://*.sentry.io https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://fonts.googleapis.com https://fonts.gstatic.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com; media-src 'self' blob: https:; worker-src 'self' blob:; frame-src 'self'; manifest-src 'self';"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/[...path].js": {
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    { "source": "/api/analytics/admin/behavior", "destination": "/api/admin-behavior" },
+    { "source": "/api/analytics/admin/behavior/drilldown", "destination": "/api/admin-behavior-drilldown" },
+    { "source": "/api/analytics/admin/behavior/reset", "destination": "/api/admin-behavior-reset" },
+    { "source": "/api/:path*", "destination": "/api/app?path=:path*" },
+    { "source": "/Boutique/:shopSlug/:productSlug/:rand/NewKet", "destination": "/src/pages/product?id=:productSlug" },
+    { "source": "/Boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
+    { "source": "/boutique/:shopSlug/NewKet", "destination": "/src/pages/shop?shop=:shopSlug" },
+    { "source": "/boutique/:shopSlug", "destination": "/src/pages/shop?shop=:shopSlug" },
+    { "source": "/boutique/:shopSlug/produit/:productSlug", "destination": "/src/pages/product?id=:productSlug" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/escrows/release-due",
+      "schedule": "5 0 * * *"
+    },
+    {
+      "path": "/api/cron/disputes/process-due",
+      "schedule": "10 0 * * *"
+    },
+    {
+      "path": "/api/cron/push/process-due",
+      "schedule": "15 0 * * *"
+    },
+    {
+      "path": "/api/cron/products/image-watchdog",
+      "schedule": "*/30 * * * *"
+    }
+  ]
+}

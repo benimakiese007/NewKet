@@ -1,0 +1,1673 @@
+/* NewKet Admin CMS Styles - Premium Redesign */
+
+/* ── CRITICAL: Reset global body padding-top (set to 115px in style.css) ─── */
+/* Admin pages use a fixed navbar injected by admin-layout.js.                 */
+/* The pt-[52px] on the main container handles the offset — body must be 0.   */
+body {
+    padding-top: 0 !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.no-transition, .no-transition * {
+    transition: none !important;
+}
+
+:root {
+    /* Matches admin-layout.js mobile topbar height (h-[64px]) */
+    --admin-navbar-height: 4rem;
+    --admin-navbar-offset: calc(var(--admin-navbar-height) + env(safe-area-inset-top, 0px));
+    --dashboard-topbar-height: 4rem;
+}
+
+@media (min-width: 640px) {
+    :root {
+        /* Matches admin-layout.js >=sm topbar height (sm:h-[96px]) */
+        --admin-navbar-height: 6rem;
+        --admin-navbar-offset: calc(var(--admin-navbar-height) + env(safe-area-inset-top, 0px));
+        --dashboard-topbar-height: 6rem;
+    }
+}
+
+/* Embedded admin views are shown inside the admin shell iframe.
+   Apply the embedded layout here so the first paint already matches the
+   final structure instead of flashing the desktop shell first. */
+html.admin-embedded-mode,
+html.admin-embedded-mode body {
+    background: #f8fafc !important;
+    margin: 0 !important;
+}
+
+html.admin-embedded-mode .admin-shell {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 0.375rem 0.375rem !important;
+    padding-top: 0 !important;
+    display: block !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0 !important;
+    overflow-x: visible !important;
+}
+
+html.admin-embedded-mode .admin-shell > #adminNavbarPlaceholder,
+html.admin-embedded-mode .admin-shell > #adminSidebarPlaceholder,
+html.admin-embedded-mode .admin-shell > #adminOverlay,
+html.admin-embedded-mode .admin-shell > #adminSidebar,
+html.admin-embedded-mode .admin-shell > #adminMobileMenuBtn {
+    display: none !important;
+}
+
+html.admin-embedded-mode .admin-shell > main {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.admin-shell {
+    padding-top: var(--admin-navbar-offset);
+    width: 100%;
+    max-width: min(100%, 90rem);
+    overflow-x: clip;
+}
+
+@media (min-width: 1024px) {
+    .admin-shell {
+        display: grid !important;
+        grid-template-columns: 18rem minmax(0, 1fr);
+        align-items: start;
+    }
+
+    /* Keep the injected admin sidebar in the flex flow and let the main area
+       shrink into the remaining space instead of overflowing off-screen. */
+    .admin-shell > #adminSidebarPlaceholder {
+        grid-column: 1;
+        grid-row: 1;
+        flex: 0 0 18rem;
+        width: 18rem;
+        max-width: 18rem;
+        min-width: 18rem;
+    }
+
+    .admin-shell > script {
+        display: none !important;
+    }
+
+    .admin-shell > main {
+        grid-column: 2;
+        grid-row: 1;
+        width: auto;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .sidebar-is-collapsed .admin-shell > #adminSidebarPlaceholder {
+        flex-basis: 80px;
+        width: 80px;
+        max-width: 80px;
+        min-width: 80px;
+    }
+
+    .sidebar-is-collapsed .admin-shell > main {
+        width: auto;
+        max-width: none;
+    }
+}
+
+/* Admin pages: the HTML uses Tailwind container classes (max-w-7xl/mx-auto)
+   but admin layout is injected dynamically; keep desktop layout deterministic. */
+@media (min-width: 1024px) {
+    .admin-shell {
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    /* Neutralize "inset-0" from injected markup on desktop */
+    #adminSidebar {
+        inset: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 18rem !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .sidebar-is-collapsed .admin-shell {
+        grid-template-columns: 80px minmax(0, 1fr);
+    }
+}
+
+.dashboard-topbar {
+    overflow: visible;
+    background: var(--newket-green) !important;
+    color: white !important;
+}
+
+.newket-dashboard-header {
+    background: #013220 !important;
+    background-image: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    color: white !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+}
+
+.newket-dashboard-header .dashboard-topbar-inner {
+    color: white !important;
+}
+
+.newket-dashboard-header [data-theme-toggle],
+.newket-dashboard-header a[href="/"]:not(.nk-header-logo-link) {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+.newket-dashboard-header #adminMobileMenuBtn:hover,
+.newket-dashboard-header [data-theme-toggle]:hover,
+.newket-dashboard-header a[href="/"]:not(.nk-header-logo-link):hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+
+.newket-dashboard-header iconify-icon {
+    color: white !important;
+}
+
+.newket-dashboard-header .segmented-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.newket-dashboard-header .segmented-label {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.newket-dashboard-header .segmented-label.active {
+    color: white !important;
+}
+
+/* === Boutons avec effet Glassmorphism === */
+.newket-dashboard-header #adminMobileMenuBtn,
+.newket-dashboard-header #customerMobileBtn,
+.newket-dashboard-header #vendorMobileBtn,
+.newket-dashboard-header .theme-toggle,
+.newket-dashboard-header button[data-logout-safe],
+.newket-dashboard-header button[onclick*="handleLogoutClick"],
+.newket-dashboard-header .hidden.sm\:flex[href="/"] {
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    background: rgba(255, 255, 255, 0.13) !important;
+    box-shadow: 0 12px 26px rgba(5, 150, 105, 0.18);
+    -webkit-backdrop-filter: blur(10px) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 0.5rem; /* Optionnel, pour arrondir un peu si ce n'est pas fait ailleurs */
+}
+
+.newket-dashboard-header #adminMobileMenuBtn,
+.newket-dashboard-header #customerMobileBtn,
+.newket-dashboard-header #vendorMobileBtn,
+.newket-dashboard-header .theme-toggle,
+.newket-dashboard-header .hidden.sm\:flex[href="/"] {
+    color: #ffffff !important;
+}
+
+.newket-dashboard-header #adminMobileMenuBtn:hover,
+.newket-dashboard-header #customerMobileBtn:hover,
+.newket-dashboard-header #vendorMobileBtn:hover,
+.newket-dashboard-header .theme-toggle:hover,
+.newket-dashboard-header .hidden.sm\:flex[href="/"]:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.newket-dashboard-header button[data-logout-safe],
+.newket-dashboard-header button[onclick*="handleLogoutClick"] {
+    color: rgb(239, 68, 68) !important;
+    background: rgb(254, 242, 242) !important;
+    border-color: rgba(254, 226, 226, 0.65) !important;
+}
+
+.newket-dashboard-header button[data-logout-safe]:hover,
+.newket-dashboard-header button[onclick*="handleLogoutClick"]:hover {
+    background: rgb(239, 68, 68) !important;
+    color: #ffffff !important;
+}
+
+/* vendorMobileBtn — déjà couvert par la règle burger ci-dessus */
+
+.newket-dashboard-header iconify-icon,
+.newket-dashboard-header .theme-toggle iconify-icon,
+.newket-dashboard-header #adminMobileMenuBtn iconify-icon,
+.newket-dashboard-header #customerMobileBtn iconify-icon,
+.newket-dashboard-header #vendorMobileBtn iconify-icon {
+    color: currentColor !important;
+}
+
+.newket-dashboard-header .currency-switch-segmented .segmented-track {
+    background: #f1f5f9 !important;
+}
+
+.newket-dashboard-header .currency-switch-segmented .segmented-handle {
+    background: #000000 !important;
+}
+
+.newket-dashboard-header .currency-switch-segmented .segmented-label {
+    color: #94a3b8 !important;
+}
+
+.dashboard-topbar-inner {
+    min-height: var(--dashboard-topbar-height);
+    padding-left: clamp(1rem, 2vw, 1.75rem);
+    padding-right: clamp(1rem, 2vw, 1.75rem);
+}
+
+.dashboard-main-offset {
+    padding-top: var(--dashboard-topbar-height) !important;
+}
+
+/* Shared admin page breathing room below the header bar.
+   Augmenté pour aligner le départ du contenu sur le layout vendeur. */
+.admin-shell > main {
+    padding-top: clamp(2rem, 3vw, 3rem);
+    padding-bottom: clamp(2rem, 4vw, 4rem);
+}
+
+/* ≤1023px : suppress extra spacing + fix colour bleed + remove strip above title */
+@media (max-width: 1023px) {
+    /* Remove flex gap — the sidebar placeholder has 0 height (sidebar is fixed overlay)
+       but the gap-8 on admin-shell was creating a visible coloured strip */
+    .admin-shell {
+        gap: 0 !important;
+    }
+
+    /* Keep the placeholder in the DOM (sidebar + overlay are fixed children inside it)
+       but give it zero dimensions so it takes no space in the flex-col layout */
+    #adminSidebarPlaceholder {
+        height: 0 !important;
+        width: 0 !important;
+        overflow: visible !important;
+        flex-shrink: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .admin-shell > main {
+        padding-top: 1.5rem !important;
+    }
+
+    /* Disable glass-panel backdrop-filter on mobile/tablet to stop colour bleed
+       from saturate(200%) picking up the purple gradient cards */
+    .admin-shell .glass-panel,
+    #adminSidebar .glass-panel {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Sidebar inner panel: solid white, no transparency */
+    #adminSidebar > div {
+        background: #ffffff !important;
+    }
+}
+
+
+
+.admin-page-header,
+.dashboard-page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+}
+
+.admin-page-header__content,
+.dashboard-page-header__content {
+    min-width: 0;
+}
+
+.admin-page-title,
+.dashboard-page-title {
+    text-wrap: balance;
+}
+
+.admin-page-subtitle,
+.dashboard-page-subtitle {
+    margin: 0.5rem 0 0;
+    color: #6b7280;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 60ch;
+}
+
+.admin-page-header > div:first-child > p,
+.dashboard-page-header > div:first-child > p {
+    margin: 0.5rem 0 0;
+    color: #6b7280;
+    font-weight: 500;
+    line-height: 1.6;
+    max-width: 60ch;
+}
+
+.admin-page-actions,
+.dashboard-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+@media (max-width: 1023px) {
+    /* Keep admin page titles compact and aligned on phones/tablets. */
+    .admin-page-header,
+    .dashboard-page-header {
+        align-items: flex-start;
+    }
+
+    .admin-shell > main > div:first-child h1,
+    .admin-shell .admin-page-title,
+    .admin-shell .dashboard-page-title {
+        font-size: clamp(1.5rem, 4vw, 2.35rem) !important;
+        line-height: 1.08 !important;
+        letter-spacing: -0.04em !important;
+        margin-top: 0 !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .admin-page-actions,
+    .dashboard-page-actions {
+        width: 100%;
+    }
+
+    .admin-page-actions > *,
+    .dashboard-page-actions > * {
+        flex: 0 1 auto;
+    }
+}
+
+@media (min-width: 640px) {
+    .admin-page-header,
+    .dashboard-page-header {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .admin-page-actions,
+    .dashboard-page-actions {
+        width: auto;
+        margin-left: auto;
+        justify-content: flex-end;
+    }
+}
+
+/* Match the same vertical alignment on vendor and customer dashboards. */
+.vendor-main-content,
+.customer-main-content {
+    padding-top: clamp(1rem, 2vw, 2rem);
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Remove default focus outlines on layout containers that can trigger on hash navigation/anchor loads */
+.vendor-main-content:focus,
+.vendor-main-content:focus-visible,
+.customer-main-content:focus,
+.customer-main-content:focus-visible,
+[id^="tab-"]:focus,
+[id^="tab-"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Lift the sidebar: remove the extra visual gap under the fixed navbar */
+#adminSidebar > div,
+#customerSidebar > div,
+#vendorSidebar > div {
+    padding-top: 0.75rem !important;
+}
+
+@media (min-width: 768px) {
+    #adminSidebar > div,
+    #customerSidebar > div,
+    #vendorSidebar > div {
+        margin-top: 1rem;
+    }
+}
+
+/* ── TABLET: Sidebar as a drawer (768-1023px) ─────────────────────────────── */
+/* On tablet the sidebar stays as a mobile drawer (isMobile=true in JS).
+   We only override the drawer sizing to be narrower than full-screen. */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Hide the X close button — replaced by tapping outside or burger */
+    /* Show the collapse toggle only on tablet+ */
+    .sidebar-toggle-btn.hidden.lg\:flex {
+        display: flex !important;
+    }
+
+    /* On tablet, drawer is narrower (not full-screen) */
+    #vendorSidebar,
+    #customerSidebar {
+        width: 100vw !important;
+        max-width: none !important;
+    }
+}
+
+/* ── CRITICAL: Desktop sidebar layout (>= 1024px) ─────────────────────────── */
+/* These rules ensure the sidebar participates in the flex flow on desktop.  */
+@media (min-width: 1024px) {
+    /* Force main to flex-row on desktop */
+    main.dashboard-main-offset {
+        flex-direction: row !important;
+    }
+
+    #adminSidebar, #customerSidebar, #vendorSidebar {
+        /* Override mobile-drawer classes (fixed inset-0 z-[9999]):
+           on desktop the sidebar is part of page layout, not an overlay. */
+        position: sticky !important;
+        top: calc(var(--dashboard-topbar-height) + 1rem) !important;
+        inset: auto !important;
+        transform: none !important;
+        /* FIX: use max-height instead of height so the sidebar never forces the page
+           to be taller than its actual content. height:100vh was inflating the document
+           height on short pages (activities, diagnostics, etc.) causing infinite scroll. */
+        height: auto !important;
+        max-height: calc(100vh - var(--dashboard-topbar-height) - 2rem) !important;
+        overflow-y: auto !important;
+        z-index: 20 !important;
+        align-self: start !important;
+    }
+
+    #customerSidebar {
+        width: 16rem !important; /* w-64 = 256px */
+    }
+
+    /* Do not force the expanded width when the sidebar is in collapsed mode */
+    #adminSidebar:not(.sidebar-collapsed),
+    #vendorSidebar:not(.sidebar-collapsed) {
+        width: 18rem !important; /* w-72 = 288px */
+    }
+
+    /* Prevent "sidebar scrolling by itself" when content is short */
+    #customerSidebar .glass-panel,
+    #vendorSidebar .glass-panel,
+    #adminSidebar .glass-panel {
+        min-height: auto !important;
+    }
+
+    /* Prevent hover translate animation on sidebars to keep layout stable */
+    #adminSidebar .glass-panel:hover,
+    #customerSidebar .glass-panel:hover,
+    #vendorSidebar .glass-panel:hover {
+        transform: none !important;
+    }
+
+    /* Hide close button, show collapse toggle */
+    button[data-close-sidebar] {
+        display: none !important;
+    }
+
+    .sidebar-toggle-btn.hidden.lg\:flex {
+        display: flex !important;
+    }
+}
+
+#tab-settings .customer-settings-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (min-width: 1280px) {
+    #tab-settings .customer-settings-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+}
+
+#adminSidebar, #customerSidebar, #vendorSidebar {
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width, transform;
+    /* Ensure hardware acceleration for smooth sliding, but allow removal via .drawer-settled */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Sidebar Collapsed State (Desktop) */
+@media (min-width: 768px) {
+    .sidebar-collapsed {
+        width: 80px !important;
+    }
+
+    .sidebar-collapsed .sidebar-link span,
+    .sidebar-collapsed .sidebar-logout span,
+    .sidebar-collapsed #userDisplayName,
+    .sidebar-collapsed #userStatusBadge,
+    .sidebar-collapsed .sidebar-link > .sidebar-link-badge,
+    .sidebar-collapsed .sidebar-reminder-box,
+    .sidebar-collapsed .sidebar-footer-info,
+    .sidebar-collapsed .sidebar-header-text {
+        display: none !important;
+        opacity: 0;
+    }
+
+    .sidebar-collapsed .sidebar-link {
+        justify-content: center;
+        padding: var(--space-md) !important;
+        gap: 0;
+    }
+
+    /* Admin, Vendor, Customer sidebars: in collapsed mode, keep links as compact icon buttons.
+       Without this, the active "pill" styles and indicators look broken when
+       text is hidden (desktop collapse). */
+    .sidebar-collapsed #adminSidebar .sidebar-link,
+    .sidebar-collapsed #customerSidebar .sidebar-link,
+    .sidebar-collapsed #vendorSidebar .sidebar-link {
+        width: 56px;
+        height: 56px;
+        padding: 0 !important;
+        margin: 0.35rem auto;
+        border-radius: 18px;
+    }
+
+    .sidebar-collapsed #adminSidebar .sidebar-link.active,
+    .sidebar-collapsed #customerSidebar .sidebar-link.active,
+    .sidebar-collapsed #vendorSidebar .sidebar-link.active {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .sidebar-collapsed #adminSidebar .sidebar-link.active::before,
+    .sidebar-collapsed #customerSidebar .sidebar-link.active::before,
+    .sidebar-collapsed #vendorSidebar .sidebar-link.active::before {
+        content: none !important;
+    }
+
+    .sidebar-collapsed #adminSidebar .sidebar-link > .absolute,
+    .sidebar-collapsed #customerSidebar .sidebar-link > .absolute,
+    .sidebar-collapsed #vendorSidebar .sidebar-link > .absolute {
+        display: none !important;
+    }
+
+    /* When the sidebar is only 80px wide, the original wrappers keep large
+       horizontal paddings which makes the background and icon pills look
+       misaligned. Tighten the container and center the nav. */
+    .sidebar-collapsed#adminSidebar > div,
+    .sidebar-collapsed#customerSidebar > div,
+    .sidebar-collapsed#vendorSidebar > div {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .sidebar-collapsed#adminSidebar [class*="glass-panel"],
+    .sidebar-collapsed#customerSidebar [class*="glass-panel"],
+    .sidebar-collapsed#vendorSidebar [class*="glass-panel"] {
+        padding: 0.5rem !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    .sidebar-collapsed#adminSidebar nav,
+    .sidebar-collapsed#customerSidebar nav,
+    .sidebar-collapsed#vendorSidebar nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .sidebar-collapsed .sidebar-link iconify-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .sidebar-collapsed .sidebar-header-card {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0.5rem 0 !important;
+        justify-content: center !important;
+        margin-bottom: 1rem !important;
+    }
+    .sidebar-collapsed .sidebar-header-card > *:not(:first-child) {
+        display: none !important;
+    }
+
+    /* Shift main content when sidebar is collapsed */
+    .sidebar-is-collapsed .admin-main-content {
+        margin-left: 80px !important;
+    }
+}
+
+.premium-container {
+    padding-top: 52px;
+}
+
+/* ── Missing Tailwind JIT classes (not in compiled CSS) ──── */
+.pt-\[52px\] {
+    padding-top: 52px;
+}
+
+@media (min-width: 1024px) {
+    .lg\:py-24 {
+        padding-top: 6rem;
+        padding-bottom: 6rem;
+    }
+    .lg\:h-auto {
+        height: auto;
+    }
+    .lg\:hidden {
+        display: none;
+    }
+}
+
+:root {
+    --glass: var(--grad-glass);
+    --glass-morphism: blur(var(--glass-blur)) saturate(180%);
+    --glass-border-color: var(--glass-border);
+    --accent-blue: #2563eb;
+    --accent-green: #10b981;
+    --accent-orange: #f59e0b;
+    --accent-purple: #8b5cf6;
+    --admin-bg: var(--bg-light);
+}
+
+body {
+    background-color: var(--admin-bg);
+    font-family: var(--font-body);
+    color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism Panels - Premium Tier */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+    box-shadow: var(--shadow-md);
+    border-radius: 24px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+    background: #ffffff;
+}
+
+/* Panels contenant un canvas Chart.js : pas de translateY au hover (évite le re-layout du canvas) */
+/* Vendor dashboard: remove border from glass panels */
+.vendor-main-content .glass-panel { border: 0 !important; }
+.glass-panel:has(canvas):hover,
+.glass-panel:has(.vendor-chart-shell):hover {
+    transform: none !important;
+}
+
+.glass-panel.static-panel:hover {
+    transform: none !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Force solid white background for specific modals */
+.solid-modal-content {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Premium Sidebar */
+.sidebar-link {
+    display: flex !important;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    border-radius: 1rem;
+    color: #475569;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    position: relative;
+}
+
+.sidebar-link-child {
+    display: grid !important;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.75rem;
+}
+
+.sidebar-link span,
+.sidebar-link-child span {
+    white-space: normal;
+    line-height: 1.1;
+    text-align: left;
+}
+
+.sidebar-link-label--compact {
+    max-width: 12ch;
+    text-wrap: balance;
+}
+
+.sidebar-link-label-with-badge {
+    min-width: 0;
+    line-height: 1.1;
+}
+
+.sidebar-link-label-tail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.sidebar-link > iconify-icon,
+.sidebar-link > .sidebar-icon-container,
+.sidebar-link-child > div:first-child {
+    margin-top: 0;
+}
+
+.sidebar-link > span {
+    min-width: 0;
+}
+
+.sidebar-link > .sidebar-link-badge {
+    display: inline-flex;
+    align-self: center;
+    flex: 0 0 auto;
+    margin-left: 0;
+    margin-top: 0 !important;
+}
+
+.sidebar-link:hover {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.sidebar-link.active {
+    color: #0f172a;
+}
+
+html:not(.dark) #adminSidebar .sidebar-link.active {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+}
+
+html:not(.dark) #adminSidebar .sidebar-link.active .sidebar-icon-container {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 24px -18px rgba(15, 23, 42, 0.9);
+}
+
+html:not(.dark) #adminSidebar .sidebar-link.active span {
+    color: #0f172a !important;
+}
+
+.sidebar-link:focus-visible {
+    outline: 2px solid rgba(15, 23, 42, 0.25);
+    outline-offset: 2px;
+}
+
+html:not(.dark) #adminSidebar .sidebar-link.active::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    width: 3px;
+    height: 18px;
+    transform: translateY(-50%);
+    border-radius: 999px;
+    background: #0f172a;
+}
+
+/* Toggle Button Styling */
+.sidebar-toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: -14px;
+    width: 28px;
+    height: 28px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    display: none; /* Desktop only */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 130;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    color: var(--text-light);
+}
+
+.sidebar-toggle-btn:hover {
+    color: black;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 1024px) {
+    .sidebar-toggle-btn {
+        display: flex;
+        transform: translateY(-50%);
+    }
+
+    .sidebar-is-collapsed .sidebar-toggle-btn iconify-icon {
+        transform: rotate(180deg);
+    }
+}
+
+.sidebar-section-title {
+    user-select: none;
+}
+
+.sidebar-collapsed .sidebar-section-title {
+    display: none;
+}
+@media (min-width: 1024px) {
+    .sidebar-toggle-btn {
+        display: flex;
+    }
+}
+
+.sidebar-collapsed .sidebar-toggle-btn iconify-icon {
+    transform: rotate(180deg);
+}
+
+/* Gradients */
+.glass-panel.premium-gradient-blue { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
+.glass-panel.premium-gradient-green { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
+.glass-panel.premium-gradient-orange { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
+
+.admin-period-toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 540px;
+}
+
+.admin-period-toolbar > * {
+    min-width: 0;
+    width: 100%;
+    justify-content: center;
+}
+
+.admin-period-toolbar > div:first-child {
+    grid-column: 1 / -1;
+}
+
+.admin-date-range-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+@media (min-width: 640px) {
+    .admin-date-range-card {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+        align-items: end;
+    }
+}
+
+@media (max-width: 639px) {
+    .admin-period-toolbar {
+        grid-template-columns: 1fr;
+        max-width: none;
+    }
+}
+.glass-panel.premium-gradient-purple { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); }
+.glass-panel.premium-gradient-dark { background: linear-gradient(135deg, #111827 0%, #1f2937 100%) !important; }
+.glass-panel.premium-gradient-dark:hover { background: linear-gradient(135deg, #1f2937 0%, #374151 100%) !important; }
+
+/* Grids & Layouts */
+.vendor-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.vendor-charts-grid {
+    width: 100%;
+    overflow-x: hidden; /* prevent horizontal scroll */
+    padding: 0;
+    margin: 0;
+    align-items: start;
+}
+
+
+
+/* Deterministic chart sizing (avoid missing Tailwind arbitrary classes on prod builds) */
+.vendor-chart-shell {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+    /* Remove fixed height, let aspect ratio handle sizing */
+}
+
+.vendor-chart-shell canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: contain;
+}
+
+/* Height overrides removed; aspect-ratio handles responsive sizing */
+
+/* Vendor Charts Grid — toujours en colonne unique : Intérêt → Commandes → Activités */
+.vendor-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    width: 100%;
+    align-items: start;
+    overflow-x: hidden;
+}
+
+.vendor-chart-panel,
+.vendor-orders-panel,
+.vendor-activity-panel {
+    width: 100%;
+    min-width: 0;
+}
+
+@media (max-width: 640px) {
+    .vendor-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+}
+
+/* Stats Widgets */
+.stat-card-label {
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #94a3b8;
+}
+
+.stat-card-value {
+    font-size: 1.75rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: #0f172a;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-premium {
+    animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Slide In Left Animation */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Embedded admin views (loaded inside the AdminShell iframe) must not animate on every navigation. */
+html.admin-embedded-mode .animate-premium,
+html.admin-embedded-mode .animate-slide-in-left {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+html.admin-embedded-mode .stagger-1,
+html.admin-embedded-mode .stagger-2,
+html.admin-embedded-mode .stagger-3,
+html.admin-embedded-mode .stagger-4,
+html.admin-embedded-mode .stagger-5 {
+    animation-delay: 0s !important;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Status Badges */
+.badge-premium {
+    padding: var(--space-xs) var(--space-md);
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+/* Table Enhancements */
+.premium-table thead th {
+    background: #f8fafc;
+    padding: var(--space-md);
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+/* Admin data tables — keep thead/tbody columns aligned on all breakpoints */
+.admin-data-table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ── Shared text truncation (images, avatars, controls excluded) ─────────── */
+.admin-data-table td {
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+.admin-data-table td > .flex {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.admin-data-table .admin-table-cell-text {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.admin-data-table .admin-table-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-data-table .admin-table-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-data-table .admin-table-cell-meta {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.admin-data-table td > div:not(.flex):not(.badge-premium) {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.admin-data-table td > div:not(.flex) > .font-black:not(.flex),
+.admin-data-table td > div:not(.flex) > div.font-black:not(.flex),
+.admin-data-table td > div:not(.flex) > .font-medium,
+.admin-data-table td > div:not(.flex) > .font-bold:not(.flex),
+.admin-data-table td > .font-black:not(.flex),
+.admin-data-table td > .font-medium {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.admin-data-table td > div:not(.flex) > .text-\[10px\],
+.admin-data-table td > div:not(.flex) > div.text-\[10px\],
+.admin-data-table td > div:not(.flex) > .text-\[11px\],
+.admin-data-table td > div:not(.flex) > .text-xs {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .font-black:not(.flex),
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > div.font-black:not(.flex),
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > span.font-bold {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .font-black.flex {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .font-black.flex > .admin-table-truncate,
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .font-black.flex > span:first-child:not(.shrink-0):not(.flex-shrink-0) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > .text-\[10px\],
+.admin-data-table td > .flex > div:not(.shrink-0):not(.flex-shrink-0) > div.text-\[10px\] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: block;
+}
+
+/* Plain-text cells (no nested elements) */
+.admin-data-table td:not(:has(*)) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Images, avatars, thumbnails — fixed size, never ellipsized */
+.admin-data-table img {
+    flex-shrink: 0;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    max-width: none;
+}
+
+.admin-data-table td .shrink-0,
+.admin-data-table td .flex-shrink-0,
+.admin-data-table td input,
+.admin-data-table td button,
+.admin-data-table td select,
+.admin-data-table td .badge-premium,
+.admin-data-table td .seller-type-badge,
+.admin-data-table td .role-badge,
+.admin-data-table td .stat-chip,
+.admin-data-table td .ref-link,
+.admin-data-table td iconify-icon {
+    flex-shrink: 0;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+}
+
+.admin-data-table td .badge-premium.admin-table-truncate {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.admin-data-table td [class*="rounded-2xl"].overflow-hidden,
+.admin-data-table td [class*="rounded-xl"].overflow-hidden {
+    flex-shrink: 0;
+}
+
+/* Action / control columns */
+.admin-data-table td.text-right,
+.admin-data-table td.admin-products-table__select,
+.admin-data-table td.text-center {
+    overflow: visible;
+}
+
+.admin-data-table td.text-right > .flex,
+.admin-data-table td.text-right > div {
+    overflow: visible;
+}
+
+/* Products */
+.admin-products-table {
+    --admin-table-min-width: 880px;
+}
+
+.admin-products-table col.admin-products-table__col-select {
+    width: 2.75rem;
+}
+
+.admin-products-table col.admin-products-table__col-product {
+    width: 17.5rem;
+}
+
+.admin-products-table col.admin-products-table__col-category {
+    width: 8.5rem;
+}
+
+.admin-products-table col.admin-products-table__col-price {
+    width: 6.75rem;
+}
+
+.admin-products-table col.admin-products-table__col-stock {
+    width: 5.5rem;
+}
+
+.admin-products-table col.admin-products-table__col-sponsor {
+    width: 6.25rem;
+}
+
+.admin-products-table col.admin-products-table__col-actions {
+    width: 6.75rem;
+}
+
+.admin-products-table__select {
+    width: 2.75rem;
+    text-align: center;
+}
+
+/* Orders */
+.admin-orders-table {
+    --admin-table-min-width: 1100px;
+}
+
+.admin-orders-table col.admin-orders-table__col-id { width: 6rem; }
+.admin-orders-table col.admin-orders-table__col-client { width: 9rem; }
+.admin-orders-table col.admin-orders-table__col-source { width: 7rem; }
+.admin-orders-table col.admin-orders-table__col-contact { width: 9rem; }
+.admin-orders-table col.admin-orders-table__col-date { width: 6.5rem; }
+.admin-orders-table col.admin-orders-table__col-otp { width: 5rem; }
+.admin-orders-table col.admin-orders-table__col-potential { width: 7rem; }
+.admin-orders-table col.admin-orders-table__col-payment { width: 6.5rem; }
+.admin-orders-table col.admin-orders-table__col-status { width: 6.5rem; }
+.admin-orders-table col.admin-orders-table__col-actions { width: 7rem; }
+
+/* Users */
+.admin-users-table {
+    --admin-table-min-width: 820px;
+}
+
+.admin-users-table col.admin-users-table__col-user { width: 14rem; }
+.admin-users-table col.admin-users-table__col-status { width: 7rem; }
+.admin-users-table col.admin-users-table__col-articles { width: 5.5rem; }
+.admin-users-table col.admin-users-table__col-sales { width: 7.5rem; }
+.admin-users-table col.admin-users-table__col-nktoken { width: 6.5rem; }
+.admin-users-table col.admin-users-table__col-actions { width: 7rem; }
+
+/* User modal orders */
+.admin-user-orders-table {
+    --admin-table-min-width: 560px;
+}
+
+.admin-user-orders-table col.admin-user-orders-table__col-date { width: 7rem; }
+.admin-user-orders-table col.admin-user-orders-table__col-status { width: 7rem; }
+.admin-user-orders-table col.admin-user-orders-table__col-items { width: 10rem; }
+.admin-user-orders-table col.admin-user-orders-table__col-total { width: 6rem; }
+
+/* Activities */
+.admin-activities-table {
+    --admin-table-min-width: 640px;
+}
+
+.admin-activities-table col.admin-activities-table__col-datetime { width: 9rem; }
+.admin-activities-table col.admin-activities-table__col-description { width: 18rem; }
+.admin-activities-table col.admin-activities-table__col-priority { width: 8rem; }
+
+/* OTP tracker */
+.admin-otp-table {
+    --admin-table-min-width: 920px;
+}
+
+.admin-otp-table col.admin-otp-table__col-otp { width: 5.5rem; }
+.admin-otp-table col.admin-otp-table__col-order { width: 8rem; }
+.admin-otp-table col.admin-otp-table__col-client { width: 8rem; }
+.admin-otp-table col.admin-otp-table__col-product { width: 9rem; }
+.admin-otp-table col.admin-otp-table__col-transaction { width: 9rem; }
+.admin-otp-table col.admin-otp-table__col-status { width: 6.5rem; }
+.admin-otp-table col.admin-otp-table__col-proof { width: 5.5rem; }
+
+/* Newsletter */
+.admin-newsletter-table {
+    --admin-table-min-width: 640px;
+}
+
+.admin-newsletter-table col.admin-newsletter-table__col-email { width: 14rem; }
+.admin-newsletter-table col.admin-newsletter-table__col-source { width: 7rem; }
+.admin-newsletter-table col.admin-newsletter-table__col-date { width: 8rem; }
+.admin-newsletter-table col.admin-newsletter-table__col-status { width: 6.5rem; }
+.admin-newsletter-table col.admin-newsletter-table__col-actions { width: 6rem; }
+
+/* Referrals */
+.admin-referrals-top-table {
+    --admin-table-min-width: 760px;
+}
+
+.admin-referrals-top-table col.admin-referrals-top-table__col-referrer { width: 11rem; }
+.admin-referrals-top-table col.admin-referrals-top-table__col-code { width: 6rem; }
+.admin-referrals-top-table col.admin-referrals-top-table__col-events { width: 6.5rem; }
+.admin-referrals-top-table col.admin-referrals-top-table__col-rewards { width: 7rem; }
+.admin-referrals-top-table col.admin-referrals-top-table__col-value { width: 6.5rem; }
+
+.admin-referrals-events-table {
+    --admin-table-min-width: 980px;
+}
+
+.admin-referrals-events-table col.admin-referrals-events-table__col-code { width: 6rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-referrer { width: 9rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-referee { width: 9rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-status { width: 6.5rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-reward { width: 7rem; }
+.admin-referrals-events-table col.admin-referrals-events-table__col-actions { width: 6.5rem; }
+
+/* Analytics */
+.admin-analytics-events-table {
+    --admin-table-min-width: 720px;
+}
+
+.admin-analytics-events-table col.admin-analytics-events-table__col-when { width: 8rem; }
+.admin-analytics-events-table col.admin-analytics-events-table__col-type { width: 5.5rem; }
+.admin-analytics-events-table col.admin-analytics-events-table__col-page { width: 10rem; }
+.admin-analytics-events-table col.admin-analytics-events-table__col-action { width: 10rem; }
+.admin-analytics-events-table col.admin-analytics-events-table__col-role { width: 5.5rem; }
+
+/* User details */
+.admin-user-details-table {
+    --admin-table-min-width: 640px;
+}
+
+.admin-user-details-table col.admin-user-details-table__col-date { width: 7rem; }
+.admin-user-details-table col.admin-user-details-table__col-ref { width: 10rem; }
+.admin-user-details-table col.admin-user-details-table__col-details { width: 14rem; }
+.admin-user-details-table col.admin-user-details-table__col-amount { width: 6.5rem; }
+
+/* Vendor dashboard orders */
+.vendor-orders-table {
+    --admin-table-min-width: 960px;
+}
+
+.vendor-orders-table col.vendor-orders-table__col-select { width: 2.75rem; }
+.vendor-orders-table col.vendor-orders-table__col-id { width: 5rem; }
+.vendor-orders-table col.vendor-orders-table__col-client { width: 14rem; }
+.vendor-orders-table col.vendor-orders-table__col-contact { width: 8rem; }
+.vendor-orders-table col.vendor-orders-table__col-amount { width: 6.5rem; }
+.vendor-orders-table col.vendor-orders-table__col-payment { width: 7rem; }
+.vendor-orders-table col.vendor-orders-table__col-status { width: 6.5rem; }
+.vendor-orders-table col.vendor-orders-table__col-actions { width: 3rem; }
+
+@media (max-width: 1023px) {
+    .admin-table-shell {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-x: contain;
+    }
+
+    .admin-table-shell .admin-data-table {
+        display: table !important;
+        table-layout: fixed;
+        min-width: var(--admin-table-min-width, 720px);
+        width: 100%;
+        white-space: normal;
+    }
+
+    .admin-table-shell .admin-data-table thead {
+        display: table-header-group !important;
+        width: auto !important;
+    }
+
+    .admin-table-shell .admin-data-table tbody {
+        display: table-row-group !important;
+        width: auto !important;
+    }
+
+    .admin-table-shell .admin-data-table tr {
+        display: table-row !important;
+        width: auto !important;
+    }
+
+    .admin-table-shell .admin-data-table th,
+    .admin-table-shell .admin-data-table td {
+        width: auto !important;
+        max-width: none;
+    }
+}
+
+/* Vendor product card MODIFIER btn label: hidden on tiny screens, visible from 360px */
+.vendor-product-btn-label { display: none; }
+@media (min-width: 360px) {
+    .vendor-product-btn-label { display: inline; }
+}
+
+@media (max-width: 768px) {
+    #tab-dashboard .vendor-card-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+
+    #tab-dashboard .vendor-card-header > a,
+    #tab-dashboard .vendor-card-header > div {
+        width: 100%;
+    }
+
+    #tab-dashboard .admin-table-shell {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+        padding-bottom: 24px;
+        min-height: 250px;
+    }
+
+    #tab-dashboard .admin-table-shell::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    #tab-dashboard .admin-table-shell::-webkit-scrollbar-thumb {
+        background: rgba(15, 23, 42, 0.18);
+        border-radius: 999px;
+    }
+
+    #tab-dashboard #salesChart,
+    #tab-analytics #audienceChart {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+    }
+
+    #tab-dashboard .vendor-activity-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    #tab-settings .flex.items-center.gap-8 {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    #tab-settings .w-32.h-32 {
+        width: 7rem !important;
+        height: 7rem !important;
+    }
+
+    #tab-settings #coverPreviewContainer {
+        height: 11rem !important;
+    }
+
+    #tab-settings button[type="submit"],
+    #tab-settings #saveAvatarBtn,
+    #tab-settings #saveCoverBtn {
+        width: 100% !important;
+    }
+
+    #tab-products .flex.items-center.justify-between,
+    #tab-leads .flex.items-center.justify-between,
+    #tab-purchases .flex.items-center.justify-between {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    #tab-products input[type="text"] {
+        width: 100% !important;
+    }
+
+    #tab-purchases .bg-gray-50.px-4.py-2.rounded-xl.border.border-gray-100 {
+        width: 100% !important;
+    }
+}
+
+/* Robust Scroll Locking for Dashboards */
+#vendorSidebar, 
+#adminSidebar, 
+#customerSidebar,
+#clientSidebar,
+.sidebar-drawer {
+    overscroll-behavior: contain !important;
+}
+
+/* Ensure fixed sidebars dont scroll background on iOS */
+@media (max-width: 767px) {
+    #vendorSidebar, 
+    #adminSidebar, 
+    #customerSidebar,
+    #clientSidebar {
+        position: fixed !important;
+        height: 100% !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+}
+
+/* Mobile Sidebar Overrides */
+@media (max-width: 767px) {
+    #vendorSidebar,
+    #customerSidebar {
+        will-change: transform;
+        background-color: #ffffff !important;
+        backdrop-filter: none !important;
+        height: 100dvh !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        top: 0 !important;
+        left: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        position: fixed !important;
+        /* Must stay above its overlay on mobile */
+        z-index: 9999 !important;
+    }
+
+    #vendorSidebarOverlay,
+    #customerSidebarOverlay {
+        /* Must stay behind the drawer; avoid blur for text crispness */
+        z-index: 9998 !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+
+    /* After the drawer finishes animating in, remove transform to avoid iOS text blurriness */
+    #vendorSidebar.drawer-settled,
+    #customerSidebar.drawer-settled {
+        transform: none;
+        /* Force layout recalculation for crisp text */
+        perspective: none !important;
+        -webkit-perspective: none !important;
+    }
+
+    #vendorSidebar .glass-panel,
+    #customerSidebar .glass-panel {
+        background-color: #ffffff !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    #vendorSidebar.translate-x-0,
+    #customerSidebar.translate-x-0,
+    #vendorSidebar.md\:translate-x-0,
+    #customerSidebar.md\:translate-x-0 {
+        transform: translateX(0) !important;
+    }
+
+    #vendorSidebar.-translate-x-full,
+    #customerSidebar.-translate-x-full {
+        transform: translateX(-100%) !important;
+    }
+}
+
+/* Augmente la zone tactile sous tous les tableaux pour faciliter le scroll mobile */
+.glass-panel .overflow-x-auto {
+    min-height: 250px;
+    padding-bottom: 24px;
+}
+
+/* Fix mobile scroll issue where admin pages get 80px padding-bottom meant for the consumer bottom nav */
+@media (max-width: 639px) {
+    .admin-shell > main {
+        padding-bottom: 0 !important;
+    }
+}

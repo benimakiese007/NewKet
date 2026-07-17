@@ -1,0 +1,36 @@
+{
+  "name": "newket-backend",
+  "version": "1.0.0",
+  "description": "NewKet Backend API",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@notionhq/client": "^5.22.0",
+    "@sentry/node": "^10.49.0",
+    "@supabase/supabase-js": "^2.101.1",
+    "cloudinary": "^2.10.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.5.2",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.1.0",
+    "multer": "^2.2.0",
+    "multer-storage-cloudinary": "^2.2.1",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^9.0.3",
+    "path-to-regexp": "^8.4.2",
+    "qs": "^6.15.3",
+    "sharp": "^0.34.5",
+    "web-push": "^3.6.7",
+    "ws": "^8.21.0"
+  }
+}

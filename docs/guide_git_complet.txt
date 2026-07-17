@@ -1,0 +1,133 @@
+========================================================================
+              LE GUIDE COMPLET GIT & GITHUB (AVEC LES BRANCHES)
+========================================================================
+
+Ce document rassemble tout ce qu'il faut savoir pour bien utiliser Git, 
+passer au niveau supérieur avec les branches, et comprendre les concepts 
+essentiels.
+
+------------------------------------------------------------------------
+1. LES BASES : LE CYCLE DE VIE CLASSIQUE
+------------------------------------------------------------------------
+Quand on travaille sur Git, un fichier passe par 3 états :
+1. Modifié (Modified) : Tu as changé le fichier, mais Git ne l'a pas 
+   encore sauvegardé officiellement.
+2. Indexé (Staged) : Tu as dit à Git "prépare-toi à sauvegarder ça".
+3. Validé (Committed) : C'est sauvegardé dans l'historique !
+
+Commandes de base :
+- git status : Savoir où on en est (fichiers modifiés, etc.). LA commande 
+  la plus utile.
+- git add . : Ajouter (indexer) TOUTES les modifications.
+- git commit -m "Message" : Créer la sauvegarde avec un message clair.
+- git push : Envoyer les sauvegardes vers GitHub.
+- git pull : Récupérer les nouveautés depuis GitHub vers ton ordinateur.
+
+------------------------------------------------------------------------
+2. LE COEUR DU SUJET : LES BRANCHES
+------------------------------------------------------------------------
+Concept :
+Une branche est un espace de travail isolé. Imagine "main" (la branche 
+principale) comme le manuscrit officiel d'un livre. Une branche est un 
+brouillon. Tu peux tout casser sur ton brouillon, le manuscrit principal 
+reste intact.
+
+Pourquoi les utiliser ?
+- Pour créer une nouvelle fonctionnalité sans risquer de casser l'application.
+- Pour travailler à plusieurs (chacun sa branche).
+- Pour tester une idée (si elle est mauvaise, on supprime la branche).
+
+Les commandes pour les branches :
+- git branch : Liste toutes les branches locales (celle avec une * est 
+  celle où tu te trouves).
+- git checkout -b nom-de-ta-branche : CRÉE une nouvelle branche ET te 
+  place dessus immédiatement. (ex: git checkout -b ajout-bouton-login).
+- git checkout nom-de-la-branche : Permet de CHANGER de branche (naviguer 
+  de l'une à l'autre).
+
+Le workflow (flux de travail) complet avec une branche :
+1. Tu es sur main : git checkout main
+2. Tu te mets à jour : git pull
+3. Tu crées ta branche : git checkout -b design-header
+4. Tu codes, puis tu sauvegardes : 
+   git add .
+   git commit -m "Mise à jour du design du header"
+5. Tu envoies ta branche sur GitHub pour la première fois :
+   git push -u origin design-header
+
+------------------------------------------------------------------------
+3. FUSIONNER (MERGE) ET PULL REQUESTS (PR)
+------------------------------------------------------------------------
+Une fois que le travail sur ta branche est terminé, il faut le ramener 
+dans la branche principale ("main"). 
+
+- En local (sur ton PC) : 
+  git checkout main (retour au principal)
+  git merge nom-de-ta-branche (fusionne la branche dans main)
+
+- Sur GitHub (La méthode Pro - Pull Request) :
+  Au lieu de fusionner localement, tu pousses ta branche sur GitHub.
+  Sur le site, tu cliques sur "Compare & pull request". 
+  Une "Pull Request" (PR) est une DEMANDE d'intégration. Ça permet aux 
+  autres (ou à toi-même) de revoir le code avant de cliquer sur le 
+  bouton vert "Merge pull request" pour l'intégrer à main.
+
+------------------------------------------------------------------------
+4. LES CONFLITS (MERGE CONFLICTS)
+------------------------------------------------------------------------
+Qu'est-ce que c'est ?
+Tu travailles sur la ligne 10 du fichier "index.html" sur la branche A.
+Quelqu'un d'autre modifie AUSSI la ligne 10 sur la branche B.
+Quand tu essaies de fusionner, Git panique : "Quelle version je garde ?".
+C'est un conflit.
+
+Comment le résoudre ?
+1. Git va modifier le fichier et ajouter des marqueurs bizarres :
+   <<<<<<< HEAD
+   Ta version
+   =======
+   L'autre version
+   >>>>>>> nom-de-la-branche
+2. Tu dois ouvrir le fichier, supprimer les marqueurs (<<<, ===, >>>) et 
+   garder manuellement le code final que tu veux conserver.
+3. Ensuite : git add .  puis  git commit -m "Résolution du conflit".
+
+------------------------------------------------------------------------
+5. AUTRES CONCEPTS ET COMMANDES SUPER UTILES
+------------------------------------------------------------------------
+
+A. CLONER UN PROJET (git clone)
+   Récupérer un projet qui existe sur GitHub pour le mettre sur ton PC.
+   Commande : git clone <URL-du-projet>
+
+B. METTRE DE CÔTÉ (git stash)
+   Tu es en train de coder sur une branche, on t'appelle pour corriger 
+   un bug urgent sur "main", mais ton code actuel n'est pas fini, tu ne 
+   veux pas faire de "commit". 
+   - git stash : Met tes modifications non finies "dans un tiroir". Ton 
+     code redevient propre. Tu peux changer de branche.
+   - git stash pop : Récupère ce que tu avais mis dans le tiroir.
+
+C. L'HISTORIQUE (git log)
+   Pour voir la liste de tous les commits (sauvegardes) qui ont été faits.
+   Astuce : utiliser `git log --oneline` pour une vue plus condensée.
+
+D. IGNORER DES FICHIERS (.gitignore)
+   C'est un fichier texte nommé exactement ".gitignore" que tu mets à 
+   la racine de ton projet. Dedans, tu listes les dossiers ou fichiers 
+   que Git ne doit JAMAIS sauvegarder (comme le dossier "node_modules", 
+   les mots de passe, etc.).
+
+E. ANNULER DES CHOSES
+   - git reset HEAD fichier : Enlève un fichier de la zone d'indexation 
+     (annule un git add).
+   - git checkout -- fichier : Annule toutes les modifications non 
+     sauvegardées d'un fichier (retour à la dernière sauvegarde).
+     ATTENTION : c'est irréversible !
+
+========================================================================
+CONCLUSION
+========================================================================
+Ne sois pas intimidé par toutes ces commandes. Au quotidien, un développeur 
+utilise 90% du temps : status, add, commit, push, pull et checkout -b.
+Garde ce fichier sous la main et n'hésite pas à expérimenter !

@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260410015840
+-- Remote name: fix_audit_issues_20260410

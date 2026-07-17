@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260406201556
+-- Remote name: vendor_covers_storage_policies

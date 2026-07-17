@@ -1,0 +1,70 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - link "NewKet" [ref=e5] [cursor=pointer]:
+        - /url: /index.html
+        - img "NewKet" [ref=e6]
+      - generic [ref=e7]:
+        - img [ref=e9]
+        - generic [ref=e11]: Sécurisé
+  - generic:
+    - generic:
+      - generic: Mise à jour...
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - img "NewKet Experience" [ref=e14]
+      - generic [ref=e16]:
+        - heading "Découvrez l'expérience ultime." [level=1] [ref=e17]:
+          - text: Découvrez
+          - text: l'expérience ultime.
+        - paragraph [ref=e18]: Rejoignez des milliers d'acheteurs et de vendeurs. Une plateforme pensée pour la performance et le raffinement.
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - img "User" [ref=e21]
+            - img "User" [ref=e22]
+            - img "User" [ref=e23]
+            - generic [ref=e24]: ...
+          - generic [ref=e25]: Utilisateurs
+    - main [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - heading "Bienvenue" [level=2] [ref=e30]
+          - paragraph [ref=e31]: Veuillez renseigner vos identifiants.
+        - generic [ref=e32]:
+          - button "Connexion" [ref=e33] [cursor=pointer]
+          - button "Inscription" [ref=e34] [cursor=pointer]
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - textbox "Adresse email" [ref=e37]:
+              - /placeholder: " "
+            - generic: Adresse email
+            - img [ref=e40]
+          - generic [ref=e43]:
+            - textbox "Mot de passe" [ref=e44]:
+              - /placeholder: " "
+            - generic: Mot de passe
+            - button [ref=e45] [cursor=pointer]:
+              - img [ref=e47]
+          - generic [ref=e51]:
+            - generic [ref=e52] [cursor=pointer]:
+              - checkbox "Se souvenir de moi" [ref=e53]
+              - generic [ref=e54]: Se souvenir de moi
+            - button "Oublié ?" [ref=e55] [cursor=pointer]
+          - button "Se connecter" [ref=e56] [cursor=pointer]:
+            - generic [ref=e57]: Se connecter
+            - img [ref=e59]
+        - generic [ref=e65]: Ou via
+        - generic [ref=e66]:
+          - button "Google" [ref=e67] [cursor=pointer]:
+            - img [ref=e69]
+            - generic [ref=e74]: Google
+          - button "Clé d'accès (Face ID / Empreinte)" [ref=e75] [cursor=pointer]:
+            - generic [ref=e76]: Clé d'accès (Face ID / Empreinte)
+        - paragraph [ref=e77]:
+          - text: En continuant, vous acceptez nos
+          - link "Conditions d'utilisation" [ref=e78] [cursor=pointer]:
+            - /url: /src/pages/terms.html
+          - text: et notre
+          - link "Politique de confidentialité" [ref=e79] [cursor=pointer]:
+            - /url: /src/pages/privacy.html
+          - text: .

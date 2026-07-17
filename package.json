@@ -1,0 +1,22 @@
+{
+  "name": "newket-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NewKet - Plateforme e-commerce (Monorepo Fullstack)",
+  "scripts": {
+    "dev": "node scripts/dev-all.mjs",
+    "build": "npm run build:frontend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "install:all": "cd frontend && npm install && cd ../backend && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benimakiese007/NOVA-V2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}

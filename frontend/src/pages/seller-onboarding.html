@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <script type="module" src="/src/services/admin-config.js" defer></script><script type="module" src="/src/services/app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <title>S'enregistrer comme Vendeur | NewKet Marketplace</title>
+    <meta name="description" content="Rejoignez NewKet et vendez vos créations et articles de luxe à une audience exclusive. Finalisez votre profil vendeur certifié dès aujourd'hui.">
+    <link rel="canonical" href="https://newket.cd/src/pages/seller-onboarding" />
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .hero-gradient { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); }
+        .soft-ring { box-shadow: 0 0 0 1px rgba(17,24,39,.06), 0 10px 30px rgba(17,24,39,.06); }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
+    <div id="header-placeholder"></div>
+
+    <main class="max-w-2xl mx-auto px-4 pb-12 pt-24 sm:pt-28 lg:pt-32">
+        <div class="flex items-start justify-between gap-4 mb-8">
+            <div></div>
+            <a id="backToDashboardTop" data-track-action="seller_onboarding:back_dashboard_top_click" href="javascript:void(0)"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border border-gray-100 text-gray-900 text-[11px] font-black uppercase tracking-widest hover:border-black transition-all soft-ring">
+                <iconify-icon icon="solar:arrow-left-linear" width="18"></iconify-icon>
+                Retour dashboard
+            </a>
+        </div>
+
+        <div class="text-center mb-10">
+            <div class="w-20 h-20 bg-black rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <iconify-icon icon="solar:shop-bold" width="40" class="text-white"></iconify-icon>
+            </div>
+            <h1 class="text-4xl font-black tracking-tight text-gray-900 mb-3">Devenez Vendeur Certifié</h1>
+            <p class="text-gray-500 text-lg">Complétez votre dossier pour commencer à vendre sur NewKet.</p>
+        </div>
+
+        <!-- Status / Steps -->
+        <div id="statusCard" class="bg-white rounded-[2.5rem] p-8 border border-gray-100 soft-ring mb-8">
+            <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div id="statusDot" class="w-3 h-3 rounded-full bg-gray-200"></div>
+                        <div class="text-sm font-black text-gray-900">Statut du dossier</div>
+                        <span id="statusPill" class="skeleton inline-flex items-center px-10 py-3 rounded-full" style="min-width:100px;"></span>
+                    </div>
+                    <div id="statusMessage" class="skeleton h-3 w-2/3 rounded-full mt-2" style="min-height:12px;"></div>
+                </div>
+                <a id="backToDashboardStatus" data-track-action="seller_onboarding:back_dashboard_status_click" href="javascript:void(0)"
+                    class="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-black text-white text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-gray-200">
+                    Dashboard
+                    <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
+                </a>
+            </div>
+
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="rounded-[2rem] border border-gray-100 p-5 bg-gray-50/40">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center border border-gray-100">
+                            <iconify-icon icon="solar:shop-2-bold-duotone" width="18" class="text-gray-600"></iconify-icon>
+                        </div>
+                        <div class="font-black text-[12px] text-gray-900">Étape 1 — Boutique</div>
+                        <span id="step1State" class="ml-auto text-[10px] font-black uppercase tracking-widest text-gray-400">À compléter</span>
+                    </div>
+                    <div class="text-[11px] text-gray-500 font-medium leading-relaxed">
+                        Nom, téléphone, localisation, description et mode de paiement.
+                    </div>
+                </div>
+                <div class="rounded-[2rem] border border-gray-100 p-5 bg-gray-50/40">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="w-8 h-8 rounded-xl bg-white flex items-center justify-center border border-gray-100">
+                            <iconify-icon icon="solar:shield-user-bold-duotone" width="18" class="text-gray-600"></iconify-icon>
+                        </div>
+                        <div class="font-black text-[12px] text-gray-900">Étape 2 — Documents</div>
+                        <span id="step2State" class="ml-auto text-[10px] font-black uppercase tracking-widest text-gray-400">À fournir</span>
+                    </div>
+                    <div class="text-[11px] text-gray-500 font-medium leading-relaxed">
+                        Ajoutez au moins 1 pièce. Plus votre dossier est complet, plus la validation est rapide.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="onboardingForm" class="space-y-8 relative">
+            
+            <!-- STEP 1 CONTAINER -->
+            <div id="step1Container" class="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <!-- Business Info -->
+                <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
+                        <iconify-icon icon="solar:shop-2-bold-duotone" width="20"></iconify-icon>
+                    </div>
+                    <div>
+                        <h2 class="font-black text-gray-900 leading-tight">Identité commerciale</h2>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Étape 01/02</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Nom de la boutique</label>
+                        <input type="text" id="companyName" required placeholder="ex: Maison de Mode"
+                            class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Téléphone professionnel</label>
+                        <input type="tel" id="phone" required placeholder="+243..."
+                            class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Description & spécialité</label>
+                    <textarea id="storeDescription" required placeholder="Décrivez l'univers de votre boutique..."
+                        class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300 min-h-[120px] resize-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Localisation</label>
+                        <input type="text" id="storeAddress" required placeholder="Ville, Quartier"
+                            class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium placeholder:text-gray-300">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Mode de paiement préféré</label>
+                        <div class="relative">
+                            <select id="payoutMethod" required
+                                class="w-full px-6 py-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-medium appearance-none">
+                                <option value="" disabled selected>Choisir...</option>
+                                <option value="Mobile Money">Mobile Money (M-Pesa, Orange...)</option>
+                                <option value="Bank">Virement Bancaire</option>
+                                <option value="Cash">Collecte en magasin</option>
+                            </select>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Button -->
+                <button type="button" id="nextToStep2" class="w-full hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                    Suivant (Documents KYC)
+                    <iconify-icon icon="solar:arrow-right-linear" width="24"></iconify-icon>
+                </button>
+            </div>
+
+            <!-- STEP 2 CONTAINER -->
+            <div id="step2Container" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                <!-- Documents -->
+                <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8">
+                    <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
+                        <iconify-icon icon="solar:shield-user-bold-duotone" width="20"></iconify-icon>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-gray-900 leading-tight">Vérification KYC</h3>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Étape 02/02</p>
+                    </div>
+                </div>
+
+                <div class="rounded-[2rem] bg-gray-50/50 border border-gray-100 p-6">
+                    <div class="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-3">Pièces demandées</div>
+                    <ul class="space-y-2 text-[12px] text-gray-600 font-medium">
+                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:id-card-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Pièce d’identité (CNI ou passeport) — photo lisible.</span></li>
+                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:document-text-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Registre de commerce (ou document équivalent) si vous en disposez.</span></li>
+                        <li class="flex gap-2"><span class="mt-0.5 w-5 h-5 rounded-full bg-white border border-gray-100 flex items-center justify-center flex-shrink-0"><iconify-icon icon="solar:map-point-bold" width="14" class="text-gray-700"></iconify-icon></span><span>Justificatif de localisation (adresse / boutique) si possible.</span></li>
+                    </ul>
+                    <div class="mt-4 text-[11px] text-gray-500 font-medium leading-relaxed">
+                        Formats acceptés : PDF, JPG, PNG. Taille max : 10MB par fichier. Minimum : 1 document.
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div id="uploadZone" data-track-action="seller_onboarding:kyc_upload_click" onclick="document.getElementById('docUpload').click()"
+                        class="group relative overflow-hidden border-2 border-dashed border-gray-100 rounded-[2rem] p-10 text-center hover:border-black hover:bg-gray-50/50 transition-all cursor-pointer bg-gray-50/30">
+                        <div class="relative z-10">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <iconify-icon icon="solar:upload-minimalistic-bold-duotone" width="32" class="text-gray-400 group-hover:text-black transition-colors"></iconify-icon>
+                            </div>
+                            <p class="text-sm font-black text-gray-900 mb-1">Documents d'identité / registre</p>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest">PDF, JPG, PNG (Max 10MB)</p>
+                        </div>
+                        <input type="file" id="docUpload" multiple accept="image/*,application/pdf" class="hidden">
+
+                        <!-- Decorative bg -->
+                        <div class="absolute inset-0 bg-gradient-to-tr from-gray-100/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                    </div>
+                    <div id="fileList" class="flex flex-wrap gap-3"></div>
+                </div>
+            </div>
+
+            <!-- Photos Optionnelles -->
+            <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-black shadow-sm">
+                        <iconify-icon icon="solar:camera-bold-duotone" width="20"></iconify-icon>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-gray-900 leading-tight">Visuels boutique</h3>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Facultatif</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Logo / Avatar</label>
+                        <div id="shopAvatarUploadZone" data-track-action="seller_onboarding:logo_upload_click" onclick="document.getElementById('shopAvatarUpload').click()"
+                            class="group relative h-40 border-2 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center bg-gray-50/30 hover:bg-gray-50 hover:border-black transition-all cursor-pointer">
+                            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <iconify-icon icon="solar:user-circle-bold-duotone" width="24" class="text-gray-400 group-hover:text-black"></iconify-icon>
+                            </div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ajouter un logo</p>
+                            <input type="file" id="shopAvatarUpload" accept="image/*" class="hidden">
+                        </div>
+                        <div id="shopAvatarPreview" class="hidden relative h-40 rounded-[2rem] overflow-hidden group">
+                             <img src="" class="w-full h-full object-cover">
+                             <div class="absolute inset-x-4 bottom-4 rounded-xl bg-black/70 px-3 py-2 text-[11px] font-bold text-white backdrop-blur-sm name-preview"></div>
+                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
+                                 <button type="button" data-track-action="seller_onboarding:logo_clear_click" onclick="clearShopAvatar(event)" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl">
+                                     <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                                 </button>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Photo de vitrine</label>
+                        <div id="physicalUploadZone" data-track-action="seller_onboarding:storefront_upload_click" onclick="document.getElementById('physicalUpload').click()"
+                            class="group relative h-40 border-2 border-dashed border-gray-100 rounded-[2rem] flex flex-col items-center justify-center bg-gray-50/30 hover:bg-gray-50 hover:border-black transition-all cursor-pointer">
+                            <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <iconify-icon icon="solar:shop-2-bold-duotone" width="24" class="text-gray-400 group-hover:text-black"></iconify-icon>
+                            </div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Ajouter une photo</p>
+                            <input type="file" id="physicalUpload" accept="image/*" class="hidden">
+                        </div>
+                        <div id="physicalPreview" class="hidden relative h-40 rounded-[2rem] overflow-hidden group">
+                             <img src="" class="w-full h-full object-cover">
+                             <div class="absolute inset-x-4 bottom-4 rounded-xl bg-black/70 px-3 py-2 text-[11px] font-bold text-white backdrop-blur-sm name-preview"></div>
+                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none group-hover:pointer-events-auto">
+                                 <button type="button" data-track-action="seller_onboarding:storefront_clear_click" onclick="clearPhysical(event)" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl">
+                                     <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
+                                 </button>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6 pt-4 border-t border-gray-100">
+                <label class="flex items-start gap-3 cursor-pointer group bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <input type="checkbox" id="termsCheckboxSeller" name="termsCheckboxSeller" required
+                        class="mt-1 w-5 h-5 rounded border-gray-300 text-black focus:ring-black transition-all cursor-pointer accent-black">
+                    <span class="text-xs font-semibold text-gray-600 leading-relaxed">
+                        J'accepte les <a href="/src/pages/terms.html" class="text-black font-bold hover:underline" target="_blank">Conditions d'utilisation</a>, la <a href="/src/pages/privacy.html" class="text-black font-bold hover:underline" target="_blank">Politique de confidentialité</a> et j'atteste l'exactitude des informations fournies pour devenir vendeur.
+                    </span>
+                </label>
+            </div>
+
+            <div class="flex gap-4">
+                <button type="button" id="backToStep1" class="w-1/3 bg-white border border-gray-200 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest text-gray-900 hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                    <iconify-icon icon="solar:arrow-left-linear" width="20"></iconify-icon> Précédent
+                </button>
+                <button type="submit" data-track-action="seller_onboarding:submit_click" id="submitBtn"
+                    class="w-2/3 hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                    Soumettre le dossier
+                    <iconify-icon icon="solar:check-circle-linear" width="24"></iconify-icon>
+                </button>
+            </div>
+            
+            </div> <!-- END STEP 2 CONTAINER -->
+
+            <a id="backToDashboardBottom" data-track-action="seller_onboarding:back_dashboard_bottom_click" href="javascript:void(0)"
+                class="w-full inline-flex items-center justify-center gap-3 bg-white border border-gray-100 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest text-gray-900 hover:border-black transition-all soft-ring">
+                Retour au dashboard
+                <iconify-icon icon="solar:arrow-right-linear" width="20"></iconify-icon>
+            </a>
+        </form>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successOverlay" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm opacity-0 invisible transition-all duration-500">
+        <div class="bg-white rounded-[3rem] w-full max-w-sm p-12 text-center shadow-2xl scale-90 transition-all duration-500">
+            <div class="relative w-24 h-24 mx-auto mb-8">
+                <div class="absolute inset-0 bg-green-500/20 rounded-full animate-ping"></div>
+                <div class="relative w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center shadow-xl shadow-green-200">
+                    <iconify-icon icon="solar:check-read-bold" width="48"></iconify-icon>
+                </div>
+            </div>
+            <h2 class="text-3xl font-black text-gray-900 mb-3 tracking-tight">C'est envoyé !</h2>
+            <p class="text-sm text-gray-500 mb-10 leading-relaxed font-medium">Votre dossier est entre les mains de notre équipe. Nous reviendrons vers vous très vite par email.</p>
+            <button data-track-action="seller_onboarding:success_back_dashboard_click" onclick="window.location.href=typeof window.resolvePath === 'function' ? window.resolvePath('vendor-dashboard') : '/src/pages/vendor-dashboard.html'"
+                class="w-full bg-black text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                Retour au dashboard
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const docUpload = document.getElementById('docUpload');
+        const fileList = document.getElementById('fileList');
+        const onboardingForm = document.getElementById('onboardingForm');
+        const submitBtn = document.getElementById('submitBtn');
+        let uploadedFiles = [];
+
+        let shopAvatarFile = null;
+        let physicalShopFile = null;
+
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+        function getDashboardHref() {
+            if (typeof window.resolvePath === 'function') return window.resolvePath('vendor-dashboard');
+            return '/src/pages/vendor-dashboard.html';
+        }
+
+        function wireDashboardCtas() {
+            const href = getDashboardHref();
+            const ids = ['backToDashboardTop', 'backToDashboardStatus', 'backToDashboardBottom'];
+            ids.forEach((id) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.href = href;
+            });
+        }
+
+        function setStatusUI(status) {
+            const pill = document.getElementById('statusPill');
+            const dot = document.getElementById('statusDot');
+            const message = document.getElementById('statusMessage');
+            const step1 = document.getElementById('step1State');
+            const step2 = document.getElementById('step2State');
+
+            const map = {
+                pending: {
+                    pillText: 'Pending',
+                    pillClass: 'bg-yellow-50 text-yellow-700',
+                    dotClass: 'bg-yellow-400',
+                    message: "Votre dossier n'est pas encore soumis. Complétez les étapes puis envoyez votre dossier.",
+                    step1: 'À compléter',
+                    step2: 'À fournir'
+                },
+                submitted: {
+                    pillText: 'Submitted',
+                    pillClass: 'bg-blue-50 text-blue-700',
+                    dotClass: 'bg-blue-500',
+                    message: "Dossier soumis. Notre équipe le vérifie. Vous pouvez retourner au dashboard.",
+                    step1: 'Reçu',
+                    step2: 'Reçu'
+                },
+                rejected: {
+                    pillText: 'Rejected',
+                    pillClass: 'bg-red-50 text-red-700',
+                    dotClass: 'bg-red-500',
+                    message: "Dossier rejeté. Corrigez les informations et renvoyez votre dossier.",
+                    step1: 'À corriger',
+                    step2: 'À corriger'
+                },
+                approved: {
+                    pillText: 'Approuvé',
+                    pillClass: 'bg-green-50 text-green-700',
+                    dotClass: 'bg-green-500',
+                    message: "Profil vendeur approuvé. Vous pouvez vendre sur NewKet.",
+                    step1: 'Validé',
+                    step2: 'Validé'
+                }
+            };
+
+            const normalized = (status || 'pending').toString().trim();
+            const cfg = map[normalized] || map.pending;
+
+            pill.textContent = cfg.pillText;
+            pill.className = `inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${cfg.pillClass}`;
+            dot.className = `w-3 h-3 rounded-full ${cfg.dotClass}`;
+            message.textContent = cfg.message;
+            step1.textContent = cfg.step1;
+            step2.textContent = cfg.step2;
+
+            if (normalized === 'submitted' || normalized === 'approved') {
+                try {
+                    Array.from(onboardingForm.querySelectorAll('input, textarea, select')).forEach((el) => el.setAttribute('disabled', 'disabled'));
+                    submitBtn.setAttribute('disabled', 'disabled');
+                    submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `Dossier déjà soumis <iconify-icon icon="solar:clock-circle-linear" width="24"></iconify-icon>`;
+                } catch (_) {}
+            } else if (normalized === 'rejected') {
+                submitBtn.innerHTML = `Renvoyer mon dossier <iconify-icon icon="solar:refresh-linear" width="24"></iconify-icon>`;
+            }
+        }
+
+        async function initStatusFromProfile() {
+            try {
+                const session = window.getSupabaseSession
+                    ? await window.getSupabaseSession(3000)
+                    : null;
+                const user = session?.user || null;
+                if (!user) {
+                    setStatusUI('pending');
+                    return;
+                }
+
+                const profile = await window.AuthManager?.getUserProfile?.(user.id);
+                const status = profile?.status || localStorage.getItem('newketUserStatus') || 'pending';
+                setStatusUI(status);
+            } catch (e) {
+                console.warn('[Seller Onboarding] Unable to load status:', e);
+                setStatusUI(localStorage.getItem('newketUserStatus') || 'pending');
+            }
+        }
+
+        // --- PREVIEW LOGIC ---
+        function setupPreview(inputId, zoneId, previewId) {
+            const input = document.getElementById(inputId);
+            const zone = document.getElementById(zoneId);
+            const preview = document.getElementById(previewId);
+
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        zone.classList.add('hidden');
+                        preview.classList.remove('hidden');
+                        preview.querySelector('img').src = e.target.result;
+                        preview.querySelector('.name-preview').textContent = file.name;
+                    };
+                    reader.readAsDataURL(file);
+
+                    if (inputId === 'shopAvatarUpload') shopAvatarFile = file;
+                    if (inputId === 'physicalUpload') physicalShopFile = file;
+                }
+            });
+        }
+
+        window.clearShopAvatar = (e) => {
+            e.stopPropagation();
+            shopAvatarFile = null;
+            document.getElementById('shopAvatarUpload').value = '';
+            document.getElementById('shopAvatarPreview').classList.add('hidden');
+            document.getElementById('shopAvatarUploadZone').classList.remove('hidden');
+        };
+
+        window.clearPhysical = (e) => {
+            e.stopPropagation();
+            physicalShopFile = null;
+            document.getElementById('physicalUpload').value = '';
+            document.getElementById('physicalPreview').classList.add('hidden');
+            document.getElementById('physicalUploadZone').classList.remove('hidden');
+        };
+
+        setupPreview('shopAvatarUpload', 'shopAvatarUploadZone', 'shopAvatarPreview');
+        setupPreview('physicalUpload', 'physicalUploadZone', 'physicalPreview');
+
+        docUpload.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files || []);
+            try {
+                window.BehaviorTracking?.track?.('click', {
+                    target: 'seller_onboarding:kyc_files_selected',
+                    metadata: { count: files.length }
+                });
+            } catch (_) {}
+
+            files.forEach((file) => {
+                if (!file) return;
+                if (file.size > MAX_FILE_SIZE) {
+                    if (window.showToast) window.showToast(`Fichier trop volumineux : ${file.name} (max 10MB)`, "info", "Documents");
+                    return;
+                }
+                uploadedFiles.push(file);
+                const tag = document.createElement('div');
+                tag.className = 'bg-gray-100 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2';
+                tag.innerHTML = `<span>${file.name}</span><iconify-icon icon="solar:close-circle-bold" class="cursor-pointer text-gray-400 hover:text-red-500"></iconify-icon>`;
+                tag.querySelector('iconify-icon').onclick = () => {
+                    uploadedFiles = uploadedFiles.filter(f => f !== file);
+                    tag.remove();
+                };
+                fileList.appendChild(tag);
+            });
+        });
+
+        onboardingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const termsCheckbox = document.getElementById('termsCheckboxSeller');
+            if (termsCheckbox && !termsCheckbox.checked) {
+                if (window.showToast) window.showToast("Vous devez accepter les conditions pour devenir vendeur.", "error");
+                return;
+            }
+
+            if (uploadedFiles.length === 0) {
+                if (window.showToast) window.showToast("Veuillez ajouter au moins un document justificatif.", "info", "Documents");
+                return;
+            }
+
+            if (window.LoaderManager) LoaderManager.show("Envoi de votre dossier...");
+
+            try {
+                const companyName = document.getElementById('companyName').value;
+                const phone = document.getElementById('phone').value;
+                const storeDescription = document.getElementById('storeDescription').value;
+                const storeAddress = document.getElementById('storeAddress').value;
+                const pMethodElem = document.getElementById('payoutMethod');
+                const payoutMethod = pMethodElem ? pMethodElem.value : '';
+
+                const session = window.getSupabaseSession
+                    ? await window.getSupabaseSession(3000)
+                    : null;
+                const user = session?.user || null;
+                if (!user) throw new Error("Vous n'êtes pas connecté");
+
+                const userId = user.id;
+
+                let docUrls = [];
+                // Upload mandatory KYC files
+                for (let i = 0; i < uploadedFiles.length; i++) {
+                    const file = uploadedFiles[i];
+                    const sanitizedName = file.name
+                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-zA-Z0-9.\-_]/g, "_");
+
+                    const path = `kyc/${userId}/${Date.now()}_${sanitizedName}`;
+                    const url = await window.SupabaseAdapter.uploadFile('vendor-docs', path, file);
+                    if (url) docUrls.push(url);
+                }
+
+                if (docUrls.length === 0 && uploadedFiles.length > 0) {
+                    throw new Error("Aucun document n'a pu être envoyé. Vérifiez votre connexion.");
+                }
+
+                // Upload Optional Shop Avatar
+                let avatarUrl = null;
+                if (shopAvatarFile) {
+                    const path = `avatars/${userId}/${Date.now()}_logo`;
+                    avatarUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', path, shopAvatarFile);
+                }
+
+                // Upload Optional Physical Shop Photo
+                let physicalUrl = null;
+                if (physicalShopFile) {
+                    const path = `kyc/${userId}/${Date.now()}_physical_shop`;
+                    physicalUrl = await window.SupabaseAdapter.uploadFile('vendor-docs', path, physicalShopFile);
+                }
+
+                const currentProfile = await window.SupabaseAdapter.fetchWithFilters('users', {
+                    eq: [['id', userId]],
+                    select: 'status',
+                    single: true,
+                    skipCache: true
+                });
+
+                if (currentProfile && (currentProfile.status === 'approved' || currentProfile.status === 'submitted')) {
+                    if (window.showToast) window.showToast("Votre dossier a déjà été soumis ou approuvé. Redirection...", "info");
+                    localStorage.setItem('newketUserStatus', currentProfile.status);
+                    setTimeout(() => {
+                        window.location.href = getDashboardHref();
+                    }, 1500);
+                    if (window.LoaderManager) LoaderManager.hide();
+                    return;
+                }
+
+                // Update user profile
+                const fallbackBuildShopSlug = (value) => String(value || '')
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[’']/g, '')
+                    .replace(/[^a-zA-Z0-9]+/g, '_')
+                    .replace(/_+/g, '_')
+                    .replace(/^_+|_+$/g, '');
+                const slugBuilder = (window.NewKetLinks && typeof window.NewKetLinks.buildShopSlug === 'function')
+                    ? window.NewKetLinks.buildShopSlug
+                    : fallbackBuildShopSlug;
+                const shopSlug = slugBuilder(companyName);
+                if (!shopSlug) {
+                    throw new Error("Nom de boutique invalide. Veuillez saisir un nom avec des lettres ou chiffres.");
+                }
+
+                if (shopSlug && window.SupabaseAdapter) {
+                    const conflicts = await window.SupabaseAdapter.fetchWithFilters('users', {
+                        eq: [['role', 'supplier'], ['shop_slug', shopSlug]],
+                        limit: 1,
+                        skipCache: true
+                    });
+                    if (Array.isArray(conflicts) && conflicts.length > 0) {
+                        throw new Error("Ce nom de boutique est déjà utilisé. Choisissez un autre nom unique.");
+                    }
+                }
+
+                const updateData = {
+                    company_name: companyName,
+                    shop_slug: shopSlug,
+                    store_phone: phone,
+                    store_description: storeDescription,
+                    store_address: storeAddress,
+                    preferred_payout_method: payoutMethod,
+                    documents_url: docUrls,
+                    status: 'submitted'
+                };
+
+                // We map avatarUrl to 'avatar' column on the public.users table if it exists
+                if (avatarUrl) updateData.avatar = avatarUrl;
+                // We add physical shop photo url if any
+                if (physicalUrl) updateData.physical_shop_url = physicalUrl;
+
+                const updateResult = await window.SupabaseAdapter.update('users', userId, updateData, { returnMeta: true });
+                if (!updateResult?.ok) {
+                    const updateError = updateResult?.error || null;
+                    const code = String(updateError?.code || '').trim();
+                    const details = String(updateError?.details || '').toLowerCase();
+                    const message = String(updateError?.message || '').toLowerCase();
+                    const isShopSlugConflict = code === '23505'
+                        && (details.includes('shop_slug') || message.includes('shop_slug'));
+                    if (isShopSlugConflict) {
+                        throw new Error("Ce nom de boutique vient d'être pris. Choisissez un autre nom unique.");
+                    }
+                    throw new Error("Erreur de sauvegarde: aucun profil mis à jour.");
+                }
+
+                localStorage.setItem('newketUserStatus', 'submitted');
+                setStatusUI('submitted');
+                if (window.LoaderManager) LoaderManager.hide();
+
+                const overlay = document.getElementById('successOverlay');
+                overlay.classList.remove('invisible', 'opacity-0');
+                overlay.querySelector('div').classList.remove('scale-90');
+            } catch (err) {
+                console.error(err);
+                if (window.LoaderManager) LoaderManager.hide();
+                if (window.showToast) window.showToast("Une erreur est survenue lors de l'envoi. Veuillez réessayer.", "error", "Erreur");
+            }
+        });
+
+        wireDashboardCtas();
+        initStatusFromProfile();
+        /* WIZARD LOGIC */
+        const step1Container = document.getElementById('step1Container');
+        const step2Container = document.getElementById('step2Container');
+        const nextToStep2 = document.getElementById('nextToStep2');
+        const backToStep1 = document.getElementById('backToStep1');
+        
+        function validateStep1() {
+            const requiredFields = ['companyName', 'phone', 'storeDescription', 'storeAddress', 'payoutMethod'];
+            let isValid = true;
+            requiredFields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && !el.value.trim()) {
+                    isValid = false;
+                    el.classList.add('border-red-500');
+                    el.classList.remove('border-gray-100');
+                } else if (el) {
+                    el.classList.remove('border-red-500');
+                    el.classList.add('border-gray-100');
+                }
+            });
+            return isValid;
+        }
+
+        if (nextToStep2) {
+            nextToStep2.addEventListener('click', () => {
+                if (validateStep1()) {
+                    step1Container.classList.add('hidden');
+                    step2Container.classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    if (window.ToastManager) {
+                        window.ToastManager.error('Veuillez remplir tous les champs de l\'étape 1.', 'Erreur');
+                    }
+                }
+            });
+        }
+        
+        if (backToStep1) {
+            backToStep1.addEventListener('click', () => {
+                step2Container.classList.add('hidden');
+                step1Container.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        ['companyName', 'phone', 'storeDescription', 'storeAddress', 'payoutMethod'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', () => {
+                    if (el.classList.contains('border-red-500')) {
+                        el.classList.remove('border-red-500');
+                        el.classList.add('border-gray-100');
+                    }
+                });
+            }
+        });
+        /* END WIZARD LOGIC */
+    </script>
+</body>
+</html>
+

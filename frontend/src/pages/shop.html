@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head><script type="module" src="/src/services/app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Boutique à NewKet</title>
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+        <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #fcfcfd;
+        }
+
+        .vendor-hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .vendor-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(80% 80% at 0% 100%, rgba(0, 0, 0, 0.55), transparent 60%),
+                radial-gradient(70% 70% at 100% 0%, rgba(0, 0, 0, 0.35), transparent 55%);
+            pointer-events: none;
+        }
+
+        .vendor-hero-inner {
+            position: relative;
+            isolation: isolate;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .card-hover:hover {
+            transform: none !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .img-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            background: #f8f9fb;
+        }
+
+        .img-zoom img {
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .card-hover:hover .img-zoom img {
+            transform: scale(1.08);
+        }
+
+        @media (max-width: 639px) {
+            .vendor-hero {
+                height: 520px !important;
+                min-height: 520px !important;
+            }
+        }
+
+    </style>
+</head>
+
+<body class="text-slate-900 antialiased">
+
+    <div id="header-placeholder"></div>
+
+
+
+
+    <!-- Vendor Hero -->
+    <div class="vendor-hero relative h-[320px] sm:h-[440px] flex items-end">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10 sm:pb-12 relative z-10 w-full vendor-hero-inner">
+            <div class="shop-hero-actions flex items-center justify-end mb-6">
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="shareShopLink()" data-track-action="shop:share_click" aria-label="Copier le lien de la boutique" title="Copier le lien"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white text-slate-900 border border-white/50 hover:bg-gray-100 transition-colors text-xs font-black uppercase tracking-widest shadow-xl">
+                        <iconify-icon icon="solar:share-linear" width="18"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-end gap-6">
+                <div
+                    class="w-32 h-32 sm:w-40 sm:h-40 rounded-[2.5rem] bg-white p-1 border-4 border-white/20 shadow-2xl overflow-hidden">
+                    <img loading="eager" fetchpriority="high" decoding="async" id="vendorAvatar" width="160" height="160"
+                        src="https://ui-avatars.com/api/?name=Vendor&background=f3f4f6&color=000&bold=true"
+                        class="w-full h-full object-cover rounded-[2rem]" alt="Logo boutique" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg');">
+                </div>
+                <div class="flex-1 mb-2">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span
+                            class="px-3 py-1 bg-white/20  text-white text-[10px] font-black uppercase tracking-widest rounded-full">Partenaire
+                            Certifié</span>
+                    </div>
+                    <h1 id="vendorName" class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase">
+                        Chargement...</h1>
+                    <p id="vendorMeta" class="text-white/60 text-sm font-medium mt-2 flex items-center gap-2">
+                        <iconify-icon icon="solar:calendar-outline"></iconify-icon>
+                        Membre depuis ...
+                    </p>
+                    <div class="flex items-center gap-6 mt-6">
+                        <div class="text-white">
+                            <div class="text-xl font-black" id="vendor-items-count">0</div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Articles</div>
+                        </div>
+                        <div class="w-px h-8 bg-white/10"></div>
+                        <div class="text-white">
+                            <div class="text-xl font-black flex items-center gap-1">
+                                <span id="vendor-rating-value">-</span> <iconify-icon icon="solar:star-bold" class="text-yellow-400 text-sm"></iconify-icon>
+                            </div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Note</div>
+                        </div>
+                        <div class="w-px h-8 bg-white/10"></div>
+                        <div class="text-white">
+                            <div class="text-xl font-black" id="vendor-shipping-value">24h</div>
+                            <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Expédition</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main id="collection" class="max-w-7xl mx-auto px-4 sm:px-6 pb-12 pt-24 sm:pt-28 lg:pt-32">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 pb-6 border-b border-gray-100">
+            <div>
+                <h2 class="text-2xl font-black text-gray-900 uppercase">La Collection</h2>
+                <p class="mt-1 text-xs font-bold text-gray-400 uppercase tracking-widest"><span id="productCount">0</span> article<span id="productPlural">s</span></p>
+            </div>
+            <div class="flex items-center gap-3">
+                <label for="sortProducts" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Trier</label>
+                <select id="sortProducts"
+                    class="bg-white border border-gray-200 rounded-2xl px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-100">
+                    <option value="newest">Plus récents</option>
+                    <option value="price_asc">Prix croissant</option>
+                    <option value="price_desc">Prix décroissant</option>
+                    <option value="name_asc">Nom A à Z</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="productsGrid" class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+            <!-- Premium Skeletons -->
+            <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                <div class="skeleton-price h-6 w-1/2"></div>
+            </div>
+            <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                <div class="skeleton-price h-6 w-1/2"></div>
+            </div>
+            <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden hidden sm:block">
+                <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                <div class="skeleton-price h-6 w-1/2"></div>
+            </div>
+            <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden hidden lg:block">
+                <div class="skeleton skeleton-image aspect-square rounded-2xl mb-4"></div>
+                <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                <div class="skeleton-price h-6 w-1/2"></div>
+            </div>
+        </div>
+
+        <div id="noProductsMsg" class="hidden flex flex-col items-center justify-center py-20 text-center col-span-full">
+            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <iconify-icon icon="solar:box-minimalistic-bold-duotone" width="40" class="text-gray-300"></iconify-icon>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Aucun résultat trouvé</h3>
+            <p class="text-sm text-gray-500 mb-6 max-w-sm mx-auto">Essayez d'autres mots-clés ou parcourez toutes nos sélections.</p>
+            <a href="/src/pages/catalog.html" class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm shadow hover:scale-[1.02] active:scale-[0.98] transition-all">
+                Voir tous les produits
+            </a>
+        </div>
+    </main>
+
+
+
+
+
+    <script>
+        let currentProducts = [];
+        let currentShopName = '';
+        let currentShopEmail = '';
+        let currentShopSlug = '';
+
+        function getShopCacheKey({ email = '', shopSlug = '' } = {}) {
+            const normalizedEmail = String(email || '').trim().toLowerCase();
+            const normalizedSlug = String(shopSlug || '').trim().toLowerCase();
+            const identity = normalizedEmail || normalizedSlug;
+            return identity ? `newket_shop_cache:${identity}` : null;
+        }
+
+        function readCachedShop(cacheKey) {
+            if (!cacheKey) return null;
+            try {
+                const raw = localStorage.getItem(cacheKey);
+                if (!raw) return null;
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function writeCachedShop(cacheKey, vendor) {
+            if (!cacheKey || !vendor) return;
+            try {
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    company_name: vendor.company_name || '',
+                    name: vendor.name || '',
+                    email: vendor.email || '',
+                    avatar: vendor.avatar || '',
+                    cover_image: vendor.cover_image || '',
+                    shipping_time: vendor.shipping_time || '',
+                    date_joined: vendor.date_joined || '',
+                    shop_slug: vendor.shop_slug || ''
+                }));
+            } catch {
+                // no-op
+            }
+        }
+
+        function applyVendorHero(vendor, fallbackShopSlug = '') {
+            if (!vendor) return;
+
+            const shopName = vendor.company_name || vendor.name || 'Boutique sans nom';
+            currentShopName = shopName;
+            currentShopEmail = vendor.email || currentShopEmail;
+            currentShopSlug = vendor.shop_slug || fallbackShopSlug || currentShopSlug;
+
+            const vendorNameEl = document.getElementById('vendorName');
+            const vendorAvatarEl = document.getElementById('vendorAvatar');
+            const vendorMetaEl = document.getElementById('vendorMeta');
+            const shippingEl = document.getElementById('vendor-shipping-value');
+            const heroEl = document.querySelector('.vendor-hero');
+
+            if (vendorNameEl) vendorNameEl.textContent = shopName;
+            if (vendorAvatarEl) {
+                vendorAvatarEl.src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=f3f4f6&color=000&bold=true`;
+            }
+
+            const joinDate = vendor.date_joined
+                ? new Date(vendor.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                : 'récemment';
+            if (vendorMetaEl) {
+                vendorMetaEl.innerHTML = `<iconify-icon icon="solar:calendar-outline"></iconify-icon> Membre depuis ${joinDate}`;
+            }
+
+            document.title = `${shopName} à NewKet`;
+
+            if (heroEl && vendor.cover_image) {
+                heroEl.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('${vendor.cover_image}')`;
+                heroEl.style.backgroundSize = 'cover';
+                heroEl.style.backgroundPosition = 'center';
+            }
+
+            if (shippingEl && vendor.shipping_time) {
+                shippingEl.textContent = vendor.shipping_time;
+            }
+        }
+
+        function getOrCreateSessionId() {
+            try {
+                const key = 'newket_session_id';
+                const existing = localStorage.getItem(key);
+                if (existing && existing.length >= 12) return existing;
+                const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`.slice(0, 64);
+                localStorage.setItem(key, id);
+                return id;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function recordShopViewOncePerDay(vendorId) {
+            try {
+                if (!vendorId || !window.ApiClient) return;
+                const sessionId = getOrCreateSessionId();
+                const dayKey = new Date().toISOString().slice(0, 10);
+                const dedupeKey = `newket_shop_viewed:${vendorId}:${dayKey}`;
+                if (localStorage.getItem(dedupeKey)) return;
+                localStorage.setItem(dedupeKey, '1');
+
+                window.ApiClient.post('/analytics/shop-view', {
+                    vendor_id: vendorId,
+                    session_id: sessionId
+                }).catch(() => {});
+            } catch (e) {
+                // no-op
+            }
+        }
+
+        function safeNumber(v) {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function sortProducts(products, sortMode) {
+            const copy = [...(products || [])];
+            switch (sortMode) {
+                case 'price_asc':
+                    copy.sort((a, b) => safeNumber(a.price) - safeNumber(b.price));
+                    break;
+                case 'price_desc':
+                    copy.sort((a, b) => safeNumber(b.price) - safeNumber(a.price));
+                    break;
+                case 'name_asc':
+                    copy.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'fr', { sensitivity: 'base' }));
+                    break;
+                case 'newest':
+                default:
+                    copy.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+                    break;
+            }
+            return copy;
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('productsGrid');
+            const noProducts = document.getElementById('noProductsMsg');
+            const countEl = document.getElementById('productCount');
+            const pluralEl = document.getElementById('productPlural');
+            if (!grid || !noProducts || !countEl) return;
+
+            const list = products || [];
+            countEl.textContent = list.length;
+            if (pluralEl) pluralEl.textContent = list.length > 1 ? 's' : '';
+            document.getElementById('vendor-items-count').textContent = list.length;
+
+            if (list.length === 0) {
+                grid.innerHTML = '';
+                noProducts.classList.remove('hidden');
+                return;
+            }
+
+            noProducts.classList.add('hidden');
+            const vendorSummary = {
+                company_name: currentShopName,
+                name: currentShopName,
+                avatar: document.getElementById('vendorAvatar')?.getAttribute('src') || ''
+            };
+
+            grid.innerHTML = list.map((p, index) => {
+                const productWithVendor = {
+                    ...p,
+                    users: p.users || vendorSummary
+                };
+                return typeof window.buildProductCardHTML === 'function'
+                    ? window.buildProductCardHTML(productWithVendor, {
+                        animationClass: 'animate-fade-in',
+                        delay: `${index * 0.05}s`,
+                        imageLoading: index < 2 ? 'eager' : 'lazy',
+                        prioritizeImage: index < 2,
+                        prioritizeAvatar: index < 2
+                    })
+                    : '';
+            }).join('');
+
+            if (typeof window.initLazyImages === 'function') {
+                window.initLazyImages(grid);
+            }
+        }
+
+        async function loadShopData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('email');
+            const shopQuery = urlParams.get('shop');
+
+            const getShopSlugFromPath = () => {
+                try {
+                    const path = window.location.pathname || '';
+                    const m = path.match(/\/boutique\/([^/]+)(?:\/NewKet)?\/?$/i);
+                    if (!m) return null;
+                    return decodeURIComponent(m[1] || '').trim() || null;
+                } catch {
+                    return null;
+                }
+            };
+
+            const rawShopSlug = (shopQuery || getShopSlugFromPath() || '').trim() || null;
+            const shopSlug = rawShopSlug
+                ? rawShopSlug.replace(/_Shop_NewKet$/i, '').trim()
+                : null;
+            const shopCacheKey = getShopCacheKey({ email, shopSlug });
+
+            if (!email && !shopSlug) {
+                location.href = window.resolvePath('shops');
+                return;
+            }
+
+            currentShopEmail = email || '';
+
+            const cachedVendor = readCachedShop(shopCacheKey);
+            if (cachedVendor) {
+                applyVendorHero(cachedVendor, shopSlug || '');
+            }
+
+            try {
+                let vendor = null;
+                if (email) {
+                    vendor = await window.SupabaseAdapter.fetchWithFilters('users', {
+                        eq: [['email', email]],
+                        single: true
+                    });
+                } else if (shopSlug) {
+                    const exactMatch = await window.SupabaseAdapter.fetchWithFilters('users', {
+                        eq: [['role', 'supplier'], ['shop_slug', shopSlug]],
+                        limit: 1,
+                        skipCache: true
+                    });
+                    const exactList = Array.isArray(exactMatch) ? exactMatch : (exactMatch ? [exactMatch] : []);
+                    vendor = exactList[0] || null;
+
+                    if (!vendor) {
+                        const prettyName = shopSlug.replace(/_/g, ' ').trim();
+                        const safeLike = prettyName.replace(/%/g, '').slice(0, 80);
+                        const candidates = await window.SupabaseAdapter.fetchWithFilters('users', {
+                            eq: [['role', 'supplier']],
+                            or: `company_name.ilike.%${safeLike}%,name.ilike.%${safeLike}%`,
+                            limit: 25,
+                            skipCache: true
+                        });
+                        const list = Array.isArray(candidates) ? candidates : (candidates ? [candidates] : []);
+                        const buildSlug = (name) => {
+                            try {
+                                return window.NewKetLinks?.buildShopSlug ? window.NewKetLinks.buildShopSlug(name) : null;
+                            } catch {
+                                return null;
+                            }
+                        };
+                        vendor =
+                            list.find(v => buildSlug(v?.company_name || v?.name || '')?.toLowerCase() === shopSlug.toLowerCase())
+                            || list[0]
+                            || null;
+                    }
+                    if (vendor?.email) currentShopEmail = vendor.email;
+                }
+
+                if (!vendor) {
+                    if (window.showToast) showToast('Boutique introuvable', 'error');
+
+                    document.querySelector('main').innerHTML = `
+                        <div class="py-20 text-center">
+                            <iconify-icon icon="solar:shop-broken" width="64" class="text-gray-300 mb-6"></iconify-icon>
+                            <h1 class="text-3xl font-black text-gray-900 mb-4 tracking-tighter uppercase">Boutique Introuvable</h1>
+                            <p class="text-gray-500 mb-8 max-w-md mx-auto">La boutique que vous recherchez n'existe pas ou n'est plus disponible sur NewKet.</p>
+                            <a href="/src/pages/shops.html" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-black transition-colors inline-block uppercase tracking-wider text-sm">Voir toutes les boutiques</a>
+                        </div>
+                    `;
+                    document.querySelector('.vendor-hero').style.display = 'none';
+                    return;
+                }
+
+                applyVendorHero(vendor, shopSlug || '');
+                writeCachedShop(shopCacheKey, vendor);
+                recordShopViewOncePerDay(vendor.id);
+
+                const products = await window.SupabaseAdapter.fetchWithFilters('products', {
+                    eq: [['supplier_email', currentShopEmail]],
+                    order: ['created_at', { ascending: false }],
+                    skipCache: true
+                });
+
+                currentProducts = products || [];
+                const sortSelect = document.getElementById('sortProducts');
+                const sortMode = sortSelect ? sortSelect.value : 'newest';
+                renderProducts(sortProducts(currentProducts, sortMode));
+
+                const productIds = currentProducts.map(p => p.id);
+                if (productIds.length > 0) {
+                    const reviews = await window.SupabaseAdapter.fetchWithFilters('product_reviews', {
+                        in: [['product_id', productIds]],
+                        select: 'rating',
+                        skipCache: true
+                    });
+
+                    if (reviews && reviews.length > 0) {
+                        const sum = reviews.reduce((acc, r) => acc + (parseInt(r.rating) || 0), 0);
+                        const avg = (sum / reviews.length).toFixed(1);
+                        document.getElementById('vendor-rating-value').textContent = avg;
+                    } else {
+                        document.getElementById('vendor-rating-value').textContent = '-';
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading shop:', err);
+                location.href = window.resolvePath('shops');
+            }
+        }
+
+        window.NewKetPageRefresh = async function () {
+            await loadShopData();
+        };
+
+        async function shareShopLink() {
+            const url = (window.NewKetLinks && window.NewKetLinks.buildShopShareUrl)
+                ? window.NewKetLinks.buildShopShareUrl({ shopName: currentShopName, shopSlug: currentShopSlug })
+                : window.location.href;
+
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: `${currentShopName} — NewKet`, url });
+                    return;
+                }
+            } catch {
+            }
+
+            const ok = window.NewKetLinks?.copyTextToClipboard ? await window.NewKetLinks.copyTextToClipboard(url) : false;
+            if (window.showToast) showToast(ok ? 'Lien copié !' : 'Copie impossible', ok ? 'info' : 'error');
+        }
+
+        function orderProduct(id) {
+            if (window.contactSeller) {
+                window.contactSeller(id, window.event ? window.event.target.closest('button') : null);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Product cards: event delegation (avoids inline onclick and escaping bugs)
+            const grid = document.getElementById('productsGrid');
+            if (grid && !grid.dataset.clickBound) {
+                grid.dataset.clickBound = '1';
+                grid.addEventListener('click', (e) => {
+                    const orderBtn = e.target.closest('.order-button');
+                    if (orderBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const id = orderBtn.getAttribute('data-order-product-id');
+                        if (id) orderProduct(id);
+                        return;
+                    }
+
+                    const card = e.target.closest('.product-card');
+                    if (!card) return;
+                    const encodedUrl = card.getAttribute('data-product-url') || '';
+                    const url = encodedUrl ? decodeURIComponent(encodedUrl) : '';
+                    if (!url) return;
+                    location.href = url;
+                });
+            }
+
+            const sortSelect = document.getElementById('sortProducts');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', () => {
+                    renderProducts(sortProducts(currentProducts, sortSelect.value));
+                });
+            }
+
+            if (window.newketInitialized) {
+                loadShopData();
+            } else {
+                window.addEventListener('newketInitialized', loadShopData);
+            }
+
+            // Listen for currency changes to refresh prices
+            window.addEventListener('currencyChanged', () => {
+                loadShopData(); // Easy re-render
+            });
+        });
+    </script>
+
+</body>
+
+</html>
+
+
+
+

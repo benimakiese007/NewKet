@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/api/manifest">
+    <meta name="theme-color" content="#013220">
+    <title>Branding | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) { }
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <script type="module" src="/src/services/config-manager.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+</head>
+
+<body class="text-gray-900 bg-[#f8fafc]">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-8">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <main class="flex-1 min-w-0 space-y-10 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+            <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-premium">
+                <div class="admin-page-header__content">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900">Branding & Thème</h1>
+                    <p class="text-gray-500 font-medium">Personnalise les couleurs, typographies et icônes (site complet).</p>
+                </div>
+                <div id="saveStatus"
+                    class="hidden flex items-center gap-3 px-6 py-3 bg-green-50 text-green-600 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-green-100 shadow-xl shadow-green-500/10">
+                    <iconify-icon icon="solar:check-circle-bold-duotone" width="20"></iconify-icon>
+                    Enregistré
+                </div>
+            </div>
+
+            <!-- Skeleton loading banner while ConfigManager loads -->
+            <div id="brandingSkeletonBanner" class="glass-panel p-8 flex items-center gap-6 animate-pulse">
+                <div class="skeleton w-14 h-14 rounded-3xl shrink-0"></div>
+                <div class="flex-1 space-y-3">
+                    <div class="skeleton h-4 w-1/4 rounded-full"></div>
+                    <div class="skeleton h-3 w-1/3 rounded-full"></div>
+                </div>
+                <div class="skeleton h-10 w-32 rounded-2xl"></div>
+            </div>
+
+            <div id="brandingFormGrid" class="grid grid-cols-1 xl:grid-cols-2 gap-8" style="opacity:0.35;pointer-events:none;transition:opacity .4s">
+                <section class="glass-panel p-10 space-y-10 animate-premium">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:palette-round-bold-duotone" width="32"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Couleurs</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Header / Footer / Couleurs globales</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Couleur principale</label>
+                            <div class="flex items-center gap-3">
+                                <input id="primaryColor" type="color" class="w-14 h-12 rounded-2xl border border-gray-100 bg-white" />
+                                <input id="primaryColorText" type="text" class="flex-1 px-5 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="#050505">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Couleur secondaire</label>
+                            <div class="flex items-center gap-3">
+                                <input id="secondaryColor" type="color" class="w-14 h-12 rounded-2xl border border-gray-100 bg-white" />
+                                <input id="secondaryColorText" type="text" class="flex-1 px-5 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="#121212">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Header (fond)</label>
+                            <div class="flex items-center gap-3">
+                                <input id="headerBg" type="color" class="w-14 h-12 rounded-2xl border border-gray-100 bg-white" />
+                                <input id="headerBgText" type="text" class="flex-1 px-5 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="#013220">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Header (texte/icônes)</label>
+                            <div class="flex items-center gap-3">
+                                <input id="headerFg" type="color" class="w-14 h-12 rounded-2xl border border-gray-100 bg-white" />
+                                <input id="headerFgText" type="text" class="flex-1 px-5 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="#ffffff">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Footer (fond)</label>
+                            <div class="flex items-center gap-3">
+                                <input id="footerBg" type="color" class="w-14 h-12 rounded-2xl border border-gray-100 bg-white" />
+                                <input id="footerBgText" type="text" class="flex-1 px-5 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="#013220">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Footer (texte)</label>
+                            <div class="flex items-center gap-3">
+                                <input id="footerFg" type="color" class="w-14 h-12 rounded-2xl border border-gray-100 bg-white" />
+                                <input id="footerFgText" type="text" class="flex-1 px-5 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="#ffffff">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Theme Color (PWA / navigateur)</label>
+                        <div class="flex items-center gap-3">
+                            <input id="themeColor" type="color" class="w-14 h-12 rounded-2xl border border-gray-100 bg-white" />
+                            <input id="themeColorText" type="text" class="flex-1 px-5 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="#064734">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass-panel p-10 space-y-10 animate-premium">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:text-bold-duotone" width="32"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Typographie & Logo</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Police + logo header/footer</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Font heading</label>
+                            <input id="fontHeading" type="text" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="'Poppins', sans-serif">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Font body</label>
+                            <input id="fontBody" type="text" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-bold" placeholder="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Logo Header (upload)</label>
+                            <input id="headerLogoFile" type="file" accept="image/png,image/jpeg,image/webp" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none font-bold">
+                            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest ml-2">Recommandé: PNG/WebP transparent</div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Logo Footer (upload)</label>
+                            <input id="footerLogoFile" type="file" accept="image/png,image/jpeg,image/webp" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none font-bold">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="glass-panel p-10 space-y-10 animate-premium xl:col-span-2">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-orange-50 text-orange-600 rounded-3xl flex items-center justify-center shadow-inner">
+                            <iconify-icon icon="solar:widget-2-bold-duotone" width="32"></iconify-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-xl text-gray-900">Favicon & PWA</h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Icônes du site + application</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Favicon (PNG)</label>
+                            <input id="faviconFile" type="file" accept="image/png,image/x-icon" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none font-bold">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Apple Touch Icon</label>
+                            <input id="appleTouchFile" type="file" accept="image/png,image/jpeg,image/webp" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none font-bold">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">PWA Icon 192x192</label>
+                            <input id="pwa192File" type="file" accept="image/png" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none font-bold">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">PWA Icon 512x512</label>
+                            <input id="pwa512File" type="file" accept="image/png" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none font-bold">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">PWA Icon 192 Maskable</label>
+                            <input id="pwa192MaskFile" type="file" accept="image/png" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none font-bold">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">PWA Icon 512 Maskable</label>
+                            <input id="pwa512MaskFile" type="file" accept="image/png" class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none font-bold">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 sm:items-center justify-end pt-2">
+                        <button id="previewBtn" type="button"
+                            class="px-7 py-4 rounded-2xl bg-white border border-gray-100 text-gray-800 font-black tracking-tight hover:bg-gray-50 transition-all">
+                            Aperçu local
+                        </button>
+                        <button id="saveBtn" type="button"
+                            class="px-7 py-4 rounded-2xl bg-slate-900 text-white font-black tracking-tight hover:bg-slate-800 transition-all btn-active-scale">
+                            Enregistrer
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function $(id) { return document.getElementById(id); }
+        function normalizeHex(v) {
+            const raw = String(v || '').trim();
+            if (!raw) return '';
+            if (/^#[0-9a-f]{3}$/i.test(raw)) return '#' + raw.slice(1).split('').map(c => c + c).join('').toLowerCase();
+            if (/^#[0-9a-f]{6}$/i.test(raw)) return raw.toLowerCase();
+            return raw;
+        }
+
+        function syncColor(colorInput, textInput) {
+            if (!colorInput || !textInput) return;
+            colorInput.addEventListener('input', () => { textInput.value = colorInput.value; });
+            textInput.addEventListener('input', () => {
+                const h = normalizeHex(textInput.value);
+                if (/^#[0-9a-f]{6}$/i.test(h)) colorInput.value = h;
+            });
+        }
+
+        function showSaved() {
+            const el = $('saveStatus');
+            if (!el) return;
+            el.classList.remove('hidden');
+            clearTimeout(window.__saveStatusTimer);
+            window.__saveStatusTimer = setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+
+        async function uploadIfSelected(inputId, path) {
+            const input = $(inputId);
+            const file = input?.files?.[0];
+            if (!file) return '';
+
+            if (!window.SupabaseAdapter || typeof window.SupabaseAdapter.uploadFile !== 'function') {
+                throw new Error('SUPABASE_UPLOAD_UNAVAILABLE');
+            }
+
+            const url = await window.SupabaseAdapter.uploadFile('site-assets', path, file);
+            if (!url) {
+                const err = window.SupabaseAdapter.getLastUploadError?.();
+                const msg = window.SupabaseAdapter.getReadableUploadError?.(err) || 'Upload impossible.';
+                throw new Error(msg);
+            }
+
+            return url;
+        }
+
+        function getFormValues() {
+            return {
+                primaryColor: normalizeHex($('primaryColorText')?.value || $('primaryColor')?.value),
+                secondaryColor: normalizeHex($('secondaryColorText')?.value || $('secondaryColor')?.value),
+                headerBg: normalizeHex($('headerBgText')?.value || $('headerBg')?.value),
+                headerFg: normalizeHex($('headerFgText')?.value || $('headerFg')?.value),
+                footerBg: normalizeHex($('footerBgText')?.value || $('footerBg')?.value),
+                footerFg: normalizeHex($('footerFgText')?.value || $('footerFg')?.value),
+                themeColor: normalizeHex($('themeColorText')?.value || $('themeColor')?.value),
+                fontHeading: String($('fontHeading')?.value || '').trim(),
+                fontBody: String($('fontBody')?.value || '').trim(),
+            };
+        }
+
+        function fillForm(config) {
+            const c = config || {};
+            const setColor = (base, value) => {
+                const hex = normalizeHex(value);
+                const color = $(base);
+                const text = $(base + 'Text');
+                if (color && /^#[0-9a-f]{6}$/i.test(hex)) color.value = hex;
+                if (text) text.value = hex || value || '';
+            };
+
+            setColor('primaryColor', c.primaryColor || '#050505');
+            setColor('secondaryColor', c.secondaryColor || '#121212');
+            setColor('headerBg', c.headerBg || '#013220');
+            setColor('headerFg', c.headerFg || '#ffffff');
+            setColor('footerBg', c.footerBg || '#013220');
+            setColor('footerFg', c.footerFg || '#ffffff');
+            setColor('themeColor', c.themeColor || '#064734');
+
+            if ($('fontHeading')) $('fontHeading').value = c.fontHeading || "'Poppins', sans-serif";
+            if ($('fontBody')) $('fontBody').value = c.fontBody || "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
+        }
+
+        async function saveAll() {
+            const saveBtn = $('saveBtn');
+            if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Enregistrement...'; }
+
+            try {
+                const values = getFormValues();
+                const uploadResults = {
+                    faviconUrl: await uploadIfSelected('faviconFile', 'branding/favicon.png'),
+                    appleTouchIconUrl: await uploadIfSelected('appleTouchFile', 'branding/apple-touch-icon.png'),
+                    pwaIcon192Url: await uploadIfSelected('pwa192File', 'branding/pwa-192.png'),
+                    pwaIcon512Url: await uploadIfSelected('pwa512File', 'branding/pwa-512.png'),
+                    pwaIcon192MaskableUrl: await uploadIfSelected('pwa192MaskFile', 'branding/pwa-192-maskable.png'),
+                    pwaIcon512MaskableUrl: await uploadIfSelected('pwa512MaskFile', 'branding/pwa-512-maskable.png'),
+                    headerLogoUrl: await uploadIfSelected('headerLogoFile', 'branding/logo-header.png'),
+                    footerLogoUrl: await uploadIfSelected('footerLogoFile', 'branding/logo-footer.png'),
+                };
+
+                const patch = { ...values };
+                Object.entries(uploadResults).forEach(([k, v]) => { if (v) patch[k] = v; });
+
+                if (!window.ConfigManager || typeof window.ConfigManager.saveConfig !== 'function') {
+                    throw new Error('CONFIG_MANAGER_UNAVAILABLE');
+                }
+
+                await window.ConfigManager.saveConfig(patch);
+                showSaved();
+
+                if (window.showToast) window.showToast('Branding mis à jour sur tout le site.', 'success', 'Branding');
+            } catch (err) {
+                console.error('[Branding] save failed:', err);
+                if (window.showToast) window.showToast(err?.message || 'Erreur lors de la sauvegarde.', 'error', 'Branding');
+            } finally {
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Enregistrer'; }
+            }
+        }
+
+        function previewLocal() {
+            try {
+                const values = getFormValues();
+                const next = { ...(window.ConfigManager?.getConfig?.() || {}), ...values };
+                window.BrandingManager?.apply?.(next);
+                if (window.showToast) window.showToast('Aperçu appliqué (local).', 'info', 'Branding');
+            } catch (err) {
+                console.error('[Branding] preview failed:', err);
+            }
+        }
+
+        async function init() {
+            syncColor($('primaryColor'), $('primaryColorText'));
+            syncColor($('secondaryColor'), $('secondaryColorText'));
+            syncColor($('headerBg'), $('headerBgText'));
+            syncColor($('headerFg'), $('headerFgText'));
+            syncColor($('footerBg'), $('footerBgText'));
+            syncColor($('footerFg'), $('footerFgText'));
+            syncColor($('themeColor'), $('themeColorText'));
+
+            if (window.ConfigManager?.init) {
+                try {
+                    await window.ConfigManager.init();
+                } catch (err) {
+                    console.warn('[Branding] ConfigManager init failed, using current config snapshot.', err);
+                }
+            }
+
+            // Remove skeleton, reveal form
+            const skBanner = document.getElementById('brandingSkeletonBanner');
+            if (skBanner) skBanner.remove();
+            const formGrid = document.getElementById('brandingFormGrid');
+            if (formGrid) { formGrid.style.opacity = '1'; formGrid.style.pointerEvents = ''; }
+
+            const cfg = window.ConfigManager?.getConfig?.();
+            fillForm(cfg);
+
+            $('saveBtn')?.addEventListener('click', saveAll);
+            $('previewBtn')?.addEventListener('click', previewLocal);
+        }
+
+        window.addEventListener('configUpdated', () => {
+            const cfg = window.ConfigManager?.getConfig?.();
+            if (cfg) fillForm(cfg);
+        });
+
+        init();
+    </script>
+</body>
+
+</html>
+

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Parrainage Systeme | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <script type="module" src="/src/services/app.js"></script>
+    <script type="module" src="/src/services/admin-layout.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+    <style>
+        body {
+            background: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.5rem;
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-radius: 9999px;
+            padding: 0.35rem 0.7rem;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.3rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .status-pill[data-status="pending"] {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-pill[data-status="qualified"] {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-pill[data-status="rewarded"] {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-pill[data-status="invalid"] {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .ref-link {
+            color: #2563eb;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .ref-link:hover {
+            color: #111827;
+        }
+    </style>
+</head>
+
+<body class="text-gray-900 bg-[#f8fafc]">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
+
+        <main class="flex-1 min-w-0 space-y-8 pb-12 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+            <div class="admin-page-header flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 animate-premium">
+                <div class="admin-page-header__content">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900">Parrainage Systeme</h1>
+                    <p class="text-gray-500 font-medium">Vue centrale du parrainage, des codes, des récompenses et de l'activité NKToken.</p>
+                </div>
+
+                <div class="admin-page-actions flex flex-wrap items-center gap-3">
+                    <button id="referralsExportBtn" type="button"
+                        class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-xl shadow-black/10">
+                        <iconify-icon icon="solar:download-bold" width="18"></iconify-icon>
+                        Exporter CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div class="glass-panel p-5 flex flex-col gap-1 border-b-4 border-emerald-500">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Codes actifs</div>
+                    <div id="statReferralCodes" class="text-3xl font-black text-gray-900">
+                        <div class="skeleton skeleton-text" style="width:48%;height:32px;margin:0;"></div>
+                    </div>
+                    <div class="text-[10px] font-semibold text-gray-400">Utilisateurs avec un code de parrainage</div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1 border-b-4 border-blue-500">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Evenements</div>
+                    <div id="statReferralEvents" class="text-3xl font-black text-gray-900">
+                        <div class="skeleton skeleton-text" style="width:42%;height:32px;margin:0;"></div>
+                    </div>
+                    <div class="text-[10px] font-semibold text-gray-400">Total des invitations suivies</div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1 border-b-4 border-orange-500">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Recompenses</div>
+                    <div id="statRewarded" class="text-3xl font-black text-gray-900">
+                        <div class="skeleton skeleton-text" style="width:38%;height:32px;margin:0;"></div>
+                    </div>
+                    <div class="text-[10px] font-semibold text-gray-400">Parrainages deja recompenses</div>
+                </div>
+                <div class="glass-panel p-5 flex flex-col gap-1 border-b-4 border-violet-500">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Valeur totale</div>
+                    <div id="statRewardValue" class="text-3xl font-black text-gray-900">
+                        <div class="skeleton skeleton-text" style="width:58%;height:32px;margin:0;"></div>
+                    </div>
+                    <div class="text-[10px] font-semibold text-gray-400">NKToken emis sur tout le systeme</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] gap-6">
+                <div class="glass-panel p-6 space-y-5">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                            <h2 class="font-black text-gray-900 text-lg flex items-center gap-2">
+                                <iconify-icon icon="solar:filter-bold" width="20" class="text-gray-400"></iconify-icon>
+                                Filtres et recherche
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Filtre par statut, code, nom ou email.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="stat-chip bg-gray-100 text-gray-600">1 NKToken = <span id="tokenRateLabel">0.5$</span></span>
+                            <span class="stat-chip bg-emerald-100 text-emerald-700" id="lastUpdatedLabel">En cours...</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_220px_140px] gap-3">
+                        <input id="referralSearchInput" type="search" placeholder="Chercher un code, un nom ou un email"
+                            class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:ring-2 focus:ring-black transition-all font-medium placeholder:text-gray-300">
+                        <select id="referralStatusFilter"
+                            class="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:ring-2 focus:ring-black transition-all font-bold appearance-none cursor-pointer">
+                            <option value="all">Tous les statuts</option>
+                            <option value="pending">En attente</option>
+                            <option value="qualified">Qualifie</option>
+                            <option value="rewarded">Recompense</option>
+                            <option value="invalid">Invalide</option>
+                        </select>
+                        <button id="referralClearFiltersBtn" type="button"
+                            class="w-full px-5 py-4 rounded-2xl border border-gray-200 bg-white text-gray-700 font-black uppercase tracking-widest text-[10px] hover:bg-gray-50 transition-all">
+                            Effacer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 space-y-4">
+                    <div>
+                        <h2 class="font-black text-gray-900 text-lg flex items-center gap-2">
+                            <iconify-icon icon="solar:shield-keyhole-bold-duotone" width="20" class="text-red-500"></iconify-icon>
+                            Centre de controle
+                        </h2>
+                        <p class="text-xs text-gray-500 font-medium">Les mutations sensibles restent dans la fiche utilisateur, mais tout le suivi systeme est ici.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Recompense active</div>
+                            <div class="mt-2 font-black text-gray-900">NKToken distribues a la premiere commande completee.</div>
+                        </div>
+                        <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Valeur monetaire</div>
+                            <div class="mt-2 font-black text-gray-900">1 NKToken = 0.5 USD</div>
+                        </div>
+                        <div class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Fiche utilitaire</div>
+                            <div class="mt-2 text-sm text-gray-600 leading-relaxed">Ouvre une fiche utilisateur pour verifier le code, le parrain ou l'historique complet du compte.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-6">
+                <div class="glass-panel overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex items-center justify-between gap-4">
+                        <div>
+                            <h2 class="font-black text-gray-900 text-lg flex items-center gap-2">
+                                <iconify-icon icon="solar:medal-ribbons-star-bold" width="20" class="text-amber-500"></iconify-icon>
+                                Top parrains
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Classement des comptes les plus actifs sur le parrainage.</p>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="topReferrersCount">0 comptes</span>
+                    </div>
+                    <div class="overflow-x-auto admin-table-shell">
+                        <table class="premium-table admin-data-table admin-referrals-top-table w-full text-left">
+                            <colgroup>
+                                <col class="admin-referrals-top-table__col-referrer">
+                                <col class="admin-referrals-top-table__col-code">
+                                <col class="admin-referrals-top-table__col-events">
+                                <col class="admin-referrals-top-table__col-rewards">
+                                <col class="admin-referrals-top-table__col-value">
+                            </colgroup>
+                            <thead>
+                                <tr class="bg-gray-50/60">
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Parrain</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Code</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Evenements</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Recompenses</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Valeur</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topReferrersBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="topReferrersEmpty" class="hidden p-10 text-center text-gray-400">
+                        Aucun parrainage actif pour le moment.
+                    </div>
+                </div>
+
+                <div class="glass-panel overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex items-center justify-between gap-4">
+                        <div>
+                            <h2 class="font-black text-gray-900 text-lg flex items-center gap-2">
+                                <iconify-icon icon="solar:clock-circle-bold" width="20" class="text-blue-500"></iconify-icon>
+                                Activite recente
+                            </h2>
+                            <p class="text-xs text-gray-500 font-medium">Derniers evenements du systeme de parrainage.</p>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="recentEventsCount">0 lignes</span>
+                    </div>
+                    <div class="overflow-x-auto admin-table-shell">
+                        <table class="premium-table admin-data-table admin-referrals-events-table w-full text-left">
+                            <colgroup>
+                                <col class="admin-referrals-events-table__col-code">
+                                <col class="admin-referrals-events-table__col-referrer">
+                                <col class="admin-referrals-events-table__col-referee">
+                                <col class="admin-referrals-events-table__col-status">
+                                <col class="admin-referrals-events-table__col-reward">
+                                <col class="admin-referrals-events-table__col-actions">
+                            </colgroup>
+                            <thead>
+                                <tr class="bg-gray-50/60">
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Code</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Parrain</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Filleul</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Statut</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400 text-right">Recompense</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-gray-400">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentEventsBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                    <div id="recentEventsEmpty" class="hidden p-10 text-center text-gray-400">
+                        Aucun evenement a afficher.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        (function () {
+            const tokenValueUsd = 0.5;
+            const state = {
+                loading: false,
+                overview: null,
+                filters: {
+                    query: '',
+                    status: 'all'
+                }
+            };
+
+            const els = {};
+
+            function pick(id) {
+                return document.getElementById(id);
+            }
+
+            function safeText(value, fallback = '-') {
+                const text = String(value ?? '').trim();
+                return text || fallback;
+            }
+
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function numberFormat(value, digits = 0) {
+                return new Intl.NumberFormat('fr-FR', {
+                    minimumFractionDigits: digits,
+                    maximumFractionDigits: digits
+                }).format(Number(value || 0));
+            }
+
+            function formatUsd(value) {
+                return `≈ ${numberFormat(value, 2)}$`;
+            }
+
+            function formatDate(value) {
+                if (!value) return '-';
+                const date = new Date(value);
+                if (Number.isNaN(date.getTime())) return '-';
+                return new Intl.DateTimeFormat('fr-FR', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).format(date);
+            }
+
+            function statusMeta(status) {
+                const normalized = String(status || 'pending').toLowerCase();
+                if (normalized === 'rewarded') return { label: 'Recompense', className: 'status-pill', status: 'rewarded' };
+                if (normalized === 'qualified') return { label: 'Qualifie', className: 'status-pill', status: 'qualified' };
+                if (normalized === 'invalid') return { label: 'Invalide', className: 'status-pill', status: 'invalid' };
+                return { label: 'En attente', className: 'status-pill', status: 'pending' };
+            }
+
+            function userDetailsHref(email) {
+                if (!email) return null;
+                return `/src/pages/admin/user-details.html?embedded=1&email=${encodeURIComponent(email)}`;
+            }
+
+            function currentQuery() {
+                return (els.searchInput?.value || '').trim().toLowerCase();
+            }
+
+            function filteredEvents() {
+                const rows = Array.isArray(state.overview?.recent_events) ? [...state.overview.recent_events] : [];
+                const query = currentQuery();
+                const status = els.statusFilter?.value || 'all';
+
+                return rows.filter((row) => {
+                    const rowStatus = String(row.status || 'pending').toLowerCase();
+                    if (status !== 'all' && rowStatus !== status) return false;
+                    if (!query) return true;
+
+                    const haystack = [
+                        row.referral_code,
+                        row.inviter?.name,
+                        row.inviter?.email,
+                        row.invitee?.name,
+                        row.invitee?.email,
+                        row.status,
+                        row.source
+                    ]
+                        .filter(Boolean)
+                        .join(' ')
+                        .toLowerCase();
+
+                    return haystack.includes(query);
+                });
+            }
+
+            function renderSummary() {
+                const totals = state.overview?.totals || {};
+                if (els.statReferralCodes) els.statReferralCodes.textContent = numberFormat(totals.referral_codes || 0);
+                if (els.statReferralEvents) els.statReferralEvents.textContent = numberFormat(totals.referral_events || 0);
+                if (els.statRewarded) els.statRewarded.textContent = numberFormat(totals.rewarded || 0);
+                if (els.statRewardValue) els.statRewardValue.textContent = formatUsd(totals.reward_total_usd || 0);
+                if (els.tokenRateLabel) els.tokenRateLabel.textContent = `${numberFormat(state.overview?.nk_token_usd_value ?? tokenValueUsd, 1)}$`;
+                if (els.lastUpdatedLabel) {
+                    els.lastUpdatedLabel.textContent = state.overview?.generated_at ? `Mis a jour ${formatDate(state.overview.generated_at)}` : 'Aucune donnee';
+                }
+                if (els.topReferrersCount) els.topReferrersCount.textContent = `${numberFormat((state.overview?.top_referrers || []).length)} comptes`;
+                if (els.recentEventsCount) els.recentEventsCount.textContent = `${numberFormat(filteredEvents().length)} lignes`;
+            }
+
+            function renderTopReferrers() {
+                const rows = Array.isArray(state.overview?.top_referrers) ? state.overview.top_referrers : [];
+                const body = els.topReferrersBody;
+                const empty = els.topReferrersEmpty;
+                if (!body || !empty) return;
+
+                if (!rows.length) {
+                    body.innerHTML = '';
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                empty.classList.add('hidden');
+                body.innerHTML = rows.map((row) => {
+                    return `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-4">
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.name || 'Utilisateur supprime')}">${escapeHtml(row.name || 'Utilisateur supprime')}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold" title="${escapeHtml(row.email || 'Sans email')}">${escapeHtml(row.email || 'Sans email')}</div>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.referral_code || '-')}">${escapeHtml(row.referral_code || '-')}</div>
+                            </td>
+                            <td class="p-4 font-black text-gray-900">${numberFormat(row.total_events || 0)}</td>
+                            <td class="p-4">
+                                <div class="flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest">
+                                    <span class="stat-chip bg-emerald-100 text-emerald-700">${numberFormat(row.rewarded || 0)} valides</span>
+                                    <span class="stat-chip bg-amber-100 text-amber-700">${numberFormat(row.pending || 0)} en attente</span>
+                                </div>
+                            </td>
+                            <td class="p-4 text-right font-black text-gray-900">${formatUsd((row.reward_total || 0) * (state.overview?.nk_token_usd_value || tokenValueUsd))}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function renderRecentEvents() {
+                const rows = filteredEvents();
+                const body = els.recentEventsBody;
+                const empty = els.recentEventsEmpty;
+                if (!body || !empty) return;
+
+                if (!rows.length) {
+                    body.innerHTML = '';
+                    empty.classList.remove('hidden');
+                    if (els.recentEventsCount) els.recentEventsCount.textContent = '0 lignes';
+                    return;
+                }
+
+                empty.classList.add('hidden');
+                if (els.recentEventsCount) els.recentEventsCount.textContent = `${numberFormat(rows.length)} lignes`;
+
+                body.innerHTML = rows.map((row) => {
+                    const inviterHref = userDetailsHref(row.inviter?.email);
+                    const inviteeHref = userDetailsHref(row.invitee?.email);
+                    const meta = statusMeta(row.status);
+                    return `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-4">
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.referral_code || '-')}">${escapeHtml(row.referral_code || '-')}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest" title="${escapeHtml(row.source || 'signup')}">${escapeHtml(row.source || 'signup')}</div>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.inviter?.name || 'Utilisateur supprime')}">${escapeHtml(row.inviter?.name || 'Utilisateur supprime')}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold" title="${escapeHtml(row.inviter?.email || 'Sans email')}">${escapeHtml(row.inviter?.email || 'Sans email')}</div>
+                            </td>
+                            <td class="p-4">
+                                <div class="font-black text-gray-900 admin-table-truncate" title="${escapeHtml(row.invitee?.name || 'Utilisateur supprime')}">${escapeHtml(row.invitee?.name || 'Utilisateur supprime')}</div>
+                                <div class="admin-table-truncate text-[10px] text-gray-400 font-bold" title="${escapeHtml(row.invitee?.email || 'Sans email')}">${escapeHtml(row.invitee?.email || 'Sans email')}</div>
+                            </td>
+                            <td class="p-4">
+                                <span class="${meta.className}" data-status="${meta.status}">${meta.label}</span>
+                                <div class="text-[10px] text-gray-400 font-bold mt-2">${escapeHtml(formatDate(row.invited_at))}</div>
+                            </td>
+                            <td class="p-4 text-right font-black text-gray-900">${formatUsd((row.reward_amount || 0) * (state.overview?.nk_token_usd_value || tokenValueUsd))}</td>
+                            <td class="p-4">
+                                <div class="flex flex-wrap gap-2">
+                                    ${inviterHref ? `<a href="${inviterHref}" class="ref-link">Voir parrain</a>` : '<span class="text-[10px] font-black uppercase tracking-widest text-gray-300">Sans parrain</span>'}
+                                    ${inviteeHref ? `<a href="${inviteeHref}" class="ref-link">Voir filleul</a>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function renderAll() {
+                renderSummary();
+                renderTopReferrers();
+                renderRecentEvents();
+            }
+
+            async function loadData() {
+                if (state.loading) return;
+                state.loading = true;
+
+                if (els.topReferrersBody && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    els.topReferrersEmpty?.classList.add('hidden');
+                    els.topReferrersBody.innerHTML = window.buildSkeletonTableRowsHTML(5, 5);
+                }
+                if (els.recentEventsBody && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                    els.recentEventsEmpty?.classList.add('hidden');
+                    els.recentEventsBody.innerHTML = window.buildSkeletonTableRowsHTML(5, 6);
+                }
+
+                try {
+                    const data = await window.ApiClient.get('/referrals/admin/overview', {
+                        cacheKey: 'admin-referrals-overview',
+                        cacheTtlMs: 15_000,
+                        suppressToast: true
+                    });
+                    state.overview = data || null;
+                    if (els.tokenRateLabel && data?.nk_token_usd_value != null) {
+                        els.tokenRateLabel.textContent = `${numberFormat(data.nk_token_usd_value, 1)}$`;
+                    }
+                    renderAll();
+                } catch (error) {
+                    console.warn('[ReferralAdmin] Unable to load overview:', error?.message || error);
+                    if (els.statReferralCodes) els.statReferralCodes.textContent = '0';
+                    if (els.statReferralEvents) els.statReferralEvents.textContent = '0';
+                    if (els.statRewarded) els.statRewarded.textContent = '0';
+                    if (els.statRewardValue) els.statRewardValue.textContent = '≈ 0,00$';
+                    if (els.lastUpdatedLabel) els.lastUpdatedLabel.textContent = 'Erreur de chargement';
+                    if (els.topReferrersBody) els.topReferrersBody.innerHTML = '';
+                    if (els.recentEventsBody) els.recentEventsBody.innerHTML = '';
+                    if (els.topReferrersEmpty) els.topReferrersEmpty.classList.remove('hidden');
+                    if (els.recentEventsEmpty) els.recentEventsEmpty.classList.remove('hidden');
+                    if (els.topReferrersCount) els.topReferrersCount.textContent = '0 comptes';
+                    if (els.recentEventsCount) els.recentEventsCount.textContent = '0 lignes';
+                } finally {
+                    state.loading = false;
+                }
+            }
+
+            function exportCsv() {
+                const rows = filteredEvents();
+                if (!rows.length) {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Aucune ligne a exporter.', 'warning');
+                    }
+                    return;
+                }
+
+                const header = ['referral_code', 'status', 'source', 'reward_amount', 'inviter_name', 'inviter_email', 'invitee_name', 'invitee_email', 'invited_at', 'qualified_at', 'rewarded_at'];
+                const csvRows = [
+                    header.join(',')
+                ];
+
+                rows.forEach((row) => {
+                    const values = [
+                        row.referral_code,
+                        row.status,
+                        row.source,
+                        row.reward_amount,
+                        row.inviter?.name,
+                        row.inviter?.email,
+                        row.invitee?.name,
+                        row.invitee?.email,
+                        row.invited_at,
+                        row.qualified_at,
+                        row.rewarded_at
+                    ].map((value) => `"${String(value ?? '').replace(/"/g, '""')}"`);
+
+                    csvRows.push(values.join(','));
+                });
+
+                const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `newket-parrainage-${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+            }
+
+            function bindEvents() {
+                els.searchInput?.addEventListener('input', renderRecentEvents);
+                els.statusFilter?.addEventListener('change', renderRecentEvents);
+                els.clearFiltersBtn?.addEventListener('click', () => {
+                    if (els.searchInput) els.searchInput.value = '';
+                    if (els.statusFilter) els.statusFilter.value = 'all';
+                    renderRecentEvents();
+                });
+                els.exportBtn?.addEventListener('click', exportCsv);
+            }
+
+            function init() {
+                els.searchInput = pick('referralSearchInput');
+                els.statusFilter = pick('referralStatusFilter');
+                els.clearFiltersBtn = pick('referralClearFiltersBtn');
+                els.exportBtn = pick('referralsExportBtn');
+                els.tokenRateLabel = pick('tokenRateLabel');
+                els.lastUpdatedLabel = pick('lastUpdatedLabel');
+                els.statReferralCodes = pick('statReferralCodes');
+                els.statReferralEvents = pick('statReferralEvents');
+                els.statRewarded = pick('statRewarded');
+                els.statRewardValue = pick('statRewardValue');
+                els.topReferrersCount = pick('topReferrersCount');
+                els.recentEventsCount = pick('recentEventsCount');
+                els.topReferrersBody = pick('topReferrersBody');
+                els.topReferrersEmpty = pick('topReferrersEmpty');
+                els.recentEventsBody = pick('recentEventsBody');
+                els.recentEventsEmpty = pick('recentEventsEmpty');
+
+                bindEvents();
+                loadData();
+            }
+
+            window.ReferralAdmin = {
+                reload: loadData,
+                exportCsv
+            };
+
+            document.addEventListener('DOMContentLoaded', init);
+            window.addEventListener('newketInitialized', loadData);
+        })();
+    </script>
+</body>
+
+</html>
+

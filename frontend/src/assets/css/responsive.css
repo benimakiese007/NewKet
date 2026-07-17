@@ -1,0 +1,1918 @@
+/*
+ * =====================================================
+ * NewKet — Responsive Global Override
+ * =====================================================
+ * Fichier centralisé de corrections responsive.
+ * Approche : Mobile-First.
+ * Breakpoints : 480px / 768px / 1024px / 1280px
+ * =====================================================
+ */
+
+/* ==========================================
+   1. FONDATIONS GLOBALES
+   ========================================== */
+
+html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none; /* helps prevent bounce effect on mobile */
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* Images universellement responsives */
+img,
+video,
+svg,
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Touch targets minimaux — accessibilité mobile */
+@media (max-width: 768px) {
+
+    button,
+    a,
+    input[type="submit"],
+    input[type="button"],
+    .btn,
+    [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* ==========================================
+   2. TYPOGRAPHIE FLUIDE
+   ========================================== */
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+        line-height: 1.2 !important;
+    }
+
+    h2 {
+        font-size: clamp(1.25rem, 5vw, 2rem) !important;
+    }
+
+    h3 {
+        font-size: clamp(1rem, 4vw, 1.5rem) !important;
+    }
+
+    /* Réduction des tracking widest sur petit mobile */
+    .tracking-widest {
+        letter-spacing: 0.05em !important;
+    }
+
+    .tracking-\[0\.4em\] {
+        letter-spacing: 0.15em !important;
+    }
+
+    .tracking-\[0\.25em\] {
+        letter-spacing: 0.1em !important;
+    }
+}
+
+/* ==========================================
+   3. HEADER — Corrections d'espacement
+   ========================================== */
+
+@media (max-width: 639px) {
+
+    /* iOS notch: keep the status-bar safe area green like the header */
+    .main-header.newket-header-shell {
+        padding-top: env(safe-area-inset-top, 0px) !important;
+        overflow: visible !important;
+    }
+
+    /* Universal Mobile Notch Cover: Fixed to body so it never scrolls when headers retract */
+    body::after {
+        content: "";
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: calc(env(safe-area-inset-top, 0px) + 1px);
+        background: #013220;
+        pointer-events: none;
+        z-index: 999999;
+    }
+
+    .dashboard-topbar.newket-dashboard-header {
+        overflow: visible !important;
+    }
+
+    /* Fallback: if JS header spacing hasn't run yet, avoid content being hidden */
+    #header-placeholder {
+        min-height: max(var(--header-height, 0px), calc(144px + env(safe-area-inset-top, 0px)));
+    }
+
+    /* Shop page hero: ensure top actions are not hidden under header on small screens */
+    .vendor-hero {
+        height: 520px !important;
+        min-height: 520px !important;
+    }
+
+    /* Mobile logo size */
+    .header-brand-image {
+        height: 4rem !important;
+    }
+
+    /* Actions row: keep link button aligned right on mobile */
+    .vendor-hero-inner .shop-hero-actions {
+        justify-content: flex-end !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .vendor-hero-inner .shop-hero-actions button {
+        padding: 0.55rem 0.85rem !important;
+        font-size: 10px !important;
+        border-radius: 1.25rem !important;
+        white-space: nowrap !important;
+    }
+
+    /* Removing static header spacers override to use dynamic JS spacing */
+
+    .main-header .w-full {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .header-content {
+        row-gap: 0.625rem !important;
+        padding: 0.625rem 1rem calc(1.75rem + env(safe-area-inset-bottom, 0px)) !important;
+        align-items: stretch !important;
+    }
+
+    .header-brand-row {
+        margin-bottom: 0.1rem !important;
+    }
+
+    .header-icon-button {
+        border-radius: 0.9rem !important;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05) !important;
+    }
+
+    .search-bar {
+        margin: 0 !important;
+        background-color: #f3f4f6 !important;
+        border-radius: 14px !important;
+        flex: 1 !important;
+        width: auto !important;
+        min-width: 0 !important;
+    }
+
+    #mobileSearchContainer {
+        flex-basis: 100% !important;
+        display: flex !important;
+        width: 100% !important;
+        order: 3 !important;
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        gap: 0.625rem !important;
+    }
+
+    .search-input {
+        padding: 0.35rem 1rem !important;
+        font-size: 1rem !important;
+        height: 40px !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    /* Mobile/tablet: category nav stays desktop-only */
+    .category-nav,
+    #categoryNav {
+        display: none !important;
+    }
+
+    html.ios-native-category .mobile-search-category-shell {
+        display: flex !important;
+        min-width: 84px !important;
+        max-width: 96px !important;
+        flex: 0 0 96px !important;
+        border-right-color: #e5e7eb !important;
+    }
+
+    .mobile-search-category-native {
+        font-size: 16px !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+    }
+
+    .mobile-search-category-native:focus {
+        background: rgba(255, 255, 255, 0.55) !important;
+    }
+
+    /* Row Row 1 components */
+    .header-content>div:first-child {
+        order: 1 !important;
+        min-height: 3.25rem !important;
+    }
+
+    .order-2.sm\:order-3 {
+        order: 2 !important;
+        gap: 0px !important;
+        /* Remove horizontal gap entirely */
+    }
+
+    .order-2.sm\:order-3 a {
+        padding-left: 0.15rem !important;
+        padding-right: 0.15rem !important;
+    }
+
+    /* Reduire l'ecart entre le logo et le hamburger */
+    .header-content>div:first-child {
+        gap: var(--space-sm) !important;
+    }
+
+    .header-topbar .max-w-7xl {
+        justify-content: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .header-topbar .max-w-7xl > div:first-child,
+    .header-topbar .max-w-7xl > div:last-child {
+        display: none !important;
+    }
+
+    #mobileMenu {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .mobile-menu-shortcuts-grid {
+        gap: 0.625rem !important;
+    }
+
+    .mobile-menu-shortcut-card {
+        min-height: 78px !important;
+        padding: 0.9rem !important;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+    .header-content {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        row-gap: 0 !important;
+        column-gap: 0.75rem !important;
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.875rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .header-content > div:first-child {
+        order: 1 !important;
+        width: auto !important;
+        flex: 0 0 auto !important;
+    }
+
+    .header-actions {
+        display: none !important;
+    }
+
+    .header-icon-button {
+        border-radius: 1rem !important;
+    }
+
+    /* Tablet behaves like mobile (<= 1024px) */
+    #mobileMenuBtn {
+        display: inline-flex !important;
+    }
+
+    /* Tablet header order: Menu, Logo, Search, Vendre, Compte */
+    #accountLinkMobile {
+        display: none !important;
+    }
+
+    #accountLinkTablet {
+        display: inline-flex !important;
+    }
+
+    #mobileOverlay {
+        display: block !important;
+    }
+
+    /* Tablet: mobile menu should fill the screen like on mobile */
+    #mobileMenu {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    /* Tablet: split "Catégories" + ("Personnel" + "Liens utiles") into 2 horizontal blocks */
+    .mobile-menu-sections-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.25rem !important;
+        align-items: start !important;
+    }
+
+    .mobile-menu-sections-left,
+    .mobile-menu-sections-right {
+        min-width: 0 !important;
+    }
+
+    .header-brand-row {
+        width: auto !important;
+        justify-content: flex-start !important;
+        position: relative !important;
+        gap: 0.75rem !important;
+    }
+
+    #accountLinkMobile {
+        margin-left: auto !important;
+    }
+
+    /* Tablet: logo sits next to burger (not centered absolute) */
+    .header-logo-link {
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        transform: none !important;
+    }
+
+    #mobileSearchContainer {
+        order: 2 !important;
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        min-width: 0 !important;
+    }
+
+    /* Inline style max-width:720px on the search row: remove it for tablet */
+    #mobileSearchContainer[style] {
+        max-width: none !important;
+    }
+
+    /* Tablet: keep search + (Vendre, Compte) on the same row */
+    #mobileSearchContainer {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto auto auto !important;
+        align-items: center !important;
+        column-gap: 0.625rem !important;
+    }
+
+    .search-bar {
+        width: auto !important; /* override mobile/tablet base rule width:100% */
+        min-width: 0 !important;
+        order: 1 !important;
+        grid-column: 1 !important;
+    }
+
+    #mobileSearchContainer .publish-btn,
+    #accountLinkTablet,
+    #cartBtnTablet {
+        flex: 0 0 auto !important;
+        justify-self: end !important;
+        white-space: nowrap !important;
+    }
+
+    #mobileSearchContainer .publish-btn {
+        order: 2 !important;
+        grid-column: 2 !important;
+    }
+
+    #cartBtnTablet {
+        display: inline-flex !important;
+        order: 3 !important;
+        grid-column: 3 !important;
+    }
+
+    #accountLinkTablet {
+        order: 4 !important;
+        grid-column: 4 !important;
+    }
+
+    .header-search-row {
+        min-width: 0 !important;
+    }
+
+    /* Tablet header: keep everything on one line (make "Vendre" compact) */
+    #mobileSearchContainer .publish-btn {
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+        height: 44px !important;
+        border-radius: 14px !important;
+    }
+
+    #mobileSearchContainer .publish-btn span {
+        display: none !important;
+    }
+
+    .header-brand-image {
+        height: 3rem !important;
+    }
+
+    .category-nav,
+    #categoryNav {
+        display: none !important;
+    }
+}
+
+/* ==========================================
+   3b. DESKTOP (≥ 1024px) — Masquer le burger
+   ========================================== */
+@media (min-width: 1024px) {
+
+    /* Masquer les icônes droite mobile (cloche, cœur) sur desktop */
+    .header-brand-row > div:last-child {
+        display: none !important;
+    }
+}
+
+
+/* ==========================================
+/* Narrow tablet edge (640–649px): prevent search icon overflow */
+@media (min-width: 640px) and (max-width: 649px) {
+    #mobileSearchContainer {
+        column-gap: 0.45rem !important;
+    }
+
+    .search-category-btn {
+        min-width: 68px !important;
+        padding-left: 0.6rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    .search-input {
+        padding-left: 0.9rem !important;
+        padding-right: 0.6rem !important;
+        font-size: 15px !important;
+    }
+
+    .search-bar .search-icon {
+        margin-right: 6px !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* ==========================================
+   4. HERO / BANNIÈRES — Hauteurs adaptatives
+   ========================================== */
+
+@media (max-width: 480px) {
+
+    .hero-section,
+    [class*="hero-gradient"] {
+        min-height: auto !important;
+    }
+
+    /* About hero */
+    .hero-pattern {
+        padding-top: var(--space-4xl) !important;
+        padding-bottom: var(--space-4xl) !important;
+    }
+}
+
+@media (max-width: 768px) {
+
+    /* Bannières de la page d'accueil */
+    .banner-slide,
+    .swiper-slide {
+        height: auto !important;
+        min-height: 200px !important;
+        max-height: 280px !important;
+    }
+}
+
+/* ==========================================
+   5. GRILLES PRODUIT — Override pour petit mobile
+   ========================================== */
+
+@media (max-width: 359px) {
+
+    /* 1 colonne pour les écrans très étroits */
+    .product-grid,
+    .grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* Espacement réduit pour les grilles produits mobile */
+    .product-grid {
+        gap: var(--space-sm) !important;
+    }
+
+    .product-card {
+        border-radius: 1rem !important;
+    }
+}
+
+/* ==========================================
+   6. PAGE PRODUIT — Galerie et CTA
+   ========================================== */
+
+@media (max-width: 1023px) {
+
+    /* Désactiver sticky sur galerie produit en mobile/tablette */
+    .sticky.top-40,
+    .space-y-4.sticky {
+        position: relative !important;
+        top: auto !important;
+    }
+}
+
+@media (max-width: 639px) {
+
+    /* Thumbnails produit — taille réduite */
+    #thumbnail-gallery {
+        gap: 0.5rem !important;
+    }
+
+    #thumbnail-gallery>div {
+        height: 3.5rem !important;
+    }
+
+    /* CTA produit — pleine largeur */
+    .addToCart-btn,
+    button[onclick*="addToCart"] {
+        font-size: 0.75rem !important;
+    }
+}
+
+/* ==========================================
+   7. PANIER (cart.html) — Layout mobile
+   ========================================== */
+
+@media (max-width: 639px) {
+
+    /* Résumé panier en pleine largeur */
+    .lg\:w-\[420px\] {
+        width: 100% !important;
+    }
+
+    /* Items du panier : padding réduit */
+    #cartItemsList .px-2 {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+}
+
+/* Checkout modal responsive */
+@media (max-width: 480px) {
+    #checkoutModal {
+        padding: var(--space-lg) !important;
+        border-radius: 1.5rem !important;
+    }
+
+    #checkoutModal h2 {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* ==========================================
+   8. DASHBOARDS (customer + vendor)
+   ========================================== */
+
+@media (max-width: 767px) {
+
+    /* Sidebar s'empile au-dessus du contenu */
+    .md\:w-64 {
+        width: 100% !important;
+    }
+
+    /* Stats grid : 2 colonnes sur mobile */
+    .grid.grid-cols-1.md\:grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .grid.grid-cols-1.md\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* Stats grid : 1 colonne sur petit mobile */
+    .grid.grid-cols-1.md\:grid-cols-4 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Padding réduit dans les stats cards */
+    .glass-panel.p-8,
+    .glass-panel.p-6 {
+        padding: var(--space-md) !important;
+    }
+
+    /* Vendor dashboard header — empiler les éléments */
+    .flex.justify-between.items-end {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+}
+
+/* ==========================================
+   9. FORUM — Layout responsive
+   ========================================== */
+
+@media (max-width: 1023px) {
+
+    /* Forum : sidebar au-dessus du contenu */
+    .grid.grid-cols-1.lg\:grid-cols-4 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .lg\:col-span-3 {
+        grid-column: span 1 !important;
+    }
+}
+
+@media (max-width: 639px) {
+
+    /* Forum : bouton "nouveau sujet" pleine largeur */
+    #newTopicBtn {
+        width: 100% !important;
+    }
+
+    /* Modal nouveau sujet */
+    #newTopicModal>div:last-child {
+        margin: 1rem !important;
+        border-radius: 1.5rem !important;
+    }
+}
+
+/* ==========================================
+   10. SHOPS / SHOP — Grille responsive
+   ========================================== */
+
+@media (max-width: 639px) {
+
+    /* Shop cards : 1 colonne sur mobile */
+    #shopsGrid {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-md) !important;
+    }
+
+    /* Réduction du padding dans les shop cards */
+    .shop-card {
+        padding: var(--space-lg) !important;
+        border-radius: 1.5rem !important;
+    }
+
+    /* Logo boutique plus petit */
+    .shop-card .w-24.h-24 {
+        width: 4rem !important;
+        height: 4rem !important;
+    }
+}
+
+/* ==========================================
+   11. SETTINGS — Formulaires responsive
+   ========================================== */
+
+@media (max-width: 1023px) {
+
+    /* Sidebar settings empilée — scoped to settings layout only */
+    .settings-layout .lg\:w-72,
+    [data-page="settings"] .lg\:w-72 {
+        width: 100% !important;
+    }
+
+    /* Un scroll horizontal des nav-links sur mobile */
+    .bg-gray-100\/50.p-2.rounded-2xl {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 0 !important;
+    }
+
+    .bg-gray-100\/50.p-2.rounded-2xl::-webkit-scrollbar {
+        display: none;
+    }
+
+    .bg-gray-100\/50 .nav-link {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        font-size: 0.75rem !important;
+        padding: 0.625rem 0.75rem !important;
+    }
+
+    .bg-gray-100\/50 .h-px {
+        display: none !important;
+    }
+}
+
+/* ==========================================
+   12. LOGIN — Mobile polish
+   ========================================== */
+
+@media (max-width: 480px) {
+
+    .login-container,
+    .auth-container {
+        padding: var(--space-lg) !important;
+        border-radius: 1.5rem !important;
+    }
+
+    /* Boutons sociaux en colonne */
+    .social-login-buttons {
+        flex-direction: column !important;
+    }
+}
+
+/* ==========================================
+   13. CATALOG — Sidebar et filtres
+   ========================================== */
+
+@media (max-width: 767px) {
+    /* Breadcrumbs: always a single horizontal row (scrollable) */
+    #breadcrumbs {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        white-space: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+
+    #breadcrumbs::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    #breadcrumbs > * {
+        flex: 0 0 auto !important;
+        min-width: max-content !important;
+        white-space: nowrap !important;
+    }
+
+    #breadcrumbs a {
+        min-width: auto !important;
+        min-height: auto !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        line-height: 1.2 !important;
+    }
+
+    #breadcrumbs iconify-icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .catalog-layout {
+        flex-direction: column !important;
+    }
+
+    .sidebar {
+        width: 100% !important;
+        position: relative !important;
+        top: auto !important;
+    }
+
+    /* Filtres en ligne horizontal scrollable */
+    .filter-group {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: var(--space-sm) !important;
+    }
+}
+
+/* ==========================================
+   14. ABOUT — Sections responsive
+   ========================================== */
+
+@media (max-width: 767px) {
+
+    /* Story section : empiler image et texte */
+    .grid.md\:grid-cols-2.gap-20 {
+        gap: var(--space-xl) !important;
+    }
+
+    /* Réduire l'aspect-ratio de l'image */
+    .aspect-\[4\/5\] {
+        aspect-ratio: 16 / 9 !important;
+    }
+
+    /* Stats dans le about — 1 colonne */
+    .grid.grid-cols-2.gap-8 {
+        gap: 1rem !important;
+    }
+}
+
+/* ==========================================
+   15. TABLES ADMIN — Scroll horizontal
+   ========================================== */
+
+@media (max-width: 1023px) {
+
+    /* Toutes les tables avec overflow */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+
+    table thead,
+    table tbody,
+    table tr {
+        display: table;
+        width: 100%;
+        table-layout: auto;
+    }
+
+    /* Taille de police réduite dans les tables */
+    td,
+    th {
+        font-size: 0.75rem !important;
+        padding: 0.5rem 0.375rem !important;
+    }
+}
+
+/* ==========================================
+   16. MODALS — Responsive global
+   ========================================== */
+
+@media (max-width: 639px) {
+
+    /* Tous les modals : pleine largeur sur mobile */
+    .fixed.inset-0 .max-w-md,
+    .fixed.inset-0 .max-w-2xl,
+    .fixed.inset-0 .max-w-lg {
+        max-width: calc(100vw - 2rem) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* Modal padding réduit */
+    .fixed.inset-0 .p-10 {
+        padding: var(--space-lg) !important;
+    }
+
+    .fixed.inset-0 .p-8 {
+        padding: var(--space-lg) !important;
+    }
+
+    /* Max height pour les modals scrollables */
+    .fixed.inset-0 .max-h-\[90vh\] {
+        max-height: 85vh !important;
+    }
+}
+
+/* ==========================================
+   17. COOKIE CONSENT — Position mobile safe
+   ========================================== */
+
+@media (max-width: 639px) {
+    .cookie-consent {
+        left: 0.5rem !important;
+        right: 0.5rem !important;
+        bottom: 1rem !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+    }
+}
+
+/* ==========================================
+   18. FOOTER — Responsive
+   ========================================== */
+
+@media (max-width: 639px) {
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: var(--space-lg) !important;
+    }
+
+    .footer-bottom {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        text-align: center !important;
+    }
+}
+
+/* ==========================================
+   19. PUBLISH PAGE — Formulaire responsive
+   ========================================== */
+
+@media (max-width: 639px) {
+
+    /* Le formulaire de publication prend toute la largeur */
+    .publish-form,
+    .max-w-3xl {
+        max-width: 100% !important;
+    }
+
+    /* Grilles d'images upload en 2 colonnes */
+    .grid.grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* ==========================================
+   20. NOTIFICATIONS PAGE
+   ========================================== */
+
+@media (max-width: 639px) {
+
+    /* Notifications : texte et badges */
+    .notification-badge {
+        font-size: 0.5rem !important;
+    }
+
+    /* Réduction du padding */
+    #dashboard-notifications-list .p-4 {
+        padding: 0.75rem !important;
+    }
+}
+
+/* ==========================================
+   21. LEGAL PAGES (privacy, terms)
+   ========================================== */
+
+@media (max-width: 639px) {
+
+    /* Contenu légal : padding latéral */
+    main.max-w-4xl,
+    main.max-w-3xl {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    /* Typographie des pages légales */
+    .legal-content h2,
+    .prose h2 {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* ==========================================
+   22. BOTTOM NAV MOBILE — Espacement
+   ========================================== */
+
+/* Removing unused bottom nav padding entirely as it was removed */
+
+/* ==========================================
+   23. WITHDRAWAL MODAL (vendor)
+   ========================================== */
+
+@media (max-width: 480px) {
+    #withdrawalModal .max-w-md {
+        max-width: calc(100vw - 2rem) !important;
+    }
+
+    #withdrawalModal .p-8 {
+        padding: 1.25rem !important;
+    }
+
+    #withdrawalModal .grid-cols-2 {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* ==========================================
+   24. INVOICE TEMPLATE (print)
+   ========================================== */
+
+@media print {
+    body {
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    header,
+    footer,
+    nav,
+    .fixed,
+    #header-placeholder,
+    #footer-placeholder {
+        display: none !important;
+    }
+
+    main {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+}
+
+/* ==========================================
+   25. ANIMATIONS — Respect des préférences
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ==========================================
+   26. UTILITAIRES RESPONSIVE HELPERS
+   ========================================== */
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Safe area padding for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* ==========================================
+   27. ORDER MODAL (customer-dashboard)
+   ========================================== */
+
+@media (max-width: 639px) {
+    #orderModal .max-w-2xl {
+        max-width: calc(100vw - 1rem) !important;
+        margin: 0 0.5rem !important;
+    }
+
+    #orderModal .p-6 {
+        padding: 1rem !important;
+    }
+
+    /* Items dans le modal — layout compact */
+    #modalOrderItems .gap-4 {
+        gap: 0.5rem !important;
+    }
+
+    #modalOrderItems .w-16.h-16 {
+        width: 3rem !important;
+        height: 3rem !important;
+    }
+}
+
+/* ==========================================
+   28. ZOOM MODAL (product page)
+   ========================================== */
+
+@media (max-width: 639px) {
+    .zoom-modal-content {
+        padding: 0.5rem !important;
+    }
+
+    .zoom-close-btn {
+        top: 0.5rem !important;
+        right: 0.5rem !important;
+    }
+}
+
+/* ==========================================
+   29. SEARCH SUGGESTIONS
+   ========================================== */
+
+@media (max-width: 639px) {
+    .search-suggestions {
+        width: calc(100vw - 2rem) !important;
+        left: 1rem !important;
+        right: 1rem !important;
+        max-height: 60vh !important;
+    }
+}
+
+/* ==========================================
+   30. ADMIN PAGES RESPONSIVE
+   ========================================== */
+
+@media (max-width: 768px) {
+
+    /* Admin : navigation horizontale en scroll */
+    .admin-nav,
+    .admin-sidebar {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap !important;
+        flex-wrap: nowrap !important;
+    }
+
+    /* Admin stat cards empilés */
+    .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Admin page title */
+    .admin-header h1 {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* ==========================================
+   31. MOBILE MENU & OVERLAY
+   ========================================== */
+
+#mobileMenu {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    /* Avoid 100vh issues on mobile browsers (URL bar / safe areas) */
+    height: 100dvh;
+    min-height: 100vh;
+}
+
+#mobileMenu.active {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* Staggered animations for menu items */
+#mobileMenu.active nav a,
+#mobileMenu.active #mobileGuestCTA,
+#mobileMenu.active #mobileLoggedCTA {
+    animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#mobileMenu.active #mobileGuestCTA, #mobileMenu.active #mobileLoggedCTA { animation-delay: 0.1s; }
+#mobileMenu.active nav a:nth-child(1) { animation-delay: 0.15s; }
+#mobileMenu.active nav a:nth-child(2) { animation-delay: 0.2s; }
+#mobileMenu.active nav a:nth-child(3) { animation-delay: 0.25s; }
+#mobileMenu.active nav a:nth-child(4) { animation-delay: 0.3s; }
+#mobileMenu.active nav a:nth-child(5) { animation-delay: 0.35s; }
+
+
+#mobileOverlay {
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+#mobileOverlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ==========================================
+   32. CATALOG — Mobile Filter Panel (Drawer)
+   ========================================== */
+
+/* Mobile filter toggle button — shows only on mobile */
+#mobileFilterToggle {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    #mobileFilterToggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #1e293b;
+        cursor: pointer;
+        min-height: 44px;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.2s, border-color 0.2s;
+        flex-shrink: 0;
+    }
+
+    #mobileFilterToggle:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+    }
+
+    /* Catalog toolbar row: show filter button + sort on mobile */
+    .catalog-toolbar-row {
+        flex-wrap: nowrap !important;
+        gap: 0.75rem !important;
+    }
+
+    /* Make sidebar an off-canvas drawer on mobile */
+    .catalog-sidebar-aside {
+        display: none !important; /* hidden by default; toggled via JS */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: min(320px, 90vw) !important;
+        z-index: 500 !important;
+        background: #fff !important;
+        overflow-y: auto !important;
+        padding: 1.5rem !important;
+        box-shadow: 4px 0 32px rgba(0, 0, 0, 0.12) !important;
+        border-radius: 0 1.5rem 1.5rem 0 !important;
+    }
+
+    .catalog-sidebar-aside.open {
+        display: block !important;
+    }
+
+    /* Overlay behind the filter drawer */
+    #catalogFilterOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 499;
+        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(2px);
+    }
+
+    #catalogFilterOverlay.open {
+        display: block;
+    }
+
+    /* Header inside filter drawer */
+    .filter-drawer-header {
+        display: flex !important;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    html.dark .catalog-sidebar-aside {
+        background: #1f2937 !important;
+    }
+}
+
+/* Desktop: always show */
+@media (min-width: 1024px) {
+    .catalog-sidebar-aside {
+        display: block !important;
+        position: relative !important;
+        width: auto !important;
+        box-shadow: none !important;
+    }
+
+    .filter-drawer-header {
+        display: none !important;
+    }
+
+    #catalogFilterOverlay {
+        display: none !important;
+    }
+}
+
+/* ==========================================
+   35. PRODUCT CARDS — Touch target & mobile UX
+   ========================================== */
+
+/* Always show wishlist/action buttons on touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .wishlist-btn,
+    .product-card .quick-actions {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .product-card .quick-add-btn {
+        display: flex !important;
+    }
+}
+
+/* Product card bottom buttons — bigger on mobile */
+@media (max-width: 639px) {
+    .product-card .btn,
+    .product-card button {
+        min-height: 40px;
+        font-size: 0.7rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* Keep product title readable */
+    .product-title {
+        font-size: 0.85rem !important;
+        line-height: 1.3 !important;
+    }
+
+    .product-cat {
+        font-size: 0.65rem !important;
+    }
+
+    /* Product price */
+    .product-price,
+    .price-text {
+        font-size: 0.9rem !important;
+    }
+
+    /* Reduce product image padding on mobile */
+    .product-info {
+        padding: 0.625rem 0.75rem 0.75rem !important;
+    }
+}
+
+/* ==========================================
+   36. CATALOG GRID — Mobile optimisation
+   ========================================== */
+
+@media (max-width: 639px) {
+    /* Catalog main padding */
+    .catalog-main-padding {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+
+    /* Filter toolbar: ensure it's scrollable */
+    .catalog-toolbar-row {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+    }
+
+    .catalog-toolbar-row::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Catalog heading */
+    .catalog-heading {
+        font-size: 1.75rem !important;
+    }
+}
+
+/* ==========================================
+   37. DARK MODE — Gaps supplémentaires
+   ========================================== */
+
+html.dark .main-header {
+    background-color: #111827;
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+html.dark .main-header .bg-white {
+    background-color: #111827 !important;
+}
+
+html.dark #mobileMenu {
+    background: #1f2937;
+    color: #f9fafb;
+}
+
+html.dark #mobileMenu h3 {
+    color: #6b7280;
+}
+
+html.dark #mobileMenu a {
+    color: #d1d5db;
+}
+
+html.dark #mobileMenu button {
+    color: #d1d5db;
+}
+
+html.dark #mobileMenu a:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark #mobileMenu button:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark .search-bar {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .search-input {
+    color: #f9fafb;
+}
+
+html.dark .search-input::placeholder {
+    color: #6b7280;
+}
+
+html.dark .header-brand-image {
+    filter: brightness(1.55) saturate(1.2) contrast(1.1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.18));
+}
+
+/* ==========================================
+   38. HEADER — Compact mobile height fix
+   ========================================== */
+
+/* On mobile, ensure fixed header doesn't eat too much space */
+@media (max-width: 639px) {
+    /* Our header is now 2 rows: logo+icons row + search row */
+    /* Spacer: match actual rendered header height on mobile */
+    /* Row 1: ~52px, Row 2 (search): ~46px, top bar: 24px, cat nav hidden => ~88px total */
+    /* We use h-[88px] via the existing spacer, no change needed */
+}
+
+/* ==========================================
+   39. FOOTER — Always visible on all pages
+   ========================================== */
+
+/* Make footer load on all pages by ensuring placeholder is visible */
+#footer-placeholder:empty {
+    display: none;
+}
+
+/* ==========================================
+   40. HERO SECTION — Mobile text sizes
+   ========================================== */
+
+@media (max-width: 480px) {
+    /* Hero text  */
+    .hero-content h1 {
+        font-size: 1.8rem !important;
+    }
+
+    /* Hero section height */
+    .hero-section {
+        height: 280px !important;
+        min-height: 220px !important;
+    }
+}
+
+/* ==========================================
+   41. FILTER BAR (index.html) — Mobile scroll
+   ========================================== */
+
+@media (max-width: 639px) {
+    #filterBar {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        /* mask edges */
+        -webkit-mask-image: linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0, black 12px, black calc(100% - 12px), transparent 100%);
+    }
+
+    #filterBar::-webkit-scrollbar {
+        display: none;
+    }
+
+    #filterBar > span {
+        flex-shrink: 0;
+    }
+
+    #filterBar .filter-btn,
+    #filterBar button {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    /* Sort control on mobile */
+    #filterBar .border-l {
+        flex-shrink: 0;
+    }
+}
+
+/* ==========================================
+   42. CART PAGE — Full responsive
+   ========================================== */
+
+@media (max-width: 768px) {
+    /* Cart layout stacks */
+    .cart-layout {
+        flex-direction: column !important;
+    }
+
+    /* Cart summary always full width on mobile */
+    .cart-summary-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* ==========================================
+   43. PRODUCT DETAIL PAGE — Mobile gallery
+   ========================================== */
+
+@media (max-width: 639px) {
+    /* Main product image */
+    #mainImage {
+        max-height: 320px !important;
+        object-fit: contain !important;
+    }
+
+    /* Product action buttons in a row */
+    .product-action-row {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+
+    .product-action-row button,
+    .product-action-row a {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* ==========================================
+   44. FORM INPUTS — Minimum 16px to avoid iOS zoom
+   ========================================== */
+
+@media (max-width: 768px) {
+    input:not([type="range"]),
+    select,
+    textarea {
+        font-size: max(16px, 1em) !important;
+    }
+}
+
+/* ==========================================
+   46. SEARCH SUGGESTION DROPDOWN — Mobile fix
+   ========================================== */
+
+@media (max-width: 639px) {
+    .search-suggestions {
+        width: calc(100vw - 1rem) !important;
+        left: 0.5rem !important;
+        right: 0.5rem !important;
+        top: calc(100% + 8px) !important;
+        border-radius: 1.5rem !important;
+        max-height: 70vh !important;
+    }
+
+    .search-category-btn {
+        padding: 0 10px !important;
+        font-size: 10px !important;
+    }
+
+    .search-category-btn span {
+        display: none; /* Hide category text on mobile, keep icon */
+    }
+
+    .search-category-btn iconify-icon {
+        font-size: 16px;
+    }
+}
+
+/* ==========================================
+   47. NOTIFICATIONS PAGE — Mobile layout
+   ========================================== */
+
+@media (max-width: 639px) {
+    #notifications-list .notification-item,
+    .notification-item {
+        border-radius: 1rem !important;
+    }
+
+    .notification-filter-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        flex-wrap: nowrap !important;
+        scrollbar-width: none;
+    }
+
+    .notification-filter-bar::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ==========================================
+   48. BREADCRUMB — Mobile
+   ========================================== */
+
+@media (max-width: 639px) {
+    nav.breadcrumb {
+        font-size: 0.65rem !important;
+        letter-spacing: 0.08em !important;
+    }
+}
+
+/* ==========================================
+   49. GLASSMORPHISM PANELS — Dark/light responsive
+   ========================================== */
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+html.dark .glass-panel {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================
+   50. PUBLISH PAGE — Mobile upload grid
+   ========================================== */
+
+@media (max-width: 480px) {
+    /* Single column upload on very small screens */
+    .publish-image-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* Taille des dropzones */
+    .publish-image-grid > div {
+        aspect-ratio: 1;
+    }
+
+    /* Reduce publish form sections padding */
+    .publish-section {
+        padding: 1rem !important;
+        border-radius: 1rem !important;
+    }
+}
+
+/* ==========================================
+   51. TOASTS & NOTIFICATIONS — Position universelle (haut centre)
+   ========================================== */
+
+/* ── Desktop & Tablette : haut droite ─────────────────── */
+#newket-toast-container {
+    top: 80px !important;
+    right: 20px !important;
+    left: auto !important;
+    bottom: auto !important;
+    max-width: 400px !important;
+    transform: none !important;
+}
+
+/* ── Toast container principal : haut centre (tous écrans) ── */
+.toast-container,
+#toast-container,
+.notifications-toast-wrap {
+    position: fixed !important;
+    top: 5rem !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: auto !important;
+    right: auto !important;
+    width: 90% !important;
+    max-width: 420px !important;
+    z-index: 100000 !important;
+    pointer-events: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0 !important;
+}
+
+/* ── Mobile (< 640px) : ajuster la largeur & position ── */
+@media (max-width: 639px) {
+    .toast-container,
+    #toast-container,
+    .notifications-toast-wrap {
+        top: 4rem !important;
+        width: calc(100% - 2rem) !important;
+        max-width: 100% !important;
+        left: 1rem !important;
+        transform: none !important;
+    }
+
+    #newket-toast-container {
+        top: 4rem !important;
+        right: 1rem !important;
+        left: 1rem !important;
+        max-width: calc(100% - 2rem) !important;
+    }
+
+    .toast,
+    .toast-msg,
+    .newket-toast,
+    .nk-toast {
+        border-radius: 1rem !important;
+        padding: 0.875rem 1rem !important;
+        font-size: 0.85rem !important;
+        width: 100% !important;
+        pointer-events: auto !important;
+    }
+}
+
+/* ==========================================
+   52. VENDOR & CUSTOMER DASHBOARDS — Mobile
+   ========================================== */
+
+@media (max-width: 639px) {
+    /* Tab bars on dashboards: horizontal scroll */
+    .dashboard-tabs {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        flex-wrap: nowrap !important;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+    }
+
+    .dashboard-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .dashboard-tabs button,
+    .dashboard-tabs a {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    /* Dashboard stat card: compact */
+    .stat-card {
+        padding: 1rem !important;
+    }
+
+    .stat-card .stat-value {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* ==========================================
+   53. CURRENCY SEGMENTED CONTROL — Mobile
+   ========================================== */
+
+@media (max-width: 639px) {
+    /* In mobile menu sidebar */
+    .currency-switch-segmented {
+        font-size: 0.75rem;
+    }
+
+    .segmented-track {
+        height: 34px;
+    }
+}
+
+@media (min-width: 1025px) and (max-width: 1324px) {
+    .header-content {
+        gap: 1rem !important;
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
+
+    .header-content > div:first-child {
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+    }
+
+    .header-brand-image {
+        height: 5.25rem !important;
+    }
+
+    #mobileSearchContainer {
+        flex: 1 1 auto !important;
+        width: auto !important;
+        max-width: min(100%, 34rem) !important;
+        margin-left: 0.75rem !important;
+        margin-right: 0.75rem !important;
+    }
+
+    .search-bar {
+        min-width: 0 !important;
+    }
+
+    .search-category-btn {
+        min-width: 84px !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.6rem !important;
+    }
+
+    .search-input {
+        padding-left: 2.5rem !important;
+        padding-right: 0.9rem !important;
+        font-size: 16px !important;
+    }
+
+    #searchBtn {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        font-size: 0.6rem !important;
+    }
+
+    .header-content .publish-btn {
+        padding-left: 0.9rem !important;
+        padding-right: 0.9rem !important;
+    }
+
+    .header-actions {
+        gap: 0.35rem !important;
+    }
+
+    .header-actions a,
+    .header-actions button {
+        min-width: 40px !important;
+        min-height: 40px !important;
+    }
+
+    .category-nav .w-full {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .category-nav nav {
+        gap: 0.25rem !important;
+    }
+
+    .category-nav .nav-link {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        font-size: 0.88rem !important;
+    }
+}
+
+/* ==========================================
+   54. PAGE-SPECIFIC MOBILE HARDENING
+   ========================================== */
+
+@media (max-width: 639px) {
+    /* FAQ + Support cards */
+    .faq-card,
+    .contact-method {
+        padding: 1.25rem !important;
+        border-radius: 1.75rem !important;
+    }
+
+    /* Payment success screen */
+    .glass-premium {
+        border-radius: 2rem !important;
+        padding: 1.5rem !important;
+    }
+
+    #txRef {
+        display: block;
+        max-width: 10rem;
+        overflow-wrap: anywhere;
+        text-align: right;
+    }
+
+    /* Promo hero */
+    .promo-banner {
+        padding: 1.5rem !important;
+        border-radius: 1.5rem !important;
+        margin-bottom: 1.75rem !important;
+    }
+
+    .promo-banner::before {
+        width: 240px !important;
+        height: 240px !important;
+        top: -30% !important;
+        right: -28% !important;
+    }
+
+    /* Forum cards */
+    .forum-card .topic-body {
+        flex-direction: column !important;
+    }
+
+    .forum-topic-metrics,
+    .forum-compact-pill {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+
+    .forum-compact-pill {
+        gap: 0.75rem !important;
+        letter-spacing: 0.12em !important;
+    }
+}
+
+/* Custom Mobile Visibility Overrides */
+@media (max-width: 639px) {
+    #mobileSearchContainer.user-hidden-on-mobile {
+        display: none !important;
+    }
+    #mobileSearchContainer .publish-btn {
+        display: none !important;
+    }
+}

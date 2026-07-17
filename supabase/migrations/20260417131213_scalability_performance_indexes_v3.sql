@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260417131213
+-- Remote name: scalability_performance_indexes_v3

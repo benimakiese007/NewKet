@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head><script type="module" src="/src/services/app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Paramètres à NewKet</title>
+    <meta name="description" content="Découvrez NewKet, la marketplace de luxe de référence en RDC. Achetez et vendez vos articles en toute sécurité.">
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+        <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+
+        .nav-link.active {
+            background: white;
+            color: #000000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Custom Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #000000;
+        }
+
+        .toggle-checkbox:checked+.toggle-label {
+            background-color: #000000;
+        }
+
+        /* Input Focus Ring */
+        .form-input:focus {
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+            border-color: #000000;
+        }
+    </style>
+    <script>
+        // Check Auth - redirect to login if not authenticated
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait for supabaseClient to be available
+            const waitForSupabase = () => new Promise(resolve => {
+                if (window.supabaseClient) return resolve();
+                const check = setInterval(() => {
+                    if (window.supabaseClient) { clearInterval(check); resolve(); }
+                }, 50);
+                setTimeout(() => { clearInterval(check); resolve(); }, 3000);
+            });
+            await waitForSupabase();
+
+            if (window.getSupabaseSession) {
+                const session = await window.getSupabaseSession(3000);
+                if (!session) {
+                    window.location.href = '/pages/login';
+                }
+            }
+        });
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased min-h-screen">
+
+    <div id="header-placeholder"></div>
+
+
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-8 sm:pb-12 pt-24 sm:pt-28 lg:pt-32">
+        <div class="flex flex-col lg:flex-row gap-8 items-start">
+
+            <!-- Sidebar Navigation -->
+            <aside class="w-full lg:w-72 lg:sticky lg:top-28 space-y-2">
+                <div class="bg-gray-100/50 p-2 rounded-2xl flex flex-col gap-1" id="settingsSidebar">
+                    <a href="./customer-dashboard" id="dashboardLink"
+                        class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/80 transition-all font-medium text-gray-500 hover:text-gray-900">
+                        <iconify-icon icon="solar:box-linear" width="20"></iconify-icon>
+                        <span id="dashboardLinkLabel">Mes Commandes</span>
+                    </a>
+                    <a href="./favorites"
+                        class="nav-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/80 transition-all font-medium text-gray-500 hover:text-gray-900">
+                        <iconify-icon icon="solar:heart-linear" width="20"></iconify-icon>
+                        Mes Favoris
+                    </a>
+                    <a href="./settings"
+                        class="nav-link active flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium">
+                        <iconify-icon icon="solar:user-linear" width="20"></iconify-icon>
+                        Profil & Sécurité
+                    </a>
+                    <div class="h-px bg-gray-200 my-2 mx-4"></div>
+                    <button onclick="AuthManager.handleLogoutClick(this)" data-track-action="settings:logout_click"
+                        class="px-5 py-3 rounded-2xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2 group">
+                        <iconify-icon icon="solar:logout-bold" width="18" class="group-hover:-translate-x-1 transition-transform"></iconify-icon>
+                        Déconnexion
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Settings Content -->
+            <div class="flex-1 w-full space-y-8">
+
+                <!-- Main Title -->
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Paramètres du compte</h1>
+                    <p class="text-gray-500 text-sm mt-1">Gérez vos informations personnelles et préférences.</p>
+                </div>
+
+                <!-- Profile Information -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
+                    <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <iconify-icon icon="solar:user-id-linear" class="text-gray-400"></iconify-icon>
+                        Informations Personnelles
+                    </h2>
+
+                    <div class="flex flex-col md:flex-row gap-8 items-start">
+                        <!-- Avatar -->
+                        <div class="flex flex-col items-center gap-3">
+                            <div
+                                class="settings-avatar-img w-24 h-24 rounded-full hero-gradient flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-gray-200 relative group cursor-pointer overflow-hidden skeleton">
+                                <span class="hidden">??</span>
+                                <div
+                                    class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                    <iconify-icon icon="solar:camera-linear" width="24"></iconify-icon>
+                                </div>
+                            </div>
+                    <button class="text-xs font-semibold text-gray-500 hover:text-gray-900" onclick="document.getElementById('avatarUploadInput').click()" data-track-action="settings:avatar_upload_click">Modifier la photo</button>
+                        </div>
+
+                        <!-- Form -->
+                        <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nom Complet</label>
+                                <div class="skeleton h-12 w-full rounded-xl" id="skFullName"></div>
+                                <input type="text" id="profileFullName" placeholder="" class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 hidden">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Rôle</label>
+                                <div class="skeleton h-12 w-full rounded-xl" id="skRole"></div>
+                                <input type="text" id="profileRole" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded-xl outline-none text-xs font-bold text-gray-400 uppercase hidden">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Email (Lecture seule)</label>
+                                <div class="skeleton h-12 w-full rounded-xl" id="skEmail"></div>
+                                <input type="email" id="profileEmail" readonly class="w-full px-4 py-3 bg-gray-100 border border-gray-100 rounded-xl outline-none text-sm font-medium text-gray-400 hidden">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Téléphone</label>
+                                <div class="skeleton h-12 w-full rounded-xl" id="skPhone"></div>
+                                <input type="tel" id="profilePhone" placeholder="+243 ..." class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 hidden">
+                            </div>
+                            <div class="space-y-2 md:col-span-2 hidden" id="vendorDescriptionContainer">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Description de la boutique</label>
+                                <div class="skeleton h-24 w-full rounded-xl" id="skStoreDescription"></div>
+                                <textarea id="profileStoreDescription" rows="3" placeholder="Décrivez votre boutique..." class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 hidden"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex justify-end">
+                <button id="saveProfileBtn" data-track-action="settings:save_profile_click"
+                            class="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg shadow-gray-200 transition-all flex items-center gap-2">
+                            <iconify-icon icon="solar:diskette-linear"></iconify-icon>
+                            Enregistrer les modifications
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
+                    <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <iconify-icon icon="solar:shield-keyhole-linear" class="text-gray-400"></iconify-icon>
+                        Sécurité
+                    </h2>
+
+                    <div class="space-y-6">
+                        <form id="settingsPasswordForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <input type="text" id="sPasswordUsername" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Nouveau mot de passe</label>
+                                <input type="password" id="newPassword" placeholder="••••••••"
+                                    class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Confirmer le nouveau mot de passe</label>
+                                <input type="password" id="confirmPassword" placeholder="••••••••"
+                                    class="form-input w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900">
+                            </div>
+                        </form>
+
+                        <div class="pt-6 border-t border-gray-50 flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-sm">Authentification à deux facteurs</h3>
+                                <p class="text-xs text-gray-500 mt-1">Ajouter une couche de sécurité supplémentaire à votre compte.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input id="toggle2FA" name="toggle2FA" type="checkbox" value="" class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="pt-6 border-t border-gray-50 flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-bold text-gray-900 text-sm">Clé d'accès (Passkey)</h3>
+                                    <p class="text-xs text-gray-500 mt-1">Se connecter sans mot de passe avec Face ID, empreinte ou clé de sécurité.</p>
+                                </div>
+                                <button id="registerPasskeyBtn" data-track-action="settings:register_passkey_click" class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                                    <iconify-icon icon="solar:fingerprint-linear"></iconify-icon>
+                                    Créer
+                                </button>
+                            </div>
+                            <div id="settingsPasskeysList" class="space-y-3 hidden"></div>
+                        </div>
+
+                        <div class="flex justify-end pt-4">
+                            <button id="updatePasswordBtn" form="settingsPasswordForm" type="submit" data-track-action="settings:update_password_click"
+                                class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-6 py-3 rounded-xl text-sm font-bold transition-all">
+                                Mettre à jour le mot de passe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications & Preferences -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Notifications -->
+                    <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm h-full">
+                        <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:bell-linear" class="text-gray-400"></iconify-icon>
+                            Notifications
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 text-sm">Emails de commande</h3>
+                                    <p class="text-xs text-gray-500">Recevoir des mises à jour sur vos commandes.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input id="notifEmails" name="notifEmails" type="checkbox" value="" class="sr-only peer" checked>
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 text-sm">Notifications SMS</h3>
+                                    <p class="text-xs text-gray-500">Alertes importantes par SMS.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input id="notifSMS" name="notifSMS" type="checkbox" value="" class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 text-sm">Notifications appareil</h3>
+                                    <p id="notifDeviceStatus" class="text-xs text-gray-500">PWA installee recommandee pour recevoir les alertes hors app.</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input id="notifDevice" name="notifDevice" type="checkbox" value="" class="sr-only peer">
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preferences -->
+                    <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm h-full">
+                        <h2 class="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <iconify-icon icon="solar:settings-linear" class="text-gray-400"></iconify-icon>
+                            Préférences
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wide">Langue</label>
+                                <div class="relative">
+                                    <select id="languageSelect" name="languageSelect"
+                                        class="form-select w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white transition-all text-sm font-medium text-gray-900 appearance-none cursor-pointer">
+                                        <option value="fr" selected>Français</option>
+                                        <option value="en">English</option>
+                                        <option value="ln">Lingala</option>
+                                    </select>
+                                    <iconify-icon icon="solar:alt-arrow-down-linear"
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></iconify-icon>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ─── RGPD : Mes données & confidentialité ─────────────────────────── -->
+                <div class="bg-white rounded-3xl border border-red-50 p-8 shadow-sm">
+                    <h2 class="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+                        <iconify-icon icon="solar:shield-user-linear" class="text-gray-400"></iconify-icon>
+                        Mes données &amp; confidentialité
+                    </h2>
+                    <p class="text-xs text-gray-500 mb-6">Conformément au RGPD (Art. 15, 17, 20), vous pouvez accéder à vos données, les télécharger ou demander leur suppression.</p>
+
+                    <div class="space-y-4">
+                        <!-- Export des données -->
+                        <div class="flex items-start justify-between gap-4 p-4 rounded-2xl bg-gray-50">
+                            <div>
+                                <h3 class="font-semibold text-gray-900 text-sm">Télécharger mes données</h3>
+                                <p class="text-xs text-gray-500 mt-1">Exportez une copie JSON de toutes vos informations personnelles : profil, commandes, avis, favoris.</p>
+                            </div>
+                            <button id="gdprExportBtn" data-track-action="settings:gdpr_export_click"
+                                class="flex-shrink-0 border border-gray-200 hover:bg-white text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                                <iconify-icon icon="solar:download-linear" width="15"></iconify-icon>
+                                Exporter
+                            </button>
+                        </div>
+
+                        <!-- Gestion des cookies -->
+                        <div class="flex items-start justify-between gap-4 p-4 rounded-2xl bg-gray-50">
+                            <div>
+                                <h3 class="font-semibold text-gray-900 text-sm">Préférences cookies</h3>
+                                <p class="text-xs text-gray-500 mt-1">Modifiez vos choix concernant les cookies analytiques et marketing à tout moment.</p>
+                            </div>
+                            <button onclick="if(window.NewKetCookieConsent) NewKetCookieConsent.open()"
+                                class="flex-shrink-0 border border-gray-200 hover:bg-white text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                                <iconify-icon icon="solar:cookie-linear" width="15"></iconify-icon>
+                                Gérer
+                            </button>
+                        </div>
+
+                        <!-- Politique de confidentialité -->
+                        <div class="flex items-start justify-between gap-4 p-4 rounded-2xl bg-gray-50">
+                            <div>
+                                <h3 class="font-semibold text-gray-900 text-sm">Politique de confidentialité</h3>
+                                <p class="text-xs text-gray-500 mt-1">Consultez comment nous collectons et traitons vos données personnelles.</p>
+                            </div>
+                            <a href="/pages/privacy"
+                                class="flex-shrink-0 border border-gray-200 hover:bg-white text-gray-900 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                                <iconify-icon icon="solar:document-text-linear" width="15"></iconify-icon>
+                                Consulter
+                            </a>
+                        </div>
+
+                        <!-- Suppression du compte -->
+                        <div class="flex items-start justify-between gap-4 p-4 rounded-2xl bg-red-50 border border-red-100">
+                            <div>
+                                <h3 class="font-semibold text-red-700 text-sm">Supprimer mon compte</h3>
+                                <p class="text-xs text-red-400 mt-1">Demandez la suppression définitive de votre compte et de vos données. Cette action est irréversible après 30 jours.</p>
+                            </div>
+                            <button id="gdprDeleteAccountBtn" data-track-action="settings:gdpr_delete_account_click"
+                                class="flex-shrink-0 border border-red-200 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                                <iconify-icon icon="solar:trash-bin-trash-linear" width="15"></iconify-icon>
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- ─── Fin section RGPD ──────────────────────────────────────────────── -->
+
+            </div>
+        </div>
+    </main>
+
+
+
+    <input type="file" id="avatarUploadInput" accept="image/*" class="hidden">
+    <script>
+        document.addEventListener('newketInitialized', async () => {
+            const SettingsPage = {
+                async init() {
+                    const user = AuthManager.user;
+                    if (!user) return;
+
+                    this.loadProfile(user);
+                    this.bindEvents();
+                    this.customizeByRole(AuthManager.role);
+                    this.refreshDeviceNotificationStatus();
+                    this.initGDPR();
+                },
+
+                loadProfile(user) {
+                    const metadata = user.user_metadata || {};
+
+                    // Remove skeleton and reveal inputs
+                    ['skFullName','skRole','skEmail','skPhone','skStoreDescription'].forEach(id => {
+                        const sk = document.getElementById(id);
+                        if (sk) sk.remove();
+                    });
+                    document.querySelectorAll('#profileFullName, #profileRole, #profileEmail, #profilePhone, #profileStoreDescription').forEach(el => el.classList.remove('hidden'));
+
+                    if (['supplier', 'vendor', 'seller', 'fournisseur'].includes(AuthManager.role)) {
+                        document.getElementById('vendorDescriptionContainer').classList.remove('hidden');
+                        document.getElementById('profileStoreDescription').value = metadata.store_description || '';
+                    }
+
+                    const avatarContainer = document.querySelector('.settings-avatar-img');
+                    avatarContainer.classList.remove('skeleton');
+                    const avatarSpan = avatarContainer.querySelector('span');
+
+                    document.getElementById('profileFullName').value = metadata.full_name || '';
+                    document.getElementById('profileEmail').value = user.email || '';
+                    if (document.getElementById('sPasswordUsername')) {
+                        document.getElementById('sPasswordUsername').value = user.email || '';
+                    }
+                    document.getElementById('profilePhone').value = metadata.phone || '';
+                    document.getElementById('profileRole').value = AuthManager.role || 'Client';
+                    const avatarUrl = metadata.avatar_url;
+
+                    if (avatarUrl) {
+                        avatarSpan.style.display = 'none';
+                        avatarContainer.style.backgroundImage = `url(${avatarUrl})`;
+                        avatarContainer.style.backgroundSize = 'cover';
+                        avatarContainer.style.backgroundPosition = 'center';
+                    } else {
+                        avatarSpan.textContent = (metadata.full_name || user.email || '??').substring(0, 2).toUpperCase();
+                    }
+                },
+
+                customizeByRole(role) {
+                    const dashboardLink = document.getElementById('dashboardLink');
+                    const label = document.getElementById('dashboardLinkLabel');
+                    
+                    if (role === 'admin') {
+                        dashboardLink.href = 'admin/';
+                        label.textContent = 'Tableau de bord Admin';
+                        
+                        // Add link to platform settings
+                        const sidebar = document.getElementById('settingsSidebar');
+                        const adminSettingsLink = document.createElement('a');
+                        adminSettingsLink.href = 'admin/settings';
+                        adminSettingsLink.className = 'nav-link flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/80 transition-all font-medium text-gray-500 hover:text-gray-900';
+                        adminSettingsLink.innerHTML = `
+                            <iconify-icon icon="solar:settings-bold" width="20"></iconify-icon>
+                            Paramètres Plateforme
+                        `;
+                        sidebar.insertBefore(adminSettingsLink, sidebar.querySelector('.h-px'));
+                    } else if (role === 'supplier') {
+                        dashboardLink.href = 'vendor-dashboard';
+                        label.textContent = 'Tableau de bord Vendeur';
+                    } else {
+                        dashboardLink.href = 'customer-dashboard';
+                        label.textContent = 'Mes Commandes';
+                    }
+                },
+
+                bindEvents() {
+                    document.getElementById('saveProfileBtn').addEventListener('click', () => this.saveProfile());
+                    document.getElementById('settingsPasswordForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.updatePassword();
+                    });
+                    
+                    const registerPasskeyBtn = document.getElementById('registerPasskeyBtn');
+                    const passkeysListContainer = document.getElementById('settingsPasskeysList');
+                    
+                    const renderSettingsPasskeys = (passkeys) => {
+                        if (!passkeysListContainer) return;
+                        if (!passkeys || passkeys.length === 0) {
+                            passkeysListContainer.classList.add('hidden');
+                            passkeysListContainer.innerHTML = '';
+                            return;
+                        }
+                        
+                        passkeysListContainer.classList.remove('hidden');
+                        passkeysListContainer.innerHTML = passkeys.map(pk => {
+                            const date = new Date(pk.created_at).toLocaleDateString('fr-FR', {
+                                day: 'numeric', month: 'short', year: 'numeric'
+                            });
+                            const name = pk.friendly_name || pk.name || 'Appareil inconnu';
+                            
+                            let pkType = 'WebAuthn / Biométrie';
+                            let icon = 'solar:key-minimalistic-bold';
+                            const lowerName = name.toLowerCase();
+                            
+                            if (lowerName.includes('apple') || lowerName.includes('mac') || lowerName.includes('iphone') || lowerName.includes('ipad')) {
+                                pkType = 'Passkey Apple (Face ID / Touch ID)';
+                                icon = 'bi:apple';
+                            } else if (lowerName.includes('windows')) {
+                                pkType = 'Windows Hello (Empreinte / Code)';
+                                icon = 'bi:windows';
+                            } else if (lowerName.includes('android')) {
+                                pkType = 'Passkey Android';
+                                icon = 'bi:android2';
+                            } else if (lowerName.includes('yubikey') || lowerName.includes('security key')) {
+                                pkType = 'Clé de sécurité physique';
+                                icon = 'solar:usb-bold';
+                            }
+                            
+                            return `
+                                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50 gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100 text-gray-500 shrink-0">
+                                            <iconify-icon icon="${icon}" width="18"></iconify-icon>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-gray-900 truncate">${name}</p>
+                                            <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                                                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Ajoutée le ${date}</p>
+                                                <span class="text-[10px] text-gray-300 hidden sm:inline">•</span>
+                                                <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Type : ${pkType}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-green-100 text-green-800 rounded">
+                                        Opérationnelle
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    };
+
+                    this.loadSettingsPasskeys = () => {
+                        if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                            window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                                renderSettingsPasskeys(data);
+                                if (data && data.length > 0) {
+                                    const title = registerPasskeyBtn.closest('div').querySelector('h3');
+                                    if (title && !title.innerHTML.includes('Activée')) {
+                                        title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Activée</span>';
+                                    }
+                                    registerPasskeyBtn.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé';
+                                } else {
+                                    const title = registerPasskeyBtn.closest('div').querySelector('h3');
+                                    if (title && title.innerHTML.includes('Activée')) {
+                                        title.innerHTML = "Clé d'accès (Passkey)";
+                                    }
+                                    registerPasskeyBtn.innerHTML = '<iconify-icon icon="solar:fingerprint-linear" width="20"></iconify-icon> Créer';
+                                }
+                            }).catch(err => console.error("Erreur passkeys:", err));
+                        }
+                    };
+
+                    this.loadSettingsPasskeys();
+
+                    if (registerPasskeyBtn) {
+                        registerPasskeyBtn.addEventListener('click', () => this.registerPasskey());
+                    }
+                    
+                    const avatarContainer = document.querySelector('.settings-avatar-img');
+                    const avatarInput = document.getElementById('avatarUploadInput');
+                    
+                    avatarContainer.addEventListener('click', () => avatarInput.click());
+                    avatarInput.addEventListener('change', (e) => this.handleAvatarChange(e));
+
+                    const deviceToggle = document.getElementById('notifDevice');
+                    if (deviceToggle) {
+                        deviceToggle.addEventListener('change', async (event) => {
+                            await this.toggleDeviceNotifications(event.target.checked);
+                        });
+                    }
+                },
+
+                async refreshDeviceNotificationStatus() {
+                    const deviceToggle = document.getElementById('notifDevice');
+                    const statusText = document.getElementById('notifDeviceStatus');
+                    if (!deviceToggle || !statusText) return;
+
+                    if (!window.AppNotifications) {
+                        deviceToggle.disabled = true;
+                        statusText.textContent = 'Indisponible sur cette page.';
+                        return;
+                    }
+
+                    try {
+                        const status = await AppNotifications.getDeviceNotificationStatus();
+                        deviceToggle.checked = status === 'enabled';
+                        deviceToggle.disabled = status === 'unsupported' || status === 'denied';
+
+                        statusText.textContent = AppNotifications.getDeviceNotificationGuidance
+                            ? AppNotifications.getDeviceNotificationGuidance(status)
+                            : 'PWA installee recommandee. Navigateur normal: support variable.';
+                    } catch {
+                        deviceToggle.checked = false;
+                        statusText.textContent = 'Etat impossible a verifier.';
+                    }
+                },
+
+                async toggleDeviceNotifications(enable) {
+                    const deviceToggle = document.getElementById('notifDevice');
+                    const statusText = document.getElementById('notifDeviceStatus');
+                    if (!window.AppNotifications || !deviceToggle) return;
+
+                    deviceToggle.disabled = true;
+                    if (statusText) statusText.textContent = enable ? 'Activation...' : 'Desactivation...';
+
+                    try {
+                        const ok = enable
+                            ? await AppNotifications.enableDeviceNotifications()
+                            : await AppNotifications.disableDeviceNotifications();
+
+                        if (!ok) deviceToggle.checked = false;
+                    } catch (error) {
+                        console.error('Device notification toggle error:', error);
+                        deviceToggle.checked = !enable;
+                        showToast("Impossible de modifier les notifications appareil.", 'error');
+                    } finally {
+                        deviceToggle.disabled = false;
+                        await this.refreshDeviceNotificationStatus();
+                    }
+                },
+
+                async saveProfile() {
+                    const fullName = document.getElementById('profileFullName').value.trim();
+                    const phone = document.getElementById('profilePhone').value.trim();
+                    const storeDescription = document.getElementById('profileStoreDescription') ? document.getElementById('profileStoreDescription').value.trim() : undefined;
+
+                    if (!fullName) {
+                        showToast('Le nom complet est obligatoire.', 'warning');
+                        return;
+                    }
+
+                    if (window.LoaderManager) LoaderManager.show('Mise à jour du profil...');
+
+                    try {
+                        const updateData = { full_name: fullName, phone: phone };
+                        if (['supplier', 'vendor', 'seller', 'fournisseur'].includes(AuthManager.role) && storeDescription !== undefined) {
+                            updateData.store_description = storeDescription;
+                        }
+
+                        const { data, error } = await window.supabaseClient.auth.updateUser({
+                            data: updateData
+                        });
+
+                        if (error) throw error;
+
+                        showToast('Profil mis à jour avec succès.', 'success');
+                        
+                        // Refresh local state
+                        AuthManager.user = data.user;
+                        localStorage.setItem('newketUserName', fullName);
+                        
+                    } catch (err) {
+                        console.error('Update error:', err);
+                        showToast(err.message, 'error');
+                    } finally {
+                        if (window.LoaderManager) LoaderManager.hide();
+                    }
+                },
+
+                async updatePassword() {
+                    const newPass = document.getElementById('newPassword').value;
+                    const confirmPass = document.getElementById('confirmPassword').value;
+
+                    if (!newPass) {
+                        showToast('Veuillez saisir un nouveau mot de passe.', 'warning');
+                        return;
+                    }
+
+                    if (newPass !== confirmPass) {
+                        showToast('Les mots de passe ne correspondent pas.', 'error');
+                        return;
+                    }
+
+                    if (window.LoaderManager) LoaderManager.show('Sécurisation de votre compte...');
+
+                    try {
+                        const { error } = await window.supabaseClient.auth.updateUser({
+                            password: newPass
+                        });
+
+                        if (error) throw error;
+
+                        showToast('Mot de passe mis à jour avec succès.', 'success');
+                        document.getElementById('newPassword').value = '';
+                        document.getElementById('confirmPassword').value = '';
+                        
+                    } catch (err) {
+                        console.error('Password update error:', err);
+                        showToast(err.message, 'error');
+                    } finally {
+                        if (window.LoaderManager) LoaderManager.hide();
+                    }
+                },
+
+                async handleAvatarChange(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    if (window.LoaderManager) LoaderManager.show('Téléchargement de la photo...');
+
+                    try {
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${AuthManager.user.id}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                        const filePath = `avatars/${fileName}`;
+
+                        if (window.SupabaseAdapter && window.SupabaseAdapter.uploadFile) {
+                            const publicUrl = await SupabaseAdapter.uploadFile('user-assets', filePath, file);
+                            
+                            if (publicUrl) {
+                                const { data, error } = await window.supabaseClient.auth.updateUser({
+                                    data: { avatar_url: publicUrl }
+                                });
+
+                                if (error) throw error;
+
+                                showToast('Photo de profil mise à jour.', 'success');
+                                localStorage.setItem('newketUserAvatar', publicUrl);
+                                
+                                // Update UI immediately
+                                const avatarContainer = document.querySelector('.settings-avatar-img');
+                                avatarContainer.querySelector('span').style.display = 'none';
+                                avatarContainer.style.backgroundImage = `url(${publicUrl})`;
+                                avatarContainer.style.backgroundSize = 'cover';
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Avatar upload error:', err);
+                        showToast('échec du téléchargement.', 'error');
+                    } finally {
+                        if (window.LoaderManager) LoaderManager.hide();
+                    }
+                },
+
+                async registerPasskey() {
+                    if (window.LoaderManager) LoaderManager.show("Enregistrement de la clé d'accès...");
+                    try {
+                        const { data, error } = await window.supabaseClient.auth.registerPasskey();
+                        if (error) throw error;
+                        showToast("Clé d'accès créée avec succès !", "success");
+                        if (this.loadSettingsPasskeys) this.loadSettingsPasskeys();
+                    } catch (err) {
+                        console.error('Passkey registration error:', err);
+                        let msg = err.message || "Erreur lors de la création de la clé d'accès.";
+                        if (msg.includes('cancelled') || msg.includes('cancel')) {
+                            msg = "Création annulée.";
+                        }
+                        showToast(msg, 'error');
+                    } finally {
+                        if (window.LoaderManager) LoaderManager.hide();
+                    }
+                },
+
+                // ─── RGPD ───────────────────────────────────────────────────────────────
+                initGDPR() {
+                    // Export des données
+                    const exportBtn = document.getElementById('gdprExportBtn');
+                    if (exportBtn) {
+                        exportBtn.addEventListener('click', async () => {
+                            if (window.LoaderManager) LoaderManager.show('Préparation de votre export...');
+                            try {
+                                const session = await window.getSupabaseSession(3000);
+                                if (!session) return showToast('Vous devez être connecté.', 'error');
+
+                                const resp = await fetch('/api/gdpr/export', {
+                                    headers: { 'Authorization': `Bearer ${session.access_token}` }
+                                });
+
+                                if (!resp.ok) throw new Error('Export échoué.');
+
+                                const blob = await resp.blob();
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `newket-mes-donnees-${new Date().toISOString().slice(0,10)}.json`;
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                                URL.revokeObjectURL(url);
+                                showToast('Export téléchargé avec succès !', 'success');
+                            } catch (err) {
+                                console.error('[RGPD] Export error:', err);
+                                showToast('Erreur lors de l\'export.', 'error');
+                            } finally {
+                                if (window.LoaderManager) LoaderManager.hide();
+                            }
+                        });
+                    }
+
+                    // Suppression du compte
+                    const deleteBtn = document.getElementById('gdprDeleteAccountBtn');
+                    if (deleteBtn) {
+                        deleteBtn.addEventListener('click', async () => {
+                            const confirmed = window.confirm(
+                                '⚠️ Êtes-vous sûr de vouloir supprimer votre compte ?\n\n' +
+                                'Vos données seront anonymisées immédiatement et définitivement supprimées dans 30 jours.\n\n' +
+                                'Pour annuler dans ce délai, contactez privacy@newket.com.'
+                            );
+                            if (!confirmed) return;
+
+                            if (window.LoaderManager) LoaderManager.show('Traitement de votre demande...');
+                            try {
+                                const session = await window.getSupabaseSession(3000);
+                                if (!session) return showToast('Vous devez être connecté.', 'error');
+
+                                const resp = await fetch('/api/gdpr/delete-account', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Authorization': `Bearer ${session.access_token}`,
+                                        'Content-Type': 'application/json'
+                                    }
+                                });
+
+                                const data = await resp.json();
+                                if (!resp.ok) throw new Error(data.error || 'Erreur inconnue.');
+
+                                showToast('Demande enregistrée. Vous allez être déconnecté.', 'success');
+                                setTimeout(async () => {
+                                    await window.supabaseClient?.auth.signOut();
+                                    window.location.href = '/';
+                                }, 2500);
+                            } catch (err) {
+                                console.error('[RGPD] Delete error:', err);
+                                showToast(err.message || 'Erreur lors de la demande de suppression.', 'error');
+                            } finally {
+                                if (window.LoaderManager) LoaderManager.hide();
+                            }
+                        });
+                    }
+                }
+            };
+
+            SettingsPage.init();
+        });
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+

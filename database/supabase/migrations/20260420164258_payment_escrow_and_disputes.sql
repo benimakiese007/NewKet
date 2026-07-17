@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260420164258
+-- Remote name: payment_escrow_and_disputes

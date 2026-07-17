@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Promotions & Offres Spéciales &ndash; NewKet</title>
+    <meta name="description" content="Profitez des meilleures offres et promotions sur NewKet, la marketplace de luxe en RDC.">
+        <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        :root {
+            --primary: #000000;
+            --primary-light: #1a1a1a;
+            --primary-dark: #000000;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfcfd;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .card-hover:hover {
+            transform: none !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-checkbox {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-checkbox:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .sticky-sidebar {
+            top: 110px;
+        }
+
+        .promo-banner {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            border-radius: 2rem;
+            padding: 3rem;
+            color: white;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .promo-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body class="text-slate-900 antialiased">
+    <div id="header-placeholder"></div>
+    <div id="catalogFilterOverlay"></div>
+
+    <main class="max-w-7xl mx-auto px-6 pb-20 pt-24 sm:pt-28 lg:pt-32">
+        <div class="promo-banner animate-fade-in">
+            <div class="relative z-10">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-white/10 text-white text-[10px] font-black uppercase tracking-widest mb-4">Offres Limitees</span>
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight mb-4">Le Luxe Accessible</h1>
+                <p class="text-gray-400 max-w-xl text-lg">Decouvrez notre selection exclusive d'articles d'exception a prix reduits.</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-12">
+            <!-- Sidebar -->
+            <aside class="catalog-sidebar-aside w-full lg:w-72 lg:max-w-xs flex-shrink-0 animate-fade-in" style="animation-delay: 0.2s;">
+                <div class="filter-drawer-header">
+                    <h2 class="text-base font-bold text-slate-900">Filtres</h2>
+            <button id="closeFilterDrawer" data-track-action="promo:close_filter_drawer_click" class="p-2 rounded-xl hover:bg-slate-100 transition-colors">
+                        <iconify-icon icon="solar:close-circle-linear" width="22" class="text-slate-600"></iconify-icon>
+                    </button>
+                </div>
+                <div class="lg:sticky sticky-sidebar space-y-10">
+                    <section>
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Categories</h3>
+                        <div class="space-y-4" id="categoryFilters">
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input id="catFemme" name="catFemme" type="checkbox" value="Femme" class="filter-checkbox category-filter">
+                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Femme</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input id="catHomme" name="catHomme" type="checkbox" value="Homme" class="filter-checkbox category-filter">
+                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Homme</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input id="catTech" name="catTech" type="checkbox" value="Tech & Gadgets" class="filter-checkbox category-filter">
+                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Tech &amp; Gadgets</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input id="catHighTech" name="catHighTech" type="checkbox" value="HIGH-TECH" class="filter-checkbox category-filter">
+                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">HIGH-TECH</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input id="catLife" name="catLife" type="checkbox" value="Art de vivre" class="filter-checkbox category-filter">
+                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Art de vivre</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <hr class="border-slate-100">
+
+                    <section>
+                        <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-6">Gamme de Prix</h3>
+                        <div class="range-slider mb-8 relative">
+                            <div class="range-selected" id="price-range-track"></div>
+                        </div>
+                        <div class="range-input relative mb-8">
+                            <input type="range" id="min-price-slider" min="0" max="250000000" value="0" step="10000">
+                            <input type="range" id="max-price-slider" min="0" max="250000000" value="250000000" step="10000">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 price-inputs">
+                            <input type="number" id="minPrice" name="minPrice" placeholder="0" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
+                            <input type="number" id="maxPrice" name="maxPrice" placeholder="Max" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-100 transition-all">
+                        </div>
+                    </section>
+
+                    <button onclick="resetFilters()" data-track-action="promo:reset_filters_click" class="w-full border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-4 rounded-2xl text-xs uppercase tracking-widest transition-all">
+                        Réinitialiser tout
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main content -->
+            <div class="flex-1 animate-fade-in" style="animation-delay: 0.3s;">
+                <div class="catalog-toolbar-row flex flex-row items-center justify-between pb-8 mb-8 border-b border-slate-100 gap-3">
+                    <button id="mobileFilterToggle" data-track-action="promo:open_filter_drawer_click" class="lg:hidden flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
+                        <iconify-icon icon="solar:tuning-square-2-linear" width="16"></iconify-icon>
+                        Filtres
+                    </button>
+                    <p class="text-sm font-medium text-slate-500"><span class="text-slate-900 font-bold" id="productCount">0</span> offres disponibles</p>
+
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative flex-1 sm:w-48">
+                            <select id="sortSelect" class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none cursor-pointer focus:ring-2 focus:ring-slate-100">
+                                <option value="default">Plus Pertinents</option>
+                                <option value="price-asc">Prix Croissant</option>
+                                <option value="price-desc">Prix Décroissant</option>
+                                <option value="newest">Dernières pépites</option>
+                        <iconify-icon icon="solar:tuning-square-2-linear" width="16"></iconify-icon>
+                        Filtres
+                    </button>
+                    <p class="text-sm font-medium text-slate-500"><span class="text-slate-900 font-bold" id="productCount">0</span> offres disponibles</p>
+
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <div class="relative flex-1 sm:w-48">
+                            <select id="sortSelect" class="w-full appearance-none bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold outline-none cursor-pointer focus:ring-2 focus:ring-slate-100">
+                                <option value="default">Plus Pertinents</option>
+                                <option value="price-asc">Prix Croissant</option>
+                                <option value="price-desc">Prix Décroissant</option>
+                                <option value="newest">Dernières pépites</option>
+                            </select>
+                            <iconify-icon icon="solar:alt-arrow-down-linear" width="14" class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4" id="catalog-grid">
+                    <!-- Skeleton loading -->
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                    <div class="skeleton-card bg-white rounded-3xl p-4 border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="skeleton skeleton-image product-image-skeleton rounded-2xl mb-4"></div>
+                        <div class="skeleton skeleton-title h-4 w-3/4 mb-2"></div>
+                        <div class="skeleton skeleton-price h-6 w-1/2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function initializePromoPage() {
+            renderPromoCatalog();
+
+            document.querySelectorAll('.category-filter').forEach(cb => {
+                cb.addEventListener('change', renderPromoCatalog);
+            });
+
+            document.getElementById('sortSelect').addEventListener('change', renderPromoCatalog);
+            window.addEventListener('currencyChanged', renderPromoCatalog);
+
+            initializePriceSlider();
+            
+            // Handle search from header
+            const handleSearchChange = () => {
+                if (typeof debounce === 'function') {
+                    debounce(renderPromoCatalog, 300)();
+                } else {
+                    renderPromoCatalog();
+                }
+            };
+            document.querySelectorAll('.search-input, #searchInput, #mobileSearchInput').forEach(input => {
+                input.addEventListener('input', handleSearchChange);
+            });
+        }
+
+        function initializePriceSlider() {
+            const minSlider = document.getElementById('min-price-slider');
+            const maxSlider = document.getElementById('max-price-slider');
+            const minInput = document.getElementById('minPrice');
+            const maxInput = document.getElementById('maxPrice');
+            const track = document.getElementById('price-range-track');
+
+            if (!minSlider || !maxSlider || !track) return;
+
+            const updateSlider = (e) => {
+                let minVal = parseInt(minSlider.value);
+                let maxVal = parseInt(maxSlider.value);
+
+                if (maxVal - minVal < 100000) {
+                    if (e && e.target === minSlider) minSlider.value = maxVal - 100000;
+                    else if (e && e.target === maxSlider) maxSlider.value = minVal + 100000;
+                }
+
+                minInput.value = minSlider.value;
+                maxInput.value = maxSlider.value;
+
+                if (window.renderCatalogDebounced) window.renderCatalogDebounced();
+                else renderPromoCatalog();
+            };
+
+            minSlider.addEventListener('input', updateSlider);
+            maxSlider.addEventListener('input', updateSlider);
+            updateSlider();
+        }
+
+        async function renderPromoCatalog(append = false) {
+            const grid = document.getElementById('catalog-grid');
+            const searchInput = document.getElementById('searchInput');
+            const mobileSearchInput = document.getElementById('mobileSearchInput');
+            
+            // Get query from input or URL fallback
+            const urlQ = new URLSearchParams(window.location.search).get('q') || '';
+            const query = (searchInput?.value || mobileSearchInput?.value || urlQ).trim().toLowerCase();
+            const activeCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const sortBy = document.getElementById('sortSelect').value;
+            
+            let allProducts = ProductManager.getProducts();
+            
+            // FILTER ONLY PROMO PRODUCTS (Those with an old price)
+            let products = allProducts.filter(p => p.oldPrice > 0 || p.isPromo);
+
+            // Apply search
+            if (query) {
+                products = products.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
+            }
+
+            // Apply Categories
+            if (activeCategories.length > 0) {
+                products = products.filter(p => {
+                    const expanded = activeCategories.flatMap(cat => {
+                        if (cat === 'Femme') return ['Femme', 'Collections Femme'];
+                        if (cat === 'Homme') return ['Homme', 'Style Homme'];
+                        return [cat];
+                    });
+                    return expanded.includes(p.category);
+                });
+            }
+
+            // Sort
+            if (sortBy === 'price-asc') products.sort((a,b) => a.price - b.price);
+            else if (sortBy === 'price-desc') products.sort((a,b) => b.price - a.price);
+            else products.sort((a,b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+
+            document.getElementById('productCount').textContent = products.length;
+
+            if (products.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-20 text-center">
+                        <iconify-icon icon="solar:bell-bold" width="64" class="text-slate-200 mb-4"></iconify-icon>
+                        <h2 class="text-xl font-bold">Aucune promotion en cours</h2>
+                        <p class="text-slate-500">Revenez bientot pour decouvrir de nouvelles offres exceptionnelles.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = products.map((p, idx) => 
+                window.buildProductCardHTML(p, {
+                    animationClass: 'animate-fade-in',
+                    delay: `${idx * 0.05}s`,
+                    imageLoading: idx < 2 ? 'eager' : 'lazy',
+                    prioritizeImage: idx < 2,
+                    prioritizeAvatar: idx < 2
+                })
+            ).join('');
+            // Activer le lazy loading sur les images .lazy-img injectées
+            if (window.initLazyImages) window.initLazyImages(grid);
+        }
+
+        function resetFilters() {
+            const sInput = document.getElementById('searchInput');
+            if (sInput) sInput.value = '';
+            const mInput = document.getElementById('mobileSearchInput');
+            if (mInput) mInput.value = '';
+            document.querySelectorAll('.category-filter').forEach(cb => cb.checked = false);
+            renderPromoCatalog();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.newketInitialized) {
+                initializePromoPage();
+            } else {
+                window.addEventListener('newketInitialized', initializePromoPage);
+            }
+
+            // Sync search query to search input once components (header) are loaded
+            const syncSearchInput = () => {
+                const urlQ = new URLSearchParams(window.location.search).get('q');
+                if (urlQ) {
+                    const searchInput = document.getElementById('searchInput');
+                    const mobileSearchInput = document.getElementById('mobileSearchInput');
+                    if (searchInput) searchInput.value = urlQ;
+                    if (mobileSearchInput) mobileSearchInput.value = urlQ;
+                    
+                    // Re-render with URL query if header wasn't ready initially
+                    renderPromoCatalog();
+                }
+            };
+
+            if (window.componentsLoaded) {
+                syncSearchInput();
+            } else {
+                window.addEventListener('componentsLoaded', syncSearchInput);
+            }
+        });
+        
+        // Mobile Filter Drawer
+        (function initFilterDrawer() {
+            const openBtn = document.getElementById('mobileFilterToggle');
+            const closeBtn = document.getElementById('closeFilterDrawer');
+            const sidebar = document.querySelector('.catalog-sidebar-aside');
+            if (openBtn) openBtn.onclick = () => sidebar.classList.add('open');
+            if (closeBtn) closeBtn.onclick = () => sidebar.classList.remove('open');
+        })();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

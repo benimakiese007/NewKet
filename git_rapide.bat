@@ -1,0 +1,58 @@
+@echo off
+color 0A
+
+echo ========================================================
+echo       ASSISTANT GIT RAPIDE (Sauvegarde Facile)
+echo ========================================================
+echo.
+echo Voici les fichiers qui ont change :
+echo --------------------------------------------------------
+git status -s
+echo --------------------------------------------------------
+echo.
+
+set /p msg="1. Entrez un message pour decrire.......(COMMIT) : "
+
+REM Verification si le message est vide
+IF "%msg%"=="" (
+    echo.
+    color 0C
+    echo ERREUR : Vous n'avez rien ecrit ! Annulation de la sauvegarde.
+    pause
+    exit /b
+)
+
+echo.
+set /p branche="2. Sur quelle branche envoyer sur GitHub ? (Appuyez sur Entree pour envoyer sur la branche actuelle) : "
+
+REM Remplacer automatiquement les espaces par des tirets pour eviter les bugs Git
+IF NOT "%branche%"=="" set branche=%branche: =-%
+
+echo.
+echo [1/4] Preparation des fichiers (git add .)...
+git add .
+
+echo.
+echo [2/4] Creation de la sauvegarde en local (git commit)...
+git commit -m "%msg%"
+
+echo.
+echo [3/4] Mise a jour de la base de donnees Supabase (npx supabase db push)...
+call npx supabase db push
+
+echo.
+echo [4/4] Envoi vers GitHub (git push)...
+
+IF "%branche%"=="" (
+    REM Si l'utilisateur n'a rien tape, on fait un push normal
+    git push
+) ELSE (
+    REM Si l'utilisateur a tape un nom de branche, on pousse le code actuel sur cette branche distante
+    git push origin HEAD:%branche%
+)
+
+echo.
+echo ========================================================
+echo        SAUVEGARDE TERMINEE AVEC SUCCES !
+echo ========================================================
+pause

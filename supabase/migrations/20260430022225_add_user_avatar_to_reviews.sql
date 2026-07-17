@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260430022225
+-- Remote name: add_user_avatar_to_reviews

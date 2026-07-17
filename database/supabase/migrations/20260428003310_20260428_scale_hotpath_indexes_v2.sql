@@ -1,0 +1,3 @@
+﻿-- Placeholder migration to align remote Supabase history with local filenames.
+-- Remote version: 20260428003310
+-- Remote name: 20260428_scale_hotpath_indexes_v2

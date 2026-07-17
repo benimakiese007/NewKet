@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Comportements | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+</head>
+
+<body class="text-gray-900">
+    <div id="adminNavbarPlaceholder"></div>
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-6">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+        <main class="flex-1 min-w-0 space-y-8 px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-32">
+            <div class="admin-page-header flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                <div class="admin-page-header__content min-w-0">
+                    <h1 class="admin-page-title text-4xl font-black tracking-tight text-gray-900">Comportements utilisateurs</h1>
+                    <p class="text-gray-500 font-medium">Pages visitées, clics, temps actif et actions admin enregistrés dans Supabase.</p>
+                    <div class="mt-2 text-xs text-gray-400 space-y-1">
+                        <div id="analyticsContextLine">Période: — • Fuseau: — • Dernière mise à jour: —</div>
+                        <div id="analyticsFiltersLine" class="hidden">Filtres: —</div>
+                    </div>
+                </div>
+                <div class="admin-page-actions flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+                    <div class="grid w-full gap-3">
+                        <div class="flex w-full flex-wrap items-center justify-between gap-2 rounded-2xl border border-gray-100 bg-white p-2 shadow-sm">
+                            <div class="grid w-full sm:w-auto grid-cols-3 gap-2 shrink-0">
+                                <button class="analytics-range-btn bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest" data-days="7" data-track-action="admin_analytics:range_7d_click">7j</button>
+                                <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="30" data-track-action="admin_analytics:range_30d_click">30j</button>
+                                <button class="analytics-range-btn text-gray-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200" data-days="90" data-track-action="admin_analytics:range_90d_click">90j</button>
+                            </div>
+                            <div class="flex w-full sm:w-auto flex-wrap gap-2 justify-start sm:justify-end">
+                                <button id="resetBehaviorBtn" data-track-action="admin_analytics:reset_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-red-200 text-red-700">Réinitialiser</button>
+                                <button id="exportCsvBtn" data-track-action="admin_analytics:export_csv_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">CSV</button>
+                                <button id="exportJsonBtn" data-track-action="admin_analytics:export_json_click" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">JSON</button>
+                                <button id="toggleQuickDateBtn" class="flex items-center justify-center px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50" title="Filtres de date">
+                                    <iconify-icon icon="lucide:filter" class="text-base"></iconify-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="quickDateRangeBlock" class="hidden grid w-full grid-cols-1 gap-2 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto]">
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Du</span>
+                                <input id="analyticsQuickStart" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <label class="flex flex-col gap-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                <span>Au</span>
+                                <input id="analyticsQuickEnd" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700" />
+                            </label>
+                            <button id="applyQuickDateRangeBtn" data-track-action="admin_analytics:apply_quick_date_range_click" class="w-full rounded-xl bg-black px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:w-auto">Appliquer</button>
+                            <button id="clearQuickDateRangeBtn" data-track-action="admin_analytics:clear_quick_date_range_click" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-widest text-gray-700 sm:w-auto">Effacer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="glass-panel p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+                    <div class="lg:col-span-5">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Vue utilisateur</div>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <input id="userSearchInput" list="userSearchList" type="text" placeholder="Nom, boutique, email, telephone ou ID utilisateur" class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm" />
+                            <datalist id="userSearchList"></datalist>
+                            <button id="applyUserSearchBtn" data-track-action="admin_analytics:apply_user_search_click" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-black text-white">Voir</button>
+                            <button id="clearUserSearchBtn" data-track-action="admin_analytics:clear_user_search_click" class="px-4 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-white border border-gray-200 text-gray-700">Effacer</button>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-400">Choisis un compte connecte pour isoler son parcours sur la plateforme.</div>
+                    </div>
+                    <div class="lg:col-span-7">
+                        <div id="selectedUserCard" class="rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-4 text-sm text-gray-500">
+                            Aucun utilisateur selectionne. La page affiche actuellement le comportement global.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="filtersPanel" class="glass-panel p-6 hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                    <div class="lg:col-span-3">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Période (custom)</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="block">
+                                <span class="sr-only">Début</span>
+                                <input id="filterStart" data-track-action="admin_analytics:filter_start_change" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
+                            </label>
+                            <label class="block">
+                                <span class="sr-only">Fin</span>
+                                <input id="filterEnd" data-track-action="admin_analytics:filter_end_change" type="date" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
+                            </label>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-400">Si rempli, remplace 7j/30j/90j.</div>
+                    </div>
+
+                    <div class="lg:col-span-3">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Événements</div>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm">
+                                <input type="checkbox" class="filterEventType" data-track-action="admin_analytics:filter_event_page_view_change" value="page_view" checked />
+                                <span class="font-medium text-gray-700">Pages</span>
+                            </label>
+                            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm">
+                                <input type="checkbox" class="filterEventType" data-track-action="admin_analytics:filter_event_click_change" value="click" checked />
+                                <span class="font-medium text-gray-700">Clics</span>
+                            </label>
+                            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm">
+                                <input type="checkbox" class="filterEventType" data-track-action="admin_analytics:filter_event_heartbeat_change" value="heartbeat" checked />
+                                <span class="font-medium text-gray-700">Temps</span>
+                            </label>
+                            <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm">
+                                <input type="checkbox" class="filterEventType" data-track-action="admin_analytics:filter_event_admin_change" value="admin_action" checked />
+                                <span class="font-medium text-gray-700">Admin</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Rôle</div>
+                        <select id="filterRole" data-track-action="admin_analytics:filter_role_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                            <option value="all">Tous</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Device</div>
+                        <select id="filterDevice" data-track-action="admin_analytics:filter_device_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                            <option value="all">Tous</option>
+                            <option value="mobile">Mobile</option>
+                            <option value="tablet">Tablette</option>
+                            <option value="desktop">Desktop</option>
+                            <option value="unknown">Inconnu</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Auth</div>
+                        <select id="filterAuth" data-track-action="admin_analytics:filter_auth_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                            <option value="all">Tous</option>
+                            <option value="authenticated">Connectés</option>
+                            <option value="guest">Invités</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Admin</div>
+                        <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm w-full">
+                            <input id="filterIncludeAdmin" data-track-action="admin_analytics:filter_include_admin_change" type="checkbox" />
+                            <span class="font-medium text-gray-700">Inclure admin</span>
+                        </label>
+                    </div>
+
+                    <div class="lg:col-span-4">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Page contient</div>
+                        <input id="filterPathContains" data-track-action="admin_analytics:filter_path_change" type="text" placeholder="ex: /src/pages/customer-dashboard" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
+                    </div>
+
+                    <div class="lg:col-span-4">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Action contient</div>
+                        <input id="filterTargetContains" data-track-action="admin_analytics:filter_target_change" type="text" placeholder="ex: Tableau de bord" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm" />
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Funnel</div>
+                        <select id="filterFunnel" data-track-action="admin_analytics:filter_funnel_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                            <option value="default">Shop</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Lignes</div>
+                        <select id="filterLimit" data-track-action="admin_analytics:filter_limit_change" class="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm">
+                            <option value="60">60</option>
+                            <option value="120" selected>120</option>
+                            <option value="250">250</option>
+                            <option value="500">500</option>
+                        </select>
+                    </div>
+
+                    <div class="lg:col-span-12 flex flex-wrap items-center justify-between gap-3 pt-2">
+                        <div class="text-xs text-gray-400" id="filtersHint">Astuce: clique sur une page ou une action pour ouvrir le détail.</div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button id="applyFiltersBtn" data-track-action="admin_analytics:apply_filters_click" class="bg-black text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Appliquer</button>
+                            <button id="resetFiltersBtn" data-track-action="admin_analytics:reset_filters_click" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Reset</button>
+                            <button id="copyLinkBtn" data-track-action="admin_analytics:copy_link_click" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">Copier lien</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <article class="glass-panel p-6">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Pages vues</div>
+                            <div class="text-3xl font-black text-gray-900" id="metricPageViews"><div class="skeleton skeleton-text" style="width:55%;height:32px;margin:0;"></div></div>
+                            <div class="text-xs text-gray-500 mt-1" id="deltaPageViews">—</div>
+                        </div>
+                        <div class="w-24" id="sparkPageViews"></div>
+                    </div>
+                </article>
+                <article class="glass-panel p-6">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Actions (clics + admin)</div>
+                            <div class="text-3xl font-black text-gray-900" id="metricClicks"><div class="skeleton skeleton-text" style="width:45%;height:32px;margin:0;"></div></div>
+                            <div class="text-xs text-gray-500 mt-1" id="deltaClicks">—</div>
+                        </div>
+                        <div class="w-24" id="sparkClicks"></div>
+                    </div>
+                </article>
+                <article class="glass-panel p-6">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Sessions uniques</div>
+                            <div class="text-3xl font-black text-gray-900" id="metricSessions"><div class="skeleton skeleton-text" style="width:45%;height:32px;margin:0;"></div></div>
+                            <div class="text-xs text-gray-500 mt-1" id="deltaSessions">—</div>
+                        </div>
+                        <div class="w-24" id="sparkSessions"></div>
+                    </div>
+                </article>
+                <article class="glass-panel p-6">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Temps actif cumulé</div>
+                            <div class="text-3xl font-black text-gray-900" id="metricActiveTime"><div class="skeleton skeleton-text" style="width:60%;height:32px;margin:0;"></div></div>
+                            <div class="text-xs text-gray-500 mt-1" id="deltaActiveTime">—</div>
+                        </div>
+                        <div class="w-24" id="sparkActiveTime"></div>
+                    </div>
+                </article>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <article class="glass-panel p-6 lg:col-span-1"><h2 class="font-bold text-gray-900 mb-4">Resume</h2><div class="space-y-3" id="summaryList"></div></article>
+                <article class="glass-panel p-6 lg:col-span-1"><h2 class="font-bold text-gray-900 mb-4">Pages les plus visitees</h2><div class="space-y-3" id="topPagesList"></div></article>
+                <article class="glass-panel p-6 lg:col-span-1"><h2 class="font-bold text-gray-900 mb-4">Actions les plus cliquees</h2><div class="space-y-3" id="topTargetsList"></div></article>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <article class="glass-panel p-6">
+                    <h2 class="font-bold text-gray-900 mb-4">Répartition</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div><div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Rôles</div><div class="space-y-3" id="roleBreakdownList"></div></div>
+                        <div><div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Devices</div><div class="space-y-3" id="deviceBreakdownList"></div></div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Auth</div>
+                        <div class="space-y-3" id="authBreakdownList"></div>
+                    </div>
+                </article>
+                <article class="glass-panel p-6">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="font-bold text-gray-900">Activité journalière</h2>
+                            <p class="text-sm text-gray-500">Pages, clics et temps actif.</p>
+                        </div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="timeseriesMeta">—</div>
+                    </div>
+                    <div class="mt-4 space-y-3" id="dailyViewsList"></div>
+                </article>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <article class="glass-panel p-6 lg:col-span-2">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="font-bold text-gray-900">Funnel</h2>
+                            <p class="text-sm text-gray-500">Progression par session (approximation basée sur <span class="font-semibold">page_view</span>).</p>
+                        </div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="funnelMeta">—</div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-3" id="funnelSteps"></div>
+                </article>
+                <article class="glass-panel p-6 lg:col-span-1">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="font-bold text-gray-900">Qualité des données</h2>
+                            <p class="text-sm text-gray-500">Ce qui est manquant dans les events.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-3" id="qualityList"></div>
+                </article>
+            </section>
+
+            <section class="glass-panel overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex items-center justify-between gap-4">
+                    <div><h2 class="font-bold text-gray-900">Evenements recents</h2><p class="text-sm text-gray-500">Journal brut des comportements captes par le frontend.</p></div>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400" id="eventsMeta">0 ligne</div>
+                </div>
+                <div class="overflow-x-auto admin-table-shell">
+                    <table class="premium-table admin-data-table admin-analytics-events-table w-full text-sm">
+                        <colgroup>
+                            <col class="admin-analytics-events-table__col-when">
+                            <col class="admin-analytics-events-table__col-type">
+                            <col class="admin-analytics-events-table__col-page">
+                            <col class="admin-analytics-events-table__col-action">
+                            <col class="admin-analytics-events-table__col-role">
+                        </colgroup>
+                        <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">
+                            <tr><th class="text-left px-6 py-4">Quand</th><th class="text-left px-6 py-4">Type</th><th class="text-left px-6 py-4">Page</th><th class="text-left px-6 py-4">Action</th><th class="text-left px-6 py-4">Role</th></tr>
+                        </thead>
+                        <tbody id="recentEventsBody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let analyticsBootStarted = false;
+        let currentDays = 7;
+        let lastResponse = null;
+        let usersDirectory = [];
+        let selectedUserRecord = null;
+        const ANALYTICS_STATE_STORAGE_KEY = 'newket_admin_behavior_filters';
+
+        const state = {
+            days: 7,
+            start: null, // YYYY-MM-DD
+            end: null,   // YYYY-MM-DD (inclusive)
+            eventTypes: ['page_view', 'click', 'heartbeat', 'admin_action'],
+            role: 'all',
+            device: 'all',
+            auth: 'all',
+            includeAdmin: false,
+            pathContains: '',
+            targetContains: '',
+            funnel: 'default',
+            limit: 120,
+            maxRows: 8000,
+            userId: null,
+        };
+
+        function formatCount(value) {
+            return Number(value || 0).toLocaleString('fr-FR');
+        }
+
+        function formatDuration(ms) {
+            const totalMinutes = Math.round((Number(ms) || 0) / 60000);
+            if (totalMinutes < 60) return `${totalMinutes} min`;
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            return minutes ? `${hours} h ${minutes} min` : `${hours} h`;
+        }
+
+        function formatDelta(deltaObj, key) {
+            const entry = deltaObj?.[key];
+            if (!entry) return '—';
+            if (entry.pct == null) return `vs période précédente: ${formatCount(entry.abs)}`;
+            const pct = Math.round(entry.pct * 10) / 10;
+            const sign = pct > 0 ? '+' : '';
+            return `vs période précédente: ${sign}${pct}%`;
+        }
+
+        function buildSparkline(values) {
+            const clean = (values || []).map((v) => Number(v || 0));
+            if (!clean.length) return '';
+            const min = Math.min(...clean);
+            const max = Math.max(...clean);
+            const w = 96;
+            const h = 32;
+            const pad = 2;
+            const range = max - min || 1;
+            const stepX = clean.length > 1 ? (w - pad * 2) / (clean.length - 1) : 0;
+            const points = clean.map((v, i) => {
+                const x = pad + i * stepX;
+                const y = pad + (h - pad * 2) - ((v - min) / range) * (h - pad * 2);
+                return `${x.toFixed(2)},${y.toFixed(2)}`;
+            }).join(' ');
+            return `
+                <svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">
+                    <polyline fill="none" stroke="#111827" stroke-width="2" points="${points}" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                </svg>
+            `;
+        }
+
+        function getLocalTimezone() {
+            try {
+                return Intl.DateTimeFormat().resolvedOptions().timeZone || 'local';
+            } catch (_) {
+                return 'local';
+            }
+        }
+
+        function ymdToIsoStart(ymd) {
+            if (!ymd) return null;
+            const [y, m, d] = String(ymd).split('-').map((v) => parseInt(v, 10));
+            if (!y || !m || !d) return null;
+            return new Date(Date.UTC(y, m - 1, d, 0, 0, 0)).toISOString();
+        }
+
+        function ymdToIsoEndExclusive(ymd) {
+            if (!ymd) return null;
+            const [y, m, d] = String(ymd).split('-').map((v) => parseInt(v, 10));
+            if (!y || !m || !d) return null;
+            return new Date(Date.UTC(y, m - 1, d + 1, 0, 0, 0)).toISOString();
+        }
+
+        function buildQueryParams() {
+            const params = new URLSearchParams();
+
+            const hasCustom = Boolean(state.start || state.end);
+            if (!hasCustom) {
+                params.set('days', String(state.days || 7));
+            } else {
+                if (state.start) params.set('start', ymdToIsoStart(state.start));
+                if (state.end) params.set('end', ymdToIsoEndExclusive(state.end));
+            }
+
+            const types = (state.eventTypes || []).filter(Boolean);
+            if (types.length && types.length < 4) {
+                params.set('event_types', types.join(','));
+            }
+
+            if (state.role && state.role !== 'all') params.set('role', state.role);
+            if (state.device && state.device !== 'all') params.set('device', state.device);
+            if (state.auth && state.auth !== 'all') params.set('auth', state.auth);
+            if (state.includeAdmin) params.set('include_admin', '1');
+            if (state.userId) params.set('user_id', state.userId);
+            if (state.pathContains) params.set('path_contains', state.pathContains);
+            if (state.targetContains) params.set('target_contains', state.targetContains);
+
+            if (state.funnel) params.set('funnel', state.funnel);
+            params.set('limit', String(state.limit || 120));
+            params.set('max_rows', String(state.maxRows || 8000));
+
+            return params;
+        }
+
+        function hasAnalyticsFilterParams(params) {
+            if (!params) return false;
+            return [
+                'days',
+                'start',
+                'end',
+                'event_types',
+                'role',
+                'device',
+                'auth',
+                'include_admin',
+                'user_id',
+                'path_contains',
+                'target_contains',
+                'funnel',
+                'limit',
+                'max_rows'
+            ].some((key) => params.has(key));
+        }
+
+        function getStoredAnalyticsParams() {
+            try {
+                const raw = sessionStorage.getItem(ANALYTICS_STATE_STORAGE_KEY);
+                if (!raw) return null;
+                const params = new URLSearchParams(raw);
+                return hasAnalyticsFilterParams(params) ? params : null;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function updateShareUrl() {
+            try {
+                const url = new URL(window.location.href);
+                const params = buildQueryParams();
+                try {
+                    sessionStorage.setItem(ANALYTICS_STATE_STORAGE_KEY, params.toString());
+                } catch (_) {}
+                // keep embedded=1 if present
+                const embedded = url.searchParams.get('embedded');
+                url.search = params.toString();
+                if (embedded === '1') url.searchParams.set('embedded', '1');
+                window.history.replaceState({}, '', url.toString());
+            } catch (_) {}
+        }
+
+        function summarizeActiveFilters() {
+            const parts = [];
+            if (state.start || state.end) parts.push(`custom:${state.start || '—'}→${state.end || '—'}`);
+            if (state.role && state.role !== 'all') parts.push(`role=${state.role}`);
+            if (state.device && state.device !== 'all') parts.push(`device=${state.device}`);
+            if (state.auth && state.auth !== 'all') parts.push(`auth=${state.auth}`);
+            if (state.includeAdmin) parts.push('admin=on');
+            if (state.userId) parts.push(`user=${selectedUserRecord?.email || selectedUserRecord?.name || state.userId}`);
+            if (state.pathContains) parts.push(`page~"${state.pathContains}"`);
+            if (state.targetContains) parts.push(`action~"${state.targetContains}"`);
+            const types = (state.eventTypes || []).filter(Boolean);
+            if (types.length && types.length < 4) parts.push(`types=${types.join('|')}`);
+            return parts.join(' • ');
+        }
+
+        function setRangeButtons(days) {
+            document.querySelectorAll('.analytics-range-btn').forEach((btn) => {
+                const active = days != null && Number(btn.dataset.days) === Number(days);
+                btn.classList.toggle('bg-black', active);
+                btn.classList.toggle('text-white', active);
+                btn.classList.toggle('bg-white', !active);
+                btn.classList.toggle('border', !active);
+                btn.classList.toggle('border-gray-200', !active);
+                btn.classList.toggle('text-gray-500', !active);
+            });
+        }
+
+        function syncAnalyticsDateInputs() {
+            const start = state.start || '';
+            const end = state.end || '';
+            const startIds = ['filterStart', 'analyticsQuickStart'];
+            const endIds = ['filterEnd', 'analyticsQuickEnd'];
+            startIds.forEach((id) => {
+                const input = document.getElementById(id);
+                if (input) input.value = start;
+            });
+            endIds.forEach((id) => {
+                const input = document.getElementById(id);
+                if (input) input.value = end;
+            });
+        }
+
+        function getAnalyticsQuickDateRange() {
+            return {
+                start: document.getElementById('analyticsQuickStart')?.value || null,
+                end: document.getElementById('analyticsQuickEnd')?.value || null,
+            };
+        }
+
+        function applyAnalyticsQuickDateRange() {
+            const { start, end } = getAnalyticsQuickDateRange();
+            state.start = start;
+            state.end = end;
+            state.days = (start || end) ? null : 7;
+            syncControlsFromState();
+            loadBehaviorAnalytics();
+        }
+
+        function clearAnalyticsQuickDateRange() {
+            state.start = null;
+            state.end = null;
+            state.days = 7;
+            syncControlsFromState();
+            loadBehaviorAnalytics();
+        }
+
+        function getBehaviorApiBase() {
+            const host = window.location.hostname || '';
+            const isLocal = host === 'localhost' || host === '127.0.0.1';
+            return isLocal ? '/analytics/admin/behavior' : '/admin-behavior';
+        }
+
+        function normalizeLabel(value) {
+            const v = String(value || '').trim();
+            if (!v) return '-';
+            // Pretty known admin routes and pages
+            const map = [
+                ['/src/pages/customer-dashboard.html', 'Dashboard client'],
+                ['/src/pages/vendor-dashboard.html', 'Dashboard vendeur'],
+                ['/src/pages/shop.html', 'Boutique (liste)'],
+                ['/src/pages/shops.html', 'Boutiques'],
+                ['/src/pages/catalog.html', 'Catalogue'],
+                ['/src/pages/product.html', 'Produit'],
+                ['/src/pages/achat.html', 'Achat'],
+                ['/src/pages/payment-success.html', 'Succès paiement'],
+                ['/src/pages/admin/index.html', 'Admin (Shell)'],
+            ];
+            for (const [needle, label] of map) {
+                if (v.includes(needle)) return label;
+            }
+            return v;
+        }
+
+        function normalizeRoleLabel(role) {
+            const r = String(role || '').trim();
+            if (!r) return 'Invité';
+            if (r === 'customer') return 'Acheteur';
+            if (r === 'supplier') return 'Vendeur';
+            if (r === 'admin') return 'Admin';
+            if (r === 'guest') return 'Invité';
+            return r;
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getUserSearchTerms(user) {
+            if (!user) return [];
+
+            const email = user.email || '';
+            const emailPrefix = email.split('@')[0];
+
+            return [
+                user.id,
+                user.name,
+                user.full_name,
+                user.display_name,
+                user.username,
+                user.company_name,
+                user.store_name,
+                user.shop_name,
+                user.boutique_name,
+                user.business_name,
+                user.phone,
+                user.store_phone,
+                user.store_phone_whatsapp,
+                user.whatsapp,
+                email,
+                emailPrefix
+            ].filter(Boolean);
+        }
+
+        function buildUserOptionLabel(user) {
+            const name = user?.name || user?.company_name || user?.store_name || user?.shop_name || 'Utilisateur';
+            const boutique = user?.company_name || user?.store_name || user?.shop_name || user?.boutique_name || user?.business_name || '';
+            const email = user?.email || 'sans email';
+            const phone = user?.phone || user?.store_phone || user?.store_phone_whatsapp || user?.whatsapp || '';
+            return [name, boutique, email, phone, user?.id].filter(Boolean).join(' - ');
+        }
+
+        function resolveUserFromInput(rawValue) {
+            const value = String(rawValue || '').trim().toLowerCase();
+            if (!value) return null;
+            return usersDirectory.find((user) => {
+                const haystacks = [
+                    ...getUserSearchTerms(user),
+                    buildUserOptionLabel(user),
+                ].filter(Boolean).map((entry) => String(entry).toLowerCase());
+                return haystacks.some((entry) => entry === value || entry.includes(value));
+            }) || null;
+        }
+
+        function renderSelectedUserCard() {
+            const card = document.getElementById('selectedUserCard');
+            if (!card) return;
+
+            if (!state.userId || !selectedUserRecord) {
+                card.className = 'rounded-3xl border border-dashed border-gray-200 bg-gray-50 px-5 py-4 text-sm text-gray-500';
+                card.textContent = 'Aucun utilisateur selectionne. La page affiche actuellement le comportement global.';
+                return;
+            }
+
+            const label = escapeHtml(selectedUserRecord.name || selectedUserRecord.company_name || 'Utilisateur');
+            const email = escapeHtml(selectedUserRecord.email || 'sans email');
+            const role = escapeHtml(normalizeRoleLabel(selectedUserRecord.role));
+            const status = escapeHtml(selectedUserRecord.status || 'inconnu');
+            const joined = selectedUserRecord.created_at
+                ? new Date(selectedUserRecord.created_at).toLocaleDateString('fr-FR')
+                : '—';
+
+            card.className = 'rounded-3xl border border-blue-100 bg-blue-50/70 px-5 py-4';
+            card.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-blue-500">Mode separe</div>
+                        <div class="mt-1 text-lg font-black text-gray-900 truncate">${label}</div>
+                        <div class="text-sm text-gray-600 truncate">${email}</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 text-[10px] font-black uppercase tracking-widest">
+                        <span class="px-3 py-1 rounded-full bg-white text-gray-700 border border-blue-100">${role}</span>
+                        <span class="px-3 py-1 rounded-full bg-white text-gray-700 border border-blue-100">${status}</span>
+                        <span class="px-3 py-1 rounded-full bg-white text-gray-700 border border-blue-100">Inscrit ${joined}</span>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-gray-500 break-all">ID: ${escapeHtml(selectedUserRecord.id)}</div>
+            `;
+        }
+
+        function syncUserSearchControl() {
+            const input = document.getElementById('userSearchInput');
+            if (!input) return;
+            input.value = state.userId && selectedUserRecord ? buildUserOptionLabel(selectedUserRecord) : '';
+            renderSelectedUserCard();
+        }
+
+        async function loadUsersDirectory() {
+            const data = await ApiClient.get('/users', {
+                cacheKey: 'admin-users-directory',
+                cacheTtlMs: 60000,
+                dedupe: true
+            });
+
+            usersDirectory = Array.isArray(data) ? data : [];
+            if (state.userId) {
+                selectedUserRecord = usersDirectory.find((user) => user.id === state.userId) || null;
+            }
+
+            const datalist = document.getElementById('userSearchList');
+            if (datalist) {
+                datalist.innerHTML = usersDirectory
+                    .map((user) => `<option value="${escapeHtml(buildUserOptionLabel(user))}"></option>`)
+                    .join('');
+            }
+
+            syncUserSearchControl();
+        }
+
+        function applyUserSelectionFromInput() {
+            const input = document.getElementById('userSearchInput');
+            const user = resolveUserFromInput(input?.value);
+            if (!user) {
+                alert('Utilisateur introuvable dans la liste admin.');
+                return false;
+            }
+
+            state.userId = user.id;
+            selectedUserRecord = user;
+            state.auth = 'authenticated';
+            syncControlsFromState();
+            syncUserSearchControl();
+            return true;
+        }
+
+        function clearUserSelection() {
+            state.userId = null;
+            selectedUserRecord = null;
+            if (state.auth === 'authenticated') state.auth = 'all';
+            syncUserSearchControl();
+        }
+
+        function renderKeyValueList(elementId, rows, emptyLabel, keyField, valueField, options = {}) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            if (!rows || rows.length === 0) {
+                el.innerHTML = `<div class="text-sm text-gray-400 italic">${emptyLabel}</div>`;
+                return;
+            }
+
+            const clickable = Boolean(options.clickable);
+            const kind = options.kind || null;
+
+            el.innerHTML = rows.map((row) => {
+                const rawKey = row[keyField] || '-';
+                const label = options.prettifyRole
+                    ? normalizeRoleLabel(rawKey)
+                    : (options.prettify ? normalizeLabel(rawKey) : rawKey);
+                const title = row.title ? `<div class="text-[11px] text-gray-500 truncate">${row.title}</div>` : '';
+
+                const safeValue = String(rawKey)
+                    .replace(/&/g, '&amp;')
+                    .replace(/\"/g, '&quot;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+
+                const attrs = clickable && kind
+                    ? `role="button" tabindex="0" data-drill-kind="${kind}" data-drill-value="${safeValue}"`
+                    : '';
+
+                const classes = clickable
+                    ? 'cursor-pointer hover:bg-gray-100 transition'
+                    : '';
+
+                return `
+                    <div class="flex items-center justify-between gap-4 p-3 rounded-2xl bg-gray-50 ${classes}" ${attrs}>
+                        <div class="min-w-0">
+                            <div class="text-sm font-bold text-gray-900 truncate">${label}</div>
+                            ${title}
+                        </div>
+                        <div class="text-sm font-black text-gray-500">${formatCount(row[valueField])}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSummary(data) {
+            const summary = data.summary || {};
+            document.getElementById('metricPageViews').textContent = formatCount(summary.page_views);
+            const totalActions = Number(summary.clicks || 0) + Number(summary.admin_actions || 0);
+            document.getElementById('metricClicks').textContent = formatCount(totalActions);
+            document.getElementById('metricSessions').textContent = formatCount(summary.unique_sessions);
+            document.getElementById('metricActiveTime').textContent = formatDuration(summary.total_active_ms);
+
+            const summaryRows = [
+                ['Evenements total', summary.total_events],
+                ['Utilisateurs uniques', summary.unique_users],
+                ['Actions admin', summary.admin_actions],
+                ['Pages / session', summary.unique_sessions ? (summary.page_views / summary.unique_sessions).toFixed(1) : '0.0'],
+                ['Temps / session', summary.unique_sessions ? formatDuration(summary.total_active_ms / summary.unique_sessions) : '0 min'],
+            ];
+
+            document.getElementById('summaryList').innerHTML = summaryRows.map(([label, value]) => `
+                <div class="flex items-center justify-between gap-4 p-3 rounded-2xl bg-gray-50">
+                    <span class="text-sm font-medium text-gray-600">${label}</span>
+                    <span class="text-sm font-black text-gray-900">${value}</span>
+                </div>
+            `).join('');
+
+            const delta = data.delta || {};
+            document.getElementById('deltaPageViews').textContent = formatDelta(delta, 'page_views');
+            // delta.clicks is only "click"; show combined delta (clicks + admin_actions) for the KPI
+            const deltaActions = {
+                actions: (() => {
+                    const clicks = delta?.clicks || null;
+                    const admin = delta?.admin_actions || null;
+                    if (!clicks || !admin) return null;
+                    const current = Number(clicks.current || 0) + Number(admin.current || 0);
+                    const previous = Number(clicks.previous || 0) + Number(admin.previous || 0);
+                    const abs = current - previous;
+                    const pct = previous ? (abs / previous) * 100 : null;
+                    return { current, previous, abs, pct };
+                })()
+            };
+            document.getElementById('deltaClicks').textContent = deltaActions.actions ? formatDelta(deltaActions, 'actions') : formatDelta(delta, 'clicks');
+            document.getElementById('deltaSessions').textContent = formatDelta(delta, 'unique_sessions');
+            document.getElementById('deltaActiveTime').textContent = formatDelta(delta, 'total_active_ms');
+
+            const series = Array.isArray(data.timeseries) ? data.timeseries : [];
+            document.getElementById('sparkPageViews').innerHTML = buildSparkline(series.map((r) => r.page_views));
+            document.getElementById('sparkClicks').innerHTML = buildSparkline(series.map((r) => Number(r.clicks || 0) + Number(r.admin_actions || 0)));
+            document.getElementById('sparkSessions').innerHTML = buildSparkline(series.map((r) => r.page_views + r.clicks)); // proxy
+            document.getElementById('sparkActiveTime').innerHTML = buildSparkline(series.map((r) => r.active_ms));
+
+            renderKeyValueList('topPagesList', data.top_pages, 'Aucune page suivie.', 'path', 'count', { clickable: true, kind: 'page', prettify: true });
+            renderKeyValueList('topTargetsList', data.top_targets, 'Aucune action suivie.', 'target', 'count', { clickable: true, kind: 'target', prettify: false });
+            renderKeyValueList('roleBreakdownList', data.role_breakdown, 'Aucun rôle tracé.', 'role', 'count', { prettifyRole: true });
+            renderKeyValueList('deviceBreakdownList', data.device_breakdown, 'Aucun device trace.', 'device', 'count');
+            renderKeyValueList('authBreakdownList', data.auth_breakdown, 'Aucun segment.', 'auth', 'count');
+            const dailyEl = document.getElementById('dailyViewsList');
+            if (!series.length) {
+                dailyEl.innerHTML = `<div class="text-sm text-gray-400 italic">Aucune journée tracée.</div>`;
+            } else {
+                dailyEl.innerHTML = series.slice(-14).reverse().map((row) => `
+                    <div class="flex items-center justify-between gap-4 p-3 rounded-2xl bg-gray-50">
+                        <div class="min-w-0">
+                            <div class="text-sm font-bold text-gray-900">${row.day}</div>
+                            <div class="text-[11px] text-gray-500">Pages: ${formatCount(row.page_views)} • Clics: ${formatCount(row.clicks)} • Temps: ${formatDuration(row.active_ms)}</div>
+                        </div>
+                        <div class="text-sm font-black text-gray-500">${formatCount(row.page_views)}</div>
+                    </div>
+                `).join('');
+            }
+
+            const quality = data.data_quality || {};
+            const qualityRows = [
+                ['Rows', quality.total_rows],
+                ['Sans session_id', quality.missing_session_id],
+                ['Sans user_id', quality.missing_user_id],
+                ['Sans user_role', quality.missing_user_role],
+                ['Sans device', quality.missing_metadata_device],
+            ];
+            const qualityEl = document.getElementById('qualityList');
+            qualityEl.innerHTML = qualityRows.map(([label, value]) => `
+                <div class="flex items-center justify-between gap-4 p-3 rounded-2xl bg-gray-50">
+                    <span class="text-sm font-medium text-gray-600">${label}</span>
+                    <span class="text-sm font-black text-gray-900">${formatCount(value)}</span>
+                </div>
+            `).join('');
+
+            const funnel = data.funnel || null;
+            const funnelMeta = document.getElementById('funnelMeta');
+            const funnelSteps = document.getElementById('funnelSteps');
+            if (funnel && Array.isArray(funnel.steps)) {
+                funnelMeta.textContent = `${formatCount(funnel.sessions)} sessions`;
+                funnelSteps.innerHTML = funnel.steps.map((step) => `
+                    <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">${step.label}</div>
+                        <div class="mt-2 text-2xl font-black text-gray-900">${formatCount(step.sessions)}</div>
+                        <div class="mt-1 text-xs text-gray-500">${Math.round((Number(step.rate) || 0) * 10) / 10}%</div>
+                    </div>
+                `).join('');
+            } else {
+                funnelMeta.textContent = '—';
+                funnelSteps.innerHTML = `<div class="text-sm text-gray-400 italic">Aucun funnel.</div>`;
+            }
+
+            const tsMeta = document.getElementById('timeseriesMeta');
+            tsMeta.textContent = `${formatCount(series.length)} jours`;
+
+            const recentEvents = data.recent_events || [];
+            document.getElementById('eventsMeta').textContent = `${formatCount(recentEvents.length)} lignes`;
+            const tbody = document.getElementById('recentEventsBody');
+            tbody.innerHTML = recentEvents.length ? recentEvents.map((eventRow) => `
+                <tr class="align-top">
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">${new Date(eventRow.created_at).toLocaleString('fr-FR')}</td>
+                    <td class="px-6 py-4"><span class="inline-flex px-2 py-1 rounded-full bg-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-600">${eventRow.event_type}</span></td>
+                    <td class="px-6 py-4 text-gray-900 admin-table-truncate" title="${normalizeLabel(eventRow.path || '-')}">${normalizeLabel(eventRow.path || '-')}</td>
+                    <td class="px-6 py-4 text-gray-600 admin-table-truncate" title="${eventRow.target || '-'}">${eventRow.target || '-'}</td>
+                    <td class="px-6 py-4 text-gray-500 admin-table-truncate" title="${eventRow.user_role || 'guest'}">${eventRow.user_role || 'guest'}</td>
+                </tr>
+            `).join('') : `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400 italic">Aucun evenement sur la periode.</td></tr>`;
+
+            // Context line
+            const period = data.period || {};
+            const startLabel = period.start ? new Date(period.start).toLocaleDateString('fr-FR') : '—';
+            const endLabel = period.end ? new Date(period.end).toLocaleDateString('fr-FR') : '—';
+            const nowLabel = new Date().toLocaleString('fr-FR');
+            document.getElementById('analyticsContextLine').textContent = `Période: ${startLabel} → ${endLabel} • Fuseau: ${getLocalTimezone()} • Dernière mise à jour: ${nowLabel}`;
+
+            const filterSummary = summarizeActiveFilters();
+            const filtersLine = document.getElementById('analyticsFiltersLine');
+            if (filterSummary) {
+                filtersLine.classList.remove('hidden');
+                filtersLine.textContent = `Filtres: ${filterSummary}`;
+            } else {
+                filtersLine.classList.add('hidden');
+            }
+
+            renderSelectedUserCard();
+        }
+
+        function populateFilterOptionsFromData(data) {
+            const roleSelect = document.getElementById('filterRole');
+            const roles = (data.role_breakdown || []).map((r) => r.role).filter(Boolean);
+            const current = roleSelect.value || 'all';
+
+            // Always show the core roles even if no data yet, so you can filter proactively.
+            const coreRoles = ['guest', 'customer', 'supplier'];
+            const unique = Array.from(new Set([...coreRoles, ...roles]));
+
+            // Keep admin hidden by default (it is excluded unless include_admin=1),
+            // but if data contains admin or the user enabled includeAdmin, show it.
+            const shouldShowAdmin = Boolean(state.includeAdmin) || unique.includes('admin');
+            const finalRoles = shouldShowAdmin
+                ? unique
+                : unique.filter((r) => r !== 'admin');
+
+            roleSelect.innerHTML = [
+                '<option value="all">Tous</option>',
+                ...finalRoles.map((r) => `<option value="${r}">${normalizeRoleLabel(r)}</option>`)
+            ].join('');
+
+            roleSelect.value = finalRoles.includes(current) ? current : 'all';
+        }
+
+        async function loadBehaviorAnalytics(options = {}) {
+            // Skeleton KPIs while the request is in-flight (avoid "0" flashes).
+            const setKpiSkeleton = (id, width = '55%') => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = `<div class="skeleton skeleton-text" style="width:${width};height:32px;margin:0;"></div>`;
+            };
+            setKpiSkeleton('metricPageViews', '55%');
+            setKpiSkeleton('metricClicks', '45%');
+            setKpiSkeleton('metricSessions', '45%');
+            setKpiSkeleton('metricActiveTime', '60%');
+            const summaryList = document.getElementById('summaryList');
+            if (summaryList && typeof window.buildSkeletonPanelListHTML === 'function') {
+                summaryList.innerHTML = window.buildSkeletonPanelListHTML(5, { lines: 1, cardClass: 'p-3 rounded-2xl bg-gray-50' });
+            }
+
+            const recentBody = document.getElementById('recentEventsBody');
+            if (recentBody && typeof window.buildSkeletonTableRowsHTML === 'function') {
+                recentBody.innerHTML = window.buildSkeletonTableRowsHTML(5, 5);
+            }
+
+            setRangeButtons(state.start || state.end ? null : state.days);
+            updateShareUrl();
+            const qs = buildQueryParams().toString();
+            const forceRefresh = Boolean(options.forceRefresh);
+            const cacheKey = forceRefresh ? `admin-behavior-${qs}-${Date.now()}` : `admin-behavior-${qs}`;
+            const data = await ApiClient.get(`${getBehaviorApiBase()}?${qs}`, {
+                cacheKey,
+                cacheTtlMs: 5000,
+                dedupe: !forceRefresh
+            });
+            lastResponse = data || null;
+            populateFilterOptionsFromData(data || {});
+            renderSummary(data || {});
+        }
+
+        async function refreshBehaviorAnalytics() {
+            const input = document.getElementById('userSearchInput');
+            const typedValue = String(input?.value || '').trim();
+            if (typedValue) {
+                const typedUser = resolveUserFromInput(typedValue);
+                if (typedUser) {
+                    state.userId = typedUser.id;
+                    selectedUserRecord = typedUser;
+                    state.auth = 'authenticated';
+                    syncControlsFromState();
+                    syncUserSearchControl();
+                }
+            }
+
+            await loadBehaviorAnalytics({ forceRefresh: true });
+        }
+
+        async function openDrilldown(kind, value) {
+            const modal = document.getElementById('drilldownModal');
+            const titleEl = document.getElementById('drilldownTitle');
+            const metaEl = document.getElementById('drilldownMeta');
+            const listEl = document.getElementById('drilldownList');
+            const tbody = document.getElementById('drilldownEventsBody');
+
+            titleEl.textContent = kind === 'page' ? normalizeLabel(value) : value;
+            metaEl.innerHTML = '<span class="skeleton skeleton-text inline-block align-middle" style="width:140px;height:10px;margin:0;"></span>';
+            if (typeof window.buildSkeletonPanelListHTML === 'function') {
+                listEl.innerHTML = window.buildSkeletonPanelListHTML(4, { lines: 1, cardClass: 'p-3 rounded-2xl bg-gray-50' });
+            } else {
+                listEl.innerHTML = '';
+            }
+            if (typeof window.buildSkeletonTableRowsHTML === 'function') {
+                tbody.innerHTML = window.buildSkeletonTableRowsHTML(5, 5);
+            } else {
+                tbody.innerHTML = '';
+            }
+            modal.classList.remove('hidden');
+
+            const base = buildQueryParams();
+            base.set('kind', kind);
+            base.set('value', value);
+            base.set('limit', '120');
+            base.set('max_rows', '6000');
+
+            try {
+                const data = await ApiClient.get(`${getBehaviorApiBase()}/drilldown?${base.toString()}`, {
+                    cacheKey: `admin-drill-${kind}-${value}-${base.toString()}`,
+                    cacheTtlMs: 5000,
+                    dedupe: true
+                });
+
+                const summary = data.summary || {};
+                metaEl.textContent = `${formatCount(summary.total_events)} events • ${formatCount(summary.unique_sessions)} sessions • ${formatDuration(summary.total_active_ms)}`;
+
+                const rows = [
+                    ['Pages vues', summary.page_views],
+                    ['Clics', summary.clicks],
+                    ['Actions admin', summary.admin_actions],
+                    ['Utilisateurs uniques', summary.unique_users],
+                ];
+                listEl.innerHTML = rows.map(([label, value]) => `
+                    <div class="flex items-center justify-between gap-4 p-3 rounded-2xl bg-gray-50">
+                        <span class="text-sm font-medium text-gray-600">${label}</span>
+                        <span class="text-sm font-black text-gray-900">${formatCount(value)}</span>
+                    </div>
+                `).join('');
+
+                const events = data.recent_events || [];
+                tbody.innerHTML = events.length ? events.map((eventRow) => `
+                    <tr class="align-top">
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">${new Date(eventRow.created_at).toLocaleString('fr-FR')}</td>
+                        <td class="px-6 py-4"><span class="inline-flex px-2 py-1 rounded-full bg-gray-100 text-[10px] font-black uppercase tracking-widest text-gray-600">${eventRow.event_type}</span></td>
+                        <td class="px-6 py-4 text-gray-900 admin-table-truncate" title="${normalizeLabel(eventRow.path || '-')}">${normalizeLabel(eventRow.path || '-')}</td>
+                        <td class="px-6 py-4 text-gray-600 admin-table-truncate" title="${eventRow.target || '-'}">${eventRow.target || '-'}</td>
+                        <td class="px-6 py-4 text-gray-500 admin-table-truncate" title="${eventRow.user_role || 'guest'}">${eventRow.user_role || 'guest'}</td>
+                    </tr>
+                `).join('') : `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400 italic">Aucun évènement.</td></tr>`;
+            } catch (error) {
+                metaEl.textContent = `Erreur: ${error.message}`;
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Impossible de charger le détail: ${error.message}</td></tr>`;
+            }
+        }
+
+        function closeDrilldown() {
+            const modal = document.getElementById('drilldownModal');
+            modal.classList.add('hidden');
+        }
+
+        function exportBlob(filename, mime, content) {
+            if (window.NewKetCsv?.downloadBlob) {
+                window.NewKetCsv.downloadBlob(filename, mime, [content]);
+                return;
+            }
+            const blob = new Blob([content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function exportCsv() {
+            if (!lastResponse) return;
+            const rows = Array.isArray(lastResponse.recent_events) ? lastResponse.recent_events : [];
+            const header = ['created_at', 'event_type', 'path', 'target', 'user_role', 'session_id', 'user_id', 'device'];
+            const csvRows = rows.map((r) => {
+                const device = r.metadata?.device || '';
+                return [
+                    r.created_at,
+                    r.event_type,
+                    r.path,
+                    r.target,
+                    r.user_role,
+                    r.session_id,
+                    r.user_id,
+                    device,
+                ];
+            });
+
+            const filename = `newket-comportements-${Date.now()}.csv`;
+            if (window.NewKetCsv?.download) {
+                window.NewKetCsv.download(filename, header, csvRows);
+            } else {
+                // Legacy fallback
+                const lines = [header.join(','), ...csvRows.map((r) => r.join(','))];
+                exportBlob(filename, 'text/csv;charset=utf-8', lines.join('\n'));
+            }
+        }
+
+        function exportJson() {
+            if (!lastResponse) return;
+            exportBlob(`newket-comportements-${Date.now()}.json`, 'application/json;charset=utf-8', JSON.stringify(lastResponse, null, 2));
+        }
+
+        async function resetAllBehavior() {
+            const ok = window.confirm("Tu veux vraiment supprimer TOUS les comportements (analytics_events) ?");
+            if (!ok) return;
+
+            const phrase = window.prompt('Tape RESET pour confirmer:');
+            if (String(phrase || '').trim().toUpperCase() !== 'RESET') return;
+
+            try {
+                await ApiClient.post(`${getBehaviorApiBase()}/reset`, { mode: 'all' });
+                try {
+                    localStorage.removeItem('newket_session_id');
+                    sessionStorage.clear();
+                } catch (_) {}
+                lastResponse = null;
+                await loadBehaviorAnalytics();
+            } catch (error) {
+                alert(`Impossible de réinitialiser: ${error.message}`);
+            }
+        }
+
+        function readStateFromUrl() {
+            try {
+                const url = new URL(window.location.href);
+                const params = hasAnalyticsFilterParams(url.searchParams)
+                    ? url.searchParams
+                    : (getStoredAnalyticsParams() || url.searchParams);
+
+                const days = Number(params.get('days'));
+                if (days) state.days = days;
+
+                const startIso = params.get('start');
+                const endIso = params.get('end');
+                if (startIso) state.start = new Date(startIso).toISOString().slice(0, 10);
+                if (endIso) {
+                    // end is exclusive iso; show inclusive in UI by subtracting a day
+                    const d = new Date(endIso);
+                    d.setUTCDate(d.getUTCDate() - 1);
+                    state.end = d.toISOString().slice(0, 10);
+                }
+
+                const types = params.get('event_types');
+                if (types) state.eventTypes = types.split(',').map((t) => t.trim()).filter(Boolean);
+
+                state.role = params.get('role') || 'all';
+                state.device = params.get('device') || 'all';
+                state.auth = params.get('auth') || 'all';
+                state.includeAdmin = params.get('include_admin') === '1';
+                state.userId = params.get('user_id') || null;
+                state.pathContains = params.get('path_contains') || '';
+                state.targetContains = params.get('target_contains') || '';
+                state.funnel = params.get('funnel') || 'default';
+                state.limit = Number(params.get('limit') || 120) || 120;
+                state.maxRows = Number(params.get('max_rows') || 8000) || 8000;
+            } catch (_) {}
+        }
+
+        function syncControlsFromState() {
+            syncAnalyticsDateInputs();
+            document.getElementById('filterRole').value = state.role || 'all';
+            document.getElementById('filterDevice').value = state.device || 'all';
+            document.getElementById('filterAuth').value = state.auth || 'all';
+            document.getElementById('filterIncludeAdmin').checked = Boolean(state.includeAdmin);
+            document.getElementById('filterPathContains').value = state.pathContains || '';
+            document.getElementById('filterTargetContains').value = state.targetContains || '';
+            document.getElementById('filterFunnel').value = state.funnel || 'default';
+            document.getElementById('filterLimit').value = String(state.limit || 120);
+            document.querySelectorAll('.filterEventType').forEach((cb) => {
+                cb.checked = (state.eventTypes || []).includes(cb.value);
+            });
+            syncUserSearchControl();
+        }
+
+        function applyStateFromControls() {
+            state.start = document.getElementById('filterStart').value || null;
+            state.end = document.getElementById('filterEnd').value || null;
+            state.role = document.getElementById('filterRole').value || 'all';
+            state.device = document.getElementById('filterDevice').value || 'all';
+            state.auth = document.getElementById('filterAuth').value || 'all';
+            state.includeAdmin = document.getElementById('filterIncludeAdmin').checked;
+            state.pathContains = (document.getElementById('filterPathContains').value || '').trim();
+            state.targetContains = (document.getElementById('filterTargetContains').value || '').trim();
+            state.funnel = document.getElementById('filterFunnel').value || 'default';
+            state.limit = Number(document.getElementById('filterLimit').value || 120) || 120;
+            state.eventTypes = Array.from(document.querySelectorAll('.filterEventType'))
+                .filter((cb) => cb.checked)
+                .map((cb) => cb.value);
+        }
+
+        window.NewKetPageRefresh = refreshBehaviorAnalytics;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            readStateFromUrl();
+            syncControlsFromState();
+            currentDays = state.days;
+
+            document.querySelectorAll('.analytics-range-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    state.days = Number(btn.dataset.days) || 7;
+                    state.start = null;
+                    state.end = null;
+                    syncControlsFromState();
+                    loadBehaviorAnalytics();
+                });
+            });
+
+            document.getElementById('applyQuickDateRangeBtn').addEventListener('click', applyAnalyticsQuickDateRange);
+            document.getElementById('clearQuickDateRangeBtn').addEventListener('click', clearAnalyticsQuickDateRange);
+            
+            document.getElementById('toggleQuickDateBtn').addEventListener('click', () => {
+                const block = document.getElementById('quickDateRangeBlock');
+                block.classList.toggle('hidden');
+            });
+
+            document.getElementById('applyFiltersBtn').addEventListener('click', () => {
+                applyStateFromControls();
+                loadBehaviorAnalytics();
+            });
+
+            document.getElementById('applyUserSearchBtn').addEventListener('click', () => {
+                if (!applyUserSelectionFromInput()) return;
+                loadBehaviorAnalytics();
+            });
+
+            document.getElementById('userSearchInput').addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                if (!applyUserSelectionFromInput()) return;
+                loadBehaviorAnalytics();
+            });
+
+            document.getElementById('clearUserSearchBtn').addEventListener('click', () => {
+                clearUserSelection();
+                loadBehaviorAnalytics();
+            });
+
+            document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+                state.days = 7;
+                state.start = null;
+                state.end = null;
+                state.eventTypes = ['page_view', 'click', 'heartbeat', 'admin_action'];
+                state.role = 'all';
+                state.device = 'all';
+                state.auth = 'all';
+                state.includeAdmin = false;
+                state.userId = null;
+                state.pathContains = '';
+                state.targetContains = '';
+                state.funnel = 'default';
+                state.limit = 120;
+                selectedUserRecord = null;
+                syncControlsFromState();
+                loadBehaviorAnalytics();
+            });
+
+            document.getElementById('copyLinkBtn').addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(window.location.href);
+                    document.getElementById('filtersHint').textContent = 'Lien copié.';
+                    setTimeout(() => {
+                        document.getElementById('filtersHint').textContent = 'Astuce: clique sur une page ou une action pour ouvrir le détail.';
+                    }, 1500);
+                } catch (_) {
+                    document.getElementById('filtersHint').textContent = 'Impossible de copier le lien.';
+                }
+            });
+
+            document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+            document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
+            document.getElementById('resetBehaviorBtn').addEventListener('click', resetAllBehavior);
+
+            const handleDrillIntent = (target) => {
+                const row = target?.closest?.('[data-drill-kind][data-drill-value]');
+                if (!row) return false;
+                const kind = row.getAttribute('data-drill-kind');
+                const value = row.getAttribute('data-drill-value');
+                if (kind && value) {
+                    openDrilldown(kind, value);
+                    return true;
+                }
+                return false;
+            };
+
+            // Capture phase so it still works even if other handlers stop propagation.
+            document.addEventListener('click', (e) => {
+                handleDrillIntent(e.target);
+            }, true);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                if (handleDrillIntent(e.target)) {
+                    e.preventDefault();
+                }
+            }, true);
+
+            document.getElementById('drilldownCloseBtn').addEventListener('click', closeDrilldown);
+            document.getElementById('drilldownBackdrop').addEventListener('click', closeDrilldown);
+
+            const boot = async () => {
+                if (analyticsBootStarted) return;
+                analyticsBootStarted = true;
+                try {
+                    await loadUsersDirectory();
+                    await loadBehaviorAnalytics();
+                } catch (error) {
+                    const tbody = document.getElementById('recentEventsBody');
+                    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">Impossible de charger les comportements: ${error.message}</td></tr>`;
+                }
+            };
+
+            boot();
+            if (!window.newketInitialized) window.addEventListener('newketInitialized', boot, { once: true });
+        });
+    </script>
+
+    <div id="drilldownModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 sm:p-6 overflow-y-auto">
+        <div id="drilldownBackdrop" class="absolute inset-0 bg-black/30"></div>
+        <div class="relative z-10 flex w-full justify-center">
+            <div class="w-full max-w-4xl max-h-[calc(100dvh-2rem)] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-0">
+                <div class="p-6 border-b border-gray-100 flex items-start justify-between gap-4">
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Détail</div>
+                        <h3 class="text-xl font-black text-gray-900 truncate" id="drilldownTitle">—</h3>
+                        <p class="text-sm text-gray-500" id="drilldownMeta">—</p>
+                    </div>
+                    <button id="drilldownCloseBtn" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700">Fermer</button>
+                </div>
+
+                <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-y-auto">
+                    <div class="lg:col-span-1">
+                        <div class="font-bold text-gray-900 mb-3">Résumé</div>
+                        <div class="space-y-3" id="drilldownList"></div>
+                    </div>
+                    <div class="lg:col-span-2 glass-panel overflow-hidden">
+                        <div class="p-4 border-b border-gray-100 flex items-center justify-between gap-4">
+                            <div>
+                                <div class="font-bold text-gray-900">Événements</div>
+                                <div class="text-sm text-gray-500">Dernières lignes filtrées.</div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto admin-table-shell">
+                            <table class="premium-table admin-data-table admin-analytics-events-table w-full text-sm">
+                                <colgroup>
+                                    <col class="admin-analytics-events-table__col-when">
+                                    <col class="admin-analytics-events-table__col-type">
+                                    <col class="admin-analytics-events-table__col-page">
+                                    <col class="admin-analytics-events-table__col-action">
+                                    <col class="admin-analytics-events-table__col-role">
+                                </colgroup>
+                                <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-widest">
+                                    <tr><th class="text-left px-6 py-4">Quand</th><th class="text-left px-6 py-4">Type</th><th class="text-left px-6 py-4">Page</th><th class="text-left px-6 py-4">Action</th><th class="text-left px-6 py-4">Role</th></tr>
+                                </thead>
+                                <tbody id="drilldownEventsBody" class="divide-y divide-gray-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </body>
+
+</html>
+

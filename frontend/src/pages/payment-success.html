@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr" class="bg-[#f8fafc]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <title>Paiement confirme | NewKet</title>
+    <meta name="description" content="Confirmation de paiement NewKet. Retrouvez votre reference de transaction et accedez a vos commandes en toute securite.">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="/src/services/app.js" type="module"></script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-premium {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #333333 100%);
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+    
+</head>
+<body class="min-h-screen bg-[#f8fafc] text-gray-900 antialiased">
+    <div id="header-placeholder"></div>
+    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-green-50 via-transparent to-transparent opacity-70 pointer-events-none"></div>
+
+    <main class="flex min-h-[70vh] items-center justify-center px-4 py-10 sm:px-6 sm:py-16 pt-24 sm:pt-28 lg:pt-32">
+        <div class="w-full max-w-xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <div class="glass-premium relative overflow-hidden rounded-[3rem] p-8 text-center shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] sm:p-12">
+                <div class="relative mx-auto mb-8 h-24 w-24">
+                    <div id="statusGlow" class="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping duration-[2000ms]"></div>
+                    <div id="statusIconShell" class="relative flex h-full w-full items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl shadow-emerald-500/20">
+                        <iconify-icon id="statusIcon" icon="solar:check-circle-bold" width="48"></iconify-icon>
+                    </div>
+                </div>
+
+                <h1 id="statusTitle" class="mb-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Paiement confirme !</h1>
+                <p id="statusDescription" class="mb-12 text-lg font-medium leading-relaxed text-gray-500">
+                    Merci pour votre confiance. Votre commande est maintenant securisee et le vendeur a ete alerte.
+                </p>
+
+                <div class="mb-12 space-y-4 rounded-3xl border border-gray-100/50 bg-gray-50/50 p-6 text-left">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                        <span class="text-xs font-black uppercase tracking-widest text-gray-400">Reference transaction</span>
+                        <span id="txRef" class="skeleton font-mono text-sm font-bold text-gray-900 rounded-full" style="min-width:140px;height:18px;"></span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black uppercase tracking-widest text-gray-400">Statut</span>
+                        <div id="statusBadge" class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-600">
+                            <div id="statusDot" class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span id="statusLabel" class="skeleton rounded-full" style="min-width:60px;height:14px;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <a href="/index.html" class="flex items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white px-8 py-5 text-sm font-black uppercase tracking-widest text-gray-900 shadow-sm transition-all hover:bg-gray-50 active:scale-[0.98]">
+                        <iconify-icon icon="solar:home-2-linear" width="20"></iconify-icon>
+                        Accueil
+                    </a>
+                    <a href="/src/pages/customer-dashboard.html" class="hero-gradient flex items-center justify-center gap-3 rounded-2xl px-8 py-5 text-sm font-black uppercase tracking-widest text-white shadow-2xl shadow-black/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                        Mes commandes
+                        <iconify-icon icon="solar:alt-arrow-right-linear" width="20"></iconify-icon>
+                    </a>
+                </div>
+
+                <p class="mt-12 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                    Securise par Netikash et NewKet Escrow
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderRefreshSignalKey = 'newket_orders_refresh_signal';
+            const urlParams = new URLSearchParams(window.location.search);
+            const txRef = urlParams.get('tx_ref') || urlParams.get('transaction_id') || '';
+            const rawStatus = (urlParams.get('status') || urlParams.get('tx_status') || 'pending').toLowerCase();
+            let resolvedOrderId = null;
+            let statusPollTimer = null;
+
+            // FIX #1 & #2: 20 attempts with exponential backoff (~60s total window).
+            // Redirect ONLY triggered after server confirms PAID — never on a fixed timer.
+            const MAX_STATUS_POLLS = 20;
+            const BASE_POLL_DELAY_MS = 2000;
+            const MAX_POLL_DELAY_MS = 6000;
+            const PAID_PAYMENT_STATUSES = new Set(['paid', 'success', 'successful', 'succeeded', 'completed']);
+            const PENDING_PAYMENT_STATUSES = new Set(['pending', 'initiated', 'processing', 'verification']);
+            const FAILED_PAYMENT_STATUSES = new Set(['failed', 'failure', 'cancelled', 'canceled', 'expired', 'declined', 'refunded']);
+            const PAID_ORDER_STATUSES = new Set(['paid_held', 'delivered', 'completed']);
+            const FAILED_ORDER_STATUSES = new Set(['cancelled', 'canceled', 'refunded', 'failed']);
+
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDescription = document.getElementById('statusDescription');
+            const statusLabel = document.getElementById('statusLabel');
+            const statusBadge = document.getElementById('statusBadge');
+            const statusDot = document.getElementById('statusDot');
+            const statusGlow = document.getElementById('statusGlow');
+            const statusIconShell = document.getElementById('statusIconShell');
+            const statusIcon = document.getElementById('statusIcon');
+            const pageTitle = document.querySelector('title');
+
+            function normalizeState(value) {
+                return String(value || '').trim().toLowerCase();
+            }
+
+            function clearStatusPollTimer() {
+                if (statusPollTimer) {
+                    clearTimeout(statusPollTimer);
+                    statusPollTimer = null;
+                }
+            }
+
+            function isPaidState(orderStatus, paymentStatus) {
+                return PAID_PAYMENT_STATUSES.has(paymentStatus) || PAID_ORDER_STATUSES.has(orderStatus);
+            }
+
+            function isTerminalFailureState(orderStatus, paymentStatus, currentRawStatus) {
+                return currentRawStatus === 'cancelled'
+                    || FAILED_PAYMENT_STATUSES.has(paymentStatus)
+                    || FAILED_ORDER_STATUSES.has(orderStatus);
+            }
+
+            function isPendingState(orderStatus, paymentStatus) {
+                return !paymentStatus
+                    || PENDING_PAYMENT_STATUSES.has(paymentStatus)
+                    || orderStatus === 'ready_for_payment'
+                    || orderStatus === 'pending';
+            }
+
+            function setFailureUI(labelText) {
+                clearStatusPollTimer();
+                if (pageTitle) pageTitle.textContent = 'Paiement annule | NewKet';
+                if (statusTitle) statusTitle.textContent = 'Paiement non confirme';
+                if (statusDescription) {
+                    statusDescription.textContent = "Le paiement n'a pas ete confirme, donc la fiche n'a pas encore ete envoyee au vendeur. Vous pouvez relancer le paiement quand vous voulez.";
+                }
+                if (statusLabel) statusLabel.textContent = labelText || 'En attente';
+                if (statusBadge) statusBadge.className = 'flex items-center gap-2 text-xs font-black uppercase tracking-widest text-amber-600';
+                if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-amber-500 animate-pulse';
+                if (statusGlow) statusGlow.className = 'absolute inset-0 rounded-full bg-amber-500/10 animate-ping duration-[2000ms]';
+                if (statusIconShell) statusIconShell.className = 'relative flex h-full w-full items-center justify-center rounded-full bg-amber-500 text-white shadow-xl shadow-amber-500/20';
+                if (statusIcon) statusIcon.setAttribute('icon', 'solar:danger-triangle-bold');
+            }
+
+            function setPendingUI(labelText) {
+                if (pageTitle) pageTitle.textContent = 'Verification paiement | NewKet';
+                if (statusTitle) statusTitle.textContent = 'Verification en cours';
+                if (statusDescription) {
+                    statusDescription.textContent = "Nous attendons encore la confirmation serveur du paiement. Revenez dans quelques instants depuis vos commandes si l'etat n'evolue pas.";
+                }
+                if (statusLabel) statusLabel.textContent = labelText || 'Verification';
+                if (statusBadge) statusBadge.className = 'flex items-center gap-2 text-xs font-black uppercase tracking-widest text-sky-600';
+                if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-sky-500 animate-pulse';
+                if (statusGlow) statusGlow.className = 'absolute inset-0 rounded-full bg-sky-500/10 animate-ping duration-[2000ms]';
+                if (statusIconShell) statusIconShell.className = 'relative flex h-full w-full items-center justify-center rounded-full bg-sky-500 text-white shadow-xl shadow-sky-500/20';
+                if (statusIcon) statusIcon.setAttribute('icon', 'solar:clock-circle-bold');
+            }
+
+            // FIX #2: After max polls, show clear guidance instead of leaving user stranded
+            function setPollingExhaustedUI() {
+                clearStatusPollTimer();
+                if (pageTitle) pageTitle.textContent = 'Verification paiement | NewKet';
+                if (statusTitle) statusTitle.textContent = 'Confirmation en attente';
+                if (statusDescription) {
+                    statusDescription.innerHTML = 'Le paiement a peut-être été effectué mais la confirmation prend plus de temps que prévu. <strong>Consultez vos commandes</strong> dans quelques minutes pour voir le statut mis à jour. Si vous avez été débité, votre commande sera bien enregistrée.';
+                }
+                if (statusLabel) statusLabel.textContent = 'En cours de traitement';
+                if (statusBadge) statusBadge.className = 'flex items-center gap-2 text-xs font-black uppercase tracking-widest text-amber-600';
+                if (statusDot) statusDot.className = 'h-2 w-2 rounded-full bg-amber-500';
+                if (statusGlow) statusGlow.className = 'absolute inset-0 rounded-full bg-amber-500/10';
+                if (statusIconShell) statusIconShell.className = 'relative flex h-full w-full items-center justify-center rounded-full bg-amber-500 text-white shadow-xl shadow-amber-500/20';
+                if (statusIcon) statusIcon.setAttribute('icon', 'solar:clock-circle-bold');
+            }
+
+            function setSuccessUI() {
+                clearStatusPollTimer();
+                try {
+                    localStorage.setItem(orderRefreshSignalKey, JSON.stringify({
+                        txRef,
+                        at: Date.now()
+                    }));
+                } catch {}
+
+                window.dispatchEvent(new CustomEvent('ordersUpdated'));
+
+                // FIX #1: Redirect ONLY after server confirms PAID, not on a fixed page-load timer
+                if (window.__newketPaymentRedirectTimer) {
+                    clearTimeout(window.__newketPaymentRedirectTimer);
+                }
+                window.__newketPaymentRedirectTimer = setTimeout(() => {
+                    const target = resolvedOrderId
+                        ? `/src/pages/customer-dashboard.html#achat?order_id=${encodeURIComponent(resolvedOrderId)}`
+                        : (txRef
+                            ? `/src/pages/customer-dashboard.html#orders?tx_ref=${encodeURIComponent(txRef)}`
+                            : '/src/pages/customer-dashboard.html#orders');
+                    window.location.href = target;
+                }, 3000);
+
+                const count = 200;
+                const defaults = {
+                    origin: { y: 0.7 },
+                    zIndex: 1000
+                };
+
+                function fire(particleRatio, opts) {
+                    confetti({
+                        ...defaults,
+                        ...opts,
+                        particleCount: Math.floor(count * particleRatio)
+                    });
+                }
+
+                fire(0.25, { spread: 26, startVelocity: 55 });
+                fire(0.2, { spread: 60 });
+                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+                fire(0.1, { spread: 120, startVelocity: 45 });
+            }
+
+            async function loadServerStatus() {
+                if (!txRef) return null;
+                if (!window.ApiClient) return null;
+                try {
+                    return await window.ApiClient.get(`/payments/status/${encodeURIComponent(txRef)}`, {
+                        suppressNetworkError: true,
+                        dedupe: false
+                    });
+                } catch {
+                    return null;
+                }
+            }
+
+            // FIX #2: Exponential backoff (2s → 4s → 6s max) to be gentler on the server
+            function getNextPollDelay(attempt) {
+                return Math.min(BASE_POLL_DELAY_MS * Math.pow(1.3, attempt), MAX_POLL_DELAY_MS);
+            }
+
+            function scheduleStatusRetry(attempt) {
+                clearStatusPollTimer();
+                if (attempt >= MAX_STATUS_POLLS) {
+                    // FIX #2: Don't leave user stranded — show meaningful message
+                    setPollingExhaustedUI();
+                    return;
+                }
+
+                const delay = getNextPollDelay(attempt);
+                statusPollTimer = setTimeout(() => {
+                    refreshStatus(attempt + 1);
+                }, delay);
+            }
+
+            async function refreshStatus(attempt = 0) {
+                if (!txRef) {
+                    setFailureUI('Reference absente');
+                    return;
+                }
+
+                const serverStatus = await loadServerStatus();
+                resolvedOrderId = serverStatus?.order?.id || resolvedOrderId || null;
+
+                const statusLabelEl = document.getElementById('statusLabel');
+                if (statusLabelEl) {
+                    statusLabelEl.classList.remove('skeleton');
+                    statusLabelEl.style.minWidth = '';
+                    statusLabelEl.style.height = '';
+                }
+
+                if (!serverStatus) {
+                    setPendingUI(rawStatus === 'cancelled' ? 'Annule' : 'Verification');
+                    scheduleStatusRetry(attempt);
+                    return;
+                }
+
+                const orderStatus = normalizeState(serverStatus?.order?.status);
+                const paymentStatus = normalizeState(serverStatus?.order?.payment_status || serverStatus?.payment?.status);
+
+                if (isPaidState(orderStatus, paymentStatus)) {
+                    setSuccessUI();
+                    return;
+                }
+
+                if (isTerminalFailureState(orderStatus, paymentStatus, rawStatus)) {
+                    setFailureUI(paymentStatus === 'failed' ? 'Echec' : 'Annule');
+                    return;
+                }
+
+                if (isPendingState(orderStatus, paymentStatus)) {
+                    setPendingUI('Verification');
+                    scheduleStatusRetry(attempt);
+                    return;
+                }
+
+                setPendingUI('Verification');
+                scheduleStatusRetry(attempt);
+            }
+
+            (async () => {
+                const txRefEl = document.getElementById('txRef');
+                if (txRefEl) {
+                    txRefEl.classList.remove('skeleton');
+                    txRefEl.style.minWidth = '';
+                    txRefEl.style.height = '';
+                    txRefEl.textContent = txRef || 'Indisponible';
+                }
+
+                setPendingUI(rawStatus === 'cancelled' ? 'Annule' : 'Verification');
+                await refreshStatus();
+            })();
+
+        });
+    </script>
+</body>
+
+</html>
