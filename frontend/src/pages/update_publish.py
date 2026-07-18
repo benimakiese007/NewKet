@@ -13,17 +13,17 @@ stepper_html = """
                 
                 <div class="step-indicator relative z-10 flex flex-col items-center gap-2 group cursor-pointer" onclick="window.publishWizard.show(1)">
                     <div id="indicator-1" class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-gray-50 transition-all duration-300">1</div>
-                    <span id="label-1" class="text-[10px] font-bold text-black uppercase tracking-wider absolute -bottom-6 whitespace-nowrap">Médias & Titre</span>
+                    <span id="label-1" class="text-[10px] font-bold text-black uppercase tracking-wider absolute -bottom-6 whitespace-nowrap left-0 sm:left-1/2 sm:-translate-x-1/2 origin-left sm:origin-center">Médias & Titre</span>
                 </div>
                 
                 <div class="step-indicator relative z-10 flex flex-col items-center gap-2 group cursor-pointer" onclick="window.publishWizard.show(2)">
                     <div id="indicator-2" class="w-10 h-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold ring-4 ring-gray-50 transition-all duration-300">2</div>
-                    <span id="label-2" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider absolute -bottom-6 whitespace-nowrap">Détails</span>
+                    <span id="label-2" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider absolute -bottom-6 whitespace-nowrap left-1/2 -translate-x-1/2">Détails</span>
                 </div>
                 
                 <div class="step-indicator relative z-10 flex flex-col items-center gap-2 group cursor-pointer" onclick="window.publishWizard.show(3)">
                     <div id="indicator-3" class="w-10 h-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center font-bold ring-4 ring-gray-50 transition-all duration-300">3</div>
-                    <span id="label-3" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider absolute -bottom-6 whitespace-nowrap">Prix & Livraison</span>
+                    <span id="label-3" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider absolute -bottom-6 whitespace-nowrap right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 origin-right sm:origin-center">Prix & Livraison</span>
                 </div>
             </div>
         </div>
