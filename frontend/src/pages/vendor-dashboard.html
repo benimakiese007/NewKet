@@ -628,7 +628,7 @@
                     </div>
                     <!-- Filter buttons -->
                     <div class="flex items-center gap-2 mb-8" id="purchasesFilterBar">
-                        <button type="button" class="purchases-filter-btn bg-black text-white shadow-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all" data-filter="all">
+                        <button type="button" class="purchases-filter-btn bg-black text-white shadow-lg px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="all">
                             Tout
                         </button>
                         <button type="button" class="purchases-filter-btn bg-gray-100 text-gray-600 hover:bg-gray-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all" data-filter="paid">
@@ -894,155 +894,6 @@
                             </div>
                             <!-- Overlay on hover when image is set -->
                             <div id="coverOverlay" class="absolute inset-0 bg-black/50 hidden items-center justify-center gap-2 text-white group-hover:flex transition-all pointer-events-none">
-                                <iconify-icon icon="solar:pen-bold" width="20"></iconify-icon>
-                                <span class="text-sm font-bold">Modifier</span>
-                            </div>
-                        </div>
-
-                        <input type="file" id="coverPhotoInput" accept="image/*" class="hidden">
-
-                        <!-- Upload Progress -->
-                        <div id="coverUploadProgress" class="hidden mb-4">
-                            <div class="flex items-center gap-3 text-sm text-gray-500 mb-2">
-                                <iconify-icon icon="solar:upload-linear" class="animate-bounce"></iconify-icon>
-                                <span id="coverUploadLabel">Upload en cours...</span>
-                            </div>
-                            <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                <div id="coverProgressBar" class="h-full bg-black rounded-full transition-all duration-500" style="width: 0%"></div>
-                            </div>
-                        </div>
-
-                        <button id="saveCoverBtn" class="w-full bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>
-                            <iconify-icon icon="solar:cloud-upload-bold" class="mr-2"></iconify-icon>
-                            Enregistrer la photo de couverture
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Info Settings Card -->
-                    <div class="glass-panel p-8">
-                        <h2 class="text-xl font-bold mb-8">Informations de la Boutique</h2>
-                        <form id="vendorSettingsForm" class="space-y-6 w-full">
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Nom de la boutique</label>
-                                <input id="vSetStoreName" name="vSetStoreName" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Votre nom de boutique">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Email</label>
-                                <input id="vSetEmail" name="vSetEmail" type="email" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="votre@email.com">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Numéro de téléphone</label>
-                                <input id="vSetPhone" name="vSetPhone" type="tel" inputmode="tel" autocomplete="tel" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: +243...">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Délai d'expédition</label>
-                                <input id="vSetShipping" name="vSetShipping" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Sous 24h, 48h...">
-                            </div>
-                            <button type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all">Enregistrer les modifications</button>
-                        </form>
-                    </div>
-
-                    <!-- Vendor Residence Card -->
-                    <div class="glass-panel p-8">
-                        <h2 class="text-xl font-bold mb-2">Residence de livraison</h2>
-                        <p class="text-sm text-gray-400 mb-6">Comme les vendeurs peuvent aussi acheter, enregistrez ici la residence utilisee par defaut lors de vos achats.</p>
-
-                        <div class="space-y-5" id="vendorResidenceSection">
-                            <div class="flex items-start justify-between gap-4">
-                                <div class="flex-1">
-                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Ville de residence</label>
-                                    <input id="vendorResidenceCity" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Kinshasa">
-                                </div>
-                                <div id="vendorResidenceBadge" class="hidden px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest self-start mt-8">Residence active</div>
-                            </div>
-
-                            <div class="rounded-[1.25rem] border border-gray-100 overflow-hidden bg-gray-50">
-                                <div id="vendorResidenceMap" class="w-full h-64"></div>
-                            </div>
-
-                            <div id="vendorResidenceStatus" class="text-xs text-gray-600 px-4 py-3 rounded-2xl bg-gray-50 border border-gray-100 flex items-center gap-2">
-                                <iconify-icon icon="solar:info-circle-bold" width="16" class="text-gray-400"></iconify-icon>
-                                <span>Chargez votre residence puis sauvegardez-la pour vos futurs achats.</span>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <button type="button" id="vendorResidenceLocateBtn"
-                                    class="w-full bg-white border border-gray-200 text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                                    <iconify-icon icon="solar:map-arrow-square-bold" width="18"></iconify-icon>
-                                    Utiliser ma position actuelle
-                                </button>
-                                <button type="button" id="vendorSaveResidenceBtn"
-                                    class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-                                    <iconify-icon icon="solar:diskette-bold" width="18"></iconify-icon>
-                                    Sauvegarder ma residence
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Security Card -->
-                    <div class="glass-panel p-8">
-                        <h2 class="text-xl font-bold mb-2">Sécurité</h2>
-                        <p class="text-sm text-gray-400 mb-6">Changez votre mot de passe en toute sécurité.</p>
-
-                        <form id="vendorPasswordForm" class="space-y-4 w-full">
-    <input type="text" id="vPasswordUsername" name="username" autocomplete="username" class="sr-only" tabindex="-1" aria-hidden="true">
-                            <div id="vendorCurrentPasswordGroup">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Mot de passe actuel</label>
-                                <input id="vCurrentPassword" name="vCurrentPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="current-password">
-                            </div>
-                            <p id="vendorPasswordOauthHint" class="hidden text-xs text-gray-500">Compte Google detecte : vous pouvez definir un mot de passe sans saisir un mot de passe actuel.</p>
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Nouveau mot de passe</label>
-                                <input id="vNewPassword" name="vNewPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="new-password">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Confirmer le nouveau mot de passe</label>
-                                <input id="vConfirmPassword" name="vConfirmPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="new-password">
-                                <p class="text-xs text-gray-500 mt-2">Astuce : utilisez au moins 8 caractères.</p>
-                            </div>
-                            <button id="vendorUpdatePasswordBtn" type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-                                Mettre à jour le mot de passe
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- Passkeys Card -->
-                    <div class="glass-panel p-8">
-                        <h2 class="text-xl font-bold mb-2">Clé d'accès (Passkey)</h2>
-                        <p class="text-sm text-gray-400 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clé de sécurité.</p>
-                        
-                        <div id="vendorPasskeysList" class="space-y-3 mb-6 hidden">
-                            <!-- Passkeys will be injected here -->
-                        </div>
-
-                        <button id="registerPasskeyBtnVendor" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                            <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
-                            Créer une clé d'accès
-                        </button>
-                    </div>
-
-                    <!-- Referral Card -->
-                    <div class="glass-panel p-8">
-                        <h2 class="text-xl font-bold mb-2">Parrainage</h2>
-                        <p class="text-sm text-gray-400 mb-6">Partagez ce lien avec vos clients pour qu'ils puissent s'inscrire via votre code.</p>
-
-                        <div class="space-y-5">
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre code</label>
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <input id="vendorReferralCode" type="text" readonly class="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm font-black tracking-[0.18em] text-gray-900 uppercase" placeholder="Chargement...">
-                                    <button id="copyVendorReferralCodeBtn" type="button" class="px-4 py-3 rounded-xl bg-black text-white text-xs font-black uppercase tracking-widest hover:shadow-xl transition-all">Copier</button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre lien</label>
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <input id="vendorReferralLink" type="text" readonly class="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm text-gray-700" placeholder="Chargement...">
-                                    <button id="copyVendorReferralLinkBtn" type="button" class="px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all">Copier</button>
-                                </div>
                                 <iconify-icon icon="solar:pen-bold" width="20"></iconify-icon>
                                 <span class="text-sm font-bold">Modifier</span>
                             </div>
@@ -3706,9 +3557,28 @@
                     }
                 }
 
-                function renderVendorPurchases() {
+                // --- Vendor Purchases filter state ---
+                let _vendorPurchasesActiveFilter = 'all';
+
+                function _vendorIsPurchaseCompleted(o) {
+                    const s = String(o?.status || '').toUpperCase();
+                    return ['COMPLETED', 'RELEASED'].includes(s);
+                }
+                function _vendorIsPurchasePaidOnly(o) {
+                    const s = String(o?.status || '').toUpperCase();
+                    const ps = String(o?.payment_status || '').toUpperCase();
+                    return (
+                        ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED'].includes(ps) ||
+                        ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'PROCESSING'].includes(s)
+                    ) && !['COMPLETED', 'RELEASED'].includes(s);
+                }
+
+                function renderVendorPurchases(filter) {
                     const purchasesList = document.getElementById('vendor-purchases-list');
                     if (!purchasesList) return;
+
+                    if (filter) _vendorPurchasesActiveFilter = filter;
+
                     if (isVendorOrdersDataPending()) {
                         if (typeof window.buildSkeletonPanelListHTML === 'function') purchasesList.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
                         return;
@@ -3726,26 +3596,64 @@
 
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
-                    
+
                     const stats = OrderManager.getCustomerStats(email, userId);
-                    const myPurchases = (Array.isArray(stats.orders) ? stats.orders : []).slice().sort((a, b) => {
+                    let myPurchases = (Array.isArray(stats.orders) ? stats.orders : []).slice().sort((a, b) => {
                         const ta = new Date(a?.timestamp || a?.date || a?.created_at || 0).getTime();
                         const tb = new Date(b?.timestamp || b?.date || b?.created_at || 0).getTime();
                         return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0);
                     });
-                    
+
+                    // Apply active filter
+                    if (_vendorPurchasesActiveFilter === 'paid') {
+                        myPurchases = myPurchases.filter(o => _vendorIsPurchasePaidOnly(o));
+                    } else if (_vendorPurchasesActiveFilter === 'completed') {
+                        myPurchases = myPurchases.filter(o => _vendorIsPurchaseCompleted(o));
+                    }
+
+                    // Update filter button styles
+                    document.querySelectorAll('#tab-purchases .purchases-filter-btn').forEach(btn => {
+                        const f = btn.getAttribute('data-filter');
+                        if (f === _vendorPurchasesActiveFilter) {
+                            btn.classList.add('bg-black', 'text-white', 'shadow-lg');
+                            btn.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                        } else {
+                            btn.classList.remove('bg-black', 'text-white', 'shadow-lg');
+                            btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                        }
+                    });
+
                     if (document.getElementById('vendorPurchasesTotal')) {
                         document.getElementById('vendorPurchasesTotal').textContent = CurrencyManager.formatPrice(stats.totalSpent || 0);
                     }
 
+                    // Bind filter buttons (once)
+                    if (!window.__vendorPurchasesFilterBound) {
+                        window.__vendorPurchasesFilterBound = true;
+                        document.addEventListener('click', function(e) {
+                            const btn = e.target.closest('#tab-purchases .purchases-filter-btn');
+                            if (!btn) return;
+                            const f = btn.getAttribute('data-filter');
+                            if (f && f !== _vendorPurchasesActiveFilter) {
+                                renderVendorPurchases(f);
+                            }
+                        });
+                    }
+
+                    const filterLabel = _vendorPurchasesActiveFilter === 'paid' ? 'payé' : _vendorPurchasesActiveFilter === 'completed' ? 'terminé' : '';
+
                     if (myPurchases.length === 0) {
+                        const emptyTitle = filterLabel ? `Aucune commande ${filterLabel}e` : 'Aucun achat pour le moment';
+                        const emptyDesc = filterLabel
+                            ? `Il n'y a pas encore de commande avec le statut "${filterLabel}".`
+                            : 'Vos coups de cœur NewKet apparaîtront ici dès votre première commande.';
                         purchasesList.innerHTML = `
                             <div class="flex flex-col items-center justify-center py-20 px-4 text-center animate-in fade-in zoom-in-95 duration-700">
                                 <div class="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 text-gray-200 shadow-inner">
                                     <iconify-icon icon="solar:bag-heart-bold-duotone" width="48"></iconify-icon>
                                 </div>
-                                <h4 class="font-black text-gray-900 mb-2">Aucun achat pour le moment</h4>
-                                <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">Vos coups de cœur NewKet apparaîtront ici dès votre première commande.</p>
+                                <h4 class="font-black text-gray-900 mb-2">${emptyTitle}</h4>
+                                <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">${emptyDesc}</p>
                                 <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
                                     Découvrir la collection
                                 </a>
@@ -5595,21 +5503,595 @@
                 if (vendorAvatarPlaceholder) vendorAvatarPlaceholder.classList.add('hidden');
             }
         }
-        window.addEventListener('profileUpdated', updateSidebarProfile);
-        window.addEventListener('componentsLoaded', updateSidebarProfile);
-        window.addEventListener('newketInitialized', updateSidebarProfile);
+
+        function populateVendorSettings() {
+            if (!window.ProfileManager) return;
+            const profile = window.ProfileManager.getProfile();
+            if (!profile) return;
+            
+            if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = profile.company_name || '';
+            if (document.getElementById('vSetEmail')) document.getElementById('vSetEmail').value = localStorage.getItem('newketUserEmail') || profile.email || '';
+            if (document.getElementById('vSetPhone')) document.getElementById('vSetPhone').value = profile.store_phone || profile.phone || '';
+            if (document.getElementById('vSetShipping') && profile.shipping_time) document.getElementById('vSetShipping').value = profile.shipping_time;
+        }
+
+        function handleProfileUpdate() {
+            updateSidebarProfile();
+            populateVendorSettings();
+        }
+
+        window.addEventListener('profileUpdated', handleProfileUpdate);
+        window.addEventListener('componentsLoaded', handleProfileUpdate);
+        window.addEventListener('newketInitialized', handleProfileUpdate);
         // Fallback polling
         let profilePollAttempts = 0;
         const profilePoll = setInterval(() => {
             profilePollAttempts++;
             if (window.ProfileManager && window.ProfileManager.getProfile()) {
-                updateSidebarProfile();
+                handleProfileUpdate();
                 clearInterval(profilePoll);
             } else if (profilePollAttempts >= 40) {
                 clearInterval(profilePoll);
             }
         }, 250);
-    </script>
+    // ===== AVATAR PHOTO LOGIC =====
+                    let _selectedAvatarFile = null;
+
+                    const _loadExistingAvatar = async () => {
+                        try {
+                            const profile = ProfileManager.getProfile();
+                            if (profile && profile.avatar) {
+                                _setAvatarPreview(profile.avatar);
+                            } else {
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                                if (!user) return;
+                                const vendor = await window.SupabaseAdapter.fetchWithFilters('users', {
+                                    eq: [['id', user.id]],
+                                    select: 'avatar',
+                                    single: true,
+                                    skipCache: true
+                                });
+                                if (vendor && vendor.avatar) {
+                                    _setAvatarPreview(vendor.avatar);
+                                }
+                            }
+                        } catch(e) { console.warn('[Avatar] Could not load existing avatar', e); }
+                    };
+
+                    const _setAvatarPreview = (src) => {
+                        const img = document.getElementById('avatarPreviewImg');
+                        const placeholder = document.getElementById('avatarPlaceholder');
+                        const overlay = document.getElementById('avatarOverlay');
+                        if (!img) return;
+                        img.src = src;
+                        img.classList.remove('hidden');
+                        if (placeholder) placeholder.classList.add('hidden');
+                        if (overlay) overlay.classList.remove('hidden');
+                        const btn = document.getElementById('saveAvatarBtn');
+                        if (btn) btn.disabled = false;
+                    };
+
+                    const avatarInput = document.getElementById('avatarPhotoInput');
+                    if (avatarInput) {
+                        avatarInput.addEventListener('change', (e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            if (file.size > 2 * 1024 * 1024) {
+                                const _avatarInput = document.getElementById('avatarPhotoInput');
+                                if (window.showInlineError) window.showInlineError(_avatarInput, 'Image trop lourde. Max 2 Mo.');
+                                return;
+                            }
+                            _selectedAvatarFile = file;
+                            const url = URL.createObjectURL(file);
+                            _setAvatarPreview(url);
+                        });
+                    }
+
+                    const saveAvatarBtn = document.getElementById('saveAvatarBtn');
+                    if (saveAvatarBtn) {
+                        saveAvatarBtn.addEventListener('click', async () => {
+                            if (!_selectedAvatarFile) return;
+                            const progressDiv = document.getElementById('avatarUploadProgress');
+                            const progressBar = document.getElementById('avatarProgressBar');
+                            saveAvatarBtn.disabled = true;
+                            if (progressDiv) progressDiv.classList.remove('hidden');
+                            if (progressBar) progressBar.style.width = '30%';
+
+                            try {
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                                if (!user) throw new Error('Non authentifié');
+
+                                const ext = _selectedAvatarFile.name.split('.').pop();
+                                const filePath = `avatars/${user.id}_${Date.now()}.${ext}`;
+
+                                if (progressBar) progressBar.style.width = '60%';
+
+                                const publicUrl = await window.SupabaseAdapter.uploadFile('user-assets', filePath, _selectedAvatarFile);
+                                if (!publicUrl) throw new Error('Upload échoué');
+
+                                if (progressBar) progressBar.style.width = '85%';
+
+                                // 1. Update database
+                                await window.SupabaseAdapter.update('users', user.id, { avatar: publicUrl });
+                                
+                                // 2. Update Auth metadata (for sync with customer profile)
+                                await window.SupabaseAdapter.getClient().auth.updateUser({
+                                    data: { avatar_url: publicUrl }
+                                });
+
+                                // 3. Update ProfileManager
+                                ProfileManager.saveProfile({ ...ProfileManager.getProfile(), avatar: publicUrl });
+
+                                if (progressBar) progressBar.style.width = '100%';
+                                setTimeout(() => { if (progressDiv) progressDiv.classList.add('hidden'); }, 1500);
+                                if (window.showToast) showToast('Logo mis à jour avec succès !', 'success');
+                                _selectedAvatarFile = null;
+                                updateSidebarProfile(); // Refresh sidebar
+
+                            } catch(err) {
+                                console.error('[Avatar] Upload error:', err);
+                                const uploadError = window.SupabaseAdapter?.getLastUploadError?.() || err;
+                                const errorMessage = window.SupabaseAdapter?.getReadableUploadError?.(uploadError) || 'Erreur lors de l\'upload.';
+                                if (window.showToast) showToast(errorMessage, 'error');
+                                if (progressDiv) progressDiv.classList.add('hidden');
+                            } finally {
+                                saveAvatarBtn.disabled = false;
+                            }
+                        });
+                    }
+
+                    _loadExistingAvatar();
+                    // ===== END AVATAR PHOTO LOGIC =====
+
+                    // ===== COVER PHOTO LOGIC =====
+                    let _selectedCoverFile = null;
+
+                    // Load existing cover photo
+                    const _loadExistingCover = async () => {
+                        try {
+                            const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                            if (!user) return;
+                            const vendor = await window.SupabaseAdapter.fetchWithFilters('users', {
+                                eq: [['id', user.id]],
+                                select: 'cover_image',
+                                single: true,
+                                skipCache: true
+                            });
+                            if (vendor && vendor.cover_image) {
+                                _setCoverPreview(vendor.cover_image);
+                            }
+                        } catch(e) { console.warn('[Cover] Could not load existing cover', e); }
+                    };
+
+                    const _setCoverPreview = (src) => {
+                        const img = document.getElementById('coverPreviewImg');
+                        const placeholder = document.getElementById('coverPlaceholder');
+                        const overlay = document.getElementById('coverOverlay');
+                        if (!img) return;
+                        img.src = src;
+                        img.classList.remove('hidden');
+                        if (placeholder) placeholder.classList.add('hidden');
+                        if (overlay) overlay.classList.remove('hidden');
+                        const btn = document.getElementById('saveCoverBtn');
+                        if (btn) btn.disabled = false;
+                    };
+
+                    const coverInput = document.getElementById('coverPhotoInput');
+                    if (coverInput) {
+                        coverInput.addEventListener('change', (e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+
+                            // Validate size (5MB max)
+                            if (file.size > 5 * 1024 * 1024) {
+                                const _coverInput = document.getElementById('coverPhotoInput');
+                                if (window.showInlineError) window.showInlineError(_coverInput, 'Image trop lourde. Max 5 Mo.');
+                                return;
+                            }
+
+                            _selectedCoverFile = file;
+                            const url = URL.createObjectURL(file);
+                            _setCoverPreview(url);
+                        });
+                    }
+
+                    const saveCoverBtn = document.getElementById('saveCoverBtn');
+                    if (saveCoverBtn) {
+                        saveCoverBtn.addEventListener('click', async () => {
+                            if (!_selectedCoverFile) return;
+
+                            const progressDiv = document.getElementById('coverUploadProgress');
+                            const progressBar = document.getElementById('coverProgressBar');
+                            const progressLabel = document.getElementById('coverUploadLabel');
+
+                            saveCoverBtn.disabled = true;
+                            if (progressDiv) progressDiv.classList.remove('hidden');
+                            if (progressBar) progressBar.style.width = '30%';
+                            if (progressLabel) progressLabel.textContent = 'Préparation...';
+
+                            try {
+                                const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                                if (!user) throw new Error('Non authentifié');
+
+                                const ext = _selectedCoverFile.name.split('.').pop();
+                                const filePath = `covers/${user.id}.${ext}`;
+
+                                if (progressBar) progressBar.style.width = '60%';
+                                if (progressLabel) progressLabel.textContent = 'Upload en cours...';
+
+                                // Upload to Supabase Storage
+                                const publicUrl = await window.SupabaseAdapter.uploadFile('vendor-covers', filePath, _selectedCoverFile);
+
+                                if (!publicUrl) throw new Error('Upload échoué');
+
+                                if (progressBar) progressBar.style.width = '85%';
+                                if (progressLabel) progressLabel.textContent = 'Sauvegarde...';
+
+                                // Save URL to users table
+                                await window.SupabaseAdapter.update('users', user.id, { cover_image: publicUrl });
+
+                                // Update ProfileManager locally
+                                ProfileManager.saveProfile({ ...ProfileManager.getProfile(), cover_image: publicUrl });
+
+                                if (progressBar) progressBar.style.width = '100%';
+                                if (progressLabel) progressLabel.textContent = 'Terminé !';
+
+                                setTimeout(() => { if (progressDiv) progressDiv.classList.add('hidden'); }, 1500);
+                                if (window.showToast) showToast('Photo de couverture mise à jour !', 'success');
+                                _selectedCoverFile = null;
+
+                            } catch(err) {
+                                console.error('[Cover] Upload error:', err);
+                                if (window.showToast) showToast('Erreur lors de l\'upload. Réessayez.', 'error');
+                                if (progressDiv) progressDiv.classList.add('hidden');
+                            } finally {
+                                saveCoverBtn.disabled = false;
+                            }
+                        });
+                    }
+
+                    // Load existing cover on page load
+                    _loadExistingCover();
+                    // ===== END COVER PHOTO LOGIC =====
+// Handle Settings Form
+                    const settingsForm = document.getElementById('vendorSettingsForm');
+                    if (settingsForm) {
+                        settingsForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+                            const newName = document.getElementById('vSetStoreName').value;
+                            const newEmail = document.getElementById('vSetEmail').value;
+                            const newPhone = (document.getElementById('vSetPhone')?.value || '').trim();
+                            const newShipping = document.getElementById('vSetShipping').value;
+                            const newStoreDescription = document.getElementById('vSetStoreDescription')?.value || '';
+                            const newShopSlug = (window.NewKetLinks && window.NewKetLinks.buildShopSlug)
+                                ? window.NewKetLinks.buildShopSlug(newName)
+                                : null;
+                            
+                            const newProfile = {
+                                ...ProfileManager.getProfile(),
+                                company_name: newName,
+                                email: newEmail,
+                                phone: newPhone,
+                                store_phone: newPhone,
+                                shipping_time: newShipping,
+                                store_description: newStoreDescription,
+                                shop_slug: newShopSlug
+                            };
+                            
+                            // 1. Save Locally
+                            ProfileManager.saveProfile(newProfile);
+                            
+                            // 2. Save to Supabase (users table)
+                            try {
+                                if (window.SupabaseAdapter) {
+                                    const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
+                                    if (user && user.id) {
+                                        if (newShopSlug) {
+                                            const conflicts = await window.SupabaseAdapter.fetchWithFilters('users', {
+                                                eq: [['role', 'supplier'], ['shop_slug', newShopSlug]],
+                                                limit: 1,
+                                                skipCache: true
+                                            });
+                                            const hasConflict = Array.isArray(conflicts)
+                                                && conflicts.length > 0
+                                            && conflicts[0]?.id !== user.id;
+                                            if (hasConflict) {
+                                                if (window.showToast) window.showToast("Ce nom de boutique est déjà utilisé. Choisissez un autre nom unique.", "warning", "Boutique");
+                                                return;
+                                            }
+                                        }
+                                        await window.SupabaseAdapter.update('users', user.id, {
+                                            company_name: newName,
+                                            shop_slug: newShopSlug,
+                                            shipping_time: newShipping,
+                                            store_phone: newPhone || null,
+                                            store_description: newStoreDescription || null
+                                        });
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('[Settings] Error saving to Supabase:', err);
+                            }
+                            
+                            if (window.showToast) {
+                                window.showToast('Paramètres de la boutique enregistrés !', 'success', 'Profil');
+                            }
+
+                            // Refresh UI
+                            if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.company_name;
+                            if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = newProfile.company_name;
+                        });
+                    }
+
+                    // Handle Password Update
+                    const passwordForm = document.getElementById('vendorPasswordForm');
+                    const syncVendorPasswordFormMode = () => {
+                        const currentPasswordGroup = document.getElementById('vendorCurrentPasswordGroup');
+                        const currentPasswordInput = document.getElementById('vCurrentPassword');
+                        const oauthHint = document.getElementById('vendorPasswordOauthHint');
+                        const requiresCurrentPassword = !!window.AuthManager?.requiresCurrentPassword?.();
+                        const isOauthOnly = !requiresCurrentPassword;
+
+                        if (currentPasswordGroup) currentPasswordGroup.classList.toggle('hidden', isOauthOnly);
+                        if (oauthHint) oauthHint.classList.toggle('hidden', !isOauthOnly);
+                        if (currentPasswordInput) {
+                            currentPasswordInput.required = requiresCurrentPassword;
+                            if (isOauthOnly) currentPasswordInput.value = '';
+                        }
+                    };
+
+                    syncVendorPasswordFormMode();
+                    window.addEventListener('newketInitialized', syncVendorPasswordFormMode);
+                    if (passwordForm) {
+                        passwordForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+
+                            const btn = document.getElementById('vendorUpdatePasswordBtn');
+                            const currentPass = (document.getElementById('vCurrentPassword')?.value || '').trim();
+                            const newPass = (document.getElementById('vNewPassword')?.value || '').trim();
+                            const confirmPass = (document.getElementById('vConfirmPassword')?.value || '').trim();
+                            const requiresCurrentPassword = !!window.AuthManager?.requiresCurrentPassword?.();
+
+                            const _pwdBtn = document.getElementById('vUpdatePasswordBtn');
+                            if (requiresCurrentPassword && !currentPass) {
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Veuillez saisir votre mot de passe actuel.');
+                                return;
+                            }
+                            if (!newPass) {
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Veuillez saisir un nouveau mot de passe.');
+                                return;
+                            }
+                            if (newPass.length < 8) {
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Le nouveau mot de passe doit contenir au moins 8 caractères.');
+                                return;
+                            }
+                            if (newPass !== confirmPass) {
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Les mots de passe ne correspondent pas.');
+                                return;
+                            }
+
+                            try {
+                                if (btn) btn.disabled = true;
+
+                                if (!window.AuthManager || typeof window.AuthManager.changePassword !== 'function') {
+                                    throw new Error("Fonction de changement de mot de passe indisponible (AuthManager.changePassword).");
+                                }
+
+                                await window.AuthManager.changePassword(currentPass, newPass);
+
+                                document.getElementById('vCurrentPassword').value = '';
+                                document.getElementById('vNewPassword').value = '';
+                                document.getElementById('vConfirmPassword').value = '';
+
+                                if (window.showToast) window.showToast('Mot de passe mis à jour avec succès.', 'success', 'Sécurité');
+                            } catch (err) {
+                                console.error('[Security] Password update error:', err);
+                                const msg = (err && err.message) ? err.message : 'Erreur lors de la mise à jour du mot de passe.';
+                                if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                            } finally {
+                                if (btn) btn.disabled = false;
+                            }
+                        });
+                    }
+// Passkeys for Vendor
+                    const registerPasskeyBtnVendor = document.getElementById('registerPasskeyBtnVendor');
+                    const passkeysListContainer = document.getElementById('vendorPasskeysList');
+                    
+                    const renderVendorPasskeys = (passkeys) => {
+                        if (!passkeysListContainer) return;
+                        if (!passkeys || passkeys.length === 0) {
+                            passkeysListContainer.classList.add('hidden');
+                            passkeysListContainer.innerHTML = '';
+                            return;
+                        }
+                        
+                        passkeysListContainer.classList.remove('hidden');
+                        passkeysListContainer.innerHTML = passkeys.map(pk => {
+                            const date = new Date(pk.created_at).toLocaleDateString('fr-FR', {
+                                day: 'numeric', month: 'short', year: 'numeric'
+                            });
+                            const name = pk.friendly_name || pk.name || 'Appareil inconnu';
+                            
+                            // Détection du type de clé
+                            let pkType = 'WebAuthn / Biométrie';
+                            let icon = 'solar:key-minimalistic-bold';
+                            const lowerName = name.toLowerCase();
+                            
+                            if (lowerName.includes('apple') || lowerName.includes('mac') || lowerName.includes('iphone') || lowerName.includes('ipad')) {
+                                pkType = 'Passkey Apple (Face ID / Touch ID)';
+                                icon = 'bi:apple';
+                            } else if (lowerName.includes('windows')) {
+                                pkType = 'Windows Hello (Empreinte / Code)';
+                                icon = 'bi:windows';
+                            } else if (lowerName.includes('android')) {
+                                pkType = 'Passkey Android';
+                                icon = 'bi:android2';
+                            } else if (lowerName.includes('yubikey') || lowerName.includes('security key')) {
+                                pkType = 'Clé de sécurité physique';
+                                icon = 'solar:usb-bold';
+                            }
+                            
+                            return `
+                                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between p-4 border border-gray-100 rounded-xl bg-gray-50 gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-gray-100 text-gray-500 shrink-0">
+                                            <iconify-icon icon="${icon}" width="18"></iconify-icon>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-gray-900 truncate">${name}</p>
+                                            <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Ajoutée le ${date}</p>
+                                                <span class="text-[10px] text-gray-300 hidden sm:inline">•</span>
+                                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Type : ${pkType}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-green-100 text-green-800 rounded">
+                                        Opérationnelle
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    };
+
+                    const loadVendorPasskeys = async () => {
+                        if (!window.supabaseClient) return;
+                        try {
+                            // La vraie API Supabase pour lister les passkeys (facteurs webauthn)
+                            const { data, error } = await window.supabaseClient.auth.mfa.listFactors();
+                            if (error) throw error;
+                            // Passkeys = facteurs de type 'webauthn'
+                            const passkeys = (data?.all || []).filter(f => f.factor_type === 'webauthn' || f.factor_type === 'passkey');
+                            renderVendorPasskeys(passkeys);
+                            if (passkeys.length > 0) {
+                                const title = registerPasskeyBtnVendor?.closest('div')?.querySelector('h2');
+                                if (title && !title.innerHTML.includes('Activée')) {
+                                    title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                                }
+                                if (registerPasskeyBtnVendor) registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                            } else {
+                                const title = registerPasskeyBtnVendor?.closest('div')?.querySelector('h2');
+                                if (title && title.innerHTML.includes('Activée')) {
+                                    title.innerHTML = "Clé d'accès (Passkey)";
+                                }
+                                if (registerPasskeyBtnVendor) registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une clé d\'accès';
+                            }
+                        } catch (err) {
+                            console.warn('[Vendor Passkeys] Erreur chargement:', err?.message || err);
+                        }
+                    };
+
+                    loadVendorPasskeys();
+
+                    if (registerPasskeyBtnVendor) {
+                        registerPasskeyBtnVendor.addEventListener('click', async () => {
+                            const originalText = registerPasskeyBtnVendor.innerHTML;
+                            registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Création...';
+                            registerPasskeyBtnVendor.disabled = true;
+                            try {
+                                if (!window.supabaseClient) throw new Error('Client Supabase non disponible.');
+                                // Inscription passkey via l'API expérimentale Supabase
+                                const { data, error } = await window.supabaseClient.auth.signInWithPasskey({
+                                    createUser: false
+                                });
+                                if (error) throw error;
+                                if (window.showToast) window.showToast("Clé d'accès créée avec succès !", "success", "Sécurité");
+                                loadVendorPasskeys();
+                            } catch (err) {
+                                console.error('[Vendor Passkey] Registration error:', err);
+                                let msg = err.message || "Erreur lors de la création de la clé d'accès.";
+                                if (msg.includes('cancelled') || msg.includes('cancel') || msg.includes('abort')) {
+                                    msg = "Création annulée.";
+                                } else if (msg.includes('not supported') || msg.includes('supporté')) {
+                                    msg = "Votre navigateur ou appareil ne supporte pas les passkeys.";
+                                }
+                                if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                            } finally {
+                                registerPasskeyBtnVendor.innerHTML = originalText;
+                                registerPasskeyBtnVendor.disabled = false;
+                            }
+                        });
+                    }
+
+                    const getVendorReferralLink = (code) => {
+                        const loginPath = typeof window.resolvePath === 'function'
+                            ? window.resolvePath('login')
+                            : '/pages/login';
+                        const url = new URL(loginPath, window.location.origin);
+                        url.searchParams.set('signup', '1');
+                        url.searchParams.set('ref', code);
+                        return url.toString();
+                    };
+
+                    const loadVendorReferralPanel = async (retryCount = 0) => {
+                        const codeInput = document.getElementById('vendorReferralCode');
+                        const linkInput = document.getElementById('vendorReferralLink');
+                        if (!codeInput || !linkInput) return;
+
+                        try {
+                            const data = await window.ApiClient.get('/referrals/me', {
+                                suppressToast: true,
+                                suppressErrorLogging: true,
+                                suppressNetworkError: true
+                            });
+
+                            if (!data) throw new Error('Aucune donnée reçue');
+
+                            const code = String(data.referral_code || '').trim();
+                            const link = code
+                                ? (data.referral_link ? `${window.location.origin}${data.referral_link}` : getVendorReferralLink(code))
+                                : '';
+                            codeInput.value = code;
+                            linkInput.value = link;
+                            codeInput.placeholder = code ? 'Votre code' : 'Code non généré';
+                            linkInput.placeholder = link ? 'Votre lien' : 'Lien non disponible';
+                        } catch (err) {
+                            console.warn(`[Vendor Referral] Unable to load referral summary (attempt ${retryCount + 1}):`, err?.message || err);
+                            if (retryCount < 3) {
+                                const delay = Math.pow(2, retryCount) * 1000;
+                                setTimeout(() => loadVendorReferralPanel(retryCount + 1), delay);
+                                return;
+                            }
+                            codeInput.value = '';
+                            linkInput.value = '';
+                            codeInput.placeholder = 'Indisponible';
+                            linkInput.placeholder = 'Indisponible';
+                        }
+                    };
+
+                    const vendorCopyValue = async (value, label) => {
+                        if (!value) return;
+                        try {
+                            await navigator.clipboard.writeText(value);
+                            if (window.showToast) window.showToast(`${label} copié.`, 'success', 'Parrainage');
+                        } catch {
+                            if (window.showToast) window.showToast('Impossible de copier automatiquement.', 'warning', 'Parrainage');
+                        }
+                    };
+
+                    const copyVendorReferralCodeBtn = document.getElementById('copyVendorReferralCodeBtn');
+                    const copyVendorReferralLinkBtn = document.getElementById('copyVendorReferralLinkBtn');
+                    const vendorReferralCodeInput = document.getElementById('vendorReferralCode');
+                    const vendorReferralLinkInput = document.getElementById('vendorReferralLink');
+
+                    if (copyVendorReferralCodeBtn && vendorReferralCodeInput) {
+                        copyVendorReferralCodeBtn.addEventListener('click', () => vendorCopyValue(vendorReferralCodeInput.value, 'Code'));
+                    }
+
+                    if (copyVendorReferralLinkBtn && vendorReferralLinkInput) {
+                        copyVendorReferralLinkBtn.addEventListener('click', () => vendorCopyValue(vendorReferralLinkInput.value, 'Lien'));
+                    }
+
+                    loadVendorReferralPanel();
+
+                    
+
+window.addEventListener('profileUpdated', () => {
+    if (typeof _loadExistingAvatar === 'function') _loadExistingAvatar();
+    if (typeof _loadExistingCover === 'function') _loadExistingCover();
+    if (typeof loadVendorPasskeys === 'function') loadVendorPasskeys();
+});
+</script>
 </body>
 </html>
 
