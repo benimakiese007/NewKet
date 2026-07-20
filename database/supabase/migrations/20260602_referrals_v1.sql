@@ -188,7 +188,7 @@ BEGIN
         'rewarded',
         'order_completion',
         v_reward_amount,
-        COALESCE(v_event.invited_at, v_user.referral_claimed_at, v_now),
+        COALESCE(v_event.invited_at, v_invitee.referral_claimed_at, v_now),
         COALESCE(v_event.qualified_at, v_now),
         v_now,
         'NKToken granted on first completed order'

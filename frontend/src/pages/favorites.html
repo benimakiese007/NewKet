@@ -199,7 +199,7 @@
                             </div>
                     <button onclick="if(window.CartManager) window.CartManager.add({id: '${item.id}', title: '${(item.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${item.price}', image: '${String(cartImage || '').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', vendor_id: '${item.user_id || item.users?.id || ''}', vendor: '${((item.users && (Array.isArray(item.users) ? item.users[0] : item.users))?.company_name || (item.users && (Array.isArray(item.users) ? item.users[0] : item.users))?.name || 'NewKet').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}'})" data-track-action="favorites:cart_click" class="add-to-cart-btn w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
                                 <iconify-icon icon="solar:cart-plus-bold" width="16" class="flex-shrink-0"></iconify-icon>
-                                <span class="truncate">Ajouter au panier</span>
+                                <span class="truncate">Ajouter</span>
                             </button>
                         </div>
                     </div>

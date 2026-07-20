@@ -158,7 +158,7 @@ BEGIN
     SELECT COUNT(*)
     INTO v_completed_count
     FROM public.orders
-    WHERE (customer_id = p_invitee_id OR user_id = p_invitee_id)
+    WHERE (customer_id = p_invitee_id::text OR user_id = p_invitee_id)
       AND status = 'COMPLETED';
 
     IF v_completed_count <> 1 THEN
@@ -188,7 +188,7 @@ BEGIN
         'rewarded',
         'order_completion',
         v_reward_amount,
-        COALESCE(v_event.invited_at, v_user.referral_claimed_at, v_now),
+        COALESCE(v_event.invited_at, v_invitee.referral_claimed_at, v_now),
         COALESCE(v_event.qualified_at, v_now),
         v_now,
         'NKToken granted on first completed order'

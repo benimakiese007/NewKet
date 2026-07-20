@@ -20,6 +20,9 @@ html {
 
 body {
     overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none; /* helps prevent bounce effect on mobile */
     min-height: 100vh;
     min-height: 100dvh;
 }

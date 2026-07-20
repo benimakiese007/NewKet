@@ -410,6 +410,7 @@ html.admin-embedded-mode .admin-shell > main {
 .vendor-main-content,
 .customer-main-content {
     padding-top: clamp(1rem, 2vw, 2rem);
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Remove default focus outlines on layout containers that can trigger on hash navigation/anchor loads */
