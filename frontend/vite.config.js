@@ -162,7 +162,10 @@ export default defineConfig({
         admin_user: resolve(__dirname, 'src/pages/admin/user.html'),
         admin_user_details: resolve(__dirname, 'src/pages/admin/user-details.html'),
         admin_security: resolve(__dirname, 'src/pages/admin/security.html'),
-        admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html')
+        admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html'),
+        admin_comptabilite: resolve(__dirname, 'src/pages/admin/comptabilite.html'),
+        admin_disputes: resolve(__dirname, 'src/pages/admin/disputes.html'),
+        admin_payouts: resolve(__dirname, 'src/pages/admin/payouts.html')
       },
       output: {
         manualChunks(id) {
