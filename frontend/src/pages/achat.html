@@ -433,7 +433,7 @@
                             <span class="font-black tracking-tight text-sm uppercase">Paiement sécurisé effectué</span>
                         </div>
                         ` : `
-                        <button id="btnPayNow" class="btn-primary w-full flex items-center justify-center gap-2">
+                        <button id="btnPayNow" data-require-network="true" class="btn-primary w-full flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                             Payer maintenant
                         </button>
@@ -454,7 +454,7 @@
                         <span class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Total à payer</span>
                         <span class="text-lg font-black text-gray-900">${formatAmount(total)}</span>
                     </div>
-                    <button id="btnPayNowSticky" class="bg-black text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 active:scale-95 transition-all">
+                    <button id="btnPayNowSticky" data-require-network="true" class="bg-black text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 active:scale-95 transition-all">
                         <iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon>
                         Payer
                     </button>

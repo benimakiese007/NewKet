@@ -466,6 +466,10 @@ class CartManager {
                             <iconify-icon icon="solar:cart-large-minimalistic-bold" width="20"></iconify-icon>
                         </div>
                         <h2 class="text-lg font-black uppercase tracking-widest text-white">Mon Panier</h2>
+                        <div class="network-status-icon ${navigator.onLine ? 'hidden' : ''} flex items-center gap-2 text-red-500 bg-red-500/20 h-8 px-2 rounded-lg border border-red-500/30 ml-2" title="Vous êtes hors ligne">
+                            <iconify-icon icon="mdi:wifi-off" width="16"></iconify-icon>
+                            <span class="text-[9px] font-black uppercase tracking-widest text-white hidden sm:inline">Hors ligne</span>
+                        </div>
                     </div>
                     <button onclick="window.CartManager._hideSlideOver()" class="p-2 rounded-xl text-white transition-colors btn-active-scale" style="hover:background:rgba(255,255,255,0.1);">
                         <iconify-icon icon="solar:close-circle-linear" width="24"></iconify-icon>

@@ -594,11 +594,39 @@ const ComponentLoader = {
 
     initNetworkStatus() {
         const updateNetworkStatus = () => {
+            const isOnline = navigator.onLine;
+            
+            // 1. Update network status icons (headers, etc.)
             document.querySelectorAll('.network-status-icon').forEach(el => {
-                if (navigator.onLine) {
+                if (isOnline) {
                     el.classList.add('hidden');
                 } else {
                     el.classList.remove('hidden');
+                }
+            });
+
+            // 2. Smart disable of critical form buttons
+            document.querySelectorAll('button[type="submit"], [data-require-network="true"]').forEach(btn => {
+                // Ignore buttons that explicitly shouldn't be disabled this way
+                if (btn.hasAttribute('data-ignore-network')) return;
+
+                if (isOnline) {
+                    // Restore original state
+                    if (btn.dataset.originalText) {
+                        btn.innerHTML = btn.dataset.originalText;
+                    }
+                    btn.disabled = false;
+                    btn.classList.remove('offline-disabled', 'cursor-not-allowed', 'opacity-60');
+                } else {
+                    // Save original state and show offline state
+                    if (!btn.dataset.originalText) {
+                        btn.dataset.originalText = btn.innerHTML;
+                    }
+                    btn.disabled = true;
+                    btn.classList.add('offline-disabled', 'cursor-not-allowed', 'opacity-60');
+                    
+                    // Show a nice offline indicator with an icon inside the button
+                    btn.innerHTML = `<div class="flex items-center justify-center gap-2"><iconify-icon icon="mdi:wifi-off" width="20"></iconify-icon><span>Hors ligne</span></div>`;
                 }
             });
         };
