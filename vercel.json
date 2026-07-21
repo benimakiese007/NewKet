@@ -122,7 +122,7 @@
     },
     {
       "path": "/api/cron/payouts/process-deferred",
-      "schedule": "0 * * * *"
+      "schedule": "45 0 * * *"
     }
   ]
 }
