@@ -1,4 +1,4 @@
-﻿/**
+/**
  * NewKet UI Helpers
  * Common utilities for UI rendering and interactions.
  */
@@ -736,7 +736,7 @@ export function buildProductCardHTML(p, options = {}) {
                             : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
                         }
                     </div>
-                    <span>Vendu par : ${ 
+                    <span>${ 
                         vendor?.company_name || 
                         vendor?.name || 
                         'NewKet Shop' 
