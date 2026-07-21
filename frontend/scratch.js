@@ -2735,12 +2735,12 @@
 
         function getNewketLogoUrl() {
             if (typeof window.resolvePath === 'function') {
-                return window.resolvePath('/icons/icon-512.png');
+                return window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png');
             }
             try {
-                return new URL('/icons/icon-512.png', window.location.href).href;
+                return new URL('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png', window.location.href).href;
             } catch (error) {
-                return '/icons/icon-512.png';
+                return 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png';
             }
         }
 

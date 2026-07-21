@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <meta name="theme-color" content="#013220">
@@ -209,7 +209,7 @@
             <!-- Col centre : Logo parfaitement centré -->
             <div class="flex items-center justify-center">
                 <a href="/" class="flex items-center justify-center group nk-header-logo-link" aria-label="Accueil NewKet">
-                    <img src="/icons/icon-512.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='/icons/icon-512.png'; this.onerror=null;">
+                    <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572406/newket_assets/racine/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
                 </a>
             </div>
 
@@ -790,7 +790,7 @@
                 <!-- Summary -->
                 <div class="bg-gray-50 rounded-xl p-6 space-y-3">
                     <div class="flex items-center gap-3 pb-3 border-b border-gray-200">
-                        <img id="modalInvoiceLogo" src="/icons/icon-512.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
+                        <img id="modalInvoiceLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
                         <div class="min-w-0">
                             <div class="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Facture</div>
                             <div class="font-black text-gray-900">Aperçu compact</div>
@@ -931,7 +931,7 @@
                 <div class="invoice-header">
                     <div class="invoice-header-top">
                         <div class="invoice-brand">
-                            <img id="invLogo" src="/icons/icon-512.png" alt="NewKet" class="invoice-logo">
+                            <img id="invLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="invoice-logo">
                             <div class="invoice-brand-copy">
                                 <div class="invoice-title">FACTURE</div>
                             </div>
@@ -3909,12 +3909,12 @@
 
         function getNewketLogoUrl() {
             if (typeof window.resolvePath === 'function') {
-                return window.resolvePath('/icons/icon-512.png');
+                return window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png');
             }
             try {
-                return new URL('/icons/icon-512.png', window.location.href).href;
+                return new URL('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png', window.location.href).href;
             } catch (error) {
-                return '/icons/icon-512.png';
+                return 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png';
             }
         }
 

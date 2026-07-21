@@ -16,7 +16,7 @@ const ASSETS_TO_CACHE = [
     '/src/services/main.js',
     '/src/services/components-loader.js',
     '/manifest.json',
-    '/icons/icon-512.png',
+    '/Images/Logo NewKet PNG.png',
     '/Images/Logo NewKet PNG-192.png',
     '/favicon-16x16.png',
     '/favicon-32x32.png',
