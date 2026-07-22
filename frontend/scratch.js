@@ -1545,7 +1545,7 @@
             } else {
                 favoritesGrid.innerHTML = favorites.map(item => `
                     <div class="glass-panel p-3 sm:p-6 flex flex-col relative group">
-                        <button onclick="removeFavorite('${item.id}')" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10">
+                        <button onclick="removeFavorite('${item.id}')" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10 rounded-xl">
                             <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon>
                         </button>
                         <div class="aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden">
@@ -1794,7 +1794,7 @@
                                 <input id="achatDashPromoInput" type="text" value="${promoCode}" placeholder="Ex: MAMAN10" class="flex-1 min-w-0 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
                                 <button id="achatDashApplyPromo" class="px-4 py-3 rounded-2xl bg-white border border-gray-100 text-xs font-black tracking-widest uppercase hover:border-black transition-colors">Appliquer</button>
                             </div>
-                            <button id="achatDashRemovePromo" class="mt-2 text-xs font-bold text-gray-500 hover:text-black ${promoCode ? '' : 'hidden'}">Retirer le code promo</button>
+                            <button id="achatDashRemovePromo" class="mt-2 text-xs font-bold text-gray-500 hover:text-black ${promoCode ?  rounded-xl"' : 'hidden'}">Retirer le code promo</button>
                             <div id="achatDashPromoSuccess" class="mt-2 text-xs text-emerald-700 font-semibold ${promoCode ? '' : 'hidden'}">${promoCode ? `Code appliqué: ${promoCode}` : ''}</div>
                             <div id="achatDashPromoError" class="mt-2 text-xs text-red-600 font-semibold hidden"></div>
                         </div>

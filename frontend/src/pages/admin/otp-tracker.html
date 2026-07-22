@@ -279,7 +279,7 @@
                 tbody.innerHTML = this.filteredOrders.map((order) => `
                     <tr class="group">
                         <td class="p-4">
-                            <button onclick="window.AdminOtpTracker.focusOrder('${order.id}')" data-track-action="admin_otp_tracker:focus_order_click" class="font-black tracking-[0.18em] text-violet-700 hover:text-black transition-colors">
+                            <button onclick="window.AdminOtpTracker.focusOrder('${order.id}')" data-track-action="admin_otp_tracker:focus_order_click" class="font-black tracking-[0.18em] text-violet-700 hover:text-black transition-colors rounded-xl">
                                 ${order.otp_code}
                             </button>
                         </td>

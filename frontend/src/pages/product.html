@@ -123,7 +123,7 @@
                         <div class="flex items-center justify-between gap-4 mb-2">
                             <div id="productCategory" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-mono">Catégorie</div>
                             <div class="flex items-center gap-2">
-                                <button data-share-product data-track-action="product:share_click" class="flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all -gray-100 hover:shadow-md" aria-label="Partager">
+                                <button data-share-product data-track-action="product:share_click" class="flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all -gray-100 hover:shadow-md rounded-xl" aria-label="Partager">
                                     <iconify-icon icon="solar:share-linear" width="20"></iconify-icon>
                                 </button>
                             </div>
@@ -235,7 +235,7 @@
     </main>
 
     <div id="zoomModal" class="fixed inset-0 z-[200] invisible opacity-0 transition-all duration-300 bg-black/95 flex items-center justify-center p-4 backdrop-blur-2xl" data-close-zoom>
-        <button class="absolute top-8 right-8 text-white/50 hover:text-white transition-all" onclick="window.closeZoom()" aria-label="Fermer le zoom">
+        <button class="absolute top-8 right-8 text-white/50 hover:text-white transition-all rounded-xl" onclick="window.closeZoom()" aria-label="Fermer le zoom">
             <iconify-icon icon="solar:close-circle-bold" width="40"></iconify-icon>
         </button>
         <!-- Spinner visible pendant le chargement -->
@@ -620,7 +620,7 @@
                             <div class="flex flex-col items-end gap-2">
                                 <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90">${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < r.rating ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('')}</div>
                                 ${canDelete ? `
-                                    <button onclick="window.confirmDeleteReview('${r.id}')" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Supprimer mon avis">
+                                    <button onclick="window.confirmDeleteReview('${r.id}')" class="text-red-400 hover:text-red-600 transition-colors p-2 rounded-xl" title="Supprimer mon avis">
                                         <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                                     </button>
                                 ` : ''}

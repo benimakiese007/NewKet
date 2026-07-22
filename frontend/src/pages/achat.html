@@ -261,7 +261,7 @@
             const orderId = safeText(order.id);
 
             const btn = showButton
-                ? `<button class="btn-primary text-sm flex items-center justify-center gap-2 w-full sm:w-auto" onclick="goToOrder('${orderId}')">
+                ? `<button class="btn-primary text-sm flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl" onclick="goToOrder('${orderId}')">
                         <iconify-icon icon="solar:arrow-right-bold" width="18"></iconify-icon>
                         Continuer
                    </button>`
@@ -419,7 +419,7 @@
                             </div>
                             <div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-2">
                                 <input id="promoCodeInput" type="text" value="${appliedCode}" placeholder="Ex: MAMAN10" class="w-full min-w-0 bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
-                                <button id="btnApplyPromo" class="btn-ghost w-full sm:w-auto whitespace-nowrap">Appliquer</button>
+                                <button id="btnApplyPromo" class="btn-ghost w-full sm:w-auto whitespace-nowrap rounded-xl">Appliquer</button>
                             </div>
                             <button id="btnRemovePromo" class="text-sm font-bold text-gray-500 hover:text-black text-left ${appliedCode ? '' : 'hidden'}">Retirer le code promo</button>
                             <div id="promoSuccess" class="text-xs text-emerald-700 font-semibold ${appliedCode ? '' : 'hidden'}">${appliedCode ? `Code appliqué: ${appliedCode}` : ''}</div>
@@ -433,7 +433,7 @@
                             <span class="font-black tracking-tight text-sm uppercase">Paiement sécurisé effectué</span>
                         </div>
                         ` : `
-                        <button id="btnPayNow" data-require-network="true" class="btn-primary w-full flex items-center justify-center gap-2">
+                        <button id="btnPayNow" data-require-network="true" class="btn-primary w-full flex items-center justify-center gap-2 rounded-xl">
                             <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
                             Payer maintenant
                         </button>
@@ -444,7 +444,7 @@
                             <span class="trust-badge"><iconify-icon icon="solar:verified-check-bold" width="13"></iconify-icon>Garantie NewKet</span>
                         </div>
                         `}
-                        <button class="btn-ghost w-full mt-3" onclick="backToDashboard()">Retour à l'espace client</button>
+                        <button class="btn-ghost w-full mt-3 rounded-xl" onclick="backToDashboard()">Retour à l'espace client</button>
                     </div>
                 </div>
                 
@@ -505,7 +505,7 @@
                         <div class="mt-4 font-black text-gray-900">Commande introuvable</div>
                         <div class="mt-1 text-sm muted">Retournez à votre espace client et réessayez.</div>
                         <div class="mt-6">
-                            <button class="btn-primary text-sm" onclick="backToDashboard()">Aller à mon espace client</button>
+                            <button class="btn-primary text-sm rounded-xl" onclick="backToDashboard()">Aller à mon espace client</button>
                         </div>
                     </div>
                 `;

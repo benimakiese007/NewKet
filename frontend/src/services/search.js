@@ -277,7 +277,7 @@ const SearchManager = {
                             <div class="recent-search-chip" onclick="SearchManager.executeSearch('${escapeHTML(q)}')">
                                 <iconify-icon icon="solar:history-linear" width="14"></iconify-icon>
                                 <span>${escapeHTML(q)}</span>
-                                <button onclick="event.stopPropagation(); SearchManager.removeRecentSearch('${escapeHTML(q)}')">
+                                <button onclick="event.stopPropagation(); SearchManager.removeRecentSearch('${escapeHTML(q)}')" class="rounded-xl">
                                     <iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon>
                                 </button>
                             </div>

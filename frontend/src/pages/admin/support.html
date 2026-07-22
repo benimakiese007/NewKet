@@ -164,7 +164,7 @@
                     </div>
                     <div class="flex items-center gap-2 mt-4 md:mt-0">
                         ${!isResolved ? `<button onclick="resolveTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">Marquer Résolu</button>` : `<button onclick="reopenTicket('${t.id}')" class="text-[10px] font-black uppercase tracking-widest border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">Rouvrir</button>`}
-                        <button onclick="deleteTicket('${t.id}')" class="text-gray-300 hover:text-red-400 p-2 transition-colors"><iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon></button>
+                        <button onclick="deleteTicket('${t.id}')" class="text-gray-300 hover:text-red-400 p-2 transition-colors rounded-xl"><iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon></button>
                     </div>
                 </div>
             `}).join('');

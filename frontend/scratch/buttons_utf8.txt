@@ -1,0 +1,76 @@
+product.html: <button data-share-product data-track-action="product:share_click" class="flex items-center justify-center text-gray-400 hover:text-gray-900 transition-all -gray-100 hover:shadow-md" aria-label="Parta
+user.html: <button onclick="switchTab('products')" id="tabBtn-products" data-track-action="admin_users:tab_products_click" class="hidden px-6 py-4 text-xs font-black uppercase tracking-widest text-gray-400 borde
+vendor-dashboard.html: <button onclick="window.handleBulkStatusUpdate('SHIPPED')" class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-gray-50">Expédier</button>
+vendor-dashboard.html: <button id="vendorPromoResetBtn" type="button" class="shrink-0 self-start sm:self-auto text-sm font-bold text-gray-500 hover:text-black">Réinitialiser</button>
+ui-helpers.js: <button type="button" id="${modalId}-qty-minus" class="-gray-200 text-gray-700 font-black text-2xl leading-none transition-colors flex items-center justify-center" aria-label="Réduire la quantité">−</
+support.html: <button data-track-action="support:start_live_chat_click" class="text-emerald-600 text-[10px] font-black uppercase tracking-widest">Démarrer</button>
+payouts.html: <button onclick="loadPayouts()" class="text-xs text-gray-500 underline mt-1">Réessayer</button>
+vendor-dashboard.html: <button type="button" class="sidebar-toggle-btn hidden lg:flex" data-toggle-sidebar="vendor" aria-label="Réduire le menu" data-no-close> <iconify-icon icon="solar:alt-arrow-left-linear
+vendor-dashboard.html: <button onclick="window.refreshOrders(this)" class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 transition-a
+vendor-dashboard.html: <button id="btnMarkDelivered" class="flex-1 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center gap-2"> 
+header.html: <button id="closeMobileMenu" class="p-2 transition-all btn-active-scale" aria-label="Fermer le menu"> <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconif
+scratch.js: <button onclick="removeFavorite('${item.id}')" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10"> <iconify-icon icon="solar:trash-b
+cookie-consent.js: <button id="nk-cookie-customize" class="nk-btn nk-btn-ghost" style="padding-left:0.2rem;padding-right:0.2rem;">Personnaliser</button>
+vendor-dashboard.html: <button onclick="closeDeletePayoutModal()" class="flex-1 py-3 font-bold text-gray-700 transition-colors">Annuler</button>
+cookie-consent.js: <button id="nk-cookie-save" class="nk-btn nk-btn-primary">Enregistrer mes choix</button>
+achat.html: <button class="btn-primary text-sm flex items-center justify-center gap-2 w-full sm:w-auto" onclick="goToOrder('${orderId}')"> <iconify-icon icon="solar:arrow-right-bold" width
+user.html: <button onclick="rejectVendor('${u.id}', '${u.name}')" data-track-action="admin_users:reject_vendor_click" class="p-2 text-gray-300 hover:text-red-500 transition-colors"><iconify-icon icon="solar:tras
+auth.js: <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-900"> <iconify-icon icon="solar:close-circle-bold"></iconify-icon> </button>
+ui-helpers.js: <button onclick="addToWishlist('${p.id}', event)" class="wishlist-btn btn-active-scale ${isFavorite ? 'active' : ''}" aria-label="${isFavorite ? 'Retirer des 
+support.html: <button onclick="deleteTicket('${t.id}')" class="text-gray-300 hover:text-red-400 p-2 transition-colors"><iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon></button>
+vendor-dashboard.html: <button onclick="openAddPayoutModal()" class="text-[#013220] font-semibold hover:underline text-sm">Ajouter mon premier compte</button>
+login.html: <button type="button" id="toggleConfirmPassword" data-track-action="auth_login:toggle_confirm_password_click" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray
+login.html: <button type="button" id="forgotPasswordBtn" data-track-action="auth_login:forgot_password_click" class="text-[11px] font-black uppercase tracking-widest text-gray-500 
+vendor-dashboard.html: <button id="vFilterAction" onclick="setVendorLeadsFilter('action')" type="button" class="px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white -black" aria-pr
+login.html: <button type="button" id="togglePassword" data-track-action="auth_login:toggle_password_click" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text
+product.html: <button onclick="window.confirmDeleteReview('${r.id}')" class="text-red-400 hover:text-red-600 transition-colors p-2" title="Supprimer mon avis"> <iconify-icon 
+login.html: <button id="tabLogin" data-track-action="auth_login:tab_login_click" class="tab-btn active pb-3 text-sm font-bold uppercase tracking-widest text-black transition-colors fle
+achat.html: <button id="btnApplyPromo" class="btn-ghost w-full sm:w-auto whitespace-nowrap">Appliquer</button>
+shops.html: <button onclick="document.getElementById('shopSearchInput').value=''; loadShops();" data-track-action="shops:clear_search_click" class="mt-4 text-xs font-black border-b-2 border-black 
+vendor-dashboard.html: <button id="vendorMobileBtn" data-toggle-sidebar="vendor" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center transi
+otp-tracker.html: <button onclick="window.AdminOtpTracker.focusOrder('${order.id}')" data-track-action="admin_otp_tracker:focus_order_click" class="font-black tracking-[0.18em] text-violet-700 hover:text-black transiti
+components-loader.js: <button id="closeMobileMenu" class="p-2 transition-all btn-active-scale" aria-label="Fermer le menu"> <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconif
+user.html: <button onclick="filterUsers('all')" data-filter="all" data-track-action="admin_users:filter_all_click" class="filter-btn px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all bg
+achat.html: <button id="btnRemovePromo" class="text-sm font-bold text-gray-500 hover:text-black text-left ${appliedCode ? '' : 'hidden'}">Retirer le code promo</button>
+vendor-dashboard.html: <button onclick="window.clearBulkSelection()" class="text-gray-400 hover:text-black"> <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon> 
+vendor-dashboard.html: <button onclick="document.getElementById('payoutDeleteStepOtp').classList.add('hidden'); document.getElementById('payoutDeleteStepConfirm').classList.remove('hidden');" class="mt-4 text-sm text-gray-5
+cookie-consent.js: <button id="nk-cookie-reject" class="nk-btn nk-btn-outline" style="padding:0.65rem 0.75rem;">Refuser tout</button>
+newsletter.html: <button onclick="exportCSV()" data-track-action="admin_newsletter:export_csv_click" class="-gray-200 text-black px-5 py-2.5 font-bold text-sm flex items-center gap-2 hover:tran
+ui-helpers.js: <button onclick="window.closeConfirm('${modalId}', false)" class="flex-1 px-6 py-3.5 text-gray-600 font-bold transition-all active:scale-95"> Annuler </butt
+vendor-dashboard.html: <button id="payoutRequestOtpBtn" onclick="requestPayoutOtp()" class="btn-primary w-full py-3 font-bold mt-2 flex justify-center items-center gap-2"> 
+product.html: <button class="absolute top-8 right-8 text-white/50 hover:text-white transition-all" onclick="window.closeZoom()" aria-label="Fermer le zoom"> <iconify-icon icon="solar:close-circle-bold" 
+newsletter.html: <button onclick="unsubscribe('${s.id}')" data-track-action="admin_newsletter:unsubscribe_click" title="Désabonner" class="text-gray-400 hover:text-red-500 transition-all flex items-center justify-cent
+cookie-consent.js: <button id="nk-cookie-accept" class="nk-btn nk-btn-primary" style="padding:0.65rem 0.75rem;">Accepter tout ✓</button>
+disputes.html: <button id="prevPage" class="p-2 -gray-200 text-gray-600 hover:disabled:opacity-50 disabled:cursor-not-allowed transition-all"> <iconify-icon icon="solar:alt-arrow-left-lin
+admin-layout.js: <button type="button" onclick="AdminLayout._toggleDropdown('${link.dropdown}')" class="sidebar-link ${isParentActive ? 'active' 
+promo.html: <button id="mobileFilterToggle" data-track-action="promo:open_filter_drawer_click" class="lg:hidden flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors"> 
+customer-dashboard.html: <button id="btnAcceptQuote" type="button" class="hidden flex-1 py-3 bg-black text-white font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2
+products.html: <button onclick="deleteSelected()" data-track-action="admin_products:delete_selected_click" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text
+admin-layout.js: <button id="adminMobileMenuBtn" data-toggle-sidebar="admin" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center tran
+achat.html: <button class="btn-primary text-sm" onclick="backToDashboard()">Aller à mon espace client</button>
+reset-password.html: <button type="button" id="toggleNewPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors focus:outline-none"> 
+achat.html: <button class="btn-ghost w-full mt-3" onclick="backToDashboard()">Retour à l'espace client</button>
+ui-helpers.js: <button type="button" class="nk-toast-close" aria-label="Fermer">&times;</button>
+user-details.html: <button onclick="window.print()" data-track-action="admin_user_details:print_click" class="w-full py-3 text-gray-900 font-bold flex items-center justify-center gap-2 transition
+user.html: <button onclick="confirmDelete('${u.id}', '${u.name}')" data-track-action="admin_users:delete_user_click" class="p-2 text-gray-200 hover:text-red-500 transition-colors"> 
+ui.js: <button onclick="location.reload()" class="mt-4 text-sm text-primary hover:underline">Réessayer</button>
+customer-dashboard.html: <button id="customerMobileBtn" data-toggle-sidebar="customer" data-track-action="customer_dashboard:mobile_menu_click" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus
+vendor-dashboard.html: <button onclick="document.getElementById('payoutStepOtp').classList.add('hidden'); document.getElementById('payoutStepForm').classList.remove('hidden');" class="mt-4 text-sm text-gray-500 hover:text-g
+vendor-dashboard.html: <button onclick="window.handleBulkStatusUpdate('PROCESSING')" class="px-3 py-1.5 hover:bg-black hover:text-white text-gray-700 text-xs font-bold transition-colors">Préparation</button>
+orders.html: <button onclick="exportOrdersToCSV()" data-track-action="admin_orders:export_csv_click" class="w-full sm:w-auto justify-center bg-black text-white px-6 py-3.5 font-black text-[
+user.html: <button onclick="switchTab('orders')" id="tabBtn-orders" data-track-action="admin_users:tab_orders_click" class="px-6 py-4 text-xs font-black uppercase tracking-widest text-black border-b-4 border-bla
+components-loader.js: <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="all">Tout</button>
+ui-helpers.js: <button onclick="if(window.CartManager) window.CartManager.add({id: '${p.id}', title: '${(p.name||'').replace(/'/g, `\\'`).replace(/\"/g, '&quot;')}', price: '${p.price}', ima
+reset-password.html: <button id="resendBtn" class="text-[11px] font-black uppercase tracking-widest text-black hover:underline decoration-2 underline-offset-4 transition-colors disabled:tex
+customer-dashboard.html: <button onclick="removeFavorite('${item.id}')" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10"> <iconify-icon icon="solar:trash-b
+customer-dashboard.html: <button id="achatDashRemovePromo" class="mt-2 text-xs font-bold text-gray-500 hover:text-black ${promoCode ? '' : 'hidden'}">Retirer le code promo</button>
+customer-dashboard.html: <button type="button" class="sidebar-toggle-btn hidden lg:flex" data-toggle-sidebar="customer" aria-label="Réduire le menu" data-no-close> <iconify-icon icon="solar:alt-arrow-left-line
+login.html: <button id="tabSignup" data-track-action="auth_login:tab_signup_click" class="tab-btn pb-3 text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-black transi
+vendor-dashboard.html: <button onclick="window.handleBulkStatusUpdate('PROCESSING')" class="w-full text-left px-4 py-2 text-xs font-bold hover:bg-gray-50">Préparation</button>
+scratch.js: <button id="achatDashRemovePromo" class="mt-2 text-xs font-bold text-gray-500 hover:text-black ${promoCode ? '' : 'hidden'}">Retirer le code promo</button>
+vendor-dashboard.html: <button type="button" id="vendorLeadsSearchClear" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors hidden" aria-label="Effacer la recherche"> 
+settings.html: <button class="text-xs font-semibold text-gray-500 hover:text-gray-900" onclick="document.getElementById('avatarUploadInput').click()" data-track-action="settings:avatar_upload_click">Modifier la phot
+reset-password.html: <button type="button" id="toggleConfirmPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors focus:outline-none"> 
+achat.html: <button id="btnPayNow" data-require-network="true" class="btn-primary w-full flex items-center justify-center gap-2"> <iconify-icon icon="solar:card-send-bold" width="20"><
+admin-layout.js: <button type="button" class="sidebar-toggle-btn hidden lg:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close> <iconify-icon icon="solar:alt-arrow-le
+header.html: <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="all">Tout</button>

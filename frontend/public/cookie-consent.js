@@ -239,9 +239,9 @@
                     </p>
                 </div>
                 <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:nowrap;overflow-x:auto;padding-bottom:0.2rem;">
-                    <button id="nk-cookie-customize" class="nk-btn nk-btn-ghost" style="padding-left:0.2rem;padding-right:0.2rem;">Personnaliser</button>
-                    <button id="nk-cookie-reject" class="nk-btn nk-btn-outline" style="padding:0.65rem 0.75rem;">Refuser tout</button>
-                    <button id="nk-cookie-accept" class="nk-btn nk-btn-primary" style="padding:0.65rem 0.75rem;">Accepter tout ✓</button>
+                    <button id="nk-cookie-customize" class="nk-btn nk-btn-ghost rounded-xl" style="padding-left:0.2rem;padding-right:0.2rem;">Personnaliser</button>
+                    <button id="nk-cookie-reject" class="nk-btn nk-btn-outline rounded-xl" style="padding:0.65rem 0.75rem;">Refuser tout</button>
+                    <button id="nk-cookie-accept" class="nk-btn nk-btn-primary rounded-xl" style="padding:0.65rem 0.75rem;">Accepter tout ✓</button>
                 </div>
             </div>
 
@@ -260,7 +260,7 @@
                     </div>
                 `).join('')}
                 <div style="display:flex;justify-content:flex-end;padding-top:0.5rem;">
-                    <button id="nk-cookie-save" class="nk-btn nk-btn-primary">Enregistrer mes choix</button>
+                    <button id="nk-cookie-save" class="nk-btn nk-btn-primary rounded-xl">Enregistrer mes choix</button>
                 </div>
             </div>
         `;

@@ -56,6 +56,11 @@
                             <span>Sponsorisés</span>
                             <span id="productsSponsoredCount"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </div>
+                        <button id="fallbackFilterBtn" onclick="toggleFallbackFilter()" class="inline-flex items-center gap-2 rounded-full bg-yellow-50 hover:bg-yellow-100 transition-colors px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-yellow-600 cursor-pointer">
+                            <iconify-icon icon="solar:danger-triangle-bold" width="14"></iconify-icon>
+                            <span>Garde-fou</span>
+                            <span id="productsFallbackCount"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
+                        </button>
                     </div>
                 </div>
                 <div class="admin-page-actions w-full sm:w-auto mt-4 sm:mt-0">
@@ -78,7 +83,7 @@
                     <div class="h-6 w-px bg-white/10"></div>
                     
                     <button onclick="deleteSelected()" data-track-action="admin_products:delete_selected_click"
-                        class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-all hover:scale-105">
+                        class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-300 transition-all hover:scale-105 rounded-xl">
                         <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                         Supprimer la sélection
                     </button>
@@ -320,9 +325,92 @@
 
     <script>
         let productsBootStarted = false;
+        let isFallbackFilterActive = false;
+        
+        // Track broken images asynchronously
+        const brokenImageIds = new Set();
+        let isBrokenCheckRunning = false;
+
+        function isFallbackImage(p) {
+            if (!p) return true;
+            if (brokenImageIds.has(p.id)) return true;
+            
+            if (!p.image) return true;
+            let imgStr = p.image;
+            if (Array.isArray(imgStr)) {
+                if (imgStr.length === 0) return true;
+                imgStr = imgStr[0];
+            }
+            imgStr = String(imgStr).toLowerCase().trim();
+            return imgStr === '' || 
+                   imgStr === 'null' || 
+                   imgStr === 'undefined' || 
+                   imgStr === '[]' ||
+                   imgStr.includes('default.') ||
+                   imgStr.includes('logo-newket') ||
+                   imgStr.includes('garde-fou');
+        }
+
+        async function checkBrokenImagesAsync(products) {
+            if (isBrokenCheckRunning || !products) return;
+            isBrokenCheckRunning = true;
+            
+            let updated = false;
+            
+            // Limit concurrent checks to avoid overwhelming the browser
+            const BATCH_SIZE = 10;
+            for (let i = 0; i < products.length; i += BATCH_SIZE) {
+                const batch = products.slice(i, i + BATCH_SIZE);
+                const promises = batch.map(p => {
+                    return new Promise(resolve => {
+                        // Already known as broken or already identified as fallback? Skip.
+                        if (brokenImageIds.has(p.id) || isFallbackImage(p)) {
+                            return resolve();
+                        }
+                        
+                        let imgUrl = typeof p.image === 'string' ? p.image.split(',')[0] : (Array.isArray(p.image) ? p.image[0] : null);
+                        if (!imgUrl) return resolve();
+                        
+                        const img = new Image();
+                        img.onload = () => resolve();
+                        img.onerror = () => {
+                            brokenImageIds.add(p.id);
+                            updated = true;
+                            resolve();
+                        };
+                        img.src = imgUrl;
+                    });
+                });
+                await Promise.all(promises);
+                
+                // Update UI incrementally if we found broken images
+                if (updated) {
+                    updateProductsTotal();
+                    updated = false;
+                }
+            }
+            isBrokenCheckRunning = false;
+        }
+
+        function toggleFallbackFilter() {
+            isFallbackFilterActive = !isFallbackFilterActive;
+            const btn = document.getElementById('fallbackFilterBtn');
+            if (isFallbackFilterActive) {
+                btn.classList.replace('bg-yellow-50', 'bg-yellow-500');
+                btn.classList.replace('text-yellow-600', 'text-white');
+                btn.classList.replace('hover:bg-yellow-100', 'hover:bg-yellow-600');
+            } else {
+                btn.classList.replace('bg-yellow-500', 'bg-yellow-50');
+                btn.classList.replace('text-white', 'text-yellow-600');
+                btn.classList.replace('hover:bg-yellow-600', 'hover:bg-yellow-100');
+            }
+            renderAdminProducts();
+        }
+
         function updateProductsTotal() {
             const totalNode = document.getElementById('productsTotalCount');
             const sponsoredNode = document.getElementById('productsSponsoredCount');
+            const fallbackNode = document.getElementById('productsFallbackCount');
             
             if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
             const products = ProductManager.getProducts() || [];
@@ -338,6 +426,11 @@
             if (sponsoredNode) {
                 const sponsoredCount = products.filter(p => p.pinned === true).length;
                 sponsoredNode.textContent = sponsoredCount;
+            }
+
+            if (fallbackNode) {
+                const fallbackCount = products.filter(p => isFallbackImage(p)).length;
+                fallbackNode.textContent = fallbackCount;
             }
         }
 
@@ -359,7 +452,16 @@
                 );
             }
 
+            if (isFallbackFilterActive) {
+                products = products.filter(p => isFallbackImage(p));
+            }
+
             updateProductsTotal();
+
+            // Start checking for broken images silently
+            if (products.length > 0 && !isBrokenCheckRunning) {
+                setTimeout(() => checkBrokenImagesAsync(ProductManager.getProducts()), 500);
+            }
 
             if (ProductManager.loading !== false && products.length === 0) {
                 if (!tbody.querySelector('.animate-pulse')) {
@@ -679,6 +781,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('filter') === 'fallback') {
+                toggleFallbackFilter();
+            }
+            const searchParam = urlParams.get('search');
+            if (searchParam) {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.value = searchParam;
+                }
+            }
+
             if (window.newketInitialized) {
                 initializeProducts();
             } else {

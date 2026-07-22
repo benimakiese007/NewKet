@@ -497,7 +497,7 @@
                             <span id="vendorProductsCountBadge" class="bg-black text-white text-[10px] font-black px-2 py-0.5 rounded-full hidden">0</span>
                         </h2>
                         <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
-                            <!-- Toggle En ligne / Archivés -->
+                            <!-- Toggle En ligne / Archivés / Garde-fou -->
                             <div class="flex bg-gray-100 rounded-xl p-1 gap-1 w-fit max-w-full self-start" role="group" aria-label="Vue produits">
                                 <button type="button" id="vendorTabOnline"
                                     onclick="switchProductsView('online')"
@@ -514,6 +514,14 @@
                                     Archivés
                                     <span id="vendorArchivedCountBadge" class="ml-1 hidden bg-gray-400 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">0</span>
                                 </button>
+                                <button type="button" id="vendorTabFallback"
+                                    onclick="switchProductsView('fallback')"
+                                    class="px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-yellow-600 hover:text-yellow-800"
+                                    aria-pressed="false">
+                                    <iconify-icon icon="solar:danger-triangle-bold" width="12" class="mr-1"></iconify-icon>
+                                    Garde-fou
+                                    <span id="vendorFallbackCountBadge" class="ml-1 hidden bg-yellow-400 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">0</span>
+                                </button>
                             </div>
                             <!-- Search -->
                             <div id="vendorSearchWrapper" class="flex gap-2 w-full sm:flex-1 sm:w-auto min-w-0">
@@ -526,6 +534,16 @@
                                 </button>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Alerte Garde-fou -->
+                    <div id="vendor-fallback-alert" class="hidden mb-4 p-4 bg-yellow-50 border border-yellow-100 rounded-2xl">
+                        <div class="flex items-center gap-2 mb-2">
+                            <iconify-icon icon="solar:danger-triangle-bold" width="16" class="text-yellow-500"></iconify-icon>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-yellow-600">Images manquantes (Garde-fou)</span>
+                            <span id="vendor-fallback-count" class="ml-auto bg-yellow-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">0</span>
+                        </div>
+                        <div id="vendor-fallback-list" class="space-y-1.5"></div>
                     </div>
 
                     <!-- ── EN LIGNE VIEW ── -->
@@ -547,6 +565,20 @@
                                 <iconify-icon icon="solar:add-circle-bold" width="20"></iconify-icon>
                                 Créer mon premier produit
                             </a>
+                        </div>
+                    </div>
+
+                    <!-- ── GARDE-FOU VIEW (hidden by default) ── -->
+                    <div id="vendor-fallback-view" class="hidden">
+                        <div id="vendor-fallback-grid"
+                            class="product-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
+                        </div>
+                        <div id="vendor-fallback-empty" class="hidden flex flex-col items-center justify-center py-16 text-center">
+                            <div class="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mb-4">
+                                <iconify-icon icon="solar:check-circle-bold-duotone" width="40" class="text-yellow-400"></iconify-icon>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">Aucun problème détecté</h3>
+                            <p class="text-sm text-gray-500 max-w-sm">Toutes vos images sont correctement chargées.</p>
                         </div>
                     </div>
 
@@ -3183,40 +3215,46 @@
                 }
 
                 function syncVendorProductsViewControls() {
-                    const view = window.newketVendorProductsView === 'archived' ? 'archived' : 'online';
+                    const view = window.newketVendorProductsView || 'online';
                     const onlineBtn = document.getElementById('vendorTabOnline');
                     const archivedBtn = document.getElementById('vendorTabArchived');
+                    const fallbackBtn = document.getElementById('vendorTabFallback');
                     const searchWrapper = document.getElementById('vendorSearchWrapper');
                     const searchInput = document.getElementById('dashboardSearch');
                     const onlineView = document.getElementById('vendor-online-view');
                     const archivedView = document.getElementById('vendor-archived-view');
+                    const fallbackView = document.getElementById('vendor-fallback-view');
+
+                    const activeClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm';
+                    const inactiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800';
+                    const fallbackActiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-yellow-500 text-white shadow-sm';
+                    const fallbackInactiveClass = 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-yellow-600 hover:text-yellow-800';
 
                     if (onlineBtn) {
-                        const active = view === 'online';
-                        onlineBtn.className = active
-                            ? 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm'
-                            : 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800';
-                        onlineBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+                        onlineBtn.className = view === 'online' ? activeClass : inactiveClass;
+                        onlineBtn.setAttribute('aria-pressed', view === 'online' ? 'true' : 'false');
                     }
-
                     if (archivedBtn) {
-                        const active = view === 'archived';
-                        archivedBtn.className = active
-                            ? 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all bg-black text-white shadow-sm'
-                            : 'px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all text-gray-500 hover:text-gray-800';
-                        archivedBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+                        archivedBtn.className = view === 'archived' ? activeClass : inactiveClass;
+                        archivedBtn.setAttribute('aria-pressed', view === 'archived' ? 'true' : 'false');
+                    }
+                    if (fallbackBtn) {
+                        fallbackBtn.className = view === 'fallback' ? fallbackActiveClass : fallbackInactiveClass;
+                        fallbackBtn.setAttribute('aria-pressed', view === 'fallback' ? 'true' : 'false');
                     }
 
                     if (searchWrapper) searchWrapper.classList.remove('hidden');
                     if (searchInput) {
-                        searchInput.placeholder = view === 'archived' ? 'Rechercher dans les archivés...' : 'Rechercher...';
+                        searchInput.placeholder = view === 'archived' ? 'Rechercher dans les archivés...' :
+                                                  view === 'fallback' ? 'Rechercher dans les garde-fous...' : 'Rechercher...';
                     }
                     if (onlineView) onlineView.classList.toggle('hidden', view !== 'online');
                     if (archivedView) archivedView.classList.toggle('hidden', view !== 'archived');
+                    if (fallbackView) fallbackView.classList.toggle('hidden', view !== 'fallback');
                 }
 
                 async function switchProductsView(view) {
-                    window.newketVendorProductsView = view === 'archived' ? 'archived' : 'online';
+                    window.newketVendorProductsView = (view === 'archived') ? 'archived' : (view === 'fallback') ? 'fallback' : 'online';
                     syncVendorProductsViewControls();
 
                     if (window.newketVendorProductsView === 'archived' && window.ProductManager && typeof ProductManager.fetchVendorArchived === 'function') {
@@ -3227,7 +3265,11 @@
                         }
                     }
 
-                    renderVendorProducts();
+                    if (window.newketVendorProductsView === 'fallback') {
+                        renderVendorFallbackView();
+                    } else {
+                        renderVendorProducts();
+                    }
                 }
                 window.switchProductsView = switchProductsView;
 
@@ -3319,6 +3361,151 @@
                     `).join('');
                 }
 
+                let vendorBrokenImageIds = new Set();
+                let isVendorBrokenCheckRunning = false;
+
+                function isVendorFallbackImage(p) {
+                    if (!p) return true;
+                    if (vendorBrokenImageIds.has(p.id)) return true;
+                    if (!p.image) return true;
+                    let imgStr = p.image;
+                    if (Array.isArray(imgStr)) {
+                        if (imgStr.length === 0) return true;
+                        imgStr = imgStr[0];
+                    }
+                    imgStr = String(imgStr).toLowerCase().trim();
+                    return imgStr === '' || imgStr === 'null' || imgStr === 'undefined' ||
+                           imgStr === '[]' || imgStr.includes('default.') ||
+                           imgStr.includes('logo-newket') || imgStr.includes('garde-fou');
+                }
+
+                async function checkVendorBrokenImagesAsync(products) {
+                    if (isVendorBrokenCheckRunning || !products) return;
+                    isVendorBrokenCheckRunning = true;
+                    let updated = false;
+                    const BATCH = 8;
+                    for (let i = 0; i < products.length; i += BATCH) {
+                        const batch = products.slice(i, i + BATCH);
+                        const promises = batch.map(p => new Promise(resolve => {
+                            if (vendorBrokenImageIds.has(p.id) || isVendorFallbackImage(p)) return resolve();
+                            let imgUrl = typeof p.image === 'string' ? p.image.split(',')[0] : (Array.isArray(p.image) ? p.image[0] : null);
+                            if (!imgUrl) return resolve();
+                            const img = new Image();
+                            img.onload = () => resolve();
+                            img.onerror = () => { vendorBrokenImageIds.add(p.id); updated = true; resolve(); };
+                            img.src = imgUrl;
+                        }));
+                        await Promise.all(promises);
+                        if (updated) { renderVendorFallbackAlert(products); updated = false; }
+                    }
+                    isVendorBrokenCheckRunning = false;
+                }
+
+                function renderVendorFallbackAlert(myProducts) {
+                    const alert = document.getElementById('vendor-fallback-alert');
+                    const countEl = document.getElementById('vendor-fallback-count');
+                    const listEl = document.getElementById('vendor-fallback-list');
+                    if (!alert || !listEl || !countEl) return;
+
+                    const fallbacks = myProducts.filter(p => isVendorFallbackImage(p));
+                    if (fallbacks.length === 0) {
+                        alert.classList.add('hidden');
+                        return;
+                    }
+
+                    countEl.textContent = fallbacks.length;
+                    listEl.innerHTML = fallbacks.slice(0, 5).map(p => `
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-sm font-medium text-gray-700 truncate flex-1">${p.name || 'Produit sans nom'}</span>
+                            <button onclick="openEditProductModal('${p.id}')" class="text-[10px] font-black uppercase text-yellow-600 hover:underline shrink-0">Corriger</button>
+                        </div>
+                    `).join('') + (fallbacks.length > 5 ? `<p class="text-[10px] font-black text-yellow-500 uppercase text-right mt-1">+ ${fallbacks.length - 5} autres</p>` : '');
+                    alert.classList.remove('hidden');
+
+                    // Update the toggle badge count
+                    const fallbackBadge = document.getElementById('vendorFallbackCountBadge');
+                    if (fallbackBadge) {
+                        fallbackBadge.textContent = fallbacks.length;
+                        fallbackBadge.classList.toggle('hidden', fallbacks.length === 0);
+                    }
+                }
+
+                function renderVendorFallbackView() {
+                    const grid = document.getElementById('vendor-fallback-grid');
+                    const empty = document.getElementById('vendor-fallback-empty');
+                    if (!grid) return;
+
+                    syncVendorProductsViewControls();
+
+                    if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') {
+                        grid.innerHTML = `<div class="col-span-full glass-panel p-12 text-center text-gray-500"><p>Catalogue indisponible</p></div>`;
+                        return;
+                    }
+
+                    const email = localStorage.getItem('newketUserEmail');
+                    const userId = localStorage.getItem('newketUserId');
+                    const searchQuery = document.getElementById('dashboardSearch')?.value.toLowerCase() || '';
+
+                    let allMyProducts = ProductManager.getProducts().filter(p =>
+                        (p?.supplier_email === email || p?.user_id === userId) && !p?.is_archived
+                    );
+
+                    // Start async broken image check if not done
+                    if (allMyProducts.length > 0 && !isVendorBrokenCheckRunning) {
+                        setTimeout(() => checkVendorBrokenImagesAsync(allMyProducts), 200);
+                    }
+
+                    let fallbacks = allMyProducts.filter(p => isVendorFallbackImage(p));
+
+                    if (searchQuery) {
+                        fallbacks = fallbacks.filter(p => String(p?.name || '').toLowerCase().includes(searchQuery) ||
+                            String(p?.category || '').toLowerCase().includes(searchQuery));
+                    }
+
+                    const countBadge = document.getElementById('vendorProductsCountBadge');
+                    if (countBadge) {
+                        countBadge.textContent = fallbacks.length;
+                        countBadge.classList.remove('hidden');
+                    }
+
+                    if (fallbacks.length === 0) {
+                        grid.innerHTML = '';
+                        if (empty) empty.classList.remove('hidden');
+                        return;
+                    }
+
+                    if (empty) empty.classList.add('hidden');
+
+                    grid.innerHTML = fallbacks.map(p => `
+                        <div class="glass-panel p-4 flex flex-col group relative border-2 border-yellow-200">
+                            <div class="aspect-square bg-yellow-50 rounded-xl mb-3 overflow-hidden relative">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <iconify-icon icon="solar:danger-triangle-bold" width="40" class="text-yellow-300"></iconify-icon>
+                                </div>
+                                <img src="${window.resolveProductImageSource ? window.resolveProductImageSource(p) : (p.image ? p.image.split(',')[0] : '')}" alt="${p.name}" loading="lazy" class="w-full h-full object-contain p-4 relative z-10" onerror="this.style.opacity='0'">
+                                <div class="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-yellow-500 px-2 py-0.5 text-[9px] font-black uppercase text-white">
+                                    <iconify-icon icon="solar:danger-triangle-bold" width="10"></iconify-icon>
+                                    Garde-fou
+                                </div>
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto z-20">
+                                    <button type="button" onclick="window.location.href='${window.resolvePath('pages/publish')}?edit=${p.id}'" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Corriger l'image">
+                                        <iconify-icon icon="solar:pen-bold" width="20"></iconify-icon>
+                                    </button>
+                                    <button type="button" onclick="deleteProduct('${p.id}')" class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg" title="Supprimer">
+                                        <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                            <h3 class="font-bold text-sm mb-1 truncate">${p.name}</h3>
+                            <p class="text-xs text-gray-400 mb-3">${CurrencyManager.formatPrice(p.price)}</p>
+                            <button type="button" onclick="window.location.href='${window.resolvePath('pages/publish')}?edit=${p.id}'" class="mt-auto w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                <iconify-icon icon="solar:pen-bold" width="12" class="mr-1"></iconify-icon>
+                                Corriger l'image
+                            </button>
+                        </div>
+                    `).join('');
+                }
+
                 function renderVendorProducts() {
                     const grid = document.getElementById('vendor-products-grid');
                     if (!grid) return;
@@ -3358,9 +3545,14 @@
                         const dateA = new Date(a.created_at || a.createdAt || 0).getTime();
                         const dateB = new Date(b.created_at || b.createdAt || 0).getTime();
                         if (dateA !== dateB) return dateB - dateA;
-                        // Fallback à l'ID en cas d'égalité ou d'absence de date
                         return String(b.id || '').localeCompare(String(a.id || ''));
                     });
+
+                    // Render fallback alert + start async broken image check
+                    renderVendorFallbackAlert(myProducts);
+                    if (myProducts.length > 0 && !isVendorBrokenCheckRunning) {
+                        setTimeout(() => checkVendorBrokenImagesAsync(myProducts), 600);
+                    }
 
                     // Apply search filter
                     if (searchQuery) {

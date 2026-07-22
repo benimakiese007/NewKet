@@ -91,7 +91,7 @@
                         <iconify-icon icon="solar:bag-bold" width="24"></iconify-icon>
                     </div>
                     <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Panier Moyen (AOV)</p>
-                    <div class="text-2xl font-black text-gray-900" id="statsAOV" data-price-cdf="0"><div class="skeleton skeleton-text" style="width:60%;height:28px;margin:0;"></div></div>
+                    <div class="text-2xl font-black text-gray-900" id="statsAOV"><div class="skeleton skeleton-text" style="width:60%;height:28px;margin:0;"></div></div>
                 </div>
                 <div class="glass-panel p-6 flex flex-col gap-1 border-gray-100">
                     <div
@@ -451,6 +451,58 @@
             });
         }
 
+        let isDiagnosticsBrokenCheckRunning = false;
+        const diagnosticsBrokenImageIds = new Set();
+
+        async function checkDiagnosticsBrokenImagesAsync(products) {
+            if (isDiagnosticsBrokenCheckRunning || !products) return;
+            isDiagnosticsBrokenCheckRunning = true;
+            
+            let updated = false;
+            const BATCH_SIZE = 10;
+            
+            for (let i = 0; i < products.length; i += BATCH_SIZE) {
+                const batch = products.slice(i, i + BATCH_SIZE);
+                const promises = batch.map(p => {
+                    return new Promise(resolve => {
+                        if (diagnosticsBrokenImageIds.has(p.id)) return resolve();
+                        
+                        let imgStr = p.image;
+                        if (!imgStr) return resolve();
+                        if (Array.isArray(imgStr)) imgStr = imgStr[0];
+                        if (!imgStr) return resolve();
+                        
+                        // Check if it already matches string conditions
+                        const lowImg = String(imgStr).toLowerCase().trim();
+                        if (lowImg === '' || lowImg === 'null' || lowImg === 'undefined' || 
+                            lowImg === '[]' || lowImg.includes('default.') || 
+                            lowImg.includes('logo-newket') || lowImg.includes('garde-fou')) {
+                            return resolve();
+                        }
+                        
+                        let imgUrl = typeof p.image === 'string' ? p.image.split(',')[0] : (Array.isArray(p.image) ? p.image[0] : null);
+                        if (!imgUrl) return resolve();
+                        
+                        const img = new Image();
+                        img.onload = () => resolve();
+                        img.onerror = () => {
+                            diagnosticsBrokenImageIds.add(p.id);
+                            updated = true;
+                            resolve();
+                        };
+                        img.src = imgUrl;
+                    });
+                });
+                await Promise.all(promises);
+                
+                if (updated) {
+                    renderStockHealth(window.ProductManager?.stats || { deadStockList: [] });
+                    updated = false;
+                }
+            }
+            isDiagnosticsBrokenCheckRunning = false;
+        }
+
         function renderStockHealth(stats) {
             const list = document.getElementById('stockHealthList');
             const products = ProductManager.getProducts();
@@ -458,7 +510,46 @@
             const criticalStock = products.filter(p => (p.stock || 0) < 5);
             const deadStock = stats.deadStockList;
 
+            const fallbackImages = products.filter(p => {
+                if (!p) return true;
+                if (diagnosticsBrokenImageIds.has(p.id)) return true;
+                if (!p.image) return true;
+                let imgStr = p.image;
+                if (Array.isArray(imgStr)) {
+                    if (imgStr.length === 0) return true;
+                    imgStr = imgStr[0];
+                }
+                imgStr = String(imgStr).toLowerCase().trim();
+                return imgStr === '' || 
+                       imgStr === 'null' || 
+                       imgStr === 'undefined' || 
+                       imgStr === '[]' ||
+                       imgStr.includes('default.') ||
+                       imgStr.includes('logo-newket') ||
+                       imgStr.includes('garde-fou');
+            });
+
+            // Start async check silently
+            if (products.length > 0 && !isDiagnosticsBrokenCheckRunning) {
+                setTimeout(() => checkDiagnosticsBrokenImagesAsync(products), 500);
+            }
+
             let html = '';
+
+            if (fallbackImages.length > 0) {
+                html += `<div class="p-4 bg-yellow-50 rounded-2xl">
+                    <div class="text-[10px] font-black text-yellow-600 uppercase mb-2">ATTENTION : Images manquantes (Garde-fou)</div>
+                    <div class="space-y-2">
+                        ${fallbackImages.slice(0, 3).map(p => `
+                            <div class="flex justify-between text-sm font-medium text-gray-700 items-center gap-2">
+                                <span class="truncate flex-1">${p.name}</span>
+                                <a href="/admin/products.html?filter=fallback&search=${encodeURIComponent(p.name)}" class="text-[10px] font-black uppercase text-yellow-600 hover:underline shrink-0 ml-2">Corriger</a>
+                            </div>
+                        `).join('')}
+                        ${fallbackImages.length > 3 ? `<div class="text-[10px] font-black text-yellow-500 uppercase mt-2 text-right">+ ${fallbackImages.length - 3} autres</div>` : ''}
+                    </div>
+                </div>`;
+            }
 
             if (criticalStock.length > 0) {
                 html += `<div class="p-4 bg-red-50 rounded-2xl">

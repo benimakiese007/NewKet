@@ -1593,7 +1593,7 @@ const AuthManager = {
                 <div class="text-[10px] text-gray-500 font-medium mb-2">Veuillez finaliser votre dossier pour vendre.</div>
                 <a href="${window.resolvePath('seller-onboarding')}" class="text-[11px] font-bold text-yellow-600 underline">Compléter mon profil</a>
             </div>
-            <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-900">
+            <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-900 rounded-xl">
                 <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
             </button>
         `;
@@ -1614,7 +1614,7 @@ const AuthManager = {
                 <div class="text-[10px] text-gray-500 font-medium mb-2">Veuillez contacter le support pour plus d'infos.</div>
                 <a href="${window.resolvePath('seller-onboarding')}" class="text-[11px] font-bold text-red-600 underline">Soumettre à nouveau</a>
             </div>
-            <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-900">
+            <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-900 rounded-xl">
                 <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
             </button>
         `;

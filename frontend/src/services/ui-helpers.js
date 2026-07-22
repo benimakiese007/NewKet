@@ -61,7 +61,7 @@ async function _processToastQueue() {
             ${safeTitle ? `<div class="nk-toast-title">${safeTitle}</div>` : ''}
             <div class="nk-toast-content">${safeMsg}</div>
         </div>
-        <button type="button" class="nk-toast-close" aria-label="Fermer">&times;</button>
+        <button type="button" class="nk-toast-close rounded-xl" aria-label="Fermer">&times;</button>
     `;
 
     container.appendChild(toast);
@@ -1642,7 +1642,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                                 <span id="${modalId}-stock-hint" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${stockLimit ? `Stock dispo: ${stockLimit}` : 'Quantité libre'}</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <button type="button" id="${modalId}-qty-minus" class="-gray-200 text-gray-700 font-black text-2xl leading-none transition-colors flex items-center justify-center" aria-label="Réduire la quantité">−</button>
+                                <button type="button" id="${modalId}-qty-minus" class="-gray-200 text-gray-700 font-black text-2xl leading-none transition-colors flex items-center justify-center rounded-xl" aria-label="Réduire la quantité">−</button>
                                 <input type="number" id="${modalId}-quantity" min="1" ${stockLimit ? `max="${stockLimit}"` : ''} value="${initialQuantity}" inputmode="numeric"
                                     class="flex-1 h-12 rounded-xl border border-gray-200 bg-gray-50 text-center text-base font-black text-gray-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                                 <button type="button" id="${modalId}-qty-plus" class="w-12 h-12 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 font-black text-2xl leading-none hover:bg-gray-100 transition-colors flex items-center justify-center" aria-label="Augmenter la quantité">+</button>
@@ -1710,7 +1710,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                                         style="position:absolute; top:10px; right:10px; z-index:1000; width:40px; height:40px; background:white; border:none; border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 16px rgba(99, 102, 241, 0.25)';"
                                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';"
-                                        title="Position GPS">
+                                        title="Position GPS" class="rounded-xl">
                                         <iconify-icon icon="solar:map-arrow-square-bold" width="22" style="color:#6366f1"></iconify-icon>
                                     </button>
                                 </div>
@@ -2162,7 +2162,7 @@ window.showConfirm = (title, message, onConfirm, onCancel = null) => {
                 <p class="text-sm text-gray-500 font-medium leading-relaxed mb-8">${message}</p>
                 
                 <div class="flex gap-3">
-                    <button onclick="window.closeConfirm('${modalId}', false)" class="flex-1 px-6 py-3.5 text-gray-600 font-bold transition-all active:scale-95">
+                    <button onclick="window.closeConfirm('${modalId}', false)" class="flex-1 px-6 py-3.5 text-gray-600 font-bold transition-all active:scale-95 rounded-xl">
                         Annuler
                     </button>
                     <button onclick="window.closeConfirm('${modalId}', true)" class="flex-1 px-6 py-3.5 bg-gray-900 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95">

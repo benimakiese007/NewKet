@@ -391,7 +391,7 @@ const AdminLayout = {
             <nav class="dashboard-topbar newket-dashboard-header fixed top-0 w-full z-[100] transition-all duration-300">
                 <div class="dashboard-topbar-inner max-w-[1800px] mx-auto py-3 flex justify-between items-center h-[64px] sm:h-[96px] relative">
                     <div class="flex items-center gap-4 sm:gap-6">
-                        <button id="adminMobileMenuBtn" data-toggle-sidebar="admin" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center transition-all">
+                        <button id="adminMobileMenuBtn" data-toggle-sidebar="admin" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center transition-all rounded-xl">
                             <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                         </button>
                     </div>
@@ -551,7 +551,7 @@ const AdminLayout = {
             <aside id="adminSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-72 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
                 
                 <!-- Desktop Collapse Toggle -->
-                <button type="button" class="sidebar-toggle-btn hidden lg:flex" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
+                <button type="button" class="sidebar-toggle-btn hidden lg:flex rounded-xl" aria-label="Réduire le menu" onclick="SidebarManager.toggle()" data-no-close>
                     <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
                 </button>
                 

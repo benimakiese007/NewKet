@@ -143,7 +143,7 @@ const UI = {
                         <div class="col-span-full py-20 text-center">
                             <iconify-icon icon="solar:box-minimalistic-broken" width="64" class="text-gray-300 mb-4" style="color: #cbd5e1;"></iconify-icon>
                             <p class="text-gray-500 font-medium">Aucun produit trouvé</p>
-                            <button onclick="location.reload()" class="mt-4 text-sm text-primary hover:underline">Réessayer</button>
+                            <button onclick="location.reload()" class="mt-4 text-sm text-primary hover:underline rounded-xl">Réessayer</button>
                         </div>
                     `;
                 }

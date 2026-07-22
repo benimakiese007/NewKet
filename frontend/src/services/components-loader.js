@@ -75,7 +75,7 @@ const HEADER_HTML = `
                         <!-- Mini Dropdown for categories -->
                         <div id="searchCategoryMenu" class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 z-[100] overflow-hidden">
                             <div class="py-2" id="searchCategoryMenuList">
-                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="all">Tout</button>
+                                <button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900 rounded-xl" data-value="all">Tout</button>
                                 <!-- Dynamic Categories -->
                             </div>
                         </div>
@@ -186,7 +186,7 @@ const HEADER_HTML = `
             <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_400,f_auto,q_auto/v1782572411/newket_assets/racine/Logo_Vert_Pour_Fond_Blanc.png" alt="NewKet" width="240" height="96" class="h-12 w-auto object-contain">
             <p class="mobile-menu-subtitle text-gray-500">Votre navigation principale</p>
         </div>
-        <button id="closeMobileMenu" class="p-2 transition-all btn-active-scale" aria-label="Fermer le menu">
+        <button id="closeMobileMenu" class="p-2 transition-all btn-active-scale rounded-xl" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
         </button>
     </div>
@@ -719,7 +719,7 @@ const ComponentLoader = {
             }
 
             if (menuList) {
-                menuList.innerHTML = '<button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900" data-value="all">Tout</button>';
+                menuList.innerHTML = '<button class="category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900 rounded-xl" data-value="all">Tout</button>';
                 data.categories.forEach(c => {
                     const btn = document.createElement('button');
                     btn.className = 'category-option w-full px-4 py-2 text-left text-[10px] font-black hover:bg-gray-50 uppercase tracking-widest text-slate-900';

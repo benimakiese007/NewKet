@@ -201,7 +201,7 @@
 
             <!-- Col gauche : Hamburger -->
             <div class="flex items-center justify-start gap-4 sm:gap-6">
-                <button id="customerMobileBtn" data-toggle-sidebar="customer" data-track-action="customer_dashboard:mobile_menu_click" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center transition-all">
+                <button id="customerMobileBtn" data-toggle-sidebar="customer" data-track-action="customer_dashboard:mobile_menu_click" class="p-2.5 text-gray-500 hover:text-black focus:outline-none focus:ring-0 focus-visible:outline-none flex items-center justify-center transition-all rounded-xl">
                     <iconify-icon icon="solar:hamburger-menu-bold" width="22"></iconify-icon>
                 </button>
             </div>
@@ -237,7 +237,7 @@
 
 
             <!-- Desktop/Tablet Collapse Toggle -->
-            <button type="button" class="sidebar-toggle-btn hidden lg:flex" data-toggle-sidebar="customer" aria-label="Réduire le menu" data-no-close>
+            <button type="button" class="sidebar-toggle-btn hidden lg:flex rounded-xl" data-toggle-sidebar="customer" aria-label="Réduire le menu" data-no-close>
                 <iconify-icon icon="solar:alt-arrow-left-linear" width="18"></iconify-icon>
             </button>
 
@@ -852,7 +852,7 @@
                     <!-- Actions Buttons -->
                     <div class="flex flex-col sm:flex-row gap-3">
                         <button id="btnAcceptQuote" type="button"
-                            class="hidden flex-1 py-3 bg-black text-white font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                            class="hidden flex-1 py-3 bg-black text-white font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 rounded-xl">
                             <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
                             Accepter le devis
                         </button>
@@ -2576,7 +2576,7 @@
                         : (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(item.images || item.image || item.image_url || item.product_image || item.thumbnail || '') : (Array.isArray(item.images) ? item.images[0] : item.image || item.image_url || item.product_image || item.thumbnail || ''));
                     return `
                     <div class="glass-panel p-3 sm:p-6 flex flex-col relative group">
-                        <button onclick="removeFavorite('${item.id}')" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10">
+                        <button onclick="removeFavorite('${item.id}')" class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10 rounded-xl">
                             <iconify-icon icon="solar:trash-bin-minimalistic-bold" width="18"></iconify-icon>
                         </button>
                         <div class="aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden">
