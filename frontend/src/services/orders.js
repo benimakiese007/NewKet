@@ -379,18 +379,25 @@ const OrderManager = {
     getAdvancedStats(timeframe = 'all', range = null) {
         const filtered = this._filterOrdersByPeriod(this.data, timeframe, range);
 
-        const totalRevenue = filtered.reduce((sum, o) => sum + (o.total || 0), 0);
+        // Define valid orders for revenue/AOV (exclude cancelled/failed)
+        const validOrders = filtered.filter(o => {
+            const s = (o.status || '').toLowerCase();
+            return !s.includes('cancel') && !s.includes('annul') && !s.includes('fail') && !s.includes('échou');
+        });
+
+        const totalRevenue = validOrders.reduce((sum, o) => sum + (o.total || 0), 0);
         const products = window.ProductManager ? ProductManager.getProducts() : [];
         const totalLeads = filtered.length;
-        const aov = totalLeads > 0 ? totalRevenue / totalLeads : 0;
+        const validOrderCount = validOrders.length;
+        const aov = validOrderCount > 0 ? totalRevenue / validOrderCount : 0;
 
         // Conversion Rate Logic
         const totalViews = products.reduce((sum, p) => sum + (parseInt(p.views) || 0), 0);
         const conversionRate = totalViews > 0 ? (totalLeads / totalViews) * 100 : 0;
 
-        // Loyalty rate: % of unique customers that returned (>= 2 orders)
+        // Loyalty rate: % of unique customers that returned (>= 2 valid orders)
         const customerOrderCounts = new Map();
-        filtered.forEach((order) => {
+        validOrders.forEach((order) => {
             const key = order?.customer_id || order?.user_id || order?.customer_email || '';
             if (!key) return;
             customerOrderCounts.set(key, (customerOrderCounts.get(key) || 0) + 1);
@@ -399,16 +406,31 @@ const OrderManager = {
         const repeatCustomers = Array.from(customerOrderCounts.values()).filter((count) => count >= 2).length;
         const loyaltyRate = uniqueCustomers > 0 ? (repeatCustomers / uniqueCustomers) * 100 : 0;
 
-        // Category breakdown
+        // Category breakdown and Sold products
         const categorySales = {};
-        filtered.forEach(o => {
-            const p = products.find(prod => prod.id === o.product_id);
-            const cat = p?.category || 'Autre';
-            categorySales[cat] = (categorySales[cat] || 0) + (o.total || 0);
+        const soldProductIds = new Set();
+        
+        validOrders.forEach(o => {
+            const items = o.items || [];
+            if (items.length > 0) {
+                items.forEach(item => {
+                    const pid = item.product_id || item.id;
+                    if (pid) soldProductIds.add(pid);
+                    
+                    const p = products.find(prod => prod.id === pid);
+                    const cat = p?.category || 'Autre';
+                    const itemRevenue = (Number(item.price) || 0) * (Number(item.quantity) || 1);
+                    categorySales[cat] = (categorySales[cat] || 0) + itemRevenue;
+                });
+            } else if (o.product_id) {
+                soldProductIds.add(o.product_id);
+                const p = products.find(prod => prod.id === o.product_id);
+                const cat = p?.category || 'Autre';
+                categorySales[cat] = (categorySales[cat] || 0) + (o.total || 0);
+            }
         });
 
         // Dead stock: products in stock that have 0 orders in timeframe
-        const soldProductIds = new Set(filtered.map((order) => order?.product_id).filter(Boolean));
         const deadStockCount = products.filter((product) => (product?.stock || 0) > 0 && !soldProductIds.has(product.id)).length;
 
         // Daily breakdown for charts
@@ -417,7 +439,11 @@ const OrderManager = {
             const day = new Date(o.date).toLocaleDateString();
             if (!dailyData[day]) dailyData[day] = { leads: 0, revenue: 0 };
             dailyData[day].leads++;
-            dailyData[day].revenue += (o.total || 0);
+            
+            const s = (o.status || '').toLowerCase();
+            if (!s.includes('cancel') && !s.includes('annul') && !s.includes('fail') && !s.includes('échou')) {
+                dailyData[day].revenue += (o.total || 0);
+            }
         });
 
         // Platform Health Score (out of 100)
@@ -436,7 +462,7 @@ const OrderManager = {
             aov,
             categorySales,
             dailyData,
-            topProducts: this._getTopProducts(filtered),
+            topProducts: this._getTopProducts(validOrders),
             conversionRate: conversionRate.toFixed(2),
             productsInDanger: products.filter(p => (p.stock || 0) < 10 && (p.stock || 0) > 0).length,
             deadStockCount,
@@ -764,7 +790,26 @@ const OrderManager = {
     _getTopProducts(orders) {
         const productCounts = {};
         orders.forEach(o => {
-            if (o.product_id) {
+            const items = o.items || [];
+            if (items.length > 0) {
+                items.forEach(item => {
+                    const pid = item.product_id || item.id;
+                    if (!pid) return;
+                    if (!productCounts[pid]) {
+                        const product = window.ProductManager ? ProductManager.getProduct(pid) : null;
+                        productCounts[pid] = {
+                            id: pid,
+                            name: product?.name || item.name || o.product_name || 'Produit',
+                            image: product?.image || item.image || o.product_image || '',
+                            salesCount: 0,
+                            revenue: 0
+                        };
+                    }
+                    const qty = Number(item.quantity) || 1;
+                    productCounts[pid].salesCount += qty;
+                    productCounts[pid].revenue += (Number(item.price) || 0) * qty;
+                });
+            } else if (o.product_id) {
                 if (!productCounts[o.product_id]) {
                     const product = window.ProductManager ? ProductManager.getProduct(o.product_id) : null;
                     productCounts[o.product_id] = {
