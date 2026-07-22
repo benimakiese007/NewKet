@@ -41,6 +41,124 @@ function toNullableNumber(value) {
     return Number.isFinite(parsed) ? parsed : null;
 }
 
+function assertOrderMutableOrFail({ order, user, res, actionLabel }) {
+    if (!order) return false;
+
+    if (order.payment_locked_at) {
+        if (isAdminActor(user)) return true;
+        res.status(409).json({ error: `Commande verrouill\u00E9e (paiement en cours): action "${actionLabel}" impossible.` });
+        return false;
+    }
+
+    if (order.status === ORDER_STATUSES.CANCELLED) {
+        if (isAdminActor(user)) return true;
+        res.status(409).json({ error: `Commande annul\u00E9e: action "${actionLabel}" impossible.` });
+        return false;
+    }
+
+    return true;
+}
+
+async function restoreStockIfNeeded(order) {
+    if (!order?.stock_deducted_at) return;
+
+    const items = order?.items || [];
+    const validItems = items.filter(i => i?.product_id);
+    if (validItems.length === 0) return;
+
+    try {
+        const productIds = validItems.map(i => i.product_id);
+        const { data: products } = await client
+            .from('products')
+            .select('id, stock')
+            .in('id', productIds);
+
+        if (!products || products.length === 0) return;
+
+        const updates = products.map(product => {
+            const item = validItems.find(i => i.product_id === product.id);
+            if (!item || product.stock === undefined || product.stock === null) return null;
+            return client
+                .from('products')
+                .update({ stock: product.stock + (item.quantity || 1) })
+                .eq('id', product.id);
+        }).filter(Boolean);
+
+        await Promise.allSettled(updates);
+    } catch (error) {
+        console.error('[Order] Stock restore error:', error.message);
+    }
+}
+
+async function fetchOrderOr404(orderId, res) {
+    const { data: order, error } = await client
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+
+    if (error || !order) {
+        res.status(404).json({ error: 'Commande introuvable' });
+        return null;
+    }
+
+    order.status = mapLegacyOrderStatus(order.status);
+
+    if (order.status === ORDER_STATUSES.PAID_HELD && !String(order.otp_code || '').trim()) {
+        const otpCode = generateOtpCode();
+        const { error: otpUpdateError } = await client
+            .from('orders')
+            .update({
+                otp_code: otpCode,
+                otp_attempts: 0,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', order.id);
+
+        if (!otpUpdateError) {
+            order.otp_code = otpCode;
+        } else {
+            console.warn('[Order] Could not backfill OTP code:', otpUpdateError.message);
+        }
+    }
+
+    return order;
+}
+
+async function createOrUpdateDeliveryRecord(orderId, vendorId, patch = {}) {
+    const { data: existing } = await client
+        .from('deliveries')
+        .select('*')
+        .eq('order_id', orderId)
+        .maybeSingle();
+
+    if (existing?.id) {
+        const { data } = await client
+            .from('deliveries')
+            .update({
+                ...patch,
+                vendor_id: vendorId || existing.vendor_id,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', existing.id)
+            .select('*')
+            .single();
+        return data;
+    }
+
+    const { data } = await client
+        .from('deliveries')
+        .insert({
+            order_id: orderId,
+            vendor_id: vendorId,
+            ...patch
+        })
+        .select('*')
+        .single();
+
+    return data;
+}
+
 export const createOrder = async (req, res) => {
     try {
         const productId = String(req.body?.product_id || '').trim();
