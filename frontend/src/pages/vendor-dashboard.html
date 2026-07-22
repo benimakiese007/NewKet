@@ -4171,6 +4171,7 @@
                         otpSection.classList.remove('hidden');
                         document.getElementById('vOtpInput').value = '';
                         currentOrderIdForOtp = order.id;
+                        document.getElementById('btnVerifyVendorOtp').onclick = () => handleVerifyOTP();
                     } else if (order.status === 'DELIVERED') {
                         actions.classList.remove('hidden');
                         deliveredSection.classList.remove('hidden');
