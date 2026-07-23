@@ -1594,6 +1594,14 @@
                     }
                 }
 
+                const vendorPushToggleEl = document.getElementById('vendorDevicePushToggle');
+                if (vendorPushToggleEl && vendorPushToggleEl.dataset.bound !== 'true') {
+                    vendorPushToggleEl.addEventListener('change', async (event) => {
+                        await toggleVendorDevicePush(event.target.checked);
+                    });
+                    vendorPushToggleEl.dataset.bound = 'true';
+                }
+
                 let vendorResidenceMap = null;
                 let vendorResidenceMarker = null;
                 let vendorResidenceSelection = null;
@@ -6147,30 +6155,24 @@
                         }).join('');
                     };
 
-                    const loadVendorPasskeys = async () => {
-                        if (!window.supabaseClient) return;
-                        try {
-                            // La vraie API Supabase pour lister les passkeys (facteurs webauthn)
-                            const { data, error } = await window.supabaseClient.auth.mfa.listFactors();
-                            if (error) throw error;
-                            // Passkeys = facteurs de type 'webauthn'
-                            const passkeys = (data?.all || []).filter(f => f.factor_type === 'webauthn' || f.factor_type === 'passkey');
-                            renderVendorPasskeys(passkeys);
-                            if (passkeys.length > 0) {
-                                const title = registerPasskeyBtnVendor?.closest('div')?.querySelector('h2');
-                                if (title && !title.innerHTML.includes('Activée')) {
-                                    title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                    const loadVendorPasskeys = () => {
+                        if (window.supabaseClient && window.supabaseClient.auth.passkey) {
+                            window.supabaseClient.auth.passkey.list().then(({ data }) => {
+                                renderVendorPasskeys(data);
+                                if (data && data.length > 0) {
+                                    const title = registerPasskeyBtnVendor?.closest('div')?.querySelector('h2');
+                                    if (title && !title.innerHTML.includes('Activée')) {
+                                        title.innerHTML += ' <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-black bg-green-100 text-green-800 normal-case tracking-normal">Activée</span>';
+                                    }
+                                    if (registerPasskeyBtnVendor) registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
+                                } else {
+                                    const title = registerPasskeyBtnVendor?.closest('div')?.querySelector('h2');
+                                    if (title && title.innerHTML.includes('Activée')) {
+                                        title.innerHTML = "Clé d'accès (Passkey)";
+                                    }
+                                    if (registerPasskeyBtnVendor) registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une clé d\'accès';
                                 }
-                                if (registerPasskeyBtnVendor) registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une autre clé d\'accès';
-                            } else {
-                                const title = registerPasskeyBtnVendor?.closest('div')?.querySelector('h2');
-                                if (title && title.innerHTML.includes('Activée')) {
-                                    title.innerHTML = "Clé d'accès (Passkey)";
-                                }
-                                if (registerPasskeyBtnVendor) registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon> Créer une clé d\'accès';
-                            }
-                        } catch (err) {
-                            console.warn('[Vendor Passkeys] Erreur chargement:', err?.message || err);
+                            }).catch(err => console.warn('[Vendor Passkeys] Erreur chargement:', err));
                         }
                     };
 
@@ -6178,15 +6180,15 @@
 
                     if (registerPasskeyBtnVendor) {
                         registerPasskeyBtnVendor.addEventListener('click', async () => {
+                            if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
+                                if (window.showToast) window.showToast("Votre navigateur ne supporte pas encore cette fonctionnalité.", "error", "Sécurité");
+                                return;
+                            }
                             const originalText = registerPasskeyBtnVendor.innerHTML;
                             registerPasskeyBtnVendor.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Création...';
                             registerPasskeyBtnVendor.disabled = true;
                             try {
-                                if (!window.supabaseClient) throw new Error('Client Supabase non disponible.');
-                                // Inscription passkey via l'API expérimentale Supabase
-                                const { data, error } = await window.supabaseClient.auth.signInWithPasskey({
-                                    createUser: false
-                                });
+                                const { data, error } = await window.supabaseClient.auth.registerPasskey();
                                 if (error) throw error;
                                 if (window.showToast) window.showToast("Clé d'accès créée avec succès !", "success", "Sécurité");
                                 loadVendorPasskeys();

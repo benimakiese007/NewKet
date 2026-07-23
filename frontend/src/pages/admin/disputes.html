@@ -503,11 +503,19 @@
             if (currentDispute.evidence && Array.isArray(currentDispute.evidence) && currentDispute.evidence.length > 0) {
                 currentDispute.evidence.forEach(item => {
                     if (item.url) {
-                        evidenceContainer.innerHTML += `
-                            <a href="${item.url}" target="_blank" class="block overflow-hidden rounded-xl border border-gray-200 w-16 h-16 hover:border-black transition-colors shrink-0">
-                                <img src="${item.url}" class="w-full h-full object-cover">
-                            </a>
-                        `;
+                        if (item.kind === 'video_link' || item.url.includes('youtu')) {
+                            evidenceContainer.innerHTML += `
+                                <a href="${item.url}" target="_blank" class="flex items-center justify-center bg-gray-100 text-gray-500 rounded-xl border border-gray-200 w-16 h-16 hover:border-black hover:text-black transition-colors shrink-0" title="Voir la vidéo">
+                                    <iconify-icon icon="solar:play-circle-bold" width="32"></iconify-icon>
+                                </a>
+                            `;
+                        } else {
+                            evidenceContainer.innerHTML += `
+                                <a href="${item.url}" target="_blank" class="block overflow-hidden rounded-xl border border-gray-200 w-16 h-16 hover:border-black transition-colors shrink-0">
+                                    <img src="${item.url}" class="w-full h-full object-cover">
+                                </a>
+                            `;
+                        }
                     }
                 });
             }
