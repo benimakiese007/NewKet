@@ -30,6 +30,7 @@ const AdminLayout = {
         'notion-manager': 'notion-manager',
         comptabilite: 'comptabilite',
         disputes: 'disputes',
+        'dispute-details': 'dispute-details',
         payouts: 'payouts'
     },
 

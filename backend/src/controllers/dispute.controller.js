@@ -641,8 +641,32 @@ export const vendorRespondToDispute = async (req, res) => {
             return res.status(403).json({ success: false, message: 'Action réservée au vendeur concerné.' });
         }
 
-        if (![DISPUTE_STATUSES.OPEN, DISPUTE_STATUSES.SELLER_PENDING].includes(dispute.status)) {
-            return res.status(400).json({ success: false, message: 'Le litige n’attend pas de réponse vendeur.' });
+        // ACCEPT_REFUND et OFFER_PARTIAL_REFUND sont autorisés même en UNDER_REVIEW
+        // (le vendeur peut changer d'avis après contestation et proposer un compromis)
+        const allowedForSettlement = [
+            DISPUTE_STATUSES.OPEN,
+            DISPUTE_STATUSES.SELLER_PENDING,
+            DISPUTE_STATUSES.UNDER_REVIEW
+        ];
+        const allowedForContest = [
+            DISPUTE_STATUSES.OPEN,
+            DISPUTE_STATUSES.SELLER_PENDING
+        ];
+
+        const isSettlementAction = [
+            DISPUTE_VENDOR_ACTIONS.ACCEPT_REFUND,
+            DISPUTE_VENDOR_ACTIONS.OFFER_PARTIAL_REFUND
+        ].includes(action);
+
+        const allowedStatuses = isSettlementAction ? allowedForSettlement : allowedForContest;
+
+        if (!allowedStatuses.includes(dispute.status)) {
+            return res.status(400).json({
+                success: false,
+                message: isSettlementAction
+                    ? 'Ce litige ne peut plus être résolu par le vendeur dans son état actuel.'
+                    : 'Le litige n\'attend pas de réponse vendeur pour une contestation.'
+            });
         }
 
         const order = await getOrderOrNull(dispute.order_id);

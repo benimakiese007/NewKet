@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" sizes="512x512" href="/Images/Logo NewKet PNG.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="theme-color" content="#013220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NewKet">
+    <title>Gestion des Litiges | NewKet Admin</title>
+    <script>
+        (function () {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('embedded') === '1') {
+                    document.documentElement.classList.add('admin-embedded-mode');
+                }
+            } catch (_) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="/src/assets/css/input.css">
+    <script src="/vendor/iconify-preload.js"></script>
+    <script src="/vendor/iconify-icon.min.js"></script><script type="module" src="/src/services/app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/assets/css/style.css">
+    <link rel="stylesheet" href="/src/assets/css/responsive.css">
+    <link rel="stylesheet" href="/src/assets/css/admin.css">
+    <style>
+        .chat-container::-webkit-scrollbar { width: 4px; }
+        .chat-container::-webkit-scrollbar-track { background: transparent; }
+        .chat-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+
+        /* Layout 2 colonnes */
+        #disputesLayout {
+            display: flex;
+            gap: 0;
+            height: calc(100vh - 8rem);
+            min-height: 600px;
+        }
+        #disputesListPanel {
+            flex: 0 0 100%;
+            overflow-y: auto;
+            transition: flex 0.3s ease, opacity 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        #disputeDetailPanel { flex: 1 1 100%; display: flex; flex-direction: column; overflow: hidden; background: white; border-radius: 1.5rem; }
+        /* État avec détail ouvert */
+        #disputesLayout.detail-open #disputesListPanel {
+            flex: 0 0 0%;
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        #disputesLayout.detail-open #disputeDetailPanel {
+            flex: 1 1 100%;
+            opacity: 1;
+            overflow-y: auto;
+        }
+        /* Ligne sélectionnée dans la table */
+        #disputesTableBody tr.selected-row {
+            background: #f8fafc;
+            border-left: 3px solid #000;
+        }
+        #disputeDetailPanel .detail-scroll {
+            flex: 1;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body class="text-gray-900 bg-[#f8fafc]">
+    <div id="adminNavbarPlaceholder"></div>
+
+    <div class="admin-shell max-w-[1800px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-8">
+        <div id="adminSidebarPlaceholder"></div>
+        <script type="module" src="/src/services/admin-layout.js"></script>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 pb-20 pt-24 sm:pt-28 lg:pt-32 flex flex-col gap-6">
+
+            étail du litige -->
+                <div id="disputeDetailPanel">
+
+                    <!-- Header détail -->
+                    <div class="flex items-center justify-between p-4 sm:p-6 border-b border-gray-100 bg-gray-50/50 shrink-0">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <button onclick="(function(){ const p = new URLSearchParams(window.location.search); if(p.get('embedded')==='1' && window.parent && window.parent !== window){ window.parent.postMessage({type:'newket-admin-embed-navigate',view:'disputes'},'*'); } else { window.location.href='?view=disputes'; } })()" class="p-2 bg-white rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all shadow-sm border border-gray-100 shrink-0">
+                                <iconify-icon icon="solar:arrow-left-bold" width="20"></iconify-icon>
+                            </button>
+                            <div class="min-w-0">
+                                <h2 class="text-base sm:text-xl font-black text-gray-900 truncate" id="modalDisputeTitle">Dossier Litige</h2>
+                                <p class="text-xs font-bold text-gray-500 mt-0.5 truncate" id="modalDisputeSubtitle">Chargement...</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Contenu scrollable -->
+                    <div class="detail-scroll p-4 sm:p-6 space-y-6 bg-white">
+
+                        <!-- Parties -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="glass-panel p-4 space-y-2 bg-gray-50/50 border border-gray-100">
+                                <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                    <iconify-icon icon="solar:user-bold" width="14"></iconify-icon>
+                                    Le Client (Acheteur)
+                                </div>
+                                <div class="text-sm font-bold text-gray-900" id="modalCustomerName">--</div>
+                                <div class="text-xs font-medium text-gray-500" id="modalCustomerContact">--</div>
+                            </div>
+                            <div class="glass-panel p-4 space-y-2 bg-blue-50/30 border border-blue-100/50">
+                                <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-400">
+                                    <iconify-icon icon="solar:shop-bold" width="14"></iconify-icon>
+                                    Le Vendeur (Boutique)
+                                </div>
+                                <div class="text-sm font-bold text-gray-900" id="modalVendorName">--</div>
+                                <div class="text-xs font-medium text-gray-500" id="modalVendorContact">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Motif & Preuves -->
+                        <div class="glass-panel p-4 sm:p-5 border border-red-100 bg-red-50/30">
+                            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-500 mb-3">
+                                <iconify-icon icon="solar:danger-triangle-bold" width="14"></iconify-icon>
+                                Motif du litige
+                            </div>
+                            <div class="text-sm font-bold text-gray-900" id="modalDisputeReason">--</div>
+                            <div class="text-sm text-gray-600 mt-2 whitespace-pre-wrap" id="modalDisputeDescription">--</div>
+                            <div id="modalDisputeEvidence" class="mt-4 flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <!-- Chat -->
+                        <div class="glass-panel flex flex-col border border-gray-200 overflow-hidden" style="height: 360px;">
+                            <div class="bg-gray-100 p-3 border-b border-gray-200 flex justify-between items-center shrink-0">
+                                <span class="text-xs font-black uppercase tracking-widest text-gray-600">Messagerie du Litige</span>
+                                <span class="text-[10px] font-bold text-gray-500" id="modalMessageCount">0 messages</span>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-4 space-y-4 chat-container bg-white" id="modalChatContainer">
+                                <div class="flex flex-col items-center justify-center h-full text-gray-400 space-y-3">
+                                    <div class="w-8 h-8 border-4 border-gray-200 border-t-black rounded-full animate-spin"></div>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest">Chargement...</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-gray-50 border-t border-gray-200 shrink-0">
+                                <form id="adminMessageForm" class="flex items-center gap-2" onsubmit="sendAdminMessage(event)">
+                                    <input type="text" id="adminMessageInput" placeholder="Envoyer un message en tant que SUPPORT..." required
+                                        class="flex-1 px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-black outline-none">
+                                    <button type="submit" class="bg-black text-white p-2.5 rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center shrink-0">
+                                        <iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Zone résolution -->
+                        <div id="resolutionZone">
+                            <div class="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-900 mb-4">
+                                <iconify-icon icon="solar:gavel-bold" width="16"></iconify-icon>
+                                Décision de l'Administrateur
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                                <button type="button" onclick="selectResolution('RELEASE_TO_SELLER')" id="btnResVendor" class="resolution-btn flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all">
+                                    <span class="text-xs font-black text-gray-900 mb-1">Raison Vendeur</span>
+                                    <span class="text-[9px] text-gray-500 font-bold uppercase text-center">Libérer Fonds</span>
+                                </button>
+                                <button type="button" onclick="selectResolution('FULL_REFUND')" id="btnResBuyer" class="resolution-btn flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-gray-200 hover:border-red-500 hover:bg-red-50 transition-all">
+                                    <span class="text-xs font-black text-gray-900 mb-1">Raison Client</span>
+                                    <span class="text-[9px] text-gray-500 font-bold uppercase text-center">Remboursement Total</span>
+                                </button>
+                                <button type="button" onclick="selectResolution('PARTIAL_REFUND')" id="btnResPartial" class="resolution-btn flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-gray-200 hover:border-amber-500 hover:bg-amber-50 transition-all">
+                                    <span class="text-xs font-black text-gray-900 mb-1">Compromis</span>
+                                    <span class="text-[9px] text-gray-500 font-bold uppercase text-center">Rembours. Partiel</span>
+                                </button>
+                            </div>
+
+                            <div id="partialAmountContainer" class="hidden mb-4 space-y-4">
+                                <div class="flex items-center gap-2">
+                                    <button type="button" id="btnModePercent" onclick="setSplitMode('percent')" class="flex-1 py-2 px-3 rounded-xl text-xs font-black border-2 border-amber-500 bg-amber-50 text-amber-800 transition-all">% Pourcentage</button>
+                                    <button type="button" id="btnModeFixed" onclick="setSplitMode('fixed')" class="flex-1 py-2 px-3 rounded-xl text-xs font-black border-2 border-gray-200 bg-white text-gray-600 transition-all">FC Montant Fixe</button>
+                                </div>
+                                <div id="splitModePercent" class="space-y-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">👤 Client reçoit (%)</label>
+                                            <input type="number" id="buyerPercent" min="0" max="100" step="1" value="50" oninput="onBuyerPercentChange(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm font-black focus:ring-2 focus:ring-amber-400 outline-none text-center">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">🏪 Vendeur reçoit (%)</label>
+                                            <input type="number" id="vendorPercent" min="0" max="100" step="1" value="50" oninput="onVendorPercentChange(this.value)" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm font-black focus:ring-2 focus:ring-amber-400 outline-none text-center">
+                                        </div>
+                                    </div>
+                                    <input type="range" id="splitSlider" min="0" max="100" value="50" step="1" oninput="onSliderChange(this.value)" class="w-full accent-amber-500">
+                                </div>
+                                <div id="splitModeFixed" class="hidden">
+                                    <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Montant à rembourser au client (FC)</label>
+                                    <input type="number" id="partialAmountInput" min="0" step="1" oninput="updateBreakdown()" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 text-sm font-black focus:ring-2 focus:ring-amber-400 outline-none" placeholder="Ex: 5000">
+                                </div>
+                                <div class="rounded-2xl bg-gray-900 text-white p-4 space-y-2">
+                                    <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">📊 Répartition des fonds</div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs font-bold text-gray-300">👤 Client reçoit</span>
+                                        <span class="text-sm font-black text-green-400" id="breakdownBuyer">-- FC</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs font-bold text-gray-300">🏪 Vendeur reçoit</span>
+                                        <span class="text-sm font-black text-blue-400" id="breakdownVendor">-- FC</span>
+                                    </div>
+                                    <div class="border-t border-gray-700 pt-2 flex justify-between items-center">
+                                        <span class="text-xs font-bold text-gray-400">🏦 Commission NewKet</span>
+                                        <span class="text-xs font-black text-amber-400" id="breakdownCommission">-- FC</span>
+                                    </div>
+                                    <div class="border-t border-gray-600 pt-2 flex justify-between items-center">
+                                        <span class="text-[10px] font-black uppercase text-gray-500">Total commande</span>
+                                        <span class="text-xs font-black text-gray-300" id="breakdownTotal">-- FC</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Raison de la décision (Note interne)</label>
+                                <textarea id="resolutionNotes" rows="2" class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm focus:ring-2 focus:ring-black outline-none resize-none" placeholder="Expliquez pourquoi cette décision a été prise..."></textarea>
+                            </div>
+                            <button onclick="executeResolution()" id="btnExecuteResolution" class="w-full bg-black text-white px-6 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center gap-2 shadow-xl shadow-black/20 disabled:opacity-50">
+                                <iconify-icon icon="solar:check-circle-bold" width="20"></iconify-icon>
+                                Exécuter la Décision
+                            </button>
+                        </div>
+
+                        <!-- Zone résolu -->
+                        <div id="resolvedZone" class="hidden bg-green-50 rounded-2xl p-6 border border-green-100 text-center">
+                            <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <iconify-icon icon="solar:check-circle-bold" width="24"></iconify-icon>
+                            </div>
+                            <h3 class="text-sm font-black text-green-900 uppercase tracking-widest">Litige Résolu</h3>
+                            <p class="text-xs text-green-700 mt-1 font-medium" id="resolvedDetailsText">La décision a été appliquée.</p>
+                        </div>
+
+                    </div><!-- /detail-scroll -->
+                </div><!-- /disputeDetailPanel -->
+
+            </div><!-- /disputesLayout -->
+        </main>
+    </div>
+
+    <!-- Script logique -->
+    <script type="module">
+        let allDisputes = [];
+        let filteredDisputes = [];
+        let currentPage = 1;
+        const itemsPerPage = 15;
+        let currentDispute = null;
+        let selectedResolutionType = null;
+        let unsubscribeRealtime = null;
+
+        // Fonction pour formater les statuts
+        const getStatusBadge = (status) => {
+            switch (status) {
+                case 'OPEN': return '<span class="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-[10px] font-black uppercase">NOUVEAU</span>';
+                case 'SELLER_PENDING': return '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-[10px] font-black uppercase">ATT. VENDEUR</span>';
+                case 'BUYER_PENDING': return '<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-lg text-[10px] font-black uppercase">ATT. CLIENT</span>';
+                case 'UNDER_REVIEW': return '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-[10px] font-black uppercase">EN RÉVISION</span>';
+                case 'RESOLVED': return '<span class="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-black uppercase">RÉSOLU</span>';
+                case 'CLOSED': return '<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-black uppercase">FERMÉ</span>';
+                default: return `<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-lg text-[10px] font-black uppercase">${status}</span>`;
+            }
+        };
+
+        const loadDisputes = async () => {
+            try {
+                const response = await window.ApiClient.fetch('/disputes');
+                if (response.success) {
+                    allDisputes = response.data || [];
+                    updateStats();
+                    handleSearch();
+                } else {
+                    document.getElementById('disputesTableBody').innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-500 font-bold">${response.message || 'Erreur lors du chargement des litiges.'}</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Erreur disputes:", error);
+                document.getElementById('disputesTableBody').innerHTML = `<tr><td colspan="6" class="text-center py-8 text-red-500 font-bold">Erreur de connexion serveur.</td></tr>`;
+            }
+        };
+
+        const updateStats = () => {
+            const total = allDisputes.length;
+            const actionRequired = allDisputes.filter(d => d.status === 'UNDER_REVIEW' || d.status === 'OPEN').length;
+            const negotiating = allDisputes.filter(d => d.status === 'SELLER_PENDING' || d.status === 'BUYER_PENDING').length;
+            
+            // Calculer les fonds bloqués (uniquement pour les litiges non résolus)
+            const blockedFunds = allDisputes
+                .filter(d => d.status !== 'RESOLVED' && d.status !== 'CLOSED')
+                .reduce((sum, d) => sum + (d.orders?.total_amount || 0), 0);
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statActionRequired').textContent = actionRequired;
+            document.getElementById('statNegotiating').textContent = negotiating;
+            document.getElementById('statBlockedFunds').textContent = window.CurrencyManager.formatPrice(blockedFunds);
+        };
+
+        window.handleSearch = () => {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            filteredDisputes = allDisputes.filter(dispute => {
+                const matchesSearch = 
+                    (dispute.id && dispute.id.toLowerCase().includes(search)) ||
+                    (dispute.order_id && dispute.order_id.toLowerCase().includes(search)) ||
+                    (dispute.reason && dispute.reason.toLowerCase().includes(search));
+                
+                const matchesStatus = !statusFilter || dispute.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            currentPage = 1;
+            renderTable(); const urlParams = new URLSearchParams(window.location.search); const id = urlParams.get('id'); if(id) { openDisputeModal(id); document.getElementById('disputesLayout').classList.add('detail-open'); }
+        };
+
+        const renderTable = () => {
+            const tbody = document.getElementById('disputesTableBody');
+            
+            if (filteredDisputes.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-12">
+                            <div class="flex flex-col items-center justify-center text-gray-400">
+                                <iconify-icon icon="solar:folder-error-broken" width="48" class="mb-3 opacity-50"></iconify-icon>
+                                <span class="text-xs font-bold uppercase tracking-widest">Aucun litige trouvé</span>
+                            </div>
+                        </td>
+                    </tr>`;
+                updatePagination();
+                return;
+            }
+
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginatedItems = filteredDisputes.slice(start, start + itemsPerPage);
+            
+            tbody.innerHTML = paginatedItems.map(dispute => {
+                const date = new Date(dispute.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+                const orderIdShort = dispute.order_id ? `#ORD_${dispute.order_id.substring(0, 8).toUpperCase()}` : 'N/A';
+                const amount = dispute.orders?.total_amount || 0;
+                
+                return `
+                    <tr class="hover:bg-gray-50/50 transition-colors cursor-pointer" onclick="openDisputeModal('${dispute.id}')" data-dispute-id="${dispute.id}">
+                        <td>
+                            <div class="font-bold text-gray-900">${orderIdShort}</div>
+                            <div class="text-[10px] text-gray-500 font-medium">${date}</div>
+                        </td>
+                        <td class="hidden sm:table-cell">
+                            <div class="text-xs font-bold text-gray-900 line-clamp-1">${dispute.reason}</div>
+                            <div class="text-[10px] text-gray-500 line-clamp-1">${dispute.description || ''}</div>
+                        </td>
+                        <td class="hidden md:table-cell">
+                            <div class="font-black text-gray-900 text-xs">${window.CurrencyManager.formatPrice(amount)}</div>
+                        </td>
+                        <td>${getStatusBadge(dispute.status)}</td>
+                        <td>
+                            <iconify-icon icon="solar:alt-arrow-right-bold" width="16" class="text-gray-400"></iconify-icon>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            updatePagination();
+        };
+
+        const updatePagination = () => {
+            const totalPages = Math.ceil(filteredDisputes.length / itemsPerPage);
+            const start = filteredDisputes.length > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0;
+            const end = Math.min(currentPage * itemsPerPage, filteredDisputes.length);
+            
+            document.getElementById('paginationInfo').textContent = `Affichage de ${start} à ${end} sur ${filteredDisputes.length} litiges`;
+            
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            
+            if (prevBtn && nextBtn) {
+                prevBtn.disabled = currentPage === 1 || filteredDisputes.length === 0;
+                nextBtn.disabled = currentPage === totalPages || filteredDisputes.length === 0;
+                
+                prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderTable(); } };
+                nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderTable(); } };
+            }
+        };
+
+        // --- Modale & Gestion ---
+
+        window.openDisputeModal = async (disputeId) => {
+            // Mettre à jour la ligne sélectionnée
+            document.querySelectorAll('#disputesTableBody tr').forEach(r => r.classList.remove('selected-row'));
+            const selectedRow = document.querySelector(`[data-dispute-id="${disputeId}"]`);
+            if (selectedRow) selectedRow.classList.add('selected-row');
+
+            // Ouvrir le panneau
+            document.getElementById('disputesLayout').classList.add('detail-open');
+            currentDispute = allDisputes.find(d => d.id === disputeId);
+            if (!currentDispute) return;
+
+            // Reset UI
+            selectedResolutionType = null;
+            document.querySelectorAll('.resolution-btn').forEach(b => {
+                b.classList.remove('border-blue-500', 'bg-blue-50', 'border-red-500', 'bg-red-50', 'border-amber-500', 'bg-amber-50');
+                b.classList.add('border-gray-200');
+            });
+            document.getElementById('partialAmountContainer').classList.add('hidden');
+            document.getElementById('partialAmountInput').value = '';
+            document.getElementById('resolutionNotes').value = '';
+
+            const orderIdShort = currentDispute.order_id ? `#ORD_${currentDispute.order_id.substring(0, 8).toUpperCase()}` : 'N/A';
+            document.getElementById('modalDisputeTitle').textContent = `Litige ${orderIdShort}`;
+            document.getElementById('modalDisputeSubtitle').innerHTML = `Statut : ${getStatusBadge(currentDispute.status)} • Fonds bloqués : ${window.CurrencyManager.formatPrice(currentDispute.orders?.total_amount || 0)}`;
+
+            document.getElementById('modalDisputeReason').textContent = currentDispute.reason;
+            document.getElementById('modalDisputeDescription').textContent = currentDispute.description || "Aucune description fournie.";
+
+            // Show evidence if any
+            const evidenceContainer = document.getElementById('modalDisputeEvidence');
+            evidenceContainer.innerHTML = '';
+            if (currentDispute.evidence && Array.isArray(currentDispute.evidence) && currentDispute.evidence.length > 0) {
+                currentDispute.evidence.forEach(item => {
+                    if (item.url) {
+                        if (item.kind === 'video_link' || item.url.includes('youtu')) {
+                            evidenceContainer.innerHTML += `
+                                <a href="${item.url}" target="_blank" class="flex items-center justify-center bg-gray-100 text-gray-500 rounded-xl border border-gray-200 w-16 h-16 hover:border-black hover:text-black transition-colors shrink-0" title="Voir la vidéo">
+                                    <iconify-icon icon="solar:play-circle-bold" width="32"></iconify-icon>
+                                </a>
+                            `;
+                        } else {
+                            evidenceContainer.innerHTML += `
+                                <a href="${item.url}" target="_blank" class="block overflow-hidden rounded-xl border border-gray-200 w-16 h-16 hover:border-black transition-colors shrink-0">
+                                    <img src="${item.url}" class="w-full h-full object-cover">
+                                </a>
+                            `;
+                        }
+                    }
+                });
+            }
+
+            // Gestion de l'affichage de la zone de résolution
+            const resolutionZone = document.getElementById('resolutionZone');
+            const resolvedZone = document.getElementById('resolvedZone');
+            
+            if (currentDispute.status === 'RESOLVED' || currentDispute.status === 'CLOSED') {
+                resolutionZone.classList.add('hidden');
+                resolvedZone.classList.remove('hidden');
+                let resText = `Décision : ${currentDispute.resolution}.`;
+                if (currentDispute.refund_amount > 0) resText += ` Remboursé: ${window.CurrencyManager.formatPrice(currentDispute.refund_amount)}.`;
+                if (currentDispute.resolution_decision) resText += ` Notes: ${currentDispute.resolution_decision}`;
+                document.getElementById('resolvedDetailsText').textContent = resText;
+            } else {
+                resolutionZone.classList.remove('hidden');
+                resolvedZone.classList.add('hidden');
+            }
+
+            const modal = document.getElementById('disputeModal');
+            const content = document.getElementById('disputeModalContent');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('translate-x-full');
+            }, 10);
+
+            await loadDisputeMessages(disputeId);
+        };
+
+        window.closeDisputeModal = () => {
+            document.getElementById('disputesLayout').classList.remove('detail-open');
+            document.querySelectorAll('#disputesTableBody tr').forEach(r => r.classList.remove('selected-row'));
+            
+            if (unsubscribeRealtime) {
+                unsubscribeRealtime();
+                unsubscribeRealtime = null;
+            }
+        };
+
+        const loadDisputeMessages = async (disputeId) => {
+            const container = document.getElementById('modalChatContainer');
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-gray-400 space-y-3">
+                    <div class="w-8 h-8 border-4 border-gray-200 border-t-black rounded-full animate-spin"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-widest">Chargement...</span>
+                </div>`;
+
+            try {
+                const response = await window.ApiClient.fetch(`/disputes/${disputeId}/messages`);
+                if (response.success) {
+                    renderMessages(response.data || []);
+                    
+                    // Setup realtime subscription if orderManager is available
+                    if (window.OrderManager && typeof window.OrderManager.subscribeToDisputeMessages === 'function') {
+                        unsubscribeRealtime = window.OrderManager.subscribeToDisputeMessages(disputeId, (newMsg) => {
+                            appendSingleMessage(newMsg);
+                            document.getElementById('modalMessageCount').textContent = `${container.children.length} messages`;
+                        });
+                    }
+                } else {
+                    container.innerHTML = `<div class="text-xs text-red-500 font-bold p-4 text-center">Erreur: ${response.message}</div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="text-xs text-red-500 font-bold p-4 text-center">Erreur réseau.</div>`;
+            }
+        };
+
+        const renderMessages = (messages) => {
+            const container = document.getElementById('modalChatContainer');
+            document.getElementById('modalMessageCount').textContent = `${messages.length} messages`;
+            container.innerHTML = '';
+
+            if (messages.length === 0) {
+                container.innerHTML = `<div class="text-center text-[10px] text-gray-400 italic mt-8">Aucun message dans ce litige.</div>`;
+                return;
+            }
+
+            messages.forEach(appendSingleMessage);
+            container.scrollTop = container.scrollHeight;
+        };
+
+        const appendSingleMessage = (msg) => {
+            const container = document.getElementById('modalChatContainer');
+            
+            // Retirer le message "Aucun message" s'il est là
+            if (container.innerHTML.includes('Aucun message')) {
+                container.innerHTML = '';
+            }
+
+            const senderRole = (msg.payload && msg.payload.sender_role) || msg.sender_role || 'SYSTEM';
+            
+            let roleLabel = '';
+            let bubbleClass = '';
+            let alignClass = '';
+
+            if (senderRole === 'ADMIN') {
+                roleLabel = '<span class="text-[8px] font-black bg-red-100 text-red-600 px-1 py-0.5 rounded uppercase">VOUS (ADMIN)</span>';
+                bubbleClass = 'bg-red-50 border border-red-100 text-red-950 shadow-sm';
+                alignClass = 'self-end items-end'; // Admins are 'me' in this view
+            } else if (senderRole === 'VENDOR' || senderRole === 'SELLER') {
+                roleLabel = '<span class="text-[8px] font-black bg-blue-100 text-blue-600 px-1 py-0.5 rounded uppercase">VENDEUR</span>';
+                bubbleClass = 'bg-blue-50 border border-blue-100 text-blue-950 shadow-sm';
+                alignClass = 'self-start items-start';
+            } else if (senderRole === 'SYSTEM') {
+                roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded uppercase">SYSTÈME</span>';
+                bubbleClass = 'bg-gray-100 text-gray-700';
+                alignClass = 'self-center items-center text-center';
+            } else {
+                roleLabel = '<span class="text-[8px] font-black bg-gray-200 text-gray-700 px-1 py-0.5 rounded uppercase">CLIENT</span>';
+                bubbleClass = 'bg-white border border-gray-200 text-gray-900 shadow-sm';
+                alignClass = 'self-start items-start';
+            }
+
+            const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
+            const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            const msgHtml = `
+                <div class="flex flex-col ${alignClass} w-full max-w-full mb-4">
+                    <div class="flex items-center gap-2 mb-1 px-1">
+                        ${alignClass.includes('self-end') ? `<span class="text-[9px] text-gray-400 font-bold">${time}</span> ${roleLabel}` : `${roleLabel} <span class="text-[9px] text-gray-400 font-bold">${time}</span>`}
+                    </div>
+                    <div class="px-3 py-2 rounded-2xl text-xs font-medium max-w-[85%] ${bubbleClass}">
+                        ${messageText}
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', msgHtml);
+            container.scrollTop = container.scrollHeight;
+        };
+
+        window.sendAdminMessage = async (e) => {
+            e.preventDefault();
+            if (!currentDispute) return;
+
+            const input = document.getElementById('adminMessageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const btn = e.target.querySelector('button');
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>';
+            btn.disabled = true;
+            input.disabled = true;
+
+            try {
+                const response = await window.ApiClient.fetch(`/disputes/${currentDispute.id}/messages`, {
+                    method: 'POST',
+                    body: JSON.stringify({ message, sender_role: 'ADMIN' })
+                });
+
+                if (response.success) {
+                    input.value = '';
+                    // The realtime subscription will handle showing the message
+                } else {
+                    alert('Erreur: ' + response.message);
+                }
+            } catch (error) {
+                console.error("send message err", error);
+                alert('Erreur réseau.');
+            } finally {
+                btn.innerHTML = originalIcon;
+                btn.disabled = false;
+                input.disabled = false;
+                input.focus();
+            }
+        };
+
+        // --- Résolution ---
+
+        // --- Split mode helpers ---
+        let currentSplitMode = 'percent'; // 'percent' | 'fixed'
+
+        window.setSplitMode = (mode) => {
+            currentSplitMode = mode;
+            const isPercent = mode === 'percent';
+            document.getElementById('splitModePercent').classList.toggle('hidden', !isPercent);
+            document.getElementById('splitModeFixed').classList.toggle('hidden', isPercent);
+            document.getElementById('btnModePercent').classList.toggle('border-amber-500', isPercent);
+            document.getElementById('btnModePercent').classList.toggle('bg-amber-50', isPercent);
+            document.getElementById('btnModePercent').classList.toggle('text-amber-800', isPercent);
+            document.getElementById('btnModePercent').classList.toggle('border-gray-200', !isPercent);
+            document.getElementById('btnModePercent').classList.toggle('bg-white', !isPercent);
+            document.getElementById('btnModePercent').classList.toggle('text-gray-600', !isPercent);
+            document.getElementById('btnModeFixed').classList.toggle('border-amber-500', !isPercent);
+            document.getElementById('btnModeFixed').classList.toggle('bg-amber-50', !isPercent);
+            document.getElementById('btnModeFixed').classList.toggle('text-amber-800', !isPercent);
+            document.getElementById('btnModeFixed').classList.toggle('border-gray-200', isPercent);
+            document.getElementById('btnModeFixed').classList.toggle('bg-white', isPercent);
+            document.getElementById('btnModeFixed').classList.toggle('text-gray-600', isPercent);
+            updateBreakdown();
+        };
+
+        window.onBuyerPercentChange = (val) => {
+            const v = Math.min(100, Math.max(0, Number(val) || 0));
+            document.getElementById('vendorPercent').value = 100 - v;
+            document.getElementById('splitSlider').value = v;
+            updateBreakdown();
+        };
+
+        window.onVendorPercentChange = (val) => {
+            const v = Math.min(100, Math.max(0, Number(val) || 0));
+            document.getElementById('buyerPercent').value = 100 - v;
+            document.getElementById('splitSlider').value = 100 - v;
+            updateBreakdown();
+        };
+
+        window.onSliderChange = (val) => {
+            document.getElementById('buyerPercent').value = val;
+            document.getElementById('vendorPercent').value = 100 - val;
+            updateBreakdown();
+        };
+
+        window.updateBreakdown = () => {
+            if (!currentDispute) return;
+            const totalAmount = Number(currentDispute.orders?.total_amount || 0);
+            const commission = Number(currentDispute.orders?.platform_commission_amount || 0);
+            const payoutAmount = totalAmount - commission; // what's distributable between buyer & vendor
+
+            let buyerAmount = 0;
+            if (currentSplitMode === 'percent') {
+                const buyerPct = Math.min(100, Math.max(0, Number(document.getElementById('buyerPercent').value) || 0));
+                buyerAmount = Math.round((buyerPct / 100) * payoutAmount * 100) / 100;
+            } else {
+                buyerAmount = Math.min(payoutAmount, Math.max(0, Number(document.getElementById('partialAmountInput').value) || 0));
+            }
+
+            const vendorAmount = Math.max(0, Math.round((payoutAmount - buyerAmount) * 100) / 100);
+
+            const fmt = (n) => window.CurrencyManager?.formatPrice(n) ?? `${n} FC`;
+            document.getElementById('breakdownBuyer').textContent = fmt(buyerAmount);
+            document.getElementById('breakdownVendor').textContent = fmt(vendorAmount);
+            document.getElementById('breakdownCommission').textContent = fmt(commission);
+            document.getElementById('breakdownTotal').textContent = fmt(totalAmount);
+
+            // Store for executeResolution
+            window._computedRefundAmount = buyerAmount;
+        };
+
+        window.selectResolution = (type) => {
+            selectedResolutionType = type;
+
+            const btnResVendor = document.getElementById('btnResVendor');
+            const btnResBuyer = document.getElementById('btnResBuyer');
+            const btnResPartial = document.getElementById('btnResPartial');
+            const partialContainer = document.getElementById('partialAmountContainer');
+
+            // Reset styles
+            [btnResVendor, btnResBuyer, btnResPartial].forEach(b => {
+                b.classList.remove('border-blue-500', 'bg-blue-50', 'border-red-500', 'bg-red-50', 'border-amber-500', 'bg-amber-50');
+                b.classList.add('border-gray-200');
+            });
+
+            partialContainer.classList.add('hidden');
+
+            if (type === 'RELEASE_TO_SELLER') {
+                btnResVendor.classList.remove('border-gray-200');
+                btnResVendor.classList.add('border-blue-500', 'bg-blue-50');
+            } else if (type === 'FULL_REFUND') {
+                btnResBuyer.classList.remove('border-gray-200');
+                btnResBuyer.classList.add('border-red-500', 'bg-red-50');
+            } else if (type === 'PARTIAL_REFUND') {
+                btnResPartial.classList.remove('border-gray-200');
+                btnResPartial.classList.add('border-amber-500', 'bg-amber-50');
+                partialContainer.classList.remove('hidden');
+                currentSplitMode = 'percent';
+                setSplitMode('percent');
+                // Default 50/50
+                document.getElementById('buyerPercent').value = 50;
+                document.getElementById('vendorPercent').value = 50;
+                document.getElementById('splitSlider').value = 50;
+                updateBreakdown();
+            }
+        };
+
+        window.executeResolution = async () => {
+            if (!currentDispute) return;
+            if (!selectedResolutionType) {
+                alert("Veuillez sélectionner une décision (Raison Vendeur, Client, ou Compromis).");
+                return;
+            }
+
+            let refundAmount = 0;
+            if (selectedResolutionType === 'FULL_REFUND') {
+                const totalAmount = Number(currentDispute.orders?.total_amount || 0);
+                const commission = Number(currentDispute.orders?.platform_commission_amount || 0);
+                refundAmount = totalAmount - commission; // Commission always kept by NewKet
+            } else if (selectedResolutionType === 'PARTIAL_REFUND') {
+                refundAmount = window._computedRefundAmount ?? 0;
+                const payoutAmount = Number(currentDispute.orders?.total_amount || 0) - Number(currentDispute.orders?.platform_commission_amount || 0);
+                if (isNaN(refundAmount) || refundAmount < 0 || refundAmount > payoutAmount) {
+                    alert("Montant de remboursement partiel invalide. Il doit être entre 0 et le montant distribuable (hors commission).");
+                    return;
+                }
+            }
+
+            const notes = document.getElementById('resolutionNotes').value.trim();
+            if (!notes) {
+                const conf = confirm("Vous n'avez pas mis de note explicative pour cette décision. Continuer quand même ?");
+                if (!conf) return;
+            }
+
+            // Confirmation finale
+            let confirmMsg = `Êtes-vous sûr de vouloir exécuter cette décision ?\n\nDécision : ${selectedResolutionType}\nRemboursement client : ${window.CurrencyManager.formatPrice(refundAmount)}\n\nCETTE ACTION EST IRRÉVERSIBLE. L'argent sera immédiatement transféré.`;
+            if (!confirm(confirmMsg)) return;
+
+            const btn = document.getElementById('btnExecuteResolution');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Traitement...';
+            btn.disabled = true;
+
+            try {
+                const response = await window.ApiClient.fetch(`/disputes/${currentDispute.id}/resolve`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({
+                        resolution: selectedResolutionType,
+                        refund_amount: refundAmount,
+                        resolution_decision: notes || 'Résolution administrative'
+                    })
+                });
+
+                if (response.success) {
+                    alert("Litige résolu avec succès !");
+                    closeDisputeModal();
+                    await loadDisputes(); // Recharge la liste
+                } else {
+                    alert('Erreur: ' + response.message);
+                }
+            } catch (error) {
+                console.error("Resolution err", error);
+                alert('Erreur réseau lors de la résolution.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        };
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.ApiClient) {
+                loadDisputes();
+            } else {
+                // Wait for ApiClient
+                const checkApi = setInterval(() => {
+                    if (window.ApiClient) {
+                        clearInterval(checkApi);
+                        loadDisputes();
+                    }
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3718,12 +3718,8 @@
                 const messages = await OrderManager.getDisputeMessages(currentSelectedDispute.id);
                 container.innerHTML = '';
 
-                if (!messages || messages.length === 0) {
-                    container.innerHTML = '<div class="text-center text-[10px] text-gray-400 italic mt-8">Pas encore de messages. L\'administrateur ou le vendeur vous répondront ici.</div>';
-                    return;
-                }
-
-                messages.forEach(msg => {
+                // ── Helper pour rendre un message dans le chat ──
+                function renderChatMsg(msg, cont) {
                     const senderRole = (msg.payload && msg.payload.sender_role) || msg.sender_role || 'SYSTEM';
                     const isMe = senderRole === 'CUSTOMER';
                     let roleLabel = '';
@@ -3746,8 +3742,7 @@
                     }
 
                     const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-                    const msgHtml = `
+                    cont.insertAdjacentHTML('beforeend', `
                         <div class="flex flex-col ${alignClass} max-w-[85%]">
                             <div class="flex items-center mb-1">
                                 <span class="text-[9px] text-gray-400 font-bold">${time}</span>
@@ -3757,48 +3752,24 @@
                                 ${messageText}
                             </div>
                         </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', msgHtml);
-                });
+                    `);
+                    cont.scrollTop = cont.scrollHeight;
+                }
 
-                container.scrollTop = container.scrollHeight;
+                if (!messages || messages.length === 0) {
+                    container.innerHTML = '<div id="noMsgPlaceholder" class="text-center text-[10px] text-gray-400 italic mt-8">Pas encore de messages. L\'administrateur ou le vendeur vous répondront ici.</div>';
+                } else {
+                    messages.forEach(msg => renderChatMsg(msg, container));
+                }
 
-                // ⚡ Realtime — nouveaux messages arrivent automatiquement
+                // ⚡ Realtime — TOUJOURS actif, même si le chat est vide au départ
                 OrderManager.subscribeToDisputeMessages(currentSelectedDispute.id, (newMsg) => {
-                    const senderRole = (newMsg.payload && newMsg.payload.sender_role) || newMsg.sender_role || 'SYSTEM';
-                    const isMe = senderRole === 'CUSTOMER';
-                    let roleLabel = '';
-                    let bubbleClass = '';
-                    let alignClass = isMe ? 'self-end items-end' : 'self-start items-start';
-                    const messageText = newMsg.payload?.message || newMsg.payload?.event || newMsg.message || 'Mise à jour';
-                    if (senderRole === 'ADMIN') {
-                        roleLabel = '<span class="text-[8px] font-black bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2 uppercase">SUPPORT</span>';
-                        bubbleClass = 'bg-red-50 border border-red-100 text-red-950';
-                    } else if (senderRole === 'VENDOR' || senderRole === 'SELLER') {
-                        roleLabel = '<span class="text-[8px] font-black bg-blue-100 text-blue-600 px-1 py-0.5 rounded ml-2 uppercase">VENDEUR</span>';
-                        bubbleClass = 'bg-blue-50 border border-blue-100 text-blue-950';
-                    } else if (senderRole === 'SYSTEM') {
-                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÈME</span>';
-                        bubbleClass = 'bg-gray-100 text-gray-700';
-                    } else {
-                        roleLabel = '<span class="text-[8px] font-black text-gray-400 ml-2 uppercase">VOUS</span>';
-                        bubbleClass = 'bg-black text-white';
-                    }
-                    const time = new Date(newMsg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    const msgHtml = `
-                        <div class="flex flex-col ${alignClass} max-w-[85%]">
-                            <div class="flex items-center mb-1">
-                                <span class="text-[9px] text-gray-400 font-bold">${time}</span>
-                                ${roleLabel}
-                            </div>
-                            <div class="px-3 py-2 rounded-2xl text-xs font-medium ${bubbleClass} shadow-sm">
-                                ${messageText}
-                            </div>
-                        </div>
-                    `;
-                    container.insertAdjacentHTML('beforeend', msgHtml);
-                    container.scrollTop = container.scrollHeight;
+                    // Supprimer le placeholder si présent
+                    const placeholder = container.querySelector('#noMsgPlaceholder');
+                    if (placeholder) placeholder.remove();
+                    renderChatMsg(newMsg, container);
                 });
+
             } catch (error) {
                 container.innerHTML = '<div class="text-center text-xs text-red-500 p-4">Erreur de chargement des messages.</div>';
             }

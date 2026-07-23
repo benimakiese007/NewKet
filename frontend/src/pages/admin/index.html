@@ -1117,7 +1117,8 @@
                 'notion-manager': '/src/pages/admin/notion-manager.html?embedded=1',
                 comptabilite: '/src/pages/admin/comptabilite.html?embedded=1',
                 disputes: '/src/pages/admin/disputes.html?embedded=1',
-                payouts: '/src/pages/admin/payouts.html?embedded=1'
+                payouts: '/src/pages/admin/payouts.html?embedded=1',
+                'dispute-details': '/src/pages/admin/dispute-details.html?embedded=1'
             };
 
                 const viewTitles = {
@@ -1144,7 +1145,8 @@
                 'notion-manager': 'Gestionnaire Notion | NewKet Admin',
                 comptabilite: 'Comptabilité | NewKet Admin',
                 disputes: 'Gestion des Litiges | NewKet Admin',
-                payouts: 'Payouts Vendeurs | NewKet Admin'
+                payouts: 'Payouts Vendeurs | NewKet Admin',
+                'dispute-details': 'Détails du Litige | NewKet Admin'
             };
 
             const overviewPanel = document.getElementById('adminOverviewPanel');
@@ -1185,6 +1187,11 @@
                 return (params.get('email') || '').trim();
             }
 
+            function getRequestedId() {
+                const params = new URLSearchParams(window.location.search);
+                return (params.get('id') || '').trim();
+            }
+
             function buildUrl(view, options = {}) {
                 const url = new URL('/src/pages/admin/index.html', window.location.origin);
                 if (view !== 'overview') {
@@ -1194,6 +1201,11 @@
                 const email = typeof options.email === 'string' ? options.email.trim() : getRequestedEmail();
                 if (view === 'user-details' && email) {
                     url.searchParams.set('email', email);
+                }
+
+                const id = typeof options.id === 'string' ? options.id.trim() : getRequestedId();
+                if (view === 'dispute-details' && id) {
+                    url.searchParams.set('id', id);
                 }
 
                 return `${url.pathname}${url.search}`;
@@ -1207,6 +1219,11 @@
                 const email = typeof options.email === 'string' ? options.email.trim() : getRequestedEmail();
                 if (view === 'user-details' && email) {
                     url.searchParams.set('email', email);
+                }
+
+                const id = typeof options.id === 'string' ? options.id.trim() : getRequestedId();
+                if (view === 'dispute-details' && id) {
+                    url.searchParams.set('id', id);
                 }
 
                 return `${url.pathname}${url.search}`;
@@ -1300,7 +1317,7 @@
                 }
 
                 if (event.data.type === 'newket-admin-embed-navigate' && event.data.view) {
-                    navigate(event.data.view);
+                    navigate(event.data.view, { email: event.data.email, id: event.data.id });
                 }
             });
 
