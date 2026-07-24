@@ -123,7 +123,16 @@
 <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet Logo" class="h-9 sm:h-14 w-auto object-contain" onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572406/newket_assets/racine/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
             </a>
 
-            <div class="justify-self-end w-20 sm:w-24" aria-hidden="true"></div> <!-- Placeholder pour centrer le logo -->
+            <div class="justify-self-end flex items-center">
+                <!-- Currency Toggle -->
+                <div class="currency-switch-segmented scale-90 origin-right" id="desktopCurrencyToggle" data-active="CDF" title="Devise d'affichage">
+                    <div class="segmented-track">
+                        <div class="segmented-handle"></div>
+                        <span class="segmented-label" data-currency="USD">USD</span>
+                        <span class="segmented-label" data-currency="CDF">CDF</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -221,10 +230,22 @@
 
         function formatAmount(amount) {
             if (window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function') {
+                // The amounts from the order API are in CDF, so we use isBaseAmount = true (default)
                 return CurrencyManager.formatPrice(amount || 0);
             }
             return `${amount || 0}`;
         }
+
+        // ── Refresh prices on currency change ────────────────────────────────
+        function _achatRefreshPrices() {
+            document.querySelectorAll('[data-price-raw]').forEach(el => {
+                const raw = parseFloat(el.getAttribute('data-price-raw') || 0);
+                const isDiscount = el.hasAttribute('data-discount');
+                el.textContent = (isDiscount && raw > 0 ? '-' : '') + formatAmount(raw);
+            });
+        }
+        window.addEventListener('currencyChanged', _achatRefreshPrices);
+        // ────────────────────────────────────────────────────────────────────
 
         async function waitForAppReady() {
             if (window.newketInitialized) return;
@@ -266,7 +287,7 @@
                         </div>
 
                         <div class="flex items-center justify-between sm:flex-col sm:items-end sm:justify-start gap-3 sm:gap-2">
-                            <div class="text-lg sm:text-xl font-black tracking-tight text-gray-900 whitespace-nowrap">${total}</div>
+                            <div class="text-lg sm:text-xl font-black tracking-tight text-gray-900 whitespace-nowrap" data-price-raw="${order.total}">${total}</div>
                             <div class="w-full sm:w-auto flex justify-end">${btn}</div>
                         </div>
                     </div>
@@ -376,19 +397,19 @@
                             <div class="mt-4 space-y-3 text-sm">
                                 <div class="flex justify-between gap-3">
                                     <span class="muted">Sous-total</span>
-                                    <span class="font-bold text-gray-900">${formatAmount(subtotal)}</span>
+                                    <span class="font-bold text-gray-900" data-price-raw="${subtotal}">${formatAmount(subtotal)}</span>
                                 </div>
                                 <div class="flex justify-between gap-3">
                                     <span class="muted">Livraison</span>
-                                    <span class="font-bold text-gray-900">${formatAmount(deliveryFee)}</span>
+                                    <span class="font-bold text-gray-900" data-price-raw="${deliveryFee}">${formatAmount(deliveryFee)}</span>
                                 </div>
                                 <div class="flex justify-between gap-3">
                                     <span class="muted">Remise promo</span>
-                                    <span id="promoDiscountValue" class="font-bold text-emerald-700">${discount > 0 ? '-' : ''}${formatAmount(discount)}</span>
+                                    <span id="promoDiscountValue" class="font-bold text-emerald-700" data-price-raw="${discount}" data-discount="true">${discount > 0 ? '-' : ''}${formatAmount(discount)}</span>
                                 </div>
                                 <div class="border-t border-gray-100 pt-3 flex justify-between gap-3">
                                     <span class="font-black text-gray-900">Total</span>
-                                    <span id="promoTotalValue" class="font-black text-gray-900">${formatAmount(total)}</span>
+                                    <span id="promoTotalValue" class="font-black text-gray-900" data-price-raw="${total}">${formatAmount(total)}</span>
                                 </div>
                             </div>
                         </div>
@@ -512,10 +533,16 @@
                 order.total = totalAmount;
 
                 if (promoDiscountValue) {
-                    promoDiscountValue.textContent = `${discountAmount > 0 ? '-' : ''}${formatAmount(discountAmount)}`;
-                }
-                if (promoTotalValue) {
-                    promoTotalValue.textContent = formatAmount(totalAmount);
+                    const discountEl = document.getElementById('promoDiscountValue');
+                    const totalEl = document.getElementById('promoTotalValue');
+                    if (discountEl) {
+                        discountEl.setAttribute('data-price-raw', discountAmount);
+                        discountEl.textContent = `${discountAmount > 0 ? '-' : ''}${formatAmount(discountAmount)}`;
+                    }
+                    if (totalEl) {
+                        totalEl.setAttribute('data-price-raw', totalAmount);
+                        totalEl.textContent = formatAmount(totalAmount);
+                    }
                 }
                 if (promoSuccess) {
                     promoSuccess.textContent = promo?.code ? `Code appliqué: ${promo.code}` : '';
