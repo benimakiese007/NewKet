@@ -64,25 +64,7 @@
         .trust-badge { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 0.04em; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9999px; padding: 5px 12px; }
         .trust-badge iconify-icon { color: #16a34a; }
 
-        /* Sticky mobile pay bar */
-        #sticky-pay-bar {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid #e2e8f0;
-            padding: 0.875rem 1.25rem;
-            z-index: 200;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            box-shadow: 0 -8px 24px -4px rgba(0,0,0,0.08);
-        }
-        @media (max-width: 1023px) {
-            #sticky-pay-bar { display: flex; }
-            main { padding-bottom: 90px; }
-        }
+
 
         @media (min-width: 640px) {
             .card-link { padding: 1.25rem; }
@@ -447,19 +429,7 @@
                         <button class="btn-ghost w-full mt-3 rounded-xl" onclick="backToDashboard()">Retour à l'espace client</button>
                     </div>
                 </div>
-                
-                ${!isPaid ? `
-                <div id="sticky-pay-bar">
-                    <div class="flex flex-col">
-                        <span class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Total à payer</span>
-                        <span class="text-lg font-black text-gray-900">${formatAmount(total)}</span>
-                    </div>
-                    <button id="btnPayNowSticky" data-require-network="true" class="bg-black text-white px-6 py-3 rounded-xl font-bold shadow-lg flex items-center gap-2 active:scale-95 transition-all">
-                        <iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon>
-                        Payer
-                    </button>
-                </div>
-                ` : ''}
+
             `;
         }
 
@@ -615,10 +585,11 @@
 
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
-                if(btnSticky) btnSticky.disabled = true;
+                const stickyBtn = document.getElementById('btnSticky');
+                if(stickyBtn) stickyBtn.disabled = true;
                 if (window.clearInlineFeedback) window.clearInlineFeedback(btn);
                 btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Ouverture...';
-                if(btnSticky) btnSticky.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon> Ouverture...';
+                if(stickyBtn) stickyBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon> Ouverture...';
 
                 // FIX #3: Timeout 15s — if server takes too long, unblock the button and inform the user
                 const PAYMENT_TIMEOUT_MS = 15000;
@@ -651,18 +622,10 @@
                     if (!isRedirecting) {
                         btn.disabled = false;
                         btn.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant';
-                        if(btnSticky) {
-                            btnSticky.disabled = false;
-                            btnSticky.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="18"></iconify-icon> Payer';
-                        }
                     }
                 }
             });
 
-            const btnSticky = document.getElementById('btnPayNowSticky');
-            if (btnSticky) {
-                btnSticky.addEventListener('click', () => btn.click());
-            }
         }
 
         async function initAchatPage() {

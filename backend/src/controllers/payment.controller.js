@@ -11,6 +11,7 @@ import {
     isFlexpaieConfigured,
     verifyFlexpaieSignature
 } from '../services/flexpaie.js';
+import kpayService, { isKpayConfigured } from '../services/kpayService.js';
 import NotificationService from '../services/notificationService.js';
 import {
     ESCROW_STATUSES,
@@ -195,12 +196,15 @@ function getRedirectUrl(req) {
 }
 
 function getActivePaymentProvider(req) {
-    // FlexPaie (Mobile Money) est le provider principal en production
+    // On priorise K-PAY s'il est configuré
+    if (isKpayConfigured()) {
+        return 'kpay';
+    }
+    // FlexPaie (Mobile Money) en backup
     if (isFlexpaieConfigured()) {
         return 'flexpaie';
     }
-    // Stripe est uniquement un fallback pour les tests (dev/staging)
-    // En production avec FlexPaie configuré, ce code n'est jamais atteint
+    // Stripe en fallback final
     if (isStripeConfigured()) {
         return 'stripe';
     }
@@ -269,12 +273,12 @@ export const initiatePayment = async (req, res) => {
             customer_email
         } = req.body;
 
-        if (!isStripeConfigured() && !isFlexpaieConfigured()) {
+        if (!isStripeConfigured() && !isFlexpaieConfigured() && !isKpayConfigured()) {
             return res.status(503).json({
                 success: false,
                 code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
                 error: 'Paiement indisponible',
-                message: 'Aucun fournisseur de paiement (Stripe ou FlexPaie) n\'est configuré.'
+                message: 'Aucun fournisseur de paiement n\'est configuré.'
             });
         }
 
@@ -467,7 +471,21 @@ export const initiatePayment = async (req, res) => {
         if (lockError) throw lockError;
 
         let paymentUrl = null;
-        if (provider === 'stripe') {
+        if (provider === 'kpay') {
+            if (!isKpayConfigured()) {
+                throw new Error('K-PAY n\'est pas configuré (clés manquantes)');
+            }
+            // L'API K-Pay s'attend souvent à des entiers ou requiert le format exact.
+            // On passe le montant en devise locale (FCFA) et non en USD, et sous forme d'entier.
+            const kpayRes = await kpayService.createPayment(
+                Math.round(verifiedAmount), // K-PAY gère le montant en FCFA
+                txId, // externalId
+                getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
+                getCheckoutCancelUrl(req, orderId, txId) // cancelUrl
+            );
+            // La réponse Gateway contient "gatewayUrl"
+            paymentUrl = kpayRes.gatewayUrl;
+        } else if (provider === 'stripe') {
             const stripeSession = await createStripeCheckoutSession({
                 'mode': 'payment',
                 'success_url': getCheckoutSuccessUrl(req, orderId, txId),

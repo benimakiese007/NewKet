@@ -919,12 +919,30 @@ export const getDisputeMessages = async (req, res) => {
 
         const { data, error } = await supabaseAdmin
             .from('dispute_messages')
-            .select('*, users (name, avatar)')
+            .select('*, users (name, avatar, role)')
             .eq('dispute_id', id)
             .order('created_at', { ascending: true });
 
         if (error) throw error;
-        return res.status(200).json({ success: true, data: data || [] });
+
+        // Enrichit chaque message avec un sender_role calculé
+        const enriched = (data || []).map((msg) => {
+            let sender_role = 'SYSTEM';
+            if (msg.sender_id) {
+                if (msg.sender_id === dispute.customer_id) {
+                    sender_role = 'CUSTOMER';
+                } else if (msg.sender_id === dispute.vendor_id) {
+                    sender_role = 'VENDOR';
+                } else if (msg.users?.role === 'admin' || msg.users?.role === 'ADMIN') {
+                    sender_role = 'ADMIN';
+                } else {
+                    sender_role = 'ADMIN'; // fallback: tout autre user authentifié = admin/support
+                }
+            }
+            return { ...msg, sender_role };
+        });
+
+        return res.status(200).json({ success: true, data: enriched });
     } catch (error) {
         console.error('getDisputeMessages error:', error);
         return res.status(500).json({ success: false, message: 'Erreur lors de la récupération des messages.' });

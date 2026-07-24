@@ -277,7 +277,7 @@ export const ApiClient = {
                 }
 
                 if (!response.ok) {
-                    let baseMsg = getFriendlyApiErrorMessage(response.status, data?.error);
+                    let baseMsg = getFriendlyApiErrorMessage(response.status, data?.error || data?.message);
 
                     // Vercel generic 404 body (plain text) when the serverless function route is missing.
                     // This often happens when `/api/*` functions are not deployed/registered.

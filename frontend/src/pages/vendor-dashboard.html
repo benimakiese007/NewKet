@@ -623,13 +623,16 @@
                             <button id="vFilterDone" onclick="setVendorLeadsFilter('done')" type="button" class="px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100" aria-pressed="false">
                                 Terminé
                             </button>
+                            <button id="vFilterDisputed" onclick="setVendorLeadsFilter('disputed')" type="button" class="px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-red-50 text-red-600 border-red-100 hover:bg-red-100" aria-pressed="false">
+                                Litiges
+                            </button>
                             <button id="vFilterAll" onclick="setVendorLeadsFilter('all')" type="button" class="px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100" aria-pressed="false">
                                 Tout
                             </button>
                         </div>
                     </div>
                     <!-- Stat-cards summary -->
-                    <div id="vendor-leads-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6"></div>
+                    <div id="vendor-leads-stats" class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6"></div>
                     <!-- Search bar (Improvement 5) -->
                     <div class="relative mb-4">
                         <iconify-icon icon="solar:magnifer-bold" width="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></iconify-icon>
@@ -3956,6 +3959,7 @@
                             awaiting_client: recentOrders.filter(o => ['QUOTE', 'READY_FOR_PAYMENT'].includes(o.status)).length,
                             delivery: recentOrders.filter(o => ['PAID_HELD', 'IN_DELIVERY'].includes(o.status)).length,
                             done: recentOrders.filter(o => ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(o.status)).length,
+                            disputed: recentOrders.filter(o => ['DISPUTE_OPEN', 'DISPUTED', 'FROZEN'].includes(o.status)).length,
                         };
                         const statCards = [
                             { label: 'À traiter', value: countByGroup.action, icon: 'solar:clock-circle-bold-duotone',
@@ -3966,6 +3970,8 @@
                               cardCls: 'bg-blue-50 border-blue-100 hover:shadow-blue-100/50', iconCls: 'bg-blue-100 text-blue-600', labelCls: 'text-blue-600' },
                             { label: 'Terminées', value: countByGroup.done, icon: 'solar:check-circle-bold-duotone',
                               cardCls: 'bg-emerald-50 border-emerald-100 hover:shadow-emerald-100/50', iconCls: 'bg-emerald-100 text-emerald-600', labelCls: 'text-emerald-600' },
+                            { label: 'Litiges', value: countByGroup.disputed, icon: 'solar:danger-triangle-bold-duotone',
+                              cardCls: 'bg-red-50 border-red-100 hover:shadow-red-100/50', iconCls: 'bg-red-100 text-red-600', labelCls: 'text-red-600' },
                         ];
                         statsContainer.innerHTML = statCards.map(c => `
                             <div class="${c.cardCls} border rounded-2xl p-4 flex items-center gap-3 transition-all hover:shadow-md">
@@ -3983,7 +3989,7 @@
                     }
 
                     // Update leads tab filter UI
-                    const filterIds = ['vFilterAction', 'vFilterAwaiting', 'vFilterDelivery', 'vFilterDone', 'vFilterAll'];
+                    const filterIds = ['vFilterAction', 'vFilterAwaiting', 'vFilterDelivery', 'vFilterDone', 'vFilterDisputed', 'vFilterAll'];
                     const filterMode = window.vendorLeadsFilter || 'action';
                     
                     filterIds.forEach(id => {
@@ -3994,13 +4000,25 @@
                             else if (filterMode === 'awaiting_client') mappedId = 'vFilterAwaiting';
                             else if (filterMode === 'delivery') mappedId = 'vFilterDelivery';
                             else if (filterMode === 'done') mappedId = 'vFilterDone';
+                            else if (filterMode === 'disputed') mappedId = 'vFilterDisputed';
                             
                             const isActive = id === mappedId;
                             
                             btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-                            btn.className = isActive
-                                ? 'px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white border-black'
-                                : 'px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100';
+                            
+                            if (isActive) {
+                                if (id === 'vFilterDisputed') {
+                                    btn.className = 'px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-red-600 text-white border-red-600 shadow-lg';
+                                } else {
+                                    btn.className = 'px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-black text-white border-black shadow-lg';
+                                }
+                            } else {
+                                if (id === 'vFilterDisputed') {
+                                    btn.className = 'px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-red-50 text-red-600 border-red-100 hover:bg-red-100';
+                                } else {
+                                    btn.className = 'px-4 py-2.5 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all bg-gray-50 text-gray-700 border-gray-100 hover:bg-gray-100';
+                                }
+                            }
                         }
                     });
 
@@ -4020,6 +4038,8 @@
                         shownOrders = recentOrders.filter(o => ['PAID_HELD', 'IN_DELIVERY'].includes(o.status));
                     } else if (filterMode === 'done') {
                         shownOrders = recentOrders.filter(o => ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(o.status));
+                    } else if (filterMode === 'disputed') {
+                        shownOrders = recentOrders.filter(o => ['DISPUTE_OPEN', 'DISPUTED', 'FROZEN'].includes(o.status));
                     } else {
                         shownOrders = recentOrders;
                     }
@@ -5366,18 +5386,62 @@
                     try {
                         const dispute = await OrderManager.getDisputeByOrder(orderId);
                         window.currentDisputeIdForVendor = dispute.id;
+                        
+                        // Gérer l'état des boutons d'action vendeur en fonction du statut du litige
+                        const btnPartial = document.getElementById('btnVendorPartialOffer');
+                        const btnContest = document.getElementById('btnVendorContest');
+                        const btnAmiable = document.getElementById('btnAmiableResolve');
+
+                        if (btnPartial) {
+                            btnPartial.disabled = false;
+                            btnPartial.innerHTML = '<iconify-icon icon="solar:wallet-money-bold" width="16"></iconify-icon> Offre partielle';
+                            btnPartial.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                        if (btnContest) {
+                            btnContest.disabled = false;
+                            btnContest.innerHTML = '<iconify-icon icon="solar:shield-cross-bold" width="16"></iconify-icon> Contester';
+                            btnContest.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                        if (btnAmiable) {
+                            btnAmiable.disabled = false;
+                            btnAmiable.innerHTML = '<iconify-icon icon="solar:hand-shake-bold" width="16"></iconify-icon> Refund total';
+                            btnAmiable.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+
+                        if (dispute.status === 'BUYER_PENDING') {
+                            if (btnPartial) {
+                                btnPartial.disabled = true;
+                                btnPartial.innerHTML = '<iconify-icon icon="solar:clock-circle-bold" width="16"></iconify-icon> Attente Client';
+                                btnPartial.classList.add('opacity-50', 'cursor-not-allowed');
+                            }
+                            if (btnContest) {
+                                btnContest.disabled = true;
+                                btnContest.classList.add('opacity-50', 'cursor-not-allowed');
+                            }
+                        } else if (dispute.status === 'UNDER_REVIEW') {
+                            if (btnContest) {
+                                btnContest.disabled = true;
+                                btnContest.innerHTML = '<iconify-icon icon="solar:shield-warning-bold" width="16"></iconify-icon> En examen';
+                                btnContest.classList.add('opacity-50', 'cursor-not-allowed');
+                            }
+                        } else if (['RESOLVED', 'REJECTED'].includes(dispute.status)) {
+                            if (btnPartial) { btnPartial.disabled = true; btnPartial.classList.add('opacity-50', 'cursor-not-allowed'); }
+                            if (btnContest) { btnContest.disabled = true; btnContest.classList.add('opacity-50', 'cursor-not-allowed'); }
+                            if (btnAmiable) { btnAmiable.disabled = true; btnAmiable.classList.add('opacity-50', 'cursor-not-allowed'); }
+                        }
+
                         const messages = await OrderManager.getDisputeMessages(dispute.id);
                         chatContainer.innerHTML = '';
 
                         // ── Helper pour rendre un message ──
                         function renderVendorChatMsg(msg, cont) {
-                            const senderRole = (msg.payload && msg.payload.sender_role) || msg.sender_role || 'SYSTEM';
+                            // sender_role est maintenant calculé par le backend (top-level)
+                            const senderRole = msg.sender_role || (msg.payload && msg.payload.sender_role) || 'SYSTEM';
                             const isMe = senderRole === 'VENDOR' || senderRole === 'SELLER';
                             let roleBadge = '';
                             let bubbleColor = '';
                             let textColor = '';
                             let align = isMe ? 'self-end items-end' : 'self-start items-start';
-                            const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
 
                             if (senderRole === 'ADMIN') {
                                 roleBadge = '<span class="text-[8px] font-black uppercase bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2">ADMIN</span>';
@@ -5399,6 +5463,34 @@
 
                             const timeStr = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                             const dateStr = new Date(msg.created_at).toLocaleDateString([], {day:'2-digit', month:'2-digit'});
+
+                            // Rendu spécial : mon offre partielle envoyée
+                            if (msg.type === 'OFFER' && msg.payload?.action === 'OFFER_PARTIAL_REFUND') {
+                                const amount = Number(msg.payload?.amount || 0).toLocaleString('fr-FR');
+                                const note = msg.payload?.message || '';
+                                cont.insertAdjacentHTML('beforeend', `
+                                    <div class="flex flex-col self-end items-end max-w-[90%] snap-end">
+                                        <div class="flex items-center mb-1">
+                                            <span class="text-[9px] font-bold text-gray-500">${timeStr} ${dateStr}</span>
+                                            <span class="text-[8px] font-black uppercase text-gray-400 ml-2">Vous</span>
+                                        </div>
+                                        <div class="rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-sm overflow-hidden">
+                                            <div class="px-3 py-2 bg-amber-500 text-white flex items-center gap-2">
+                                                <span class="text-[10px] font-black uppercase tracking-widest">💰 Offre envoyée</span>
+                                            </div>
+                                            <div class="px-3 py-2">
+                                                <div class="text-lg font-black text-amber-700">${amount} CDF</div>
+                                                ${note ? `<div class="text-xs text-amber-800 mt-1">${note}</div>` : ''}
+                                                <div class="text-[10px] text-amber-600 mt-1 italic">En attente de réponse du client.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
+                                cont.scrollTop = cont.scrollHeight;
+                                return;
+                            }
+
+                            const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
                             cont.insertAdjacentHTML('beforeend', `
                                 <div class="flex flex-col ${align} max-w-[85%] snap-end">
                                     <div class="flex items-center mb-1">
