@@ -246,7 +246,7 @@ export async function getCommissionRate(client) {
 // Note: getPayoutFeeRate() supprimée — remplacée par kpay-fees.service.js
 // qui lit les taux depuis la table kpay_operator_fees (par opérateur et devise).
 
-async function attemptVendorPayoutTransfer(vendor, payoutAmount, orderId) {
+async function attemptVendorPayoutTransfer(vendor, payoutAmount, orderId, currency) {
     if (!vendor?.payout_method) {
         return { status: 'manual', message: 'Aucun compte de réception configuré par le vendeur.' };
     }
@@ -266,10 +266,16 @@ async function attemptVendorPayoutTransfer(vendor, payoutAmount, orderId) {
             // Ex: KPAY-PAYOUT-ORDER-123
             const externalId = `KPAY-PAYOUT-${orderId}`;
             const description = `Payout Vendeur pour commande ${orderId}`;
-            const operator = method.operator; // ex: MTN_MOMO_CMR, vodacom_mpesa...
             const phone = method.account_id; // numéro de téléphone stocké
+            
+            // Mapper l'opérateur local vers le code Provider KPay attendu
+            let kpayProvider = method.operator.toUpperCase() + "_COD";
+            const op = method.operator.toLowerCase();
+            if (op === 'vodacom_mpesa' || op === 'mpesa') kpayProvider = 'VODACOM_MPESA_COD';
+            if (op === 'airtel') kpayProvider = 'AIRTEL_COD';
+            if (op === 'orange') kpayProvider = 'ORANGE_COD';
 
-            await kpayService.withdrawToVendor(payoutAmount, operator, phone, externalId, description);
+            await kpayService.withdrawToVendor(payoutAmount, currency, kpayProvider, phone, externalId, description);
             
             return { status: 'success', message: 'Transfert KPay effectué avec succès.' };
         } catch (error) {
@@ -413,7 +419,7 @@ export async function releaseOrderEscrow({
     let transfer = { status: 'manual', message: 'Transfert automatique non disponible.' };
 
     try {
-        transfer = await attemptVendorPayoutTransfer(vendor, payoutAmount, order.id);
+        transfer = await attemptVendorPayoutTransfer(vendor, payoutAmount, order.id, currency);
     } catch (error) {
         console.error('[Escrow] Transfer error:', error.message);
         transfer = { status: 'failed', message: error.message };

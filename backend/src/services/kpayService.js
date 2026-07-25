@@ -83,16 +83,18 @@ class KPayService {
   /**
    * Effectue un transfert sortant (Retrait) vers un compte Mobile Money via l'API K-PAY
    * @param {number} amount - Le montant (dans la devise du provider)
-   * @param {string} provider - Le code de l'opérateur (ex: MTN_MOMO_CMR)
+   * @param {string} currency - La devise (ex: USD, CDF)
+   * @param {string} provider - Le code de l'opérateur (ex: VODACOM_MPESA_COD)
    * @param {string} phoneNumber - Le numéro de téléphone du bénéficiaire
    * @param {string} externalId - Un identifiant unique (idempotence)
    * @param {string} description - Description du transfert
    * @returns {Promise<Object>} La réponse KPay avec l'objet Withdrawal
    */
-  async withdrawToVendor(amount, provider, phoneNumber, externalId, description = "Payout Vendeur NewKet") {
+  async withdrawToVendor(amount, currency, provider, phoneNumber, externalId, description = "Payout Vendeur NewKet") {
     try {
       const payload = {
         amount: amount,
+        currency: currency,
         provider: provider,
         phoneNumber: phoneNumber,
         externalId: externalId,
