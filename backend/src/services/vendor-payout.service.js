@@ -126,9 +126,15 @@ export const getVendorPayoutMethods = async (vendorId) => {
 };
 
 /**
- * Ajoute une méthode de paiement après validation OTP
+ * Ajout d'une méthode de paiement après validation OTP.
+ * @param {string} vendorId
+ * @param {string} provider (ex: kpay, flexpaie, stripe)
+ * @param {string} operator (ex: vodacom_mpesa, airtel)
+ * @param {string} accountId
+ * @param {string} accountName
+ * @param {boolean} isDefault
  */
-export const addVendorPayoutMethod = async (vendorId, provider, accountId, accountName, isDefault = false) => {
+export const addVendorPayoutMethod = async (vendorId, provider, operator, accountId, accountName, isDefault = false) => {
     // Si c'est défini par défaut, on met à jour les autres à false
     if (isDefault) {
         await supabaseAdmin
@@ -142,6 +148,7 @@ export const addVendorPayoutMethod = async (vendorId, provider, accountId, accou
         .insert({
             vendor_id: vendorId,
             provider,
+            operator,
             account_id: accountId,
             account_name: accountName,
             is_default: isDefault

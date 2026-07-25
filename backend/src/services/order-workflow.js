@@ -2,6 +2,11 @@ import crypto from 'crypto';
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import NotificationService from './notificationService.js';
 import { awardReferralNkToken } from './referral-rewards.js';
+import {
+    getOperatorFees,
+    getMaxPayinRate,
+    computeVendorPayout
+} from './kpay-fees.service.js';
 
 export const ORDER_STATUSES = {
     PENDING: 'PENDING',
@@ -238,6 +243,9 @@ export async function getCommissionRate(client) {
     return parseFloat(data?.platform_commission_rate) || 5.0;
 }
 
+// Note: getPayoutFeeRate() supprimée — remplacée par kpay-fees.service.js
+// qui lit les taux depuis la table kpay_operator_fees (par opérateur et devise).
+
 async function attemptVendorPayoutTransfer(vendor, payoutAmount) {
     if (!vendor?.payout_method) {
         return { status: 'manual', message: 'Aucun compte de réception configuré par le vendeur.' };
@@ -352,11 +360,30 @@ export async function releaseOrderEscrow({
 
     const vendor = await fetchVendorPayoutDetails(client, getOrderVendorId(order));
 
-    // ─── Calcul de la commission ───
-    const commissionRate = await getCommissionRate(client);
+    // ─── Calcul commission NewKet + frais payout KPay (par opérateur vendeur) ───
+    const commissionRate  = await getCommissionRate(client);
+    const currency        = String(order.payment_expected_currency || 'USD').toUpperCase();
+
+    // Récupérer l'opérateur du vendeur depuis sa méthode de payout par défaut
+    const payoutOperator  = vendor?.payout_method?.operator || null;
+
+    // Frais payout : taux exact si opérateur connu, sinon taux max (pire cas)
+    let payoutFeeRate = 0;
+    if (payoutOperator) {
+        const operatorFees = await getOperatorFees(client, currency, payoutOperator);
+        payoutFeeRate = operatorFees?.payout_rate ?? 0;
+    } else {
+        // Opérateur inconnu → taux max pour ne pas absorber de perte
+        const maxRate = await getMaxPayinRate(client, currency);
+        payoutFeeRate = maxRate.rate;
+        console.warn(`[Escrow] Opérateur vendeur inconnu pour commande ${order.id}. Taux max ${payoutFeeRate}% appliqué.`);
+    }
+
     const totalAmount = parseFloat(order.total_amount || order.total || 0);
-    const commissionAmount = Math.round(totalAmount * commissionRate) / 100;
-    const payoutAmount = Math.round((totalAmount - commissionAmount) * 100) / 100;
+
+    // computeVendorPayout : baseAmount - commission - frais payout sur le brut
+    const payoutCalc = computeVendorPayout(totalAmount, commissionRate, payoutFeeRate);
+    const { commissionAmount, payoutFeeAmount, vendorPayout: payoutAmount } = payoutCalc;
 
     let transfer = { status: 'manual', message: 'Transfert automatique non disponible.' };
 
@@ -368,12 +395,15 @@ export async function releaseOrderEscrow({
     }
 
     // ─── Déterminer le statut du payout ───
-    const payoutStatus = transfer.status === 'failed' ? 'FAILED' : (transfer.status === 'success' ? 'SUCCESS' : 'PENDING');
+    const payoutStatus    = transfer.status === 'failed' ? 'FAILED' : (transfer.status === 'success' ? 'SUCCESS' : 'PENDING');
     const currentAttempts = parseInt(order.payout_attempts || 0, 10);
 
     const updatePayload = {
         updated_at: nowIso,
         platform_commission_amount: commissionAmount,
+        payout_withdrawal_fee_amount: payoutFeeAmount,
+        payout_fee_rate: payoutFeeRate,
+        payout_operator: payoutOperator,
         payout_amount: payoutAmount,
         payout_status: payoutStatus,
         payout_attempts: currentAttempts + 1,
@@ -406,8 +436,13 @@ export async function releaseOrderEscrow({
                 transfer_status: transfer.status,
                 transfer_message: transfer.message,
                 initiated_by: initiatedBy,
+                currency,
                 commission_rate: commissionRate,
                 commission_amount: commissionAmount,
+                payout_operator: payoutOperator,
+                payout_fee_rate: payoutFeeRate,
+                payout_fee_amount: payoutFeeAmount,
+                payout_gross: payoutCalc.payoutGross,
                 payout_amount: payoutAmount
             },
             processedAt: nowIso
@@ -441,8 +476,13 @@ export async function releaseOrderEscrow({
                 transfer_status: transfer.status,
                 transfer_message: transfer.message,
                 initiated_by: initiatedBy,
+                currency,
                 commission_rate: commissionRate,
                 commission_amount: commissionAmount,
+                payout_operator: payoutOperator,
+                payout_fee_rate: payoutFeeRate,
+                payout_fee_amount: payoutFeeAmount,
+                payout_gross: payoutCalc.payoutGross,
                 payout_amount: payoutAmount
             },
             processedAt: nowIso

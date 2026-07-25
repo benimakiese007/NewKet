@@ -2962,8 +2962,60 @@
                         ]);
                         clearTimeout(timeoutId);
                         if (data?.payment_url) {
-                            isRedirecting = true;
-                            window.location.href = data.payment_url;
+                            if (data.pricing_breakdown && data.pricing_breakdown.payin_fee > 0) {
+                                isRedirecting = false;
+                                
+                                const modalId = 'payment-confirm-modal-' + Date.now();
+                                const currency = data.pricing_breakdown.currency || 'CDF';
+                                const modalHtml = `
+                                    <div id="${modalId}" class="nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-100 transition-opacity duration-300" style="z-index:20000;">
+                                        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="document.getElementById('${modalId}').remove()"></div>
+                                        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative z-10 transform transition-transform duration-300 scale-100 flex flex-col max-h-full">
+                                            <div class="px-5 py-4 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur z-20">
+                                                <h3 class="text-base sm:text-lg font-black text-gray-900 flex items-center gap-2">
+                                                    <iconify-icon icon="solar:wallet-bold" class="text-indigo-600" width="22"></iconify-icon>
+                                                    Détail du paiement
+                                                </h3>
+                                                <button onclick="document.getElementById('${modalId}').remove()" class="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all">
+                                                    <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
+                                                </button>
+                                            </div>
+                                            <div class="p-5 overflow-y-auto">
+                                                <div class="text-left space-y-3">
+                                                    <div class="flex justify-between border-b border-gray-100 pb-3">
+                                                        <span class="text-gray-500 font-medium">Montant commande</span>
+                                                        <span class="font-bold text-gray-900">${(data.pricing_breakdown.total_merchandise + data.pricing_breakdown.delivery_fee).toLocaleString('fr-FR')} ${currency}</span>
+                                                    </div>
+                                                    <div class="flex justify-between border-b border-gray-100 pb-3">
+                                                        <span class="text-gray-500 font-medium flex items-center gap-1">
+                                                            Frais d'opérateur
+                                                            <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">KPay</span>
+                                                        </span>
+                                                        <span class="font-bold text-orange-600">+ ${Number(data.pricing_breakdown.payin_fee).toLocaleString('fr-FR')} ${currency}</span>
+                                                    </div>
+                                                    <div class="flex justify-between pt-2 items-center">
+                                                        <span class="text-gray-900 font-bold">Total à payer</span>
+                                                        <span class="text-2xl font-black text-indigo-600">${Number(data.pricing_breakdown.total_to_pay).toLocaleString('fr-FR')} ${currency}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="px-5 py-4 border-t border-gray-50 bg-gray-50 flex gap-3 flex-shrink-0">
+                                                <button onclick="document.getElementById('${modalId}').remove()" class="flex-1 px-4 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-50 transition-colors shadow-sm">
+                                                    Annuler
+                                                </button>
+                                                <button onclick="window.location.href = '${data.payment_url}'" class="flex-1 px-4 py-3 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center gap-2">
+                                                    <iconify-icon icon="solar:card-bold" width="18"></iconify-icon>
+                                                    Payer
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                            } else {
+                                isRedirecting = true;
+                                window.location.href = data.payment_url;
+                            }
                             return;
                         }
                         

@@ -42,17 +42,17 @@ router.post('/request-otp', async (req, res) => {
 /**
  * POST /api/vendor-payouts/add
  * Ajoute un compte de réception après vérification OTP
- * Body: { otp_code, provider, account_id, account_name, is_default }
+ * Body: { otp_code, provider, operator, account_id, account_name, is_default }
  */
 router.post('/add', async (req, res) => {
     try {
         const userId = req.user.id;
-        const { otp_code, provider, account_id, account_name, is_default } = req.body;
+        const { otp_code, provider, operator, account_id, account_name, is_default } = req.body;
 
-        if (!otp_code || !provider || !account_id) {
+        if (!otp_code || !provider || !operator || !account_id) {
             return res.status(400).json({
                 success: false,
-                message: 'Champs requis : otp_code, provider, account_id'
+                message: 'Champs requis : otp_code, provider, operator, account_id'
             });
         }
 
@@ -68,6 +68,7 @@ router.post('/add', async (req, res) => {
         const method = await addVendorPayoutMethod(
             userId,
             provider,
+            operator,
             account_id,
             account_name || null,
             is_default || false

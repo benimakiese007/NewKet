@@ -27,6 +27,10 @@ import {
     normalizePromoCode,
     recordVendorPromoUsage
 } from '../services/vendor-promo.service.js';
+import {
+    getMaxPayinRate,
+    computeClientTotal
+} from '../services/kpay-fees.service.js';
 
 const generateTxId = () => generateTransactionId();
 
@@ -354,7 +358,21 @@ export const initiatePayment = async (req, res) => {
         const pricing = pricingResult.pricing;
         const appliedPromo = pricingResult.promo;
         const conversionRate = parseFloat(product.custom_exchange_rate) || await loadExchangeRate(client);
+
+        // Prix produit de base (hors frais payin)
         const verifiedAmount = Number(pricing.total_amount || 0);
+
+        // ─── Calcul des frais payin KPay (Option A : supportés par le client) ───
+        // Devise : CDF par défaut pour KPay RDC. On utilise le taux max (pire cas)
+        // car l'opérateur du client est inconnu au moment du checkout.
+        const payinCurrency = 'CDF'; // Les paiements KPay sont en CDF
+        const payinFeeInfo  = await getMaxPayinRate(client, payinCurrency);
+        const payinCalc     = computeClientTotal(verifiedAmount, payinFeeInfo.rate);
+        // clientTotal = montant réellement envoyé à KPay (prix + frais payin)
+        const clientTotal       = payinCalc.clientTotal;
+        const payinFeeAmount    = payinCalc.payinFeeAmount;
+        const payinFeeRate      = payinFeeInfo.rate;
+
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
         const txId = generateTxId();
         const provider = getActivePaymentProvider(req);
@@ -407,7 +425,11 @@ export const initiatePayment = async (req, res) => {
                 customer_city: customer_city || null,
                 customer_email: resolvedCustomerEmail,
                 escrow_status: ESCROW_STATUSES.NONE,
-                proof_status: 'PENDING'
+                proof_status: 'PENDING',
+                // ─── Frais payin KPay ───
+                payin_fee_rate: payinFeeRate,
+                payin_fee_amount: payinFeeAmount,
+                client_total_paid: clientTotal
             };
 
             const { data: createdOrder, error: insertError } = await client
@@ -475,13 +497,13 @@ export const initiatePayment = async (req, res) => {
             if (!isKpayConfigured()) {
                 throw new Error('K-PAY n\'est pas configuré (clés manquantes)');
             }
-            // L'API K-Pay s'attend souvent à des entiers ou requiert le format exact.
-            // On passe le montant en devise locale (FCFA) et non en USD, et sous forme d'entier.
+                    // L'API K-Pay s'attend à un entier. On lui envoie le montant CLIENT TOTAL
+            // (prix produit + frais payin) pour que NewKet reçoive exactement verifiedAmount.
             const kpayRes = await kpayService.createPayment(
-                Math.round(verifiedAmount), // K-PAY gère le montant en FCFA
-                txId, // externalId
+                Math.round(clientTotal),             // KPay collecte clientTotal en CDF
+                txId,                                // externalId
                 getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
-                getCheckoutCancelUrl(req, orderId, txId) // cancelUrl
+                getCheckoutCancelUrl(req, orderId, txId)   // cancelUrl
             );
             // La réponse Gateway contient "gatewayUrl"
             paymentUrl = kpayRes.gatewayUrl;
@@ -526,7 +548,15 @@ export const initiatePayment = async (req, res) => {
             transaction_id: txId,
             provider,
             payment_url: paymentUrl,
-            public_key: null
+            public_key: null,
+            // Breakdown financier pour affichage au frontend
+            pricing_breakdown: {
+                base_amount: verifiedAmount,
+                payin_fee_rate: payinFeeRate,
+                payin_fee_amount: payinFeeAmount,
+                client_total: clientTotal,
+                currency: payinCurrency
+            }
         });
     } catch (error) {
         console.error('Critical initiatePayment error:', {

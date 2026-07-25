@@ -4991,7 +4991,8 @@
 
                 async function verifyPayoutOtpAndAdd() {
                     const otpCode = document.getElementById('payoutOtpInput').value.trim();
-                    const provider = document.getElementById('payoutProvider').value;
+                    const providerRadio = document.querySelector('input[name="payoutProvider"]:checked');
+                    const providerVal = providerRadio ? providerRadio.value : '';
                     const accountId = document.getElementById('payoutAccountId').value.trim();
                     const accountName = document.getElementById('payoutAccountName').value.trim();
                     const errorEl = document.getElementById('payoutOtpError');
@@ -5013,6 +5014,18 @@
                         const token = session?.session?.access_token;
                         if (!token) throw new Error("Non authentifié");
 
+                        let finalProvider = 'MOBILE_MONEY';
+                        let finalOperator = 'kpay_default';
+
+                        switch (providerVal) {
+                            case 'MPESA': finalProvider = 'KPAY'; finalOperator = 'vodacom_mpesa'; break;
+                            case 'AIRTEL': finalProvider = 'KPAY'; finalOperator = 'airtel'; break;
+                            case 'ORANGE': finalProvider = 'KPAY'; finalOperator = 'orange'; break;
+                            case 'AFRIMONEY': finalProvider = 'MOBILE_MONEY'; finalOperator = 'afrimoney'; break;
+                            case 'VISA': finalProvider = 'STRIPE'; finalOperator = 'visa'; break;
+                            case 'MASTERCARD': finalProvider = 'STRIPE'; finalOperator = 'mastercard'; break;
+                        }
+
                         const response = await fetch('/api/vendor-payouts/add', {
                             method: 'POST',
                             headers: { 
@@ -5020,7 +5033,8 @@
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({ 
-                                provider,
+                                provider: finalProvider,
+                                operator: finalOperator,
                                 account_id: accountId,
                                 account_name: accountName,
                                 otp_code: otpCode
