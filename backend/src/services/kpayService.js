@@ -79,6 +79,36 @@ class KPayService {
     // Vérifie aussi que le timestamp a moins de 10 minutes (prévention anti-replay)
     return ok && (Date.now() - Number(ts) < 10 * 60 * 1000);
   }
+
+  /**
+   * Effectue un transfert sortant (Retrait) vers un compte Mobile Money via l'API K-PAY
+   * @param {number} amount - Le montant (dans la devise du provider)
+   * @param {string} provider - Le code de l'opérateur (ex: MTN_MOMO_CMR)
+   * @param {string} phoneNumber - Le numéro de téléphone du bénéficiaire
+   * @param {string} externalId - Un identifiant unique (idempotence)
+   * @param {string} description - Description du transfert
+   * @returns {Promise<Object>} La réponse KPay avec l'objet Withdrawal
+   */
+  async withdrawToVendor(amount, provider, phoneNumber, externalId, description = "Payout Vendeur NewKet") {
+    try {
+      const payload = {
+        amount: amount,
+        provider: provider,
+        phoneNumber: phoneNumber,
+        externalId: externalId,
+        description: description
+      };
+
+      const response = await this.client.post('/api/v1/payments/withdraw', payload);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        console.error('Erreur K-PAY Withdraw API:', error.response.data);
+        throw new Error(error.response.data.message || 'Erreur lors du transfert K-PAY');
+      }
+      throw error;
+    }
+  }
 }
 
 export const isKpayConfigured = () => {

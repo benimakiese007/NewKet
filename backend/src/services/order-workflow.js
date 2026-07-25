@@ -246,12 +246,37 @@ export async function getCommissionRate(client) {
 // Note: getPayoutFeeRate() supprimée — remplacée par kpay-fees.service.js
 // qui lit les taux depuis la table kpay_operator_fees (par opérateur et devise).
 
-async function attemptVendorPayoutTransfer(vendor, payoutAmount) {
+async function attemptVendorPayoutTransfer(vendor, payoutAmount, orderId) {
     if (!vendor?.payout_method) {
         return { status: 'manual', message: 'Aucun compte de réception configuré par le vendeur.' };
     }
 
     const method = vendor.payout_method;
+
+    // KPay ou Mobile Money payout (Retrait KPay)
+    if (method.provider === 'KPAY' || method.provider === 'MOBILE_MONEY') {
+        try {
+            const kpayService = (await import('./kpayService.js')).default;
+            const { isKpayConfigured } = await import('./kpayService.js');
+            
+            if (!isKpayConfigured()) {
+                return { status: 'manual', message: 'KPay API non configurée. Payout manuel requis.' };
+            }
+
+            // Ex: KPAY-PAYOUT-ORDER-123
+            const externalId = `KPAY-PAYOUT-${orderId}`;
+            const description = `Payout Vendeur pour commande ${orderId}`;
+            const operator = method.operator; // ex: MTN_MOMO_CMR, vodacom_mpesa...
+            const phone = method.account_id; // numéro de téléphone stocké
+
+            await kpayService.withdrawToVendor(payoutAmount, operator, phone, externalId, description);
+            
+            return { status: 'success', message: 'Transfert KPay effectué avec succès.' };
+        } catch (error) {
+            console.error('[KPay Payout Error]', error.message);
+            return { status: 'failed', message: `Erreur KPay: ${error.message}` };
+        }
+    }
 
     // FlexPaie payout (sera activé avec les clés)
     if (method.provider === 'flexpaie') {
@@ -282,7 +307,7 @@ async function attemptVendorPayoutTransfer(vendor, payoutAmount) {
         }
     }
 
-    return { status: 'manual', message: 'Fournisseur de paiement non supporté pour le payout.' };
+    return { status: 'manual', message: 'Fournisseur de paiement non supporté pour le payout automatique.' };
 }
 
 export async function releaseOrderEscrow({
@@ -388,7 +413,7 @@ export async function releaseOrderEscrow({
     let transfer = { status: 'manual', message: 'Transfert automatique non disponible.' };
 
     try {
-        transfer = await attemptVendorPayoutTransfer(vendor, payoutAmount);
+        transfer = await attemptVendorPayoutTransfer(vendor, payoutAmount, order.id);
     } catch (error) {
         console.error('[Escrow] Transfer error:', error.message);
         transfer = { status: 'failed', message: error.message };
