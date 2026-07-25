@@ -10,6 +10,7 @@ const ConfigManager = {
         exchangeRate: 2800,
         currencySymbol: 'CDF',
         targetAOV: 0,
+        platformCommissionRate: 5.0,
         shippingFee: 5,
         freeShippingThreshold: 50,
         maintenanceMode: false,
@@ -108,6 +109,7 @@ const ConfigManager = {
         const exchangeRate = row.exchangeRate ?? row.exchange_rate;
         const currencySymbol = row.currencySymbol ?? row.currency_symbol;
         const targetAOV = row.targetAOV ?? row.target_aov;
+        const platformCommissionRate = row.platformCommissionRate ?? row.platform_commission_rate;
         const shippingFee = row.shippingFee ?? row.shipping_fee;
         const freeShippingThreshold = row.freeShippingThreshold ?? row.free_shipping_threshold;
         const maintenanceMode = row.maintenanceMode ?? row.maintenance_mode;
@@ -144,6 +146,7 @@ const ConfigManager = {
             ...(exchangeRate !== undefined ? { exchangeRate } : {}),
             ...(currencySymbol !== undefined ? { currencySymbol } : {}),
             ...(targetAOV !== undefined ? { targetAOV } : {}),
+            ...(platformCommissionRate !== undefined ? { platformCommissionRate } : {}),
             ...(shippingFee !== undefined ? { shippingFee } : {}),
             ...(freeShippingThreshold !== undefined ? { freeShippingThreshold } : {}),
             ...(maintenanceMode !== undefined ? { maintenanceMode: !!maintenanceMode } : {}),

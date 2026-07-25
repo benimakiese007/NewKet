@@ -136,6 +136,15 @@
                                     placeholder="20">
                             </div>
                         </div>
+
+                        <div class="pt-6 border-t border-gray-100">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2 flex items-center gap-2">Commission Plateforme (%) <iconify-icon icon="solar:info-circle-bold-duotone" class="text-gray-400" title="Commission prélevée sur chaque vente"></iconify-icon></label>
+                                <input type="number" step="0.1" id="platformCommissionRate" data-track-action="admin_settings:commission_rate_change"
+                                    class="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-black transition-all font-black text-green-600"
+                                    placeholder="5.0">
+                            </div>
+                        </div>
                     </form>
                 </div>
 
@@ -255,6 +264,7 @@
                 document.getElementById('shopCurrency').value = config.currencySymbol || 'CDF';
                 document.getElementById('exchangeRate').value = config.exchangeRate || 2500;
                 document.getElementById('targetAOV').value = config.targetAOV || 0;
+                document.getElementById('platformCommissionRate').value = config.platformCommissionRate || 5.0;
 
                 if (config.socialLinks) {
                     document.getElementById('socialInstagram').value = config.socialLinks.instagram || '';
@@ -289,6 +299,7 @@
                 maintenanceMode: document.getElementById('maintenanceMode').checked,
                 exchangeRate: parseFloat(document.getElementById('exchangeRate').value) || 2800,
                 targetAOV: parseFloat(document.getElementById('targetAOV').value) || 0,
+                platformCommissionRate: parseFloat(document.getElementById('platformCommissionRate').value) || 5.0,
                 primaryColor: window.newketConfig ? window.newketConfig.primaryColor : '#000000'
             };
 
