@@ -3446,10 +3446,13 @@
                     }
 
                     countEl.textContent = fallbacks.length;
+                    const publishBase = (typeof window.resolvePath === 'function')
+                        ? window.resolvePath('pages/publish')
+                        : '/src/pages/publish.html';
                     listEl.innerHTML = fallbacks.slice(0, 5).map(p => `
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-sm font-medium text-gray-700 truncate flex-1">${p.name || 'Produit sans nom'}</span>
-                            <button onclick="openEditProductModal('${p.id}')" class="text-[10px] font-black uppercase text-yellow-600 hover:underline shrink-0">Corriger</button>
+                            <a href="${publishBase}?edit=${p.id}" class="text-[10px] font-black uppercase text-yellow-600 hover:underline shrink-0">Corriger</a>
                         </div>
                     `).join('') + (fallbacks.length > 5 ? `<p class="text-[10px] font-black text-yellow-500 uppercase text-right mt-1">+ ${fallbacks.length - 5} autres</p>` : '');
                     alert.classList.remove('hidden');
