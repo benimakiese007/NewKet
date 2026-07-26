@@ -3494,11 +3494,8 @@
                             String(p?.category || '').toLowerCase().includes(searchQuery));
                     }
 
-                    const countBadge = document.getElementById('vendorProductsCountBadge');
-                    if (countBadge) {
-                        countBadge.textContent = fallbacks.length;
-                        countBadge.classList.remove('hidden');
-                    }
+                    // Mettre à jour le badge avec le TOTAL des produits actifs (pas seulement les garde-fous)
+                    updateVendorProductsCountBadge();
 
                     if (fallbacks.length === 0) {
                         grid.innerHTML = '';
@@ -3536,6 +3533,21 @@
                             </button>
                         </div>
                     `).join('');
+                }
+
+                function updateVendorProductsCountBadge() {
+                    // Met à jour le badge avec le TOTAL des produits actifs (indépendant de la vue et de la recherche)
+                    if (!window.ProductManager || typeof ProductManager.getProducts !== 'function') return;
+                    const email = localStorage.getItem('newketUserEmail');
+                    const userId = localStorage.getItem('newketUserId');
+                    const totalActive = ProductManager.getProducts().filter((p) =>
+                        (p?.supplier_email === email || p?.user_id === userId) && !p?.is_archived
+                    ).length;
+                    const countBadge = document.getElementById('vendorProductsCountBadge');
+                    if (countBadge) {
+                        countBadge.textContent = totalActive;
+                        countBadge.classList.toggle('hidden', totalActive === 0);
+                    }
                 }
 
                 function renderVendorProducts() {
@@ -3580,6 +3592,9 @@
                         return String(b.id || '').localeCompare(String(a.id || ''));
                     });
 
+                    // Mettre à jour le badge avec le TOTAL (avant filtre de recherche)
+                    updateVendorProductsCountBadge();
+
                     // Render fallback alert + start async broken image check
                     renderVendorFallbackAlert(myProducts);
                     if (myProducts.length > 0 && !isVendorBrokenCheckRunning) {
@@ -3593,12 +3608,6 @@
                             const category = String(p?.category || '').toLowerCase();
                             return name.includes(searchQuery) || category.includes(searchQuery);
                         });
-                    }
-
-                    const countBadge = document.getElementById('vendorProductsCountBadge');
-                    if (countBadge) {
-                        countBadge.textContent = myProducts.length;
-                        countBadge.classList.remove('hidden');
                     }
 
                     if (!myProducts.length) {
@@ -4632,43 +4641,39 @@
                     container.innerHTML = '';
                     
                     methods.forEach(method => {
+                        // Résoudre le logo et le nom selon l'OPÉRATEUR réel (M-Pesa, Airtel, Orange...)
+                        // qui est plus précis que le provider générique (KPAY, MOBILE_MONEY...)
+                        const op = (method.operator || method.provider || '').toLowerCase();
                         let iconHtml = '';
-                        let providerName = method.provider || 'Inconnu';
-                        
-                        switch (method.provider) {
-                            case 'MPESA':
-                                providerName = 'M-Pesa';
-                                iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572375/newket_assets/PaymentSystemLogos/m-pesa.png" class="w-full h-full object-contain">';
-                                break;
-                            case 'AIRTEL':
-                                providerName = 'Airtel Money';
-                                iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572373/newket_assets/PaymentSystemLogos/airtel-money.png" class="w-full h-full object-contain">';
-                                break;
-                            case 'ORANGE':
-                                providerName = 'Orange Money';
-                                iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572376/newket_assets/PaymentSystemLogos/Orange-Money.png" class="w-full h-full object-contain">';
-                                break;
-                            case 'AFRIMONEY':
-                                providerName = 'Afrimoney';
-                                iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572371/newket_assets/PaymentSystemLogos/afri-money.png" class="w-full h-full object-contain">';
-                                break;
-                            case 'KPAY':
-                            case 'MOBILE_MONEY':
-                                providerName = 'KPay Mobile Money';
-                                iconHtml = `<img src="https://kpay.site/favicon.ico" class="w-full h-full object-contain" onerror="this.outerHTML='<iconify-icon icon=\'solar:smartphone-bold-duotone\' width=\'28\' class=\'text-emerald-600\'></iconify-icon>'">`;
-                                break;
-                            case 'VISA':
-                                providerName = 'Visa';
-                                iconHtml = '<iconify-icon icon="logos:visa" width="36"></iconify-icon>';
-                                break;
-                            case 'MASTERCARD':
-                                providerName = 'Mastercard';
-                                iconHtml = '<iconify-icon icon="logos:mastercard" width="36"></iconify-icon>';
-                                break;
-                            default:
-                                const isMobileMoney = method.provider.toLowerCase().includes('mobile');
-                                const defaultIcon = isMobileMoney ? 'solar:smartphone-bold-duotone' : 'solar:banknote-bold-duotone';
-                                iconHtml = `<iconify-icon icon="${defaultIcon}" width="24" class="text-gray-400"></iconify-icon>`;
+                        let providerName = 'Mobile Money';
+
+                        if (op.includes('mpesa') || op.includes('m_pesa') || op.includes('vodacom')) {
+                            providerName = 'M-Pesa (Vodacom)';
+                            iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572375/newket_assets/PaymentSystemLogos/m-pesa.png" class="w-full h-full object-contain">';
+                        } else if (op.includes('airtel')) {
+                            providerName = 'Airtel Money';
+                            iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572373/newket_assets/PaymentSystemLogos/airtel-money.png" class="w-full h-full object-contain">';
+                        } else if (op.includes('orange')) {
+                            providerName = 'Orange Money';
+                            iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572376/newket_assets/PaymentSystemLogos/Orange-Money.png" class="w-full h-full object-contain">';
+                        } else if (op.includes('mtn')) {
+                            providerName = 'MTN Mobile Money';
+                            iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572376/newket_assets/PaymentSystemLogos/mtn-momo.png" class="w-full h-full object-contain" onerror="this.outerHTML=\'<iconify-icon icon=\\\'solar:smartphone-bold-duotone\\\' width=\\\'28\\\' style=\\\'color:#FFCB00\\\'></iconify-icon>\'">';
+                        } else if (op.includes('afri')) {
+                            providerName = 'Afrimoney';
+                            iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572371/newket_assets/PaymentSystemLogos/afri-money.png" class="w-full h-full object-contain">';
+                        } else if (op.includes('visa')) {
+                            providerName = 'Visa';
+                            iconHtml = '<iconify-icon icon="logos:visa" width="36"></iconify-icon>';
+                        } else if (op.includes('mastercard')) {
+                            providerName = 'Mastercard';
+                            iconHtml = '<iconify-icon icon="logos:mastercard" width="36"></iconify-icon>';
+                        } else if (op.includes('kpay') || (method.provider || '').toUpperCase() === 'KPAY') {
+                            providerName = 'KPay Mobile Money';
+                            iconHtml = `<img src="https://kpay.site/favicon.ico" class="w-full h-full object-contain" onerror="this.outerHTML='<iconify-icon icon=\'solar:smartphone-bold-duotone\' width=\'28\' class=\'text-emerald-600\'></iconify-icon>'">`;
+                        } else {
+                            providerName = method.operator || method.provider || 'Mobile Money';
+                            iconHtml = `<iconify-icon icon="solar:smartphone-bold-duotone" width="24" class="text-gray-400"></iconify-icon>`;
                         }
                         
                         const card = document.createElement('div');
