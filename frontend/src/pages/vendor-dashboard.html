@@ -4652,6 +4652,11 @@
                                 providerName = 'Afrimoney';
                                 iconHtml = '<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572371/newket_assets/PaymentSystemLogos/afri-money.png" class="w-full h-full object-contain">';
                                 break;
+                            case 'KPAY':
+                            case 'MOBILE_MONEY':
+                                providerName = 'KPay Mobile Money';
+                                iconHtml = `<img src="https://kpay.site/favicon.ico" class="w-full h-full object-contain" onerror="this.outerHTML='<iconify-icon icon=\'solar:smartphone-bold-duotone\' width=\'28\' class=\'text-emerald-600\'></iconify-icon>'">`;
+                                break;
                             case 'VISA':
                                 providerName = 'Visa';
                                 iconHtml = '<iconify-icon icon="logos:visa" width="36"></iconify-icon>';
@@ -4668,17 +4673,19 @@
                         
                         const card = document.createElement('div');
                         card.className = "p-4 border border-gray-200 rounded-2xl flex items-center justify-between hover:shadow-md transition-shadow bg-white group";
+                        const displayNumber = method.account_id || method.account_number || '';
+                        const badgeHtml = method.is_default ? `<span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2 py-0.5 ml-2"><iconify-icon icon="solar:check-circle-bold" width="10"></iconify-icon>Principal</span>` : '';
                         card.innerHTML = `
                             <div class="flex items-center gap-4">
                                 <div class="w-14 h-14 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center shrink-0 p-2">
                                     ${iconHtml}
                                 </div>
                                 <div>
-                                    <div class="font-bold text-gray-900 text-base">${method.account_name || 'Sans nom'}</div>
+                                    <div class="font-bold text-gray-900 text-base flex items-center flex-wrap gap-1">${method.account_name || 'Sans nom'}${badgeHtml}</div>
                                     <div class="text-sm text-gray-500 flex items-center gap-2 mt-0.5">
                                         <span class="font-medium text-gray-700">${providerName}</span>
                                         <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
-                                        <span class="font-mono tracking-wider">•••• ${(method.account_number || '').slice(-4)}</span>
+                                        <span class="font-mono tracking-wider text-gray-800 select-all">${displayNumber}</span>
                                     </div>
                                 </div>
                             </div>
