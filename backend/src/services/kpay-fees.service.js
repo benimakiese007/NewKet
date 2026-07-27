@@ -62,8 +62,8 @@ export async function getMaxPayinRate(client, currency) {
         .single();
 
     if (error || !data) {
-        // Fallback sécurisé : 4% CDF, 2% USD
-        return { rate: curr === 'CDF' ? 4.0 : 2.0, operator: 'unknown' };
+        // Fallback sécurisé : 4% CDF et USD (taux KPay réel)
+        return { rate: 4.0, operator: 'unknown' };
     }
 
     return {
