@@ -31,11 +31,10 @@ class KPayService {
    * @param {string} cancelUrl - L'URL où K-PAY va rediriger le client s'il annule
    * @returns {Promise<Object>} La réponse de K-PAY (contenant le gatewayUrl)
    */
-  async createPayment(amount, externalId, returnUrl, cancelUrl, currency = 'CDF') {
+  async createPayment(amount, externalId, returnUrl, cancelUrl) {
     try {
       const payload = {
         amount: amount,
-        currency: currency,
         externalId: externalId,
         returnUrl: returnUrl,
         cancelUrl: cancelUrl
