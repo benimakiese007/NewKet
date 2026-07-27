@@ -504,62 +504,89 @@ export const initiatePayment = async (req, res) => {
         if (lockError) throw lockError;
 
         let paymentUrl = null;
-        if (provider === 'kpay') {
-            if (!isKpayConfigured()) {
-                throw new Error('K-PAY n\'est pas configuré (clés manquantes)');
-            }
-            // L'API K-Pay s'attend à un entier pour le CDF, ou un décimal pour USD
-            // On lui envoie le montant CLIENT TOTAL dans la devise choisie
-            const kpayAmount = chosenCurrency === 'CDF' ? Math.round(clientTotal) : parseFloat(clientTotal.toFixed(2));
-            const kpayRes = await kpayService.createPayment(
-                kpayAmount,
-                txId,                                // externalId
-                getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
-                getCheckoutCancelUrl(req, orderId, txId),  // cancelUrl
-                chosenCurrency                        // currency: 'CDF' ou 'USD'
-            );
-            // La réponse Gateway contient "gatewayUrl"
-            paymentUrl = kpayRes.gatewayUrl;
-        } else if (provider === 'stripe') {
-            const stripeSession = await createStripeCheckoutSession({
-                'mode': 'payment',
-                'success_url': getCheckoutSuccessUrl(req, orderId, txId),
-                'cancel_url': getCheckoutCancelUrl(req, orderId, txId),
-                'client_reference_id': txId,
-                'metadata[transaction_id]': txId,
-                'metadata[order_id]': orderId,
-                'metadata[product_id]': String(product.id),
-                'metadata[vendor_id]': String(order?.vendor_id || vendor_id || product.user_id || ''),
-                'line_items[0][quantity]': '1',
-                'line_items[0][price_data][currency]': 'usd',
-                'line_items[0][price_data][unit_amount]': String(Math.round(finalAmountUSD * 100)),
-                'line_items[0][price_data][product_data][name]': `NewKet Marketplace - ${product.name}`
-            });
-            paymentUrl = stripeSession.payment_url;
-        } else if (provider === 'flexpaie') {
-            if (!isFlexpaieConfigured()) {
-                throw new Error('FlexPaie n\'est pas configuré (clés manquantes)');
-            }
+        let successfulProvider = null;
 
-            const paymentRequestPayload = {
-                amount: finalAmountUSD,
-                currency: 'USD', // A adapter selon la devise requise par FlexPaie
-                ref: txId,
-                referer_url: getRedirectUrl(req),
-                label: `NewKet Marketplace - ${product.name}`
-            };
+        // Liste des fournisseurs configurés à essayer
+        const providersToTry = ['kpay', 'flexpaie', 'stripe'].filter(p => {
+             if (p === 'kpay') return isKpayConfigured();
+             if (p === 'flexpaie') return isFlexpaieConfigured();
+             if (p === 'stripe') return isStripeConfigured();
+             return false;
+        });
 
-            const flexpaie = await createFlexpaiePaymentRequest(paymentRequestPayload);
-            paymentUrl = flexpaie.payment_url;
-        } else {
-            throw new Error('Fournisseur de paiement non supporté');
+        // Mettre le provider actif initial en premier dans la liste s'il y est
+        if (providersToTry.includes(provider) && providersToTry[0] !== provider) {
+            providersToTry.splice(providersToTry.indexOf(provider), 1);
+            providersToTry.unshift(provider);
+        }
+
+        let lastError = null;
+
+        for (const p of providersToTry) {
+            try {
+                if (p === 'kpay') {
+                    const kpayAmount = chosenCurrency === 'CDF' ? Math.round(clientTotal) : parseFloat(clientTotal.toFixed(2));
+                    const kpayRes = await kpayService.createPayment(
+                        kpayAmount,
+                        txId,                                // externalId
+                        getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
+                        getCheckoutCancelUrl(req, orderId, txId),  // cancelUrl
+                        chosenCurrency                        // currency: 'CDF' ou 'USD'
+                    );
+                    paymentUrl = kpayRes.gatewayUrl;
+                } else if (p === 'stripe') {
+                    const stripeSession = await createStripeCheckoutSession({
+                        'mode': 'payment',
+                        'success_url': getCheckoutSuccessUrl(req, orderId, txId),
+                        'cancel_url': getCheckoutCancelUrl(req, orderId, txId),
+                        'client_reference_id': txId,
+                        'metadata[transaction_id]': txId,
+                        'metadata[order_id]': orderId,
+                        'metadata[product_id]': String(product.id),
+                        'metadata[vendor_id]': String(order?.vendor_id || vendor_id || product.user_id || ''),
+                        'line_items[0][quantity]': '1',
+                        'line_items[0][price_data][currency]': 'usd',
+                        'line_items[0][price_data][unit_amount]': String(Math.round(finalAmountUSD * 100)),
+                        'line_items[0][price_data][product_data][name]': `NewKet Marketplace - ${product.name}`
+                    });
+                    paymentUrl = stripeSession.payment_url;
+                } else if (p === 'flexpaie') {
+                    const paymentRequestPayload = {
+                        amount: finalAmountUSD,
+                        currency: 'USD',
+                        ref: txId,
+                        referer_url: getRedirectUrl(req),
+                        label: `NewKet Marketplace - ${product.name}`
+                    };
+                    const flexpaie = await createFlexpaiePaymentRequest(paymentRequestPayload);
+                    paymentUrl = flexpaie.payment_url;
+                }
+
+                if (paymentUrl) {
+                    successfulProvider = p;
+                    break; // Un fournisseur a réussi, on sort de la boucle !
+                }
+            } catch (err) {
+                console.warn(`[Fallback System] Le fournisseur ${p} a échoué: ${err.message}. Passage au suivant...`);
+                lastError = err;
+            }
+        }
+
+        if (!paymentUrl || !successfulProvider) {
+            throw new Error(`Tous les fournisseurs de paiement ont échoué. Dernier problème: ${lastError ? lastError.message : 'Inconnu'}`);
+        }
+
+        // Si on a dû faire un fallback, mettre à jour la BDD avec le fournisseur qui a vraiment marché
+        if (successfulProvider !== provider) {
+            const client = supabaseAdmin || supabase;
+            await client.from('orders').update({ payment_provider: successfulProvider }).eq('id', orderId);
         }
 
         return res.status(200).json({
             success: true,
             order_id: orderId,
             transaction_id: txId,
-            provider,
+            provider: successfulProvider,
             payment_url: paymentUrl,
             public_key: null,
             // Breakdown financier pour affichage au frontend
