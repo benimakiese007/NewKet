@@ -7,215 +7,368 @@
 # Test info
 
 - Name: order-quote-flow.spec.js >> Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteurs) >> L'acheteur demande un devis, le vendeur répond, l'acheteur paie
-- Location: tests\e2e\order-quote-flow.spec.js:12:3
+- Location: tests\e2e\order-quote-flow.spec.js:36:3
 
 # Error details
 
 ```
-Error: expect(locator).toBeVisible() failed
-
-Locator:  locator('button:has-text("Devis"), button:has-text("Détails")').first()
-Expected: visible
-Received: hidden
-Timeout:  10000ms
-
-Call log:
-  - Expect "toBeVisible" with timeout 10000ms
-  - waiting for locator('button:has-text("Devis"), button:has-text("Détails")').first()
-    8 × locator resolved to <button type="button" id="btnAcceptQuote" class="hidden flex-1 py-3 bg-black text-white font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 rounded-xl">…</button>
-      - unexpected value "hidden"
-    14 × locator resolved to <button type="button" onclick="(typeof openOrderModal === 'function') && openOrderModal('ORD_DA762F94E1_1785165100475')" class="flex-shrink-0 px-3 py-2 sm:px-4 sm:py-2 rounded-xl bg-black text-white text-[9px] sm:text-[10px] font-black uppercase tracking-wider sm:tracking-widest hover:bg-gray-900 transition-colors whitespace-nowrap flex items-center gap-1.5">…</button>
-       - unexpected value "hidden"
-
+Test timeout of 150000ms exceeded.
 ```
+
+# Page snapshot
 
 ```yaml
-- navigation:
-  - button:
-    - img
-  - link "Accueil NewKet":
-    - /url: /
-    - img "NewKet Logo"
-  - button:
-    - img
-- main:
-  - complementary:
-    - button "Réduire le menu":
-      - img
-    - heading "Buyo Buyo" [level=2]
-    - text: Standard
-    - navigation:
-      - link "Accueil":
-        - /url: "#dashboard"
-        - img
-        - text: Accueil
-      - link "Mes demandes et devis 6":
-        - /url: "#orders"
-        - img
-        - text: Mes demandes et devis 6
-      - link "Mes achats":
-        - /url: "#purchases"
-        - img
-        - text: Mes achats
-      - link "Mes Favoris":
-        - /url: "#favorites"
-        - img
-        - text: Mes Favoris
-      - link "Notifications":
-        - /url: "#notifications"
-        - img
-        - text: Notifications
-      - link "Paramètres":
-        - /url: "#settings"
-        - img
-        - text: Paramètres
-  - heading "Mes demandes et devis" [level=1]
-  - text: "Demande #ORD_DA762F94E1_1785165100475"
-  - img
-  - text: Mwana Kwata 7/27/2026 À vous de jouer Devis livraison
-  - img
-  - img "Montre Rolex Submariner Acier"
-  - text: "Montre Rolex Submariner Acier 1 article(s) 2 850 000 FC Demande #ORD_E00940A905_1785164404363"
-  - img
-  - text: Mwana Kwata 7/27/2026 À vous de jouer Devis livraison
-  - img
-  - img "Montre Rolex Submariner Acier"
-  - text: "Montre Rolex Submariner Acier 1 article(s) 2 850 000 FC Demande #ORD_F9416B1A4C_1785164102597"
-  - img
-  - text: Mwana Kwata 7/27/2026 À vous de jouer Devis livraison
-  - img
-  - img "Montre Rolex Submariner Acier"
-  - text: "Montre Rolex Submariner Acier 1 article(s) 2 850 000 FC Demande #ORD_581830C2B6_1785115641148 Mwana Kwata 7/27/2026 À vous de jouer Devis livraison"
-  - img "Montre Rolex Submariner Acier"
-  - text: "Montre Rolex Submariner Acier 1 article(s) 2 850 000 FC Demande #ORD_A573686CED_1785115265868 Mwana Kwata 7/27/2026 En attente"
-  - img "Montre Rolex Submariner Acier"
-  - text: "Montre Rolex Submariner Acier 1 article(s) 2 850 000 FC Demande #ORD_68ACF241F1_1784835157406 Mwana Kwata 7/23/2026 À vous de jouer Prêt pour paiement"
-  - img "Robe de soirée bordeaux"
-  - text: Robe de soirée bordeaux 1 article(s) 186 050 FC
-```
-
-# Test source
-
-```ts
-  61  |     await buyerPage.waitForSelector('#cartCheckoutBtn', { state: 'visible' });
-  62  |     
-  63  |     // Injecter une position par défaut dans le localStorage pour éviter l'erreur "Definissez d'abord la position"
-  64  |     await buyerPage.evaluate(() => {
-  65  |         localStorage.setItem('newketHomeLocation', JSON.stringify({lat: -4.4419, lng: 15.2663}));
-  66  |         if (window.CartManager) window.CartManager.checkout();
-  67  |     });
-  68  | 
-  69  |     // Attendre que le CheckoutModal s'ouvre et cliquer sur "Payer" (qui envoie la demande au vendeur)
-  70  |     await buyerPage.waitForSelector('button:has-text("Payer")', { state: 'visible' });
-  71  |     await buyerPage.click('button:has-text("Payer")');
-  72  | 
-  73  |     // On attend la fin de l'envoi (soit via une URL vers customer-dashboard, soit le message de succès)
-  74  |     await Promise.race([
-  75  |       buyerPage.waitForURL(url => url.href.includes('customer-dashboard.html'), { timeout: 15000 }),
-  76  |       buyerPage.waitForSelector('text="Commande passée avec succès"', { timeout: 15000 })
-  77  |     ]).catch(() => console.log('Acheteur : pas de redirection immédiate, on continue.'));
-  78  |     
-  79  |     // ==========================================
-  80  |     // 2. VENDEUR : Connexion et soumission du devis
-  81  |     // ==========================================
-  82  |     await vendorPage.goto('/src/pages/login.html');
-  83  |     await vendorPage.waitForLoadState('networkidle');
-  84  | 
-  85  |     await vendorPage.fill('#email', 'benimakiese123@gmail.com');
-  86  |     await vendorPage.fill('#password', 'PHOENIX');
-  87  |     await vendorPage.locator('button:has-text("Accepter tout")').click().catch(() => {});
-  88  |     await vendorPage.click('#submitBtn', { force: true });
-  89  |     
-  90  |     // Attente de la validation du login
-  91  |     await vendorPage.waitForURL(url => !url.href.includes('login.html'), { timeout: 15000 });
-  92  | 
-  93  |     // Le vendeur va sur son dashboard
-  94  |     await vendorPage.goto('/src/pages/vendor-dashboard.html');
-  95  |     await vendorPage.waitForLoadState('networkidle');
-  96  | 
-  97  |     // Attendre que l'auth soit terminée (la classe "auth-loading" sur <html> bloque les clics sinon)
-  98  |     await vendorPage.waitForFunction(
-  99  |         () => !document.documentElement.classList.contains('auth-loading'),
-  100 |         { timeout: 20000 }
-  101 |     ).catch(() => console.log('auth-loading timeout, on continue quand même'));
-  102 |     // Petite pause pour laisser le dashboard se rendre
-  103 |     await vendorPage.waitForTimeout(1500);
-  104 | 
-  105 |     // Il clique sur l'onglet "Demandes et devis"
-  106 |     await vendorPage.click('a[data-switch-vendor-tab="leads"]', { force: true });
-  107 | 
-  108 |     // Il cherche la demande en attente et clique sur "Proposer un devis" sur la carte (qui ouvre la modale de détails)
-  109 |     const proposeQuoteBtnCard = vendorPage.locator('button:has-text("Proposer un devis")').first();
-  110 |     await expect(proposeQuoteBtnCard).toBeVisible({ timeout: 10000 });
-  111 |     await proposeQuoteBtnCard.click();
-  112 | 
-  113 |     // Puis il clique sur le bouton "Proposer un devis" à l'intérieur de la modale de détails pour ouvrir le formulaire de devis
-  114 |     const proposeQuoteBtnModal = vendorPage.locator('#btnMarkDelivered');
-  115 |     await expect(proposeQuoteBtnModal).toBeVisible({ timeout: 5000 });
-  116 |     // On scroll vers le bas de la modale au cas où
-  117 |     await proposeQuoteBtnModal.scrollIntoViewIfNeeded();
-  118 |     await proposeQuoteBtnModal.click();
-  119 | 
-  120 |     // Remplissage du formulaire de devis (modal de devis)
-  121 |     // On efface d'abord les valeurs par défaut puis on saisit les nouvelles
-  122 |     await vendorPage.fill('[data-quote-fee]', '');
-  123 |     await vendorPage.fill('[data-quote-fee]', '5000'); // 5000 FC de frais de livraison
-  124 |     await vendorPage.fill('[data-quote-delay]', '');
-  125 |     await vendorPage.fill('[data-quote-delay]', '48'); // 48 heures de délai
-  126 |     await vendorPage.fill('[data-quote-note]', 'Test automatisé: Frais de port standards');
-  127 | 
-  128 |     // On intercepte la réponse API avant de cliquer, pour s'assurer que l'appel réussit
-  129 |     const quoteResponsePromise = vendorPage.waitForResponse(
-  130 |         res => res.url().includes('/quote') && [200, 201].includes(res.status()),
-  131 |         { timeout: 20000 }
-  132 |     ).catch(() => null);
-  133 | 
-  134 |     await vendorPage.click('[data-quote-submit]');
-  135 | 
-  136 |     // Attendre la fermeture du formulaire (il se supprime du DOM après soumission)
-  137 |     await vendorPage.waitForSelector('[data-quote-submit]', { state: 'detached', timeout: 10000 }).catch(() => {});
-  138 | 
-  139 |     // Attendre la réponse API
-  140 |     await quoteResponsePromise;
-  141 | 
-  142 |     // Attendre que le dashboard se re-render (l'event ordersUpdated déclenche renderVendorLeads)
-  143 |     await vendorPage.waitForTimeout(2500);
-  144 | 
-  145 |     // Basculer sur l'onglet "Attente client" car la commande n'est plus dans "À traiter"
-  146 |     await vendorPage.click('#vFilterAwaiting');
-  147 |     await vendorPage.waitForTimeout(1000);
-  148 | 
-  149 |     // Le statut de la commande est maintenant QUOTE : le bouton doit afficher "Modifier devis"
-  150 |     await expect(vendorPage.locator('button:has-text("Modifier devis")').first()).toBeVisible({ timeout: 20000 });
-  151 | 
-  152 |     // ==========================================
-  153 |     // 3. ACHETEUR : Accepte le devis et paie
-  154 |     // ==========================================
-  155 |     // L'acheteur consulte ses demandes
-  156 |     await buyerPage.goto('/src/pages/customer-dashboard.html');
-  157 |     await buyerPage.click('a[data-switch-customer-tab="orders"]'); // ou équivalent pour voir les demandes
-  158 | 
-  159 |     // Il ouvre le détail de la commande
-  160 |     const detailBtn = buyerPage.locator('button:has-text("Devis"), button:has-text("Détails")').first();
-> 161 |     await expect(detailBtn).toBeVisible({ timeout: 10000 });
-      |                             ^ Error: expect(locator).toBeVisible() failed
-  162 |     await detailBtn.click();
-  163 | 
-  164 |     // L'acheteur accepte le devis
-  165 |     const acceptQuoteBtn = buyerPage.locator('button:has-text("Accepter le devis")');
-  166 |     await expect(acceptQuoteBtn).toBeVisible({ timeout: 10000 });
-  167 |     await acceptQuoteBtn.click();
-  168 | 
-  169 |     // Vérification que le devis est accepté (le bouton payer devrait apparaître)
-  170 |     const payBtn = buyerPage.locator('button:has-text("Payer")').first();
-  171 |     await expect(payBtn).toBeVisible({ timeout: 10000 });
-  172 |     // await payBtn.click(); // On s'arrête avant le vrai paiement externe pour ne pas bloquer le test
-  173 | 
-  174 |     // Fin des contextes
-  175 |     await buyerContext.close();
-  176 |     await vendorContext.close();
-  177 |   });
-  178 | 
-  179 | });
-  180 | 
+- generic [active] [ref=f12e1]:
+  - navigation [ref=f12e2]:
+    - generic [ref=f12e3]:
+      - button [ref=f12e5] [cursor=pointer]
+      - link "Accueil NewKet" [ref=f12e10] [cursor=pointer]:
+        - /url: /
+        - img "NewKet Logo" [ref=f12e11]
+      - button [ref=f12e13] [cursor=pointer]
+  - generic: Mise à jour...
+  - main [ref=f12e18]:
+    - complementary [ref=f12e19]:
+      - button "Réduire le menu" [ref=f12e20] [cursor=pointer]
+      - generic [ref=f12e24]:
+        - generic [ref=f12e30]:
+          - heading "Buyo Buyo" [level=2] [ref=f12e31]
+          - generic [ref=f12e32]: Standard
+        - navigation [ref=f12e35]:
+          - link "Accueil" [ref=f12e36] [cursor=pointer]:
+            - /url: "#dashboard"
+          - link "Mes demandes et devis 17" [ref=f12e41] [cursor=pointer]:
+            - /url: "#orders"
+            - generic [ref=f12e45]:
+              - text: Mes demandes et
+              - generic [ref=f12e46]:
+                - text: devis
+                - generic [ref=f12e47]: "17"
+          - link "Mes achats" [ref=f12e48] [cursor=pointer]:
+            - /url: "#purchases"
+          - link "Mes Favoris" [ref=f12e53] [cursor=pointer]:
+            - /url: "#favorites"
+          - link "Notifications" [ref=f12e58] [cursor=pointer]:
+            - /url: "#notifications"
+          - link "Paramètres" [ref=f12e63] [cursor=pointer]:
+            - /url: "#settings"
+    - generic [ref=f12e69]:
+      - heading "Mes demandes et devis" [level=1] [ref=f12e72]
+      - generic [ref=f12e73]:
+        - generic [ref=f12e74] [cursor=pointer]:
+          - generic [ref=f12e75]:
+            - generic [ref=f12e76]:
+              - generic [ref=f12e77]: "Demande #ORD_93FEEDC6A5_1785168007820"
+              - generic [ref=f12e78]: Mwana Kwata
+              - generic [ref=f12e82]: 7/27/2026
+            - generic [ref=f12e83]:
+              - generic [ref=f12e84]: À vous de jouer
+              - generic [ref=f12e86]: Prêt pour paiement
+          - generic [ref=f12e90]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e93]
+            - generic [ref=f12e94]:
+              - generic [ref=f12e95]: Montre Rolex Submariner Acier
+              - generic [ref=f12e96]: 1 article(s)
+            - generic [ref=f12e97]: 2 855 000 FC
+        - generic [ref=f12e99] [cursor=pointer]:
+          - generic [ref=f12e100]:
+            - generic [ref=f12e101]:
+              - generic [ref=f12e102]: "Demande #ORD_A544A23CA1_1785167710204"
+              - generic [ref=f12e103]: Mwana Kwata
+              - generic [ref=f12e107]: 7/27/2026
+            - generic [ref=f12e108]:
+              - generic [ref=f12e109]: À vous de jouer
+              - generic [ref=f12e111]: Prêt pour paiement
+          - generic [ref=f12e115]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e118]
+            - generic [ref=f12e119]:
+              - generic [ref=f12e120]: Montre Rolex Submariner Acier
+              - generic [ref=f12e121]: 1 article(s)
+            - generic [ref=f12e122]: 2 855 000 FC
+        - generic [ref=f12e124] [cursor=pointer]:
+          - generic [ref=f12e125]:
+            - generic [ref=f12e126]:
+              - generic [ref=f12e127]: "Demande #ORD_AF68A14EA1_1785167479489"
+              - generic [ref=f12e128]: Mwana Kwata
+              - generic [ref=f12e132]: 7/27/2026
+            - generic [ref=f12e133]:
+              - generic [ref=f12e134]: À vous de jouer
+              - generic [ref=f12e136]: Prêt pour paiement
+          - generic [ref=f12e140]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e143]
+            - generic [ref=f12e144]:
+              - generic [ref=f12e145]: Montre Rolex Submariner Acier
+              - generic [ref=f12e146]: 1 article(s)
+            - generic [ref=f12e147]: 2 855 000 FC
+        - generic [ref=f12e149] [cursor=pointer]:
+          - generic [ref=f12e150]:
+            - generic [ref=f12e151]:
+              - generic [ref=f12e152]: "Demande #ORD_F3C3541742_1785167138152"
+              - generic [ref=f12e153]: Mwana Kwata
+              - generic [ref=f12e154]: 7/27/2026
+            - generic [ref=f12e155]:
+              - generic [ref=f12e156]: À vous de jouer
+              - generic [ref=f12e158]: Prêt pour paiement
+          - generic [ref=f12e159]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e162]
+            - generic [ref=f12e163]:
+              - generic [ref=f12e164]: Montre Rolex Submariner Acier
+              - generic [ref=f12e165]: 1 article(s)
+            - generic [ref=f12e166]: 2 855 000 FC
+        - generic [ref=f12e168] [cursor=pointer]:
+          - generic [ref=f12e169]:
+            - generic [ref=f12e170]:
+              - generic [ref=f12e171]: "Demande #ORD_010E504DE7_1785166843580"
+              - generic [ref=f12e172]: Mwana Kwata
+              - generic [ref=f12e173]: 7/27/2026
+            - generic [ref=f12e174]:
+              - generic [ref=f12e175]: À vous de jouer
+              - generic [ref=f12e177]: Prêt pour paiement
+          - generic [ref=f12e178]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e181]
+            - generic [ref=f12e182]:
+              - generic [ref=f12e183]: Montre Rolex Submariner Acier
+              - generic [ref=f12e184]: 1 article(s)
+            - generic [ref=f12e185]: 2 855 000 FC
+        - generic [ref=f12e187] [cursor=pointer]:
+          - generic [ref=f12e188]:
+            - generic [ref=f12e189]:
+              - generic [ref=f12e190]: "Demande #ORD_5C974651A1_1785166586816"
+              - generic [ref=f12e191]: Mwana Kwata
+              - generic [ref=f12e192]: 7/27/2026
+            - generic [ref=f12e193]:
+              - generic [ref=f12e194]: À vous de jouer
+              - generic [ref=f12e196]: Prêt pour paiement
+          - generic [ref=f12e197]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e200]
+            - generic [ref=f12e201]:
+              - generic [ref=f12e202]: Montre Rolex Submariner Acier
+              - generic [ref=f12e203]: 1 article(s)
+            - generic [ref=f12e204]: 2 855 000 FC
+        - generic [ref=f12e206] [cursor=pointer]:
+          - generic [ref=f12e207]:
+            - generic [ref=f12e208]:
+              - generic [ref=f12e209]: "Demande #ORD_36FF63193A_1785166519554"
+              - generic [ref=f12e210]: Mwana Kwata
+              - generic [ref=f12e211]: 7/27/2026
+            - generic [ref=f12e212]:
+              - generic [ref=f12e213]: À vous de jouer
+              - generic [ref=f12e215]: Prêt pour paiement
+          - generic [ref=f12e216]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e219]
+            - generic [ref=f12e220]:
+              - generic [ref=f12e221]: Montre Rolex Submariner Acier
+              - generic [ref=f12e222]: 1 article(s)
+            - generic [ref=f12e223]: 2 855 000 FC
+        - generic [ref=f12e225] [cursor=pointer]:
+          - generic [ref=f12e226]:
+            - generic [ref=f12e227]:
+              - generic [ref=f12e228]: "Demande #ORD_44708EADB6_1785166333137"
+              - generic [ref=f12e229]: Mwana Kwata
+              - generic [ref=f12e230]: 7/27/2026
+            - generic [ref=f12e231]:
+              - generic [ref=f12e232]: À vous de jouer
+              - generic [ref=f12e234]: Prêt pour paiement
+          - generic [ref=f12e235]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e238]
+            - generic [ref=f12e239]:
+              - generic [ref=f12e240]: Montre Rolex Submariner Acier
+              - generic [ref=f12e241]: 1 article(s)
+            - generic [ref=f12e242]: 2 855 000 FC
+        - generic [ref=f12e244] [cursor=pointer]:
+          - generic [ref=f12e245]:
+            - generic [ref=f12e246]:
+              - generic [ref=f12e247]: "Demande #ORD_5B89B2CE68_1785165860009"
+              - generic [ref=f12e248]: Mwana Kwata
+              - generic [ref=f12e249]: 7/27/2026
+            - generic [ref=f12e250]:
+              - generic [ref=f12e251]: À vous de jouer
+              - generic [ref=f12e253]: Prêt pour paiement
+          - generic [ref=f12e254]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e257]
+            - generic [ref=f12e258]:
+              - generic [ref=f12e259]: Montre Rolex Submariner Acier
+              - generic [ref=f12e260]: 1 article(s)
+            - generic [ref=f12e261]: 2 855 000 FC
+        - generic [ref=f12e263] [cursor=pointer]:
+          - generic [ref=f12e264]:
+            - generic [ref=f12e265]:
+              - generic [ref=f12e266]: "Demande #ORD_8CFA81B6CA_1785165718202"
+              - generic [ref=f12e267]: Mwana Kwata
+              - generic [ref=f12e268]: 7/27/2026
+            - generic [ref=f12e269]:
+              - generic [ref=f12e270]: À vous de jouer
+              - generic [ref=f12e272]: Prêt pour paiement
+          - generic [ref=f12e273]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e276]
+            - generic [ref=f12e277]:
+              - generic [ref=f12e278]: Montre Rolex Submariner Acier
+              - generic [ref=f12e279]: 1 article(s)
+            - generic [ref=f12e280]: 2 855 000 FC
+        - generic [ref=f12e282] [cursor=pointer]:
+          - generic [ref=f12e283]:
+            - generic [ref=f12e284]:
+              - generic [ref=f12e285]: "Demande #ORD_5DBCEE1E94_1785165536202"
+              - generic [ref=f12e286]: Mwana Kwata
+              - generic [ref=f12e287]: 7/27/2026
+            - generic [ref=f12e288]:
+              - generic [ref=f12e289]: À vous de jouer
+              - generic [ref=f12e291]: Prêt pour paiement
+          - generic [ref=f12e292]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e295]
+            - generic [ref=f12e296]:
+              - generic [ref=f12e297]: Montre Rolex Submariner Acier
+              - generic [ref=f12e298]: 1 article(s)
+            - generic [ref=f12e299]: 2 855 000 FC
+        - generic [ref=f12e301] [cursor=pointer]:
+          - generic [ref=f12e302]:
+            - generic [ref=f12e303]:
+              - generic [ref=f12e304]: "Demande #ORD_DA762F94E1_1785165100475"
+              - generic [ref=f12e305]: Mwana Kwata
+              - generic [ref=f12e306]: 7/27/2026
+            - generic [ref=f12e307]:
+              - generic [ref=f12e308]: À vous de jouer
+              - generic [ref=f12e310]: Devis livraison
+          - generic [ref=f12e311]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e314]
+            - generic [ref=f12e315]:
+              - generic [ref=f12e316]: Montre Rolex Submariner Acier
+              - generic [ref=f12e317]: 1 article(s)
+            - generic [ref=f12e318]: 2 850 000 FC
+        - generic [ref=f12e320] [cursor=pointer]:
+          - generic [ref=f12e321]:
+            - generic [ref=f12e322]:
+              - generic [ref=f12e323]: "Demande #ORD_E00940A905_1785164404363"
+              - generic [ref=f12e324]: Mwana Kwata
+              - generic [ref=f12e325]: 7/27/2026
+            - generic [ref=f12e326]:
+              - generic [ref=f12e327]: À vous de jouer
+              - generic [ref=f12e329]: Devis livraison
+          - generic [ref=f12e330]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e333]
+            - generic [ref=f12e334]:
+              - generic [ref=f12e335]: Montre Rolex Submariner Acier
+              - generic [ref=f12e336]: 1 article(s)
+            - generic [ref=f12e337]: 2 850 000 FC
+        - generic [ref=f12e339] [cursor=pointer]:
+          - generic [ref=f12e340]:
+            - generic [ref=f12e341]:
+              - generic [ref=f12e342]: "Demande #ORD_F9416B1A4C_1785164102597"
+              - generic [ref=f12e343]: Mwana Kwata
+              - generic [ref=f12e344]: 7/27/2026
+            - generic [ref=f12e345]:
+              - generic [ref=f12e346]: À vous de jouer
+              - generic [ref=f12e348]: Devis livraison
+          - generic [ref=f12e349]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e352]
+            - generic [ref=f12e353]:
+              - generic [ref=f12e354]: Montre Rolex Submariner Acier
+              - generic [ref=f12e355]: 1 article(s)
+            - generic [ref=f12e356]: 2 850 000 FC
+        - generic [ref=f12e358] [cursor=pointer]:
+          - generic [ref=f12e359]:
+            - generic [ref=f12e360]:
+              - generic [ref=f12e361]: "Demande #ORD_581830C2B6_1785115641148"
+              - generic [ref=f12e362]: Mwana Kwata
+              - generic [ref=f12e363]: 7/27/2026
+            - generic [ref=f12e364]:
+              - generic [ref=f12e365]: À vous de jouer
+              - generic [ref=f12e367]: Devis livraison
+          - generic [ref=f12e368]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e371]
+            - generic [ref=f12e372]:
+              - generic [ref=f12e373]: Montre Rolex Submariner Acier
+              - generic [ref=f12e374]: 1 article(s)
+            - generic [ref=f12e375]: 2 850 000 FC
+        - generic [ref=f12e377] [cursor=pointer]:
+          - generic [ref=f12e378]:
+            - generic [ref=f12e379]:
+              - generic [ref=f12e380]: "Demande #ORD_A573686CED_1785115265868"
+              - generic [ref=f12e381]: Mwana Kwata
+              - generic [ref=f12e382]: 7/27/2026
+            - generic [ref=f12e383]: En attente
+          - generic [ref=f12e385]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e388]
+            - generic [ref=f12e389]:
+              - generic [ref=f12e390]: Montre Rolex Submariner Acier
+              - generic [ref=f12e391]: 1 article(s)
+            - generic [ref=f12e392]: 2 850 000 FC
+        - generic [ref=f12e394] [cursor=pointer]:
+          - generic [ref=f12e395]:
+            - generic [ref=f12e396]:
+              - generic [ref=f12e397]: "Demande #ORD_68ACF241F1_1784835157406"
+              - generic [ref=f12e398]: Mwana Kwata
+              - generic [ref=f12e399]: 7/23/2026
+            - generic [ref=f12e400]:
+              - generic [ref=f12e401]: À vous de jouer
+              - generic [ref=f12e403]: Prêt pour paiement
+          - generic [ref=f12e404]:
+            - img "Robe de soirée bordeaux" [ref=f12e407]
+            - generic [ref=f12e408]:
+              - generic [ref=f12e409]: Robe de soirée bordeaux
+              - generic [ref=f12e410]: 1 article(s)
+            - generic [ref=f12e411]: 186 050 FC
+    - generic [ref=f12e414]:
+      - generic [ref=f12e415]:
+        - generic [ref=f12e416]:
+          - 'heading "Commande #ORD_93FEEDC6A5_1785168007820" [level=2] [ref=f12e417]'
+          - paragraph [ref=f12e418]: 27 juillet 2026 à 17:00
+        - button [ref=f12e419] [cursor=pointer]
+      - generic [ref=f12e423]:
+        - generic [ref=f12e424]:
+          - generic [ref=f12e425]:
+            - generic [ref=f12e426]: Statut Commande
+            - generic [ref=f12e427]: Prêt pour paiement
+          - generic [ref=f12e428]:
+            - generic [ref=f12e429]: Paiement
+            - generic [ref=f12e430]: N/A
+          - generic [ref=f12e431]:
+            - generic [ref=f12e432]: Mode de paiement
+            - generic [ref=f12e433]: Paiement en cours
+        - generic [ref=f12e434]:
+          - generic [ref=f12e435]: Suivi
+          - generic [ref=f12e437]:
+            - generic [ref=f12e438]: Commandee
+            - generic [ref=f12e440]: Payee
+            - generic [ref=f12e442]: En livraison
+            - generic [ref=f12e444]: Validation OTP
+            - generic [ref=f12e446]: Terminee
+        - generic [ref=f12e448]:
+          - generic [ref=f12e449]: Articles
+          - generic [ref=f12e451]:
+            - img "Montre Rolex Submariner Acier" [ref=f12e453]
+            - generic [ref=f12e454]:
+              - generic [ref=f12e455]: Montre Rolex Submariner Acier
+              - generic [ref=f12e456]: "Quantité: 1 é 2 850 000 FC"
+            - generic [ref=f12e457]: 2 850 000 FC
+        - generic [ref=f12e458]:
+          - generic [ref=f12e459]:
+            - img "NewKet" [ref=f12e460]
+            - generic [ref=f12e461]:
+              - generic [ref=f12e462]: Facture
+              - generic [ref=f12e463]: Aperçu compact
+          - generic [ref=f12e464]:
+            - generic [ref=f12e465]: Sous-total
+            - generic [ref=f12e466]: 2 850 000 FC
+          - generic [ref=f12e467]:
+            - generic [ref=f12e468]: Livraison
+            - generic [ref=f12e469]: 5 000 FC
+          - generic [ref=f12e470]:
+            - generic [ref=f12e471]: Total
+            - generic [ref=f12e472]: 2 855 000 FC
+        - generic [ref=f12e473]:
+          - generic [ref=f12e474]:
+            - generic [ref=f12e475]: Devis de livraison
+            - generic [ref=f12e476]:
+              - generic [ref=f12e477]:
+                - generic [ref=f12e478]: Montant livraison
+                - generic [ref=f12e479]: 5 000 FC
+              - generic [ref=f12e480]:
+                - generic [ref=f12e481]: Délai estimé
+                - generic [ref=f12e482]: 48 h
+              - paragraph [ref=f12e483]: "Test automatisé: Frais de port standards"
+          - button [ref=f12e485] [cursor=pointer]
+        - generic [ref=f12e491]:
+          - button [ref=f12e492] [cursor=pointer]
+          - button "Fermer" [ref=f12e496] [cursor=pointer]
 ```

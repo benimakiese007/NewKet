@@ -14,6 +14,7 @@ class KPayService {
     // Configurer l'instance Axios avec les en-têtes requis par la documentation K-PAY
     this.client = axios.create({
       baseURL: this.baseURL,
+      timeout: 8000, // Timeout de 8 secondes pour éviter les 504 Gateway Timeout sur Vercel
       headers: {
         'Content-Type': 'application/json',
         'X-API-Key': this.apiKey,
