@@ -3416,12 +3416,21 @@
                     isVendorBrokenCheckRunning = true;
                     let updated = false;
                     const BATCH = 8;
+                    // Read and immediately clear the just-updated product ID so we only skip it once
+                    let justUpdatedId = null;
+                    try { justUpdatedId = sessionStorage.getItem('newket_just_updated'); sessionStorage.removeItem('newket_just_updated'); } catch(_) {}
                     for (let i = 0; i < products.length; i += BATCH) {
                         const batch = products.slice(i, i + BATCH);
                         const promises = batch.map(p => new Promise(resolve => {
                             if (vendorBrokenImageIds.has(p.id) || isVendorFallbackImage(p)) return resolve();
-                            let imgUrl = typeof p.image === 'string' ? p.image.split(',')[0] : (Array.isArray(p.image) ? p.image[0] : null);
-                            if (!imgUrl) return resolve();
+                            // Skip broken-image check for a product just updated from publish.html
+                            if (justUpdatedId && p.id === justUpdatedId) return resolve();
+                            let rawUrl = typeof p.image === 'string' ? p.image.split(',')[0] : (Array.isArray(p.image) ? p.image[0] : null);
+                            if (!rawUrl) return resolve();
+                            
+                            // Split by || in case of thumbnail format
+                            let imgUrl = rawUrl.includes('||') ? rawUrl.split('||')[0] : rawUrl;
+                            
                             const img = new Image();
                             img.onload = () => resolve();
                             img.onerror = () => { vendorBrokenImageIds.add(p.id); updated = true; resolve(); };
@@ -3439,7 +3448,11 @@
                     const listEl = document.getElementById('vendor-fallback-list');
                     if (!alert || !listEl || !countEl) return;
 
-                    const fallbacks = myProducts.filter(p => isVendorFallbackImage(p));
+                    // Exclude any product that was just updated (avoid redirect loop)
+                    let justUpdatedId = null;
+                    try { justUpdatedId = sessionStorage.getItem('newket_just_updated'); } catch(_) {}
+
+                    const fallbacks = myProducts.filter(p => isVendorFallbackImage(p) && (!justUpdatedId || p.id !== justUpdatedId));
                     if (fallbacks.length === 0) {
                         alert.classList.add('hidden');
                         return;
@@ -3452,7 +3465,7 @@
                     listEl.innerHTML = fallbacks.slice(0, 5).map(p => `
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-sm font-medium text-gray-700 truncate flex-1">${p.name || 'Produit sans nom'}</span>
-                            <a href="${publishBase}?edit=${p.id}" class="text-[10px] font-black uppercase text-yellow-600 hover:underline shrink-0">Corriger</a>
+                            <button type="button" onclick="window.location.href='${publishBase}?edit=${p.id}'" class="text-[10px] font-black uppercase text-yellow-600 hover:underline shrink-0 bg-transparent border-none p-0 cursor-pointer">Corriger</button>
                         </div>
                     `).join('') + (fallbacks.length > 5 ? `<p class="text-[10px] font-black text-yellow-500 uppercase text-right mt-1">+ ${fallbacks.length - 5} autres</p>` : '');
                     alert.classList.remove('hidden');
@@ -3490,7 +3503,11 @@
                         setTimeout(() => checkVendorBrokenImagesAsync(allMyProducts), 200);
                     }
 
-                    let fallbacks = allMyProducts.filter(p => isVendorFallbackImage(p));
+                    // Exclude any product just updated from publish.html (avoids immediate redirect loop)
+                    let justUpdatedIdView = null;
+                    try { justUpdatedIdView = sessionStorage.getItem('newket_just_updated'); } catch(_) {}
+
+                    let fallbacks = allMyProducts.filter(p => isVendorFallbackImage(p) && (!justUpdatedIdView || p.id !== justUpdatedIdView));
 
                     if (searchQuery) {
                         fallbacks = fallbacks.filter(p => String(p?.name || '').toLowerCase().includes(searchQuery) ||

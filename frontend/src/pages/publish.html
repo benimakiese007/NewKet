@@ -434,15 +434,8 @@
                 <h2 class="text-2xl font-black text-gray-900 mb-3 tracking-tight [text-wrap:balance]">Publication Réussie&nbsp;!</h2>
                 <p class="text-sm text-gray-500 mb-8 font-medium leading-relaxed [text-wrap:balance]">Votre article d'exception a été validé et rejoint notre catalogue exclusif.</p>
                 
-                <div class="flex flex-col gap-3">
-                    <button onclick="window.location.href=window.resolvePath('pages/catalog')"
-                        class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black shadow-lg shadow-gray-900/20 transition-all hover:bg-black hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:shadow-md">
-                        VOIR L'ANNONCE
-                    </button>
-                    <button onclick="window.location.reload()"
-                        class="w-full bg-white border-2 border-gray-100 text-gray-600 py-3.5 rounded-2xl font-bold text-xs tracking-widest uppercase transition-all hover:bg-gray-50 hover:border-gray-200 hover:text-gray-900 active:bg-gray-100">
-                        PUBLIER UN AUTRE ARTICLE
-                    </button>
+                <div id="successModalActions" class="flex flex-col gap-3">
+                    <!-- Buttons are injected dynamically based on edit/publish mode -->
                 </div>
             </div>
         </div>
@@ -764,6 +757,14 @@
                         loadedImages = product.image.split(',').map(img => img.trim()).filter(img => img);
                     }
                     
+                    // Filter out fallback/broken images so the user sees an empty upload zone
+                    loadedImages = loadedImages.filter(imgStr => {
+                        if (!imgStr) return false;
+                        const str = String(imgStr).toLowerCase().trim();
+                        return !(str === '' || str === 'null' || str === 'undefined' || str === '[]' || 
+                                 str.includes('default.') || str.includes('logo-newket') || str.includes('garde-fou') || str.includes('broken_image_404'));
+                    });
+                    
                     if (loadedImages.length > 0) {
                         selectedProductImages = loadedImages;
                         // For editing, we don't need to populate selectedFileBlobs for existing images
@@ -1014,6 +1015,8 @@
 
                     if (isEditMode) {
                         await ProductManager.updateProduct(editProductId, productData);
+                        // Mark product as just-updated so vendor-dashboard skips broken-image check for it
+                        try { sessionStorage.setItem('newket_just_updated', editProductId); } catch(_) {}
                         // Toast removed — the success modal already provides feedback
                     } else {
                         const newProduct = {
@@ -1035,8 +1038,30 @@
                     document.querySelector('#successState p').textContent = successText;
                     document.getElementById('successState').classList.remove('hidden');
                     
+                    // Inject context-aware action buttons
+                    const actionsEl = document.getElementById('successModalActions');
+                    if (actionsEl) {
+                        if (isEditMode) {
+                            actionsEl.innerHTML = `
+                                <button onclick="window.location.href=window.resolvePath('pages/vendor-dashboard')+'#products'"
+                                    class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black shadow-lg shadow-gray-900/20 transition-all hover:bg-black hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:shadow-md">
+                                    MES PRODUITS
+                                </button>`;
+                        } else {
+                            actionsEl.innerHTML = `
+                                <button onclick="window.location.href=window.resolvePath('pages/catalog')"
+                                    class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black shadow-lg shadow-gray-900/20 transition-all hover:bg-black hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:shadow-md">
+                                    VOIR L'ANNONCE
+                                </button>
+                                <button onclick="window.location.reload()"
+                                    class="w-full bg-white border-2 border-gray-100 text-gray-600 py-3.5 rounded-2xl font-bold text-xs tracking-widest uppercase transition-all hover:bg-gray-50 hover:border-gray-200 hover:text-gray-900 active:bg-gray-100">
+                                    PUBLIER UN AUTRE ARTICLE
+                                </button>`;
+                        }
+                    }
+
                     if (!isEditMode) this.reset();
-                    else setTimeout(() => window.location.href = window.resolvePath('pages/vendor-dashboard'), 2000);
+                    else setTimeout(() => window.location.href = window.resolvePath('pages/vendor-dashboard') + '#products', 2000);
                 } catch (error) {
                     console.error('Publish error:', error);
                     submitBtn.disabled = false;
