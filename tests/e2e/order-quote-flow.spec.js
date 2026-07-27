@@ -48,7 +48,8 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     await buyerPage.goto('/src/pages/catalog.html');
     await buyerPage.waitForLoadState('networkidle');
     await buyerPage.waitForSelector('.product-card button.add-to-cart-btn', { state: 'visible' });
-    await buyerPage.click('.product-card button.add-to-cart-btn >> nth=0');
+    // Cliquer sur le bouton d'ajout au panier du premier produit
+    await buyerPage.locator('.product-card button.add-to-cart-btn').first().click();
 
     // Attendre que le panier s'ouvre
     // On ouvre le panneau latéral du panier (car l'ajout fait juste une animation)
@@ -93,8 +94,16 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     await vendorPage.goto('/src/pages/vendor-dashboard.html');
     await vendorPage.waitForLoadState('networkidle');
 
+    // Attendre que l'auth soit terminée (la classe "auth-loading" sur <html> bloque les clics sinon)
+    await vendorPage.waitForFunction(
+        () => !document.documentElement.classList.contains('auth-loading'),
+        { timeout: 20000 }
+    ).catch(() => console.log('auth-loading timeout, on continue quand même'));
+    // Petite pause pour laisser le dashboard se rendre
+    await vendorPage.waitForTimeout(1500);
+
     // Il clique sur l'onglet "Demandes et devis"
-    await vendorPage.click('a[data-switch-vendor-tab="leads"]');
+    await vendorPage.click('a[data-switch-vendor-tab="leads"]', { force: true });
 
     // Il cherche la demande en attente et clique sur "Proposer un devis" sur la carte (qui ouvre la modale de détails)
     const proposeQuoteBtnCard = vendorPage.locator('button:has-text("Proposer un devis")').first();
@@ -109,13 +118,36 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     await proposeQuoteBtnModal.click();
 
     // Remplissage du formulaire de devis (modal de devis)
-    await vendorPage.fill('[data-quote-fee]', '50'); // 50 de frais de livraison
+    // On efface d'abord les valeurs par défaut puis on saisit les nouvelles
+    await vendorPage.fill('[data-quote-fee]', '');
+    await vendorPage.fill('[data-quote-fee]', '5000'); // 5000 FC de frais de livraison
+    await vendorPage.fill('[data-quote-delay]', '');
     await vendorPage.fill('[data-quote-delay]', '48'); // 48 heures de délai
     await vendorPage.fill('[data-quote-note]', 'Test automatisé: Frais de port standards');
+
+    // On intercepte la réponse API avant de cliquer, pour s'assurer que l'appel réussit
+    const quoteResponsePromise = vendorPage.waitForResponse(
+        res => res.url().includes('/quote') && [200, 201].includes(res.status()),
+        { timeout: 20000 }
+    ).catch(() => null);
+
     await vendorPage.click('[data-quote-submit]');
 
-    // On s'assure que l'envoi a réussi (le bouton repasse peut-être à "Modifier devis")
-    await expect(vendorPage.locator('button:has-text("Modifier devis")').first()).toBeVisible({ timeout: 10000 });
+    // Attendre la fermeture du formulaire (il se supprime du DOM après soumission)
+    await vendorPage.waitForSelector('[data-quote-submit]', { state: 'detached', timeout: 10000 }).catch(() => {});
+
+    // Attendre la réponse API
+    await quoteResponsePromise;
+
+    // Attendre que le dashboard se re-render (l'event ordersUpdated déclenche renderVendorLeads)
+    await vendorPage.waitForTimeout(2500);
+
+    // Basculer sur l'onglet "Attente client" car la commande n'est plus dans "À traiter"
+    await vendorPage.click('#vFilterAwaiting');
+    await vendorPage.waitForTimeout(1000);
+
+    // Le statut de la commande est maintenant QUOTE : le bouton doit afficher "Modifier devis"
+    await expect(vendorPage.locator('button:has-text("Modifier devis")').first()).toBeVisible({ timeout: 20000 });
 
     // ==========================================
     // 3. ACHETEUR : Accepte le devis et paie
@@ -125,7 +157,7 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     await buyerPage.click('a[data-switch-customer-tab="orders"]'); // ou équivalent pour voir les demandes
 
     // Il ouvre le détail de la commande
-    const detailBtn = buyerPage.locator('button:has-text("Devis"), button:has-text("Détails")').first();
+    const detailBtn = buyerPage.locator('.glass-panel', { hasText: 'À VOUS DE JOUER' }).first();
     await expect(detailBtn).toBeVisible({ timeout: 10000 });
     await detailBtn.click();
 

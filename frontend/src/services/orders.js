@@ -67,6 +67,10 @@ const OrderManager = {
         }
 
         // Wait for existing fetch
+        if (force) {
+            this._fetchPromise = null;
+        }
+
         if (this._fetchPromise) {
             await this._fetchPromise;
             return;
@@ -513,7 +517,7 @@ const OrderManager = {
         try {
             const data = await ApiClient.post(`/orders/${orderId}/quote`, payload);
             this._initialized = false;
-            await this.init();
+            await this.init({ force: true });
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
             return data;
         } catch (error) {
@@ -527,7 +531,7 @@ const OrderManager = {
         try {
             const data = await ApiClient.post(`/orders/${orderId}/quote/respond`, payload);
             this._initialized = false;
-            await this.init();
+            await this.init({ force: true });
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
             return data;
         } catch (error) {
@@ -571,6 +575,7 @@ const OrderManager = {
         try {
             const data = await ApiClient.post(`/orders/${orderId}/verify-delivery`, { otp: otpCode }, { suppressToast: true });
             this._initialized = false; // Forcer la mise à jour des stats et listes
+            await this.init({ force: true });
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
             return data;
         } catch (error) {
@@ -584,6 +589,7 @@ const OrderManager = {
         try {
             const data = await ApiClient.post(`/orders/${orderId}/confirm-completion`);
             this._initialized = false; // Forcer la mise à jour des stats et listes
+            await this.init({ force: true });
             window.dispatchEvent(new CustomEvent('ordersUpdated'));
             return data;
         } catch (error) {
