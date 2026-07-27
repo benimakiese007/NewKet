@@ -3,7 +3,7 @@ import crypto from 'crypto';
 
 class KPayService {
   constructor() {
-    this.baseURL = 'https://kpay.site';
+    this.baseURL = process.env.KPAY_BASE_URL || 'https://kpay.site';
     this.apiKey = process.env.KPAY_PUBLIC_KEY;
     this.secretKey = process.env.KPAY_SECRET_KEY;
     
