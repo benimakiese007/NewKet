@@ -483,7 +483,7 @@ export const initiatePayment = async (req, res) => {
                 payment_status: 'INITIATED',
                 payment_provider: provider,
                 payment_expected_amount: normalizeAmount(finalAmountUSD),
-                payment_expected_currency: 'USD',
+                payment_expected_currency: payinCurrency,   // CDF pour KPay, USD pour Stripe/FlexPaie
                 payment_locked_at: nowIso,
                 payment_lock_reason: 'PAYMENT_INITIATED',
                 updated_at: nowIso

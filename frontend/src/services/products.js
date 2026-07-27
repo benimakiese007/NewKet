@@ -640,7 +640,6 @@ const ProductManager = {
     async addProduct(product) {
         const userId = localStorage.getItem('newketUserId');
         
-        // Support both array and existing string formats for images
         let imageData = product.image;
         if (Array.isArray(imageData)) {
             imageData = imageData.join(',');
@@ -652,10 +651,27 @@ const ProductManager = {
             user_id: userId
         };
 
-        const newProd = await window.ApiClient.post('/products', productWithSupplier);
+        let newProd = null;
+        if (window.SupabaseAdapter && window.supabaseClient) {
+            try {
+                const inserted = await window.SupabaseAdapter.insert('products', productWithSupplier);
+                if (inserted) {
+                    newProd = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        eq: [['id', inserted.id]],
+                        single: true
+                    }) || inserted;
+                }
+            } catch (err) {
+                console.error('[ProductManager] Error inserting product via Supabase:', err);
+            }
+        } else {
+            newProd = await window.ApiClient.post('/products', productWithSupplier);
+        }
+
         if (newProd) {
             const mappedProd = this._mapProduct(newProd);
-            this.products.unshift(mappedProd); // Add to front (newest first)
+            this.products.unshift(mappedProd);
             this._totalCount++;
             window.dispatchEvent(new CustomEvent('productsUpdated'));
             if (window.logVendorActivity) logVendorActivity(`Produit ajouté : ${product.name}`, 'stock');
@@ -665,12 +681,30 @@ const ProductManager = {
     },
 
     async updateProduct(id, updatedData) {
-        // Support both array and existing string formats for images
         if (updatedData.image && Array.isArray(updatedData.image)) {
             updatedData.image = updatedData.image.join(',');
         }
 
-        const updated = await window.ApiClient.put(`/products/${id}`, updatedData);
+        let updated = null;
+        if (window.SupabaseAdapter && window.supabaseClient) {
+            try {
+                const { ok, error } = await window.SupabaseAdapter.update('products', id, updatedData, { returnMeta: true });
+                if (ok) {
+                    updated = await window.SupabaseAdapter.fetchWithFilters('products', {
+                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar)',
+                        eq: [['id', id]],
+                        single: true
+                    });
+                } else {
+                    console.error('[ProductManager] Supabase update failed:', error);
+                }
+            } catch (err) {
+                console.error('[ProductManager] Error updating product via Supabase:', err);
+            }
+        } else {
+            updated = await window.ApiClient.put(`/products/${id}`, updatedData);
+        }
+
         if (updated) {
             const index = this.products.findIndex(p => p.id === id);
             if (index !== -1) {
@@ -684,8 +718,20 @@ const ProductManager = {
     },
 
     async deleteProduct(id) {
-        const result = await window.ApiClient.delete(`/products/${id}`);
-        const success = result && result.success;
+        let success = false;
+        if (window.SupabaseAdapter && window.supabaseClient) {
+            try {
+                const { ok, error } = await window.SupabaseAdapter.delete('products', id, { returnMeta: true });
+                success = ok;
+                if (!ok) console.error('[ProductManager] Supabase delete failed:', error);
+            } catch (err) {
+                console.error('[ProductManager] Error deleting product via Supabase:', err);
+            }
+        } else {
+            const result = await window.ApiClient.delete(`/products/${id}`);
+            success = result && result.success;
+        }
+
         if (success) {
             const product = this.products.find(p => p.id === id);
             this.products = this.products.filter(p => p.id !== id);
@@ -698,7 +744,18 @@ const ProductManager = {
     },
 
     async deleteBulk(ids) {
-        await window.ApiClient.post('/products/bulk-delete', { ids });
+        if (window.SupabaseAdapter && window.supabaseClient) {
+            try {
+                for (const id of ids) {
+                    await window.SupabaseAdapter.delete('products', id);
+                }
+            } catch (err) {
+                console.error('[ProductManager] Error in deleteBulk via Supabase:', err);
+            }
+        } else {
+            await window.ApiClient.post('/products/bulk-delete', { ids });
+        }
+        
         this.products = this.products.filter(p => !ids.includes(p.id));
         this._totalCount -= ids.length;
         window.dispatchEvent(new CustomEvent('productsUpdated'));
@@ -707,8 +764,19 @@ const ProductManager = {
     },
 
     async archiveProduct(id) {
-        const result = await window.ApiClient.patch(`/products/${id}/archive`, {});
-        const success = result && result.success;
+        let success = false;
+        if (window.SupabaseAdapter && window.supabaseClient) {
+            try {
+                const { ok } = await window.SupabaseAdapter.update('products', id, { is_archived: true }, { returnMeta: true });
+                success = ok;
+            } catch (err) {
+                console.error('[ProductManager] Error in archiveProduct via Supabase:', err);
+            }
+        } else {
+            const result = await window.ApiClient.patch(`/products/${id}/archive`, {});
+            success = result && result.success;
+        }
+        
         if (success) {
             const product = this.products.find(p => p.id === id);
             if (product) {
@@ -724,8 +792,19 @@ const ProductManager = {
     },
 
     async restoreProduct(id) {
-        const result = await window.ApiClient.patch(`/products/${id}/restore`, {});
-        const success = result && result.success;
+        let success = false;
+        if (window.SupabaseAdapter && window.supabaseClient) {
+            try {
+                const { ok } = await window.SupabaseAdapter.update('products', id, { is_archived: false }, { returnMeta: true });
+                success = ok;
+            } catch (err) {
+                console.error('[ProductManager] Error in restoreProduct via Supabase:', err);
+            }
+        } else {
+            const result = await window.ApiClient.patch(`/products/${id}/restore`, {});
+            success = result && result.success;
+        }
+
         if (success) {
             const product = this._archivedProducts.find(p => p.id === id);
             if (product) {

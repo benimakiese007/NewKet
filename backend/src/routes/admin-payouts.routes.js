@@ -29,7 +29,8 @@ router.get('/', async (req, res) => {
                 payout_last_error,
                 payout_attempts,
                 escrow_status,
-                vendor_id
+                vendor_id,
+                payment_expected_currency
             `)
             .in('payout_status', status === 'ALL' ? ['PENDING', 'FAILED', 'SUCCESS'] : [status])
             .order('completed_at', { ascending: false });

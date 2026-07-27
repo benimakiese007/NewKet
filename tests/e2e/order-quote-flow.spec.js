@@ -1,0 +1,133 @@
+import { test, expect } from '@playwright/test';
+
+// /!\ ATTENTION: Pour que ce test fonctionne de bout en bout avec la base de données réelle,
+// vous devez définir des variables d'environnement ou modifier ces constantes avec de vrais comptes.
+const BUYER_EMAIL = process.env.TEST_BUYER_EMAIL || 'benimakiese1234567@gmail.com';
+const BUYER_PASSWORD = process.env.TEST_BUYER_PASSWORD || 'PHOENIX';
+const VENDOR_EMAIL = process.env.TEST_VENDOR_EMAIL || 'benimakiese123@gmail.com';
+const VENDOR_PASSWORD = process.env.TEST_VENDOR_PASSWORD || 'PHOENIX';
+
+test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteurs)', () => {
+
+  test('L\'acheteur demande un devis, le vendeur répond, l\'acheteur paie', async ({ browser }) => {
+    
+    // Création de deux contextes de navigation totalement séparés (comme deux ordinateurs différents)
+    const buyerContext = await browser.newContext();
+    const vendorContext = await browser.newContext();
+
+    const buyerPage = await buyerContext.newPage();
+    const vendorPage = await vendorContext.newPage();
+
+    // ==========================================
+    // 1. ACHETEUR : Connexion et ajout au panier
+    // ==========================================
+    await buyerPage.goto('/src/pages/login.html');
+    await buyerPage.waitForLoadState('networkidle'); // Crucial: attend que le JS s'attache
+
+    await buyerPage.fill('#email', 'benimakiese1234567@gmail.com');
+    await buyerPage.fill('#password', 'PHOENIX');
+    // Accepter les cookies si présents
+    await buyerPage.locator('button:has-text("Accepter tout")').click().catch(() => {});
+    await buyerPage.click('#submitBtn', { force: true });
+    
+    // On attend d'être redirigé vers le catalogue ou le dashboard, ou de voir une erreur
+    await Promise.race([
+      buyerPage.waitForURL(url => !url.href.includes('login.html'), { timeout: 15000 }),
+      buyerPage.waitForFunction(() => {
+        const err = document.querySelector('#formError');
+        return err && !err.classList.contains('hidden') && err.textContent.length > 0;
+      }, { timeout: 15000 }).then(async () => {
+        const errorText = await buyerPage.locator('#formError').textContent();
+        throw new Error(`Erreur de connexion Acheteur: ${errorText}`);
+      })
+    ]);
+
+    // L'acheteur va sur le catalogue et ajoute le premier produit au panier
+    await buyerPage.goto('/src/pages/catalog.html');
+    await buyerPage.waitForLoadState('networkidle');
+    await buyerPage.waitForSelector('.product-card button.add-to-cart-btn', { state: 'visible' });
+    await buyerPage.click('.product-card button.add-to-cart-btn >> nth=0');
+
+    // Attendre que le panier s'ouvre
+    // On ouvre le panneau latéral du panier (car l'ajout fait juste une animation)
+    await buyerPage.evaluate(() => {
+        if (window.CartManager) window.CartManager.toggleCartUI(true);
+    });
+    
+    // Attendre le bouton Checkout et cliquer (force: true pour éviter que la bannière de cookies ne bloque le clic)
+    await buyerPage.waitForSelector('#cartCheckoutBtn', { state: 'visible' });
+    await buyerPage.click('#cartCheckoutBtn', { force: true });
+
+    // Attendre que le CheckoutModal s'ouvre et cliquer sur "Payer" (qui envoie la demande au vendeur)
+    await buyerPage.waitForSelector('button:has-text("Payer")', { state: 'visible' });
+    await buyerPage.click('button:has-text("Payer")');
+
+    // On attend la fin de l'envoi (soit via une URL vers customer-dashboard, soit le message de succès)
+    await Promise.race([
+      buyerPage.waitForURL(url => url.href.includes('customer-dashboard.html'), { timeout: 15000 }),
+      buyerPage.waitForSelector('text="Commande passée avec succès"', { timeout: 15000 })
+    ]).catch(() => console.log('Acheteur : pas de redirection immédiate, on continue.'));
+    
+    // ==========================================
+    // 2. VENDEUR : Connexion et soumission du devis
+    // ==========================================
+    await vendorPage.goto('/src/pages/login.html');
+    await vendorPage.waitForLoadState('networkidle');
+
+    await vendorPage.fill('#email', 'benimakiese123@gmail.com');
+    await vendorPage.fill('#password', 'PHOENIX');
+    await vendorPage.locator('button:has-text("Accepter tout")').click().catch(() => {});
+    await vendorPage.click('#submitBtn', { force: true });
+    
+    // Attente de la validation du login
+    await vendorPage.waitForURL(url => !url.href.includes('login.html'), { timeout: 15000 });
+
+    // Le vendeur va sur son dashboard
+    await vendorPage.goto('/src/pages/vendor-dashboard.html');
+    await vendorPage.waitForLoadState('networkidle');
+
+    // Il clique sur l'onglet "Demandes et devis"
+    await vendorPage.click('a[data-switch-vendor-tab="leads"]');
+
+    // Il cherche la demande en attente et clique sur "Proposer un devis"
+    const proposeQuoteBtn = vendorPage.locator('button:has-text("Proposer un devis")').first();
+    await expect(proposeQuoteBtn).toBeVisible({ timeout: 10000 });
+    await proposeQuoteBtn.click();
+
+    // Remplissage du formulaire de devis (modal)
+    await vendorPage.fill('[data-quote-fee]', '50'); // 50 de frais de livraison
+    await vendorPage.fill('[data-quote-delay]', '48'); // 48 heures de délai
+    await vendorPage.fill('[data-quote-note]', 'Test automatisé: Frais de port standards');
+    await vendorPage.click('[data-quote-submit]');
+
+    // On s'assure que l'envoi a réussi (le bouton repasse peut-être à "Modifier devis")
+    await expect(vendorPage.locator('button:has-text("Modifier devis")').first()).toBeVisible({ timeout: 10000 });
+
+    // ==========================================
+    // 3. ACHETEUR : Accepte le devis et paie
+    // ==========================================
+    // L'acheteur consulte ses demandes
+    await buyerPage.goto('/src/pages/customer-dashboard.html');
+    await buyerPage.click('a[data-switch-customer-tab="orders"]'); // ou équivalent pour voir les demandes
+
+    // Il ouvre le détail de la commande
+    const detailBtn = buyerPage.locator('button:has-text("Devis"), button:has-text("Détails")').first();
+    await expect(detailBtn).toBeVisible({ timeout: 10000 });
+    await detailBtn.click();
+
+    // L'acheteur accepte le devis
+    const acceptQuoteBtn = buyerPage.locator('button:has-text("Accepter le devis")');
+    await expect(acceptQuoteBtn).toBeVisible({ timeout: 10000 });
+    await acceptQuoteBtn.click();
+
+    // Vérification que le devis est accepté (le bouton payer devrait apparaître)
+    const payBtn = buyerPage.locator('button:has-text("Payer")').first();
+    await expect(payBtn).toBeVisible({ timeout: 10000 });
+    // await payBtn.click(); // On s'arrête avant le vrai paiement externe pour ne pas bloquer le test
+
+    // Fin des contextes
+    await buyerContext.close();
+    await vendorContext.close();
+  });
+
+});
