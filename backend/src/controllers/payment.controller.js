@@ -510,7 +510,11 @@ export const initiatePayment = async (req, res) => {
         const providersToTry = ['kpay', 'flexpaie', 'stripe'].filter(p => {
              if (p === 'kpay') return isKpayConfigured();
              if (p === 'flexpaie') return isFlexpaieConfigured();
-             if (p === 'stripe') return isStripeConfigured();
+             if (p === 'stripe') {
+                 // Ne jamais basculer sur Stripe si le client paie en CDF (car Stripe n'accepte pas le Mobile Money)
+                 if (chosenCurrency === 'CDF') return false;
+                 return isStripeConfigured();
+             }
              return false;
         });
 
