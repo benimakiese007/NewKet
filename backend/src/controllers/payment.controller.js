@@ -362,12 +362,23 @@ export const initiatePayment = async (req, res) => {
         // Prix produit de base (hors frais payin)
         const verifiedAmount = Number(pricing.total_amount || 0);
 
-        // ─── Calcul des frais payin KPay (Option A : supportés par le client) ───
-        // Devise : CDF par défaut pour KPay RDC. On utilise le taux max (pire cas)
-        // car l'opérateur du client est inconnu au moment du checkout.
-        const payinCurrency = 'CDF'; // Les paiements KPay sont en CDF
+        // ─── Devise choisie par le client au checkout ───
+        const chosenCurrency = (['CDF', 'USD'].includes(req.body.currency?.toUpperCase()))
+            ? req.body.currency.toUpperCase()
+            : 'CDF';
+
+        // ─── Calcul des frais payin KPay ───
+        // On utilise la devise choisie pour le calcul des frais
+        const payinCurrency = chosenCurrency;
         const payinFeeInfo  = await getMaxPayinRate(client, payinCurrency);
-        const payinCalc     = computeClientTotal(verifiedAmount, payinFeeInfo.rate);
+
+        // Si le client paie en USD, on convertit le montant CDF en USD
+        let amountInChosenCurrency = verifiedAmount;
+        if (chosenCurrency === 'USD' && conversionRate > 0) {
+            amountInChosenCurrency = parseFloat((verifiedAmount / conversionRate).toFixed(2));
+        }
+
+        const payinCalc     = computeClientTotal(amountInChosenCurrency, payinFeeInfo.rate);
         // clientTotal = montant réellement envoyé à KPay (prix + frais payin)
         const clientTotal       = payinCalc.clientTotal;
         const payinFeeAmount    = payinCalc.payinFeeAmount;
@@ -497,13 +508,15 @@ export const initiatePayment = async (req, res) => {
             if (!isKpayConfigured()) {
                 throw new Error('K-PAY n\'est pas configuré (clés manquantes)');
             }
-                    // L'API K-Pay s'attend à un entier. On lui envoie le montant CLIENT TOTAL
-            // (prix produit + frais payin) pour que NewKet reçoive exactement verifiedAmount.
+            // L'API K-Pay s'attend à un entier pour le CDF, ou un décimal pour USD
+            // On lui envoie le montant CLIENT TOTAL dans la devise choisie
+            const kpayAmount = chosenCurrency === 'CDF' ? Math.round(clientTotal) : parseFloat(clientTotal.toFixed(2));
             const kpayRes = await kpayService.createPayment(
-                Math.round(clientTotal),             // KPay collecte clientTotal en CDF
+                kpayAmount,
                 txId,                                // externalId
                 getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
-                getCheckoutCancelUrl(req, orderId, txId)   // cancelUrl
+                getCheckoutCancelUrl(req, orderId, txId),  // cancelUrl
+                chosenCurrency                        // currency: 'CDF' ou 'USD'
             );
             // La réponse Gateway contient "gatewayUrl"
             paymentUrl = kpayRes.gatewayUrl;

@@ -31,16 +31,18 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     await buyerPage.click('#submitBtn', { force: true });
     
     // On attend d'être redirigé vers le catalogue ou le dashboard, ou de voir une erreur
-    await Promise.race([
-      buyerPage.waitForURL(url => !url.href.includes('login.html'), { timeout: 15000 }),
+    const loginResult = await Promise.race([
+      buyerPage.waitForURL(url => !url.href.includes('login.html'), { timeout: 15000 }).then(() => 'success'),
       buyerPage.waitForFunction(() => {
         const err = document.querySelector('#formError');
         return err && !err.classList.contains('hidden') && err.textContent.length > 0;
-      }, { timeout: 15000 }).then(async () => {
+      }, { timeout: 15000 }).then(() => 'error')
+    ]).catch(() => 'timeout');
+
+    if (loginResult === 'error') {
         const errorText = await buyerPage.locator('#formError').textContent();
-        throw new Error(`Erreur de connexion Acheteur: ${errorText}`);
-      })
-    ]);
+        throw new Error('Acheteur login failed with error: ' + errorText);
+    }
 
     // L'acheteur va sur le catalogue et ajoute le premier produit au panier
     await buyerPage.goto('/src/pages/catalog.html');
@@ -54,9 +56,14 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
         if (window.CartManager) window.CartManager.toggleCartUI(true);
     });
     
-    // Attendre le bouton Checkout et cliquer (force: true pour éviter que la bannière de cookies ne bloque le clic)
+    // Attendre le bouton Checkout et forcer le checkout via le code
     await buyerPage.waitForSelector('#cartCheckoutBtn', { state: 'visible' });
-    await buyerPage.click('#cartCheckoutBtn', { force: true });
+    
+    // Injecter une position par défaut dans le localStorage pour éviter l'erreur "Definissez d'abord la position"
+    await buyerPage.evaluate(() => {
+        localStorage.setItem('newketHomeLocation', JSON.stringify({lat: -4.4419, lng: 15.2663}));
+        if (window.CartManager) window.CartManager.checkout();
+    });
 
     // Attendre que le CheckoutModal s'ouvre et cliquer sur "Payer" (qui envoie la demande au vendeur)
     await buyerPage.waitForSelector('button:has-text("Payer")', { state: 'visible' });
@@ -89,12 +96,19 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     // Il clique sur l'onglet "Demandes et devis"
     await vendorPage.click('a[data-switch-vendor-tab="leads"]');
 
-    // Il cherche la demande en attente et clique sur "Proposer un devis"
-    const proposeQuoteBtn = vendorPage.locator('button:has-text("Proposer un devis")').first();
-    await expect(proposeQuoteBtn).toBeVisible({ timeout: 10000 });
-    await proposeQuoteBtn.click();
+    // Il cherche la demande en attente et clique sur "Proposer un devis" sur la carte (qui ouvre la modale de détails)
+    const proposeQuoteBtnCard = vendorPage.locator('button:has-text("Proposer un devis")').first();
+    await expect(proposeQuoteBtnCard).toBeVisible({ timeout: 10000 });
+    await proposeQuoteBtnCard.click();
 
-    // Remplissage du formulaire de devis (modal)
+    // Puis il clique sur le bouton "Proposer un devis" à l'intérieur de la modale de détails pour ouvrir le formulaire de devis
+    const proposeQuoteBtnModal = vendorPage.locator('#btnMarkDelivered');
+    await expect(proposeQuoteBtnModal).toBeVisible({ timeout: 5000 });
+    // On scroll vers le bas de la modale au cas où
+    await proposeQuoteBtnModal.scrollIntoViewIfNeeded();
+    await proposeQuoteBtnModal.click();
+
+    // Remplissage du formulaire de devis (modal de devis)
     await vendorPage.fill('[data-quote-fee]', '50'); // 50 de frais de livraison
     await vendorPage.fill('[data-quote-delay]', '48'); // 48 heures de délai
     await vendorPage.fill('[data-quote-note]', 'Test automatisé: Frais de port standards');

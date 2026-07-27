@@ -353,6 +353,12 @@
             ready.forEach(o => container.insertAdjacentHTML('beforeend', buildOrderCard(o)));
         }
 
+        // Format a CDF amount to USD using the product exchange rate
+        function cdfToUsd(amountCDF, rate) {
+            if (!rate || rate <= 0) return null;
+            return parseFloat((amountCDF / rate).toFixed(2));
+        }
+
         function buildDetailView(order) {
             const img = (order?.items?.[0]?.image || order?.product_image || '').split(',')[0];
             const productName = order?.items?.[0]?.name || order?.product_name || 'Produit';
@@ -363,6 +369,8 @@
             const total = order?.final_total_amount ?? order?.total ?? 0;
             const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : (order.status || '');
             const appliedCode = safeText(order?.promo_code || '');
+            // Exchange rate: per-product rate or fallback
+            const exchangeRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || order?.custom_exchange_rate || 0);
 
             const paymentState = String(order?.payment_status || '').toUpperCase();
             const isPaid = ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED'].includes(paymentState) || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
@@ -430,6 +438,17 @@
                         </div>
                         `}
 
+                        ${!isPaid && exchangeRate > 0 ? `
+                        <div class="card-link space-y-3">
+                            <div class="font-black text-gray-900 text-sm">Devise de paiement</div>
+                            <div class="flex gap-2">
+                                <button id="btnCurrencyCDF" onclick="switchCurrency('CDF')" class="flex-1 py-2.5 rounded-xl text-xs font-black border-2 border-black bg-black text-white transition-all">🇨🇩 CDF</button>
+                                <button id="btnCurrencyUSD" onclick="switchCurrency('USD')" class="flex-1 py-2.5 rounded-xl text-xs font-black border-2 border-gray-200 bg-white text-gray-700 transition-all">🇺🇸 USD</button>
+                            </div>
+                            <p id="currencyHint" class="text-[11px] text-gray-400 text-center">Taux: 1 USD = ${exchangeRate.toLocaleString('fr-FR')} FC</p>
+                        </div>
+                        ` : ''}
+
                         ${isPaid ? `
                         <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-emerald-900 flex items-center justify-center gap-3">
                             <iconify-icon icon="solar:shield-check-bold" width="24"></iconify-icon>
@@ -438,7 +457,7 @@
                         ` : `
                         <button id="btnPayNow" data-require-network="true" class="btn-primary w-full flex items-center justify-center gap-2 rounded-xl">
                             <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
-                            Payer maintenant
+                            Payer maintenant — <span id="btnPayCurrencyLabel">CDF</span>
                         </button>
                         <!-- Trust badges -->
                         <div class="trust-badges">
@@ -610,6 +629,41 @@
                 }, null);
             });
 
+            // ── Currency toggle logic ──
+            let selectedCurrency = 'CDF';
+            const orderExchangeRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || order?.custom_exchange_rate || 0);
+
+            window.switchCurrency = function(currency) {
+                selectedCurrency = currency;
+                const btnCDF = document.getElementById('btnCurrencyCDF');
+                const btnUSD = document.getElementById('btnCurrencyUSD');
+                const payLabel = document.getElementById('btnPayCurrencyLabel');
+
+                if (btnCDF && btnUSD) {
+                    if (currency === 'CDF') {
+                        btnCDF.className = 'flex-1 py-2.5 rounded-xl text-xs font-black border-2 border-black bg-black text-white transition-all';
+                        btnUSD.className = 'flex-1 py-2.5 rounded-xl text-xs font-black border-2 border-gray-200 bg-white text-gray-700 transition-all';
+                    } else {
+                        btnUSD.className = 'flex-1 py-2.5 rounded-xl text-xs font-black border-2 border-black bg-black text-white transition-all';
+                        btnCDF.className = 'flex-1 py-2.5 rounded-xl text-xs font-black border-2 border-gray-200 bg-white text-gray-700 transition-all';
+                    }
+                }
+
+                if (payLabel) payLabel.textContent = currency;
+
+                // Recalculate all displayed prices
+                document.querySelectorAll('[data-price-raw]').forEach(el => {
+                    const rawCDF = parseFloat(el.getAttribute('data-price-raw') || 0);
+                    const isDiscount = el.getAttribute('data-discount') === 'true';
+                    if (currency === 'USD' && orderExchangeRate > 0) {
+                        const usd = cdfToUsd(rawCDF, orderExchangeRate);
+                        el.textContent = `${isDiscount && rawCDF > 0 ? '-' : ''}${usd?.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`;
+                    } else {
+                        el.textContent = `${isDiscount && rawCDF > 0 ? '-' : ''}${formatAmount(rawCDF)}`;
+                    }
+                });
+            };
+
             btn.addEventListener('click', async () => {
                 btn.disabled = true;
                 const stickyBtn = document.getElementById('btnSticky');
@@ -629,7 +683,8 @@
                 try {
                     const data = await Promise.race([
                         OrderManager.initiatePayment(orderId, {
-                            promo_code: safeText(promoInput?.value).trim().toUpperCase() || null
+                            promo_code: safeText(promoInput?.value).trim().toUpperCase() || null,
+                            currency: selectedCurrency
                         }),
                         timeoutPromise
                     ]);
@@ -648,7 +703,7 @@
                 } finally {
                     if (!isRedirecting) {
                         btn.disabled = false;
-                        btn.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant';
+                        btn.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant — <span id="btnPayCurrencyLabel">' + selectedCurrency + '</span>';
                     }
                 }
             });

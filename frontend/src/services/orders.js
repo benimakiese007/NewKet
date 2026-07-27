@@ -541,7 +541,8 @@ const OrderManager = {
         try {
             return await ApiClient.post('/payments/initiate', {
                 order_id: orderId,
-                promo_code: options.promo_code || null
+                promo_code: options.promo_code || null,
+                currency: options.currency || null
             }, { suppressToast: true });
         } catch (error) {
             if (error?.data?.code === 'PAYMENT_PROVIDER_NOT_CONFIGURED') {
