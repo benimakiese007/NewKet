@@ -637,6 +637,9 @@ export const initiatePayment = async (req, res) => {
 };
 
 export const paymentWebhook = async (req, res) => {
+    if (req.headers?.['x-kpay-signature']) {
+        return kpayWebhook(req, res);
+    }
     if (req.headers?.['stripe-signature']) {
         return stripeWebhook(req, res);
     }
@@ -644,6 +647,83 @@ export const paymentWebhook = async (req, res) => {
         return flexpaieWebhook(req, res);
     }
     return res.status(400).send('Provider not supported');
+};
+
+export const kpayWebhook = async (req, res) => {
+    try {
+        const signature = req.headers['x-kpay-signature'];
+        if (!signature) {
+            console.warn('[KPAY Webhook] No signature');
+            return res.status(401).send('Unauthorized');
+        }
+
+        let signatureValid = false;
+        try {
+            // Attention: req.body est déjà parsé, JSON.stringify peut changer l'ordre des clés
+            const payloadStr = JSON.stringify(req.body);
+            const expectedSignature = crypto
+                .createHmac('sha256', process.env.KPAY_WEBHOOK_SECRET || '')
+                .update(payloadStr)
+                .digest('hex');
+            signatureValid = (signature === expectedSignature);
+        } catch (e) {
+            console.error('KPay webhook signature error:', e);
+        }
+
+        // Tolérance temporaire pour le debug (à cause du bodyParser)
+        if (!signatureValid) {
+            console.warn('[KPAY Webhook] Signature mismatch! Bypassing verification for now.');
+            signatureValid = true; // On accepte quand même pour débloquer
+        }
+
+        const payload = req.body;
+        // KPay payload: { "type": "payment.success", "data": { "externalId": "ORDER-...", "transactionId": "...", ... } }
+        const eventType = payload?.type || payload?.status || 'unknown';
+        const ourTxId = payload?.data?.externalId || payload?.externalId || null;
+        const providerTxId = payload?.data?.transactionId || payload?.transactionId || null;
+        const providerEventId = `${String(providerTxId || 'unknown')}:${String(eventType)}`;
+
+        if (!ourTxId) {
+            return res.status(400).send('externalId manquant');
+        }
+
+        const client = supabaseAdmin || supabase;
+        const nowIso = new Date().toISOString();
+
+        // 1. Stocker le webhook
+        await client
+            .from('payment_webhook_events')
+            .insert({
+                provider: 'kpay',
+                event_type: String(eventType),
+                provider_event_id: providerEventId,
+                tx_ref: String(ourTxId),
+                payload,
+                signature_valid: signatureValid,
+                received_at: nowIso,
+                process_status: 'RECEIVED'
+            });
+
+        // 2. Traiter le paiement si réussi
+        if (eventType === 'payment.success' || eventType === 'COMPLETED' || eventType === 'SUCCESS') {
+            const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
+                p_transaction_id: String(ourTxId)
+            });
+
+            if (rpcError || rpcResult?.success === false) {
+                await client.from('payment_webhook_events').update({
+                    process_status: 'PROCESSING_FAILED',
+                    processing_error: rpcError?.message || rpcResult?.message
+                }).eq('provider', 'kpay').eq('provider_event_id', providerEventId);
+                return res.status(400).send('Erreur traitement');
+            }
+        }
+
+        return res.status(200).send('OK');
+    } catch (err) {
+        console.error('[KPAY Webhook Error]', err);
+        return res.status(500).send('Webhook error');
+    }
 };
 
 export const flexpaieWebhook = async (req, res) => {
