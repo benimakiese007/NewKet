@@ -521,6 +521,21 @@ export const initiatePayment = async (req, res) => {
                         ? Math.round(clientTotal) 
                         : Math.round(clientTotal * conversionRate);
                     
+                    // ─── Limite KPay : max 500 000 CDF par transaction ───
+                    const KPAY_MAX_CDF = 500_000;
+                    if (kpayAmount > KPAY_MAX_CDF) {
+                        const maxUSD = Math.floor(KPAY_MAX_CDF / conversionRate);
+                        return res.status(400).json({
+                            success: false,
+                            code: 'KPAY_AMOUNT_LIMIT_EXCEEDED',
+                            error: 'Montant trop élevé pour KPay',
+                            message: `Le montant de votre commande dépasse la limite de paiement Mobile Money (500 000 CDF ≈ ${maxUSD} USD). Veuillez contacter le vendeur pour diviser la commande ou utiliser un autre moyen de paiement.`,
+                            kpay_limit_cdf: KPAY_MAX_CDF,
+                            kpay_limit_usd: maxUSD,
+                            amount_cdf: kpayAmount
+                        });
+                    }
+                    
                     const kpayRes = await kpayService.createPayment(
                         kpayAmount,
                         txId,                                      // externalId = transaction_id en BDD
