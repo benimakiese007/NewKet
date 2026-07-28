@@ -267,7 +267,7 @@ export const initiatePayment = async (req, res) => {
             customer_email
         } = req.body;
 
-        if (!isStripeConfigured() && !isFlexpaieConfigured() && !isKpayConfigured()) {
+        if (!isFlexpaieConfigured() && !isKpayConfigured()) {
             return res.status(503).json({
                 success: false,
                 code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
