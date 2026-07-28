@@ -706,17 +706,53 @@ export const kpayWebhook = async (req, res) => {
             });
 
         // 2. Traiter le paiement si réussi
-        if (eventType === 'payment.success' || eventType === 'COMPLETED' || eventType === 'SUCCESS') {
+        const kpaySuccessEvents = new Set(['payment.success', 'payment.cashed', 'completed', 'success', 'successful']);
+        const eventTypeLower = eventType.toLowerCase();
+        if (kpaySuccessEvents.has(eventTypeLower)) {
             const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
                 p_transaction_id: String(ourTxId)
             });
 
             if (rpcError || rpcResult?.success === false) {
-                await client.from('payment_webhook_events').update({
-                    process_status: 'PROCESSING_FAILED',
-                    processing_error: rpcError?.message || rpcResult?.message
-                }).eq('provider', 'kpay').eq('provider_event_id', providerEventId);
-                return res.status(400).send('Erreur traitement');
+                console.warn('[KPAY Webhook] RPC failed, trying direct order finalization fallback:', rpcError?.message || rpcResult?.message);
+
+                // Fallback: find order by transaction_id and finalize directly
+                const { data: orderToFinalize } = await client
+                    .from('orders')
+                    .select('id, customer_email, vendor_id')
+                    .eq('transaction_id', String(ourTxId))
+                    .maybeSingle();
+
+                if (orderToFinalize) {
+                    const { error: fallbackError } = await finalizePaidOrder(client, orderToFinalize.id, nowIso);
+                    if (fallbackError) {
+                        await client.from('payment_webhook_events').update({
+                            process_status: 'PROCESSING_FAILED',
+                            processing_error: fallbackError?.message || rpcError?.message || rpcResult?.message
+                        }).eq('provider', 'kpay').eq('provider_event_id', providerEventId);
+                        return res.status(500).send('Erreur traitement');
+                    }
+
+                    // Notify customer
+                    const { data: paidOrder } = await client.from('orders').select('*').eq('id', orderToFinalize.id).maybeSingle();
+                    if (paidOrder) {
+                        NotificationService.notifyCustomerReceipt(paidOrder).catch(console.error);
+                        NotificationService.notifyCustomerOTP(paidOrder).catch(console.error);
+                    }
+                } else {
+                    await client.from('payment_webhook_events').update({
+                        process_status: 'PROCESSING_FAILED',
+                        processing_error: `Order not found for txId: ${ourTxId}`
+                    }).eq('provider', 'kpay').eq('provider_event_id', providerEventId);
+                    return res.status(400).send('Commande introuvable');
+                }
+            } else {
+                // RPC succeeded — send notifications
+                const { data: paidOrder } = await client.from('orders').eq('transaction_id', String(ourTxId)).select('*').maybeSingle();
+                if (paidOrder) {
+                    NotificationService.notifyCustomerReceipt(paidOrder).catch(console.error);
+                    NotificationService.notifyCustomerOTP(paidOrder).catch(console.error);
+                }
             }
         }
 
