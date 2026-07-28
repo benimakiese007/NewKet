@@ -8,10 +8,10 @@ function buildManifest(settings = {}) {
   const name = settings.shop_name || settings.shopName || 'NewKet — Marketplace Moderne';
   const shortName = 'NewKet';
 
-  const icon192 = settings.pwa_icon_192_url || settings.pwaIcon192Url || '/icons/icon-192.png';
-  const icon512 = settings.pwa_icon_512_url || settings.pwaIcon512Url || '/icons/icon-512.png';
-  const icon192Mask = settings.pwa_icon_192_maskable_url || settings.pwaIcon192MaskableUrl || '/icons/icon-192-maskable.png';
-  const icon512Mask = settings.pwa_icon_512_maskable_url || settings.pwaIcon512MaskableUrl || '/icons/icon-512-maskable.png';
+  const icon192 = settings.pwa_icon_192_url || settings.pwaIcon192Url || '/icons/icon-192-v2.png';
+  const icon512 = settings.pwa_icon_512_url || settings.pwaIcon512Url || '/icons/icon-512-v2.png';
+  const icon192Mask = settings.pwa_icon_192_maskable_url || settings.pwaIcon192MaskableUrl || '/icons/icon-192-maskable-v2.png';
+  const icon512Mask = settings.pwa_icon_512_maskable_url || settings.pwaIcon512MaskableUrl || '/icons/icon-512-maskable-v2.png';
 
   return {
     name,
