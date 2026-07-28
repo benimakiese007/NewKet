@@ -243,6 +243,17 @@
                 const isDiscount = el.hasAttribute('data-discount');
                 el.textContent = (isDiscount && raw > 0 ? '-' : '') + formatAmount(raw);
             });
+            
+            // Metre à jour le bouton de paiement
+            if (window.currentCurrency) {
+                const payLabel = document.getElementById('btnPayCurrencyLabel');
+                if (payLabel) payLabel.textContent = window.currentCurrency;
+                
+                // Si la fonction switchCurrency existe, on met à jour la variable interne
+                if (typeof window.switchCurrency === 'function') {
+                    window.switchCurrency(window.currentCurrency, true);
+                }
+            }
         }
         window.addEventListener('currencyChanged', _achatRefreshPrices);
         // ────────────────────────────────────────────────────────────────────
