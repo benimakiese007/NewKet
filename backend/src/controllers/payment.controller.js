@@ -532,10 +532,9 @@ export const initiatePayment = async (req, res) => {
                     const kpayAmount = chosenCurrency === 'CDF' ? Math.round(clientTotal) : parseFloat(clientTotal.toFixed(2));
                     const kpayRes = await kpayService.createPayment(
                         kpayAmount,
-                        `${txId}_${Date.now()}`,                                // externalId
+                        txId,                                      // externalId = transaction_id en BDD
                         getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
-                        getCheckoutCancelUrl(req, orderId, txId),  // cancelUrl
-                        chosenCurrency                        // currency: 'CDF' ou 'USD'
+                        getCheckoutCancelUrl(req, orderId, txId)   // cancelUrl
                     );
                     paymentUrl = kpayRes.gatewayUrl;
                 } else if (p === 'stripe') {
@@ -679,7 +678,9 @@ export const kpayWebhook = async (req, res) => {
         const payload = req.body;
         // KPay payload: { "type": "payment.success", "data": { "externalId": "ORDER-...", "transactionId": "...", ... } }
         const eventType = payload?.type || payload?.status || 'unknown';
-        const ourTxId = payload?.data?.externalId || payload?.externalId || null;
+        // Strip defensive _timestamp suffix if it was added by an old version of the code
+        const rawExternalId = payload?.data?.externalId || payload?.externalId || null;
+        const ourTxId = rawExternalId ? rawExternalId.replace(/_\d{10,}$/, '') : null;
         const providerTxId = payload?.data?.transactionId || payload?.transactionId || null;
         const providerEventId = `${String(providerTxId || 'unknown')}:${String(eventType)}`;
 
