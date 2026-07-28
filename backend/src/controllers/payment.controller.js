@@ -310,12 +310,12 @@ export const initiatePayment = async (req, res) => {
                 return res.status(400).json({ error: `Paiement impossible depuis le statut ${existingOrder.status}.` });
             }
 
-            // Prevent multiple concurrent payments for the same order within a short window (5 minutes)
+            // Prevent multiple concurrent payments for the same order within a short window (10 seconds for testing)
             if (existingOrder.payment_status === 'INITIATED' && existingOrder.payment_locked_at) {
                 const lockedAt = new Date(existingOrder.payment_locked_at).getTime();
                 const now = new Date().getTime();
-                if (now - lockedAt < 5 * 60 * 1000) {
-                    return res.status(429).json({ error: "Une tentative de paiement est déjà en cours de création. Veuillez patienter quelques minutes." });
+                if (now - lockedAt < 10 * 1000) {
+                    return res.status(429).json({ error: "Une tentative de paiement est déjà en cours de création. Veuillez patienter quelques secondes." });
                 }
             }
 
