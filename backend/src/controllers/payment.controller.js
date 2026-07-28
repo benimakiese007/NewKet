@@ -514,30 +514,13 @@ export const initiatePayment = async (req, res) => {
         for (const p of providersToTry) {
             try {
                 if (p === 'kpay') {
-                    // KPay API n'accepte pas la devise et suppose toujours que c'est du CDF.
-                    // Si le client a choisi USD, on DOIT convertir clientTotal (qui est en USD) en CDF
-                    // pour que KPay charge le bon montant (ex: 840 000 CDF au lieu de 300 CDF).
-                    const kpayAmount = chosenCurrency === 'CDF' 
-                        ? Math.round(clientTotal) 
-                        : Math.round(clientTotal * conversionRate);
-                    
-                    // ─── Limite KPay : max 500 000 CDF par transaction ───
-                    const KPAY_MAX_CDF = 500_000;
-                    if (kpayAmount > KPAY_MAX_CDF) {
-                        const maxUSD = Math.floor(KPAY_MAX_CDF / conversionRate);
-                        return res.status(400).json({
-                            success: false,
-                            code: 'KPAY_AMOUNT_LIMIT_EXCEEDED',
-                            error: 'Montant trop élevé pour KPay',
-                            message: `Le montant de votre commande dépasse la limite de paiement Mobile Money (500 000 CDF ≈ ${maxUSD} USD). Veuillez contacter le vendeur pour diviser la commande ou utiliser un autre moyen de paiement.`,
-                            kpay_limit_cdf: KPAY_MAX_CDF,
-                            kpay_limit_usd: maxUSD,
-                            amount_cdf: kpayAmount
-                        });
-                    }
+                    // KPay Congo (DRC) supporte nativement le CDF et l'USD.
+                    // On envoie le montant dans la devise choisie par le client
+                    // et on passe la devise à kpayService.
                     
                     const kpayRes = await kpayService.createPayment(
-                        kpayAmount,
+                        clientTotal,                               // Le montant (USD ou CDF)
+                        chosenCurrency,                            // La devise (USD ou CDF)
                         txId,                                      // externalId = transaction_id en BDD
                         getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
                         getCheckoutCancelUrl(req, orderId, txId)   // cancelUrl
