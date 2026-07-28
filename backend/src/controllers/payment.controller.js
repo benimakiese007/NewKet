@@ -1046,3 +1046,100 @@ export const verifyInvoice = async (req, res) => {
         return res.status(500).json({ error: 'Erreur interne' });
     }
 };
+
+/**
+ * Vérification active KPay — interroge l'API KPay pour savoir si le paiement a été effectué.
+ * Sert de fallback quand KPay ne livre pas le webhook (typiquement en mode test).
+ * Appelé par le frontend sur la page payment-success si le statut n'évolue pas.
+ */
+export const kpayActiveVerify = async (req, res) => {
+    try {
+        const { transaction_id, order_id } = req.body;
+        if (!transaction_id) {
+            return res.status(400).json({ error: 'transaction_id manquant' });
+        }
+
+        const client = supabaseAdmin || supabase;
+
+        // 1. Récupérer la commande en base
+        const { data: order } = await client
+            .from('orders')
+            .select('id, status, payment_status, transaction_id, customer_id, user_id')
+            .eq('transaction_id', transaction_id)
+            .maybeSingle();
+
+        if (!order) {
+            return res.status(404).json({ error: 'Commande introuvable' });
+        }
+
+        // Vérification ownership
+        if (req.user?.id) {
+            const ownerId = order.customer_id || order.user_id;
+            if (ownerId && ownerId !== req.user.id) {
+                return res.status(403).json({ error: 'Accès refusé' });
+            }
+        }
+
+        // 2. Si déjà payée, retourner directement
+        const paidStatuses = new Set(['PAID', 'PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED']);
+        if (paidStatuses.has(order.status) || order.payment_status === 'PAID') {
+            return res.status(200).json({ ok: true, already_paid: true, order });
+        }
+
+        // 3. Interroger KPay pour vérifier le statut
+        const kpayPayment = await kpayService.getPaymentByExternalId(transaction_id);
+        console.log('[KPay ActiveVerify] KPay response for', transaction_id, ':', JSON.stringify(kpayPayment));
+
+        const kpayStatus = String(kpayPayment?.status || kpayPayment?.data?.status || '').toLowerCase();
+        const kpaySuccessStates = new Set(['completed', 'success', 'successful', 'payment.success', 'cashed', 'payment.cashed']);
+        const isKpayPaid = kpaySuccessStates.has(kpayStatus);
+
+        if (!isKpayPaid) {
+            return res.status(200).json({
+                ok: true,
+                already_paid: false,
+                kpay_status: kpayStatus || 'unknown',
+                message: 'KPay ne confirme pas encore le paiement'
+            });
+        }
+
+        // 4. KPay confirme le paiement → finaliser la commande
+        const nowIso = new Date().toISOString();
+        const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
+            p_transaction_id: transaction_id
+        });
+
+        if (rpcError || rpcResult?.success === false) {
+            console.warn('[KPay ActiveVerify] RPC failed, using finalizePaidOrder fallback:', rpcError?.message);
+            const { error: fallbackError } = await finalizePaidOrder(client, order.id, nowIso);
+            if (fallbackError) {
+                return res.status(500).json({ error: 'Erreur lors de la finalisation' });
+            }
+        }
+
+        // 5. Enregistrer l'événement dans payment_webhook_events
+        await client.from('payment_webhook_events').insert({
+            provider: 'kpay',
+            event_type: 'ACTIVE_VERIFY',
+            provider_event_id: `active_verify:${transaction_id}`,
+            tx_ref: transaction_id,
+            payload: kpayPayment || {},
+            signature_valid: true,
+            received_at: nowIso,
+            process_status: 'PROCESSED'
+        }).maybeSingle();
+
+        // 6. Notifications
+        const { data: paidOrder } = await client.from('orders').select('*').eq('id', order.id).maybeSingle();
+        if (paidOrder) {
+            NotificationService.notifyCustomerReceipt(paidOrder).catch(console.error);
+            NotificationService.notifyCustomerOTP(paidOrder).catch(console.error);
+        }
+
+        return res.status(200).json({ ok: true, finalized: true, order: paidOrder || order });
+    } catch (err) {
+        console.error('[KPay ActiveVerify Error]', err);
+        return res.status(500).json({ error: 'Erreur interne' });
+    }
+};
+

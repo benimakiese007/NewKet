@@ -56,6 +56,35 @@ class KPayService {
     }
   }
   /**
+   * Récupère le statut d'un paiement KPay par son externalId.
+   * Utile comme fallback quand KPay ne livre pas le webhook (mode test).
+   * @param {string} externalId - Le txId envoyé à KPay lors de l'initiation
+   * @returns {Promise<Object|null>} La transaction KPay ou null si non trouvée
+   */
+  async getPaymentByExternalId(externalId) {
+    try {
+      // Essai 1: GET /api/v1/payments?externalId=
+      const response = await this.client.get('/api/v1/payments', {
+        params: { externalId }
+      });
+      const data = response.data;
+      // Retourne le premier résultat correspondant
+      if (Array.isArray(data)) return data.find(p => p.externalId === externalId) || data[0] || null;
+      if (data?.externalId === externalId || data?.data) return data?.data || data;
+      return null;
+    } catch (err1) {
+      try {
+        // Essai 2: GET /api/v1/payments/{externalId}
+        const response2 = await this.client.get(`/api/v1/payments/${encodeURIComponent(externalId)}`);
+        return response2.data?.data || response2.data || null;
+      } catch (err2) {
+        console.warn('[KPay] getPaymentByExternalId failed:', err2?.response?.data || err2.message);
+        return null;
+      }
+    }
+  }
+
+  /**
    * Vérifie la signature cryptographique envoyée par K-PAY lors de la redirection de retour
    * @param {Object} query - L'objet req.query d'Express contenant status, reference, externalId, ts, sig
    * @returns {boolean} true si la signature est valide
