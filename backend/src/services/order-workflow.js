@@ -299,19 +299,6 @@ async function attemptVendorPayoutTransfer(vendor, payoutAmount, orderId, curren
         }
     }
 
-    // Stripe Connect payout
-    if (method.provider === 'stripe') {
-        try {
-            const { isStripeConfigured } = await import('./stripe.js');
-            if (!isStripeConfigured()) {
-                return { status: 'manual', message: 'Stripe non configuré. Payout manuel requis.' };
-            }
-            // TODO: Utiliser Stripe Connect Transfer quand les comptes Connect seront configurés
-            return { status: 'manual', message: 'Stripe Connect payout en attente de configuration.' };
-        } catch {
-            return { status: 'manual', message: 'Erreur lors du transfert Stripe.' };
-        }
-    }
 
     return { status: 'manual', message: 'Fournisseur de paiement non supporté pour le payout automatique.' };
 }

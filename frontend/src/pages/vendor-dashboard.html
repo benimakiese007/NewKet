@@ -4806,33 +4806,7 @@
                                                             </div>
                                                         </label>
 
-                                                        <!-- Visa -->
-                                                        <label class="cursor-pointer relative">
-                                                            <input type="radio" name="payoutProvider" value="VISA" class="peer sr-only">
-                                                            <div class="p-3 border-2 border-gray-100 rounded-xl hover:bg-gray-50 peer-checked:border-black peer-checked:bg-gray-50 transition-all text-center flex flex-col items-center justify-center gap-2 h-full">
-                                                                <div class="w-10 h-10 flex items-center justify-center">
-                                                                    <iconify-icon icon="logos:visa" width="40"></iconify-icon>
-                                                                </div>
-                                                                <span class="text-xs font-bold text-gray-900 leading-tight">Visa</span>
-                                                            </div>
-                                                            <div class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 text-black">
-                                                                <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
-                                                            </div>
-                                                        </label>
 
-                                                        <!-- Mastercard -->
-                                                        <label class="cursor-pointer relative">
-                                                            <input type="radio" name="payoutProvider" value="MASTERCARD" class="peer sr-only">
-                                                            <div class="p-3 border-2 border-gray-100 rounded-xl hover:bg-gray-50 peer-checked:border-black peer-checked:bg-gray-50 transition-all text-center flex flex-col items-center justify-center gap-2 h-full">
-                                                                <div class="w-10 h-10 flex items-center justify-center">
-                                                                    <iconify-icon icon="logos:mastercard" width="40"></iconify-icon>
-                                                                </div>
-                                                                <span class="text-xs font-bold text-gray-900 leading-tight">Mastercard</span>
-                                                            </div>
-                                                            <div class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 text-black">
-                                                                <iconify-icon icon="solar:check-circle-bold" width="16"></iconify-icon>
-                                                            </div>
-                                                        </label>
                                                     </div>
                                                 </div>
                                                 <div>
@@ -4890,9 +4864,7 @@
                             'MPESA': { text: 'Commence par 081, 082 ou 083', ph: 'Ex: 0810000000', label: 'Numéro de compte / Téléphone', max: 10 },
                             'AIRTEL': { text: 'Commence par 099 ou 097', ph: 'Ex: 0990000000', label: 'Numéro de compte / Téléphone', max: 10 },
                             'ORANGE': { text: 'Commence par 084, 085, 089 ou 080', ph: 'Ex: 0840000000', label: 'Numéro de compte / Téléphone', max: 10 },
-                            'AFRIMONEY': { text: 'Commence par 090', ph: 'Ex: 0900000000', label: 'Numéro de compte / Téléphone', max: 10 },
-                            'VISA': { text: 'Entrez les 16 chiffres de votre carte', ph: 'Ex: 4000123456789010', label: 'Numéro de carte', max: 16 },
-                            'MASTERCARD': { text: 'Entrez les 16 chiffres de votre carte', ph: 'Ex: 5100123456789010', label: 'Numéro de carte', max: 16 }
+                            'AFRIMONEY': { text: 'Commence par 090', ph: 'Ex: 0900000000', label: 'Numéro de compte / Téléphone', max: 10 }
                         };
                         radios.forEach(r => {
                             r.addEventListener('change', (e) => {
@@ -4950,15 +4922,7 @@
                         return;
                     }
 
-                    // Validate input depending on provider type
-                    if (provider === 'VISA' || provider === 'MASTERCARD') {
-                        if (accountId.length !== 16) {
-                            errorEl.textContent = "Le numéro de carte doit contenir exactement 16 chiffres.";
-                            errorEl.classList.remove('hidden');
-                            return;
-                        }
-                    } else {
-                        // Validate phone number prefix
+                    // Validate phone number prefix
                         if (!/^0\d{9}$/.test(accountId)) {
                             errorEl.textContent = "Le numéro de téléphone doit contenir exactement 10 chiffres (ex: 0810000000).";
                             errorEl.classList.remove('hidden');
@@ -4978,7 +4942,6 @@
                             errorEl.classList.remove('hidden');
                             return;
                         }
-                    }
 
                     errorEl.classList.add('hidden');
                     btn.disabled = true;
@@ -5054,8 +5017,6 @@
                             case 'AIRTEL': finalProvider = 'KPAY'; finalOperator = 'airtel'; break;
                             case 'ORANGE': finalProvider = 'KPAY'; finalOperator = 'orange'; break;
                             case 'AFRIMONEY': finalProvider = 'MOBILE_MONEY'; finalOperator = 'afrimoney'; break;
-                            case 'VISA': finalProvider = 'STRIPE'; finalOperator = 'visa'; break;
-                            case 'MASTERCARD': finalProvider = 'STRIPE'; finalOperator = 'mastercard'; break;
                         }
 
                         const response = await fetch('/api/vendor-payouts/add', {

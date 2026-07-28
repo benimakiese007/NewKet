@@ -7,7 +7,7 @@ const router = express.Router();
 // Route pour initialiser un paiement depuis le frontend - Protégée
 router.post('/initiate', requireAuth, paymentController.initiatePayment);
 
-// Webhook Stripe / FlexPaie / KPay
+// Webhook FlexPaie / KPay
 router.post('/notify', paymentController.paymentWebhook);
 
 // Vérification active KPay (fallback quand le webhook ne livre pas, ex: mode test)

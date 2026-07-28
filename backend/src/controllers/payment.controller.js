@@ -1,11 +1,6 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import crypto from 'crypto';
-import {
-    createStripeCheckoutSession,
-    getStripeConfig,
-    isStripeConfigured,
-    verifyStripeSignature
-} from '../services/stripe.js';
+
 import {
     createFlexpaiePaymentRequest,
     isFlexpaieConfigured,
@@ -208,16 +203,12 @@ function getActivePaymentProvider(req) {
     if (isFlexpaieConfigured()) {
         return 'flexpaie';
     }
-    // Stripe en fallback final
-    if (isStripeConfigured()) {
-        return 'stripe';
-    }
+
     return null;
 }
 
 function getCheckoutSuccessUrl(req, orderId, txId) {
-    const cfg = getStripeConfig();
-    const base = cfg.checkoutSuccessUrl || getRedirectUrl(req);
+    const base = getRedirectUrl(req);
     const url = new URL(base);
     url.searchParams.set('order_id', orderId);
     url.searchParams.set('transaction_id', txId);
@@ -225,8 +216,7 @@ function getCheckoutSuccessUrl(req, orderId, txId) {
 }
 
 function getCheckoutCancelUrl(req, orderId, txId) {
-    const cfg = getStripeConfig();
-    const base = cfg.checkoutCancelUrl || getRedirectUrl(req);
+    const base = getRedirectUrl(req);
     const url = new URL(base);
     url.searchParams.set('canceled', '1');
     url.searchParams.set('order_id', orderId);
@@ -507,14 +497,9 @@ export const initiatePayment = async (req, res) => {
         let successfulProvider = null;
 
         // Liste des fournisseurs configurés à essayer
-        const providersToTry = ['kpay', 'flexpaie', 'stripe'].filter(p => {
+        const providersToTry = ['kpay', 'flexpaie'].filter(p => {
              if (p === 'kpay') return isKpayConfigured();
              if (p === 'flexpaie') return isFlexpaieConfigured();
-             if (p === 'stripe') {
-                 // Ne jamais basculer sur Stripe si le client paie en CDF (car Stripe n'accepte pas le Mobile Money)
-                 if (chosenCurrency === 'CDF') return false;
-                 return isStripeConfigured();
-             }
              return false;
         });
 
@@ -543,22 +528,7 @@ export const initiatePayment = async (req, res) => {
                         getCheckoutCancelUrl(req, orderId, txId)   // cancelUrl
                     );
                     paymentUrl = kpayRes.gatewayUrl;
-                } else if (p === 'stripe') {
-                    const stripeSession = await createStripeCheckoutSession({
-                        'mode': 'payment',
-                        'success_url': getCheckoutSuccessUrl(req, orderId, txId),
-                        'cancel_url': getCheckoutCancelUrl(req, orderId, txId),
-                        'client_reference_id': txId,
-                        'metadata[transaction_id]': txId,
-                        'metadata[order_id]': orderId,
-                        'metadata[product_id]': String(product.id),
-                        'metadata[vendor_id]': String(order?.vendor_id || vendor_id || product.user_id || ''),
-                        'line_items[0][quantity]': '1',
-                        'line_items[0][price_data][currency]': 'usd',
-                        'line_items[0][price_data][unit_amount]': String(Math.round(finalAmountUSD * 100)),
-                        'line_items[0][price_data][product_data][name]': `NewKet Marketplace - ${product.name}`
-                    });
-                    paymentUrl = stripeSession.payment_url;
+
                 } else if (p === 'flexpaie') {
                     const paymentRequestPayload = {
                         amount: finalAmountUSD,
@@ -645,9 +615,7 @@ export const paymentWebhook = async (req, res) => {
     if (req.headers?.['x-kpay-signature']) {
         return kpayWebhook(req, res);
     }
-    if (req.headers?.['stripe-signature']) {
-        return stripeWebhook(req, res);
-    }
+
     if (req.headers?.['x-flexpaie-signature']) {
         return flexpaieWebhook(req, res);
     }
@@ -832,126 +800,7 @@ export const flexpaieWebhook = async (req, res) => {
     }
 };
 
-export const stripeWebhook = async (req, res) => {
-    try {
-        const signatureValid = verifyStripeSignature(req);
-        if (!signatureValid) {
-            return res.status(401).send('Unauthorized');
-        }
 
-        const payload = req.body || {};
-        const eventType = String(payload?.type || 'unknown');
-        const session = payload?.data?.object || {};
-        const ourTxId = session?.client_reference_id || session?.metadata?.transaction_id || null;
-        const providerTxId = session?.payment_intent || session?.id || null;
-        const providerEventId = `${String(providerTxId || 'unknown')}:${eventType}`;
-
-        if (!ourTxId) {
-            return res.status(400).send('transaction_id manquant');
-        }
-
-        const client = supabaseAdmin || supabase;
-        const nowIso = new Date().toISOString();
-
-        const { error: webhookInsertError } = await client
-            .from('payment_webhook_events')
-            .insert({
-                provider: 'stripe',
-                event_type: eventType,
-                provider_event_id: providerEventId,
-                tx_ref: String(ourTxId),
-                payload,
-                signature_valid: signatureValid,
-                received_at: nowIso,
-                process_status: 'RECEIVED'
-            });
-
-        if (webhookInsertError) {
-            if (String(webhookInsertError.code) === '23505') return res.status(200).send('OK');
-            return res.status(500).send('Erreur DB');
-        }
-
-        const { data: order, error: orderError } = await client
-            .from('orders')
-            .select('id, transaction_id')
-            .eq('transaction_id', String(ourTxId))
-            .maybeSingle();
-
-        if (orderError || !order) {
-            await client.from('payment_webhook_events')
-                .update({
-                    process_status: 'ORDER_NOT_FOUND',
-                    processing_error: orderError?.message || 'Order not found',
-                    processed_at: nowIso
-                })
-                .eq('provider', 'stripe')
-                .eq('provider_event_id', providerEventId);
-            return res.status(404).send('Commande introuvable');
-        }
-
-        if (providerTxId) {
-            await client.from('orders').update({
-                payment_provider: 'stripe',
-                payment_provider_tx_id: String(providerTxId),
-                updated_at: nowIso
-            }).eq('id', order.id);
-        }
-
-        if (eventType !== 'checkout.session.completed') {
-            await client.from('payment_webhook_events').update({
-                order_id: order.id,
-                processed_at: nowIso,
-                process_status: 'IGNORED',
-                processing_error: `Unhandled event: ${eventType}`
-            }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
-            return res.status(200).send('OK');
-        }
-
-        const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
-            p_transaction_id: String(ourTxId)
-        });
-
-        if (rpcError || rpcResult?.success === false) {
-            console.warn('[Stripe Webhook] process_order_payment failed, using direct order finalization fallback:', rpcError?.message || rpcResult?.message);
-
-            const { error: fallbackError } = await finalizePaidOrder(client, order.id, nowIso);
-            if (fallbackError) {
-                await client.from('payment_webhook_events').update({
-                    order_id: order.id,
-                    processed_at: nowIso,
-                    process_status: 'PROCESSING_FAILED',
-                    processing_error: rpcError?.message || rpcResult?.message || fallbackError.message || 'process_order_payment failed'
-                }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
-                return res.status(500).send('Erreur traitement paiement');
-            }
-        }
-
-        await client.from('payment_webhook_events').update({
-            order_id: order.id,
-            processed_at: nowIso,
-            process_status: 'PROCESSED',
-            processing_error: null
-        }).eq('provider', 'stripe').eq('provider_event_id', providerEventId);
-
-        const { data: paidOrderStripe } = await client
-            .from('orders')
-            .select('*')
-            .eq('id', order.id)
-            .maybeSingle();
-            
-        if (paidOrderStripe && paidOrderStripe.vendor_id) {
-             if (paidOrderStripe.customer_email) {
-                 NotificationService.notifyCustomerReceipt(paidOrderStripe);
-                 NotificationService.notifyCustomerOTP(paidOrderStripe).catch(console.error);
-             }
-        }
-
-        return res.status(200).send('OK');
-    } catch (error) {
-        console.error('stripeWebhook error:', error);
-        return res.status(500).send('Erreur interne');
-    }
-};
 
 export const getPaymentStatus = async (req, res) => {
     try {
