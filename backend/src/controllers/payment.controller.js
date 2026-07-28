@@ -532,7 +532,6 @@ export const initiatePayment = async (req, res) => {
                     const kpayAmount = chosenCurrency === 'CDF' ? Math.round(clientTotal) : parseFloat(clientTotal.toFixed(2));
                     const kpayRes = await kpayService.createPayment(
                         kpayAmount,
-                        chosenCurrency,                            // Devise (USD ou CDF)
                         txId,                                      // externalId = transaction_id en BDD
                         getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
                         getCheckoutCancelUrl(req, orderId, txId)   // cancelUrl
