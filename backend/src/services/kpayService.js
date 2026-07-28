@@ -49,7 +49,8 @@ class KPayService {
       // Gestion de l'enveloppe d'erreur K-PAY
       if (error.response && error.response.data) {
         console.error('Erreur K-PAY API:', error.response.data);
-        throw new Error(error.response.data.message || 'Erreur lors du paiement K-PAY');
+        const errorMsg = error.response.data.message || JSON.stringify(error.response.data);
+        throw new Error(`KPay: ${errorMsg}`);
       }
       throw error;
     }
