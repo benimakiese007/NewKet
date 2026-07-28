@@ -529,7 +529,13 @@ export const initiatePayment = async (req, res) => {
         for (const p of providersToTry) {
             try {
                 if (p === 'kpay') {
-                    const kpayAmount = chosenCurrency === 'CDF' ? Math.round(clientTotal) : parseFloat(clientTotal.toFixed(2));
+                    // KPay API n'accepte pas la devise et suppose toujours que c'est du CDF.
+                    // Si le client a choisi USD, on DOIT convertir clientTotal (qui est en USD) en CDF
+                    // pour que KPay charge le bon montant (ex: 840 000 CDF au lieu de 300 CDF).
+                    const kpayAmount = chosenCurrency === 'CDF' 
+                        ? Math.round(clientTotal) 
+                        : Math.round(clientTotal * conversionRate);
+                    
                     const kpayRes = await kpayService.createPayment(
                         kpayAmount,
                         txId,                                      // externalId = transaction_id en BDD
