@@ -532,7 +532,7 @@ export const initiatePayment = async (req, res) => {
                     const kpayAmount = chosenCurrency === 'CDF' ? Math.round(clientTotal) : parseFloat(clientTotal.toFixed(2));
                     const kpayRes = await kpayService.createPayment(
                         kpayAmount,
-                        txId,                                // externalId
+                        `${txId}_${Date.now()}`,                                // externalId
                         getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
                         getCheckoutCancelUrl(req, orderId, txId),  // cancelUrl
                         chosenCurrency                        // currency: 'CDF' ou 'USD'
@@ -628,10 +628,10 @@ export const initiatePayment = async (req, res) => {
             console.error('Failed to release payment lock:', unlockError);
         }
 
-        return res.status(500).json({
+        return res.status(400).json({
             success: false,
-            error: 'Impossible d\'initialiser le paiement',
-            message: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: error.message || 'Impossible d\'initialiser le paiement',
+            message: error.message
         });
     }
 };
