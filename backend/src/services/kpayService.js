@@ -35,7 +35,6 @@ class KPayService {
     try {
       const payload = {
         amount: amount,
-        currency: currency,
         externalId: externalId,
         returnUrl: returnUrl,
         cancelUrl: cancelUrl
