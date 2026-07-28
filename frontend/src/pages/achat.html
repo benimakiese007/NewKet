@@ -245,13 +245,14 @@
             });
             
             // Metre à jour le bouton de paiement
-            if (window.currentCurrency) {
+            const currentCurrency = window.CurrencyManager?.currentCurrency;
+            if (currentCurrency) {
                 const payLabel = document.getElementById('btnPayCurrencyLabel');
-                if (payLabel) payLabel.textContent = window.currentCurrency;
+                if (payLabel) payLabel.textContent = currentCurrency;
                 
                 // Si la fonction switchCurrency existe, on met à jour la variable interne
                 if (typeof window.switchCurrency === 'function') {
-                    window.switchCurrency(window.currentCurrency, true);
+                    window.switchCurrency(currentCurrency, true);
                 }
             }
         }
@@ -674,6 +675,11 @@
                     }
                 });
             };
+
+            // Initialize the currency state to match the global currency setting on page load
+            if (window.CurrencyManager?.currentCurrency) {
+                window.switchCurrency(window.CurrencyManager.currentCurrency);
+            }
 
             btn.addEventListener('click', async () => {
                 btn.disabled = true;

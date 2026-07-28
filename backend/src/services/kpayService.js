@@ -26,15 +26,17 @@ class KPayService {
   /**
    * Initialise un paiement en mode GATEWAY (Passerelle hébergée).
    * @param {number} amount - Le montant à payer
+   * @param {string} currency - La devise du paiement (ex: USD, CDF)
    * @param {string} externalId - L'ID de la commande dans NewKet (ex: ORDER-123)
    * @param {string} returnUrl - L'URL où K-PAY va rediriger le client après le paiement (succès ou échec)
    * @param {string} cancelUrl - L'URL où K-PAY va rediriger le client s'il annule
    * @returns {Promise<Object>} La réponse de K-PAY (contenant le gatewayUrl)
    */
-  async createPayment(amount, externalId, returnUrl, cancelUrl) {
+  async createPayment(amount, currency, externalId, returnUrl, cancelUrl) {
     try {
       const payload = {
         amount: amount,
+        currency: currency,
         externalId: externalId,
         returnUrl: returnUrl,
         cancelUrl: cancelUrl
