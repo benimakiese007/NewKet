@@ -126,7 +126,7 @@ const App = {
             const shouldBlockPublic = window.newketConfig?.maintenanceMode === true && !isAdmin;
             const currentPath = window.location.pathname;
             const isAdminPath = currentPath.includes('/admin/');
-            const isLoginPath = currentPath.includes('login.html');
+            const isLoginPath = currentPath.includes('/login');
 
             if (shouldBlockPublic && !isAdminPath && !isLoginPath) {
                 renderMaintenanceOverlay();
