@@ -77,7 +77,7 @@ const App = {
                         <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:8px 14px; border-radius:999px; background:rgba(255,255,255,0.07); color:#cbd5e1; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;">
                             Maintenance en cours
                         </div>
-                        <h1 id="newket-maintenance-title" style="font-size:clamp(2rem, 4vw, 2.8rem); font-weight:950; line-height:1.05; margin:0 0 14px;">Le site est en Maintenance</h1>
+                        <h1 id="newket-maintenance-title" style="font-size:clamp(2rem, 4vw, 2.8rem); font-weight:950; line-height:1.05; margin:0 0 14px; color:#ffffff;">Le site est en Maintenance</h1>
                         <p id="newket-maintenance-description" style="color:#cbd5e1; max-width:500px; margin:0 auto; line-height:1.75; font-size:15px;">
                             L&apos;acc&egrave;s public est temporairement suspendu. Les clients, vendeurs et invit&eacute;s ne peuvent pas naviguer ni effectuer d&apos;actions pendant cette p&eacute;riode.
                         </p>
@@ -85,7 +85,7 @@ const App = {
                             L&apos;&eacute;quipe admin garde l&apos;acc&egrave;s pour la supervision et le r&eacute;tablissement du service.
                         </p>
                         <div style="margin-top:30px; display:flex; justify-content:center;">
-                            <a href="login.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; text-decoration:none; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
+                            <a href="/src/pages/login.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; text-decoration:none; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
                                 Acc&egrave;s admin
                             </a>
                         </div>
@@ -114,7 +114,7 @@ const App = {
                             L’espace administrateur reste disponible pour la connexion et la supervision.
                         </p>
                         <div style="margin-top:28px; display:flex; justify-content:center;">
-                            <a href="login.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; text-decoration:none; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
+                            <a href="/src/pages/login.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; text-decoration:none; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
                                 Se connecter en admin
                             </a>
                         </div>
