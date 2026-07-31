@@ -1017,6 +1017,16 @@
             const normalizedEmail = email.toLowerCase().trim();
             const normalizedPassword = password.trim().toLowerCase();
 
+            if (window.newketConfig?.maintenanceMode === true) {
+                const adminEmails = window.newketConfig.adminEmails || [];
+                const isUserAdmin = adminEmails.map(e => e.toLowerCase()).includes(normalizedEmail);
+                if (!isUserAdmin) {
+                    showError("Le site est en maintenance. Seuls les administrateurs peuvent se connecter.");
+                    if (formSuccess) formSuccess.classList.add('hidden');
+                    return;
+                }
+            }
+
             // Form Validations
             if (!isRecovery && !email) {
                 showError("Veuillez remplir l'email.");
@@ -1239,6 +1249,14 @@
             if (icon) icon.classList.add('hidden');
             if (spinner) spinner.classList.remove('hidden');
 
+            if (window.newketConfig?.maintenanceMode === true) {
+                showError("L'accès rapide est désactivé pendant la maintenance. Veuillez utiliser votre email administrateur.");
+                if (btn) btn.disabled = false;
+                if (icon) icon.classList.remove('hidden');
+                if (spinner) spinner.classList.add('hidden');
+                return;
+            }
+
             try {
                 localStorage.removeItem('newketRole');
                 localStorage.removeItem('newketUserStatus');
@@ -1278,7 +1296,14 @@
             const spinner = document.getElementById('passkey-spinner');
             icon.style.display = 'none';
             spinner.classList.remove('hidden');
-            
+
+            if (window.newketConfig?.maintenanceMode === true) {
+                showError("L'accès rapide est désactivé pendant la maintenance. Veuillez utiliser votre email administrateur.");
+                icon.style.display = 'block';
+                spinner.classList.add('hidden');
+                return;
+            }
+
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPasskey();
                 if (error) throw error;
