@@ -92,11 +92,13 @@ const ConfigManager = {
     _startMaintenancePolling() {
         if (this._maintenancePollTimer || !window.SupabaseAdapter) return;
 
+        // 10 s au lieu de 60 s — impact réseau minimal (requête GET légère)
+        // pour garantir que la bascule maintenance est visible en < 15 s max.
         this._maintenancePollTimer = window.setInterval(() => {
             this._fetchRemoteSettings('poll').catch((err) => {
                 console.warn('[NewKet] Maintenance poll failed:', err?.message || err);
             });
-        }, 60_000);
+        }, 10_000);
     },
 
     _normalizeRemoteSettingsRow(row) {
@@ -363,10 +365,22 @@ const ConfigManager = {
     },
 
     async saveConfig(newConfig) {
+        const previousMaintenanceMode = !!this.config.maintenanceMode;
+
         this.config = { ...this.config, ...newConfig };
         this.config.socialLinks = this._getSocialLinks(this.config);
         this.saveLocal();
         let remoteError = null;
+
+        // Fix: Dispatcher maintenanceModeChanged localement de façon immédiate
+        // avant même la sauvegarde réseau, pour que l'overlay/UI réagisse
+        // sans attendre la confirmation serveur.
+        const nextMaintenanceMode = !!this.config.maintenanceMode;
+        if (previousMaintenanceMode !== nextMaintenanceMode) {
+            window.dispatchEvent(new CustomEvent('maintenanceModeChanged', {
+                detail: { maintenanceMode: nextMaintenanceMode, source: 'save-immediate' }
+            }));
+        }
 
         if (window.SupabaseAdapter) {
             try {
@@ -378,6 +392,13 @@ const ConfigManager = {
                     : { ...this.config, id: 'global-settings' };
 
                 if (window.ApiClient) {
+                    // Fix: Invalider le cache ApiClient pour /settings après une écriture
+                    // afin que le prochain poll récupère les données fraîches depuis le serveur.
+                    // La clé 'global-settings' correspond au cacheKey utilisé dans _fetchRemoteSettings.
+                    if (window.ApiClient._responseCache instanceof Map) {
+                        window.ApiClient._responseCache.delete('global-settings');
+                    }
+
                     await window.ApiClient.put('/settings', payload, {
                         suppressToast: true,
                         suppressErrorLogging: true
