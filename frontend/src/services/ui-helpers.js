@@ -2897,3 +2897,4 @@ export function clearInlineFeedback(buttonElement) {
 // Make them available globally
 window.showInlineFeedback = showInlineFeedback;
 window.clearInlineFeedback = clearInlineFeedback;
+

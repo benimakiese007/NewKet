@@ -89,44 +89,66 @@ export const saveSettings = async (req, res) => {
 
         const existingRow = existingRows?.[0] || null;
         const existingId = config.id || existingRow?.id || 'global-settings';
-        const usesCamelSchema = !existingRow || ('shopName' in existingRow) || ('socialLinks' in existingRow);
-        const socialLinks = getSocialLinks(config);
+        const payload = { id: existingId };
 
-        const payload = usesCamelSchema ? {
-            id: existingId,
-            shopName: config.shopName,
-            email: config.email,
-            supportPhone: config.supportPhone,
-            exchangeRate: config.exchangeRate,
-            currencySymbol: config.currencySymbol,
-            maintenanceMode: config.maintenanceMode,
-            adminEmails: Array.isArray(config.adminEmails) ? config.adminEmails : Array.isArray(config.admin_emails) ? config.admin_emails : undefined,
-            socialLinks,
-            shippingFee: config.shippingFee,
-            freeShippingThreshold: config.freeShippingThreshold,
-            sellerCommission: config.sellerCommission,
-            targetAOV: config.targetAOV,
-            primaryColor: config.primaryColor
-        } : {
-            id: existingId,
-            shop_name: config.shopName,
-            contact_email: config.email,
-            support_phone: config.supportPhone,
-            exchange_rate: config.exchangeRate,
-            currency_symbol: config.currencySymbol,
-            target_aov: config.targetAOV,
-            maintenance_mode: config.maintenanceMode,
-            admin_emails: Array.isArray(config.adminEmails) ? config.adminEmails : Array.isArray(config.admin_emails) ? config.admin_emails : undefined,
-            instagram_link: socialLinks.instagram,
-            facebook_link: socialLinks.facebook,
-            twitter_link: socialLinks.x,
-            linkedin_link: socialLinks.linkedin
+        const setIfColExists = (col, value) => {
+            if (!existingRow || col in existingRow) {
+                if (value !== undefined) {
+                    payload[col] = value;
+                }
+            }
         };
 
-        if (!usesCamelSchema) {
-            if (config.shippingFee !== undefined) payload.shipping_fee = config.shippingFee;
-            if (config.freeShippingThreshold !== undefined) payload.free_shipping_threshold = config.freeShippingThreshold;
-        }
+        const adminEmails = Array.isArray(config.adminEmails) ? config.adminEmails : Array.isArray(config.admin_emails) ? config.admin_emails : undefined;
+
+        setIfColExists('shopName', config.shopName);
+        setIfColExists('shop_name', config.shopName);
+        setIfColExists('email', config.email);
+        setIfColExists('contact_email', config.email);
+        setIfColExists('supportPhone', config.supportPhone);
+        setIfColExists('support_phone', config.supportPhone);
+        setIfColExists('exchangeRate', config.exchangeRate);
+        setIfColExists('exchange_rate', config.exchangeRate);
+        setIfColExists('currencySymbol', config.currencySymbol);
+        setIfColExists('currency_symbol', config.currencySymbol);
+        setIfColExists('maintenanceMode', config.maintenanceMode);
+        setIfColExists('maintenance_mode', config.maintenanceMode);
+        setIfColExists('adminEmails', adminEmails);
+        setIfColExists('admin_emails', adminEmails);
+        
+        setIfColExists('socialLinks', socialLinks);
+        setIfColExists('instagram_link', socialLinks.instagram);
+        setIfColExists('facebook_link', socialLinks.facebook);
+        setIfColExists('twitter_link', socialLinks.x);
+        setIfColExists('linkedin_link', socialLinks.linkedin);
+
+        setIfColExists('shippingFee', config.shippingFee);
+        setIfColExists('shipping_fee', config.shippingFee);
+        setIfColExists('freeShippingThreshold', config.freeShippingThreshold);
+        setIfColExists('free_shipping_threshold', config.freeShippingThreshold);
+        setIfColExists('sellerCommission', config.sellerCommission);
+        setIfColExists('seller_commission', config.sellerCommission);
+        setIfColExists('targetAOV', config.targetAOV);
+        setIfColExists('target_aov', config.targetAOV);
+        setIfColExists('platformCommissionRate', config.platformCommissionRate);
+        setIfColExists('platform_commission_rate', config.platformCommissionRate);
+
+        setIfColExists('primaryColor', config.primaryColor);
+        setIfColExists('secondaryColor', config.secondaryColor);
+        setIfColExists('themeColor', config.themeColor);
+        setIfColExists('headerBg', config.headerBg);
+        setIfColExists('headerFg', config.headerFg);
+        setIfColExists('footerBg', config.footerBg);
+        setIfColExists('footerFg', config.footerFg);
+        setIfColExists('logoUrl', config.headerLogoUrl);
+        setIfColExists('headerLogoUrl', config.headerLogoUrl);
+        setIfColExists('footerLogoUrl', config.footerLogoUrl);
+        setIfColExists('faviconUrl', config.faviconUrl);
+        setIfColExists('appleTouchIconUrl', config.appleTouchIconUrl);
+        setIfColExists('pwaIcon192Url', config.pwaIcon192Url);
+        setIfColExists('pwaIcon512Url', config.pwaIcon512Url);
+        setIfColExists('pwaIcon192MaskableUrl', config.pwaIcon192MaskableUrl);
+        setIfColExists('pwaIcon512MaskableUrl', config.pwaIcon512MaskableUrl);
 
         const { data, error } = await supabaseAdmin
             .from('settings')

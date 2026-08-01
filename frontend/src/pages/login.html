@@ -1116,7 +1116,7 @@
 
                     // AuthManager.handleSessionUpdate will handle the redirect via onAuthStateChange
                     // but we can also trigger it manually for speed if needed.
-                    if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
+                    // if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
                     return;
 
                 } else {
@@ -1307,7 +1307,7 @@
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPasskey();
                 if (error) throw error;
-                if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
+                // if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
             } catch (err) {
                 console.error('Passkey login error:', err);
                 let msg = err.message || "Erreur de connexion par clé d'accès.";

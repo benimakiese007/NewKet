@@ -335,7 +335,7 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                         <iconify-icon icon="solar:phone-calling-linear" width="18"></iconify-icon>
                         <span>+243990924254</span>
                     </a>
-                    <a href="mailto:benimakiese1234@gmail.com" class="flex items-center gap-2 hover:text-white transition-colors break-all">
+                    <a href="mailto:benimakiese1234@gmail.com" onclick="if(window.copyTextToClipboard) { window.copyTextToClipboard('benimakiese1234@gmail.com'); if(window.showToast) window.showToast('Adresse email copiée dans le presse-papiers', 'success'); }" class="flex items-center gap-2 hover:text-white transition-colors break-all" title="Cliquer pour envoyer un email (ou copier l'adresse)">
                         <iconify-icon icon="solar:letter-linear" width="18"></iconify-icon>
                         <span>benimakiese1234@gmail.com</span>
                     </a>
@@ -350,7 +350,8 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
             <div class="lg:col-span-2 space-y-4">
                 <h4 class="text-sm font-bold uppercase tracking-widest text-white/90">Services</h4>
                 <ul class="space-y-4">
-                    <li><a id="accountLinkFooter" href="{{ROOT}}{{ACCOUNT_PATH}}" class="text-gray-400 hover:text-white text-sm transition-colors">Mon Compte</a></li>
+                    <li><a href="{{ROOT}}src/pages/about.html" class="text-gray-400 hover:text-white text-sm transition-colors">À propos de nous</a></li>
+                    <li><a href="{{ROOT}}src/pages/seller.html" class="text-gray-400 hover:text-white text-sm transition-colors">Devenir Vendeur</a></li>
                     <li><a href="{{ROOT}}src/pages/support.html" class="text-gray-400 hover:text-white text-sm transition-colors">Support Technique</a></li>
                     <li><a href="{{ROOT}}src/pages/faq.html" class="text-gray-400 hover:text-white text-sm transition-colors">FAQ</a></li>
                     {{AUTH_ONLY_START}}<li><a href="{{ROOT}}src/pages/publish.html" class="text-gray-400 hover:text-white text-sm transition-colors publish-btn" data-track-action="navigation:publish_click">Vendre un article</a></li>{{AUTH_ONLY_END}}
@@ -366,9 +367,24 @@ const FOOTER_HTML = `<!-- NewKet Footer Component -->
                 </form>
             </div>
         </div>
-        <div class="pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-5">
+        <!-- Payment Methods -->
+        <div class="flex flex-col items-center gap-3 mb-8 pt-6 border-t border-white/5">
+            <span class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Paiements acceptés</span>
+            <div class="flex flex-wrap justify-center items-center gap-4">
+                <img src="{{ROOT}}Images/Orange-Money.png" alt="Orange Money" title="Orange Money" style="height:28px; width:auto; object-fit:contain;" loading="lazy">
+                <img src="{{ROOT}}Images/airtel-money.png" alt="Airtel Money" title="Airtel Money" style="height:28px; width:auto; object-fit:contain;" loading="lazy">
+                <img src="{{ROOT}}Images/m-pesa.png" alt="M-Pesa" title="M-Pesa" style="height:28px; width:auto; object-fit:contain;" loading="lazy">
+                <img src="{{ROOT}}Images/afri-money.png" alt="Afri Money" title="Afri Money" style="height:44px; width:auto; object-fit:contain;" loading="lazy">
+                <img src="{{ROOT}}Images/mastercard.svg" alt="Mastercard" title="Mastercard" style="height:28px; width:auto; object-fit:contain;" loading="lazy">
+                <img src="{{ROOT}}Images/visa.svg" alt="Visa" title="Visa" style="height:22px; width:auto; object-fit:contain;" loading="lazy">
+            </div>
+        </div>
+        <div class="flex flex-col md:flex-row justify-between items-center gap-5">
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">© 2026 NEWKET — Expérience Luxe</p>
-                           <a href="{{ROOT}}src/pages/mentions-legales.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Mentions légales</a>
+            <div class="flex flex-wrap justify-center items-center gap-4 sm:gap-6">
+                <a href="{{ROOT}}src/pages/mentions-legales.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Mentions légales</a>
+                <a href="{{ROOT}}src/pages/terms.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">CGV</a>
+                <a href="{{ROOT}}src/pages/privacy.html" class="text-gray-500 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">Confidentialité</a>
             </div>
         </div>
     </div>

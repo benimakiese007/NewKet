@@ -1211,19 +1211,18 @@ const AuthManager = {
                 const isDashboard = path.includes('vendor-dashboard');
                 const isPublish = path.includes('publish');
 
-                if (isDashboard || isPublish) {
+                if (isPublish) {
                     window.location.href = window.resolvePath('seller-onboarding');
                     return;
+                }
+                if (isDashboard) {
+                    this.showPendingNotice();
                 }
             } else if (isApproved && isOnboardingPage) {
                 // Redirect verified vendors away from onboarding to their dashboard
                 window.location.href = window.resolvePath('vendor-dashboard');
                 return;
             } else if (isSubmitted) {
-                if (isOnboardingPage) {
-                    window.location.href = window.resolvePath('vendor-dashboard');
-                    return;
-                }
                 // Form submitted, waiting for admin to review — show notice
                 this.showPendingNotice();
             } else if (this.status === 'rejected') {

@@ -239,15 +239,20 @@ const UI = {
 
                     if (!window.homeObserver) {
                         window.homeObserver = new IntersectionObserver((entries) => {
-                            if (entries[0].isIntersecting) {
+                            if (entries[0].isIntersecting && !window._isFetchingHome) {
                                 window.showMoreProducts();
                             }
-                        }, { rootMargin: '300px' });
+                        }, { rootMargin: '100px' });
                     }
                     window.homeObserver.observe(sentinel);
                 } else {
-                    // Make sure the spinner is visible again (it may have been hidden during fetch)
-                    sentinel.style.visibility = '';
+                    // Sentinel exists — make it visible again (fetch completed)
+                    sentinel.style.display = '';
+                    // Re-observe in case it was unobserved during fetch
+                    if (window.homeObserver && !sentinel._isObserved) {
+                        window.homeObserver.observe(sentinel);
+                        sentinel._isObserved = true;
+                    }
                 }
             } else {
                 // Nothing more to load — destroy sentinel definitively
@@ -304,9 +309,13 @@ window.showMoreProducts = async function () {
 
     window._isFetchingHome = true;
 
-    // Hide spinner while we work (avoid appearing stuck if fetch is slow)
+    // Disconnect observer and hide sentinel while fetching to prevent re-triggering
     const sentinel = document.getElementById('homeLoadMoreSentinel');
-    if (sentinel) sentinel.style.visibility = 'hidden';
+    if (sentinel) {
+        sentinel.style.display = 'none';
+        sentinel._isObserved = false;
+        if (window.homeObserver) window.homeObserver.unobserve(sentinel);
+    }
 
     try {
         const batchSize = ProductManager.getBatchSize?.() || 8;
@@ -374,6 +383,23 @@ window.showMoreProducts = async function () {
         }
     } finally {
         window._isFetchingHome = false;
+        // If sentinel still exists and is hidden, re-show it via renderFilteredBatch
+        // (renderFilteredBatch will re-observe it correctly)
+        const s = document.getElementById('homeLoadMoreSentinel');
+        if (s && s.style.display === 'none') {
+            // Only re-show if ProductManager still has more pages
+            if (window.ProductManager && ProductManager.hasMore()) {
+                s.style.display = '';
+                if (window.homeObserver && !s._isObserved) {
+                    window.homeObserver.observe(s);
+                    s._isObserved = true;
+                }
+            } else {
+                // No more data — destroy sentinel
+                if (window.homeObserver) window.homeObserver.unobserve(s);
+                s.remove();
+            }
+        }
     }
 };
 

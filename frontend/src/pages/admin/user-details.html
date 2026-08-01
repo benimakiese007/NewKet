@@ -861,6 +861,28 @@
             } else {
                 window.addEventListener('newketInitialized', loadUserDetails, { once: true });
             }
+
+            // Supabase Realtime for User Details
+            if (window.supabaseClient) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const email = urlParams.get('email');
+                if (email) {
+                    window.supabaseClient
+                        .channel('admin-user-details-channel')
+                        .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, (payload) => {
+                            if (payload.new && payload.new.email === email) {
+                                console.log('[Realtime] User Details update detected:', payload);
+                                if (window.UserManager && typeof window.UserManager.init === 'function') {
+                                    window.UserManager.init().then(() => {
+                                        userDetailsBootStarted = false; // Reset to allow reload
+                                        loadUserDetails();
+                                    });
+                                }
+                            }
+                        })
+                        .subscribe();
+                }
+            }
         }
 
         if (document.readyState === 'loading') {

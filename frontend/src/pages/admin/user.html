@@ -645,7 +645,7 @@
                         <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
                             <td class="p-4 cursor-pointer" onclick="openUserDetails('${u.email}')">
                                 <div class="flex items-center gap-4 min-w-0">
-                                    <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 shrink-0 ${hasNoLogo ? 'branding-alert' : ''}">
+                                    <div class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 shrink-0 ${hasNoLogo ? 'branding-alert' : ''}">
                                         ${avatarUrl
                                             ? `<img src="${avatarUrl}" class="w-full h-full object-cover" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; const s=this.parentElement.querySelector('span'); if(s){s.style.display='flex';}">`
                                             : ''
@@ -718,6 +718,22 @@
         function initializeUsers() {
             if (usersBootStarted) return;
             usersBootStarted = true;
+
+            // Supabase Realtime for Users
+            if (window.supabaseClient) {
+                window.supabaseClient
+                    .channel('admin-users-channel')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, (payload) => {
+                        console.log('[Realtime] User update detected:', payload);
+                        if (window.UserManager && typeof UserManager.init === 'function') {
+                            UserManager.init().then(() => {
+                                _statsCache = null;
+                                renderUsers();
+                            }).catch(err => console.error(err));
+                        }
+                    })
+                    .subscribe();
+            }
 
             // Always listen for future updates
             window.addEventListener('usersUpdated', () => { _statsCache = null; renderUsers(); });
