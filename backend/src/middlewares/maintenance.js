@@ -27,9 +27,32 @@ async function readMaintenanceFlag() {
   return { value: false, error: camel.error };
 }
 
+/**
+ * Vérifie si la requête est exemptée du mode maintenance.
+ * Sont exemptés : 
+ * - les requêtes d'authentification pour permettre à l'admin de se connecter
+ * - les requêtes de l'API auth
+ * - les requêtes PWA et webhooks
+ * - l'API settings (pour permettre à l'admin de réactiver le site)
+ */
 function isMaintenanceExemptRequest(req) {
   const method = String(req.method || '').toUpperCase();
   const path = String(req.path || req.originalUrl || '');
+
+  const exemptPaths = [
+      '/api/auth',
+      '/auth',
+      '/api/settings', // ← AJOUT : Permet au PUT settings de passer pour désactiver la maintenance
+      '/api/webhooks',
+      '/manifest.json',
+      '/service-worker.js',
+      '/.well-known',
+      '/images',
+      '/icons'
+  ];
+  if (exemptPaths.some(p => path.startsWith(p))) {
+    return true;
+  }
 
   if (method === 'OPTIONS') {
     return true;
@@ -39,9 +62,6 @@ function isMaintenanceExemptRequest(req) {
     return true;
   }
 
-  if (method === 'GET' && path === '/api/settings') {
-    return true;
-  }
 
   if (method === 'GET' && path === '/api/manifest') {
     return true;

@@ -338,21 +338,25 @@
 
         document.getElementById('maintenanceMode').addEventListener('change', async (e) => {
             if (window.ConfigManager) {
-                const config = ConfigManager.getConfig();
-                const previousMaintenanceMode = !!config.maintenanceMode;
-                config.maintenanceMode = e.target.checked;
+                const newValue = e.target.checked;
+                // Passer une copie, pas la référence directe,
+                // pour éviter que la mutation affect ConfigManager.config
+                // avant que le save soit confirmé.
+                const configSnapshot = { ...ConfigManager.getConfig(), maintenanceMode: newValue };
                 try {
-                    await ConfigManager.saveConfig(config);
+                    await ConfigManager.saveConfig(configSnapshot);
 
                     if (typeof showToast === 'function') {
-                        showToast(e.target.checked ? "Mode Maintenance Activé : Accès public désactivé" : "Mode Maintenance Désactivé : Accès public rétabli", "success");
+                        showToast(newValue ? "Mode Maintenance Activé : Accès public désactivé" : "Mode Maintenance Désactivé : Accès public rétabli", "success");
                     }
                 } catch (error) {
-                    console.error('[NewKet] Maintenance mode save failed:', error);
-                    config.maintenanceMode = previousMaintenanceMode;
-                    e.target.checked = previousMaintenanceMode;
+                    console.error('[NewKet] Maintenance mode save failed:', error?.message || error?.status || error);
+                    // Revenir à l'état précédent dans le config ET dans la DB locale
+                    const previousValue = !newValue;
+                    e.target.checked = previousValue;
+                    await ConfigManager.saveConfig({ ...ConfigManager.getConfig(), maintenanceMode: previousValue }).catch(() => {});
                     if (typeof showToast === 'function') {
-                        showToast("Impossible de sauvegarder le mode maintenance.", "error");
+                        showToast("Impossible de sauvegarder le mode maintenance. Vérifiez votre connexion.", "error");
                     }
                 }
             }
