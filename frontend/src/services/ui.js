@@ -236,7 +236,7 @@ const UI = {
                     sentinel.className = 'w-full flex justify-center py-8 mt-4';
                     sentinel.innerHTML = `<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 border-t-transparent"></div>`;
                     voirPlus.parentNode.insertBefore(sentinel, voirPlus);
-                    
+
                     if (!window.homeObserver) {
                         window.homeObserver = new IntersectionObserver((entries) => {
                             if (entries[0].isIntersecting) {
@@ -245,8 +245,12 @@ const UI = {
                         }, { rootMargin: '300px' });
                     }
                     window.homeObserver.observe(sentinel);
+                } else {
+                    // Make sure the spinner is visible again (it may have been hidden during fetch)
+                    sentinel.style.visibility = '';
                 }
             } else {
+                // Nothing more to load — destroy sentinel definitively
                 if (sentinel) {
                     if (window.homeObserver) window.homeObserver.unobserve(sentinel);
                     sentinel.remove();
@@ -300,6 +304,10 @@ window.showMoreProducts = async function () {
 
     window._isFetchingHome = true;
 
+    // Hide spinner while we work (avoid appearing stuck if fetch is slow)
+    const sentinel = document.getElementById('homeLoadMoreSentinel');
+    if (sentinel) sentinel.style.visibility = 'hidden';
+
     try {
         const batchSize = ProductManager.getBatchSize?.() || 8;
 
@@ -334,13 +342,36 @@ window.showMoreProducts = async function () {
                 });
             }
             const freshNotRendered = freshFiltered.filter(p => !renderedIds.has(String(p.id)));
-            UI.renderFilteredBatch(freshNotRendered, grid, batchSize, true);
+
+            // If still nothing after a network fetch → no more data, remove sentinel
+            if (freshNotRendered.length === 0 && !ProductManager.hasMore()) {
+                const s = document.getElementById('homeLoadMoreSentinel');
+                if (s) {
+                    if (window.homeObserver) window.homeObserver.unobserve(s);
+                    s.remove();
+                }
+            } else {
+                UI.renderFilteredBatch(freshNotRendered, grid, batchSize, true);
+            }
+        } else if (notYetRendered.length === 0 && !ProductManager.hasMore()) {
+            // Nothing local, nothing remote → destroy sentinel
+            const s = document.getElementById('homeLoadMoreSentinel');
+            if (s) {
+                if (window.homeObserver) window.homeObserver.unobserve(s);
+                s.remove();
+            }
         } else {
             UI.renderFilteredBatch(notYetRendered, grid, batchSize, true);
         }
     } catch (err) {
         console.error("Error loading more products:", err);
         if (window.showToast) showToast('Erreur lors du chargement', 'error');
+        // On error, remove sentinel to avoid stuck spinner
+        const s = document.getElementById('homeLoadMoreSentinel');
+        if (s) {
+            if (window.homeObserver) window.homeObserver.unobserve(s);
+            s.remove();
+        }
     } finally {
         window._isFetchingHome = false;
     }
