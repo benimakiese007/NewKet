@@ -159,6 +159,8 @@
                     <iconify-icon icon="solar:arrow-right-linear" width="24"></iconify-icon>
                 </button>
             </div>
+            </div>
+            <!-- END STEP 1 CONTAINER -->
 
             <!-- STEP 2 CONTAINER -->
             <div id="step2Container" class="hidden space-y-8">
@@ -276,8 +278,8 @@
                 <button type="button" id="backToStep1" class="w-1/3 bg-white border border-gray-200 py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest text-gray-900 hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
                     <iconify-icon icon="solar:arrow-left-linear" width="20"></iconify-icon> Précédent
                 </button>
-                <button type="submit" data-track-action="seller_onboarding:submit_click" id="submitBtn"
-                    class="w-2/3 hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                <button type="submit" data-track-action="seller_onboarding:submit_click" id="submitBtn" disabled
+                    class="w-2/3 hero-gradient text-white py-5 rounded-2xl font-black text-lg shadow-xl transition-all flex items-center justify-center gap-3 opacity-50 cursor-not-allowed">
                     Soumettre le dossier
                     <iconify-icon icon="solar:check-circle-linear" width="24"></iconify-icon>
                 </button>
@@ -678,6 +680,10 @@
                 } else {
                     if (window.ToastManager) {
                         window.ToastManager.error('Veuillez remplir tous les champs de l\'étape 1.', 'Erreur');
+                    } else if (window.showToast) {
+                        window.showToast('Veuillez remplir tous les champs de l\'étape 1.', 'error');
+                    } else {
+                        alert('Veuillez remplir tous les champs obligatoires (en rouge) avant de continuer.');
                     }
                 }
             });
@@ -702,6 +708,23 @@
                 });
             }
         });
+
+        // Terms and conditions checkbox logic
+        const termsCheckbox = document.getElementById('termsCheckboxSeller');
+        const submitBtnRef = document.getElementById('submitBtn');
+        if (termsCheckbox && submitBtnRef) {
+            termsCheckbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    submitBtnRef.removeAttribute('disabled');
+                    submitBtnRef.classList.remove('opacity-50', 'cursor-not-allowed');
+                    submitBtnRef.classList.add('hover:scale-[1.02]', 'active:scale-[0.98]');
+                } else {
+                    submitBtnRef.setAttribute('disabled', 'disabled');
+                    submitBtnRef.classList.add('opacity-50', 'cursor-not-allowed');
+                    submitBtnRef.classList.remove('hover:scale-[1.02]', 'active:scale-[0.98]');
+                }
+            });
+        }
         /* END WIZARD LOGIC */
     </script>
 </body>
