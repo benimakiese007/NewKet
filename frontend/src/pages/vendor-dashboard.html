@@ -1534,9 +1534,10 @@
 
                 function syncVendorTabFromHash() {
                     const hash = window.location.hash.replace('#', '');
+                    const baseTab = hash.split('?')[0];
                     const validTabs = ['dashboard', 'analytics', 'products', 'leads', 'purchases', 'promos', 'payouts', 'settings'];
-                    if (hash && validTabs.includes(hash)) {
-                        switchVendorTab(hash);
+                    if (baseTab && validTabs.includes(baseTab)) {
+                        switchVendorTab(baseTab);
                     } else {
                         switchVendorTab('dashboard');
                     }
@@ -3826,100 +3827,557 @@
                     ) && !['COMPLETED', 'RELEASED'].includes(s);
                 }
 
-                function renderVendorPurchases(filter) {
-                    const purchasesList = document.getElementById('vendor-purchases-list');
-                    if (!purchasesList) return;
+                // ===== Achat tab (same dashboard layout, no full page reload) =====
+        (function() {
+            let achatRenderToken = 0;
 
-                    if (filter) _vendorPurchasesActiveFilter = filter;
+            function safeText(v) {
+                if (v === null || v === undefined) return '';
+                return String(v);
+            }
 
-                    if (isVendorOrdersDataPending()) {
-                        if (typeof window.buildSkeletonPanelListHTML === 'function') purchasesList.innerHTML = window.buildSkeletonPanelListHTML(3, { lines: 2, cardClass: 'glass-panel p-4' });
-                        return;
-                    }
+            function parseHash() {
+                try {
+                    const raw = decodeURIComponent((window.location.hash || '').replace(/^#/, '').trim());
+                    const match = raw.match(/^([^?&]+)(?:[?&](.*))?$/);
+                    if (!match) return { tab: '', params: new URLSearchParams() };
+                    const tab = (match[1] || '').trim();
+                    const qs = (match[2] || '').trim();
+                    return { tab, params: new URLSearchParams(qs) };
+                } catch (e) {
+                    return { tab: '', params: new URLSearchParams() };
+                }
+            }
 
-                    if (!window.OrderManager || typeof OrderManager.getCustomerStats !== 'function' || !window.CurrencyManager || typeof CurrencyManager.formatPrice !== 'function') {
-                        purchasesList.innerHTML = `
-                            <div class="glass-panel p-12 text-center text-gray-500">
-                                <iconify-icon icon="solar:shield-warning-linear" width="48" class="mb-4 text-gray-300"></iconify-icon>
-                                <p>Donn&eacute;es indisponibles</p>
-                            </div>
-                        `;
-                        return;
-                    }
+            async function waitForAppReady() {
+                if (window.newketInitialized) return;
+                if (!isVendorOrdersDataPending()) return;
+                await new Promise((resolve) => {
+                    const timer = setTimeout(resolve, 4000);
+                    window.addEventListener('newketInitialized', () => { clearTimeout(timer); resolve(); }, { once: true });
+                    window.addEventListener('ordersUpdated', () => { clearTimeout(timer); resolve(); }, { once: true });
+                });
+            }
 
+            function getCustomerOrders() {
+                try {
                     const email = localStorage.getItem('newketUserEmail');
                     const userId = localStorage.getItem('newketUserId');
+                    const all = (window.OrderManager ? OrderManager.getOrders() : []) || [];
+                    if (!email && !userId) return [];
+                    return all.filter(o =>
+                        o && (
+                            (email && o.customer_email === email) ||
+                            (userId && (o.user_id === userId || o.customer_id === userId))
+                        )
+                    );
+                } catch (e) {
+                    return [];
+                }
+            }
 
-                    const stats = OrderManager.getCustomerStats(email, userId);
-                    let myPurchases = (Array.isArray(stats.orders) ? stats.orders : []).slice().sort((a, b) => {
-                        const ta = new Date(a?.timestamp || a?.date || a?.created_at || 0).getTime();
-                        const tb = new Date(b?.timestamp || b?.date || b?.created_at || 0).getTime();
-                        return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0);
-                    });
+            function formatAmount(amount) {
+                if (window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function') {
+                    return CurrencyManager.formatPrice(Number(amount || 0));
+                }
+                return `${amount || 0}`;
+            }
 
-                    // Apply active filter
-                    if (_vendorPurchasesActiveFilter === 'paid') {
-                        myPurchases = myPurchases.filter(o => _vendorIsPurchasePaidOnly(o));
-                    } else if (_vendorPurchasesActiveFilter === 'completed') {
-                        myPurchases = myPurchases.filter(o => _vendorIsPurchaseCompleted(o));
+            function setAchatHash(orderId) {
+                if (!orderId) {
+                    window.location.hash = 'purchases';
+                    return;
+                }
+                window.location.hash = `purchases?order_id=${encodeURIComponent(orderId)}`;
+            }
+
+            window.goToAchatOrder = function(orderId) {
+                setAchatHash(orderId);
+                if (typeof window.switchVendorTab === 'function') window.switchVendorTab('purchases');
+            };
+
+            function renderEmpty(container) {
+                container.innerHTML = `
+                    <div class="glass-panel p-12 text-center text-gray-500">
+                        <iconify-icon icon="solar:shop-2-bold" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                        <p class="font-bold text-gray-900">Aucun achat prêt pour paiement</p>
+                        <p class="mt-2 text-sm">Retournez dans "Mes demandes et devis" pour suivre vos demandes.</p>
+                        <div class="mt-6">
+                            <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors" onclick="window.switchTab && window.switchVendorTab('leads')">Aller aux demandes</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function buildAchatOrderCard(order) {
+                const orderId = safeText(order?.id);
+                const dateLabel = order?.date ? new Date(order.date).toLocaleDateString() : '';
+                const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : safeText(order?.status);
+                const total = formatAmount(order?.total ?? order?.final_total_amount ?? 0);
+                const firstImg = order?.items?.[0]?.image || order?.product_image || '';
+                const img = safeText(firstImg).split(',')[0];
+                const productName = order?.items?.[0]?.name || order?.product_name || 'Produit';
+
+                return `
+                    <div class="glass-panel p-6 hover:border-black transition-all">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div class="flex items-center gap-4 min-w-0 flex-1">
+                                <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                    <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${orderId}</div>
+                                    <div class="mt-1 font-black text-gray-900 truncate">${safeText(productName)}</div>
+                                    <div class="mt-1 text-sm text-gray-500 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                        <span>${safeText(dateLabel)}</span>
+                                        <span class="text-gray-300">|</span>
+                                        <span class="font-semibold text-gray-700">${safeText(statusLabel)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between sm:flex-col sm:items-end sm:justify-start gap-3 sm:gap-2">
+                                <div class="text-lg sm:text-xl font-black tracking-tight text-gray-900 whitespace-nowrap">${total}</div>
+                                <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors w-full sm:w-auto flex items-center justify-center gap-2"
+                                    onclick="window.goToAchatOrder('${orderId}')">
+                                    <iconify-icon icon="solar:arrow-right-bold" width="18"></iconify-icon>
+                                    Continuer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            async function renderAchatList(container) {
+                container.innerHTML = '';
+                const orders = getCustomerOrders();
+                const ready = orders.filter(o => o && o.status === 'READY_FOR_PAYMENT');
+
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-900 flex items-start gap-3">
+                        <iconify-icon icon="solar:info-circle-bold" width="22"></iconify-icon>
+                        <div>
+                            <div class="font-black">Sélectionnez une demande</div>
+                            <div class="mt-1 text-indigo-800">Vous serez redirigé vers le paiement sécurisé après confirmation.</div>
+                        </div>
+                    </div>
+                `);
+
+                if (ready.length === 0) {
+                    renderEmpty(container);
+                    return;
+                }
+                ready.forEach(o => container.insertAdjacentHTML('beforeend', buildAchatOrderCard(o)));
+            }
+
+            function buildAchatDetail(order) {
+                const orderId = safeText(order?.id);
+                const firstImg = order?.items?.[0]?.image || order?.product_image || '';
+                const img = safeText(firstImg).split(',')[0];
+                const productName = order?.items?.[0]?.name || order?.product_name || 'Produit';
+                const qty = order?.items?.[0]?.quantity || 1;
+
+                const subtotal = Number(order?.subtotal_amount ?? order?.merchandise_amount ?? order?.total ?? 0);
+                const delivery = Number(order?.delivery_fee_amount ?? 0);
+                const discount = Number(order?.promo_discount_amount ?? 0);
+                const total = Math.max(0, Number(order?.final_total_amount ?? (subtotal + delivery - discount)));
+
+                const promoCode = safeText(order?.promo_code || '').trim().toUpperCase();
+
+                const paymentState = String(order?.payment_status || '').toUpperCase();
+                const isPaid = ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED'].includes(paymentState) || ['PAID_HELD', 'IN_DELIVERY', 'DELIVERED', 'COMPLETED', 'DISPUTE_OPEN', 'RELEASED'].includes(order?.status);
+
+                return `
+                    <div class="glass-panel p-6 sm:p-8">
+                        <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
+                            <div>
+                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Demande #${orderId}</div>
+                                <div class="mt-2 flex items-center gap-4">
+                                    <div class="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                        <img src="${img ? (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(img) : img) : window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')}" alt="" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="font-black text-gray-900 truncate">${safeText(productName)}</div>
+                                        <div class="text-sm text-gray-500 mt-1">Quantité: <span class="font-bold text-gray-700">${qty}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 rounded-2xl bg-gray-50 border border-gray-100 text-xs font-black tracking-widest uppercase hover:bg-gray-100 transition-colors"
+                                    onclick="window.location.hash='purchases'; window.renderVendorPurchases && window.renderVendorPurchases();">
+                                    Retour
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                <div class="text-xs font-black uppercase tracking-widest text-gray-400">Sous-total</div>
+                                <div id="achatDashSubtotal" class="mt-2 text-lg font-black text-gray-900">${formatAmount(subtotal)}</div>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                <div class="text-xs font-black uppercase tracking-widest text-gray-400">Livraison</div>
+                                <div id="achatDashDelivery" class="mt-2 text-lg font-black text-gray-900">${formatAmount(delivery)}</div>
+                            </div>
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                <div class="text-xs font-black uppercase tracking-widest text-gray-400">Remise</div>
+                                <div id="achatDashDiscount" class="mt-2 text-lg font-black text-gray-900">${formatAmount(discount)}</div>
+                            </div>
+                            <div class="bg-black text-white rounded-2xl p-4">
+                                <div class="text-xs font-black uppercase tracking-widest text-white/60">Total</div>
+                                <div id="achatDashTotal" class="mt-2 text-xl font-black">${formatAmount(total)}</div>
+                            </div>
+                        </div>
+
+                        ${isPaid ? '' : `
+                        <div class="mt-6">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Code promo</div>
+                            <div class="flex gap-2">
+                                <input id="achatDashPromoInput" type="text" value="${promoCode}" placeholder="Ex: MAMAN10" class="flex-1 min-w-0 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 text-sm font-semibold outline-none focus:border-black uppercase">
+                                <button id="achatDashApplyPromo" class="px-4 py-3 rounded-2xl bg-white border border-gray-100 text-xs font-black tracking-widest uppercase hover:border-black transition-colors">Appliquer</button>
+                            </div>
+                            <button id="achatDashRemovePromo" class="mt-2 text-xs font-bold text-gray-500 hover:text-black ${promoCode ? '' : 'hidden'}">Retirer le code promo</button>
+                            <div id="achatDashPromoSuccess" class="mt-2 text-xs text-emerald-700 font-semibold ${promoCode ? '' : 'hidden'}">${promoCode ? `Code appliqué: ${promoCode}` : ''}</div>
+                            <div id="achatDashPromoError" class="mt-2 text-xs text-red-600 font-semibold hidden"></div>
+                        </div>
+                        `}
+
+                        ${isPaid ? `
+                        <div class="mt-6">
+                            <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-emerald-900 flex items-center justify-center gap-3">
+                                <iconify-icon icon="solar:shield-check-bold" width="24"></iconify-icon>
+                                <span class="font-black tracking-tight text-sm uppercase">Paiement sécurisé effectué</span>
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="mt-6 space-y-3">
+                            <button id="achatDashPayNow" class="w-full px-5 py-4 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon>
+                                Payer maintenant
+                            </button>
+                        </div>
+                        `}
+                    </div>
+                `;
+            }
+
+            function bindAchatDetailActions(order) {
+                const orderId = safeText(order?.id);
+                const promoInput = document.getElementById('achatDashPromoInput');
+                const promoApplyBtn = document.getElementById('achatDashApplyPromo');
+                const promoRemoveBtn = document.getElementById('achatDashRemovePromo');
+                const promoError = document.getElementById('achatDashPromoError');
+                const promoSuccess = document.getElementById('achatDashPromoSuccess');
+                const btnPay = document.getElementById('achatDashPayNow');
+
+                const subtotalEl = document.getElementById('achatDashSubtotal');
+                const deliveryEl = document.getElementById('achatDashDelivery');
+                const discountEl = document.getElementById('achatDashDiscount');
+                const totalEl = document.getElementById('achatDashTotal');
+
+                const clearPromoFeedback = () => {
+                    promoError?.classList.add('hidden');
+                    promoSuccess?.classList.add('hidden');
+                    if (promoError) promoError.textContent = '';
+                };
+
+                const syncAmounts = (pricing, promo) => {
+                    const subtotalAmount = Number(pricing?.subtotal_amount ?? order?.subtotal_amount ?? order?.merchandise_amount ?? 0);
+                    const deliveryAmount = Number(order?.delivery_fee_amount ?? pricing?.delivery_fee_amount ?? 0);
+                    const discountAmount = Number(pricing?.promo_discount_amount ?? order?.promo_discount_amount ?? 0);
+                    const totalAmount = Math.max(0, Number(pricing?.total_amount ?? order?.final_total_amount ?? (subtotalAmount + deliveryAmount - discountAmount)));
+
+                    if (subtotalEl) subtotalEl.textContent = formatAmount(subtotalAmount);
+                    if (deliveryEl) deliveryEl.textContent = formatAmount(deliveryAmount);
+                    if (discountEl) discountEl.textContent = formatAmount(discountAmount);
+                    if (totalEl) totalEl.textContent = formatAmount(totalAmount);
+
+                    order.subtotal_amount = subtotalAmount;
+                    order.promo_id = promo?.id || null;
+                    order.promo_code = promo?.code || null;
+                    order.promo_discount_amount = discountAmount;
+                    order.final_total_amount = totalAmount;
+
+                    const code = safeText(promo?.code || '').trim().toUpperCase();
+                    if (promoSuccess) {
+                        promoSuccess.textContent = code ? `Code appliqué: ${code}` : '';
+                        promoSuccess.classList.toggle('hidden', !code);
+                    }
+                    if (promoRemoveBtn) promoRemoveBtn.classList.toggle('hidden', !code);
+                };
+
+                promoApplyBtn?.addEventListener('click', async () => {
+                    clearPromoFeedback();
+                    const promoCode = safeText(promoInput?.value).trim().toUpperCase();
+                    if (!promoCode) {
+                        if (promoError) {
+                            promoError.textContent = 'Saisissez un code promo.';
+                            promoError.classList.remove('hidden');
+                        }
+                        return;
                     }
 
-                    // Update filter button styles
-                    document.querySelectorAll('#tab-purchases .purchases-filter-btn').forEach(btn => {
-                        const f = btn.getAttribute('data-filter');
-                        if (f === _vendorPurchasesActiveFilter) {
+                    promoApplyBtn.disabled = true;
+                    promoApplyBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon>';
+                    try {
+                        const data = await window.ApiClient.post('/promos/validate', { order_id: orderId, promo_code: promoCode });
+                        syncAmounts(data?.pricing, data?.promo);
+                        if (promoInput) promoInput.value = promoCode;
+                    } catch (e) {
+                        if (promoError) {
+                            promoError.textContent = safeText(e?.data?.error || e?.message || 'Impossible de valider ce code promo.');
+                            promoError.classList.remove('hidden');
+                        }
+                    } finally {
+                        promoApplyBtn.disabled = false;
+                        promoApplyBtn.innerHTML = 'Appliquer';
+                    }
+                });
+
+                promoRemoveBtn?.addEventListener('click', () => {
+                    clearPromoFeedback();
+                    if (promoInput) promoInput.value = '';
+                    syncAmounts({
+                        subtotal_amount: order?.subtotal_amount ?? order?.merchandise_amount ?? 0,
+                        promo_discount_amount: 0,
+                        total_amount: (Number(order?.subtotal_amount ?? order?.merchandise_amount ?? 0) + Number(order?.delivery_fee_amount ?? 0))
+                    }, null);
+                });
+
+                btnPay?.addEventListener('click', async () => {
+                    if (!btnPay) return;
+                    btnPay.disabled = true;
+                    if (window.clearInlineFeedback) window.clearInlineFeedback(btnPay);
+                    
+                    btnPay.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Ouverture...';
+
+                    // FIX #3: Timeout 15s
+                    const PAYMENT_TIMEOUT_MS = 15000;
+                    let timeoutId;
+                    const timeoutPromise = new Promise((_, reject) => {
+                        timeoutId = setTimeout(() => reject(new Error('La connexion prend trop de temps. Vérifiez votre connexion et réessayez.')), PAYMENT_TIMEOUT_MS);
+                    });
+
+                    let isRedirecting = false;
+                    try {
+                        const data = await Promise.race([
+                            OrderManager.initiatePayment(orderId, {
+                                promo_code: safeText(promoInput?.value).trim().toUpperCase() || null
+                            }),
+                            timeoutPromise
+                        ]);
+                        clearTimeout(timeoutId);
+                        if (data?.payment_url) {
+                            if (data.pricing_breakdown && data.pricing_breakdown.payin_fee > 0) {
+                                isRedirecting = false;
+                                
+                                const modalId = 'payment-confirm-modal-' + Date.now();
+                                const currency = data.pricing_breakdown.currency || 'CDF';
+                                const modalHtml = `
+                                    <div id="${modalId}" class="nk-modal-overlay fixed inset-0 flex items-center justify-center p-4 sm:p-6 opacity-100 transition-opacity duration-300" style="z-index:20000;">
+                                        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="document.getElementById('${modalId}').remove()"></div>
+                                        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative z-10 transform transition-transform duration-300 scale-100 flex flex-col max-h-full">
+                                            <div class="px-5 py-4 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white/90 backdrop-blur z-20">
+                                                <h3 class="text-base sm:text-lg font-black text-gray-900 flex items-center gap-2">
+                                                    <iconify-icon icon="solar:wallet-bold" class="text-indigo-600" width="22"></iconify-icon>
+                                                    Détail du paiement
+                                                </h3>
+                                                <button onclick="document.getElementById('${modalId}').remove()" class="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all">
+                                                    <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
+                                                </button>
+                                            </div>
+                                            <div class="p-5 overflow-y-auto">
+                                                <div class="text-left space-y-3">
+                                                    <div class="flex justify-between border-b border-gray-100 pb-3">
+                                                        <span class="text-gray-500 font-medium">Montant commande</span>
+                                                        <span class="font-bold text-gray-900">${(data.pricing_breakdown.total_merchandise + data.pricing_breakdown.delivery_fee).toLocaleString('fr-FR')} ${currency}</span>
+                                                    </div>
+                                                    <div class="flex justify-between border-b border-gray-100 pb-3">
+                                                        <span class="text-gray-500 font-medium flex items-center gap-1">
+                                                            Frais d'opérateur
+                                                            <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">KPay</span>
+                                                        </span>
+                                                        <span class="font-bold text-orange-600">+ ${Number(data.pricing_breakdown.payin_fee).toLocaleString('fr-FR')} ${currency}</span>
+                                                    </div>
+                                                    <div class="flex justify-between pt-2 items-center">
+                                                        <span class="text-gray-900 font-bold">Total à payer</span>
+                                                        <span class="text-2xl font-black text-indigo-600">${Number(data.pricing_breakdown.total_to_pay).toLocaleString('fr-FR')} ${currency}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="px-5 py-4 border-t border-gray-50 bg-gray-50 flex gap-3 flex-shrink-0">
+                                                <button onclick="document.getElementById('${modalId}').remove()" class="flex-1 px-4 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-50 transition-colors shadow-sm">
+                                                    Annuler
+                                                </button>
+                                                <button onclick="window.location.href = '${data.payment_url}'" class="flex-1 px-4 py-3 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center gap-2">
+                                                    <iconify-icon icon="solar:card-bold" width="18"></iconify-icon>
+                                                    Payer
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                            } else {
+                                isRedirecting = true;
+                                window.location.href = data.payment_url;
+                            }
+                            return;
+                        }
+                        
+                        if (window.showInlineFeedback) {
+                            window.showInlineFeedback(btnPay, safeText(data?.error || 'Lien de paiement non reçu'), 'error');
+                        }
+                    } catch (e) {
+                        clearTimeout(timeoutId);
+                        // FIX #4: Extract the server error message properly
+                        const serverMsg = e?.data?.error || e?.data?.message || e?.message || "Erreur lors de l'ouverture du paiement";
+                        if (window.showInlineFeedback) {
+                            window.showInlineFeedback(btnPay, safeText(serverMsg), 'error');
+                        }
+                    } finally {
+                        if (!isRedirecting) {
+                            btnPay.disabled = false;
+                            btnPay.innerHTML = '<iconify-icon icon="solar:card-send-bold" width="20"></iconify-icon> Payer maintenant';
+                        }
+                    }
+                });
+            }
+
+            async function renderAchatFromHash(container) {
+                const token = ++achatRenderToken;
+                await waitForAppReady();
+                if (token !== achatRenderToken) return;
+
+                const { tab, params } = parseHash();
+                if (tab !== 'achat') return;
+
+                const orderId = safeText(params.get('order_id'));
+                if (!orderId) {
+                    await renderAchatList(container);
+                    return;
+                }
+
+                const order = getCustomerOrders().find(o => safeText(o?.id) === orderId) || (window.OrderManager ? OrderManager.getOrderById?.(orderId) : null);
+                if (!order) {
+                    container.innerHTML = `
+                        <div class="glass-panel p-12 text-center text-gray-500">
+                            <iconify-icon icon="solar:danger-triangle-bold" width="48" class="mb-4 text-gray-300"></iconify-icon>
+                            <p class="font-bold text-gray-900">Commande introuvable</p>
+                            <p class="mt-2 text-sm">Retournez à la liste et réessayez.</p>
+                            <div class="mt-6">
+                                <button class="px-5 py-3 rounded-2xl bg-black text-white text-xs font-black tracking-widest uppercase hover:bg-gray-900 transition-colors" onclick="window.location.hash='purchases'; window.renderVendorPurchases && window.renderVendorPurchases();">Retour à la liste</button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = buildAchatDetail(order);
+                bindAchatDetailActions(order);
+            }
+
+            // --- Purchases filter state ---
+            let _purchasesActiveFilter = 'all';
+
+            function isPurchaseCompleted(o) {
+                const s = String(o?.status || '').toUpperCase();
+                return ['COMPLETED', 'RELEASED'].includes(s);
+            }
+            function isPurchasePaidOnly(o) {
+                const s = String(o?.status || '').toUpperCase();
+                const ps = String(o?.payment_status || '').toUpperCase();
+                // Paid but NOT yet completed/released
+                return (
+                    ['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED'].includes(ps) ||
+                    ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'PROCESSING'].includes(s)
+                ) && !['COMPLETED', 'RELEASED'].includes(s);
+            }
+            function isPurchaseDisputed(o) {
+                const s = String(o?.status || '').toUpperCase();
+                return ['DISPUTE_OPEN', 'DISPUTED', 'FROZEN'].includes(s);
+            }
+            function getPurchaseStatusBadge(o) {
+                if (isPurchaseCompleted(o)) {
+                    return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-emerald-100 text-emerald-700"><iconify-icon icon="solar:check-circle-bold" width="11" style="vertical-align:-1px;margin-right:2px"></iconify-icon>Terminé</span>';
+                }
+                return '<span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-green-100 text-green-700"><iconify-icon icon="solar:wallet-bold" width="11" style="vertical-align:-1px;margin-right:2px"></iconify-icon>Payé</span>';
+            }
+
+            window.renderVendorPurchases = async function(filter) {
+                const container = document.getElementById('vendor-purchases-list');
+                if (!container) return;
+
+                if (filter) _purchasesActiveFilter = filter;
+
+                await waitForAppReady();
+
+                const email = localStorage.getItem('newketUserEmail');
+                const userId = localStorage.getItem('newketUserId');
+                
+                if (!window.OrderManager || typeof OrderManager.getCustomerStats !== 'function') {
+                    renderEmptyPurchases(container);
+                    return;
+                }
+
+                const stats = OrderManager.getCustomerStats(email, userId);
+                let myPurchases = (Array.isArray(stats.orders) ? stats.orders : []).filter(o => 
+                    o.payment_status === 'PAID' || o.payment_status === 'SUCCESS' || o.status === 'COMPLETED' || o.status === 'DELIVERED'
+                    || o.status === 'RELEASED' || o.status === 'PAID_HELD' || o.status === 'IN_DELIVERY' || o.status === 'SHIPPED'
+                ).sort((a, b) => {
+                    const ta = new Date(a?.timestamp || a?.date || a?.created_at || 0).getTime();
+                    const tb = new Date(b?.timestamp || b?.date || b?.created_at || 0).getTime();
+                    return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0);
+                });
+
+                // Apply active filter
+                if (_purchasesActiveFilter === 'paid') {
+                    myPurchases = myPurchases.filter(o => isPurchasePaidOnly(o));
+                } else if (_purchasesActiveFilter === 'completed') {
+                    myPurchases = myPurchases.filter(o => isPurchaseCompleted(o));
+                } else if (_purchasesActiveFilter === 'disputed') {
+                    myPurchases = myPurchases.filter(o => isPurchaseDisputed(o));
+                }
+
+                // Update filter button styles
+                document.querySelectorAll('.purchases-filter-btn').forEach(btn => {
+                    const f = btn.getAttribute('data-filter');
+                    if (f === _purchasesActiveFilter) {
+                        if (f === 'disputed') {
+                            btn.classList.add('bg-red-600', 'text-white', 'shadow-lg');
+                            btn.classList.remove('bg-red-50', 'text-red-600', 'hover:bg-red-100');
+                        } else {
                             btn.classList.add('bg-black', 'text-white', 'shadow-lg');
                             btn.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+                        }
+                    } else {
+                        if (f === 'disputed') {
+                            btn.classList.remove('bg-red-600', 'text-white', 'shadow-lg');
+                            btn.classList.add('bg-red-50', 'text-red-600', 'hover:bg-red-100');
                         } else {
                             btn.classList.remove('bg-black', 'text-white', 'shadow-lg');
                             btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
                         }
-                    });
-
-                    if (document.getElementById('vendorPurchasesTotal')) {
-                        document.getElementById('vendorPurchasesTotal').textContent = CurrencyManager.formatPrice(stats.totalSpent || 0);
                     }
+                });
 
-                    // Bind filter buttons (once)
-                    if (!window.__vendorPurchasesFilterBound) {
-                        window.__vendorPurchasesFilterBound = true;
-                        document.addEventListener('click', function(e) {
-                            const btn = e.target.closest('#tab-purchases .purchases-filter-btn');
-                            if (!btn) return;
-                            const f = btn.getAttribute('data-filter');
-                            if (f && f !== _vendorPurchasesActiveFilter) {
-                                renderVendorPurchases(f);
-                            }
-                        });
-                    }
+                if (document.getElementById('vendorPurchasesTotal')) {
+                    document.getElementById('vendorPurchasesTotal').textContent = window.CurrencyManager ? CurrencyManager.formatPrice(stats.totalSpent || 0) : ((stats.totalSpent || 0) + ' FC');
+                }
 
-                    const filterLabel = _vendorPurchasesActiveFilter === 'paid' ? 'payé' : _vendorPurchasesActiveFilter === 'completed' ? 'terminé' : '';
-
-                    if (myPurchases.length === 0) {
-                        const emptyTitle = filterLabel ? `Aucune commande ${filterLabel}e` : 'Aucun achat pour le moment';
-                        const emptyDesc = filterLabel
-                            ? `Il n'y a pas encore de commande avec le statut "${filterLabel}".`
-                            : 'Vos coups de cœur NewKet apparaîtront ici dès votre première commande.';
-                        purchasesList.innerHTML = `
-                            <div class="flex flex-col items-center justify-center py-20 px-4 text-center animate-in fade-in zoom-in-95 duration-700">
-                                <div class="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 text-gray-200 shadow-inner">
-                                    <iconify-icon icon="solar:bag-heart-bold-duotone" width="48"></iconify-icon>
-                                </div>
-                                <h4 class="font-black text-gray-900 mb-2">${emptyTitle}</h4>
-                                <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">${emptyDesc}</p>
-                                <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
-                                    Découvrir la collection
-                                </a>
-                            </div>
-                        `;
-                    } else {
-                        purchasesList.innerHTML = myPurchases.map((o, index) => `
-                            <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700" style="animation-delay: ${index * 100}ms">
+                if (myPurchases.length === 0) {
+                    renderEmptyPurchases(container, _purchasesActiveFilter);
+                } else {
+                    container.innerHTML = myPurchases.map((o, index) => {
+                        const img = window.getOptimizedImageUrl ? window.getOptimizedImageUrl(o.product_image) : (o.product_image || '');
+                        const fallbackImg = window.resolvePath ? window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg') : 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
+                        const statusBadge = getPurchaseStatusBadge(o);
+                        return `
+                            <div class="group relative overflow-hidden bg-white border border-gray-100 p-5 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 animate-in fade-in slide-in-from-bottom-4 duration-700 cursor-pointer" style="animation-delay: ${index * 100}ms" onclick="openOrderModal('${o.id}')">
                                 <div class="flex items-center gap-5">
                                     <div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center overflow-hidden shrink-0 border border-gray-100 transition-colors">
-                                        <img src="${window.getOptimizedImageUrl ? window.getOptimizedImageUrl(o.product_image) : (o.product_image || '')}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(o.product_image, [120, 180, 240], { quality: 75 })}" sizes="56px"` : ''} 
-                                             class="w-full h-full object-contain p-2"
-                                             onerror="this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg'">
+                                        <img src="${img}" class="w-full h-full object-contain p-2" onerror="this.src='${fallbackImg}'">
                                     </div>
                                     <div>
                                         <h4 class="font-black text-gray-900 group-hover:translate-x-1 transition-transform duration-300">
@@ -3927,35 +4385,64 @@
                                         </h4>
                                         <div class="flex items-center gap-3 mt-1.5">
                                             <span class="text-[9px] font-black uppercase tracking-tighter text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-100">
-                                                ${new Date(o.date || o.timestamp).toLocaleDateString()}
+                                                ${new Date(o.date || o.timestamp || o.created_at).toLocaleDateString()}
                                             </span>
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter ${getPaymentStatusStyle(o.payment_status)}">
-                                                ${o.payment_status || 'N/A'}
-                                            </span>
+                                            ${statusBadge}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-6 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-gray-50">
                                     <div class="flex flex-col items-start sm:items-end flex-1 sm:flex-none">
-                                        <p class="font-black text-lg text-gray-900 leading-none mb-1">${CurrencyManager.formatPrice(o.total)}</p>
+                                        <p class="font-black text-lg text-gray-900 leading-none mb-1">${window.CurrencyManager ? CurrencyManager.formatPrice(o.total) : (o.total + ' FC')}</p>
                                         <p class="text-[9px] text-gray-400 font-black uppercase tracking-widest">
-                                            By: <span class="text-gray-600">${o.supplier_name || o.supplier_email || 'NewKet Boutique'}</span>
+                                            Vendeur: <span class="text-gray-600">${o.supplier_name || o.supplier_email || 'NewKet Boutique'}</span>
                                         </p>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <span class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-sm ${getStatusColor(o.status)}">
-                                            ${window.OrderManager ? OrderManager.getStatusLabel(o.status) : o.status}
-                                        </span>
-                                        <button onclick="openOrderDetailModal('${o.id}')" 
-                                            class="w-12 h-12 rounded-2xl bg-gray-900 text-white flex items-center justify-center hover:bg-black transition-all shadow-lg shadow-gray-200 active:scale-95 group/btn">
-                                            <iconify-icon icon="solar:maximize-square-minimalistic-bold" width="20" class="group-hover/btn:scale-110 transition-transform"></iconify-icon>
-                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        `).join('');
-                    }
+                        `;
+                    }).join('');
                 }
+
+                // Bind filter buttons (once)
+                if (!window.__purchasesFilterBound) {
+                    window.__purchasesFilterBound = true;
+                    document.addEventListener('click', function(e) {
+                        const btn = e.target.closest('.purchases-filter-btn');
+                        if (!btn) return;
+                        const f = btn.getAttribute('data-filter');
+                        if (f && f !== _purchasesActiveFilter) {
+                            _purchasesActiveFilter = f;
+                            window.renderVendorPurchases(f);
+                        }
+                    });
+                }
+            };
+
+            function renderEmptyPurchases(container, filter) {
+                const filterMsg = filter === 'paid' ? 'payé' : filter === 'completed' ? 'terminé' : filter === 'disputed' ? 'en litige' : '';
+                const emptyTitle = filterMsg
+                    ? `Aucune commande ${filterMsg}${filter !== 'disputed' ? 'e' : ''}`
+                    : 'Aucun achat conclu pour le moment';
+                const emptyDesc = filterMsg
+                    ? filter === 'disputed' 
+                        ? `Vous n'avez aucun litige en cours. C'est une excellente nouvelle !` 
+                        : `Il n'y a pas encore de commande avec le statut "${filterMsg}".`
+                    : 'Vos achats apparaîtront ici. Pourquoi ne pas vous faire plaisir en explorant nos offres ?';
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 px-4 text-center animate-in fade-in zoom-in-95 duration-700">
+                        <div class="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-6 text-gray-200 shadow-inner">
+                            <iconify-icon icon="solar:bag-heart-bold-duotone" width="48"></iconify-icon>
+                        </div>
+                        <h4 class="font-black text-gray-900 mb-2">${emptyTitle}</h4>
+                        <p class="text-xs text-gray-400 max-w-[240px] leading-relaxed mb-8">${emptyDesc}</p>
+                        <a href="${typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html'}" class="px-8 py-3 bg-black text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-gray-200">
+                            Découvrir le catalogue
+                        </a>
+                    </div>
+                `;
+            }
+        })();
 
                 // Order Detail Modal Functions
                 function renderVendorLeads() {
@@ -4262,9 +4749,9 @@
                                     </div>
                                 </div>
                                 <!-- Bottom: Stepper + Action -->
-                                <div class="px-5 pb-4 pt-2 border-t border-gray-50 flex items-center gap-4">
-                                    <div class="flex items-center gap-0 flex-1">${stepperHTML}</div>
-                                    <div class="shrink-0 flex items-center gap-2">
+                                <div class="px-5 pb-4 pt-2 border-t border-gray-50 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                                    <div class="flex items-center gap-0 w-full sm:flex-1">${stepperHTML}</div>
+                                    <div class="shrink-0 flex items-center gap-2 self-end sm:self-auto">
                                         ${vendorTurnBadge}
                                         ${quickActionHTML}
                                     </div>
@@ -6375,7 +6862,1442 @@ window.addEventListener('profileUpdated', () => {
     if (typeof _loadExistingCover === 'function') _loadExistingCover();
     if (typeof loadVendorPasskeys === 'function') loadVendorPasskeys();
 });
+
+
+function openOrderModal(id) {
+            const order = OrderManager.getOrders().find(o => o.id === id);
+            if (!order) return;
+            currentSelectedOrder = order;
+            if (releaseCountdownTimer) {
+                clearInterval(releaseCountdownTimer);
+                releaseCountdownTimer = null;
+            }
+
+            document.getElementById('modalOrderIdText').textContent = 'Commande #' + order.id;
+            document.getElementById('modalOrderDateText').textContent = new Date(order.date).toLocaleDateString('fr-FR', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            const statusEl = document.getElementById('modalOrderStatus');
+            statusEl.textContent = window.OrderManager ? OrderManager.getStatusLabel(order.status) : order.status;
+            statusEl.className = `px-3 py-1 rounded-full text-xs font-bold inline-block ${getStatusColor(order.status)}`;
+
+            const payStatusEl = document.getElementById('modalPaymentStatus');
+            const transIdEl = document.getElementById('modalTransactionId');
+            const contactMethodEl = document.getElementById('modalContactMethod');
+
+            if (payStatusEl) {
+                const pStatus = order.payment_status || 'N/A';
+                payStatusEl.textContent = pStatus;
+                payStatusEl.className = `px-3 py-1 rounded-full text-xs font-bold inline-block ${getPaymentStatusColor(pStatus)}`;
+            }
+            if (transIdEl) {
+                transIdEl.textContent = order.transaction_id ? `Ref: ${order.transaction_id}` : '';
+                transIdEl.classList.add('break-all', 'whitespace-normal');
+            }
+            if (contactMethodEl) {
+                const paymentState = String(order.payment_status || '').toUpperCase();
+                if (['PAID', 'SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED'].includes(paymentState) || order.status === 'PAID_HELD') {
+                    contactMethodEl.textContent = 'Paiement confirmé';
+                } else if (order.payment_status && order.payment_status !== 'N/A') {
+                    contactMethodEl.textContent = 'Netikash Online';
+                } else {
+                    contactMethodEl.textContent = 'Paiement en cours';
+                }
+            }
+
+            const itemsList = document.getElementById('modalOrderItems');
+            const amounts = getOrderAmounts(order);
+            itemsList.innerHTML = order.items.map(item => `
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gray-50 rounded-xl border border-gray-100 p-2 flex-shrink-0">
+                        <img src="${window.resolveProductImageSource ? window.resolveProductImageSource(item) : window.getOptimizedImageUrl(item.image)}"${window.buildResponsiveImageSrcSet ? ` srcset="${window.buildResponsiveImageSrcSet(window.resolveProductImageSource ? window.resolveProductImageSource(item) : item.image, [48, 72, 96], { quality: 70 })}" sizes="56px"` : ''} loading="lazy" class="w-full h-full object-contain" alt="${item.name || 'Article'}" onerror="this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg')">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-sm sm:text-base truncate">${item.name}</div>
+                        <div class="text-xs text-gray-500">Quantité: ${item.quantity} é ${CurrencyManager.formatPrice(item.price)}</div>
+                    </div>
+                    <div class="text-sm font-bold text-right">${CurrencyManager.formatPrice(item.price * item.quantity)}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('modalOrderSubtotal').textContent = CurrencyManager.formatPrice(amounts.subtotal);
+            document.getElementById('modalOrderDelivery').textContent = amounts.deliveryFee > 0
+                ? CurrencyManager.formatPrice(amounts.deliveryFee)
+                : 'Gratuit';
+            
+            const discountRow = document.getElementById('modalOrderDiscountRow');
+            const promoCodeRow = document.getElementById('modalOrderPromoCodeRow');
+            const promoCodeValue = document.getElementById('modalOrderPromoCode');
+            const modalInvoiceLogo = document.getElementById('modalInvoiceLogo');
+            if (modalInvoiceLogo) modalInvoiceLogo.src = getNewketLogoUrl();
+            const promoCode = String(order?.promo_code || '').trim().toUpperCase();
+            if (amounts.discount > 0) {
+                if (discountRow) discountRow.classList.remove('hidden');
+                document.getElementById('modalOrderDiscount').textContent = "-" + CurrencyManager.formatPrice(amounts.discount);
+            } else {
+                if (discountRow) discountRow.classList.add('hidden');
+            }
+            if (promoCodeRow && promoCodeValue) {
+                const hasPromoCode = Boolean(promoCode);
+                promoCodeRow.classList.toggle('hidden', !hasPromoCode);
+                promoCodeValue.textContent = promoCode;
+            }
+
+            document.getElementById('modalOrderTotal').textContent = CurrencyManager.formatPrice(amounts.total);
+
+            const timelineEl = document.getElementById('modalOrderTimeline');
+            if (timelineEl) {
+                timelineEl.innerHTML = buildCustomerOrderTimelineHTML(order);
+            }
+
+            // Escrow Logic UI
+            const escrowSection = document.getElementById('modalEscrowSection');
+            const otpSection = document.getElementById('otpDisplaySection');
+            const otpHintEl = document.getElementById('otpHint');
+            const quoteSummarySection = document.getElementById('quoteSummarySection');
+            const btnValidate = document.getElementById('btnValidateDelivery');
+            const btnDispute = document.getElementById('btnOpenDispute');
+            const btnAcceptQuote = document.getElementById('btnAcceptQuote');
+            const btnRejectQuote = document.getElementById('btnRejectQuote');
+            const btnPayOrder = document.getElementById('btnPayOrder');
+            const releaseDelaySection = document.getElementById('releaseDelaySection');
+            const releaseCountdown = document.getElementById('releaseCountdown');
+            const releaseDelayHint = document.getElementById('releaseDelayHint');
+
+            escrowSection.classList.add('hidden');
+            otpSection.classList.add('hidden');
+            quoteSummarySection.classList.add('hidden');
+            releaseDelaySection.classList.add('hidden');
+            btnValidate.classList.add('hidden');
+            btnDispute.classList.add('hidden');
+            btnAcceptQuote.classList.add('hidden');
+            btnRejectQuote.classList.add('hidden');
+            btnPayOrder.classList.add('hidden');
+            if (otpHintEl) otpHintEl.textContent = '';
+            if (releaseDelayHint) releaseDelayHint.textContent = '';
+
+            currentSelectedDispute = null;
+
+            if (order.status === 'QUOTE' && order.latest_delivery_quote) {
+                const quote = order.latest_delivery_quote;
+                escrowSection.classList.remove('hidden');
+                quoteSummarySection.classList.remove('hidden');
+                document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0));
+                document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
+                document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposé un devis de livraison.';
+                btnAcceptQuote.classList.remove('hidden');
+                btnRejectQuote.classList.remove('hidden');
+            } else if (order.status === 'READY_FOR_PAYMENT') {
+                escrowSection.classList.remove('hidden');
+                quoteSummarySection.classList.remove('hidden');
+                if (order.latest_delivery_quote) {
+                    const quote = order.latest_delivery_quote;
+                    document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0));
+                    document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
+                    document.getElementById('quoteNote').textContent = quote.note || 'Devis accepté. Vous pouvez maintenant payer.';
+                } else {
+                    document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(order.delivery_fee_amount || 0));
+                    document.getElementById('quoteDelay').textContent = 'Confirmé';
+                    document.getElementById('quoteNote').textContent = 'Le devis a été accepté. Le paiement est maintenant en séquestre.';
+                }
+                btnPayOrder.classList.remove('hidden');
+            } else if (order.status === 'PAID_HELD') {
+                escrowSection.classList.remove('hidden');
+                btnDispute.classList.remove('hidden');
+            } else if (order.status === 'DELIVERED') {
+                escrowSection.classList.remove('hidden');
+                btnValidate.classList.remove('hidden');
+                btnDispute.classList.remove('hidden');
+                releaseDelaySection.classList.remove('hidden');
+                const releaseAtValue = order.escrow_release_at || order.release_scheduled_at || order.release_at || null;
+                const releaseAt = releaseAtValue ? new Date(releaseAtValue) : null;
+                const updateReleaseCountdown = () => {
+                    const now = new Date();
+                    const diffMs = releaseAt && !Number.isNaN(releaseAt.getTime()) ? releaseAt.getTime() - now.getTime() : null;
+                    if (releaseCountdown) {
+                        releaseCountdown.textContent = diffMs === null ? 'Délai à définir' : formatReleaseCountdown(diffMs);
+                    }
+                    if (releaseDelayHint) {
+                        releaseDelayHint.textContent = releaseAt && !Number.isNaN(releaseAt.getTime())
+                            ? (diffMs > 0
+                                ? `Libération automatique sous 24h après la validation OTP, soit le ${releaseAt.toLocaleString('fr-FR')} si vous n'agissez pas avant.`
+                                : 'Le délai est écoulé. Les fonds peuvent être libérés immédiatement.')
+                            : 'La libération automatique sera affichée dès que le délai sera enregistré.';
+                    }
+                };
+                updateReleaseCountdown();
+                releaseCountdownTimer = window.setInterval(updateReleaseCountdown, 1000);
+            } else if (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED') {
+                escrowSection.classList.remove('hidden');
+                otpSection.classList.remove('hidden');
+                btnDispute.classList.remove('hidden');
+                document.getElementById('otpValue').textContent = order.otp_code || '------';
+                if (otpHintEl) {
+                    otpHintEl.textContent = "Voici votre code de validation (OTP). Donnez-le au livreur uniquement APRÈS avoir reçu et vérifié le produit.";
+                }
+            }
+
+
+            if (order.status === 'DISPUTE_OPEN' || order.status === 'DISPUTED' || order.status === 'FROZEN') {
+                document.getElementById('modalDisputeChatSection').classList.remove('hidden');
+                loadDisputeChat(order.id);
+            } else {
+                document.getElementById('modalDisputeChatSection').classList.add('hidden');
+            }
+
+            document.getElementById('orderModal').classList.remove('hidden');
+            document.getElementById('orderModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function buildCustomerOrderTimelineHTML(order) {
+            const status = String(order?.status || '').toUpperCase();
+            const pay = String(order?.payment_status || '').toUpperCase();
+
+            const isPaid =
+                ['SUCCESS', 'SUCCESSFUL', 'SUCCEEDED', 'COMPLETED', 'PAID'].includes(pay) ||
+                ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
+
+            const isShippingDone = ['DELIVERED', 'COMPLETED', 'RELEASED'].includes(status);
+            const isShippingCurrent = ['PAID_HELD', 'IN_DELIVERY', 'SHIPPED'].includes(status);
+            const isOtpCurrent = ['DELIVERED'].includes(status);
+            const isOtpDone = ['COMPLETED', 'RELEASED'].includes(status);
+            const isDone = ['COMPLETED', 'RELEASED'].includes(status);
+
+            const special = ['CANCELLED', 'REFUNDED'].includes(status)
+                ? 'cancel'
+                : (['DISPUTE_OPEN', 'DISPUTED', 'FROZEN'].includes(status) ? 'dispute' : '');
+
+            const steps = [
+                { label: 'Commandee', done: true, current: false },
+                { label: 'Payee', done: isPaid, current: !isPaid && status === 'READY_FOR_PAYMENT' },
+                { label: 'En livraison', done: isShippingDone, current: isShippingCurrent },
+                { label: 'Validation OTP', done: isOtpDone, current: isOtpCurrent },
+                { label: 'Terminee', done: isDone, current: false }
+            ];
+
+            function chipClass(s) {
+                if (special === 'cancel') return 'bg-gray-200 text-gray-600 border-gray-200';
+                if (special === 'dispute') return s.done ? 'bg-orange-100 text-orange-800 border-orange-200' : 'bg-white text-orange-800 border-orange-200';
+                if (s.done) return 'bg-black text-white border-black';
+                if (s.current) return 'bg-white text-black border-black';
+                return 'bg-white text-gray-500 border-gray-200';
+            }
+
+            function iconFor(s) {
+                if (special === 'cancel') return 'solar:close-circle-bold';
+                if (special === 'dispute') return 'solar:danger-circle-bold';
+                if (s.done) return 'solar:check-circle-bold';
+                if (s.current) return 'solar:clock-circle-bold';
+                return 'solar:minus-circle-linear';
+            }
+
+            return `
+                <div class="flex flex-wrap items-center gap-1.5">
+                    ${steps.map((s) => `
+                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-xl border text-[8px] sm:text-[9px] font-black uppercase tracking-[0.16em] leading-none ${chipClass(s)}">
+                            <iconify-icon icon="${iconFor(s)}" width="14"></iconify-icon>
+                            <span class="whitespace-nowrap">${s.label}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        async function handleValidateDelivery() {
+            if (!currentSelectedOrder) return;
+            
+            const run = async () => {
+                try {
+                    const btn = document.getElementById('btnValidateDelivery');
+                    btn.disabled = true;
+                    btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+
+                    await OrderManager.confirmCompletion(currentSelectedOrder.id);
+                    showToast('Fonds libérés avec succès.', 'success');
+                    closeOrderModal();
+                    await loadDashboardData();
+                } catch (error) {
+                    showToast(error.message || 'Erreur lors de la validation', 'error');
+                    console.error(error);
+                } finally {
+                    const btn = document.getElementById('btnValidateDelivery');
+                    btn.disabled = false;
+                    btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Libérer les fonds';
+                }
+            };
+
+            if (typeof window.showConfirm === 'function') {
+                window.showConfirm(
+                    'Libérer les fonds',
+                    "La validation OTP est déjà confirmée. En continuant, vous libérez maintenant les fonds séquestrés au vendeur. Continuer ?",
+                    run
+                );
+                return;
+            }
+
+            const confirmed = confirm("Voulez-vous libérer maintenant les fonds pour le vendeur ?");
+            if (!confirmed) return;
+
+            await run();
+          }
+
+        function formatReleaseCountdown(diffMs) {
+            const ms = Math.max(0, Number(diffMs || 0));
+            const totalSeconds = Math.floor(ms / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            if (days > 0) return `${days}j ${hours}h`;
+            if (hours > 0) return `${hours}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+            return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+        }
+
+        async function handleAcceptQuote() {
+            if (!currentSelectedOrder) return;
+            try {
+                const btn = document.getElementById('btnAcceptQuote');
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+                await OrderManager.respondToDeliveryQuote(currentSelectedOrder.id, {
+                    action: 'ACCEPT',
+                    quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
+                });
+                showToast('Devis accepté. Vous pouvez maintenant passer au paiement.', 'success');
+                closeOrderModal();
+                await loadDashboardData();
+            } catch (error) {
+                showToast(error.message || "Erreur lors de l'acceptation du devis", 'error');
+            } finally {
+                const btn = document.getElementById('btnAcceptQuote');
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon> Accepter le devis';
+            }
+        }
+
+        async function handleRejectQuote() {
+            if (!currentSelectedOrder) return;
+            try {
+                const btn = document.getElementById('btnRejectQuote');
+                btn.disabled = true;
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
+                await OrderManager.respondToDeliveryQuote(currentSelectedOrder.id, {
+                    action: 'REJECT',
+                    quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
+                });
+                showToast('Devis refusé. La demande a été clôturée.', 'warning');
+                closeOrderModal();
+                await loadDashboardData();
+            } catch (error) {
+                showToast(error.message || 'Erreur lors du refus du devis', 'error');
+            } finally {
+                const btn = document.getElementById('btnRejectQuote');
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon> Refuser le devis';
+            }
+        }
+
+        window.handlePayOrder = async function() {
+            console.log('[DEBUG handlePayOrder] called, currentSelectedOrder:', currentSelectedOrder);
+            if (!currentSelectedOrder) {
+                console.warn('[DEBUG handlePayOrder] currentSelectedOrder est NULL — navigation annulée');
+                return;
+            }
+            const path = (typeof window.resolvePath === 'function') ? window.resolvePath('achat') : '/src/pages/achat.html';
+            const targetUrl = `${path}?order_id=${encodeURIComponent(currentSelectedOrder.id)}`;
+            console.log('[DEBUG handlePayOrder] Navigation vers:', targetUrl);
+            window.location.href = targetUrl;
+        };
+
+        // ========================== GESTION DES LITIGES ==========================
+
+        // --- État local photos litige ---
+        let disputePhotoFiles = []; // Array de { file, previewUrl }
+
+        function _updateDisputePhotoUI() {
+            const count = disputePhotoFiles.length;
+            const countEl = document.getElementById('disputePhotoCount');
+            const previewGrid = document.getElementById('disputePhotoPreview');
+            const progressBar = document.getElementById('disputePhotoProgressBar');
+            const progressLabel = document.getElementById('disputePhotoProgressLabel');
+            const progressFill = document.getElementById('disputePhotoProgressFill');
+            const dropzone = document.getElementById('disputePhotoDropzone');
+
+            if (countEl) {
+                countEl.textContent = `${count} / 5`;
+                countEl.className = `text-xs font-bold px-2.5 py-1 rounded-full ${
+                    count >= 2 ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-600'
+                }`;
+            }
+
+            // Masquer dropzone si 5 photos
+            if (dropzone) dropzone.style.display = count >= 5 ? 'none' : 'block';
+
+            // Barre progression
+            if (progressBar) progressBar.classList.toggle('hidden', count === 0);
+            if (progressLabel) progressLabel.textContent = `${count}/2 photos minimum`;
+            if (progressFill) progressFill.style.width = `${Math.min(100, (count / 2) * 100)}%`;
+            if (progressFill) progressFill.className = `h-full rounded-full transition-all duration-300 ${
+                count >= 2 ? 'bg-emerald-500' : 'bg-indigo-500'
+            }`;
+
+            // Aperçu miniatures
+            if (!previewGrid) return;
+            if (count === 0) { previewGrid.classList.add('hidden'); previewGrid.innerHTML = ''; return; }
+            previewGrid.classList.remove('hidden');
+            previewGrid.innerHTML = disputePhotoFiles.map((item, idx) => `
+                <div class="relative group aspect-square">
+                    <img src="${item.previewUrl}" class="w-full h-full object-cover rounded-xl border border-gray-200" alt="preuve ${idx + 1}">
+                    <button type="button" onclick="_removeDisputePhoto(${idx})"
+                        class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md text-xs font-bold pointer-events-none">
+                        ×
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window._removeDisputePhoto = function(idx) {
+            const item = disputePhotoFiles[idx];
+            if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl);
+            disputePhotoFiles.splice(idx, 1);
+            _updateDisputePhotoUI();
+        };
+
+        function _initDisputePhotoInput() {
+            const input = document.getElementById('disputePhotoInput');
+            if (!input || input._disputeBound) return;
+            input._disputeBound = true;
+            input.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files || []);
+                const remaining = 5 - disputePhotoFiles.length;
+                const toAdd = files.slice(0, remaining);
+
+                for (const file of toAdd) {
+                    if (file.size > 5 * 1024 * 1024) {
+                        showToast(`"${file.name}" dépasse 5 Mo — ignoré.`, 'warning');
+                        continue;
+                    }
+                    disputePhotoFiles.push({ file, previewUrl: URL.createObjectURL(file) });
+                }
+
+                if (files.length > remaining) {
+                    showToast(`Maximum 5 photos. ${files.length - remaining} fichier(s) ignoré(s).`, 'warning');
+                }
+
+                _updateDisputePhotoUI();
+                input.value = ''; // reset pour permettre la re-sélection
+            });
+        }
+
+        function showDisputeModal() {
+            if (!currentSelectedOrder) return;
+            console.trace('showDisputeModal called');
+            document.getElementById('disputeOrderId').textContent = currentSelectedOrder.id;
+            document.getElementById('disputeReason').value = '';
+            document.getElementById('disputeDescription').value = '';
+            document.getElementById('disputeVideoLink').value = '';
+
+            // Reset photos
+            for (const item of disputePhotoFiles) URL.revokeObjectURL(item.previewUrl);
+            disputePhotoFiles = [];
+            _updateDisputePhotoUI();
+
+            // Init listener input file (une seule fois)
+            _initDisputePhotoInput();
+
+            const modal = document.getElementById('disputeModal');
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            closeOrderModal();
+        }
+
+        function closeDisputeModal() {
+            const modal = document.getElementById('disputeModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            // Libérer les object URLs
+            for (const item of disputePhotoFiles) URL.revokeObjectURL(item.previewUrl);
+            disputePhotoFiles = [];
+            _updateDisputePhotoUI();
+        }
+
+        async function submitDispute() {
+            if (!currentSelectedOrder) return;
+
+            const category = document.getElementById('disputeReason').value;
+            const description = document.getElementById('disputeDescription').value.trim();
+            const videoLink = document.getElementById('disputeVideoLink').value.trim();
+
+            if (!category || !description) {
+                showToast('Catégorie et description sont obligatoires.', 'error');
+                return;
+            }
+
+            if (disputePhotoFiles.length < 2) {
+                showToast(`Minimum 2 photos requises. Vous en avez ${disputePhotoFiles.length}.`, 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitDispute');
+            btn.disabled = true;
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Upload en cours...';
+
+            try {
+                // 1. Upload des photos vers Supabase Storage
+                const uploadedPhotoUrls = [];
+                for (let i = 0; i < disputePhotoFiles.length; i++) {
+                    const { file } = disputePhotoFiles[i];
+                    const ext = file.name.split('.').pop() || 'jpg';
+                    const fileName = `${currentSelectedOrder.id}_${Date.now()}_${i}.${ext}`;
+
+                    let url = null;
+                    if (window.SupabaseAdapter && window.SupabaseAdapter.uploadFile) {
+                        url = await window.SupabaseAdapter.uploadFile('dispute-evidence', fileName, file);
+                    }
+
+                    if (!url) throw new Error(`Échec de l'upload de la photo ${i + 1}.`);
+                    uploadedPhotoUrls.push(url);
+                }
+
+                // 2. Construire le tableau de preuves
+                const evidence = [
+                    ...uploadedPhotoUrls.map(url => ({ url, kind: 'photo', source: 'client' })),
+                    ...(videoLink ? [{ url: videoLink, kind: 'video_link', source: 'client' }] : [])
+                ];
+
+                btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Envoi du litige...';
+
+                // 3. Soumettre le litige
+                await OrderManager.openDispute(currentSelectedOrder.id, category, description, evidence);
+
+                showToast('Litige ouvert. Notre équipe va analyser votre demande dans les 24h.', 'warning');
+                closeDisputeModal();
+                await loadDashboardData();
+            } catch (error) {
+                showToast(error.message || 'Erreur lors de l\'ouverture du litige', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Soumettre le litige';
+            }
+        }
+
+        window.loadDisputeChat = async function(orderId) {
+            const container = document.getElementById('disputeChatContainer');
+            const buyerActions = document.getElementById('buyerDisputeActions');
+            if (!container) return;
+            if (buyerActions) buyerActions.classList.add('hidden');
+
+            container.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-gray-400 text-xs gap-2"><iconify-icon icon="line-md:loading-twotone-loop" width="24"></iconify-icon>Chargement du fil...</div>';
+
+            try {
+                currentSelectedDispute = await OrderManager.getDisputeByOrder(orderId);
+                if (buyerActions && currentSelectedDispute.status === 'BUYER_PENDING') {
+                    buyerActions.classList.remove('hidden');
+                }
+                const messages = await OrderManager.getDisputeMessages(currentSelectedDispute.id);
+                container.innerHTML = '';
+
+                // ── Helper pour rendre un message dans le chat ──
+                function renderChatMsg(msg, cont) {
+                    // sender_role est maintenant calculé par le backend (top-level)
+                    const senderRole = msg.sender_role || (msg.payload && msg.payload.sender_role) || 'SYSTEM';
+                    const isMe = senderRole === 'CUSTOMER';
+                    let roleLabel = '';
+                    let bubbleClass = '';
+                    let alignClass = isMe ? 'self-end items-end' : 'self-start items-start';
+
+                    if (senderRole === 'ADMIN') {
+                        roleLabel = '<span class="text-[8px] font-black bg-red-100 text-red-600 px-1 py-0.5 rounded ml-2 uppercase">SUPPORT</span>';
+                        bubbleClass = 'bg-red-50 border border-red-100 text-red-950';
+                    } else if (senderRole === 'VENDOR' || senderRole === 'SELLER') {
+                        roleLabel = '<span class="text-[8px] font-black bg-blue-100 text-blue-600 px-1 py-0.5 rounded ml-2 uppercase">VENDEUR</span>';
+                        bubbleClass = 'bg-blue-50 border border-blue-100 text-blue-950';
+                    } else if (senderRole === 'SYSTEM') {
+                        roleLabel = '<span class="text-[8px] font-black bg-gray-100 text-gray-500 px-1 py-0.5 rounded ml-2 uppercase">SYSTÈME</span>';
+                        bubbleClass = 'bg-gray-100 text-gray-700';
+                    } else {
+                        roleLabel = '<span class="text-[8px] font-black text-gray-400 ml-2 uppercase">VOUS</span>';
+                        bubbleClass = 'bg-black text-white';
+                    }
+
+                    const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                    // Rendu spécial pour les offres partielles
+                    if (msg.type === 'OFFER' && msg.payload?.action === 'OFFER_PARTIAL_REFUND') {
+                        const amount = Number(msg.payload?.amount || 0).toLocaleString('fr-FR');
+                        const note = msg.payload?.message || '';
+                        cont.insertAdjacentHTML('beforeend', `
+                            <div class="flex flex-col self-start items-start max-w-[90%]">
+                                <div class="flex items-center mb-1">
+                                    <span class="text-[9px] text-gray-400 font-bold">${time}</span>
+                                    ${roleLabel}
+                                </div>
+                                <div class="rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-sm overflow-hidden w-full">
+                                    <div class="px-3 py-2 bg-amber-500 text-white flex items-center gap-2">
+                                        <span class="text-[10px] font-black uppercase tracking-widest">💰 Offre de remboursement partiel</span>
+                                    </div>
+                                    <div class="px-3 py-2">
+                                        <div class="text-lg font-black text-amber-700">${amount} CDF</div>
+                                        ${note ? `<div class="text-xs text-amber-800 mt-1">${note}</div>` : ''}
+                                        <div class="text-[10px] text-amber-600 mt-1 italic">Utilisez les boutons ci-dessous pour accepter ou refuser.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                        cont.scrollTop = cont.scrollHeight;
+                        return;
+                    }
+
+                    const messageText = msg.payload?.message || msg.payload?.event || msg.message || 'Mise à jour';
+                    cont.insertAdjacentHTML('beforeend', `
+                        <div class="flex flex-col ${alignClass} max-w-[85%]">
+                            <div class="flex items-center mb-1">
+                                <span class="text-[9px] text-gray-400 font-bold">${time}</span>
+                                ${roleLabel}
+                            </div>
+                            <div class="px-3 py-2 rounded-2xl text-xs font-medium ${bubbleClass} shadow-sm">
+                                ${messageText}
+                            </div>
+                        </div>
+                    `);
+                    cont.scrollTop = cont.scrollHeight;
+                }
+
+                if (!messages || messages.length === 0) {
+                    container.innerHTML = '<div id="noMsgPlaceholder" class="text-center text-[10px] text-gray-400 italic mt-8">Pas encore de messages. L\'administrateur ou le vendeur vous répondront ici.</div>';
+                } else {
+                    messages.forEach(msg => renderChatMsg(msg, container));
+                }
+
+                // ⚡ Realtime — TOUJOURS actif, même si le chat est vide au départ
+                OrderManager.subscribeToDisputeMessages(currentSelectedDispute.id, (newMsg) => {
+                    // Supprimer le placeholder si présent
+                    const placeholder = container.querySelector('#noMsgPlaceholder');
+                    if (placeholder) placeholder.remove();
+                    renderChatMsg(newMsg, container);
+                });
+
+            } catch (error) {
+                container.innerHTML = '<div class="text-center text-xs text-red-500 p-4">Erreur de chargement des messages.</div>';
+            }
+        };
+
+        window.sendDisputeMessage = async function() {
+            if (!currentSelectedOrder) return;
+            const input = document.getElementById('disputeMessageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const btn = document.getElementById('btnSendDisputeMessage');
+            btn.disabled = true;
+            btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="18"></iconify-icon>';
+
+            try {
+                if (!currentSelectedDispute) {
+                    currentSelectedDispute = await OrderManager.getDisputeByOrder(currentSelectedOrder.id);
+                }
+                await OrderManager.addDisputeMessage(currentSelectedDispute.id, {
+                    type: 'MESSAGE',
+                    payload: { message }
+                });
+                input.value = '';
+                // Realtime push le nouveau message automatiquement
+            } catch (error) {
+                showToast('Erreur d\'envoi du message', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>';
+            }
+        };
+
+        window.handleBuyerAcceptDisputeOffer = async function() {
+            if (!currentSelectedDispute) return;
+            try {
+                await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'ACCEPT' });
+                showToast("Proposition vendeur acceptée.", 'success');
+                await loadDashboardData();
+                await loadDisputeChat(currentSelectedOrder.id);
+            } catch (error) {
+                showToast(error.message || "Erreur lors de l'acceptation.", 'error');
+            }
+        };
+
+        window.handleBuyerRejectDisputeOffer = async function() {
+            if (!currentSelectedDispute) return;
+            try {
+                await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'REJECT' });
+                showToast("Le dossier passe en arbitrage plateforme.", 'warning');
+                await loadDashboardData();
+                await loadDisputeChat(currentSelectedOrder.id);
+            } catch (error) {
+                showToast(error.message || "Erreur lors du refus.", 'error');
+            }
+        };
+        // ========================================================================
+
+        function closeOrderModal() {
+            if (releaseCountdownTimer) {
+                clearInterval(releaseCountdownTimer);
+                releaseCountdownTimer = null;
+            }
+            document.getElementById('orderModal').classList.add('hidden');
+            document.getElementById('orderModal').style.display = 'none';
+            document.body.style.overflow = '';
+            // Unsubscribe from dispute realtime when modal closes
+            if (currentSelectedDispute?.id) {
+                OrderManager.unsubscribeFromDisputeMessages(currentSelectedDispute.id);
+            }
+        }
+
+        function getOrderAmounts(order) {
+            const itemsSubtotal = Array.isArray(order?.items)
+                ? order.items.reduce((sum, item) => sum + (Number(item?.price || 0) * Number(item?.quantity || 0)), 0)
+                : 0;
+            const subtotal = Number(order?.merchandise_amount ?? itemsSubtotal ?? 0);
+            
+            let deliveryFee = Number(order?.delivery_fee_amount ?? 0);
+            let discount = Number(order?.promo_discount_amount ?? 0);
+            let total = Number(order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee - discount));
+
+            if (order?.status === 'QUOTE' && order?.latest_delivery_quote) {
+                deliveryFee = Number(order.latest_delivery_quote.delivery_fee_amount || 0);
+                total = Math.max(0, subtotal + deliveryFee - discount);
+            }
+
+            return {
+                subtotal,
+                deliveryFee,
+                discount,
+                total
+            };
+        }
+
+        function getVendorDisplayName(order) {
+            const explicitName = order?.vendor_company_name || order?.vendor?.company_name || order?.vendor_name || order?.vendor?.name;
+            if (explicitName) return explicitName;
+
+            const vendorEmail = order?.vendor_email || order?._raw?.vendor_email || '';
+            if (vendorEmail) {
+                const localPart = vendorEmail.split('@')[0] || vendorEmail;
+                return localPart.replace(/[._-]+/g, ' ').trim();
+            }
+
+            return 'Vendeur NewKet';
+        }
+
+        function getNewketLogoUrl() {
+            if (typeof window.resolvePath === 'function') {
+                return window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png');
+            }
+            try {
+                return new URL('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png', window.location.href).href;
+            } catch (error) {
+                return 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png';
+            }
+        }
+
+        async function buildInvoiceQrReference(order, amounts) {
+            const fingerprint = [
+                order?.id || '',
+                order?.date || '',
+                order?.customer?.email || '',
+                order?.customer?.name || '',
+                getVendorDisplayName(order),
+                amounts?.subtotal ?? 0,
+                amounts?.deliveryFee ?? 0,
+                amounts?.discount ?? 0,
+                amounts?.total ?? 0
+            ].join('|');
+
+            const fallbackHash = (() => {
+                let hash = 0;
+                for (let index = 0; index < fingerprint.length; index += 1) {
+                    hash = ((hash << 5) - hash) + fingerprint.charCodeAt(index);
+                    hash |= 0;
+                }
+                return Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+            })();
+
+            if (!window.crypto?.subtle || typeof TextEncoder === 'undefined') {
+                return `NK-${fallbackHash}`;
+            }
+
+            try {
+                const encoded = new TextEncoder().encode(fingerprint);
+                const digest = await window.crypto.subtle.digest('SHA-256', encoded);
+                const hex = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('').toUpperCase();
+                return `NK-${hex.slice(0, 12)}`;
+            } catch (error) {
+                console.warn('Unable to create invoice QR reference:', error);
+                return `NK-${fallbackHash}`;
+            }
+        }
+
+        function buildInvoiceQrTargetUrl(order, qrReference) {
+            if (window.InvoiceQrService && typeof window.InvoiceQrService.buildInvoiceQrTargetUrl === 'function') {
+                return window.InvoiceQrService.buildInvoiceQrTargetUrl(order, qrReference);
+            }
+
+            const resolvedPath = typeof window.resolvePath === 'function'
+                ? window.resolvePath('invoice-verify')
+                : '/src/pages/invoice-verify.html';
+            const url = new URL(resolvedPath, window.location.origin);
+            if (order?.id) url.searchParams.set('order_id', order.id);
+            if (qrReference) url.searchParams.set('invoice_ref', qrReference);
+            return url.toString();
+        }
+
+        async function buildInvoiceQrImageSrc(order, qrReference) {
+            const targetUrl = buildInvoiceQrTargetUrl(order, qrReference);
+            if (window.InvoiceQrService && typeof window.InvoiceQrService.toDataUrl === 'function') {
+                return window.InvoiceQrService.toDataUrl(targetUrl);
+            }
+
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><rect width="220" height="220" fill="#fff"/><rect x="12" y="12" width="196" height="196" rx="18" fill="#f0fdf4" stroke="#bbf7d0"/><text x="110" y="102" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#065f46">QR indisponible</text><text x="110" y="128" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" fill="#6b7280">Ouvrir la vérification</text></svg>`;
+            return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+        }
+
+        function waitForFrameAssets(printFrame) {
+            const frameDocument = printFrame.contentWindow?.document;
+            const images = Array.from(frameDocument?.images || []).filter(image => image.src);
+
+            if (!images.length) {
+                return Promise.resolve();
+            }
+
+            return Promise.race([
+                Promise.all(images.map(image => {
+                    if (image.complete) return Promise.resolve();
+                    return new Promise(resolve => {
+                        image.addEventListener('load', resolve, { once: true });
+                        image.addEventListener('error', resolve, { once: true });
+                    });
+                })),
+                new Promise(resolve => setTimeout(resolve, 4000))
+            ]);
+        }
+
+        async function downloadInvoice() {
+            if (!currentSelectedOrder) return;
+
+            const o = currentSelectedOrder;
+            const amounts = getOrderAmounts(o);
+            const qrReference = await buildInvoiceQrReference(o, amounts);
+            const qrTargetUrl = buildInvoiceQrTargetUrl(o, qrReference);
+            const qrImageSrc = await buildInvoiceQrImageSrc(o, qrReference);
+            document.getElementById('invId').textContent = '#' + o.id;
+            document.getElementById('invDate').textContent = new Date(o.date).toLocaleDateString();
+            document.getElementById('invClient').textContent = o.customer?.name || 'Client NewKet';
+            document.getElementById('invEmail').textContent = o.customer?.email || '';
+            document.getElementById('invVendor').textContent = getVendorDisplayName(o);
+            document.getElementById('invQrCode').textContent = qrReference;
+            document.getElementById('invQrImage').src = qrImageSrc;
+            const promoCode = String(o.promo_code || '').trim().toUpperCase();
+            const discountAmount = Number(amounts.discount || 0);
+            const discountRow = document.getElementById('invDiscountRow');
+            const discountValue = document.getElementById('invDiscount');
+            const promoCodeRow = document.getElementById('invPromoCodeRow');
+            const promoCodeValue = document.getElementById('invPromoCode');
+            const qrLinkEl = document.getElementById('invQrLink');
+
+            const invoiceLogo = document.getElementById('invLogo');
+            if (invoiceLogo) {
+                invoiceLogo.src = getNewketLogoUrl();
+            }
+            if (qrLinkEl) qrLinkEl.href = qrTargetUrl;
+
+            const invItems = document.getElementById('invItems');
+            invItems.innerHTML = o.items.map(item => `
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 0;">${item.name}</td>
+                    <td style="padding: 10px 0; text-align: center;">${item.quantity}</td>
+                    <td style="padding: 10px 0; text-align: right;">${CurrencyManager.formatPrice(item.price)}</td>
+                    <td style="padding: 10px 0; text-align: right;">${CurrencyManager.formatPrice(item.price * item.quantity)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('invSubtotal').textContent = CurrencyManager.formatPrice(amounts.subtotal);
+            if (discountRow && discountValue) {
+                const hasDiscount = discountAmount > 0;
+                discountRow.classList.toggle('hidden', !hasDiscount);
+                discountValue.textContent = hasDiscount ? `- ${CurrencyManager.formatPrice(discountAmount)}` : '';
+            }
+            if (promoCodeRow && promoCodeValue) {
+                const hasPromoCode = Boolean(promoCode);
+                promoCodeRow.classList.toggle('hidden', !hasPromoCode);
+                promoCodeValue.textContent = promoCode;
+            }
+            document.getElementById('invDelivery').textContent = amounts.deliveryFee > 0
+                ? CurrencyManager.formatPrice(amounts.deliveryFee)
+                : 'Gratuit';
+            document.getElementById('invTotal').textContent = CurrencyManager.formatPrice(amounts.total);
+
+            // Trigger print dialog so the customer can save the invoice as PDF.
+            const printContent = document.getElementById('invoiceTemplate').innerHTML;
+            const printFrame = document.createElement('iframe');
+
+            printFrame.style.position = 'fixed';
+            printFrame.style.right = '0';
+            printFrame.style.bottom = '0';
+            printFrame.style.width = '0';
+            printFrame.style.height = '0';
+            printFrame.style.border = '0';
+            document.body.appendChild(printFrame);
+
+            const printDocument = printFrame.contentWindow?.document;
+            if (!printDocument) {
+                printFrame.remove();
+                showToast('Impossible de préparer la facture.', 'error');
+                return;
+            }
+
+            printDocument.open();
+            printDocument.write(`
+                <!doctype html>
+                <html>
+                    <head>
+                        <title>Facture NewKet</title>
+                        <style>
+                            @page { size: A4 portrait; margin: 10mm; }
+                            * { box-sizing: border-box; }
+                            html, body { width: 100%; }
+                            body { margin: 0; font-family: Arial, sans-serif; color: #1f2937; background: #ffffff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                            .invoice-sheet { position: relative; overflow: hidden; width: 100%; max-width: 760px; background: #fff; margin: 0 auto; page-break-inside: avoid; }
+                            .invoice-accent { position: absolute; inset: 0 auto 0 0; width: 108px; background:
+                                radial-gradient(circle at -8% 12%, rgba(183, 228, 199, 0.58) 0, rgba(183, 228, 199, 0.58) 34%, transparent 35%),
+                                radial-gradient(circle at 18% 34%, rgba(16, 185, 129, 0.16) 0, rgba(16, 185, 129, 0.16) 44%, transparent 45%),
+                                radial-gradient(circle at 2% 60%, rgba(74, 222, 128, 0.18) 0, rgba(74, 222, 128, 0.18) 38%, transparent 39%),
+                                linear-gradient(180deg, rgba(220, 252, 231, 0.95), rgba(255, 255, 255, 0.25)); }
+                            .invoice-body { position: relative; padding: 18px 20px 14px 58px; }
+                            .invoice-header { margin-bottom: 12px; }
+                            .invoice-header-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+                            .invoice-brand { display: flex; align-items: center; gap: 12px; }
+                            .invoice-logo { width: 64px; height: 64px; object-fit: contain; }
+                            .invoice-title { font-size: 32px; line-height: 0.95; font-weight: 900; letter-spacing: 0.02em; color: #065f46; }
+                            .invoice-subtitle { margin-top: 6px; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; }
+                            .invoice-meta-card { min-width: 200px; padding: 10px 12px; border: 1px solid #d1fae5; border-radius: 14px; background: linear-gradient(180deg, #f0fdf4, #ffffff); }
+                            .invoice-meta-card--below { margin-top: 8px; margin-left: auto; max-width: 300px; }
+                            .invoice-meta-row { display: flex; justify-content: space-between; gap: 14px; font-size: 11px; padding: 3px 0; }
+                            .invoice-meta-row span { color: #065f46; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+                            .invoice-meta-row strong { color: #111827; font-weight: 800; }
+                            .invoice-parties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+                            .invoice-party-card { padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 14px; background: #ffffff; }
+                            .invoice-party-card--soft { background: #f0fdf4; border-color: #bbf7d0; }
+                            .invoice-party-label { font-size: 10px; font-weight: 900; color: #047857; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+                            .invoice-party-name { font-size: 14px; font-weight: 800; color: #111827; line-height: 1.2; }
+                            .invoice-party-detail { margin-top: 4px; font-size: 11px; line-height: 1.35; color: #6b7280; }
+                            .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+                            .invoice-table thead th { padding: 8px 10px; border-bottom: 2px solid #a7f3d0; font-size: 10px; font-weight: 900; color: #065f46; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; }
+                            .invoice-table td { padding: 9px 10px; border-bottom: 1px solid #ecfdf5; font-size: 11px; color: #1f2937; }
+                            .invoice-table tbody tr:last-child td { border-bottom: 0; }
+                            .text-center { text-align: center !important; }
+                            .text-right { text-align: right !important; }
+                            .invoice-totals { margin-left: auto; width: 250px; padding: 12px 14px; border-radius: 14px; background: #f9fafb; border: 1px solid #e5e7eb; }
+                            .invoice-total-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 0; font-size: 12px; color: #4b5563; }
+                            .invoice-total-row strong { color: #111827; font-weight: 800; }
+                            .invoice-total-row--discount strong { color: #047857; }
+                            .invoice-total-row--grand { margin-top: 6px; padding-top: 10px; border-top: 2px solid #10b981; font-size: 16px; font-weight: 900; color: #065f46; }
+                            .invoice-total-row--grand strong { font-size: 20px; color: #065f46; }
+                            .invoice-security { margin-top: 12px; display: flex; justify-content: flex-end; }
+                            .invoice-qr-card { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 320px; padding: 10px 12px; border-radius: 14px; background: #f0fdf4; border: 1px solid #bbf7d0; }
+                            .invoice-qr-image { width: 76px; height: 76px; object-fit: contain; background: #ffffff; border-radius: 10px; padding: 6px; border: 1px solid #d1fae5; }
+                            .invoice-qr-copy { min-width: 0; flex: 1; }
+                            .invoice-qr-code { margin-top: 3px; font-size: 13px; font-weight: 900; color: #065f46; letter-spacing: 0.08em; word-break: break-word; }
+                            .hidden { display: none !important; }
+                        </style>
+                    </head>
+                    <body>${printContent}</body>
+                </html>
+            `);
+            printDocument.close();
+
+            await waitForFrameAssets(printFrame);
+
+            setTimeout(() => {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                setTimeout(() => printFrame.remove(), 1000);
+            }, 250);
+        }
+
+        function removeFavorite(id) {
+            FavoritesManager.removeItem(id);
+            renderFavorites(); // Dynamic refresh
+        }
+
+        // Add to cart has been removed and replaced with contactSeller from ui-helpers.
+    </script>
+
+
+    <script>
+        // ===== Sprint 2: Form Loading States =====
+        function setButtonLoading(btn, loading) {
+            if (loading) {
+                btn.classList.add('btn-loading');
+                btn.disabled = true;
+            } else {
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+            }
+        }
+
+        // Intercept form submissions for loading state
+        document.addEventListener('DOMContentLoaded', () => {
+            const forms = ['profileForm', 'passwordForm'];
+            forms.forEach(id => {
+                const form = document.getElementById(id);
+                if (!form) return;
+                const btn = form.querySelector('button[type="submit"]');
+                if (!btn) return;
+                form.addEventListener('submit', () => {
+                    setButtonLoading(btn, true);
+                    // Auto-reset after 4s as fallback
+                    setTimeout(() => setButtonLoading(btn, false), 4000);
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // Logic for Mobile Sidebar Toggle - Guaranteed Init
+        (function() {
+            function initCustomerSidebar() {
+                if (window.SidebarManager) {
+                    window.SidebarManager.init('customerSidebar', 'customer-main-content', 'customerSidebarOverlay');
+                }
+            }
+
+            function syncTabFromHash() {
+                try {
+                    const raw = (window.location.hash || '').replace(/^#/, '').trim();
+                    if (!raw) return;
+                    const decoded = decodeURIComponent(raw);
+                    const tab = (decoded.split(/[?&]/)[0] || '').trim();
+                    if (typeof window.switchVendorTab !== 'function') return;
+                    if (['dashboard', 'orders', 'achat', 'favorites', 'notifications', 'settings'].includes(tab)) {
+                        window.switchTab(tab);
+                    }
+                } catch (e) {}
+            }
+            // If SidebarManager is already loaded, init immediately
+            if (window.SidebarManager) {
+                initCustomerSidebar();
+            } else {
+                // Match vendor fallback paths so sidebar init is not missed in partial boot flows.
+                window.addEventListener('componentsLoaded', initCustomerSidebar, { once: true });
+                window.addEventListener('newketInitialized', initCustomerSidebar, { once: true });
+                let attempts = 0;
+                const timer = setInterval(() => {
+                    attempts++;
+                    if (window.SidebarManager) {
+                        clearInterval(timer);
+                        initCustomerSidebar();
+                    } else if (attempts >= 40) {
+                        clearInterval(timer);
+                    }
+                }, 250);
+            }
+
+            // Allow deep-link to a tab via URL hash (e.g. #orders)
+            syncTabFromHash();
+            window.addEventListener('hashchange', syncTabFromHash);
+        })();
+    </script>
+    
+    <!-- Modal d'Ouverture de Litige (Dispute Modal) -->
+    <div id="disputeModal" style="display: none;" class="fixed inset-0 z-[200] flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                        <iconify-icon icon="solar:danger-triangle-bold" width="24"></iconify-icon>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold font-heading text-gray-900">Signaler un litige</h2>
+                        <p class="text-sm text-gray-500 font-medium">Commande <span id="disputeOrderId" class="text-indigo-600 font-bold"></span></p>
+                    </div>
+                </div>
+                <button type="button" data-action="close-dispute-modal" class="w-8 h-8 rounded-full bg-white hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-600 transition-colors shadow-sm">
+                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-5">
+                <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3 text-sm text-orange-800">
+                    <iconify-icon icon="solar:info-circle-linear" class="text-xl shrink-0"></iconify-icon>
+                    <p>En ouvrant ce litige, les fonds de votre commande seront partiellement ou totalement gelés en attendant l'évaluation de notre pôle litige.</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Catégorie du problème</label>
+                        <select id="disputeReason" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all bg-gray-50">
+                            <option value="">-- Sélectionnez une catégorie --</option>
+                            <option value="NOT_RECEIVED">Produit non reçu</option>
+                            <option value="DAMAGED">Produit endommagé ou cassé</option>
+                            <option value="NOT_AS_DESCRIBED">Produit non conforme à la description</option>
+                            <option value="OTHER">Autre raison</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Description détaillée</label>
+                        <textarea id="disputeDescription" rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all resize-none bg-gray-50" placeholder="Décrivez précisément votre problème avec cette commande..."></textarea>
+                    </div>
+
+                    <!-- Zone Photos de Preuves -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <iconify-icon icon="solar:camera-bold" class="text-indigo-500 mr-1"></iconify-icon>
+                                Photos de preuve
+                            </label>
+                            <span id="disputePhotoCount" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500">0 / 5</span>
+                        </div>
+                        <p class="text-xs text-gray-500">Minimum <strong>2 photos</strong> requises, maximum 5. Formats acceptés : JPG, PNG, WEBP.</p>
+
+                        <!-- Zone Drag & Drop / Clic -->
+                        <div id="disputePhotoDropzone"
+                            class="relative border-2 border-dashed border-gray-200 rounded-xl p-5 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-all duration-200 group"
+                            onclick="document.getElementById('disputePhotoInput').click()">
+                            <input type="file" id="disputePhotoInput" accept="image/jpeg,image/png,image/webp" multiple class="hidden">
+                            <iconify-icon icon="solar:upload-minimalistic-bold" class="text-3xl text-gray-300 group-hover:text-indigo-400 transition-colors mb-2"></iconify-icon>
+                            <p class="text-sm text-gray-400 group-hover:text-indigo-500 font-medium transition-colors">Cliquez ou glissez vos photos ici</p>
+                            <p class="text-xs text-gray-300 mt-1">Max 5 Mo par photo</p>
+                        </div>
+
+                        <!-- Aperçu miniatures -->
+                        <div id="disputePhotoPreview" class="grid grid-cols-5 gap-2 hidden"></div>
+
+                        <!-- Barre de progression min -->
+                        <div id="disputePhotoProgressBar" class="hidden">
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Progression</span>
+                                <span id="disputePhotoProgressLabel">0/2 photos minimum</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div id="disputePhotoProgressFill" class="h-full bg-indigo-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lien Vidéo Externe (optionnel) -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-gray-700">
+                            <iconify-icon icon="solar:play-circle-bold" class="text-orange-400 mr-1"></iconify-icon>
+                            Lien vidéo de preuve
+                            <span class="font-normal text-gray-400">(optionnel)</span>
+                        </label>
+                        <p class="text-xs text-gray-500">Partagez un lien Google Drive, YouTube (non listé), Dropbox ou similaire.</p>
+                        <div class="relative">
+                            <iconify-icon icon="solar:link-bold" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 text-lg"></iconify-icon>
+                            <input type="url" id="disputeVideoLink" class="w-full pl-9 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none text-sm transition-all bg-gray-50" placeholder="https://drive.google.com/file/...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
+                <button type="button" data-action="close-dispute-modal" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
+                    Annuler
+                </button>
+                <button id="btnSubmitDispute" type="button" class="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-medium flex items-center gap-2 transition-colors">
+                    <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Soumettre le litige
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div> <!-- End of customer-main-content (317) -->
+</main>
+    <input type="file" id="customerAvatarUploadInput" accept="image/png,image/jpeg,image/webp,image/jpg" class="hidden">
+    <script>
+        window.NewKetPageRefresh = async () => {
+            window.location.reload();
+        };
+    
 </script>
+
+<div id="orderModal" style="display: none;"
+        class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/60  p-4">
+        <div
+            class="bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden animate-in fade-in zoom-in duration-300">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
+                <div>
+                    <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
+                    <p class="text-sm text-gray-500" id="modalOrderDateText"></p>
+                </div>
+                <button type="button" data-action="close-order-modal"
+                    class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors">
+                    <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-8">
+                <!-- Status & Info -->
+                <div class="flex flex-wrap gap-4 justify-between items-start">
+                    <div class="space-y-1">
+                        <div class="text-xs font-bold text-gray-400 uppercase">Statut Commande</div>
+                        <div id="modalOrderStatus" class="px-3 py-1 rounded-full text-xs font-bold inline-block"></div>
+                    </div>
+                    <div class="space-y-1 text-center">
+                        <div class="text-xs font-bold text-gray-400 uppercase">Paiement</div>
+                        <div id="modalPaymentStatus" class="px-3 py-1 rounded-full text-xs font-bold inline-block"></div>
+                        <div id="modalTransactionId" class="text-[9px] font-black text-gray-400 uppercase tracking-tighter mt-1"></div>
+                    </div>
+                    <div class="space-y-1 text-right">
+                        <div class="text-xs font-bold text-gray-400 uppercase">Mode de paiement</div>
+                        <div id="modalContactMethod" class="text-sm font-medium">Netikash</div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                    <div class="text-xs font-bold text-gray-400 uppercase mb-3">Suivi</div>
+                    <div id="modalOrderTimeline" class="grid grid-cols-1 sm:grid-cols-5 gap-2"></div>
+                </div>
+
+                <!-- Items -->
+                <div class="space-y-4">
+                    <div class="text-xs font-bold text-gray-400 uppercase pb-2 border-b border-gray-100">Articles</div>
+                    <div id="modalOrderItems" class="space-y-4">
+                        <!-- Items injected here -->
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="bg-gray-50 rounded-xl p-6 space-y-3">
+                    <div class="flex items-center gap-3 pb-3 border-b border-gray-200">
+                        <img id="modalInvoiceLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="w-10 h-10 object-contain shrink-0">
+                        <div class="min-w-0">
+                            <div class="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600">Facture</div>
+                            <div class="font-black text-gray-900">Aperçu compact</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Sous-total</span>
+                        <span id="modalOrderSubtotal" class="font-medium"></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">Livraison</span>
+                        <span id="modalOrderDelivery" class="font-medium text-green-600"></span>
+                    </div>
+                    <div id="modalOrderDiscountRow" class="flex justify-between text-sm hidden">
+                        <span class="text-emerald-600 font-bold">Réduction promo</span>
+                        <span id="modalOrderDiscount" class="font-bold text-emerald-600"></span>
+                    </div>
+                    <div id="modalOrderPromoCodeRow" class="flex justify-between text-sm hidden">
+                        <span class="text-gray-500">Code promo</span>
+                        <span id="modalOrderPromoCode" class="font-bold text-gray-900 uppercase"></span>
+                    </div>
+                    <div class="flex justify-between pt-3 border-t border-gray-200">
+                        <span class="font-bold">Total</span>
+                        <span id="modalOrderTotal" class="font-black text-xl"></span>
+                    </div>
+                </div>
+
+                <!-- Escrow Actions (Dynamic) -->
+                <div id="modalEscrowSection" class="hidden space-y-4 pt-4 border-t border-gray-100">
+                    <div id="quoteSummarySection" class="hidden p-4 bg-amber-50 rounded-xl border border-amber-100 text-left">
+                        <div class="text-xs font-bold text-amber-700 uppercase mb-2">Devis de livraison</div>
+                        <div class="space-y-1 text-sm text-amber-950">
+                            <div class="flex items-center justify-between gap-3">
+                                <span>Montant livraison</span>
+                                <span id="quoteAmount" class="font-black">-</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-3">
+                                <span>Délai estimé</span>
+                                <span id="quoteDelay" class="font-bold">-</span>
+                            </div>
+                            <p id="quoteNote" class="text-xs text-amber-700 mt-2"></p>
+                        </div>
+                    </div>
+
+                    <!-- OTP Display for PAID_HELD -->
+                    <div id="otpDisplaySection" class="hidden p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
+                        <div class="text-xs font-bold text-purple-600 uppercase mb-2">Code de validation (OTP)</div>
+                        <div id="otpValue" class="text-3xl font-black tracking-[0.5em] text-purple-900">------</div>
+                        <p id="otpHint" class="mt-3 text-xs text-purple-800 font-semibold"></p>
+                    </div>
+
+                    <!-- Release Delay -->
+                    <div id="releaseDelaySection" class="hidden p-4 bg-emerald-50 rounded-xl border border-emerald-100 text-center">
+                        <div class="text-xs font-bold text-emerald-700 uppercase mb-2">Libération des fonds</div>
+                        <div id="releaseCountdown" class="text-2xl font-black tracking-tight text-emerald-900">-</div>
+                        <p id="releaseDelayHint" class="mt-2 text-xs text-emerald-800 font-semibold"></p>
+                    </div>
+
+                    <!-- Actions Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button id="btnAcceptQuote" type="button"
+                            class="hidden flex-1 py-3 bg-black text-white font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 rounded-xl">
+                            <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
+                            Accepter le devis
+                        </button>
+                        <button id="btnRejectQuote" type="button"
+                            class="hidden flex-1 py-3 bg-white text-red-600 border border-red-200 rounded-xl font-bold hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
+                            Refuser le devis
+                        </button>
+                        <button id="btnPayOrder" type="button"
+                            class="hidden flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:card-send-linear" width="20"></iconify-icon>
+                            Passer au paiement
+                        </button>
+                        <button id="btnValidateDelivery" type="button"
+                            class="hidden flex-1 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:check-read-linear" width="20"></iconify-icon>
+                            Libérer les fonds
+                        </button>
+                        <button id="btnOpenDispute" type="button"
+                            class="hidden flex-1 py-3 bg-white text-orange-600 border border-orange-200 rounded-xl font-bold hover:bg-orange-50 transition-colors flex items-center justify-center gap-2">
+                            <iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon>
+                            Signaler un problème
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dispute Messaging Section -->
+                <div id="modalDisputeChatSection" class="hidden space-y-4 pt-6 border-t border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-xs font-black text-orange-600 uppercase tracking-widest flex items-center gap-2">
+                            <iconify-icon icon="solar:chat-round-line-bold" width="16"></iconify-icon>
+                            Messagerie du Litige
+                        </div>
+                        <span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">Admin + Vendeur + Vous</span>
+                    </div>
+                    
+                    <div id="disputeChatContainer" class="bg-gray-50 rounded-2xl p-4 h-64 overflow-y-auto flex flex-col gap-3 scroll-smooth border border-gray-100">
+                        <!-- Messages loaded here -->
+                    </div>
+
+                    <div class="flex gap-2 items-end">
+                        <div class="flex-1 bg-white rounded-xl border border-gray-200 p-2 focus-within:border-black transition-all">
+                            <textarea id="disputeMessageInput" rows="1" class="w-full bg-transparent border-none outline-none text-sm resize-none py-1 px-2" placeholder="Un message pour l'admin ou le vendeur ?"></textarea>
+                        </div>
+                        <button type="button" id="btnSendDisputeMessage" class="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all flex-shrink-0">
+                            <iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>
+                        </button>
+                    </div>
+                    <div id="buyerDisputeActions" class="hidden grid grid-cols-2 gap-2">
+                        <button type="button" data-action="buyer-accept-dispute-offer" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-[10px] font-black uppercase tracking-widest">Accepter l'offre</button>
+                        <button type="button" data-action="buyer-reject-dispute-offer" class="py-3 rounded-xl bg-white border border-orange-200 text-orange-700 hover:bg-orange-50 text-[10px] font-black uppercase tracking-widest">Refuser</button>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                    <button type="button" data-action="download-invoice"
+                        class="flex-1 py-3 bg-gray-100 text-black rounded-xl font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                        <iconify-icon icon="solar:download-minimalistic-linear" width="20"></iconify-icon>
+                        Facture PDF
+                    </button>
+                    <button type="button" data-action="close-order-modal"
+                        class="flex-1 py-3 bg-black text-white rounded-xl font-bold hover:bg-gray-800 transition-colors">
+                        Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Invoice Template (for printing) -->
+    <div id="invoiceTemplate" class="hidden">
+        <div class="invoice-sheet">
+            <div class="invoice-accent"></div>
+            <div class="invoice-body">
+                <div class="invoice-header">
+                    <div class="invoice-header-top">
+                        <div class="invoice-brand">
+                            <img id="invLogo" src="https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572389/newket_assets/frontend/src/assets/Images/logo-newket.png" alt="NewKet" class="invoice-logo">
+                            <div class="invoice-brand-copy">
+                                <div class="invoice-title">FACTURE</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="invoice-meta-card invoice-meta-card--below">
+                        <div class="invoice-meta-row">
+                            <span>Facture N&deg;</span>
+                            <strong id="invId"></strong>
+                        </div>
+                        <div class="invoice-meta-row">
+                            <span>Date</span>
+                            <strong id="invDate"></strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="invoice-parties">
+                    <div class="invoice-party-card">
+                        <div class="invoice-party-label">Factur&eacute; &agrave;</div>
+                        <div id="invClient" class="invoice-party-name"></div>
+                        <div id="invEmail" class="invoice-party-detail"></div>
+                    </div>
+                    <div class="invoice-party-card">
+                        <div class="invoice-party-label">Vendeur</div>
+                        <div id="invVendor" class="invoice-party-name"></div>
+                        <div class="invoice-party-detail">Partenaire NewKet</div>
+                    </div>
+                    <div class="invoice-party-card invoice-party-card--soft">
+                        <div class="invoice-party-label">R&egrave;glement</div>
+                        <div class="invoice-party-name">Paiement s&eacute;curis&eacute;</div>
+                        <div class="invoice-party-detail">S&eacute;questre NewKet jusqu&apos;&agrave; confirmation</div>
+                    </div>
+                </div>
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-center">Qt&eacute;</th>
+                            <th class="text-right">Prix unitaire</th>
+                            <th class="text-right">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invItems"></tbody>
+                </table>
+                <div class="invoice-totals">
+                    <div class="invoice-total-row">
+                        <span>Sous-total</span>
+                        <strong id="invSubtotal"></strong>
+                    </div>
+                    <div class="invoice-total-row invoice-total-row--discount hidden" id="invDiscountRow">
+                        <span>Réduction code promo</span>
+                        <strong id="invDiscount"></strong>
+                    </div>
+                    <div class="invoice-total-row hidden" id="invPromoCodeRow">
+                        <span>Code promo</span>
+                        <strong id="invPromoCode"></strong>
+                    </div>
+                    <div class="invoice-total-row">
+                        <span>Livraison</span>
+                        <strong id="invDelivery"></strong>
+                    </div>
+                    <div class="invoice-total-row invoice-total-row--grand">
+                        <span>Total</span>
+                        <strong id="invTotal"></strong>
+                    </div>
+                </div>
+                <div class="invoice-security">
+                    <div class="invoice-qr-card">
+                        <img id="invQrImage" alt="QR facture NewKet" class="invoice-qr-image">
+                        <div class="invoice-qr-copy">
+                            <div class="invoice-party-label">QR unique</div>
+                            <div id="invQrCode" class="invoice-qr-code"></div>
+                            <div class="invoice-party-detail">Scannez ce code pour ouvrir la page de v&eacute;rification de cette commande.</div>
+                            <a id="invQrLink" class="invoice-party-detail" href="#" target="_blank" rel="noreferrer noopener">Ouvrir la vérification</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 </body>
 </html>
 

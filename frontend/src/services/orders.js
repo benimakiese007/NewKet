@@ -34,10 +34,11 @@ const OrderManager = {
     /**
      * Traduit un statut backend en label français pour l'UI.
      */
-    getStatusLabel(backendStatus) {
+    getStatusLabel(backendStatus, context = 'default') {
         const isVendorDash = typeof window !== 'undefined' && window.location && window.location.pathname.includes('vendor-dashboard');
-        if (backendStatus === 'PENDING' && (isVendorDash || (window.AuthManager && window.AuthManager.role === 'supplier'))) {
-            return 'À traiter';
+        // Si c'est un achat fait par le vendeur, il est considéré comme acheteur pour cette commande.
+        if (context !== 'buyer' && backendStatus === 'PENDING' && (isVendorDash || (window.AuthManager && window.AuthManager.role === 'supplier'))) {
+            return 'À vous de jouer';
         }
         return this.STATUS_LABELS[backendStatus] || backendStatus || 'Inconnu';
     },
