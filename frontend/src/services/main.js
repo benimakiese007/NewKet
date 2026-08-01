@@ -85,9 +85,9 @@ const App = {
                             L&apos;&eacute;quipe admin garde l&apos;acc&egrave;s pour la supervision et le r&eacute;tablissement du service.
                         </p>
                         <div style="margin-top:30px; display:flex; justify-content:center;">
-                            <a href="/src/pages/login.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; text-decoration:none; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
+                            <button onclick="(async()=>{try{if(window.supabaseClient)await window.supabaseClient.auth.signOut();}catch(_){}window.location.href='/src/pages/login.html';})()" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; border:none; cursor:pointer; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
                                 Acc&egrave;s admin
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -114,9 +114,9 @@ const App = {
                             L’espace administrateur reste disponible pour la connexion et la supervision.
                         </p>
                         <div style="margin-top:28px; display:flex; justify-content:center;">
-                            <a href="/src/pages/login.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; text-decoration:none; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
+                            <button onclick="(async()=>{try{if(window.supabaseClient)await window.supabaseClient.auth.signOut();}catch(_){}window.location.href='/src/pages/login.html';})()" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:16px; background:#ffffff; color:#0f172a; border:none; cursor:pointer; font-size:12px; font-weight:900; letter-spacing:.12em; text-transform:uppercase;">
                                 Se connecter en admin
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
