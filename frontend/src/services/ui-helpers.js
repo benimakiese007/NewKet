@@ -714,7 +714,7 @@ export function buildProductCardHTML(p, options = {}) {
                     title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">
                     <iconify-icon icon="${isFavorite ? 'solar:heart-bold' : 'solar:heart-linear'}" width="18" style="color: ${isFavorite ? '#ef4444' : '#6b7280'}"></iconify-icon>
                 </button>
-                <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">
+                <a href="${productPagePath}" aria-label="Voir le produit : ${p.name}" title="${p.name}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">
                     <img
                         ${productImgAttrs}
                         alt="${p.name}"
