@@ -175,8 +175,16 @@ test.describe('Vérification boutons - Dashboard Vendeur', () => {
         await page.fill('#password', 'Phoenix_2026!');
         await page.locator('button:has-text("Accepter tout")').click().catch(() => {});
         await page.click('#submitBtn', { force: true });
-        await page.waitForTimeout(4000);
+        // Attendre que auth.js charge le rôle supplier et redirige vers le dashboard vendeur
+        await page.waitForURL(/vendor-dashboard|choose-role/, { timeout: 20000 }).catch(() => {});
+        // Si redirection vers choose-role, attendre 1s supplémentaire que le JS se stabilise
+        if (page.url().includes('choose-role')) {
+            await page.waitForTimeout(2000);
+        } else {
+            await page.waitForTimeout(3000);
+        }
     });
+
 
     for (const pageInfo of VENDOR_PAGES) {
         test(`${pageInfo.name} — boutons visibles et accessibles`, async ({ page }) => {
