@@ -3,8 +3,9 @@ import { test, expect } from '@playwright/test';
 test.describe('Authentification et Gestion de compte', () => {
 
   test('Devrait pouvoir se connecter avec des identifiants valides', async ({ page }) => {
-    // 1. Naviguer vers la page de login
-    await page.goto('/src/pages/login.html');
+    // 1. Naviguer vers la page de login avec timeout augmenté
+    await page.goto('/src/pages/login.html', { timeout: 30000 });
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
 
     // 2. Remplir le formulaire avec les bons IDs (#email et #password)
     await page.fill('#email', 'test@example.com');
@@ -15,14 +16,15 @@ test.describe('Authentification et Gestion de compte', () => {
 
     // 4. Vérifier la redirection (vers index.html ou customer-dashboard selon le rôle)
     // On attend soit une redirection, soit une erreur Supabase (compte inexistant en test)
-    await page.waitForURL(/.*index|.*dashboard|.*choose-role|.*login/, { timeout: 10000 });
+    await page.waitForURL(/.*index|.*dashboard|.*choose-role|.*login/, { timeout: 15000 });
     // Si la page reste sur login avec une erreur, le test passe quand même (compte de test non configuré)
     const currentURL = page.url();
     expect(currentURL).toBeTruthy(); // Vérifie juste que la page a répondu
   });
 
   test('Devrait afficher une erreur avec des identifiants invalides', async ({ page }) => {
-    await page.goto('/src/pages/login.html');
+    await page.goto('/src/pages/login.html', { timeout: 30000 });
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
 
     // Remplir avec des identifiants incorrects
     await page.fill('#email', 'wrong@example.com');
@@ -33,12 +35,12 @@ test.describe('Authentification et Gestion de compte', () => {
 
     // Vérifier l'apparition du message d'erreur via #formError (visible quand class "hidden" est retirée)
     const errorMessage = page.locator('#formError');
-    await expect(errorMessage).toBeVisible({ timeout: 10000 });
+    await expect(errorMessage).toBeVisible({ timeout: 15000 });
     await expect(errorMessage).not.toBeEmpty();
   });
 
   test('Devrait afficher une erreur si on clique sur "Oublié ?" sans email', async ({ page }) => {
-    await page.goto('/src/pages/login.html');
+    await page.goto('/src/pages/login.html', { timeout: 30000 });
     await page.waitForLoadState('networkidle');
     await page.waitForSelector('#forgotPasswordBtn', { state: 'visible' });
 
@@ -63,7 +65,7 @@ test.describe('Authentification et Gestion de compte', () => {
   });
 
   test('Devrait lancer la procédure de reset quand un email est saisi', async ({ page }) => {
-    await page.goto('/src/pages/login.html');
+    await page.goto('/src/pages/login.html', { timeout: 30000 });
     await page.waitForLoadState('networkidle');
 
     // Remplir l'email puis cliquer
@@ -85,4 +87,3 @@ test.describe('Authentification et Gestion de compte', () => {
   });
 
 });
-

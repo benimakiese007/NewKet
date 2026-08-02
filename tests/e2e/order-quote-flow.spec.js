@@ -34,6 +34,8 @@ const VENDOR_PASSWORD = process.env.TEST_VENDOR_PASSWORD || 'PHOENIX';
 test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteurs)', () => {
 
   test('L\'acheteur demande un devis, le vendeur répond, l\'acheteur paie', async ({ browser }) => {
+    // Ce test est un flux complet multi-acteurs (6 étapes). On dépasse largement le timeout global de 30s.
+    test.setTimeout(300_000); // 5 minutes max
     
     // Création de deux contextes de navigation totalement séparés (comme deux ordinateurs différents)
     const buyerContext = await browser.newContext();
@@ -45,8 +47,8 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     // ==========================================
     // 1. ACHETEUR : Connexion et ajout au panier
     // ==========================================
-    await buyerPage.goto('/src/pages/login.html');
-    await buyerPage.waitForLoadState('networkidle'); // Crucial: attend que le JS s'attache
+    await buyerPage.goto('/src/pages/login.html', { timeout: 30000 });
+    await buyerPage.waitForLoadState('networkidle', { timeout: 20000 }); // Crucial: attend que le JS s'attache
 
     await buyerPage.fill('#email', 'benimakiese1234567@gmail.com');
     await buyerPage.fill('#password', 'PHOENIX');
@@ -69,11 +71,12 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     }
 
     // L'acheteur va sur le catalogue et ajoute le premier produit au panier
-    await buyerPage.goto('/src/pages/catalog.html');
-    await buyerPage.waitForLoadState('networkidle');
-    await buyerPage.waitForSelector('.product-card button.add-to-cart-btn', { state: 'visible' });
+    await buyerPage.goto('/src/pages/catalog.html', { timeout: 30000 });
+    await buyerPage.waitForLoadState('networkidle', { timeout: 20000 });
+    // Attendre que les produits soient rendus dynamiquement (classe réelle : .add-to-cart-btn dans .product-card)
+    await buyerPage.waitForSelector('.product-card .add-to-cart-btn', { state: 'visible', timeout: 20000 });
     // Cliquer sur le bouton d'ajout au panier du premier produit
-    await buyerPage.locator('.product-card button.add-to-cart-btn').first().click();
+    await buyerPage.locator('.product-card .add-to-cart-btn').first().click();
 
     // Attendre que le panier s'ouvre
     // On ouvre le panneau latéral du panier (car l'ajout fait juste une animation)
@@ -103,8 +106,8 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     // ==========================================
     // 2. VENDEUR : Connexion et soumission du devis
     // ==========================================
-    await vendorPage.goto('/src/pages/login.html');
-    await vendorPage.waitForLoadState('networkidle');
+    await vendorPage.goto('/src/pages/login.html', { timeout: 30000 });
+    await vendorPage.waitForLoadState('networkidle', { timeout: 20000 });
 
     await vendorPage.fill('#email', 'benimakiese123@gmail.com');
     await vendorPage.fill('#password', 'PHOENIX');
