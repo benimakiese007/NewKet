@@ -27,9 +27,9 @@ try {
 // /!\ ATTENTION: Pour que ce test fonctionne de bout en bout avec la base de données réelle,
 // vous devez définir des variables d'environnement ou modifier ces constantes avec de vrais comptes.
 const BUYER_EMAIL = process.env.TEST_BUYER_EMAIL || 'benimakiese1234567@gmail.com';
-const BUYER_PASSWORD = process.env.TEST_BUYER_PASSWORD || 'PHOENIX';
+const BUYER_PASSWORD = process.env.TEST_BUYER_PASSWORD || 'Phoenix_2026!';
 const VENDOR_EMAIL = process.env.TEST_VENDOR_EMAIL || 'benimakiese123@gmail.com';
-const VENDOR_PASSWORD = process.env.TEST_VENDOR_PASSWORD || 'PHOENIX';
+const VENDOR_PASSWORD = process.env.TEST_VENDOR_PASSWORD || 'Phoenix_2026!';
 
 test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteurs)', () => {
 
@@ -51,7 +51,7 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     await buyerPage.waitForLoadState('networkidle', { timeout: 20000 }); // Crucial: attend que le JS s'attache
 
     await buyerPage.fill('#email', 'benimakiese1234567@gmail.com');
-    await buyerPage.fill('#password', 'PHOENIX');
+    await buyerPage.fill('#password', 'Phoenix_2026!');
     // Accepter les cookies si présents
     await buyerPage.locator('button:has-text("Accepter tout")').click().catch(() => {});
     await buyerPage.click('#submitBtn', { force: true });
@@ -110,7 +110,7 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     await vendorPage.waitForLoadState('networkidle', { timeout: 20000 });
 
     await vendorPage.fill('#email', 'benimakiese123@gmail.com');
-    await vendorPage.fill('#password', 'PHOENIX');
+    await vendorPage.fill('#password', 'Phoenix_2026!');
     await vendorPage.locator('button:has-text("Accepter tout")').click().catch(() => {});
     await vendorPage.click('#submitBtn', { force: true });
     
@@ -210,41 +210,38 @@ test.describe('Flux complet : Commande -> Devis vendeur -> Paiement (Multi-Acteu
     // La modale ouverte ou la carte cliquée ont cet attribut
     let orderId = '';
     
-    // Méthode 1: lire depuis le modal s'il a un data-order-id
-    const modalEl = buyerPage.locator('#orderModal[data-order-id], [data-current-order-id]').first();
-    if (await modalEl.isVisible({ timeout: 2000 }).catch(() => false)) {
-        orderId = await modalEl.getAttribute('data-order-id') || await modalEl.getAttribute('data-current-order-id') || '';
-    }
-    
-    // Méthode 2: lire depuis la carte qui a été cliquée
-    if (!orderId) {
-        const openCard = buyerPage.locator('[data-order-id]').filter({ hasText: 'READY_FOR_PAYMENT' }).first();
-        orderId = await openCard.getAttribute('data-order-id').catch(() => '');
-    }
-    
-    // Méthode 3: lire depuis le texte affiché dans la modale
-    if (!orderId) {
-        const orderIdText = await buyerPage.locator('.text-\\[10px\\], [class*="text-xs"]').filter({ hasText: /ORD_/ }).first().innerText().catch(() => '');
-        // Extraire le format "ORD_XXXX_TIMESTAMP" avec regex
-        const match = orderIdText.match(/(ORD_[A-Z0-9]+_\d+)/i);
-        orderId = match ? match[1] : '';
-    }
-    
-    // Méthode 4: via JavaScript dans la page (variable globale currentSelectedOrder)
-    if (!orderId) {
-        orderId = await buyerPage.evaluate(() => {
-            // La fonction openOrderModal() stocke l'ordre courant dans currentSelectedOrder
-            if (window.currentSelectedOrder?.id) return window.currentSelectedOrder.id;
-            // Fallback: lire depuis le texte du titre de la modale ("Commande #ORD_...")
-            const titleEl = document.getElementById('modalOrderIdText');
-            if (titleEl) {
-                const text = titleEl.textContent.trim();
-                const m = text.match(/(ORD_[A-Z0-9]+_\d+)/i);
-                if (m) return m[1];
+    // Essayer de récupérer l'ID avec JavaScript directement depuis le DOM pour être plus rapide et éviter les timeouts implicites Playwright
+    orderId = await buyerPage.evaluate(() => {
+        // 1. Depuis la variable globale du frontend
+        if (window.currentSelectedOrder && window.currentSelectedOrder.id) {
+            return window.currentSelectedOrder.id;
+        }
+        
+        // 2. Depuis le HTML Modal
+        const modal = document.getElementById('orderModal');
+        if (modal) {
+            const id = modal.getAttribute('data-order-id') || modal.getAttribute('data-current-order-id');
+            if (id) return id;
+        }
+        
+        // 3. Depuis le texte du Modal
+        const titleEl = document.getElementById('modalOrderIdText');
+        if (titleEl) {
+            const match = titleEl.textContent.match(/(ORD_[A-Z0-9]+_\d+)/i);
+            if (match) return match[1];
+        }
+        
+        // 4. Depuis la carte cliquée
+        const cards = document.querySelectorAll('.glass-panel, [data-order-id]');
+        for (const card of cards) {
+            if (card.textContent.includes('À VOUS DE JOUER') || card.textContent.includes('READY_FOR_PAYMENT')) {
+                const id = card.getAttribute('data-order-id');
+                if (id) return id;
             }
-            return '';
-        });
-    }
+        }
+        
+        return '';
+    });
     
     console.log(`Order ID extrait: "${orderId}"`);
     

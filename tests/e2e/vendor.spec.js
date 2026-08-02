@@ -4,7 +4,8 @@ test.describe('Espace Vendeur (Vendor Dashboard)', () => {
 
   test('Devrait afficher le tableau de bord vendeur', async ({ page }) => {
     // Naviguer vers la page vendeur
-    await page.goto('/src/pages/vendor-dashboard.html');
+    await page.goto('/src/pages/vendor-dashboard.html', { timeout: 30000 });
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
 
     // Vérifier la présence d'éléments clés du dashboard
     // Par exemple : statistiques, liste des produits, commandes
@@ -16,7 +17,8 @@ test.describe('Espace Vendeur (Vendor Dashboard)', () => {
   });
 
   test('Devrait permettre à un vendeur d\'ajouter un produit', async ({ page }) => {
-    await page.goto('/src/pages/vendor-dashboard.html'); // ou publish.html
+    await page.goto('/src/pages/vendor-dashboard.html', { timeout: 30000 }); // ou publish.html
+    await page.waitForLoadState('networkidle', { timeout: 20000 });
 
     // Trouver le bouton "Ajouter un produit" ou l'onglet correspondant
     // await page.click('text=Ajouter un produit');

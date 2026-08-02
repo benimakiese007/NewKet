@@ -1,0 +1,64 @@
+========================================================================
+PRÉSENTATION DU PROJET : NEWKET MARKETPLACE
+========================================================================
+
+1. QU'EST-CE QUE NEWKET ?
+------------------------------------------------------------------------
+NewKet est une plateforme e-commerce (marketplace) fullstack conçue 
+principalement pour le marché de la République Démocratique du Congo (RDC).
+Elle permet de connecter directement les acheteurs et les vendeurs locaux 
+en garantissant une sécurité totale lors des transactions.
+
+La grande force de NewKet, c'est son système de "séquestre" (Escrow) : 
+l'argent de l'acheteur est bloqué et protégé par la plateforme, et n'est 
+versé au vendeur qu'une fois la livraison du produit confirmée. 
+Zéro arnaque, zéro risque.
+
+
+2. LES FONCTIONNALITÉS (FEATURES) IMPLÉMENTÉES
+------------------------------------------------------------------------
+Voici les principales fonctionnalités qui ont été développées et 
+intégrées dans la plateforme :
+
+* Le Système de Séquestre (Escrow) Inviolable :
+  - Lorsqu'un client paie, les fonds sont placés en attente (statut 
+    DEFERRED_CLEARANCE).
+  - L'argent reste bloqué en toute sécurité le temps de la livraison.
+
+* Le Paiement Local & International (Multi-devises) :
+  - Intégration de l'API FlexPaie pour accepter à la fois les paiements 
+    par Mobile Money et par Carte Bancaire, en Francs Congolais 
+    (CDF) et en Dollars (USD).
+
+* L'Automatisation des Paiements Vendeurs (Payouts) :
+  - Un système de "Cron Job" (tâche automatisée) tourne en arrière-plan.
+  - Après la confirmation de livraison et un délai de sécurité de 72 heures, 
+    le système transfère automatiquement l'argent sur le compte du vendeur.
+
+* Gestion des Webhooks & Sécurité Financière :
+  - L'API écoute les retours de FlexPaie en temps réel.
+  - Implémentation de "l'idempotence" (pour éviter qu'un acheteur soit 
+    débité deux fois par erreur à cause d'un bug réseau).
+
+* Espace Vendeur & Gestion de Catalogue :
+  - Les vendeurs peuvent créer leur boutique, ajouter des produits, 
+    et suivre leurs ventes et l'état de leurs fonds en temps réel.
+
+* Espace Acheteur :
+  - Parcours d'achat fluide (Checkout), suivi des commandes, et 
+    possibilité d'ouvrir un "Litige" si le produit n'est pas conforme.
+
+
+3. POURQUOI CES FONCTIONNALITÉS SONT IMPORTANTES ?
+------------------------------------------------------------------------
+La confiance est le plus grand obstacle au commerce en ligne en Afrique. 
+Grâce aux features développées (notamment le séquestre, le Mobile Money, 
+et l'automatisation des paiements à 72h), NewKet résout techniquement le 
+problème de la confiance. 
+
+Les vendeurs n'ont plus peur d'envoyer des articles sans être payés, 
+et les acheteurs n'ont plus peur de payer sans recevoir leurs articles.
+
+========================================================================
+Document généré pour l'équipe NewKet.
+========================================================================
