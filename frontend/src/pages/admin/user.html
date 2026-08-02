@@ -663,7 +663,7 @@
                         const isPending = u.status === 'pending';
                         const isBusinessPending = u.business_verification_status === 'pending';
                         const needsReview = (isPending || isSubmitted || isBusinessPending) && u.role === 'supplier';
-                        const avatarUrl = u.avatar || u.avatar_url || u.picture || u.photo_url || u.picture_url || u.cover_image || null;
+                        const avatarUrl = u.avatar || u.avatar_url || u.picture || u.photo_url || u.picture_url || null;
                         const initialsSource = u.name || UserManager.getDisplayName(u) || (u.email ? u.email.split('@')[0] : '');
                         const initials = (window.getInitials ? window.getInitials(initialsSource) : (initialsSource || '?').trim().charAt(0).toUpperCase());
                         const hasNoLogo = u.role === 'supplier' && !avatarUrl;
@@ -678,9 +678,9 @@
                         <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
                             <td class="p-4 cursor-pointer" onclick="openUserDetails('${u.email}')">
                                 <div class="flex items-center gap-4 min-w-0">
-                                    <div class="admin-user-avatar transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
+                                    <div class="admin-user-avatar shrink-0 transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}" style="width:48px;height:48px;min-width:48px;min-height:48px;border-radius:9999px;overflow:hidden;flex:none;">
                                         ${avatarUrl
-                                            ? `<img src="${avatarUrl}" alt="" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; const s=this.parentElement.querySelector('span'); if(s){s.style.display='flex';}">`
+                                            ? `<img src="${avatarUrl}" alt="" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; const s=this.parentElement.querySelector('span'); if(s){s.style.display='flex';}" style="width:100%;height:100%;object-fit:cover;border-radius:9999px;display:block;flex:none;">`
                                             : ''
                                         }
                                         <span class="text-sm font-black" style="${avatarUrl ? 'display:none;' : 'display:flex;'}">${initials}</span>
