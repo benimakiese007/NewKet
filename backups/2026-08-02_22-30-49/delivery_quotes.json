@@ -1,0 +1,50 @@
+[
+  {
+    "id": "53473f24-4ff0-448c-8110-7e720b98cf8a",
+    "order_id": "ORD_1CA434FA13_1785168819269",
+    "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "delivery_fee_amount": 2500,
+    "estimated_delay_hours": 48,
+    "note": "ALLO OUI",
+    "status": "ACCEPTED",
+    "created_at": "2026-07-27T16:16:10.476837+00:00",
+    "responded_at": "2026-07-27T16:16:25.589+00:00",
+    "expires_at": null
+  },
+  {
+    "id": "44015aa0-c85a-4ad7-b520-02aa090bfa05",
+    "order_id": "ORD_5550BDD918_1785239042857",
+    "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "delivery_fee_amount": 5000,
+    "estimated_delay_hours": 48,
+    "note": "ALLO d'accord",
+    "status": "ACCEPTED",
+    "created_at": "2026-07-28T11:48:04.411453+00:00",
+    "responded_at": "2026-07-28T11:48:14.695+00:00",
+    "expires_at": null
+  },
+  {
+    "id": "d47af641-c01f-4960-af98-9e77601ce003",
+    "order_id": "ORD_F7171C1CBB_1785631131492",
+    "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "delivery_fee_amount": 5000,
+    "estimated_delay_hours": 48,
+    "note": "Test automatisé: Frais de port standards",
+    "status": "ACCEPTED",
+    "created_at": "2026-08-02T00:39:48.04794+00:00",
+    "responded_at": "2026-08-02T00:39:59.106+00:00",
+    "expires_at": null
+  },
+  {
+    "id": "ffea34d9-d1de-4685-a959-9bded616582a",
+    "order_id": "ORD_D94341166B_1785631824730",
+    "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "delivery_fee_amount": 5000,
+    "estimated_delay_hours": 48,
+    "note": "Test automatisé: Frais de port standards",
+    "status": "ACCEPTED",
+    "created_at": "2026-08-02T00:51:09.435903+00:00",
+    "responded_at": "2026-08-02T00:51:20.561+00:00",
+    "expires_at": null
+  }
+]

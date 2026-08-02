@@ -1,0 +1,15 @@
+[
+  {
+    "id": "ea772f6b-6686-4dc7-ba6c-8498319606c0",
+    "inviter_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "invitee_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "referral_code": "BENIMAKIESE-EB6B16",
+    "status": "rewarded",
+    "source": "order_completion",
+    "reward_amount": 1,
+    "invited_at": "2026-06-04T03:04:33.966+00:00",
+    "qualified_at": "2026-07-17T16:39:18.029283+00:00",
+    "rewarded_at": "2026-07-17T16:39:18.029283+00:00",
+    "notes": "NKToken granted on first completed order"
+  }
+]

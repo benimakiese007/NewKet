@@ -45,6 +45,7 @@ import accountingRoutes from './routes/accounting.routes.js';
 import adminPayoutsRoutes from './routes/admin-payouts.routes.js';
 import metaRoutes from './routes/meta.routes.js';
 import gdprRoutes from './routes/gdpr.routes.js';
+import verificationRoutes from './routes/verification.routes.js';
 import consentRoutes from './routes/consent.routes.js';
 import { releaseDueEscrowsJob } from './services/order-workflow.js';
 import { processDueDisputesJob } from './controllers/dispute.controller.js';
@@ -238,6 +239,7 @@ app.use('/api/admin/payouts', adminPayoutsRoutes);
 app.use('/api/meta', metaRoutes);
 app.use('/api/gdpr', gdprRoutes);
 app.use('/api/consent', consentRoutes);
+app.use('/api/verification', verificationRoutes);
 
 app.use(sentryErrorHandler);
 

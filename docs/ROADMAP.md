@@ -20,5 +20,10 @@ Ce document liste les prochaines grandes fonctionnalités (features) prévues po
 *   **Concept :** Proposer une réduction spéciale sur un article si l'acheteur réussit à convaincre 1 ou 2 amis d'acheter le même produit dans un délai imparti (ex: 24h).
 *   *Avantage : Les acheteurs partagent les liens NewKet dans leurs groupes WhatsApp pour débloquer leur réduction, ce qui génère du trafic gratuit et de nouvelles ventes.*
 
+## 4. Section "NewKet Mall" (Boutiques Officielles)
+**Objectif :** Créer un espace Premium pour les grandes marques et rassurer les clients sur l'authenticité.
+*   **Concept :** Une zone VIP sur l'application réservée uniquement aux très grandes marques ou aux gros distributeurs certifiés. Les marchands pourraient payer un abonnement "Premium" pour obtenir ce badge de certification et cette visibilité exclusive.
+*   *Avantage : Apporte un immense prestige à la plateforme et offre une nouvelle source de revenus (monétisation).*
+
 ---
 *Note technique : Conformément aux directives de sécurité et de simplification, NewKet ne gère pas de système de "Wallet" (portefeuille interne) stockant l'argent des utilisateurs sur la plateforme à long terme. Tous les flux passent directement par le système de paiement et le séquestre.*

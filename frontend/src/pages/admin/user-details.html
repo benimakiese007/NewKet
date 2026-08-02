@@ -500,28 +500,32 @@
             // Populate Vendor Details Panel
             const detailsPanel = document.getElementById('vendorDetailsPanel');
             const detailsContent = document.getElementById('vendorDetailsContent');
-            if (user.company_name || user.store_description || documentUrls.length > 0 || user.status === 'submitted' || user.status === 'pending') {
+            if (user.company_name || user.store_description || documentUrls.length > 0 || user.status === 'submitted' || user.status === 'pending' || user.rccm_number || user.business_verification_status) {
                 detailsPanel.classList.remove('hidden');
 
                 let docsHtml = '';
-                if (documentUrls.length > 0) {
+                if (documentUrls.length > 0 || user.rccm_document_url) {
                     docsHtml = `
                         <div class="mt-4 pt-4 border-t border-gray-100">
-                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Documents <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-1">${documentUrls.length} fichier(s)</span></p>
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Documents <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-1">${documentUrls.length + (user.rccm_document_url ? 1 : 0)} fichier(s)</span></p>
                             <div class="flex flex-col gap-2">
                                 ${documentUrls.map((url, idx) => {
-                        // S'assurer que l'URL est complète et pointe vers le bon domaine Supabase
                         const finalUrl = url.startsWith('http') ? url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-docs/${url}`;
                         return `
                                         <a href="${finalUrl}" target="_blank" class="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded-xl hover:bg-blue-100 transition-colors">
-                                            <iconify-icon icon="solar:document-bold"></iconify-icon> Voir Document ${idx + 1}
+                                            <iconify-icon icon="solar:document-bold"></iconify-icon> Voir Document Initial ${idx + 1}
                                         </a>
                                     `;
                     }).join('')}
+                                ${user.rccm_document_url ? `
+                                    <a href="${user.rccm_document_url.startsWith('http') ? user.rccm_document_url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-documents/${user.rccm_document_url}`}" target="_blank" class="flex items-center gap-2 text-xs font-bold text-purple-600 bg-purple-50 px-3 py-2 rounded-xl hover:bg-purple-100 transition-colors">
+                                        <iconify-icon icon="solar:document-bold"></iconify-icon> Document RCCM (Certification Pro)
+                                    </a>
+                                ` : ''}
                             </div>
                         </div>
                     `;
-                } else if (user.status === 'submitted' || user.status === 'pending') {
+                } else if (user.status === 'submitted' || user.status === 'pending' || user.business_verification_status === 'pending') {
                     docsHtml = `
                         <div class="mt-4 pt-4 border-t border-gray-100">
                            <p class="text-xs text-red-500 font-bold bg-red-50 p-2 rounded-xl"><iconify-icon icon="solar:danger-triangle-bold"></iconify-icon> Aucun document fourni par ce vendeur.</p>
@@ -529,17 +533,36 @@
                     `;
                 }
 
+                const safeName = UserManager.getDisplayName(user).replace(/'/g, "\\'");
                 let actionButtonsHtml = '';
                 if (user.status === 'submitted' || user.status === 'pending') {
-                    const safeName = UserManager.getDisplayName(user).replace(/'/g, "\\'");
-                    actionButtonsHtml = `
-                        <div class="mt-6 pt-4 border-t border-gray-100 flex gap-2">
-                            <button onclick="approveVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:approve_vendor_click" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-all flex items-center justify-center gap-2">
-                                <iconify-icon icon="solar:check-read-bold" width="18"></iconify-icon> Approuver
-                            </button>
-                            <button onclick="rejectVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:reject_vendor_click" class="flex-1 py-3 bg-red-50 text-red-500 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2">
-                                <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon> Rejeter
-                            </button>
+                    actionButtonsHtml += `
+                        <div class="mt-6 pt-4 border-t border-gray-100">
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Vérification Boutique</p>
+                            <div class="flex gap-2">
+                                <button onclick="approveVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:approve_vendor_click" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-all flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:check-read-bold" width="18"></iconify-icon> Approuver
+                                </button>
+                                <button onclick="rejectVendor('${user.id}', '${safeName}')" data-track-action="admin_user_details:reject_vendor_click" class="flex-1 py-3 bg-red-50 text-red-500 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon> Rejeter
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (user.business_verification_status === 'pending') {
+                    actionButtonsHtml += `
+                        <div class="mt-6 pt-4 border-t border-gray-100">
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Certification Pro (RCCM)</p>
+                            <div class="flex gap-2">
+                                <button onclick="approveBusinessCertification('${user.id}', '${safeName}')" data-track-action="admin_user_details:approve_business_click" class="flex-1 py-3 bg-purple-500 text-white rounded-xl font-bold hover:bg-purple-600 transition-all flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:verified-check-bold" width="18"></iconify-icon> Approuver Pro
+                                </button>
+                                <button onclick="rejectBusinessCertification('${user.id}', '${safeName}')" data-track-action="admin_user_details:reject_business_click" class="flex-1 py-3 bg-red-50 text-red-500 rounded-xl font-bold hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+                                    <iconify-icon icon="solar:close-circle-bold" width="18"></iconify-icon> Rejeter Pro
+                                </button>
+                            </div>
                         </div>
                     `;
                 }
@@ -557,9 +580,20 @@
                         </div>
                     `
                     : '';
+                
+                let businessStatusBadge = '';
+                if(user.business_verification_status) {
+                    const bColor = user.business_verification_status === 'pending' ? 'bg-orange-100 text-orange-600' :
+                                   user.business_verification_status === 'verified' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600';
+                    const bLabel = user.business_verification_status === 'pending' ? 'En attente' :
+                                   user.business_verification_status === 'verified' ? 'Vérifié' : 'Rejeté';
+                    businessStatusBadge = `<div><p class="text-[10px] uppercase font-bold text-gray-400">Statut Certification Pro</p><span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${bColor}">${bLabel}</span></div>`;
+                }
 
                 detailsContent.innerHTML = `
                     ${user.role === 'supplier' ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Type de compte</p><p class="font-bold text-gray-900">${getSellerTypeConfig(sellerType).label}</p></div>` : ''}
+                    ${businessStatusBadge}
+                    ${user.rccm_number ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Numéro RCCM</p><p class="font-bold text-gray-900">${user.rccm_number}</p></div>` : ''}
                     ${user.company_name ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Nom Professionnel</p><p class="font-bold text-gray-900">${user.company_name}</p></div>` : ''}
                     ${user.shipping_time ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Délai d'expédition</p><p class="font-bold text-blue-600">${user.shipping_time}</p></div>` : ''}
                     ${user.store_description ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Description</p><p class="text-gray-600 leading-relaxed">${user.store_description}</p></div>` : ''}
@@ -851,6 +885,81 @@
                     if (window.showToast) window.showToast("Erreur lors du rejet: " + err.message, 'danger', 'Erreur');
                 } finally {
                     if (window.LoaderManager) LoaderManager.hide();
+                }
+            });
+        }
+
+        async function approveBusinessCertification(id, name) {
+            window.showConfirm("Approuver Certification Pro", `Voulez-vous approuver le badge Vendeur Pro pour ${name} ?`, async () => {
+                if (window.LoaderManager) LoaderManager.show("Approbation...");
+                
+                try {
+                    const token = localStorage.getItem('supabase_token'); // Ensure we have the token for backend request
+                    const response = await fetch(`/api/verification/${id}/approve`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    if(response.ok) {
+                        if (window.showToast) window.showToast(`Le vendeur ${name} est désormais Certifié Pro.`, 'success', 'Approuvé');
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        throw new Error(data.error || 'Erreur lors de l\'approbation');
+                    }
+                } catch (err) {
+                    console.error("Erreur:", err);
+                    if (window.showToast) window.showToast(err.message, 'danger', 'Erreur');
+                } finally {
+                    if (window.LoaderManager) LoaderManager.hide();
+                }
+            });
+        }
+
+        async function rejectBusinessCertification(id, name) {
+            Swal.fire({
+                title: "Rejeter la Certification",
+                text: `Motif du rejet pour ${name} :`,
+                input: 'textarea',
+                inputPlaceholder: "Veuillez préciser le motif (document illisible, numéro invalide...)",
+                showCancelButton: true,
+                confirmButtonText: "Confirmer le Rejet",
+                cancelButtonText: "Annuler",
+                confirmButtonColor: "#EF4444",
+                showLoaderOnConfirm: true,
+                preConfirm: async (reason) => {
+                    if (!reason || !reason.trim()) {
+                        Swal.showValidationMessage("Le motif est obligatoire.");
+                        return false;
+                    }
+                    try {
+                        const token = localStorage.getItem('supabase_token');
+                        const response = await fetch(`/api/verification/${id}/reject`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ reason: reason.trim() })
+                        });
+                        
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Erreur lors du rejet');
+                        }
+                        return data;
+                    } catch (error) {
+                        Swal.showValidationMessage(`Erreur: ${error.message}`);
+                    }
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (window.showToast) window.showToast("La demande de certification a été rejetée.", "info", "Rejeté");
+                    setTimeout(() => window.location.reload(), 1500);
                 }
             });
         }

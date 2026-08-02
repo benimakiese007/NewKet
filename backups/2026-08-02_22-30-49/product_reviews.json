@@ -1,0 +1,2912 @@
+[
+  {
+    "id": "6acd8346-1441-4985-95b4-de47b5004680",
+    "product_id": "cc233e33-163b-47bf-bc9b-d1fb06eb121c",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "La taille est parfaite, le rendu est super.",
+    "created_at": "2026-07-12T01:49:03.75583+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f7994a53-e8e4-41ce-a29b-4b7d1b228e6e",
+    "product_id": "cc233e33-163b-47bf-bc9b-d1fb06eb121c",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:03.75583+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b1689fad-9fef-459a-9e1c-f34860ffd828",
+    "product_id": "3b761bee-1155-4dc1-82b8-bf0f5063132a",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:05.09862+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8400b723-807f-414f-b741-4286c4ee0e44",
+    "product_id": "3b761bee-1155-4dc1-82b8-bf0f5063132a",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:05.09862+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2ba7ebe2-0158-44ea-b706-5916d6543ba5",
+    "product_id": "3b761bee-1155-4dc1-82b8-bf0f5063132a",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "La taille est parfaite, le rendu est super.",
+    "created_at": "2026-07-12T01:49:05.09862+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e686d9ef-aed7-4d78-b015-4895f97fd4b4",
+    "product_id": "d021db4e-587e-4b13-9d6f-0b26c76a8df5",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 3,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:05.784195+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "995e5ab5-5f5d-48d0-b6d7-e432f9f90d76",
+    "product_id": "d021db4e-587e-4b13-9d6f-0b26c76a8df5",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:05.784195+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ca175d86-dc82-4f72-93eb-110c1a57c0ba",
+    "product_id": "d021db4e-587e-4b13-9d6f-0b26c76a8df5",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:05.784195+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4080bd4b-9216-4d97-9070-377ba84846e1",
+    "product_id": "d021db4e-587e-4b13-9d6f-0b26c76a8df5",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:05.784195+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "0280adec-04dc-42b3-adc0-399cab742e8d",
+    "product_id": "5f7c7c72-d1b7-469e-8669-78cc9a93386e",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:07.12909+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "bfebd009-9c23-4080-b8f7-12c4bba1a020",
+    "product_id": "5f7c7c72-d1b7-469e-8669-78cc9a93386e",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 3,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:07.12909+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4ab674f6-4b2e-43aa-916e-2882f93bce06",
+    "product_id": "5f7c7c72-d1b7-469e-8669-78cc9a93386e",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:07.12909+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "75ec403f-f363-4f5c-ba9f-00e50b6fb09b",
+    "product_id": "9b6569ed-b524-439b-be96-f0ff956988b3",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:07.811646+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2ea8b406-d3c4-4a41-9340-22e2faf34a2b",
+    "product_id": "9b6569ed-b524-439b-be96-f0ff956988b3",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:07.811646+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "161d1882-5113-40e1-8865-4e36a72c2a5a",
+    "product_id": "9b6569ed-b524-439b-be96-f0ff956988b3",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:07.811646+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "fde97e78-4b12-4971-8ef3-b50a457857c4",
+    "product_id": "9b6569ed-b524-439b-be96-f0ff956988b3",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 3,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:07.811646+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c155c90c-4aa5-471f-8d66-d42e3064a430",
+    "product_id": "9b6569ed-b524-439b-be96-f0ff956988b3",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:07.811646+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "01688e2d-ed80-422f-adb7-dc79b3829b6c",
+    "product_id": "9b6569ed-b524-439b-be96-f0ff956988b3",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:07.811646+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "accc74d6-b8b5-493c-8c94-6c3aa1820ede",
+    "product_id": "9b6569ed-b524-439b-be96-f0ff956988b3",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:07.811646+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "09f05ab5-5a47-4801-b135-cfcd84594aaf",
+    "product_id": "9b6569ed-b524-439b-be96-f0ff956988b3",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:07.811646+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "35728925-3319-4e93-9d1a-cdab4d084447",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "3aca4fb4-1493-49fd-85c8-80271db442d5",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "05330602-20b9-4449-aa8a-5aadbd0c7b56",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "98fe9115-eff9-4282-9070-10b53d79dc9c",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a7a384a9-f626-4cd3-a866-e0d44b1a82e6",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "5577f9da-a89c-4127-bf3c-228020d4b52d",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4fe821df-6080-4098-9124-ca7a1b69cdd0",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b9646f7f-9171-4cdd-9f2d-a5cb2c8b9e09",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c4fbbcb0-0dcd-41b7-a6e9-514064c3cddd",
+    "product_id": "3292b54c-814c-47ee-a188-03602f0fbe12",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:09.83359+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "807fba59-bc7f-4dbd-99a2-87ea167142cd",
+    "product_id": "0f26f78e-c9af-404b-a2f1-d213a5eac0d8",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:11.146584+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "185e463d-7609-4245-9c46-bff22591b76a",
+    "product_id": "0f26f78e-c9af-404b-a2f1-d213a5eac0d8",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 4,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:11.146584+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d6247d8a-c244-4882-9ef0-8561fa3a8b51",
+    "product_id": "0f26f78e-c9af-404b-a2f1-d213a5eac0d8",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:11.146584+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b617c4f0-f8af-4386-be71-fc6cd7eb2a44",
+    "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "Une veritable oeuvre d art ! Le rendu est superbe, bien encadre et livre avec soin. Mon joueur prefere trone maintenant dans mon bureau. Tres satisfait de cet achat.",
+    "created_at": "2026-07-02T21:26:31.376685+00:00",
+    "user_avatar": "https://lh3.googleusercontent.com/a/ACg8ocKNWrTtWMo_0OYb7Ovc-lnk7ml1NWhGOFGrLLU34hwgRy5M6OQ2=s96-c"
+  },
+  {
+    "id": "1776b7fb-9c13-464d-909a-3ae987489838",
+    "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Article recu rapidement et exactement comme sur les photos. La qualite du tableau est au rendez-vous, ca fait vraiment pro. Cadeau parfait pour un amateur de foot !",
+    "created_at": "2026-06-29T21:27:03.004575+00:00",
+    "user_avatar": "https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/user-assets/ACg8ocIoUHo4VqNxjGPWYCEF5mCFN1X5MjR4_XFm849RrogOdB7QIg=s96-c_migrated_1780792014056.webp"
+  },
+  {
+    "id": "1be80713-0ca3-4217-8390-250d4bd935a0",
+    "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Je suis bluffee par la qualite ! L affiche est bien rigide, les couleurs ne passent pas, vraiment du bon travail. Je vais en commander d autres pour les joueurs que j admire.",
+    "created_at": "2026-06-25T21:27:03.004575+00:00",
+    "user_avatar": "https://lh3.googleusercontent.com/a/ACg8ocJTpy0E_MusKEfHagvi-BXj2o5YlWUwPelj-c8H03vfmmk5xWSSPg=s96-c"
+  },
+  {
+    "id": "88c5fd36-2910-4e4c-bb81-e437bfba2f5a",
+    "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Super produit, livraison soignee et emballage protecteur. Le tableau est vraiment beau en vrai, encore plus qu en photo. Parfait pour offrir ou pour soi !",
+    "created_at": "2026-06-22T21:27:03.004575+00:00",
+    "user_avatar": "https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/user-assets/cc4ea236-0dfb-47e7-a020-67f07033e295_1777488613995_migrated_1780792021471.webp"
+  },
+  {
+    "id": "7069d425-0d1a-4889-b665-75e41e6d8710",
+    "product_id": "cc233e33-163b-47bf-bc9b-d1fb06eb121c",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:03.75583+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d7690b50-92f3-436f-81f2-43609dfbb402",
+    "product_id": "2205529c-fc15-4f46-80a1-9481e13c067b",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 3,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:48:57.964842+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d42a101f-42d6-46bb-9b5b-9297f25e8c42",
+    "product_id": "777f1f92-b5e1-4a52-8559-39882933227e",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:48:59.063903+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "7f6e9d6f-3da7-478d-a757-5ecd41ca77d9",
+    "product_id": "777f1f92-b5e1-4a52-8559-39882933227e",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:48:59.063903+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4cfc16d6-7f3f-4188-8c7e-f5a051708b8b",
+    "product_id": "777f1f92-b5e1-4a52-8559-39882933227e",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:48:59.063903+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "3c62f2fa-d30f-429a-912e-e3677dde4357",
+    "product_id": "777f1f92-b5e1-4a52-8559-39882933227e",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:48:59.063903+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e6293924-fe4b-48d0-92bc-54862db5d00e",
+    "product_id": "b92516a5-46ea-4f89-9462-213930260cfa",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 3,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:48:59.739508+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ce6341b0-1a68-44dd-9d20-bcbcc6d32abf",
+    "product_id": "b92516a5-46ea-4f89-9462-213930260cfa",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 4,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:48:59.739508+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8b9be3ad-6454-473c-9d24-fb6e87ddccba",
+    "product_id": "b92516a5-46ea-4f89-9462-213930260cfa",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:48:59.739508+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "401e1086-7eff-41da-89a4-f90d74971ddc",
+    "product_id": "b92516a5-46ea-4f89-9462-213930260cfa",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:48:59.739508+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "0fd23fd0-8101-4461-b1e1-0f6cfa0c35f6",
+    "product_id": "d69faa47-cc2b-49ef-b3f1-72bfb3838698",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:00.414575+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2b63225d-209e-4a9f-938c-6b1c53ad8359",
+    "product_id": "d69faa47-cc2b-49ef-b3f1-72bfb3838698",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "La taille est parfaite, le rendu est super.",
+    "created_at": "2026-07-12T01:49:00.414575+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "dbdbd776-c530-4c53-802d-df461fa4cb01",
+    "product_id": "d69faa47-cc2b-49ef-b3f1-72bfb3838698",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:00.414575+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "90cc52a6-16db-415a-834a-31480e981720",
+    "product_id": "d69faa47-cc2b-49ef-b3f1-72bfb3838698",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:00.414575+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "6efc53d8-5b45-48a9-956d-4152f76f8cad",
+    "product_id": "d69faa47-cc2b-49ef-b3f1-72bfb3838698",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:00.414575+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "03143993-ee40-48d5-bacd-79783578fdcc",
+    "product_id": "44b4dc98-4c55-4635-b767-28282443fe77",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 3,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:01.081911+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "86c6a161-5652-4ac5-bfed-e69e3b9690d3",
+    "product_id": "44b4dc98-4c55-4635-b767-28282443fe77",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:01.081911+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "326a60c2-aa41-436f-a701-8c8b39eabf11",
+    "product_id": "44b4dc98-4c55-4635-b767-28282443fe77",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 4,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:01.081911+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f49296fd-1019-4c1d-adfe-a45264ca9216",
+    "product_id": "44b4dc98-4c55-4635-b767-28282443fe77",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:01.081911+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "9e330c48-e661-4863-8aa7-d6d079ceb378",
+    "product_id": "74fbad70-7dde-4761-8b71-a3a52e714037",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:01.766334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "3c34bc8b-ed9a-4cb3-a832-363525631931",
+    "product_id": "74fbad70-7dde-4761-8b71-a3a52e714037",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:01.766334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "027dbccd-9508-4320-956b-8cb9500d646c",
+    "product_id": "74fbad70-7dde-4761-8b71-a3a52e714037",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 4,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:01.766334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b5be5622-3fe3-42ff-bb9a-0381141cf9be",
+    "product_id": "74fbad70-7dde-4761-8b71-a3a52e714037",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:01.766334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "118d6957-50d8-4ada-a604-45de6375b7bf",
+    "product_id": "74fbad70-7dde-4761-8b71-a3a52e714037",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:01.766334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "5d7e5e7a-2dbb-4ac2-87fb-d7dafa0dda98",
+    "product_id": "74fbad70-7dde-4761-8b71-a3a52e714037",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:01.766334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "36bbd029-1ace-430b-9bd6-830fcf34d8c8",
+    "product_id": "6a9d0b17-668b-4733-ba02-5780927bf428",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:02.437206+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "08810408-0d76-4b5f-9aa1-d5f8cf90c1e2",
+    "product_id": "6a9d0b17-668b-4733-ba02-5780927bf428",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:02.437206+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c48157f4-7f55-477e-852a-58e518078491",
+    "product_id": "6a9d0b17-668b-4733-ba02-5780927bf428",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:02.437206+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8a594aaf-9856-4dd3-b450-985e97a86fc0",
+    "product_id": "6a9d0b17-668b-4733-ba02-5780927bf428",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:02.437206+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "1005719e-d928-47ca-a33e-1b4b7174be0e",
+    "product_id": "6a9d0b17-668b-4733-ba02-5780927bf428",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 4,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:02.437206+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "618786aa-c1fb-4893-95fc-a169e7641bf7",
+    "product_id": "6a9d0b17-668b-4733-ba02-5780927bf428",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:02.437206+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "0b9772cb-6968-4694-8735-33884f6becf7",
+    "product_id": "6a9d0b17-668b-4733-ba02-5780927bf428",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 4,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:02.437206+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "223b117b-f9c5-4e33-984e-7e2a83c3b3a0",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 3,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "91c748b5-58a0-43da-8d76-cad7265b68a1",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "J'aime beaucoup, la qualité est au rendez-vous.",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "afebee02-fdff-4261-b8a6-37c3d6980d3f",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ecd41c14-426b-4c7b-9f12-a344dca8bb25",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "be748c78-94ad-411b-b53c-7a7e19633e8a",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "42de5fd6-247c-4087-aa33-893ed3204f8d",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "74d2061f-186f-4ab6-8ee3-d30d4668c061",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b2a64972-4445-48fa-8c0f-67e57024817d",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 3,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "20fd0eda-2944-4e59-a4f7-bf441fc62de4",
+    "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 3,
+    "comment": "Tableau sympa mais les couleurs sont legerement differentes de ce que j attendais. Reste un bon article pour le prix, mais je pensais que ce serait un peu plus grand.",
+    "created_at": "2026-06-12T21:27:03.004575+00:00",
+    "user_avatar": "https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/user-assets/ACg8ocLjjy3LDd43l9I1SjDw0aLeRrmWcofl7U0n6NCp4psh-V5sHA=s96-c_migrated_1780792015803.webp"
+  },
+  {
+    "id": "7e04200e-5392-4167-8a15-c4f12dc8abc3",
+    "product_id": "2205529c-fc15-4f46-80a1-9481e13c067b",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 4,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:48:57.964842+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "0fe8c169-6080-46c8-9d7a-ad32d9c33995",
+    "product_id": "eb7becc8-214e-4baa-b550-abb0da82000b",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:04.430626+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ce19f124-12de-4ee7-a207-62051ef213f8",
+    "product_id": "eb7becc8-214e-4baa-b550-abb0da82000b",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:04.430626+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8f04db7e-d000-4e6a-a501-68a25c9a2ee0",
+    "product_id": "eb7becc8-214e-4baa-b550-abb0da82000b",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:04.430626+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d399d7cd-c969-4a3c-b4a0-4467f6e00fb4",
+    "product_id": "f7e54abd-9791-45e7-abd2-996ac1506071",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 4,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:06.457334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c64aff1c-57e5-490a-9c51-02c601e6ce90",
+    "product_id": "f7e54abd-9791-45e7-abd2-996ac1506071",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:06.457334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e692714e-dd39-4532-ac26-a007471f4b5f",
+    "product_id": "f7e54abd-9791-45e7-abd2-996ac1506071",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:06.457334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "093504a8-9b53-4a43-99bd-aff39987c451",
+    "product_id": "f7e54abd-9791-45e7-abd2-996ac1506071",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:06.457334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8079827e-73eb-44d0-83bd-09ef4c204152",
+    "product_id": "f7e54abd-9791-45e7-abd2-996ac1506071",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 3,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:06.457334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a1fd9624-e66e-4dc7-9125-fc80a2f8ed6d",
+    "product_id": "6bc08b39-9083-4aba-a4c7-1b4c92982dc4",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 3,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:08.47852+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8753ffc7-c971-402f-9aff-27ab3c15585a",
+    "product_id": "6bc08b39-9083-4aba-a4c7-1b4c92982dc4",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:08.47852+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a9627c22-ce6b-4b2c-a1b8-73cd03c212fc",
+    "product_id": "6bc08b39-9083-4aba-a4c7-1b4c92982dc4",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:08.47852+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8262258b-1f74-4463-a650-8ee4869fccd5",
+    "product_id": "6bc08b39-9083-4aba-a4c7-1b4c92982dc4",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 3,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:08.47852+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "12cd4212-ae3e-469f-bc2c-dac3eda0eaf4",
+    "product_id": "83f3adfb-12a1-4d30-8f75-d39ee6ae16e8",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 3,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:10.48585+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "da1a38cf-4baa-44f6-9bfa-84e17f87c493",
+    "product_id": "83f3adfb-12a1-4d30-8f75-d39ee6ae16e8",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 3,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:10.48585+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "28493ece-ab49-468e-a588-4ca35ca1827e",
+    "product_id": "83f3adfb-12a1-4d30-8f75-d39ee6ae16e8",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 3,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:10.48585+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "60a06f27-47b3-464e-b58d-cc313c5ca5d9",
+    "product_id": "83f3adfb-12a1-4d30-8f75-d39ee6ae16e8",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:10.48585+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "04489232-0605-4d7b-b5b0-521bb108fd2a",
+    "product_id": "e3917b1e-179c-45d9-a882-36552f85287d",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:12.476331+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "38db9e4d-ce42-4422-b778-3f2b62f774c7",
+    "product_id": "e3917b1e-179c-45d9-a882-36552f85287d",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:12.476331+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "cc29e0ad-014a-4041-a391-ad4ffac4271d",
+    "product_id": "e3917b1e-179c-45d9-a882-36552f85287d",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:12.476331+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "184dec7d-f193-48c8-8d3a-e5a18c8de4bc",
+    "product_id": "f1e8d65a-bbc8-44fb-a5f4-c69bc8206e1c",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:14.260275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d387adb5-1331-400e-937c-66948dc28e2a",
+    "product_id": "f1e8d65a-bbc8-44fb-a5f4-c69bc8206e1c",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 3,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:14.260275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a8f1b653-e948-470a-8bd5-49e713afd90b",
+    "product_id": "f1e8d65a-bbc8-44fb-a5f4-c69bc8206e1c",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 4,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:14.260275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "06f33a81-3d5b-48cd-a6ce-ffd17c469976",
+    "product_id": "f1e8d65a-bbc8-44fb-a5f4-c69bc8206e1c",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 4,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:14.260275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "37606311-3e3b-4d45-8448-6b0fc16f1546",
+    "product_id": "f1e8d65a-bbc8-44fb-a5f4-c69bc8206e1c",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:14.260275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e92bb27e-ed2e-4235-a637-2bea62ae7e07",
+    "product_id": "15edeca9-f38c-4834-b67f-735ddce71101",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "J'aime beaucoup, la qualité est au rendez-vous.",
+    "created_at": "2026-07-12T01:49:16.050993+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2adf5cf5-f9ba-46f2-85d6-c537e764c366",
+    "product_id": "15edeca9-f38c-4834-b67f-735ddce71101",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:16.050993+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "da0dce7b-a52d-4781-88aa-6b09a7abddb0",
+    "product_id": "15edeca9-f38c-4834-b67f-735ddce71101",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:16.050993+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b88938b4-c758-43b6-8003-797cabc0b493",
+    "product_id": "2cc9b963-656e-4bdf-90d6-726d0a4974ab",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:17.819661+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "fb502ace-e30b-41ba-bcb0-44348ebde0d4",
+    "product_id": "2cc9b963-656e-4bdf-90d6-726d0a4974ab",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:17.819661+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c1424d78-7de4-4c23-8644-b4f802472539",
+    "product_id": "2cc9b963-656e-4bdf-90d6-726d0a4974ab",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:17.819661+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "47e295fb-923d-4f86-8d77-9e7673e87108",
+    "product_id": "2cc9b963-656e-4bdf-90d6-726d0a4974ab",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 3,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:17.819661+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "9fa893c6-fbbc-47b3-a52b-6ae915600583",
+    "product_id": "2cc9b963-656e-4bdf-90d6-726d0a4974ab",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:17.819661+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "28d61451-0ccd-42ef-95a1-b54692a821a5",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "15558ce6-c8eb-4a9f-a1a8-5b7700f36e37",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "J'aime beaucoup, la qualité est au rendez-vous.",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "3f198e97-de1b-4506-9159-839fc0a074f6",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 4,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "402c6cb5-627a-4707-a3cc-1ca4b7b25419",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "645159f5-733a-4eab-ab64-41fa397b64f4",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 3,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "dbe0bf44-0bea-40c2-9ec7-fb4619112e0c",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 3,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "da5edd9a-379a-4f9f-a38b-c5363670cdc6",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "42a5f2de-245d-4c21-9b86-7ee5ea118a6b",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 4,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "dab1fac7-8aaf-4dfe-bd4a-4b08c8c3d154",
+    "product_id": "4e607367-6348-4321-808d-adcf28481038",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:19.595565+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "de5247fa-c579-411d-8c38-d8d569d78f3b",
+    "product_id": "402d870a-1c45-4fce-9a35-02e41faf8620",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 4,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:21.383293+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8c7d565a-c6ac-4855-be5e-325d01a5a51a",
+    "product_id": "402d870a-1c45-4fce-9a35-02e41faf8620",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:21.383293+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "40cfa04a-e670-4239-a00e-fc90994d4a51",
+    "product_id": "402d870a-1c45-4fce-9a35-02e41faf8620",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:21.383293+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "de667394-eff6-4b90-b4ea-513199fc3f87",
+    "product_id": "402d870a-1c45-4fce-9a35-02e41faf8620",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:21.383293+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2c2088a4-dfa2-4457-bad3-78d453cff63f",
+    "product_id": "316ec927-5bca-4bf1-b6e9-5f0091db1331",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:11.810104+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "eb11cec9-369c-4d9f-ad19-c7fd5f603802",
+    "product_id": "316ec927-5bca-4bf1-b6e9-5f0091db1331",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:11.810104+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "eab05cbd-ddc4-4784-b168-d114f3af0c07",
+    "product_id": "316ec927-5bca-4bf1-b6e9-5f0091db1331",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 4,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:11.810104+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "35edfe78-9616-442a-8c49-d340846590a0",
+    "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 3,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:13.658904+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a28649c5-2023-4323-b61b-d2df4ad9617d",
+    "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:13.658904+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c27cd996-8850-4393-bc2f-bd838ef159a0",
+    "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 4,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:13.658904+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "19ea6f8a-9ed9-4190-b442-980eab5aee6e",
+    "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 3,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:13.658904+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "787b8a0c-443f-4ccd-9f94-414a65ccce0a",
+    "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 4,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:13.658904+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "106dc970-39a6-4dc3-978e-16889b8f1238",
+    "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:13.658904+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d7eeef3a-3662-467d-b476-10c12f759ae3",
+    "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:13.658904+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e7c65808-16e6-4e87-b66c-86f93f03d7b6",
+    "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:13.658904+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "bf1a7d33-cd47-4257-bea2-a3be3eccc34a",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 4,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "23ed14a1-0454-4f47-9b71-4b9769fe28e8",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c0f9cda9-8210-41d7-bbda-4f2eb06f0905",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c4cdbd5d-b418-43ae-bfe4-69e202492d2f",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 4,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "895deccf-b661-4480-b6fa-c2512112454c",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8b9f8a54-8a72-43c6-8e18-884e5f1bda18",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "fd7ec8c0-ddc5-4a34-bf6d-06e5846a45c8",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ebfe22af-c1f9-4c97-97f3-1706b8f56751",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "J'aime beaucoup, la qualité est au rendez-vous.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "16d773c5-2b51-4aae-ad2a-336565715040",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e868b0b1-94ed-4f60-9fd1-dd152f896b3f",
+    "product_id": "173a831c-afda-4fda-889f-8e08db6dcbcd",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:15.46129+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "69c43307-0417-403c-b465-6af9b7adde69",
+    "product_id": "564d7642-93a9-4d64-b024-795b0f568baf",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 3,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:17.220758+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "bf4f09d9-132a-40f9-bf9c-681dd98623e8",
+    "product_id": "564d7642-93a9-4d64-b024-795b0f568baf",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:17.220758+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "cb508f75-6a80-47c6-a90f-e5d67b3f9d3e",
+    "product_id": "564d7642-93a9-4d64-b024-795b0f568baf",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 4,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:17.220758+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ed667427-f6d7-4e4a-a0ed-f6b26f64baf5",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b714e4c2-f973-475c-ade2-fc89dc0bda5d",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c350d818-d88b-4a29-9a39-7ca059b24440",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4f4ad8a5-6859-4910-b487-22f63e0e39f8",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 3,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "81e1b46a-f5ad-48c4-93dd-0b5befe8b172",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 3,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "01edeaa0-d03f-4aed-8020-5a433d489f6d",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "951af3e6-85bb-49df-b13b-ab235b94d37e",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b447e5c7-df47-485b-bd23-7dd1ef9a52c4",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 4,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "96329733-da76-4757-aad1-174877d21fe9",
+    "product_id": "06ce5cb5-e882-45a4-b28e-d8a03c6b7933",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:19.009215+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4f7e3875-f900-4e5a-91c8-306039d6a581",
+    "product_id": "a6a24e66-2d66-4c74-a26a-76ea6a461c52",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 3,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:20.789034+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "070994ad-a5d4-461a-82c6-01d21062bc13",
+    "product_id": "a6a24e66-2d66-4c74-a26a-76ea6a461c52",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:20.789034+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8cec5628-eb45-45be-9780-3cf05347f0a7",
+    "product_id": "a6a24e66-2d66-4c74-a26a-76ea6a461c52",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:20.789034+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e059f4c3-4420-4ade-a315-8d02f5fdff1f",
+    "product_id": "a6a24e66-2d66-4c74-a26a-76ea6a461c52",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:20.789034+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "1d88f558-ef76-472f-9aa0-44658d8290c0",
+    "product_id": "a6a24e66-2d66-4c74-a26a-76ea6a461c52",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "J'aime beaucoup, la qualité est au rendez-vous.",
+    "created_at": "2026-07-12T01:49:20.789034+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "56b8c252-78fd-4e11-9466-7158aa48dcfd",
+    "product_id": "3aee2f1e-b11d-4f99-a71b-1b58610137b4",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:22.563853+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "31ce92cc-cee2-4295-afd7-c040458b0042",
+    "product_id": "3aee2f1e-b11d-4f99-a71b-1b58610137b4",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 5,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:22.563853+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "3bdced3f-fc6d-435b-88a4-eca2be2b50b9",
+    "product_id": "3aee2f1e-b11d-4f99-a71b-1b58610137b4",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 3,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:22.563853+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "6a48cbaf-ec0f-49f4-bd8a-fe21842f0f64",
+    "product_id": "5e3e54dd-1315-4ea1-a2ac-a4f929f604d0",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:24.348468+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "913adb7a-ffa2-4b73-8ce3-033c92402794",
+    "product_id": "5e3e54dd-1315-4ea1-a2ac-a4f929f604d0",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:24.348468+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "3de36c99-1d5c-4090-8c5a-d6c8c7cb909d",
+    "product_id": "5e3e54dd-1315-4ea1-a2ac-a4f929f604d0",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 4,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:24.348468+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "7d9081b6-238b-4f53-abf2-3395d6656e98",
+    "product_id": "3292b54c-814c-47ee-a188-03602f0fbe12",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:09.83359+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e79002c4-7ead-42e8-baba-9f8866ce2a99",
+    "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:13.065271+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "6fa56215-9085-4dd3-84cd-09bc12fa8edc",
+    "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 3,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:13.065271+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "446ce377-8a2a-4e50-86a6-6ac1976d4efc",
+    "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:13.065271+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "0042e653-aeef-4643-a534-4cc86000b4d4",
+    "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:13.065271+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "96acc3a9-0f43-426c-91d5-3f7c1f1e0bce",
+    "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:13.065271+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "906d1945-1bb9-4b49-be7b-10f4a69b3cf9",
+    "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:13.065271+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "fa8e4596-4995-4c44-b371-d290d88dd0b1",
+    "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:13.065271+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "9a13129b-e30b-4b1f-bbdc-357071b83e02",
+    "product_id": "f13bc549-4524-4705-a270-9053c5569c04",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:14.860465+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "411391fc-c91f-4aa8-97c1-299661373310",
+    "product_id": "f13bc549-4524-4705-a270-9053c5569c04",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:14.860465+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "616d37bd-2f26-49d9-b769-38cf3b3721c5",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "385a9b0f-c9d8-42cc-9085-a1c79e16f46a",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "97c7da97-6d8b-4ec4-9620-2aff705eec13",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ffdcc48f-b593-4062-a311-c3a8f14dc41d",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e3c70024-e7cc-4a80-9531-0c33179a4792",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2948d175-d54f-4c7a-94df-7e773c73b1fa",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "94809e25-d294-46e6-b4d3-851f437425f8",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "La taille est parfaite, le rendu est super.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8d8a7f2f-61ba-437c-89c8-764316363bc3",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "681c51be-8cfc-47e6-b48e-8726c88440ae",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "9b414091-b9cd-4937-a732-6a6f0b47eaea",
+    "product_id": "d0e600a0-b94d-40c1-8fa2-c57e30c5803a",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:16.627064+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "be805fe7-3f39-4284-85de-1e4684377cb3",
+    "product_id": "9efe9751-7dd4-498d-80ad-a5769426703a",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:18.422122+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f7fa7f32-19d4-4489-ad39-30f52368f278",
+    "product_id": "9efe9751-7dd4-498d-80ad-a5769426703a",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 4,
+    "comment": "La taille est parfaite, le rendu est super.",
+    "created_at": "2026-07-12T01:49:18.422122+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "3c29bf15-e4ef-4b98-8b5a-ab970cd7c1aa",
+    "product_id": "9efe9751-7dd4-498d-80ad-a5769426703a",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "J'aime beaucoup, la qualité est au rendez-vous.",
+    "created_at": "2026-07-12T01:49:18.422122+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8488554f-f854-4108-88a3-5214fdc85ca6",
+    "product_id": "9efe9751-7dd4-498d-80ad-a5769426703a",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:18.422122+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a3b59307-6705-471d-8083-fa2294bcd6d5",
+    "product_id": "9efe9751-7dd4-498d-80ad-a5769426703a",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:18.422122+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b04948ba-f75a-4104-9c78-1bb7da62971a",
+    "product_id": "9efe9751-7dd4-498d-80ad-a5769426703a",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:18.422122+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "1a03e003-14d7-4376-b34f-0ee2d013fe55",
+    "product_id": "9efe9751-7dd4-498d-80ad-a5769426703a",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:18.422122+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a0027667-9101-4968-bace-ea8bfd090126",
+    "product_id": "7afa69c5-2b16-4d67-a256-ef9ae2a206a9",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:20.196632+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8405d9ba-ebc7-4380-9f7d-b170b1490c8b",
+    "product_id": "7afa69c5-2b16-4d67-a256-ef9ae2a206a9",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 5,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:20.196632+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4da21d29-c314-487f-87f1-32742cd2a409",
+    "product_id": "7afa69c5-2b16-4d67-a256-ef9ae2a206a9",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:20.196632+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ffaa8dbc-4c04-48c3-9c40-c14f774e2093",
+    "product_id": "7afa69c5-2b16-4d67-a256-ef9ae2a206a9",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:20.196632+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "757f27c6-9fb5-4143-9e1f-5541d3427f27",
+    "product_id": "7afa69c5-2b16-4d67-a256-ef9ae2a206a9",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:20.196632+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "053eb85f-da76-4cd0-960a-9457983101fc",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2814137c-2757-4962-be64-17bd7ad6fde9",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "3b0e0cda-0581-4c8c-81ac-336ecf359219",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e68bf520-f67e-4cdb-9407-7fa3e38b8d45",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2e7f6a85-3828-4ae1-8229-a8eb7b9796a9",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 3,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "038aa6ab-57ee-48af-b472-c09e022a4918",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 3,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c213cbd0-bebe-44eb-91e4-e0247a5773e7",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2fa23a42-3b75-4c5c-bb27-d73d0291f835",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "13217cca-3deb-4ea1-9fa7-cd4eea1b9dcd",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "7ceb703b-9c7d-433e-8ce6-1b8692e22ede",
+    "product_id": "8196d625-8c19-41a3-a1df-21e38c729960",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:21.968469+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "78705327-4a53-4603-8913-002e697b1d2a",
+    "product_id": "e8303a4c-f54d-4578-9597-899d9c10ebff",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:23.755861+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4c25e5ca-a2f6-4379-98be-4afface1051f",
+    "product_id": "e8303a4c-f54d-4578-9597-899d9c10ebff",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 3,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:23.755861+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f96b2485-d6c9-4b46-a0f6-1e4a6e5e6a91",
+    "product_id": "e8303a4c-f54d-4578-9597-899d9c10ebff",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:23.755861+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "864a2a69-a600-43b6-900c-25f4944b20dc",
+    "product_id": "0f26f78e-c9af-404b-a2f1-d213a5eac0d8",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:11.146584+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "36ea3adb-c970-437c-ba4b-d19a607ae602",
+    "product_id": "d263416e-4f40-46bd-a181-754bce4e042a",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 3,
+    "comment": "Super produit, je recommande fortement !",
+    "created_at": "2026-07-12T01:49:23.167194+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "002e7616-2e70-4212-9c31-1f6d9497c34f",
+    "product_id": "d263416e-4f40-46bd-a181-754bce4e042a",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:23.167194+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c3bd1803-6848-4544-a0d4-f7787d7b77da",
+    "product_id": "d263416e-4f40-46bd-a181-754bce4e042a",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 4,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:23.167194+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "50cea730-36f2-4cad-a976-50d74addcd60",
+    "product_id": "d263416e-4f40-46bd-a181-754bce4e042a",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:23.167194+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "073fc3bf-ee8d-43d2-a72a-0c9c3b610296",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "J'aime beaucoup, la qualité est au rendez-vous.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "aee3fe42-bbf6-4f94-ab5d-c92f9f2ac951",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Un peu déçu par la couleur, mais sinon c'est top.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "6f7bfc1d-0b19-4153-b1a5-f1dacbae1c8a",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 3,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d9fa97f2-de24-4341-aee8-71093fc2e95d",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "bc526089-7cc4-4274-acb2-83ddb2ae8386",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2b4dff59-5bd4-4df0-8dc1-6f4a23b91fcd",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4ca4b520-1047-4b7a-9aae-04efc7815b8c",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f189e465-e06a-436a-a9bd-66b918ac2a22",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 3,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "0f633120-51d4-4fd8-bd4a-cd0412d05828",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 3,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "481c8a03-ec25-4fd3-85aa-f87d7648893b",
+    "product_id": "ace4f7b0-ff1a-48a0-8936-c74a0c604946",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:24.940027+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "91bb96c8-ff2e-4a3d-ba89-b0881dfe11d3",
+    "product_id": "416f992b-cf49-4ef0-be95-911fcacc0669",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 3,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:26.719275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "134a8c2e-ff5c-4f9a-a0da-c44bf3ed18a0",
+    "product_id": "416f992b-cf49-4ef0-be95-911fcacc0669",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:26.719275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "358a1dbb-98f0-4d09-95a2-fc5b4c0e507a",
+    "product_id": "416f992b-cf49-4ef0-be95-911fcacc0669",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 5,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:26.719275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "94cb442d-cfa9-4268-86fc-868c266f97f9",
+    "product_id": "416f992b-cf49-4ef0-be95-911fcacc0669",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:26.719275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f4da3eab-43bc-45a4-a641-26a2b6085535",
+    "product_id": "416f992b-cf49-4ef0-be95-911fcacc0669",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:26.719275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "bf998b5d-7ae5-4742-9233-3fc80489b30a",
+    "product_id": "416f992b-cf49-4ef0-be95-911fcacc0669",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:26.719275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "64ef7cb3-ff0c-4dd6-8e5e-3522a24da5c3",
+    "product_id": "416f992b-cf49-4ef0-be95-911fcacc0669",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:26.719275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b2b84fdf-fcdf-4c1c-ba64-8a2dcf85f48e",
+    "product_id": "416f992b-cf49-4ef0-be95-911fcacc0669",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:26.719275+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "36934018-2039-4291-bc98-bfd60fc3bce2",
+    "product_id": "22c548b6-1ce8-483f-b760-151b5abfe1cb",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 3,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:27.301788+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "1e9a3a4c-96b9-417f-8697-fb6c13a364f2",
+    "product_id": "22c548b6-1ce8-483f-b760-151b5abfe1cb",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 3,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:27.301788+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "78a8885b-bfc6-4b2f-8cf0-fd3c5052d957",
+    "product_id": "22c548b6-1ce8-483f-b760-151b5abfe1cb",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:27.301788+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "775404d1-9d08-43d2-aeaf-07f2a9a913ee",
+    "product_id": "22c548b6-1ce8-483f-b760-151b5abfe1cb",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:27.301788+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "6feea138-dd06-4b2b-83d6-3116238e3a74",
+    "product_id": "e8303a4c-f54d-4578-9597-899d9c10ebff",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:23.755861+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "bd0db5ba-312b-4bbb-bc52-bad5e4245ae8",
+    "product_id": "e8303a4c-f54d-4578-9597-899d9c10ebff",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 3,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:23.755861+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a9a2b32f-3399-417f-a51c-35bd10a9658b",
+    "product_id": "e8303a4c-f54d-4578-9597-899d9c10ebff",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:23.755861+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f6e917b1-6be6-490f-a429-191e04dc1574",
+    "product_id": "e8303a4c-f54d-4578-9597-899d9c10ebff",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:23.755861+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "43b19421-08e7-4a99-b6ef-7a45bd6e8ef6",
+    "product_id": "e69a13ce-88ec-45b0-9327-e908eb047c8c",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:25.535175+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e1cb94bb-d6fe-4766-ac9a-edcf1175ac58",
+    "product_id": "e69a13ce-88ec-45b0-9327-e908eb047c8c",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:25.535175+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f245e8fe-abe0-4bdd-994d-48e83ac7269b",
+    "product_id": "e69a13ce-88ec-45b0-9327-e908eb047c8c",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 5,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:25.535175+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "2ee34147-dd73-4f45-8e4c-dd7166c4e4b6",
+    "product_id": "e69a13ce-88ec-45b0-9327-e908eb047c8c",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 5,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:25.535175+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "7476a9ba-edec-4695-80ff-1c63773355fc",
+    "product_id": "e69a13ce-88ec-45b0-9327-e908eb047c8c",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:25.535175+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "79db3271-9ccb-417c-9944-3a42f121afed",
+    "product_id": "e69a13ce-88ec-45b0-9327-e908eb047c8c",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:25.535175+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "4acc6a07-8cef-463e-85ec-4cbb068f12cb",
+    "product_id": "e69a13ce-88ec-45b0-9327-e908eb047c8c",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 3,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:25.535175+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b89032e5-5b20-40b8-9d44-99e915adfb9c",
+    "product_id": "e69a13ce-88ec-45b0-9327-e908eb047c8c",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 4,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:25.535175+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "9dc07673-25a8-4ab1-a254-1ca783eab6ed",
+    "product_id": "f9e54e10-4b6e-4c3d-a09d-8f2b5d55ee6b",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 3,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:26.130683+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "68af0f74-549b-42b4-8a2c-077d0497a0d4",
+    "product_id": "f9e54e10-4b6e-4c3d-a09d-8f2b5d55ee6b",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 3,
+    "comment": "Produit correct, sans plus.",
+    "created_at": "2026-07-12T01:49:26.130683+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f0089a6a-fdb8-4582-8469-d08219b2f8dd",
+    "product_id": "f9e54e10-4b6e-4c3d-a09d-8f2b5d55ee6b",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:26.130683+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "21ab7fbd-1d03-47c4-83da-9a2a439e381b",
+    "product_id": "f9e54e10-4b6e-4c3d-a09d-8f2b5d55ee6b",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 4,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:26.130683+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "1698dbe0-f605-4197-a594-5d10942ba07b",
+    "product_id": "f9e54e10-4b6e-4c3d-a09d-8f2b5d55ee6b",
+    "user_id": "5abc2a90-4a40-4515-9c4d-e7d6ad7e77d9",
+    "user_name": "NewKet Market",
+    "rating": 5,
+    "comment": "Très satisfait de mon achat.",
+    "created_at": "2026-07-12T01:49:26.130683+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "9bbbcebd-170f-4ec5-9674-059c0e427f8d",
+    "product_id": "a484e9ca-02ff-49a8-b97e-1d8d1980f2ce",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 3,
+    "comment": "Finitions soignées, je valide à 100%.",
+    "created_at": "2026-07-12T01:49:27.844999+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a3951495-fea3-4faa-9080-1d16e989051d",
+    "product_id": "a484e9ca-02ff-49a8-b97e-1d8d1980f2ce",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:27.844999+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "eccdfd4a-165b-4e67-b6c8-4451a060a5b8",
+    "product_id": "a484e9ca-02ff-49a8-b97e-1d8d1980f2ce",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:27.844999+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "86a4f34b-3c8e-44a7-bad2-99bdf7cd288f",
+    "product_id": "a484e9ca-02ff-49a8-b97e-1d8d1980f2ce",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:27.844999+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "01702126-a6f5-4ecb-9a52-68e3ae0bde65",
+    "product_id": "a484e9ca-02ff-49a8-b97e-1d8d1980f2ce",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 4,
+    "comment": "J'aime beaucoup, la qualité est au rendez-vous.",
+    "created_at": "2026-07-12T01:49:27.844999+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "a7319b22-5455-41ef-9045-02a14ac3efad",
+    "product_id": "2ee0b12d-7d13-4122-90f4-61e1a0ffd95e",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:28.415374+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "9139d4b1-eef8-4b3b-b025-699f420881f8",
+    "product_id": "2ee0b12d-7d13-4122-90f4-61e1a0ffd95e",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 4,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:28.415374+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "ecb2ecc4-133d-4762-9340-05476d3e7000",
+    "product_id": "2ee0b12d-7d13-4122-90f4-61e1a0ffd95e",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:28.415374+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "0b99233b-54c9-4a80-98d4-0f6990507202",
+    "product_id": "2ee0b12d-7d13-4122-90f4-61e1a0ffd95e",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:28.415374+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "64b1a100-50f6-4f72-a35c-f20fef18941d",
+    "product_id": "2ee0b12d-7d13-4122-90f4-61e1a0ffd95e",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:49:28.415374+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "0f8f7ac4-6205-4068-9281-198a5027e25b",
+    "product_id": "2ee0b12d-7d13-4122-90f4-61e1a0ffd95e",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "Je recommande ce vendeur, très pro.",
+    "created_at": "2026-07-12T01:49:28.415374+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "43659e3f-45c1-406f-a094-50063af09310",
+    "product_id": "2ee0b12d-7d13-4122-90f4-61e1a0ffd95e",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 5,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:28.415374+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "78eae92e-c051-4acd-9b78-df96bea7c2c9",
+    "product_id": "01694a19-f935-4247-b7b2-41429a237171",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:28.989739+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d2e3b508-989c-47ed-9fab-4947440abac6",
+    "product_id": "01694a19-f935-4247-b7b2-41429a237171",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:28.989739+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "d8165784-3766-497a-b127-04463c1c2f26",
+    "product_id": "01694a19-f935-4247-b7b2-41429a237171",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 3,
+    "comment": "Incroyable, je suis fan !",
+    "created_at": "2026-07-12T01:49:28.989739+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "c1d49b73-8cad-447c-aba3-27c649b24ca8",
+    "product_id": "fb9a91ee-703a-43a4-aada-49ba5ca1d7d7",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 4,
+    "comment": "Acheté pour un cadeau, la personne a adoré.",
+    "created_at": "2026-07-12T01:49:29.578797+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "b1d43d0c-1b8b-4e73-93eb-87a4bee66725",
+    "product_id": "fb9a91ee-703a-43a4-aada-49ba5ca1d7d7",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Excellent rapport qualité-prix.",
+    "created_at": "2026-07-12T01:49:29.578797+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "f75d26ff-442c-4bf4-af53-a5a8028c4b6a",
+    "product_id": "fb9a91ee-703a-43a4-aada-49ba5ca1d7d7",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 4,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:29.578797+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "297cf6f6-aa02-45d8-8453-6aba5a4d7768",
+    "product_id": "fb9a91ee-703a-43a4-aada-49ba5ca1d7d7",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 5,
+    "comment": "Magnifique ! Je vais en racheter.",
+    "created_at": "2026-07-12T01:49:29.578797+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8156b9a3-1e59-432c-89fe-3015784b250c",
+    "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b",
+    "user_name": "All Kampus",
+    "rating": 5,
+    "comment": "Magnifique tableau ! La qualite d impression est excellente, les couleurs sont tres vives. Parfait pour decorer un salon ou une chambre de fan. Je recommande vivement !",
+    "created_at": "2026-07-05T21:26:19.271383+00:00",
+    "user_avatar": "https://lh3.googleusercontent.com/a/ACg8ocJ7DHvPsmnPAYXdOXSUDIjdLEgPKNu46zn8-OsjffaQHGuoSg=s96-c"
+  },
+  {
+    "id": "710e6277-5322-4e3b-a415-27ec77d85065",
+    "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+    "user_id": "bcf06b24-d0ca-4f17-b7fd-ddfd0393a798",
+    "user_name": "Développeur Web",
+    "rating": 3,
+    "comment": "Le produit est correct dans l ensemble, la photo du joueur est bien choisie. Par contre la livraison a pris un peu plus de temps que prevu. Qualite OK pour le prix.",
+    "created_at": "2026-06-17T21:27:03.004575+00:00",
+    "user_avatar": "https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/user-assets/bcf06b24-d0ca-4f17-b7fd-ddfd0393a798_1778891687306_migrated_1780792020222.webp"
+  },
+  {
+    "id": "c5f7942f-a535-4cbc-9278-eac4108fe9a8",
+    "product_id": "eb7becc8-214e-4baa-b550-abb0da82000b",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 3,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:04.430626+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "e23d66eb-3817-4967-9577-8060ddbee1cc",
+    "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+    "user_id": "fca8d562-2ed2-4fd4-9821-acbc4009d0d6",
+    "user_name": "Dev Host",
+    "rating": 5,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:13.065271+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "fa31456e-22c0-43f6-b173-920d90572e7d",
+    "product_id": "5dba775a-87c0-483b-8d38-93b778107499",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "Qualité premium, je ne regrette pas.",
+    "created_at": "2026-07-12T01:49:03.095481+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "edd0a5bb-dda9-49ef-95d5-a085eb89f10a",
+    "product_id": "0decea35-be3a-4d3e-9288-9e3d85b9764c",
+    "user_id": "d481df78-879f-435e-9cf9-6882ef23eaa8",
+    "user_name": "Webcom",
+    "rating": 3,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:09.143566+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "8df44f02-43be-4849-9502-6c7d65c39c1f",
+    "product_id": "2205529c-fc15-4f46-80a1-9481e13c067b",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Parfait ! Exactement ce que je cherchais.",
+    "created_at": "2026-07-12T01:48:57.964842+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "9b4f2447-66b6-41d5-aab2-4ad034eec8d7",
+    "product_id": "74fbad70-7dde-4761-8b71-a3a52e714037",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 5,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:01.766334+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "089312a3-00ed-47fb-9c39-ae2c09664b7e",
+    "product_id": "eb7becc8-214e-4baa-b550-abb0da82000b",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "user_name": "Divine Makiese",
+    "rating": 5,
+    "comment": "Très bonne qualité, conforme à la description.",
+    "created_at": "2026-07-12T01:49:04.430626+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "62835d63-3d28-4778-8567-da6164d04b8b",
+    "product_id": "83f3adfb-12a1-4d30-8f75-d39ee6ae16e8",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 3,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:10.48585+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "1c7c82c8-c789-4dc9-bad6-9974f224937e",
+    "product_id": "3292b54c-814c-47ee-a188-03602f0fbe12",
+    "user_id": "be4258a7-16f5-41e8-a0d0-dfd47e04c1e3",
+    "user_name": "beni makiese",
+    "rating": 5,
+    "comment": "Rien à dire, tout est parfait.",
+    "created_at": "2026-07-12T01:49:09.83359+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "617f9c85-9784-4bb0-8e68-068a7bd6d42b",
+    "product_id": "316ec927-5bca-4bf1-b6e9-5f0091db1331",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Je ne m'attendais pas à une telle qualité, bravo !",
+    "created_at": "2026-07-12T01:49:11.810104+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "bbf7b588-494c-4618-bd3c-5d30d6905dac",
+    "product_id": "5e3e54dd-1315-4ea1-a2ac-a4f929f604d0",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295",
+    "user_name": "Buyo Buyo",
+    "rating": 4,
+    "comment": "C'est mon deuxième achat et toujours aussi satisfait.",
+    "created_at": "2026-07-12T01:49:24.348468+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "1f5408f2-ba69-4125-b41e-c8ec78af1a48",
+    "product_id": "0f26f78e-c9af-404b-a2f1-d213a5eac0d8",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 5,
+    "comment": "Livraison rapide, produit excellent.",
+    "created_at": "2026-07-12T01:49:11.146584+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "653ee47e-b59c-4851-9170-369065ac1bdf",
+    "product_id": "f13bc549-4524-4705-a270-9053c5569c04",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21",
+    "user_name": "Phoenix Man",
+    "rating": 4,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:14.860465+00:00",
+    "user_avatar": null
+  },
+  {
+    "id": "5d130e16-e176-432a-aba4-f206327b9261",
+    "product_id": "5e3e54dd-1315-4ea1-a2ac-a4f929f604d0",
+    "user_id": "3d742ffc-7529-4d63-99dc-5ce5a1899f2e",
+    "user_name": "Dev Host1",
+    "rating": 4,
+    "comment": "Bon produit mais la livraison a été un peu longue.",
+    "created_at": "2026-07-12T01:49:24.348468+00:00",
+    "user_avatar": null
+  }
+]

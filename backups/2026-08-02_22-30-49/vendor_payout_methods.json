@@ -1,0 +1,24 @@
+[
+  {
+    "id": "d06c512f-0ae3-4af8-bd79-e458e92d3993",
+    "vendor_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf",
+    "provider": "MOBILE_MONEY",
+    "account_id": "+243990926754",
+    "account_name": "BeniTo5",
+    "is_default": false,
+    "created_at": "2026-06-27T01:11:45.743031+00:00",
+    "updated_at": "2026-06-27T01:11:45.743031+00:00",
+    "operator": null
+  },
+  {
+    "id": "9d98315d-2ffc-4a6a-a836-86740695ae05",
+    "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+    "provider": "KPAY",
+    "account_id": "0813456789",
+    "account_name": "Beni3Mak",
+    "is_default": false,
+    "created_at": "2026-07-26T22:29:26.105335+00:00",
+    "updated_at": "2026-07-26T22:29:26.105335+00:00",
+    "operator": "vodacom_mpesa"
+  }
+]

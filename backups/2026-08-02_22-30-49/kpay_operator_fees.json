@@ -1,0 +1,68 @@
+[
+  {
+    "id": "c13182a2-5090-4259-a48c-66dce57ffb8f",
+    "currency": "CDF",
+    "operator": "vodacom_mpesa",
+    "label": "Vodacom M-Pesa",
+    "payin_rate": 3,
+    "payout_rate": 3,
+    "is_active": true,
+    "created_at": "2026-07-25T01:14:24.266386+00:00",
+    "updated_at": "2026-07-25T01:14:24.266386+00:00"
+  },
+  {
+    "id": "e1f08a50-9730-4a5b-babd-d6871a9ded7d",
+    "currency": "CDF",
+    "operator": "airtel",
+    "label": "Airtel Money",
+    "payin_rate": 4,
+    "payout_rate": 4,
+    "is_active": true,
+    "created_at": "2026-07-25T01:14:24.266386+00:00",
+    "updated_at": "2026-07-25T01:14:24.266386+00:00"
+  },
+  {
+    "id": "2e1c67b0-b1c9-4314-ae1f-e19059cd978f",
+    "currency": "CDF",
+    "operator": "orange",
+    "label": "Orange Money",
+    "payin_rate": 4,
+    "payout_rate": 4,
+    "is_active": true,
+    "created_at": "2026-07-25T01:14:24.266386+00:00",
+    "updated_at": "2026-07-25T01:14:24.266386+00:00"
+  },
+  {
+    "id": "05240d91-4166-4b74-8a1a-aa16973cf80c",
+    "currency": "USD",
+    "operator": "vodacom_mpesa",
+    "label": "Vodacom M-Pesa",
+    "payin_rate": 3,
+    "payout_rate": 3,
+    "is_active": true,
+    "created_at": "2026-07-27T17:36:05.274093+00:00",
+    "updated_at": "2026-07-27T17:36:05.274093+00:00"
+  },
+  {
+    "id": "e5a2c737-56b0-49d0-895d-1bec764518ec",
+    "currency": "USD",
+    "operator": "airtel",
+    "label": "Airtel Money",
+    "payin_rate": 4,
+    "payout_rate": 4,
+    "is_active": true,
+    "created_at": "2026-07-27T17:36:05.274093+00:00",
+    "updated_at": "2026-07-27T17:36:05.274093+00:00"
+  },
+  {
+    "id": "92c1a960-9378-4383-b3d5-37afe5cbd7ff",
+    "currency": "USD",
+    "operator": "orange",
+    "label": "Orange Money",
+    "payin_rate": 4,
+    "payout_rate": 4,
+    "is_active": true,
+    "created_at": "2026-07-27T17:36:05.274093+00:00",
+    "updated_at": "2026-07-27T17:36:05.274093+00:00"
+  }
+]

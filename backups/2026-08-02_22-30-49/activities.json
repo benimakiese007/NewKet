@@ -1,0 +1,1002 @@
+[
+  {
+    "text": "Commande EN-1772190022892 payée avec 0 PTS et Airtel Money",
+    "type": "order",
+    "time": "2026-02-27T11:00:23.526+00:00",
+    "user_email": null,
+    "id": "90beb09e-b2a6-4d1d-a417-5716a2963c25",
+    "user_id": null
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_F6891DEC21_1783728713686",
+    "type": "payment",
+    "time": "2026-07-11T00:12:17.165052+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "47f913c0-6905-4661-aef5-af5174f32978",
+    "user_id": null
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_FF2146A0F4_1784681312321",
+    "type": "payment",
+    "time": "2026-07-22T00:48:33.438229+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "6799b62a-7614-44fa-b0a1-4f2aceeddcba",
+    "user_id": null
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-23T10:45:37.869+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "958b94f7-14c9-42e0-b6ba-d0b273d79547",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-26T23:38:09.518+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "7d218668-9948-4b1b-84d7-8e5eb2049da4",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-26T23:56:37.497+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "cdeaaa38-3c50-4a94-920c-11bf999db9fa",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-27T00:14:09.28+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "77b16cfd-60db-4c43-b820-9ede624a4b64",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Paiement confirmé pour la commande TEST_TX_1776216332174",
+    "type": "payment",
+    "time": "2026-04-15T01:25:33.544985+00:00",
+    "user_email": "tester@example.com",
+    "id": "41f774b8-e456-4e26-8d2a-7a64a0b05017",
+    "user_id": null
+  },
+  {
+    "text": "Paiement confirmé pour la commande TEST_TX_1776216364724",
+    "type": "payment",
+    "time": "2026-04-15T01:26:06.241149+00:00",
+    "user_email": "tester@example.com",
+    "id": "0e1ff996-048d-431f-a9ee-f60e7919a20e",
+    "user_id": null
+  },
+  {
+    "text": "Paiement confirmé pour la commande TEST_TX_1776216396866",
+    "type": "payment",
+    "time": "2026-04-15T01:26:38.213913+00:00",
+    "user_email": "tester@example.com",
+    "id": "5ff08f2a-0531-4f5e-82ef-5c83e054b74d",
+    "user_id": null
+  },
+  {
+    "text": "Produit ajouté : Samsung S25",
+    "type": "stock",
+    "time": "2026-04-08T04:41:49.992+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "71755259-79c2-4bb4-8c5b-d4e112582fa3",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : AirPods Pack",
+    "type": "stock",
+    "time": "2026-04-09T21:58:44.926+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "bb306b37-6db3-4655-b733-8f37ddb2d9fe",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : AirPods Pack",
+    "type": "stock",
+    "time": "2026-04-09T21:58:46.373+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "b4c660b3-fde3-4049-9b85-b2005b0d3d65",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Iphone 17 Pack",
+    "type": "stock",
+    "time": "2026-04-11T14:06:06.058+00:00",
+    "user_email": "divinemakiese28@gmail.com",
+    "id": "e9ada18d-8742-4208-967c-aea165c360ac",
+    "user_id": "b28f307a-cf1d-4e82-90f3-f07709f3fcbf"
+  },
+  {
+    "text": "Notification envoyée : \"RAPPEL !!!\"",
+    "type": "system",
+    "time": "2026-04-12T14:07:29.637+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "fd93952e-cd9d-465a-90bc-5619d9f91bab",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"RAPPEL !!!\"",
+    "type": "system",
+    "time": "2026-04-12T14:28:37.161+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "9d166b2f-3551-4e78-b096-f2d847f44a36",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"RAPPEL !!!\"",
+    "type": "system",
+    "time": "2026-04-12T14:45:59.692+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "2d148278-653d-4159-9824-8a7cd145f86e",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Nouvelle Promotion\"",
+    "type": "system",
+    "time": "2026-04-18T01:45:36.277+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "d0a0d245-67a4-4f2f-9dea-ccb89038a322",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Promotion\"",
+    "type": "system",
+    "time": "2026-04-18T01:53:17.729+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "a8499aaf-b1d9-4abc-aef8-4fc356a5fdaf",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Promo\"",
+    "type": "system",
+    "time": "2026-04-18T02:05:10.448+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "c03e91a3-5cc1-4bc4-801d-5d3a609cfd5d",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Commande #NK_HQO marquée comme CANCELLED",
+    "type": "order",
+    "time": "2026-04-26T17:12:27.575+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "c11f92e7-7343-42f6-8d1c-e731435c9245",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Maillot RDC",
+    "type": "stock",
+    "time": "2026-04-29T23:35:11.456+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "62f656ef-7a33-4c36-9482-94deb3f2e91d",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Maillot de la RDC",
+    "type": "stock",
+    "time": "2026-04-29T23:51:42.146+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "eec97283-2228-4f3b-b8d8-235fc194789b",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Samsung S25",
+    "type": "stock",
+    "time": "2026-04-29T23:52:23.96+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "8999aa12-d7dc-420f-b4bf-8d2cf27aecd9",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-05-09T15:50:16.602+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "c7d1ecbf-15d5-44ea-84fa-932f23287e9b",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Samsung S25",
+    "type": "stock",
+    "time": "2026-05-09T15:50:18.237+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "5abb5e9e-b191-4264-bc42-8647e819a227",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : AirPods Pack",
+    "type": "stock",
+    "time": "2026-05-09T15:50:21.522+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "b04e5752-a5d2-4f93-96a9-1086ea3dea30",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Beats",
+    "type": "stock",
+    "time": "2026-05-09T15:50:26.523+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "835ee5c3-3e7e-4c13-a7db-17a654a5821a",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : POSTER signé par Drake",
+    "type": "stock",
+    "time": "2026-05-09T15:50:29.538+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "c44eda70-e42f-418a-b62c-963f6f8bba49",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Commande #ORD_E4 marquée comme CANCELLED",
+    "type": "order",
+    "time": "2026-05-14T11:56:59.979+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "f69d5179-7e8a-49fd-ac91-ce4b08d04390",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Maillot de la RDC",
+    "type": "stock",
+    "time": "2026-05-16T02:12:17.391+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "b8738fde-ad59-4024-8ebd-829328dbaeef",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-05-22T18:10:00.171+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "96f9a1dd-b1d2-4d8e-bf11-047c97fe4a18",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Produit modifié : Beats",
+    "type": "stock",
+    "time": "2026-05-24T20:16:05.486+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "a315dc7c-d130-409f-aff4-0ab671285f5e",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Notification envoyée : \"Inauguration\"",
+    "type": "system",
+    "time": "2026-05-28T01:40:04.64+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "8f3374f7-f6cf-4083-b6b0-804a3f5ad4e6",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"INAUGURATION\"",
+    "type": "system",
+    "time": "2026-05-28T01:50:06.402+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "c67fb81c-bc27-4a3e-9fe5-1f064c8223f7",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"ALLO\"",
+    "type": "system",
+    "time": "2026-05-28T01:50:34.578+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "e8c3573e-e7e2-493f-a6b3-2054e2518637",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"RESERVATION\"",
+    "type": "system",
+    "time": "2026-05-28T02:07:31.462+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "90b662d9-ec50-450c-a68a-ea83ce482ae1",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"aaa\"",
+    "type": "system",
+    "time": "2026-05-28T02:07:55.526+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "607f2979-a58b-4c3e-b29b-fa60fab334a1",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"eert\"",
+    "type": "system",
+    "time": "2026-05-28T02:08:15.758+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "56f77aa1-f65f-43bc-b937-4da919b872f4",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"VIREMENT ELECTRONIQUE !!!\"",
+    "type": "system",
+    "time": "2026-05-28T02:13:15.496+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "67516aab-3cc6-469d-9cd6-7d17e1ecf434",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"VIREMENT ELECTRONIQUE !!!\"",
+    "type": "system",
+    "time": "2026-05-28T13:07:55.499+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "f9d4cf3d-ce29-4c5a-b924-950ffd6ddb67",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-28T13:08:15.45+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "a8003340-6cb4-403c-ac8c-5fa65ddfef4b",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-28T13:08:30.522+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "53f07bdb-6f5f-4523-9a35-88bfd8bea2f7",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Aa\"",
+    "type": "system",
+    "time": "2026-05-28T13:08:46.549+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "0f01f318-a3ab-41e2-8867-fcc422e0f378",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-28T14:01:10.82+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "d7320195-f4ef-4bf2-b896-279a0cd7e020",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-28T14:39:10.72+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "527b4342-a5f0-4775-b08b-f6a7a973653a",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Aa\"",
+    "type": "system",
+    "time": "2026-05-28T14:39:31.369+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "3a968235-0be9-4dd0-864c-e97ac803d22c",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"ALLO\"",
+    "type": "system",
+    "time": "2026-05-28T14:41:06.656+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "a48970d5-ff11-4576-a4c1-7e669b2139e7",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"ALLO\"",
+    "type": "system",
+    "time": "2026-05-29T16:58:43.379+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "31992260-8248-48f7-a34e-0b3e6f3c20dc",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-29T16:59:03.91+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "de516879-9b17-476c-89e8-1f7b199c48c6",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-29T16:59:53.535+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "f126b219-242f-409b-b173-14c24bb8fb41",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"ALLO\"",
+    "type": "system",
+    "time": "2026-05-31T00:55:27.195+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "a9274198-26b8-4464-b2ea-16b51e6a86ef",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-31T00:55:47.004+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "d1b96c59-9f07-456f-bf1d-4b8586526f35",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-31T00:56:20.497+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "a0d03fbe-5d2e-4afe-928d-f40140df500c",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-05-31T00:57:36.163+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "6567080a-06c6-479d-932c-070aea7447d6",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : AirPods Pack",
+    "type": "stock",
+    "time": "2026-06-04T03:13:20.444+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "0c74cac4-2197-4643-a814-76f656c93019",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Maillot de la RDC",
+    "type": "stock",
+    "time": "2026-06-04T03:14:09.34+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "706567bf-d87e-48e1-9427-9d1fd8d2cbf7",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Fer à repasser",
+    "type": "stock",
+    "time": "2026-06-04T03:15:07.569+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "9d4d8bab-5bf8-4adb-8a92-510821a8e5cf",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-06-07T02:27:14.564+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "1fb02dcc-3082-415c-b74d-8affde3f8096",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-06-07T02:27:14.996+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "165024b2-da49-4fb1-9412-1f70afca62dd",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-06-07T02:27:16.136+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "1e494d16-4e7b-4b16-8d14-2bacc52022dc",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-06-07T02:27:16.921+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "f4b987f1-7e12-4fae-a7a0-1901f069d736",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-06-07T02:27:17.715+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "47d62b06-b09f-4a6f-85c2-a1550f5f9989",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Beats",
+    "type": "stock",
+    "time": "2026-06-09T23:18:35.854+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "cfa74638-780e-4665-b8d5-56587f9a9eec",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Notification envoyée : \"Allo\"",
+    "type": "system",
+    "time": "2026-06-10T00:42:59.646+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "c5df90aa-e17f-4f6a-bab6-296970450aad",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Commande validee : versement vendeur manuel a traiter.",
+    "type": "warning",
+    "time": "2026-07-11T00:22:26.162+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "b2ef7284-b3f3-4b9a-a497-0dd0083e4050",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Plante artificielle palmier 180cm",
+    "type": "stock",
+    "time": "2026-07-12T01:36:36.986+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "ff547ebb-8ec4-4af9-94e9-4d6c78fd41f3",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_2381DF334B_1784684673771",
+    "type": "payment",
+    "time": "2026-07-22T01:47:20.61981+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "a37116e5-7756-4a31-acea-eab93ba80961",
+    "user_id": null
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_00D76A6477_1784841561279",
+    "type": "payment",
+    "time": "2026-07-23T21:21:23.032513+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "ebbbadaa-b45b-4984-902c-89d796872aab",
+    "user_id": null
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-26T23:43:47.608+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "27a48757-6d49-4af8-a07c-c3f81a81a556",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-27T00:08:49.439+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "ee559d17-e099-4e88-868d-e724b02eb3a4",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-27T16:10:45.836+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "b5ed9a25-5c25-4773-b70c-8d4cb612867e",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Samsung S25",
+    "type": "stock",
+    "time": "2026-06-07T02:27:20.357+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "40ed2159-f03a-45cc-bc3f-fe8d03ba8aba",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-06-08T00:21:44.262+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "3faf55c9-5ec5-4e90-8a43-9488104f660f",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Produit modifié : Moteur Automobile",
+    "type": "stock",
+    "time": "2026-06-08T00:21:44.512+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "520cbbf7-fab0-498c-b9ac-5321c29cce0c",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Produit modifié : Maillot de la RDC",
+    "type": "stock",
+    "time": "2026-06-09T02:43:16.696+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "661c30d3-4a8d-4d1e-bfa8-63dabe4e2cbb",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Beats",
+    "type": "stock",
+    "time": "2026-06-09T23:07:23.383+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "0c54c510-1d82-4475-a9dd-da2f368e0708",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Produit modifié : Beats",
+    "type": "stock",
+    "time": "2026-06-09T23:12:07.094+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "57600b7e-2d3c-4a5a-8a1d-175a70999168",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Produit modifié : Beats",
+    "type": "stock",
+    "time": "2026-06-09T23:18:24.887+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "853ea627-7ec9-45f9-b4e7-5f19d38010d8",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_2336D4EEB9_1781385851471",
+    "type": "payment",
+    "time": "2026-06-13T22:00:13.843637+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "fb89ca16-2cf0-41e9-8eb2-cd4e89db2b0b",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_3FDB39B31F_1781375651541",
+    "type": "payment",
+    "time": "2026-06-13T22:00:13.843637+00:00",
+    "user_email": "allkampus1234@gmail.com",
+    "id": "e1eb2a05-542d-4332-abca-69456d7a9fea",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_E6FBD6241C_1781353006906",
+    "type": "payment",
+    "time": "2026-06-13T22:00:13.843637+00:00",
+    "user_email": "allkampus1234@gmail.com",
+    "id": "838c451e-20eb-40fa-bae2-b026dfaaea76",
+    "user_id": "0c0f1dbf-9314-4c5c-b7e8-11640eadb41b"
+  },
+  {
+    "text": "Commande NK_2336D4EEB9_1781385851471 libérée : payout vendeur manuel à traiter.",
+    "type": "warning",
+    "time": "2026-06-14T17:59:15.178+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "7a2b6216-f9ee-4c60-aec9-e5454092a91a",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Commande NK_2EE09D8DBC_1781292403896 libérée : payout vendeur manuel à traiter.",
+    "type": "warning",
+    "time": "2026-06-14T17:59:27.872+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "16bfebf5-1379-472a-a1ab-76608ef08fff",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_323D21A2DA_1781542586510",
+    "type": "payment",
+    "time": "2026-06-15T16:56:42.4126+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "0adf10a3-5a65-4512-bbc6-a005945759b3",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_307DD33409_1781657953719",
+    "type": "payment",
+    "time": "2026-06-17T01:00:40.40976+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "054900e8-ff5f-4ec8-8afb-5bd1719cb383",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Commande NK_307DD33409_1781657953719 libérée : payout vendeur manuel à traiter.",
+    "type": "warning",
+    "time": "2026-06-17T01:02:48.08+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "7f1ed1e0-9100-4e0f-8b95-4b7b1d12e919",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_63C9F7982F_1781710118455",
+    "type": "payment",
+    "time": "2026-06-17T15:28:59.149977+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "9a94b181-1d73-4dd8-9129-f7630fc7b562",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Produit modifié : Chaussures ville",
+    "type": "stock",
+    "time": "2026-06-17T16:13:34.423+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "42921c06-1250-4fa4-8267-adf958792f32",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Ampoule LED E27",
+    "type": "stock",
+    "time": "2026-06-17T16:13:59.825+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "a0e8114a-2ca6-46a7-ace3-b1ac7e0c4be7",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Brosse à dents",
+    "type": "stock",
+    "time": "2026-06-17T16:18:21.922+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "2a67dffc-ed14-4a53-a1e1-1761ca693a8f",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Gants de sport",
+    "type": "stock",
+    "time": "2026-06-17T16:21:56.377+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "846b1fba-539b-4460-a268-85744c2e80ed",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Drap (2 places)",
+    "type": "stock",
+    "time": "2026-06-17T16:21:59.553+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "8c66fc8a-81ad-408d-9eb4-7ed4791098d7",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Drap (2 places)",
+    "type": "stock",
+    "time": "2026-06-17T16:22:06.594+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "7fac9aec-15e2-43d2-8fa8-6684903e7b8d",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Drap (2 places)",
+    "type": "stock",
+    "time": "2026-06-17T16:22:08.23+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "d8e53886-623d-4c03-8be4-699343c0c5f8",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_8B16F40F79_1781765038519",
+    "type": "payment",
+    "time": "2026-06-18T06:44:35.970286+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "69e262d9-0794-4622-b2aa-870f69ed2d0f",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Commande NK_323D21A2DA_1781542586510 libérée : payout vendeur manuel à traiter.",
+    "type": "warning",
+    "time": "2026-06-18T17:07:16.076+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "0d782b06-f389-47e3-9ba6-f231dc4f5e06",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_EAD0AE52E4_1781826854357",
+    "type": "payment",
+    "time": "2026-06-18T23:55:00.406598+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "5f536539-8368-4053-87bb-3684d5dc0383",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Commande NK_8B16F40F79_1781765038519 libérée : payout vendeur manuel à traiter.",
+    "type": "warning",
+    "time": "2026-06-20T00:38:26.645+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "df2a3f37-8661-4c6c-a3c9-85a5efdc0f47",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_E91EF6B1BA_1781918565118",
+    "type": "payment",
+    "time": "2026-06-20T01:23:23.358822+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "2aa937ca-64ea-401d-b3a4-d1a8fd2d585e",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_A45B3C7036_1781919074505",
+    "type": "payment",
+    "time": "2026-06-20T01:31:25.295677+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "bd353830-4807-4cd0-981e-5c1c5eb9ea91",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Commande NK_A45B3C7036_1781919074505 libérée : payout vendeur manuel à traiter.",
+    "type": "warning",
+    "time": "2026-06-21T23:25:13.197+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "6793c7cd-4220-461d-a0d4-a68ce491e7c9",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit ajouté : Affiche joueur, Oeuvre d'art, Tableau",
+    "type": "stock",
+    "time": "2026-06-25T17:24:10.244+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "be16c50d-e88a-4ddb-8d20-f39f48804d11",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_3F7E56999F_1782523225723",
+    "type": "payment",
+    "time": "2026-06-27T01:20:55.424824+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "e178ca29-fd7e-45ed-8af2-5969bdba1a76",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_B8E5AA90CB_1782523307864",
+    "type": "payment",
+    "time": "2026-06-27T01:21:59.503323+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "66ca451a-7976-406f-812e-9e4d61128a72",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_42F42CCBAA_1782523380988",
+    "type": "payment",
+    "time": "2026-06-27T01:23:14.139663+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "49cbc68e-7bfb-4d97-a387-a0b2f4af9624",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_1B83B93DCE_1783128916568",
+    "type": "payment",
+    "time": "2026-07-04T01:36:33.918977+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "8ebaa15a-0d7f-421c-b0b3-34d102f622de",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_95FC4F2480_1783172075126",
+    "type": "payment",
+    "time": "2026-07-04T13:34:49.251127+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "07ef0b8b-5594-45ee-b2d5-5a883ffa8fe2",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Commande NK_95FC4F2480_1783172075126 libérée : payout vendeur manuel à traiter.",
+    "type": "warning",
+    "time": "2026-07-04T13:43:33.555+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "f2936453-f167-458d-9ad8-824272ee0351",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_013733657F_1783177796379",
+    "type": "payment",
+    "time": "2026-07-04T15:10:24.988066+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "8f0dddf0-f020-4ac9-9750-ce596cf36b3c",
+    "user_id": "cc4ea236-0dfb-47e7-a020-67f07033e295"
+  },
+  {
+    "text": "Produit modifié : Smart TV",
+    "type": "stock",
+    "time": "2026-07-07T23:18:31.339+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "4f9c2f9f-05b2-4b48-9754-263a0b3dc386",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Produit modifié : Smart TV",
+    "type": "stock",
+    "time": "2026-07-07T23:18:57.144+00:00",
+    "user_email": "benimakiese12345@gmail.com",
+    "id": "f5848345-51c8-4a80-a517-f3c07f6e29ae",
+    "user_id": "7898fce7-51ee-415c-bd46-1ec03e67797b"
+  },
+  {
+    "text": "Produit archivé : Thé vert 100g",
+    "type": "stock",
+    "time": "2026-07-09T12:26:14.994+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "79424b17-c8b8-46b3-a8d5-5c4c0f424a74",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit restauré : Thé vert 100g",
+    "type": "stock",
+    "time": "2026-07-09T12:26:50.069+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "cbd641ee-dc9b-4311-88b0-a29965a5eb94",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit archivé : Ballon de foot",
+    "type": "stock",
+    "time": "2026-07-09T12:27:03.03+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "a32c0db5-6c5f-4d19-9971-d0e8a4b756be",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit restauré : Ballon de foot",
+    "type": "stock",
+    "time": "2026-07-09T12:27:19.176+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "8b9a2974-5ed0-448f-8823-5b4bee7c166a",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Vélo de route carbone Specialized",
+    "type": "stock",
+    "time": "2026-07-12T01:36:39.641+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "9fa98f32-c9ab-4bb7-a24f-ec17e28a6d17",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Canapé 3 places velours émeraude",
+    "type": "stock",
+    "time": "2026-07-12T01:36:40.429+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "fc763b48-69d7-4045-9b0b-83d51d932430",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Table basse bois flotté",
+    "type": "stock",
+    "time": "2026-07-12T01:36:45.263+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "87440f32-0b8b-4022-bd7a-879ff734f0ee",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Produit modifié : Robe de soirée bordeaux",
+    "type": "stock",
+    "time": "2026-07-12T01:36:49.058+00:00",
+    "user_email": "benimakiese1234@gmail.com",
+    "id": "9b820022-fe45-4d9d-ae22-b16ad0a80fa1",
+    "user_id": "8edb10c2-0e42-4faa-abc1-47bee613bf21"
+  },
+  {
+    "text": "Commande validee : versement vendeur manuel a traiter.",
+    "type": "warning",
+    "time": "2026-07-23T00:53:56.36+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "196343be-df07-4075-a0f5-0c9a72a133c6",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-26T23:35:43.062+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "15491954-35ed-4073-8efd-54a822506228",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-26T23:55:40.768+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "12906f04-1efb-46ff-9e01-c2f2c57bc35c",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Produit modifié : Montre Rolex Submariner Acier",
+    "type": "stock",
+    "time": "2026-07-27T00:13:44.641+00:00",
+    "user_email": "benimakiese123@gmail.com",
+    "id": "d667e7ed-ecf9-4cb5-8385-a4eb20820fc7",
+    "user_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881"
+  },
+  {
+    "text": "Paiement confirmé pour la commande NK_CF5F19D63E_1785236699392",
+    "type": "payment",
+    "time": "2026-07-28T11:12:53.900429+00:00",
+    "user_email": "benimakiese1234567@gmail.com",
+    "id": "4dfbdfc5-5cdf-42f4-8441-ddd020f3e2be",
+    "user_id": null
+  }
+]

@@ -629,7 +629,8 @@
 
                         const isSubmitted = u.status === 'submitted';
                         const isPending = u.status === 'pending';
-                        const needsReview = (isPending || isSubmitted) && u.role === 'supplier';
+                        const isBusinessPending = u.business_verification_status === 'pending';
+                        const needsReview = (isPending || isSubmitted || isBusinessPending) && u.role === 'supplier';
                         const avatarUrl = u.avatar || u.avatar_url || u.picture || u.photo_url || u.picture_url || u.cover_image || null;
                         const initialsSource = u.name || UserManager.getDisplayName(u) || (u.email ? u.email.split('@')[0] : '');
                         const initials = (window.getInitials ? window.getInitials(initialsSource) : (initialsSource || '?').trim().charAt(0).toUpperCase());

@@ -1,0 +1,4140 @@
+[
+  {
+    "id": "9457978d-1c03-468d-8cb4-db7fc08f59dc",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3ThGSjGlbwFVnCjP162ZIdcm:checkout.session.completed",
+    "tx_ref": "NK_3E7F60AAD7_1781214312446",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1ThGSlGlbwFVnCjPQrsteQ1I",
+      "data": {
+        "object": {
+          "id": "cs_test_a1fVN2RzP3XHJ51giIRwaCshvEmyoheWQjx2T454M0CzSe4eCrgPWwp3BH",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781214314,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_A644192CE6_1781185613100",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775769304078",
+            "transaction_id": "NK_3E7F60AAD7_1781214312446"
+          },
+          "discounts": [],
+          "cancel_url": "http://localhost:5173/pages/payment-success.html?canceled=1&order_id=ORD_A644192CE6_1781185613100&transaction_id=NK_3E7F60AAD7_1781214312446",
+          "expires_at": 1781300714,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "http://localhost:5173/pages/payment-success.html?order_id=ORD_A644192CE6_1781185613100&transaction_id=NK_3E7F60AAD7_1781214312446",
+          "amount_total": 1840,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3ThGSjGlbwFVnCjP162ZIdcm",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1840,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_3E7F60AAD7_1781214312446",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781214515,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-11T21:48:36.258+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "f2bb29cd-4c71-41e6-9146-49c23836a9e5",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3Thal8GlbwFVnCjP0bEfXjcU:checkout.session.completed",
+    "tx_ref": "NK_2EE09D8DBC_1781292403896",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1ThalBGlbwFVnCjP2yaBKzuC",
+      "data": {
+        "object": {
+          "id": "cs_test_a1WsFN6eHV1rPwdEmT1iXJUAo1nhm1mPIrZFWtDzMa2H2UrPNQX0v6FrY1",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781292404,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_A644192CE6_1781185613100",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775769304078",
+            "transaction_id": "NK_2EE09D8DBC_1781292403896"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/payment-cancel.html?canceled=1&order_id=ORD_A644192CE6_1781185613100&transaction_id=NK_2EE09D8DBC_1781292403896",
+          "expires_at": 1781378804,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/payment-success.html?order_id=ORD_A644192CE6_1781185613100&transaction_id=NK_2EE09D8DBC_1781292403896",
+          "amount_total": 1638,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3Thal8GlbwFVnCjP0bEfXjcU",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1638,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_2EE09D8DBC_1781292403896",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781292537,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-12T19:28:57.894+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "7f4b62bf-1525-473a-9e1b-c325a1b04bda",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3ThpvcGlbwFVnCjP1C8qgV4D:checkout.session.completed",
+    "tx_ref": "NK_542918FA4C_1781350571119",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1ThpvdGlbwFVnCjPVgoF5vvY",
+      "data": {
+        "object": {
+          "id": "cs_test_a1HdMCKjlucKcAhtRTzekFwUeU0QmW813Aaplp8gqQ4EJwBnGv4Y59TJ9n",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781350571,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_861E7B80FF_1781350201716",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775623307774",
+            "transaction_id": "NK_542918FA4C_1781350571119"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_861E7B80FF_1781350201716&transaction_id=NK_542918FA4C_1781350571119",
+          "expires_at": 1781436971,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_861E7B80FF_1781350201716&transaction_id=NK_542918FA4C_1781350571119",
+          "amount_total": 84926,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3ThpvcGlbwFVnCjP1C8qgV4D",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 84926,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "All Kampus",
+            "email": "allkampus1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_542918FA4C_1781350571119",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {
+            "card": {
+              "request_three_d_secure": "automatic"
+            }
+          },
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781350845,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-13T11:40:46.111+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "9a80309c-a2f0-4eeb-8f75-65672e2bab5d",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3ThqVJGlbwFVnCjP1g1lMB3J:checkout.session.completed",
+    "tx_ref": "NK_E6FBD6241C_1781353006906",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1ThqVMGlbwFVnCjPDudy0o4O",
+      "data": {
+        "object": {
+          "id": "cs_test_a1jfSDKnRqd5z5kLxdlhx36roQ60S8UpldoftNO3QiROHmCmPyXkDQV3R5",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781353008,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_861E7B80FF_1781350201716",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775623307774",
+            "transaction_id": "NK_E6FBD6241C_1781353006906"
+          },
+          "discounts": [],
+          "cancel_url": "http://localhost:5173/pages/payment-success.html?canceled=1&order_id=ORD_861E7B80FF_1781350201716&transaction_id=NK_E6FBD6241C_1781353006906",
+          "expires_at": 1781439408,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "http://localhost:5173/pages/payment-success.html?order_id=ORD_861E7B80FF_1781350201716&transaction_id=NK_E6FBD6241C_1781353006906",
+          "amount_total": 84926,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3ThqVJGlbwFVnCjP1g1lMB3J",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 84926,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "All Kampus",
+            "email": "allkampus1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "kinshasa",
+              "line1": "masina",
+              "line2": "kingabwa",
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_E6FBD6241C_1781353006906",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781353060,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-13T12:17:40.714+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "5665af21-6df5-4394-90f5-b1e7ae49031a",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3ThqdYGlbwFVnCjP0o2uEHKi:checkout.session.completed",
+    "tx_ref": "NK_68B7BCEC5B_1781353540545",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1ThqdaGlbwFVnCjPFMGP5o1O",
+      "data": {
+        "object": {
+          "id": "cs_test_a1Izx4KRl2hiRTSUDy52rzjG4S6rjNoHllFHhUnsGRbUkSoomCaiXGTvKr",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781353543,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_E6CA5AECF9_1781353190874",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775769304078",
+            "transaction_id": "NK_68B7BCEC5B_1781353540545"
+          },
+          "discounts": [],
+          "cancel_url": "http://localhost:5173/pages/payment-success.html?canceled=1&order_id=ORD_E6CA5AECF9_1781353190874&transaction_id=NK_68B7BCEC5B_1781353540545",
+          "expires_at": 1781439942,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "http://localhost:5173/pages/payment-success.html?order_id=ORD_E6CA5AECF9_1781353190874&transaction_id=NK_68B7BCEC5B_1781353540545",
+          "amount_total": 1732,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3ThqdYGlbwFVnCjP0o2uEHKi",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1732,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "All Kampus",
+            "email": "allkampus1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "kinshasa",
+              "line1": "masina",
+              "line2": "kingabwa",
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_68B7BCEC5B_1781353540545",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781353570,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-13T12:26:10.873+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "145a93dd-80a9-4eab-8fba-1626ac4380e9",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3ThqiUGlbwFVnCjP1yRCqV4a:checkout.session.completed",
+    "tx_ref": "NK_0C2C4BB55D_1781353862229",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1ThqiXGlbwFVnCjPnQxzHhi0",
+      "data": {
+        "object": {
+          "id": "cs_test_a1TCKcFvsPwuKFQvUIjDdPqpWNZeZxiFGHM9mpperD7YJZboo7mxJ1hURF",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781353862,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_E6CA5AECF9_1781353190874",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775769304078",
+            "transaction_id": "NK_0C2C4BB55D_1781353862229"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_E6CA5AECF9_1781353190874&transaction_id=NK_0C2C4BB55D_1781353862229",
+          "expires_at": 1781440262,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_E6CA5AECF9_1781353190874&transaction_id=NK_0C2C4BB55D_1781353862229",
+          "amount_total": 1732,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3ThqiUGlbwFVnCjP1yRCqV4a",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1732,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "All Kampus",
+            "email": "allkampus1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "kinshasa",
+              "line1": "masina",
+              "line2": "kingabwa",
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_0C2C4BB55D_1781353862229",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781353876,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-13T12:31:17.58+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "6ff9c279-eaa1-4c05-b0c5-7b3057f46293",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3ThrFHGlbwFVnCjP1pNdnH8j:checkout.session.completed",
+    "tx_ref": "NK_A9439192B9_1781355897371",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1ThrFKGlbwFVnCjPdYfL80yW",
+      "data": {
+        "object": {
+          "id": "cs_test_a1oacq60wpBW4m6Iu4vCawjXJW3MZPXvjPVVIzpy6Y4kEM4V2MPH6rE99e",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781355898,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_E6CA5AECF9_1781353190874",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775769304078",
+            "transaction_id": "NK_A9439192B9_1781355897371"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_E6CA5AECF9_1781353190874&transaction_id=NK_A9439192B9_1781355897371",
+          "expires_at": 1781442297,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_E6CA5AECF9_1781353190874&transaction_id=NK_A9439192B9_1781355897371",
+          "amount_total": 1732,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3ThrFHGlbwFVnCjP1pNdnH8j",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1732,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_A9439192B9_1781355897371",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781355910,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-13T13:05:10.828+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "8f7517dc-0b0c-481e-8260-6991007afd9f",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3ThwPIGlbwFVnCjP0hCY8MTU:checkout.session.completed",
+    "tx_ref": "NK_3FDB39B31F_1781375651541",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1ThwPLGlbwFVnCjPzwlOOQlf",
+      "data": {
+        "object": {
+          "id": "cs_test_a1G1qOsyVicZEFeIjBAzeXzdnHiBc5iv0ZeoYtEIkCFBj2I3LtqzrdB11C",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781375652,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_E6CA5AECF9_1781353190874",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775769304078",
+            "transaction_id": "NK_3FDB39B31F_1781375651541"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_E6CA5AECF9_1781353190874&transaction_id=NK_3FDB39B31F_1781375651541",
+          "expires_at": 1781462051,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_E6CA5AECF9_1781353190874&transaction_id=NK_3FDB39B31F_1781375651541",
+          "amount_total": 1732,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3ThwPIGlbwFVnCjP0hCY8MTU",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1732,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "All Kampus",
+            "email": "allkampus1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "kinshasa",
+              "line1": "masina",
+              "line2": "kingabwa",
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_3FDB39B31F_1781375651541",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781375751,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-13T18:35:51.921+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "e24f0793-a8f7-4ef5-98af-a06b43b638c1",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3Thz2gGlbwFVnCjP0vJaCMQk:checkout.session.completed",
+    "tx_ref": "NK_2336D4EEB9_1781385851471",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1Thz2jGlbwFVnCjPR2JjVVlm",
+      "data": {
+        "object": {
+          "id": "cs_test_a1CUJrvcZueIr4NBWul3hvoS1z25AQtKQImRtOdFD86CZeuwIfDcMx2SYv",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781385852,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_35747CBF99_1781385741326",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1775769304078",
+            "transaction_id": "NK_2336D4EEB9_1781385851471"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_35747CBF99_1781385741326&transaction_id=NK_2336D4EEB9_1781385851471",
+          "expires_at": 1781472251,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_35747CBF99_1781385741326&transaction_id=NK_2336D4EEB9_1781385851471",
+          "amount_total": 1836,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3Thz2gGlbwFVnCjP0vJaCMQk",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1836,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_2336D4EEB9_1781385851471",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781385881,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-13T21:24:41.807+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "10d1eee9-1b34-4278-86ef-88b2a1e4deb1",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TidoQGlbwFVnCjP0WUAO3Ah:checkout.session.completed",
+    "tx_ref": "NK_323D21A2DA_1781542586510",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TidoTGlbwFVnCjPcjyjuNnb",
+      "data": {
+        "object": {
+          "id": "cs_test_a15b5ysGkISvoTG2lZbsfDOZGOES7bdM44NCsQdEkHbRb5KVKbTrAYw9Sq",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781542587,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_1ABE1D6F60_1781491580497",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781488739565jflc2",
+            "transaction_id": "NK_323D21A2DA_1781542586510"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_1ABE1D6F60_1781491580497&transaction_id=NK_323D21A2DA_1781542586510",
+          "expires_at": 1781628986,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_1ABE1D6F60_1781491580497&transaction_id=NK_323D21A2DA_1781542586510",
+          "amount_total": 1677,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TidoQGlbwFVnCjP0WUAO3Ah",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1677,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_323D21A2DA_1781542586510",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781542601,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-15T16:56:41.864+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "3ce4f092-550b-4d31-9340-35a8b542c26c",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3Tj7qLGlbwFVnCjP0qguYe9v:checkout.session.completed",
+    "tx_ref": "NK_307DD33409_1781657953719",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1Tj7qMGlbwFVnCjPLAa9Z4Sj",
+      "data": {
+        "object": {
+          "id": "cs_test_a1p6p99PZE88aIWitLus1vwEcydUatpEe7VtOeH9EX3gv6mGRpuixyFZXF",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781657954,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_090941858F_1781657836848",
+            "vendor_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+            "product_id": "prod-1775961421445",
+            "transaction_id": "NK_307DD33409_1781657953719"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_090941858F_1781657836848&transaction_id=NK_307DD33409_1781657953719",
+          "expires_at": 1781744354,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_090941858F_1781657836848&transaction_id=NK_307DD33409_1781657953719",
+          "amount_total": 12480,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3Tj7qLGlbwFVnCjP0qguYe9v",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 12480,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "Bnito7",
+            "email": "benimakiese1234567@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_307DD33409_1781657953719",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {
+            "card": {
+              "request_three_d_secure": "automatic"
+            }
+          },
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781658038,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-17T01:00:39.428+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "bc32dcd9-a0c1-432e-98cc-d5245c1c0b2a",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TjLOdGlbwFVnCjP1loaXU6V:checkout.session.completed",
+    "tx_ref": "NK_63C9F7982F_1781710118455",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TjLOfGlbwFVnCjPQ3trwXkI",
+      "data": {
+        "object": {
+          "id": "cs_test_a1dP8HW4vfEnMLEpLDAATjcQma2RahC2lcGBWR6wGckjU7x2WBcqWzrndA",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781710119,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_82971C07EA_1781709973327",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-17817098939985u1h8",
+            "transaction_id": "NK_63C9F7982F_1781710118455"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_82971C07EA_1781709973327&transaction_id=NK_63C9F7982F_1781710118455",
+          "expires_at": 1781796518,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_82971C07EA_1781709973327&transaction_id=NK_63C9F7982F_1781710118455",
+          "amount_total": 175,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TjLOdGlbwFVnCjP1loaXU6V",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 175,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_63C9F7982F_1781710118455",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781710137,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-17T15:28:58.629+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "a440c59e-7867-47b0-9cd5-224808cd140b",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TjZgiGlbwFVnCjP19q4L38q:checkout.session.completed",
+    "tx_ref": "NK_8B16F40F79_1781765038519",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TjZgkGlbwFVnCjPANhYwWdB",
+      "data": {
+        "object": {
+          "id": "cs_test_a1Y2AxVkfzSu65SLINyzAO7IipedVBwXs3wfWlXr2JDiPSmEGnQhSvtj5J",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781765039,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_3C3961A90D_1781764445519",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781709893998gjogb",
+            "transaction_id": "NK_8B16F40F79_1781765038519"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_3C3961A90D_1781764445519&transaction_id=NK_8B16F40F79_1781765038519",
+          "expires_at": 1781851439,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_3C3961A90D_1781764445519&transaction_id=NK_8B16F40F79_1781765038519",
+          "amount_total": 1105,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TjZgiGlbwFVnCjP19q4L38q",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1105,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_8B16F40F79_1781765038519",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781765074,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-18T06:44:35.216+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "fe831098-d595-4609-a22d-d4b04e5a4a21",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3Tjpk1GlbwFVnCjP0e42YB96:checkout.session.completed",
+    "tx_ref": "NK_7AFAFBD3B2_1781826644198",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1Tjpk4GlbwFVnCjPn38ckqQG",
+      "data": {
+        "object": {
+          "id": "cs_test_a1gaKqaltyPO02rQFh0i32EClpDFT9lzuWU7FrsUekOjMxXspqv70wmlaR",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781826645,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_0F2E609043_1781826124457",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781709893998fewjd",
+            "transaction_id": "NK_7AFAFBD3B2_1781826644198"
+          },
+          "discounts": [],
+          "cancel_url": "http://localhost:5173/pages/payment-success.html?canceled=1&order_id=ORD_0F2E609043_1781826124457&transaction_id=NK_7AFAFBD3B2_1781826644198",
+          "expires_at": 1781913045,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "http://localhost:5173/pages/payment-success.html?order_id=ORD_0F2E609043_1781826124457&transaction_id=NK_7AFAFBD3B2_1781826644198",
+          "amount_total": 945,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3Tjpk1GlbwFVnCjP0e42YB96",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 945,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_7AFAFBD3B2_1781826644198",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781826784,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-18T23:53:05.555+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "1c90c0e9-9631-402f-b4cd-dcd442cbbf1c",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TjplsGlbwFVnCjP08Fy8XmU:checkout.session.completed",
+    "tx_ref": "NK_EAD0AE52E4_1781826854357",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TjplvGlbwFVnCjPUaEgARGt",
+      "data": {
+        "object": {
+          "id": "cs_test_a15G4UABdBPDa89Oog4SMUJ0008WvCvVyqR4u6zoEYjSkndBWSFR2ieksT",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781826856,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_0F2E609043_1781826124457",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781709893998fewjd",
+            "transaction_id": "NK_EAD0AE52E4_1781826854357"
+          },
+          "discounts": [],
+          "cancel_url": "http://localhost:5173/pages/payment-success.html?canceled=1&order_id=ORD_0F2E609043_1781826124457&transaction_id=NK_EAD0AE52E4_1781826854357",
+          "expires_at": 1781913255,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "http://localhost:5173/pages/payment-success.html?order_id=ORD_0F2E609043_1781826124457&transaction_id=NK_EAD0AE52E4_1781826854357",
+          "amount_total": 945,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TjplsGlbwFVnCjP08Fy8XmU",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 945,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_EAD0AE52E4_1781826854357",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781826899,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-18T23:54:59.871+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "b05005ac-2633-43d5-b8e2-f20b9d67c9d1",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TkDcxGlbwFVnCjP1y3FPuPF:checkout.session.completed",
+    "tx_ref": "NK_E91EF6B1BA_1781918565118",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TkDd0GlbwFVnCjPiaL4Hs29",
+      "data": {
+        "object": {
+          "id": "cs_test_a1dFmJxQQBKltmRW2qY4Kv2eL8b2gdkVDWYWaytww0rVvy9NLIKce0hG0b",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781918565,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_39F510822B_1781825880205",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-17817098939986yqhn",
+            "transaction_id": "NK_E91EF6B1BA_1781918565118"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_39F510822B_1781825880205&transaction_id=NK_E91EF6B1BA_1781918565118",
+          "expires_at": 1782004965,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_39F510822B_1781825880205&transaction_id=NK_E91EF6B1BA_1781918565118",
+          "amount_total": 814,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TkDcxGlbwFVnCjP1y3FPuPF",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 814,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_E91EF6B1BA_1781918565118",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781918601,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-20T01:23:22.604+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "4989e73c-dd39-4568-9e63-8d352269b047",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TkDkkGlbwFVnCjP1El1bkGl:checkout.session.completed",
+    "tx_ref": "NK_A45B3C7036_1781919074505",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TkDkmGlbwFVnCjPM2s0wNZn",
+      "data": {
+        "object": {
+          "id": "cs_test_a11TrM9kx8DqasFH2cNIcSajWLSm4w5Phn87q8GvrtrCtKfov34Rm5joh9",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1781919075,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_F845156363_1781918859452",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781709893998bvlha",
+            "transaction_id": "NK_A45B3C7036_1781919074505"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_F845156363_1781918859452&transaction_id=NK_A45B3C7036_1781919074505",
+          "expires_at": 1782005474,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_F845156363_1781918859452&transaction_id=NK_A45B3C7036_1781919074505",
+          "amount_total": 3607,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TkDkkGlbwFVnCjP1El1bkGl",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 3607,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_A45B3C7036_1781919074505",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1781919084,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-20T01:31:24.751+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "6ebe277b-0b82-4791-817c-30c0d9947222",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TmkvQGlbwFVnCjP1nSVBVD7:checkout.session.completed",
+    "tx_ref": "NK_3F7E56999F_1782523225723",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TmkvSGlbwFVnCjPE6h8cnnN",
+      "data": {
+        "object": {
+          "id": "cs_test_a1MrMC0CkJ0p2gRmhhRDjRNLoBEAdkzf0kZGPb6UW0oUCKtnbMJbe4f3eD",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1782523226,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_0413FB7E85_1782522964961",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781709893998zm3r3",
+            "transaction_id": "NK_3F7E56999F_1782523225723"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_0413FB7E85_1782522964961&transaction_id=NK_3F7E56999F_1782523225723",
+          "expires_at": 1782609626,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_0413FB7E85_1782522964961&transaction_id=NK_3F7E56999F_1782523225723",
+          "amount_total": 5404,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TmkvQGlbwFVnCjP1nSVBVD7",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 5404,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_3F7E56999F_1782523225723",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1782523254,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-27T01:20:54.917+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "b60bc37a-ecea-416c-b5b9-aa5dbc4b50ca",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TmkwSGlbwFVnCjP1gRKrdWq:checkout.session.completed",
+    "tx_ref": "NK_B8E5AA90CB_1782523307864",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TmkwUGlbwFVnCjPuTtbprMP",
+      "data": {
+        "object": {
+          "id": "cs_test_a1Y2G02ymoXAv7LJp9kFigzUZJ0d3vfwbxXTFrgYV4qbVQOCMmpisJerqs",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1782523308,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_44E8435D03_1782522963741",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781709893999z2ype",
+            "transaction_id": "NK_B8E5AA90CB_1782523307864"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_44E8435D03_1782522963741&transaction_id=NK_B8E5AA90CB_1782523307864",
+          "expires_at": 1782609708,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_44E8435D03_1782522963741&transaction_id=NK_B8E5AA90CB_1782523307864",
+          "amount_total": 1510,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TmkwSGlbwFVnCjP1gRKrdWq",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 1510,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_B8E5AA90CB_1782523307864",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1782523318,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-27T01:21:58.943+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "6a914b98-6990-46c9-abfc-67c39ac22aff",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TmkxeGlbwFVnCjP1ZKeNNJs:checkout.session.completed",
+    "tx_ref": "NK_42F42CCBAA_1782523380988",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TmkxhGlbwFVnCjPQPPUIKPk",
+      "data": {
+        "object": {
+          "id": "cs_test_a1MiwHx5dn6Mpk57JymmlE6ex7ynYpk9LoDiT9QFDyLtqtPiUAQJUTe0e1",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1782523381,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_AA30327E70_1782522962388",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-17817098939995ud8t",
+            "transaction_id": "NK_42F42CCBAA_1782523380988"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_AA30327E70_1782522962388&transaction_id=NK_42F42CCBAA_1782523380988",
+          "expires_at": 1782609781,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_AA30327E70_1782522962388&transaction_id=NK_42F42CCBAA_1782523380988",
+          "amount_total": 716,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TmkxeGlbwFVnCjP1ZKeNNJs",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 716,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_42F42CCBAA_1782523380988",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1782523393,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-06-27T01:23:13.675+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "436033fe-3e70-4683-a60d-9216c653e1d7",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TpIVNGlbwFVnCjP0LEAnLn8:checkout.session.completed",
+    "tx_ref": "NK_1B83B93DCE_1783128916568",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TpIVQGlbwFVnCjPYMsXo7om",
+      "data": {
+        "object": {
+          "id": "cs_test_a1iQaSGjlgSKMPQTeBHfSPbQe7yredmemBEc83PRPCQEx7xAH4cnuCSu0q",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1783128917,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_51B1972E56_1783115823586",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781709893999z2ype",
+            "transaction_id": "NK_1B83B93DCE_1783128916568"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_51B1972E56_1783115823586&transaction_id=NK_1B83B93DCE_1783128916568",
+          "expires_at": 1783215317,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_51B1972E56_1783115823586&transaction_id=NK_1B83B93DCE_1783128916568",
+          "amount_total": 2370,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TpIVNGlbwFVnCjP0LEAnLn8",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 2370,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_1B83B93DCE_1783128916568",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1783128992,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-07-04T01:36:32.906+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "c4b8e578-4357-4ac6-958b-9400235c19fc",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TpTiUGlbwFVnCjP0XrUvf3y:checkout.session.completed",
+    "tx_ref": "NK_95FC4F2480_1783172075126",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TpTiWGlbwFVnCjPJT0JNoSb",
+      "data": {
+        "object": {
+          "id": "cs_test_a1YNNzKldknhFL9hn9aBjIOjeqrbj7OQI8HuKLb4PPVdBDtfzLw2tV8Plt",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1783172076,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_DCA820E82E_1783172004639",
+            "vendor_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+            "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+            "transaction_id": "NK_95FC4F2480_1783172075126"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_DCA820E82E_1783172004639&transaction_id=NK_95FC4F2480_1783172075126",
+          "expires_at": 1783258475,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_DCA820E82E_1783172004639&transaction_id=NK_95FC4F2480_1783172075126",
+          "amount_total": 4083,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TpTiUGlbwFVnCjP0XrUvf3y",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 4083,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_95FC4F2480_1783172075126",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1783172088,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-07-04T13:34:48.636+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "209104fa-3398-4393-b617-2b7a120fe272",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TpVCyGlbwFVnCjP0Ubvdi0U:checkout.session.completed",
+    "tx_ref": "NK_013733657F_1783177796379",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TpVD1GlbwFVnCjPFAu4Hqt6",
+      "data": {
+        "object": {
+          "id": "cs_test_a1d1XYtMKIgxAYm8OsIvgha9pLNcwwooYcHWiwAjcCn6Ywqx2QkmVFjasz",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1783177797,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_A4FBB5ADB8_1783177588706",
+            "vendor_id": "7898fce7-51ee-415c-bd46-1ec03e67797b",
+            "product_id": "5c93d17b-b2fb-4106-b551-03751c4f0728",
+            "transaction_id": "NK_013733657F_1783177796379"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_A4FBB5ADB8_1783177588706&transaction_id=NK_013733657F_1783177796379",
+          "expires_at": 1783264197,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_A4FBB5ADB8_1783177588706&transaction_id=NK_013733657F_1783177796379",
+          "amount_total": 4083,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TpVCyGlbwFVnCjP0Ubvdi0U",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 4083,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_013733657F_1783177796379",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1783177823,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-07-04T15:10:24.137+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "9519067e-50f6-4206-b74c-a620aa0ab7ea",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TroWeGlbwFVnCjP1fFbezgm:checkout.session.completed",
+    "tx_ref": "NK_F6891DEC21_1783728713686",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TroWhGlbwFVnCjPO5H6py8u",
+      "data": {
+        "object": {
+          "id": "cs_test_a1YsDTLpREOgs18Pi0xe3tixKu4X2aP1j8ELAJXBLP5tj1idCPHhpvILzr",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1783728715,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_692969F491_1783725098009",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "prod-1781709893998h91ve",
+            "transaction_id": "NK_F6891DEC21_1783728713686"
+          },
+          "discounts": [],
+          "cancel_url": "http://localhost:5173/pages/payment-success.html?canceled=1&order_id=ORD_692969F491_1783725098009&transaction_id=NK_F6891DEC21_1783728713686",
+          "expires_at": 1783815115,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "http://localhost:5173/pages/payment-success.html?order_id=ORD_692969F491_1783725098009&transaction_id=NK_F6891DEC21_1783728713686",
+          "amount_total": 702,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TroWeGlbwFVnCjP1fFbezgm",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 702,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "BenITo",
+            "email": "benimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "Kingabwa, Masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_F6891DEC21_1783728713686",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1783728735,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-07-11T00:12:15.973+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "f93f7499-e999-4a29-98e5-ba6a298fd554",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TvpFgGlbwFVnCjP0Hhgwj3i:checkout.session.completed",
+    "tx_ref": "NK_2381DF334B_1784684673771",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TvpFjGlbwFVnCjPGyT67feR",
+      "data": {
+        "object": {
+          "id": "cs_test_a1pZoqhzIIyl3VlUMGCB5aDi43P4pc1zd9XQl9rgVfyImYXlQBjWW3iHHR",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1784684674,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_3770A94BA8_1784684023004",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "a946224a-dea3-4a3a-9fe1-30040d2a2e14",
+            "transaction_id": "NK_2381DF334B_1784684673771"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_3770A94BA8_1784684023004&transaction_id=NK_2381DF334B_1784684673771",
+          "expires_at": 1784771074,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_3770A94BA8_1784684023004&transaction_id=NK_2381DF334B_1784684673771",
+          "amount_total": 7036,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TvpFgGlbwFVnCjP0Hhgwj3i",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 7036,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "Beni Makiese",
+            "email": "benimakiese1234567@gmail.com",
+            "phone": null,
+            "address": {
+              "city": "Kinshasa",
+              "line1": "masina",
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_2381DF334B_1784684673771",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1784684838,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-07-22T01:47:19.645+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "d8ea65b4-bc5e-488c-9bd8-fac3cb8c3a97",
+    "provider": "stripe",
+    "event_type": "checkout.session.completed",
+    "provider_event_id": "pi_3TwU33GlbwFVnCjP1OIKwm7C:checkout.session.completed",
+    "tx_ref": "NK_00D76A6477_1784841561279",
+    "order_id": null,
+    "payload": {
+      "id": "evt_1TwU3RGlbwFVnCjPuVQHmYUi",
+      "data": {
+        "object": {
+          "id": "cs_test_a1Oim5peTvP3YSgO7E91P0qp4wk3P2bwUlTZQgya9ShpjqXLfLNnYS0pY5",
+          "url": null,
+          "mode": "payment",
+          "locale": null,
+          "object": "checkout.session",
+          "status": "complete",
+          "consent": null,
+          "created": 1784841562,
+          "invoice": null,
+          "ui_mode": "hosted_page",
+          "currency": "usd",
+          "customer": null,
+          "livemode": false,
+          "metadata": {
+            "order_id": "ORD_41B21D8A9D_1784835218603",
+            "vendor_id": "eb6b16fc-1526-4387-9f84-a2097ef6f881",
+            "product_id": "96ffab29-31f1-456f-822d-2988367bf48d",
+            "transaction_id": "NK_00D76A6477_1784841561279"
+          },
+          "discounts": [],
+          "cancel_url": "https://newket.vercel.app/src/pages/payment-cancel?canceled=1&order_id=ORD_41B21D8A9D_1784835218603&transaction_id=NK_00D76A6477_1784841561279",
+          "expires_at": 1784927961,
+          "custom_text": {
+            "submit": null,
+            "after_submit": null,
+            "shipping_address": null,
+            "terms_of_service_acceptance": null
+          },
+          "permissions": null,
+          "submit_type": null,
+          "success_url": "https://newket.vercel.app/src/pages/payment-success?order_id=ORD_41B21D8A9D_1784835218603&transaction_id=NK_00D76A6477_1784841561279",
+          "amount_total": 25625,
+          "payment_link": null,
+          "setup_intent": null,
+          "subscription": null,
+          "automatic_tax": {
+            "status": null,
+            "enabled": false,
+            "provider": null,
+            "liability": null
+          },
+          "client_secret": null,
+          "custom_fields": [],
+          "shipping_cost": null,
+          "total_details": {
+            "amount_tax": 0,
+            "amount_discount": 0,
+            "amount_shipping": 0
+          },
+          "customer_email": null,
+          "origin_context": null,
+          "payment_intent": "pi_3TwU33GlbwFVnCjP1OIKwm7C",
+          "payment_status": "paid",
+          "recovered_from": null,
+          "wallet_options": null,
+          "amount_subtotal": 25625,
+          "adaptive_pricing": {
+            "enabled": true
+          },
+          "after_expiration": null,
+          "customer_account": null,
+          "customer_details": {
+            "name": "Benitooo",
+            "email": "brnimakiese1234@gmail.com",
+            "phone": null,
+            "address": {
+              "city": null,
+              "line1": null,
+              "line2": null,
+              "state": null,
+              "country": "CD",
+              "postal_code": null
+            },
+            "tax_ids": [],
+            "tax_exempt": "none",
+            "business_name": null,
+            "individual_name": null
+          },
+          "invoice_creation": {
+            "enabled": false,
+            "invoice_data": {
+              "footer": null,
+              "issuer": null,
+              "metadata": {},
+              "description": null,
+              "custom_fields": null,
+              "account_tax_ids": null,
+              "rendering_options": null
+            }
+          },
+          "managed_payments": {
+            "enabled": false
+          },
+          "shipping_options": [],
+          "branding_settings": {
+            "icon": null,
+            "logo": null,
+            "font_family": "default",
+            "border_style": "rounded",
+            "button_color": "#0074d4",
+            "display_name": "environnement de test Beni Makiese",
+            "background_color": "#ffffff"
+          },
+          "customer_creation": "if_required",
+          "consent_collection": null,
+          "client_reference_id": "NK_00D76A6477_1784841561279",
+          "currency_conversion": null,
+          "payment_method_types": [
+            "card",
+            "link",
+            "amazon_pay"
+          ],
+          "allow_promotion_codes": null,
+          "collected_information": null,
+          "integration_identifier": null,
+          "payment_method_options": {},
+          "phone_number_collection": {
+            "enabled": false
+          },
+          "payment_method_collection": "if_required",
+          "billing_address_collection": null,
+          "shipping_address_collection": null,
+          "saved_payment_method_options": null,
+          "payment_method_configuration_details": {
+            "id": "pmc_1TgZTBGlbwFVnCjPYxFk1c4q",
+            "parent": null
+          }
+        }
+      },
+      "type": "checkout.session.completed",
+      "object": "event",
+      "created": 1784841681,
+      "request": {
+        "id": null,
+        "idempotency_key": null
+      },
+      "livemode": false,
+      "api_version": "2026-05-27.dahlia",
+      "pending_webhooks": 1
+    },
+    "signature_valid": true,
+    "received_at": "2026-07-23T21:21:22.244+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "f969314b-65e7-4885-a6e1-5f1a2c1777bf",
+    "provider": "kpay",
+    "event_type": "PENDING",
+    "provider_event_id": "unknown:PENDING",
+    "tx_ref": "NK_5002C2D030_1785200775774_1785200776068",
+    "order_id": null,
+    "payload": {
+      "event": "payment.initiated",
+      "amount": 358280,
+      "status": "PENDING",
+      "metadata": null,
+      "paymentId": "55375d97-8ae5-467c-b957-454a5a440b3c",
+      "reference": "KPAY-MS3YG744-F63E15AA11E3",
+      "timestamp": "2026-07-28T01:06:51.362Z",
+      "externalId": "NK_5002C2D030_1785200775774_1785200776068",
+      "phoneNumber": "813456789"
+    },
+    "signature_valid": true,
+    "received_at": "2026-07-28T01:06:51.588+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  },
+  {
+    "id": "f20d808e-1544-4be9-a361-8cda6c2ab629",
+    "provider": "kpay",
+    "event_type": "COMPLETED",
+    "provider_event_id": "unknown:COMPLETED",
+    "tx_ref": "NK_5002C2D030_1785200775774_1785200776068",
+    "order_id": null,
+    "payload": {
+      "event": "payment.completed",
+      "amount": 358280,
+      "status": "COMPLETED",
+      "metadata": null,
+      "paymentId": "55375d97-8ae5-467c-b957-454a5a440b3c",
+      "reference": "KPAY-MS3YG744-F63E15AA11E3",
+      "timestamp": "2026-07-28T01:06:51.700Z",
+      "externalId": "NK_5002C2D030_1785200775774_1785200776068",
+      "phoneNumber": "813456789"
+    },
+    "signature_valid": true,
+    "received_at": "2026-07-28T01:06:51.892+00:00",
+    "processed_at": null,
+    "process_status": "RECEIVED",
+    "process_error": null
+  }
+]

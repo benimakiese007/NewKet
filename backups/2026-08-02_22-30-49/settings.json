@@ -1,0 +1,33 @@
+[
+  {
+    "id": "global-settings",
+    "shopName": "NewKet EMarket",
+    "email": "benimakiese1234@gmail.com",
+    "supportPhone": "+243990924254",
+    "exchangeRate": 2500,
+    "currencySymbol": "CDF",
+    "shippingFee": 5,
+    "freeShippingThreshold": 50,
+    "maintenanceMode": false,
+    "socialLinks": {
+      "x": "https://x.com/lephoenixman",
+      "twitter": "https://x.com/lephoenixman",
+      "facebook": "https://www.facebook.com/Benimakiese007",
+      "linkedin": "https://www.linkedin.com/in/beni-makiese/",
+      "instagram": "https://www.instagram.com/Benimakiese007"
+    },
+    "created_at": "2026-03-28T14:41:52.491457+00:00",
+    "updated_at": "2026-07-31T23:59:48.958446+00:00",
+    "admin_emails": [
+      "benimakiese1234@gmail.com",
+      "newketmarket@gmail.com"
+    ],
+    "logoUrl": "",
+    "sellerCommission": 0,
+    "targetAOV": 25,
+    "primaryColor": "#050505",
+    "linkedin_link": null,
+    "target_aov": 0,
+    "platform_commission_rate": 5
+  }
+]
