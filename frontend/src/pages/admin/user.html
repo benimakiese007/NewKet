@@ -59,6 +59,38 @@
         .seller-type-normal { background-color: #f8fafc; color: #64748b; }
         .seller-type-certified { background-color: #dbeafe; color: #1d4ed8; }
 
+        .admin-user-avatar {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 9999px;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 2px solid #fff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+        }
+
+        .admin-user-avatar img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            border-radius: 9999px;
+        }
+
+        .admin-user-avatar span {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
         .branding-alert {
             position: relative;
         }
@@ -646,9 +678,9 @@
                         <tr class="group animate-premium" style="animation-delay: ${i * 0.05}s">
                             <td class="p-4 cursor-pointer" onclick="openUserDetails('${u.email}')">
                                 <div class="flex items-center gap-4 min-w-0">
-                                    <div class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center text-xs font-black overflow-hidden shadow-lg border-2 border-white transition-transform group-hover:scale-110 shrink-0 ${hasNoLogo ? 'branding-alert' : ''}">
+                                    <div class="admin-user-avatar transition-transform group-hover:scale-110 ${hasNoLogo ? 'branding-alert' : ''}">
                                         ${avatarUrl
-                                            ? `<img src="${avatarUrl}" class="w-full h-full object-cover" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; const s=this.parentElement.querySelector('span'); if(s){s.style.display='flex';}">`
+                                            ? `<img src="${avatarUrl}" alt="" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; const s=this.parentElement.querySelector('span'); if(s){s.style.display='flex';}">`
                                             : ''
                                         }
                                         <span class="text-sm font-black" style="${avatarUrl ? 'display:none;' : 'display:flex;'}">${initials}</span>

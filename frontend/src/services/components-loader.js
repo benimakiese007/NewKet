@@ -25,7 +25,7 @@ const HEADER_HTML = `
 
                 <!-- Logo Section — col centre (parfaitement centré sur mobile, statique sur desktop) -->
                 <div class="flex items-center justify-center sm:min-w-0 sm:justify-start">
-                    <a href="{{ROOT}}index.html" class="header-logo-link flex-shrink-0 flex items-center py-1 sm:static z-10 transition-transform hover:scale-105 duration-300">
+                    <a href="{{ROOT}}index.html" aria-label="Retour à l'accueil NewKet" title="Accueil NewKet" class="header-logo-link flex-shrink-0 flex items-center py-1 sm:static z-10 transition-transform hover:scale-105 duration-300">
                         <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_400,f_auto,q_auto/v1782572408/newket_assets/racine/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96"
                             data-site-logo="header"
                             class="header-brand-image h-8 sm:h-20 w-auto object-contain"
