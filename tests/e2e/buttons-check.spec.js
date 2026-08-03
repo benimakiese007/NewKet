@@ -12,37 +12,61 @@ import { test, expect } from '@playwright/test';
 
 test.setTimeout(120_000);
 
-// Pages publiques accessibles sans connexion
-const PUBLIC_PAGES = [
-    { name: 'Accueil', url: '/' },
-    { name: 'Catalogue', url: '/src/pages/catalog.html' },
-    { name: 'Login / Inscription', url: '/src/pages/login.html' },
-    { name: 'A propos', url: '/src/pages/about.html' },
-    { name: 'FAQ', url: '/src/pages/faq.html' },
-    { name: 'Support', url: '/src/pages/support.html' },
-    { name: 'Boutiques', url: '/src/pages/shops.html' },
-    { name: 'Promotions', url: '/src/pages/promo.html', waitMs: 5000 },
-    { name: 'Mentions legales', url: '/src/pages/mentions-legales.html' },
-    { name: 'CGU', url: '/src/pages/terms.html' },
-    { name: 'Confidentialite', url: '/src/pages/privacy.html' },
-    { name: 'Choisir son role', url: '/src/pages/choose-role.html', waitMs: 5000 },
-    { name: 'Reset password', url: '/src/pages/reset-password.html' },
-];
+import fs from 'fs';
+import path from 'path';
 
-// Pages accessibles apres connexion (acheteur)
-const BUYER_PAGES = [
-    { name: 'Dashboard Acheteur', url: '/src/pages/customer-dashboard.html' },
-    { name: 'Favoris', url: '/src/pages/favorites.html' },
-    { name: 'Notifications', url: '/src/pages/notifications.html' },
-    { name: 'Parametres', url: '/src/pages/settings.html' },
-];
+// Chemins
+const PAGES_DIR = path.resolve(__dirname, '../../frontend/src/pages');
+const ROOT_URL = '/src/pages';
 
-// Pages accessibles apres connexion (vendeur)
-const VENDOR_PAGES = [
-    { name: 'Dashboard Vendeur', url: '/src/pages/vendor-dashboard.html' },
-    { name: 'Publier un produit', url: '/src/pages/publish.html' },
-    { name: 'Seller Onboarding', url: '/src/pages/seller-onboarding.html' },
-];
+// Fonction récursive pour trouver tous les fichiers HTML
+function getAllHtmlFiles(dir, fileList = []) {
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+        const filePath = path.join(dir, file);
+        if (fs.statSync(filePath).isDirectory()) {
+            getAllHtmlFiles(filePath, fileList);
+        } else if (file.endsWith('.html')) {
+            fileList.push(filePath);
+        }
+    }
+    return fileList;
+}
+
+const allHtmlFiles = getAllHtmlFiles(PAGES_DIR);
+
+// Catégorisation dynamique
+const PUBLIC_PAGES = [];
+const BUYER_PAGES = [];
+const VENDOR_PAGES = [];
+
+for (const filePath of allHtmlFiles) {
+    // Calcul de l'URL relative
+    const relativePath = path.relative(PAGES_DIR, filePath).replace(/\\/g, '/');
+    let url = `${ROOT_URL}/${relativePath}`;
+    
+    // Remplacement spécial pour l'index
+    if (relativePath === 'index.html' || relativePath === '../index.html') {
+        url = '/';
+    }
+
+    const name = path.basename(filePath, '.html');
+    const pageInfo = { name, url };
+
+    // Si la page a besoin d'un temps d'attente spécifique pour charger du contenu dynamique
+    if (['promo', 'choose-role', 'catalog', 'index'].includes(name)) {
+        pageInfo.waitMs = 5000;
+    }
+
+    // Routage vers la bonne catégorie selon le nom ou le dossier
+    if (relativePath.includes('admin/') || ['vendor-dashboard', 'publish', 'seller-onboarding'].includes(name)) {
+        VENDOR_PAGES.push(pageInfo);
+    } else if (['customer-dashboard', 'favorites', 'notifications', 'settings', 'achat'].includes(name)) {
+        BUYER_PAGES.push(pageInfo);
+    } else {
+        PUBLIC_PAGES.push(pageInfo);
+    }
+}
 
 // Erreurs JS à ignorer (erreurs connues non liées aux boutons)
 const IGNORED_ERRORS = [
