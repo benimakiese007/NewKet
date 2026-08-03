@@ -7876,9 +7876,12 @@ function openOrderModal(id) {
         document.addEventListener('DOMContentLoaded', async () => {
             const user = window.currentUser || JSON.parse(localStorage.getItem('user'));
             if (!user) return;
+            const token = localStorage.getItem('token');
 
             try {
-                const response = await fetch('/api/verification/rccm/status/' + user.id);
+                const response = await fetch('/api/verification/my-status', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (response.ok) {
                     const data = await response.json();
                     
@@ -7953,18 +7956,31 @@ function openOrderModal(id) {
                             btn.disabled = true;
 
                             const formData = new FormData(form);
-                            formData.append('userId', user.id);
+                            // Not needed as requireAuth knows the user, but we can leave it
+                            // formData.append('userId', user.id); 
 
                             try {
-                                const res = await fetch('/api/verification/rccm/submit', {
+                                const res = await fetch('/api/verification/submit', {
                                     method: 'POST',
+                                    headers: { 'Authorization': `Bearer ${token}` },
                                     body: formData
                                 });
 
                                 const result = await res.json();
                                 
                                 if (res.ok) {
-                                    window.location.reload();
+                                    // Update UI in realtime without reloading
+                                    form.classList.add('hidden');
+                                    banner.classList.remove('hidden');
+                                    banner.className = 'mb-6 p-4 rounded-2xl flex items-start gap-4 border bg-yellow-50 border-yellow-100';
+                                    iconContainer.className = 'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-yellow-100 text-yellow-600';
+                                    icon.setAttribute('icon', 'solar:hourglass-line-bold');
+                                    title.textContent = 'Vérification en cours';
+                                    title.className = 'font-bold text-yellow-800';
+                                    desc.textContent = 'Vos documents sont en cours de révision par notre équipe.';
+                                    desc.className = 'text-xs mt-1 text-yellow-600';
+                                    btn.innerHTML = originalContent;
+                                    btn.disabled = false;
                                 } else {
                                     alert(result.error || 'Une erreur est survenue.');
                                     btn.innerHTML = originalContent;
