@@ -667,9 +667,9 @@
                         const initialsSource = u.name || UserManager.getDisplayName(u) || (u.email ? u.email.split('@')[0] : '');
                         const initials = (window.getInitials ? window.getInitials(initialsSource) : (initialsSource || '?').trim().charAt(0).toUpperCase());
                         const hasNoLogo = u.role === 'supplier' && !avatarUrl;
-                        const sellerType = String(u.seller_type || 'certified').toLowerCase();
-                        const sellerTypeLabel = u.role === 'supplier' ? 'Vendeur certifié' : '';
-                        const sellerTypeClass = 'seller-type-certified';
+                        const isPro = String(u.seller_type).toLowerCase() === 'certified';
+                        const sellerTypeLabel = (u.role === 'supplier' && isPro) ? 'Vendeur Pro' : '';
+                        const sellerTypeClass = 'bg-blue-50 text-blue-600 border border-blue-200';
 
                         const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
                         const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
@@ -688,10 +688,10 @@
                                     <div class="admin-table-cell-text min-w-0">
                                         <div class="font-black text-gray-900 flex items-center gap-2 min-w-0">
                                             <span class="admin-table-truncate" title="${UserManager.getDisplayName(u)}">${UserManager.getDisplayName(u)}</span>
+                                            ${sellerTypeLabel ? `<span class="seller-type-badge ${sellerTypeClass}">${sellerTypeLabel}</span>` : ''}
                                             ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping shrink-0"></span>' : ''}
                                         </div>
                                         <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest" title="${u.email}">${u.email}</div>
-                                        ${sellerTypeLabel ? `<div class="admin-table-cell-meta mt-2"><span class="seller-type-badge ${sellerTypeClass}">${sellerTypeLabel}</span></div>` : ''}
                                     </div>
                                 </div>
                             </td>

@@ -134,7 +134,7 @@
                             <span>Chargement...</span>
                             <iconify-icon icon="solar:verified-check-bold" class="text-blue-500 hidden" id="vendorVerifiedBadge" width="14"></iconify-icon>
                         </h2>
-                        <div id="vendorTypeBadge" class="mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 hidden">Vendeur certifié</div>
+                        <div id="vendorTypeBadge" class="mt-1 inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-gray-100 text-gray-500 hidden">Vendeur Pro</div>
                     </div>
                     <button data-close-sidebar="vendor" onclick="SidebarManager.close()" class="lg:hidden p-2 bg-white rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all shadow-sm border border-gray-100/50 flex-shrink-0">
                         <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
@@ -873,6 +873,47 @@
                                 <div class="w-12 h-7 bg-gray-200 rounded-full peer peer-checked:bg-black peer-focus:outline-none after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                             </label>
                         </div>
+                    </div>
+
+                    <!-- Certification Pro Card -->
+                    <div class="glass-panel p-8" id="vendorProBlock">
+                        <h2 class="text-xl font-bold mb-2 flex items-center gap-2">Certification Vendeur Pro <iconify-icon icon="solar:verified-check-bold" class="text-blue-500"></iconify-icon></h2>
+                        <p class="text-sm text-gray-400 mb-6">Devenez un vendeur certifié pour inspirer confiance à vos clients et débloquer plus de fonctionnalités.</p>
+
+                        <!-- Status Banner -->
+                        <div id="vendorProStatusBanner" class="hidden mb-6 p-4 rounded-2xl flex items-start gap-4 border">
+                            <div id="vendorProStatusIconContainer" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                                <iconify-icon id="vendorProStatusIcon" icon="" width="24"></iconify-icon>
+                            </div>
+                            <div>
+                                <h3 id="vendorProStatusTitle" class="font-bold"></h3>
+                                <p id="vendorProStatusDesc" class="text-xs mt-1"></p>
+                            </div>
+                        </div>
+
+                        <form id="vendorProCertificationForm" class="space-y-4">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Numéro RCCM</label>
+                                <input type="text" name="rccm_number" id="certRccm" required placeholder="Ex: CD/KIN/RCCM/21-B-00000" class="w-full text-sm px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Nom Professionnel de l'Entreprise</label>
+                                <input type="text" name="company_name" id="certCompanyName" required placeholder="Ex: Ma Belle Entreprise SARL" class="w-full text-sm px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Document Justificatif (Optionnel)</label>
+                                <label for="vRccmDocument" class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all group">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <iconify-icon icon="solar:upload-bold-duotone" width="24" class="text-gray-400 group-hover:text-black transition-all mb-2"></iconify-icon>
+                                        <p class="text-xs text-gray-500 font-medium" id="vRccmDocumentLabel">Choisir un fichier...</p>
+                                    </div>
+                                    <input id="vRccmDocument" name="document" type="file" class="hidden" accept=".pdf,image/*">
+                                </label>
+                            </div>
+                            <button type="submit" id="vendorProSubmitBtn" class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all w-full sm:w-auto mt-2">
+                                Soumettre la demande
+                            </button>
+                        </form>
                     </div>
 
                     <!-- Profile Photo Card -->

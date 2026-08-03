@@ -274,7 +274,7 @@
             const normalized = String(value || 'normal').toLowerCase();
             if (normalized === 'certified') {
                 return {
-                    label: 'Vendeur certifié',
+                    label: 'Vendeur Pro',
                     className: 'px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest bg-blue-100 text-blue-700'
                 };
             }
@@ -378,10 +378,11 @@
 
             const role = user.role || 'customer';
             const sellerType = String(user.seller_type || (role === 'supplier' ? 'normal' : '')).toLowerCase();
+            const proBadgeHtml = sellerType === 'certified' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-100 text-blue-700 align-middle tracking-widest">Vendeur Pro</span>' : '';
 
             // UI Setup
             const displayName = UserManager.getDisplayName(user);
-            document.getElementById('userName').innerHTML = `${displayName} ${user.status === 'submitted' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-orange-100 text-orange-600 align-middle">Dossier soumis</span>'
+            document.getElementById('userName').innerHTML = `${displayName} ${proBadgeHtml} ${user.status === 'submitted' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-orange-100 text-orange-600 align-middle">Dossier soumis</span>'
                 : user.status === 'pending' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-yellow-100 text-yellow-700 align-middle">En attente</span>'
                     : (user.status === 'approved' || user.status === 'verified') ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-green-100 text-green-700 align-middle">Approuvé</span>'
                         : user.status === 'rejected' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-red-100 text-red-600 align-middle">Rejeté</span>'
@@ -408,14 +409,7 @@
 
             const sellerBadge = document.getElementById('sellerTypeBadge');
             if (sellerBadge) {
-                if (role === 'supplier') {
-                    const cfg = getSellerTypeConfig(sellerType);
-                    sellerBadge.textContent = cfg.label;
-                    sellerBadge.className = cfg.className;
-                    sellerBadge.classList.remove('hidden');
-                } else {
-                    sellerBadge.classList.add('hidden');
-                }
+                sellerBadge.classList.add('hidden');
             }
 
             if (role === 'supplier') {
@@ -591,7 +585,7 @@
                 }
 
                 detailsContent.innerHTML = `
-                    ${user.role === 'supplier' ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Type de compte</p><p class="font-bold text-gray-900">${getSellerTypeConfig(sellerType).label}</p></div>` : ''}
+                    ${(user.role === 'supplier' && sellerType === 'certified') ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Type de compte</p><p class="font-bold text-gray-900">Vendeur Pro</p></div>` : ''}
                     ${businessStatusBadge}
                     ${user.rccm_number ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Numéro RCCM</p><p class="font-bold text-gray-900">${user.rccm_number}</p></div>` : ''}
                     ${user.company_name ? `<div><p class="text-[10px] uppercase font-bold text-gray-400">Nom Professionnel</p><p class="font-bold text-gray-900">${user.company_name}</p></div>` : ''}
