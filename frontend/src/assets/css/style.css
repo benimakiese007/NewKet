@@ -3899,6 +3899,201 @@ body.sidebar-resizing {
 }
 
 .skeleton-btn {
+  content: '';
+  position: absolute;
+  right: 2px;
+  top: 15%;
+  bottom: 15%;
+  width: 2px;
+  background: rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+  border-radius: 99px;
+}
+
+.sidebar-resizer:hover::after,
+.sidebar-resizing .sidebar-resizer::after {
+  background: rgba(0, 0, 0, 0.2);
+  width: 4px;
+}
+
+/* Narrow mode hiding labels */
+
+aside[style*="width: 8"] .sidebar-link span,
+aside[style*="width: 7"] .sidebar-link span,
+aside[style*="width: 6"] .sidebar-link span,
+aside[style*="width: 5"] .sidebar-link span,
+aside[style*="width: 4"] .sidebar-link span,
+.sidebar-narrow .sidebar-link span {
+  display: none;
+}
+
+aside[style*="width: 8"] .sidebar-link,
+aside[style*="width: 7"] .sidebar-link,
+aside[style*="width: 6"] .sidebar-link,
+aside[style*="width: 5"] .sidebar-link,
+aside[style*="width: 4"] .sidebar-link,
+.sidebar-narrow .sidebar-link {
+  justify-content: center;
+  padding: 0.75rem 0;
+}
+
+body.sidebar-resizing {
+  cursor: col-resize !important;
+  -webkit-user-select: none !important;
+     -moz-user-select: none !important;
+          user-select: none !important;
+}
+
+@media (max-width: 767px) {
+  .sidebar-resizer {
+    display: none !important;
+  }
+
+  aside {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+}
+
+/* ========== MOBILE PRODUCT GRID ENHANCEMENTS (2 COLS) ========== */
+
+@media (max-width: 639px) {
+  .product-grid,
+    #pinnedProductGrid,
+    #recentProductGrid,
+    #allProductGrid,
+    #catalog-grid,
+    #favoritesGrid {
+    gap: 10px !important;
+  }
+
+  .product-card {
+    min-width: 0 !important;
+    border-radius: 12px !important;
+  }
+
+  .product-image {
+    /* Padding removed to allow free image flow */
+  }
+
+  .product-image img {
+    /* Padding removed */
+  }
+
+  .product-info {
+    padding: 0.75rem !important;
+  }
+
+  .product-title,
+    .product-info h3 {
+    font-size: 0.8rem !important;
+    margin-bottom: 0.25rem !important;
+    min-height: auto !important;
+  }
+
+  .add-to-cart-btn {
+    padding: 0.5rem !important;
+    font-size: 0.7rem !important;
+    border-radius: 8px !important;
+  }
+
+  .add-to-cart-btn iconify-icon {
+    width: 14px !important;
+  }
+}
+
+/* ========== DYNAMIC ADD TO CART ANIMATION ========== */
+
+.fly-to-cart-item {
+  position: fixed;
+  z-index: 99999;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  pointer-events: none;
+  -o-object-fit: contain;
+     object-fit: contain;
+  background: white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transition: all 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.cart-shake,
+.favorites-shake {
+  animation: cartShake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes cartShake {
+  10%,
+    90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+    80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+    50%,
+    70% {
+    transform: translate3d(-3px, 0, 0);
+  }
+
+  40%,
+    60% {
+    transform: translate3d(3px, 0, 0);
+  }
+}
+
+#cart-count.count-update {
+  animation: badgePop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.6);
+    background-color: var(--danger-color);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ========== SKELETON LOADERS ========== */
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite linear;
+  border-radius: 8px;
+  display: block;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Redundant skeleton block removed - consolidated at line 1312 */
+
+.skeleton-text.medium {
+  width: 60%;
+}
+
+.skeleton-btn {
   height: 36px;
   width: 100%;
   margin-top: 1rem;
@@ -3927,11 +4122,19 @@ body.sidebar-resizing {
   animation: searchSuggestionsFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.search-suggestions.active {
-  display: block !important;
+/* Mobile: dropdown spans full width with fixed positioning, JS sets exact top */
+@media (max-width: 639px) {
+  .search-suggestions {
+    position: fixed !important;
+    top: 100px !important; /* fallback, overridden by JS */
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-height: 60vh !important;
+  }
 }
 
-/* SEARCH OVERLAY */
+
 .search-overlay {
   position: fixed;
   top: 0;

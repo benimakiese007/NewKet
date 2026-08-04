@@ -40,6 +40,7 @@ const SearchManager = {
                 const container = document.getElementById('searchSuggestions');
                 if (container) {
                     this.openSearchOverlay();
+                    this.positionDropdownMobile(container);
                     if (query.length < 2) {
                         this.showRecentAndPopular(container);
                     } else {
@@ -234,6 +235,14 @@ const SearchManager = {
         this.overlayPortaled = true;
     },
 
+    positionDropdownMobile(container) {
+        if (!container || window.innerWidth >= 640) return;
+        const header = document.querySelector('.main-header');
+        if (!header) return;
+        const headerBottom = header.getBoundingClientRect().bottom;
+        container.style.setProperty('top', (headerBottom + 8) + 'px', 'important');
+    },
+
     openSearchOverlay() {
         this.ensureOverlayPortal();
         this.searchActive = true;
@@ -332,7 +341,7 @@ const SearchManager = {
                     return `
                     <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
                         <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
-                            ${firstImg ? `<img src="${escapeHTML(optImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">` : `<iconify-icon icon="solar:box-linear" width="20" class="m-auto text-gray-400 h-full flex"></iconify-icon>`}
+                            ${firstImg ? `<img src="${escapeHTML(optImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';">` : `<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg" loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">`}
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>
@@ -457,8 +466,8 @@ const SearchManager = {
                         
                     return `
                     <a href="${window.NewKetLinks?.buildProductPagePath ? window.NewKetLinks.buildProductPagePath({ productName: p.name, productId: p.id }) : ((window.ComponentLoader ? window.ComponentLoader.getAdjustedPath('pages/product') : 'src/pages/product.html') + '?id=' + p.id)}" class="suggestion-item">
-                        <div class="suggestion-icon overflow-hidden">
-                            <img src="${escapeHTML(optImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">
+                        <div class="suggestion-icon overflow-hidden rounded-md bg-gray-100 flex-shrink-0" style="width: 40px; height: 40px;">
+                            ${firstImg ? `<img src="${escapeHTML(optImg)}"${optImgSrcSet ? ` srcset="${escapeHTML(optImgSrcSet)}" sizes="40px"` : ''} loading="lazy" decoding="async" class="w-full h-full object-cover" alt="" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';">` : `<img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_120,f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg" loading="lazy" decoding="async" class="w-full h-full object-cover" alt="">`}
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="suggestion-text truncate">${escapeHTML(p.name)}</div>
