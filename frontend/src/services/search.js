@@ -163,11 +163,28 @@ const SearchManager = {
             positionMenu();
             const menu = getMenu();
             if (menu) { menu.classList.remove('hidden'); menuOpen = true; }
+            
+            // Blur the search suggestions while category menu is open
+            const suggestions = document.getElementById('searchSuggestions');
+            if (suggestions) {
+                suggestions.style.filter = 'blur(4px)';
+                suggestions.style.opacity = '0.6';
+                suggestions.style.pointerEvents = 'none';
+                suggestions.style.transition = 'all 0.2s ease-in-out';
+            }
         };
 
         const closeMenu = () => {
             const menu = getMenu();
             if (menu) { menu.classList.add('hidden'); menuOpen = false; }
+            
+            // Remove blur from search suggestions
+            const suggestions = document.getElementById('searchSuggestions');
+            if (suggestions) {
+                suggestions.style.filter = '';
+                suggestions.style.opacity = '';
+                suggestions.style.pointerEvents = '';
+            }
         };
 
         // Single unified click handler

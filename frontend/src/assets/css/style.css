@@ -709,6 +709,10 @@ body.search-focused .main-header {
 body.search-focused .header-content > *:not(#mobileSearchContainer) {
   position: relative;
   z-index: 1; /* Below overlay (level 1000) */
+  filter: blur(4px) brightness(0.85);
+  opacity: 0.8;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Lift the search container when focused */
@@ -883,7 +887,7 @@ html.ios-native-category #searchCategoryBtn {
   box-shadow: var(--shadow-sm);
   top: 0;
   z-index: 1000;
-  transition: all 0.3s ease-in-out;
+  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out, top 0.3s ease-in-out, padding 0.3s ease-in-out;
   width: 100%;
   position: fixed;
   left: 0;
@@ -948,6 +952,10 @@ body.search-focused .main-header {
 body.search-focused .header-content > *:not(#mobileSearchContainer) {
   position: relative;
   z-index: 1; /* Below overlay (level 1000) */
+  filter: blur(4px) brightness(0.85);
+  opacity: 0.8;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Lift the search container when focused */
@@ -3910,7 +3918,10 @@ body.sidebar-resizing {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
   z-index: 3000 !important; /* Above search bar */
-  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   display: none;
   max-height: 80vh !important;
   animation: searchSuggestionsFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
