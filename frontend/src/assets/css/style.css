@@ -4122,7 +4122,15 @@ body.sidebar-resizing {
   animation: searchSuggestionsFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-
+/* Mobile: override width to prevent right overflow */
+@media (max-width: 639px) {
+  .search-suggestions {
+    width: auto !important;
+    right: 0 !important;
+    left: 0 !important;
+    max-width: 100% !important;
+  }
+}
 
 
 
