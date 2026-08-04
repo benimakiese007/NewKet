@@ -128,7 +128,7 @@ export const getVendorPayoutMethods = async (vendorId) => {
 /**
  * Ajout d'une méthode de paiement après validation OTP.
  * @param {string} vendorId
- * @param {string} provider (ex: kpay, flexpaie, stripe)
+ * @param {string} provider (ex: flexpaie, stripe)
  * @param {string} operator (ex: vodacom_mpesa, airtel)
  * @param {string} accountId
  * @param {string} accountName

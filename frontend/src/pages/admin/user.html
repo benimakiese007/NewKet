@@ -663,13 +663,20 @@
                         const isPending = u.status === 'pending';
                         const isBusinessPending = u.business_verification_status === 'pending';
                         const needsReview = (isPending || isSubmitted || isBusinessPending) && u.role === 'supplier';
+                        
+                        let hasRccmDocs = false;
+                        if (u.rccm_document_url) {
+                            if (typeof u.rccm_document_url === 'string' && u.rccm_document_url.trim() !== '' && u.rccm_document_url !== '[]') hasRccmDocs = true;
+                            else if (Array.isArray(u.rccm_document_url) && u.rccm_document_url.length > 0) hasRccmDocs = true;
+                        }
+                        const isPro = String(u.seller_type).toLowerCase() === 'certified';
+                        const certificationPending = hasRccmDocs && !isPro;
+
                         const avatarUrl = u.avatar || u.avatar_url || u.picture || u.photo_url || u.picture_url || null;
                         const initialsSource = u.name || UserManager.getDisplayName(u) || (u.email ? u.email.split('@')[0] : '');
                         const initials = (window.getInitials ? window.getInitials(initialsSource) : (initialsSource || '?').trim().charAt(0).toUpperCase());
                         const hasNoLogo = u.role === 'supplier' && !avatarUrl;
-                        const isPro = String(u.seller_type).toLowerCase() === 'certified';
-                        const sellerTypeLabel = (u.role === 'supplier' && isPro) ? 'Vendeur Pro' : '';
-                        const sellerTypeClass = 'bg-blue-50 text-blue-600 border border-blue-200';
+                        const isProBadge = (u.role === 'supplier' && isPro);
 
                         const statusLabel = isSubmitted ? 'Validation' : (isPending ? 'Attente' : (u.status === 'approved' ? 'Actif' : 'Rejeté'));
                         const statusColor = isSubmitted ? 'bg-orange-50 text-orange-600' : (isPending ? 'bg-yellow-50 text-yellow-600' : (u.status === 'approved' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'));
@@ -686,10 +693,13 @@
                                         <span class="text-sm font-black" style="${avatarUrl ? 'display:none;' : 'display:flex;'}">${initials}</span>
                                     </div>
                                     <div class="admin-table-cell-text min-w-0">
-                                        <div class="font-black text-gray-900 flex items-center gap-2 min-w-0">
-                                            <span class="admin-table-truncate" title="${UserManager.getDisplayName(u)}">${UserManager.getDisplayName(u)}</span>
-                                            ${sellerTypeLabel ? `<span class="seller-type-badge ${sellerTypeClass}">${sellerTypeLabel}</span>` : ''}
-                                            ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping shrink-0"></span>' : ''}
+                                        <div class="font-black text-gray-900 flex items-center gap-1.5 min-w-0">
+                                            <span class="inline-flex items-center gap-1.5 min-w-0 max-w-full flex-wrap">
+                                                <span class="admin-table-truncate" title="${UserManager.getDisplayName(u)}" style="flex:0 1 auto; min-width:0; max-width: clamp(8rem, 18vw, 14rem);">${UserManager.getDisplayName(u)}</span>
+                                                ${isProBadge ? `<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 shrink-0" width="18" title="Vendeur Pro"></iconify-icon>` : ''}
+                                                ${needsReview ? '<span class="w-2 h-2 bg-orange-500 rounded-full animate-ping shrink-0" title="Demande de compte en attente"></span>' : ''}
+                                                ${certificationPending ? '<span class="w-2 h-2 bg-blue-500 rounded-full animate-ping shrink-0" title="Demande de certification Pro"></span>' : ''}
+                                            </span>
                                         </div>
                                         <div class="admin-table-truncate text-[10px] text-gray-400 font-bold uppercase tracking-widest" title="${u.email}">${u.email}</div>
                                     </div>

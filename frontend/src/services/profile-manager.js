@@ -156,7 +156,8 @@ const ProfileManager = {
             const profile = await window.SupabaseAdapter.fetchWithFilters('users', {
                 eq: [['id', user.id]],
                 single: true,
-                skipCache: true
+                skipCache: true,
+                suppressErrorLogging: true
             });
 
             if (profile) {

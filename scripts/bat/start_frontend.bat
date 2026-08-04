@@ -42,6 +42,7 @@ echo ==========================================
 echo Lancement du serveur...
 echo.
 
+cd /d "%~dp0\..\.."
 cd frontend
 call npm run dev -- --host
 pause

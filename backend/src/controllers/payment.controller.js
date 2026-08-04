@@ -6,7 +6,6 @@ import {
     isFlexpaieConfigured,
     verifyFlexpaieSignature
 } from '../services/flexpaie.js';
-import kpayService, { isKpayConfigured } from '../services/kpayService.js';
 import NotificationService from '../services/notificationService.js';
 import {
     ESCROW_STATUSES,
@@ -22,10 +21,6 @@ import {
     normalizePromoCode,
     recordVendorPromoUsage
 } from '../services/vendor-promo.service.js';
-import {
-    getMaxPayinRate,
-    computeClientTotal
-} from '../services/kpay-fees.service.js';
 
 const generateTxId = () => generateTransactionId();
 
@@ -195,15 +190,9 @@ function getRedirectUrl(req) {
 }
 
 function getActivePaymentProvider(req) {
-    // On priorise K-PAY s'il est configuré
-    if (isKpayConfigured()) {
-        return 'kpay';
-    }
-    // FlexPaie (Mobile Money) en backup
     if (isFlexpaieConfigured()) {
         return 'flexpaie';
     }
-
     return null;
 }
 
@@ -267,7 +256,7 @@ export const initiatePayment = async (req, res) => {
             customer_email
         } = req.body;
 
-        if (!isFlexpaieConfigured() && !isKpayConfigured()) {
+        if (!isFlexpaieConfigured()) {
             return res.status(503).json({
                 success: false,
                 code: 'PAYMENT_PROVIDER_NOT_CONFIGURED',
@@ -352,27 +341,16 @@ export const initiatePayment = async (req, res) => {
         // Prix produit de base (hors frais payin)
         const verifiedAmount = Number(pricing.total_amount || 0);
 
-        // ─── Devise choisie par le client au checkout ───
+        // Devise choisie par le client
         const chosenCurrency = (['CDF', 'USD'].includes(req.body.currency?.toUpperCase()))
             ? req.body.currency.toUpperCase()
             : 'CDF';
 
-        // ─── Calcul des frais payin KPay ───
-        // On utilise la devise choisie pour le calcul des frais
         const payinCurrency = chosenCurrency;
-        const payinFeeInfo  = await getMaxPayinRate(client, payinCurrency);
+        const payinFeeAmount = 0;
+        const payinFeeRate = 0;
+        const clientTotal = verifiedAmount;
 
-        // Si le client paie en USD, on convertit le montant CDF en USD
-        let amountInChosenCurrency = verifiedAmount;
-        if (chosenCurrency === 'USD' && conversionRate > 0) {
-            amountInChosenCurrency = parseFloat((verifiedAmount / conversionRate).toFixed(2));
-        }
-
-        const payinCalc     = computeClientTotal(amountInChosenCurrency, payinFeeInfo.rate);
-        // clientTotal = montant réellement envoyé à KPay (prix + frais payin)
-        const clientTotal       = payinCalc.clientTotal;
-        const payinFeeAmount    = payinCalc.payinFeeAmount;
-        const payinFeeRate      = payinFeeInfo.rate;
 
         const finalAmountUSD = parseFloat((verifiedAmount / conversionRate).toFixed(2));
         const txId = generateTxId();
@@ -497,11 +475,7 @@ export const initiatePayment = async (req, res) => {
         let successfulProvider = null;
 
         // Liste des fournisseurs configurés à essayer
-        const providersToTry = ['kpay', 'flexpaie'].filter(p => {
-             if (p === 'kpay') return isKpayConfigured();
-             if (p === 'flexpaie') return isFlexpaieConfigured();
-             return false;
-        });
+        const providersToTry = ['flexpaie'].filter(p => isFlexpaieConfigured());
 
         // Mettre le provider actif initial en premier dans la liste s'il y est
         if (providersToTry.includes(provider) && providersToTry[0] !== provider) {
@@ -513,21 +487,7 @@ export const initiatePayment = async (req, res) => {
 
         for (const p of providersToTry) {
             try {
-                if (p === 'kpay') {
-                    // KPay Congo (DRC) supporte nativement le CDF et l'USD.
-                    // On envoie le montant dans la devise choisie par le client
-                    // et on passe la devise à kpayService.
-                    
-                    const kpayRes = await kpayService.createPayment(
-                        clientTotal,                               // Le montant (USD ou CDF)
-                        chosenCurrency,                            // La devise (USD ou CDF)
-                        txId,                                      // externalId = transaction_id en BDD
-                        getCheckoutSuccessUrl(req, orderId, txId), // returnUrl
-                        getCheckoutCancelUrl(req, orderId, txId)   // cancelUrl
-                    );
-                    paymentUrl = kpayRes.gatewayUrl;
-
-                } else if (p === 'flexpaie') {
+                if (p === 'flexpaie') {
                     const paymentRequestPayload = {
                         amount: finalAmountUSD,
                         currency: 'USD',
@@ -610,129 +570,10 @@ export const initiatePayment = async (req, res) => {
 };
 
 export const paymentWebhook = async (req, res) => {
-    if (req.headers?.['x-kpay-signature']) {
-        return kpayWebhook(req, res);
-    }
-
     if (req.headers?.['x-flexpaie-signature']) {
         return flexpaieWebhook(req, res);
     }
     return res.status(400).send('Provider not supported');
-};
-
-export const kpayWebhook = async (req, res) => {
-    try {
-        const signature = req.headers['x-kpay-signature'];
-        if (!signature) {
-            console.warn('[KPAY Webhook] No signature');
-            return res.status(401).send('Unauthorized');
-        }
-
-        let signatureValid = false;
-        try {
-            // Attention: req.body est déjà parsé, JSON.stringify peut changer l'ordre des clés
-            const payloadStr = JSON.stringify(req.body);
-            const expectedSignature = crypto
-                .createHmac('sha256', process.env.KPAY_WEBHOOK_SECRET || '')
-                .update(payloadStr)
-                .digest('hex');
-            signatureValid = (signature === expectedSignature);
-        } catch (e) {
-            console.error('KPay webhook signature error:', e);
-        }
-
-        // Tolérance temporaire pour le debug (à cause du bodyParser)
-        if (!signatureValid) {
-            console.warn('[KPAY Webhook] Signature mismatch! Bypassing verification for now.');
-            signatureValid = true; // On accepte quand même pour débloquer
-        }
-
-        const payload = req.body;
-        // KPay payload: { "type": "payment.success", "data": { "externalId": "ORDER-...", "transactionId": "...", ... } }
-        const eventType = payload?.type || payload?.status || 'unknown';
-        // Strip defensive _timestamp suffix if it was added by an old version of the code
-        const rawExternalId = payload?.data?.externalId || payload?.externalId || null;
-        const ourTxId = rawExternalId ? rawExternalId.replace(/_\d{10,}$/, '') : null;
-        const providerTxId = payload?.data?.transactionId || payload?.transactionId || null;
-        const providerEventId = `${String(providerTxId || 'unknown')}:${String(eventType)}`;
-
-        if (!ourTxId) {
-            return res.status(400).send('externalId manquant');
-        }
-
-        const client = supabaseAdmin || supabase;
-        const nowIso = new Date().toISOString();
-
-        // 1. Stocker le webhook
-        await client
-            .from('payment_webhook_events')
-            .insert({
-                provider: 'kpay',
-                event_type: String(eventType),
-                provider_event_id: providerEventId,
-                tx_ref: String(ourTxId),
-                payload,
-                signature_valid: signatureValid,
-                received_at: nowIso,
-                process_status: 'RECEIVED'
-            });
-
-        // 2. Traiter le paiement si réussi
-        const kpaySuccessEvents = new Set(['payment.success', 'payment.cashed', 'completed', 'success', 'successful']);
-        const eventTypeLower = eventType.toLowerCase();
-        if (kpaySuccessEvents.has(eventTypeLower)) {
-            const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
-                p_transaction_id: String(ourTxId)
-            });
-
-            if (rpcError || rpcResult?.success === false) {
-                console.warn('[KPAY Webhook] RPC failed, trying direct order finalization fallback:', rpcError?.message || rpcResult?.message);
-
-                // Fallback: find order by transaction_id and finalize directly
-                const { data: orderToFinalize } = await client
-                    .from('orders')
-                    .select('id, customer_email, vendor_id')
-                    .eq('transaction_id', String(ourTxId))
-                    .maybeSingle();
-
-                if (orderToFinalize) {
-                    const { error: fallbackError } = await finalizePaidOrder(client, orderToFinalize.id, nowIso);
-                    if (fallbackError) {
-                        await client.from('payment_webhook_events').update({
-                            process_status: 'PROCESSING_FAILED',
-                            processing_error: fallbackError?.message || rpcError?.message || rpcResult?.message
-                        }).eq('provider', 'kpay').eq('provider_event_id', providerEventId);
-                        return res.status(500).send('Erreur traitement');
-                    }
-
-                    // Notify customer
-                    const { data: paidOrder } = await client.from('orders').select('*').eq('id', orderToFinalize.id).maybeSingle();
-                    if (paidOrder) {
-                        NotificationService.notifyCustomerReceipt(paidOrder).catch(console.error);
-                        NotificationService.notifyCustomerOTP(paidOrder).catch(console.error);
-                    }
-                } else {
-                    await client.from('payment_webhook_events').update({
-                        process_status: 'PROCESSING_FAILED',
-                        processing_error: `Order not found for txId: ${ourTxId}`
-                    }).eq('provider', 'kpay').eq('provider_event_id', providerEventId);
-                    return res.status(400).send('Commande introuvable');
-                }
-            } else {
-                // RPC succeeded — send notifications
-                const { data: paidOrder } = await client.from('orders').eq('transaction_id', String(ourTxId)).select('*').maybeSingle();
-                if (paidOrder) {
-                    NotificationService.notifyCustomerReceipt(paidOrder).catch(console.error);
-                    NotificationService.notifyCustomerOTP(paidOrder).catch(console.error);
-                }
-            }
-        }
-
-        return res.status(200).send('OK');
-    } catch (err) {
-        console.error('[KPAY Webhook Error]', err);
-        return res.status(500).send('Webhook error');
-    }
 };
 
 export const flexpaieWebhook = async (req, res) => {

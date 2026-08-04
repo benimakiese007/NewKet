@@ -471,10 +471,8 @@
                     if (stats.ratingCount > 0) {
                         ratingHtml = `
                             <div class="flex items-center gap-2">
-                                <div class="stars-container">
-                                    ${Array.from({length: 5}).map((_, i) => `
-                                        <iconify-icon icon="${i < Math.floor(stats.avgRating) ? 'solar:star-bold' : 'solar:star-linear'}" width="12"></iconify-icon>
-                                    `).join('')}
+                                <div class="stars-container flex gap-[1px]">
+                                    ${window.buildPartialStarsIconify(stats.avgRating, 12)}
                                 </div>
                                 <span class="text-[10px] font-black text-gray-900">${stats.avgRating}</span>
                             </div>
@@ -493,18 +491,17 @@
                                      stats.salesCount > 0 ? `${stats.salesCount} Ventes` : 
                                      'Boutique Certifiée';
 
+                    const isCertified = seller.seller_type === 'certified';
+                    const verifiedIconHtml = isCertified ? '<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 inline-block align-middle ml-1" width="20" title="Boutique Certifiée"></iconify-icon>' : '';
+
                     return `
                         <a href="shop?email=${encodeURIComponent(seller.email)}" class="shop-card group bg-white rounded-[2.5rem] p-8 border border-gray-100 flex flex-col items-center text-center gap-6 relative overflow-hidden">
-                            <div class="absolute top-6 left-6">
-                                 <span class="px-2 py-1 bg-black text-white text-[8px] font-black uppercase tracking-widest rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Premium</span>
-                            </div>
-                            
                             <div class="w-24 h-24 rounded-full bg-gray-50 overflow-hidden border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-500">
                                 ${buildSellerAvatarMarkup(seller, shopName)}
                             </div>
 
                             <div class="space-y-3">
-                                <h3 class="text-xl font-black text-gray-900 group-hover:text-black transition-colors leading-tight">${shopName}</h3>
+                                <h3 class="text-xl font-black text-gray-900 group-hover:text-black transition-colors leading-tight flex items-center justify-center">${shopName}${verifiedIconHtml}</h3>
                                 
                                 <div class="flex flex-col items-center gap-2 mt-1">
                                     ${ratingHtml}

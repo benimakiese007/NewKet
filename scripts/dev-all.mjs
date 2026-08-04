@@ -62,7 +62,7 @@ function runNpmScript({ name, cwd, extraArgs = [] }) {
   const child = spawn(npmCmd, ['run', name, ...extraArgs], {
     cwd,
     stdio: 'inherit',
-    shell: false,
+    shell: process.platform === 'win32',
   });
   return child;
 }

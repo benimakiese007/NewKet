@@ -230,6 +230,9 @@ const ConfigManager = {
     _startRealtimeSync() {
         if (this._realtimeChannel) return;
         if (!window.SupabaseAdapter?.getClient) return;
+        if (/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '') && !this.config.enableLocalRealtime) {
+            return;
+        }
 
         const client = window.SupabaseAdapter.getClient();
         if (!client) return;

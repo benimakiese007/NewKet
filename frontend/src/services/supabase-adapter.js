@@ -387,7 +387,9 @@ window.SupabaseAdapter = {
             this._setCache(cacheKey, data, table);
             return data;
         } catch (err) {
-            if (options.suppressToast) {
+            if (options.suppressErrorLogging) {
+                console.warn(`[NewKet] Background fetch from ${table} failed:`, err.message || err);
+            } else if (options.suppressToast) {
                 console.warn(`[NewKet] Expected/Non-critical timeout fetching from ${table}:`, err.message || err);
             } else {
                 console.error(`[NewKet] Critical Error fetching from ${table} (filtered):`, err);

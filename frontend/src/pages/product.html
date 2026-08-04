@@ -300,6 +300,67 @@
             if (grid) grid.style.display = 'grid';
         }
 
+        function normalizeProductImages(p) {
+            const raw = [p?.images, p?.image, p?.photos, p?.image_url, p?.thumbnail]
+                .find((value) => value !== undefined && value !== null && value !== '');
+
+            let images = [];
+
+            if (Array.isArray(raw)) {
+                images = raw;
+            } else if (typeof raw === 'string') {
+                const trimmed = raw.trim();
+                if (!trimmed) {
+                    images = [];
+                } else if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+                    try {
+                        const parsed = JSON.parse(trimmed);
+                        images = Array.isArray(parsed) ? parsed : [trimmed];
+                    } catch {
+                        images = trimmed.split(',');
+                    }
+                } else {
+                    images = trimmed.split(',');
+                }
+            } else if (raw) {
+                images = [raw];
+            }
+
+            return images
+                .map((img) => typeof img === 'string' ? img.trim() : String(img || '').trim())
+                .filter((img) => img && !['null', 'undefined', '[]'].includes(img.toLowerCase()))
+                .filter((img) => !img.toLowerCase().includes('default.') && !img.toLowerCase().includes('logo-newket'));
+        }
+
+        function renderThumbnailGrid(images) {
+            const grid = document.getElementById('thumbnailGrid');
+            if (!grid) return;
+
+            if (!Array.isArray(images) || images.length <= 1) {
+                grid.innerHTML = '';
+                return;
+            }
+
+            grid.innerHTML = images.map((url, index) => {
+                const optimizedUrl = window.getOptimizedImageUrl
+                    ? window.getOptimizedImageUrl(url, { width: 120, quality: 75 })
+                    : url;
+                const srcSet = window.buildResponsiveImageSrcSet
+                    ? ` srcset="${window.buildResponsiveImageSrcSet(url, [60, 90, 120], { quality: 75 })}" sizes="72px"`
+                    : '';
+                const isActive = index === currentProductImageIndex ? 'border-gray-900' : 'border-gray-100';
+
+                return `
+                    <button type="button"
+                        class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border ${isActive} bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center"
+                        data-img-index="${index}"
+                        onclick="window.changeImageByIndex(${index}, this)">
+                        <img src="${optimizedUrl}"${srcSet} alt="Miniature ${index + 1}" loading="lazy" class="w-full h-full object-contain p-2" onerror="this.onerror=null; this.src='https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';">
+                    </button>
+                `;
+            }).join('');
+        }
+
         async function initPage() {
             showSkeleton();
             if (!productId) {
@@ -349,14 +410,10 @@
             hideSkeleton();
 
             // Initialiser les images du produit
-            const rawImgs = p.images || p.image || p.photos || [];
-            currentProductImages = Array.isArray(rawImgs)
-                ? rawImgs.filter(Boolean)
-                : (rawImgs ? [rawImgs] : []);
-            if (!currentProductImages.length && p.image_url) currentProductImages = [p.image_url];
-            if (!currentProductImages.length && p.thumbnail) currentProductImages = [p.thumbnail];
+            currentProductImages = normalizeProductImages(p);
             const mainImgUrl = currentProductImages[0] || '';
             if (mainImgUrl) updateImageUI(0);
+            renderThumbnailGrid(currentProductImages);
 
             document.getElementById('productName').textContent = p.name;
             document.getElementById('breadcrumb-current').textContent = p.name;
@@ -433,7 +490,12 @@
 
             const vendorLinkEl = document.getElementById('vendorLink');
             if (vendorLinkEl) {
-                vendorLinkEl.textContent = vendorName;
+                vendorLinkEl.innerHTML = `
+                    <span class="inline-flex items-center gap-2 flex-wrap">
+                        <span class="align-middle">${vendorName}</span>
+                        ${vendor?.seller_type === 'certified' ? '<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 align-middle shrink-0" width="16" title="Vendeur Pro"></iconify-icon>' : ''}
+                    </span>
+                `;
                 vendorLinkEl.href = vendorId
                     ? `/src/pages/boutique.html?seller=${vendorId}`
                     : '#';
@@ -492,8 +554,8 @@
                 }
             }
 
-            document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900'));
-            const active = document.querySelector(`#thumbnailGrid > div[data-img-index="${currentProductImageIndex}"]`);
+            document.querySelectorAll('#thumbnailGrid > button').forEach(d => d.classList.remove('border-gray-900'));
+            const active = document.querySelector(`#thumbnailGrid > button[data-img-index="${currentProductImageIndex}"]`);
             if (active) active.classList.add('border-gray-900');
         }
 
@@ -595,7 +657,21 @@
                 const userAvatarById = new Map(
                     (Array.isArray(reviewUsers) ? reviewUsers : []).map(user => [user.id, user.avatar || null])
                 );
-                const starsHTML = Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < Math.round(avg) ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('');
+                // Génère des étoiles partielles via clip-path (ex: avg=4.7 → 4 pleines + 70% de la 5e)
+                const _buildPartialStars = (rating) => {
+                    const SIZE = 14;
+                    const r = Math.max(0, Math.min(5, Number(rating) || 0));
+                    const full = Math.floor(r);
+                    const pct = Math.round((r - full) * 100);
+                    const clipRight = 100 - pct;
+                    const empty = 5 - full - (pct > 0 ? 1 : 0);
+                    let h = '';
+                    for (let i = 0; i < full; i++) h += `<iconify-icon icon="solar:star-bold" width="${SIZE}" style="color:#F59E0B"></iconify-icon>`;
+                    if (pct > 0) h += `<span style="position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:${SIZE}px;height:${SIZE}px;"><iconify-icon icon="solar:star-bold" width="${SIZE}" style="color:#E5E7EB;position:absolute;top:0;left:0;"></iconify-icon><iconify-icon icon="solar:star-bold" width="${SIZE}" style="color:#F59E0B;position:absolute;top:0;left:0;clip-path:inset(0 ${clipRight}% 0 0);"></iconify-icon></span>`;
+                    for (let i = 0; i < empty; i++) h += `<iconify-icon icon="solar:star-bold" width="${SIZE}" style="color:#E5E7EB"></iconify-icon>`;
+                    return h;
+                };
+                const starsHTML = _buildPartialStars(avg);
                 document.getElementById('headerRating').classList.remove('invisible');
                 document.getElementById('headerStars').innerHTML = starsHTML;
                 document.getElementById('headerReviewCount').textContent = `${reviews.length} avis client${reviews.length > 1 ? 's' : ''}`;
@@ -618,7 +694,7 @@
                                 <div><div class="font-black text-gray-900 uppercase tracking-tighter text-sm mb-1">${r.user_name || 'Anonyme'}</div><div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${new Date(r.created_at).toLocaleDateString()}</div></div>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90">${Array(5).fill(0).map((_, i) => `<iconify-icon icon="solar:star-bold" width="14" class="${i < r.rating ? 'text-amber-400' : 'text-gray-200'}"></iconify-icon>`).join('')}</div>
+                                <div class="flex gap-0.5 bg-amber-50 px-3 py-1.5 rounded-full scale-90">${_buildPartialStars(r.rating)}</div>
                                 ${canDelete ? `
                                     <button onclick="window.confirmDeleteReview('${r.id}')" class="text-red-400 hover:text-red-600 transition-colors p-2 rounded-xl" title="Supprimer mon avis">
                                         <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
@@ -835,7 +911,7 @@
             const next = Math.max(1, (parseInt(inp.value, 10) || 1) + val);
             inp.value = (Number.isFinite(stock) && stock > 0) ? String(Math.min(next, stock)) : String(next);
         };
-        window.changeImageByIndex = (idx, el) => { updateImageUI(parseInt(idx) || 0); if (el) { document.querySelectorAll('#thumbnailGrid > div').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); } };
+        window.changeImageByIndex = (idx, el) => { updateImageUI(parseInt(idx) || 0); if (el) { document.querySelectorAll('#thumbnailGrid > button').forEach(d => d.classList.remove('border-gray-900')); el.classList.add('border-gray-900'); } };
         window.openZoom = () => {
             const modal = document.getElementById('zoomModal');
             const img = document.getElementById('zoomModalImg');

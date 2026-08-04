@@ -583,19 +583,50 @@ export const SidebarManager = {
 window.SidebarManager = SidebarManager;
 
 /**
- * Génère les étoiles de notation.
+ * Génère les étoiles de notation avec support des étoiles partielles.
+ * Ex : 4.7 → 4 étoiles pleines + 1 étoile colorée à 70%.
+ * Utilise clip-path:inset() pour éviter les problèmes shadow DOM des web components iconify-icon.
+ * @param {number} rating - Note entre 0 et 5.
+ * @returns {string} HTML des étoiles.
  */
 export function buildStarsHTML(rating) {
-    const fullStars = Math.floor(rating || 0);
-    const emptyStars = 5 - fullStars;
+    const SIZE = 14;
+    const clampedRating = Math.max(0, Math.min(5, Number(rating) || 0));
+    const fullStars = Math.floor(clampedRating);
+    const partial = Math.round((clampedRating - fullStars) * 100); // ex: 70 pour 4.7
+    const hasPartial = partial > 0;
+    const emptyStars = 5 - fullStars - (hasPartial ? 1 : 0);
+    // Pour clip-path: inset(top right bottom left)
+    // On veut garder {partial}% depuis la gauche → couper (100-partial)% à droite
+    const clipRight = 100 - partial;
+    const starSvg = (fill, extraStyle = '') => `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+            style="display:block;width:${SIZE}px;height:${SIZE}px;flex:0 0 ${SIZE}px;${extraStyle}">
+            <path fill="${fill}" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path>
+        </svg>`;
+
     let html = '';
+
+    // Étoiles pleines
     for (let i = 0; i < fullStars; i++) {
-        html += `<iconify-icon icon="solar:star-bold" width="14" style="color:#F59E0B"></iconify-icon>`;
+        html += starSvg('#F59E0B');
     }
+
+    // Étoile partielle : étoile grise en fond + étoile jaune clipée via clip-path
+    if (hasPartial) {
+        html +=
+            `<span style="position:relative;display:inline-block;flex:0 0 ${SIZE}px;width:${SIZE}px;height:${SIZE}px;line-height:0;">` +
+                starSvg('#E5E7EB', 'position:absolute;top:0;left:0;') +
+                starSvg('#F59E0B', `position:absolute;top:0;left:0;clip-path:inset(0 ${clipRight}% 0 0);`) +
+            `</span>`;
+    }
+
+    // Étoiles vides restantes (même icône que les pleines, juste grise — taille identique garantie)
     for (let i = 0; i < emptyStars; i++) {
-        html += `<iconify-icon icon="solar:star-linear" width="14" style="color:#D1D5DB"></iconify-icon>`;
+        html += starSvg('#E5E7EB');
     }
-    return html;
+
+    return `<span class="rating-stars" style="display:inline-flex;align-items:center;gap:0;line-height:0;white-space:nowrap;">${html}</span>`;
 }
 
 /**
@@ -670,7 +701,7 @@ export function buildProductCardHTML(p, options = {}) {
         : `<span class="badge" style="background:#f3f4f6;color:#4b5563;border:1px solid #e5e7eb;display:inline-flex;align-items:center;gap:4px;"><iconify-icon icon="solar:close-circle-bold" width="10"></iconify-icon> Indisponible</span>`;
 
     // Stars
-    const starsHTML = buildStarsHTML(p.rating || 4.5);
+    const starsHTML = buildStarsHTML(p.rating ?? 0);
     const reviewCount = p.reviews || 0;
 
     const productImgAttrs = prioritizeImage
@@ -729,25 +760,28 @@ export function buildProductCardHTML(p, options = {}) {
             </div>
             <div class="product-info">
                 <div class="product-cat">${p.category || ''}</div>
-                <div class="product-vendor" style="display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
+                <div class="product-vendor" style="display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; flex-wrap: wrap;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
                         ${avatar
                             ? `<img ${avatarImgAttrs} alt="Avatar Vendeur" decoding="async" width="36" height="36" class="${avatarImgClass}" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 1 / 1;">` 
                             : `<iconify-icon icon="solar:shop-bold" style="font-size: 10px; color: #9ca3af; margin: auto;"></iconify-icon>`
                         }
                     </div>
-                    <span>${ 
-                        vendor?.company_name || 
-                        vendor?.name || 
-                        'NewKet Shop' 
-                    }</span>
+                    <span style="display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.2;">
+                        <span>${ 
+                            vendor?.company_name || 
+                            vendor?.name || 
+                            'NewKet Shop' 
+                        }</span>
+                        ${vendor?.seller_type === 'certified' ? '<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 shrink-0" width="12" title="Vendeur Pro"></iconify-icon>' : ''}
+                    </span>
                 </div>
                 <h3 class="product-title">
                     <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${p.name}</a>
                 </h3>
                 <div class="product-rating">
                     ${starsHTML}
-                    <span>(${reviewCount})</span>
+                    <span class="rating-count">(${reviewCount})</span>
                 </div>
                 <div class="product-price">
                     <span class="current-price" data-price-cdf="${p.price}">${priceDisplay}</span>
@@ -2747,6 +2781,27 @@ window.buildSkeletonPanelListHTML = buildSkeletonPanelListHTML;
 window.buildSkeletonTableRowsHTML = buildSkeletonTableRowsHTML;
 window.buildSkeletonIncidentListHTML = buildSkeletonIncidentListHTML;
 window.buildStarsHTML = buildStarsHTML;
+
+// Expose partial stars using iconify-icon
+export function buildPartialStarsIconify(rating, size = 14) {
+    const r = Math.max(0, Math.min(5, Number(rating) || 0));
+    const full = Math.floor(r);
+    const pct = Math.round((r - full) * 100);
+    const clipRight = 100 - pct;
+    const empty = 5 - full - (pct > 0 ? 1 : 0);
+    let h = '';
+    for (let i = 0; i < full; i++) {
+        h += `<iconify-icon icon="solar:star-bold" width="${size}" style="color:#F59E0B"></iconify-icon>`;
+    }
+    if (pct > 0) {
+        h += `<span style="position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:${size}px;height:${size}px;"><iconify-icon icon="solar:star-bold" width="${size}" style="color:#E5E7EB;position:absolute;top:0;left:0;"></iconify-icon><iconify-icon icon="solar:star-bold" width="${size}" style="color:#F59E0B;position:absolute;top:0;left:0;clip-path:inset(0 ${clipRight}% 0 0);"></iconify-icon></span>`;
+    }
+    for (let i = 0; i < empty; i++) {
+        h += `<iconify-icon icon="solar:star-bold" width="${size}" style="color:#E5E7EB"></iconify-icon>`;
+    }
+    return h;
+}
+window.buildPartialStarsIconify = buildPartialStarsIconify;
 window.getOptimizedImageUrl = getOptimizedImageUrl;
 window.buildResponsiveImageSrcSet = buildResponsiveImageSrcSet;
 window.initLazyImages = initLazyImages;

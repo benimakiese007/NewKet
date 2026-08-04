@@ -265,7 +265,14 @@
             const shippingEl = document.getElementById('vendor-shipping-value');
             const heroEl = document.querySelector('.vendor-hero');
 
-            if (vendorNameEl) vendorNameEl.textContent = shopName;
+            if (vendorNameEl) {
+                vendorNameEl.innerHTML = `
+                    <span class="inline-flex items-center gap-2 flex-wrap">
+                        <span class="align-middle">${shopName}</span>
+                        ${vendor.seller_type === 'certified' ? '<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 align-middle shrink-0" width="28" title="Vendeur Pro"></iconify-icon>' : ''}
+                    </span>
+                `;
+            }
             if (vendorAvatarEl) {
                 vendorAvatarEl.src = vendor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(shopName)}&background=f3f4f6&color=000&bold=true`;
             }

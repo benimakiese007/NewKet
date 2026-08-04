@@ -378,7 +378,7 @@
 
             const role = user.role || 'customer';
             const sellerType = String(user.seller_type || (role === 'supplier' ? 'normal' : '')).toLowerCase();
-            const proBadgeHtml = sellerType === 'certified' ? '<span class="ml-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-100 text-blue-700 align-middle tracking-widest">Vendeur Pro</span>' : '';
+            const proBadgeHtml = sellerType === 'certified' ? '<iconify-icon icon="solar:verified-check-bold" class="ml-2 text-blue-500 align-middle shrink-0" width="20" title="Vendeur Pro Certifié"></iconify-icon>' : '';
 
             // UI Setup
             const displayName = UserManager.getDisplayName(user);
@@ -404,7 +404,7 @@
             document.getElementById('joinDate').textContent = joinDateLabel;
 
             const badge = document.getElementById('roleBadge');
-            badge.textContent = role === 'supplier' ? 'Vendeur / Fournisseur' : 'Client / Acheteur';
+            badge.textContent = role === 'supplier' ? 'Vendeur' : 'Client / Acheteur';
             badge.className = `px-3 py-1 text-[10px] font-black uppercase rounded-full tracking-widest ${role === 'supplier' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}`;
 
             const sellerBadge = document.getElementById('sellerTypeBadge');
@@ -460,18 +460,33 @@
 
         function renderSupplierView(user, allOrders) {
             const products = ProductManager.getProducts().filter(p => p.supplier_email === user.email);
-            const documentUrls = Array.isArray(user.documents_url)
-                ? user.documents_url
-                : (typeof user.documents_url === 'string' && user.documents_url.trim()
-                    ? (() => {
-                        try {
-                            const parsed = JSON.parse(user.documents_url);
-                            return Array.isArray(parsed) ? parsed : [];
-                        } catch (_) {
-                            return [];
-                        }
-                    })()
-                    : []);
+            // Documents normaux (profil/boutique)
+            const normalDocUrls = (() => {
+                if (Array.isArray(user.documents_url)) return user.documents_url.filter(Boolean);
+                if (typeof user.documents_url === 'string' && user.documents_url.trim()) {
+                    try {
+                        const parsed = JSON.parse(user.documents_url);
+                        return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+                    } catch (_) { return []; }
+                }
+                return [];
+            })();
+
+            // Documents de certification Pro (RCCM)
+            const certDocUrls = (() => {
+                if (!user.rccm_document_url) return [];
+                if (Array.isArray(user.rccm_document_url)) return user.rccm_document_url.filter(Boolean);
+                if (typeof user.rccm_document_url === 'string' && user.rccm_document_url.trim()) {
+                    try {
+                        const parsed = JSON.parse(user.rccm_document_url);
+                        return Array.isArray(parsed) ? parsed.filter(Boolean) : [user.rccm_document_url].filter(Boolean);
+                    } catch (_) { return [user.rccm_document_url].filter(Boolean); }
+                }
+                return [];
+            })();
+
+            // Pour la compatibilité avec la condition d'affichage du panel
+            const documentUrls = [...normalDocUrls, ...certDocUrls];
 
             // Filter orders that contain this supplier's products
             const supplierRevenueOrders = allOrders.filter(o =>
@@ -498,33 +513,52 @@
                 detailsPanel.classList.remove('hidden');
 
                 let docsHtml = '';
-                if (documentUrls.length > 0 || user.rccm_document_url) {
-                    docsHtml = `
+
+                // ── Section : Documents normaux ──────────────────────────────
+                if (normalDocUrls.length > 0) {
+                    docsHtml += `
                         <div class="mt-4 pt-4 border-t border-gray-100">
-                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Documents <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-1">${documentUrls.length + (user.rccm_document_url ? 1 : 0)} fichier(s)</span></p>
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">
+                                Documents Boutique
+                                <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full ml-1">${normalDocUrls.length} fichier(s)</span>
+                            </p>
                             <div class="flex flex-col gap-2">
-                                ${documentUrls.map((url, idx) => {
-                        const finalUrl = url.startsWith('http') ? url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-docs/${url}`;
-                        return `
+                                ${normalDocUrls.map((url, idx) => {
+                                    const finalUrl = url.startsWith('http') ? url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-docs/${url}`;
+                                    return `
                                         <a href="${finalUrl}" target="_blank" class="flex items-center gap-2 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded-xl hover:bg-blue-100 transition-colors">
-                                            <iconify-icon icon="solar:document-bold"></iconify-icon> Voir Document Initial ${idx + 1}
-                                        </a>
-                                    `;
-                    }).join('')}
-                                ${user.rccm_document_url ? `
-                                    <a href="${user.rccm_document_url.startsWith('http') ? user.rccm_document_url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-documents/${user.rccm_document_url}`}" target="_blank" class="flex items-center gap-2 text-xs font-bold text-purple-600 bg-purple-50 px-3 py-2 rounded-xl hover:bg-purple-100 transition-colors">
-                                        <iconify-icon icon="solar:document-bold"></iconify-icon> Document RCCM (Certification Pro)
-                                    </a>
-                                ` : ''}
+                                            <iconify-icon icon="solar:document-bold"></iconify-icon> Document ${idx + 1}
+                                        </a>`;
+                                }).join('')}
                             </div>
-                        </div>
-                    `;
-                } else if (user.status === 'submitted' || user.status === 'pending' || user.business_verification_status === 'pending') {
-                    docsHtml = `
+                        </div>`;
+                }
+
+                // ── Section : Documents de certification Pro (RCCM) ──────────
+                if (certDocUrls.length > 0) {
+                    docsHtml += `
+                        <div class="mt-4 pt-4 border-t border-gray-100">
+                            <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">
+                                Documents Certification Pro (RCCM)
+                                <span class="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full ml-1">${certDocUrls.length} fichier(s)</span>
+                            </p>
+                            <div class="flex flex-col gap-2">
+                                ${certDocUrls.map((url, idx) => {
+                                    const finalUrl = url.startsWith('http') ? url : `https://kuygjocnnlvjtoaquicq.supabase.co/storage/v1/object/public/vendor-documents/${url}`;
+                                    return `
+                                        <a href="${finalUrl}" target="_blank" class="flex items-center gap-2 text-xs font-bold text-purple-600 bg-purple-50 px-3 py-2 rounded-xl hover:bg-purple-100 transition-colors">
+                                            <iconify-icon icon="solar:shield-check-bold"></iconify-icon> Certification Doc ${idx + 1}
+                                        </a>`;
+                                }).join('')}
+                            </div>
+                        </div>`;
+                }
+
+                if (documentUrls.length === 0 && (user.status === 'submitted' || user.status === 'pending' || user.business_verification_status === 'pending')) {
+                    docsHtml += `
                         <div class="mt-4 pt-4 border-t border-gray-100">
                            <p class="text-xs text-red-500 font-bold bg-red-50 p-2 rounded-xl"><iconify-icon icon="solar:danger-triangle-bold"></iconify-icon> Aucun document fourni par ce vendeur.</p>
-                        </div>
-                    `;
+                        </div>`;
                 }
 
                 const safeName = UserManager.getDisplayName(user).replace(/'/g, "\\'");
@@ -839,7 +873,15 @@
                     if (window.LoaderManager) LoaderManager.show("Mise à jour...");
 
                     try {
-                        const res = await window.SupabaseAdapter.update('users', id, { seller_type: normalizedType });
+                        const updateData = { seller_type: normalizedType };
+                        if (normalizedType === 'certified') {
+                            updateData.business_verification_status = 'approved';
+                            updateData.status = 'approved';
+                        } else {
+                            // Si on le repasse en normal, on annule son approbation Pro
+                            updateData.business_verification_status = null;
+                        }
+                        const res = await window.SupabaseAdapter.update('users', id, updateData);
                         if (res) {
                             if (window.showToast) {
                                 window.showToast(`Le vendeur ${name} est maintenant ${normalizedType === 'certified' ? 'certifié' : 'normal'}.`, 'success');

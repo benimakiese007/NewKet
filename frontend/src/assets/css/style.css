@@ -1882,7 +1882,38 @@ body.mobile-menu-open {
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 1px;
+}
+
+.product-rating .rating-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  line-height: 0;
+  white-space: nowrap;
+  margin-left: 0 !important;
+}
+
+.product-rating .rating-stars svg {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.product-rating iconify-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.product-rating .rating-stars + span {
+  margin-left: 4px;
+}
+
+.product-rating .rating-count {
+  color: var(--text-light);
+  margin-left: 0.35rem !important;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .product-rating i {
@@ -1925,13 +1956,6 @@ body.mobile-menu-open {
   100% {
     transform: scale(1);
   }
-}
-
-.product-rating span {
-  color: var(--text-light);
-  margin-left: 0.6rem;
-  font-size: 0.85rem;
-  font-weight: 500;
 }
 
 /* Modern Segmented Currency Selector */

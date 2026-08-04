@@ -15,9 +15,11 @@ import multer from 'multer';
 
 // ─── Multer (mémoire) pour les fichiers RCCM ──────────────────────────────────
 // On garde les fichiers en mémoire puis on les envoie dans Supabase Storage.
+const MAX_RCCM_FILES = 5;
+
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max par fichier
     fileFilter: (req, file, cb) => {
         const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
         if (allowed.includes(file.mimetype)) {
@@ -28,7 +30,7 @@ const upload = multer({
     }
 });
 
-export const uploadRccmDoc = upload.single('rccm_document');
+export const uploadRccmDoc = upload.array('rccm_document', MAX_RCCM_FILES);
 
 // ─── 1. Soumission par le vendeur ─────────────────────────────────────────────
 export const submitVerification = async (req, res) => {
@@ -44,8 +46,14 @@ export const submitVerification = async (req, res) => {
             return res.status(400).json({ error: 'Le numéro RCCM est obligatoire.' });
         }
 
-        if (!req.file) {
-            return res.status(400).json({ error: 'Le document RCCM (photo ou PDF) est obligatoire.' });
+        const files = req.files || [];
+
+        if (files.length === 0) {
+            return res.status(400).json({ error: 'Au moins un document justificatif (photo ou PDF) est obligatoire.' });
+        }
+
+        if (files.length > MAX_RCCM_FILES) {
+            return res.status(400).json({ error: `Vous ne pouvez pas soumettre plus de ${MAX_RCCM_FILES} documents.` });
         }
 
         const client = supabaseAdmin || supabase;
@@ -73,35 +81,39 @@ export const submitVerification = async (req, res) => {
             return res.status(409).json({ error: 'Votre boutique est déjà certifiée Pro.' });
         }
 
-        // Upload du document dans Supabase Storage
-        const fileExt = req.file.originalname.split('.').pop().toLowerCase();
-        const fileName = `${userId}/rccm_${Date.now()}.${fileExt}`;
+        // Upload de chaque document dans Supabase Storage
+        const documentUrls = [];
 
-        const { data: uploadData, error: uploadError } = await client
-            .storage
-            .from('vendor-documents')
-            .upload(fileName, req.file.buffer, {
-                contentType: req.file.mimetype,
-                upsert: true
-            });
+        for (const file of files) {
+            const fileExt = file.originalname.split('.').pop().toLowerCase();
+            const fileName = `${userId}/rccm_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
 
-        if (uploadError) {
-            console.error('[Verification] Storage upload error:', uploadError);
-            return res.status(500).json({ error: 'Erreur lors de l\'upload du document. Réessayez.' });
+            const { data: uploadData, error: uploadError } = await client
+                .storage
+                .from('vendor-documents')
+                .upload(fileName, file.buffer, {
+                    contentType: file.mimetype,
+                    upsert: true
+                });
+
+            if (uploadError) {
+                console.error('[Verification] Storage upload error:', uploadError);
+                return res.status(500).json({ error: 'Erreur lors de l\'upload du document. Réessayez.' });
+            }
+
+            // Générer l'URL publique signée (valable 10 ans pour consultation admin)
+            const { data: signedUrlData } = await client
+                .storage
+                .from('vendor-documents')
+                .createSignedUrl(fileName, 60 * 60 * 24 * 365 * 10); // 10 ans
+
+            documentUrls.push(signedUrlData?.signedUrl || uploadData?.path);
         }
 
-        // Générer l'URL publique signée (valable 10 ans pour consultation admin)
-        const { data: signedUrlData } = await client
-            .storage
-            .from('vendor-documents')
-            .createSignedUrl(fileName, 60 * 60 * 24 * 365 * 10); // 10 ans
-
-        const documentUrl = signedUrlData?.signedUrl || uploadData?.path;
-
-        // Mettre à jour le profil vendeur
+        // Mettre à jour le profil vendeur — on stocke le tableau JSON
         const updatePayload = {
             rccm_number: rccm_number.trim().toUpperCase(),
-            rccm_document_url: documentUrl,
+            rccm_document_url: JSON.stringify(documentUrls),
             business_verification_status: 'pending',
             business_rejection_reason: null,
             business_verified_at: null,
@@ -144,7 +156,7 @@ export const submitVerification = async (req, res) => {
             console.error('[Verification] Admin notification error (non-blocking):', notifErr.message);
         }
 
-        console.log(`[Verification] Demande soumise par ${user.email} (RCCM: ${rccm_number})`);
+        console.log(`[Verification] Demande soumise par ${user.email} (RCCM: ${rccm_number}, ${files.length} doc(s))`);
         return res.status(200).json({
             success: true,
             message: 'Votre demande de certification Pro a bien été soumise. L\'équipe NewKet va examiner votre document.',

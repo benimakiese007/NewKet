@@ -51,6 +51,7 @@ export const getUsers = async (req, res) => {
                 shipping_time,
                 preferred_payout_method,
                 documents_url,
+                rccm_document_url,
                 physical_shop_url,
                 shop_slug,
                 date_joined,

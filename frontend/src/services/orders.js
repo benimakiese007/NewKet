@@ -5,6 +5,7 @@
 const OrderManager = {
     data: [],
     _initialized: false,
+    _authRetryBound: false,
 
     /**
      * Mapping centralisé : Statut Backend (EN) → Label UI (FR).
@@ -51,8 +52,17 @@ const OrderManager = {
             return;
         }
         if (!window.AuthManager || !window.AuthManager.role) {
-            console.warn('[OrderManager] Check skipped: no authenticated role');
-            this._initialized = true;
+            if (!this._authRetryBound) {
+                this._authRetryBound = true;
+                const retryInit = () => {
+                    if (window.AuthManager && window.AuthManager.role) {
+                        this.init({ force: true }).catch(err => console.error('[OrderManager] Deferred init error:', err));
+                    }
+                };
+                window.addEventListener('newketInitialized', retryInit, { once: true });
+                window.addEventListener('roleChanged', retryInit);
+                window.addEventListener('userStatusUpdated', retryInit);
+            }
             return;
         }
 

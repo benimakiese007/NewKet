@@ -1973,7 +1973,8 @@
                     const _fetchVendorProductsSafe = () => {
                         const email = localStorage.getItem('newketUserEmail');
                         const userId = localStorage.getItem('newketUserId');
-                        if (window.ProductManager && typeof ProductManager.fetchVendorProducts === 'function' && window.SupabaseAdapter && window.supabaseClient) {
+                        const hasAuth = !!(window.AuthManager && (AuthManager.role || localStorage.getItem('newketRole')));
+                        if (window.ProductManager && typeof ProductManager.fetchVendorProducts === 'function' && window.SupabaseAdapter && window.supabaseClient && hasAuth) {
                             ProductManager.fetchVendorProducts(userId, email).then((vendorProducts) => {
                                 // Store the exact list returned by the API so renderVendorDashboard
                                 // can display the precise count without re-filtering the full cache.
@@ -6462,13 +6463,19 @@
                     // Load existing cover photo
                     const _loadExistingCover = async () => {
                         try {
+                            const localProfile = window.ProfileManager?.getProfile ? window.ProfileManager.getProfile() : null;
+                            if (localProfile?.cover_image) {
+                                _setCoverPreview(localProfile.cover_image);
+                                return;
+                            }
                             const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                             if (!user) return;
                             const vendor = await window.SupabaseAdapter.fetchWithFilters('users', {
                                 eq: [['id', user.id]],
                                 select: 'cover_image',
                                 single: true,
-                                skipCache: true
+                                skipCache: true,
+                                suppressErrorLogging: true
                             });
                             if (vendor && vendor.cover_image) {
                                 _setCoverPreview(vendor.cover_image);
@@ -6603,7 +6610,8 @@
                                             const conflicts = await window.SupabaseAdapter.fetchWithFilters('users', {
                                                 eq: [['role', 'supplier'], ['shop_slug', newShopSlug]],
                                                 limit: 1,
-                                                skipCache: true
+                                                skipCache: true,
+                                                suppressErrorLogging: true
                                             });
                                             const hasConflict = Array.isArray(conflicts)
                                                 && conflicts.length > 0
@@ -7877,75 +7885,107 @@ function openOrderModal(id) {
             const user = window.currentUser || JSON.parse(localStorage.getItem('user'));
             if (!user) return;
             const token = localStorage.getItem('token');
+            const profile = window.ProfileManager?.getProfile ? window.ProfileManager.getProfile() : null;
+            const localSellerType = String(
+                window.AuthManager?.sellerType ||
+                localStorage.getItem('newketSellerType') ||
+                profile?.seller_type ||
+                user?.seller_type ||
+                ''
+            ).trim().toLowerCase();
+            const localStatus = String(
+                window.AuthManager?.status ||
+                localStorage.getItem('newketUserStatus') ||
+                profile?.business_verification_status ||
+                profile?.status ||
+                user?.business_verification_status ||
+                user?.status ||
+                ''
+            ).trim().toLowerCase();
 
             try {
+                const banner = document.getElementById('vendorProStatusBanner');
+                const block = document.getElementById('vendorProBlock');
+                const form = document.getElementById('vendorProCertificationForm');
+                const icon = document.getElementById('vendorProStatusIcon');
+                const iconContainer = document.getElementById('vendorProStatusIconContainer');
+                const title = document.getElementById('vendorProStatusTitle');
+                const desc = document.getElementById('vendorProStatusDesc');
+                const fileInput = document.getElementById('vRccmDocument');
+                const fileLabel = document.getElementById('vRccmDocumentLabel');
+
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => {
+                        if (e.target.files.length > 0) {
+                            fileLabel.textContent = e.target.files[0].name;
+                            fileLabel.classList.remove('text-gray-500');
+                            fileLabel.classList.add('text-black');
+                        } else {
+                            fileLabel.textContent = 'Choisir un fichier...';
+                            fileLabel.classList.remove('text-black');
+                            fileLabel.classList.add('text-gray-500');
+                        }
+                    });
+                }
+
+                // Check local user object first
+                const isLocalCertified = localSellerType === 'certified' || localStatus === 'approved' || localStatus === 'verified';
+
+                let status = localStatus || (isLocalCertified ? 'approved' : null);
+                let rccm = null;
+                let sellerType = localSellerType || user.seller_type;
+
                 const response = await fetch('/api/verification/my-status', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                
                 if (response.ok) {
                     const data = await response.json();
-                    
-                    const banner = document.getElementById('vendorProStatusBanner');
-                    const form = document.getElementById('vendorProCertificationForm');
-                    const icon = document.getElementById('vendorProStatusIcon');
-                    const iconContainer = document.getElementById('vendorProStatusIconContainer');
-                    const title = document.getElementById('vendorProStatusTitle');
-                    const desc = document.getElementById('vendorProStatusDesc');
-                    const fileInput = document.getElementById('vRccmDocument');
-                    const fileLabel = document.getElementById('vRccmDocumentLabel');
+                    const verificationData = data.verification || data;
+                    if (verificationData.business_verification_status) status = verificationData.business_verification_status;
+                    if (verificationData.rccm_number) rccm = verificationData.rccm_number;
+                    if (verificationData.seller_type) sellerType = verificationData.seller_type;
+                }
 
-                    if (fileInput) {
-                        fileInput.addEventListener('change', (e) => {
-                            if (e.target.files.length > 0) {
-                                fileLabel.textContent = e.target.files[0].name;
-                                fileLabel.classList.remove('text-gray-500');
-                                fileLabel.classList.add('text-black');
-                            } else {
-                                fileLabel.textContent = 'Choisir un fichier...';
-                                fileLabel.classList.remove('text-black');
-                                fileLabel.classList.add('text-gray-500');
-                            }
-                        });
+                if (banner && form) {
+                    if (status === 'verified' || status === 'approved' || sellerType === 'certified') {
+                        if (block) block.classList.add('hidden');
+                        banner.classList.remove('hidden');
+                        banner.classList.add('bg-green-50', 'border-green-100');
+                        iconContainer.classList.add('bg-green-100', 'text-green-600');
+                        icon.setAttribute('icon', 'solar:shield-check-bold');
+                        title.textContent = 'Vendeur Pro (Vérifié)';
+                        title.classList.add('text-green-800');
+                        desc.textContent = 'RCCM: ' + (rccm || 'N/A');
+                        desc.classList.add('text-green-600');
+                        form.classList.add('hidden');
+                    } else if (status === 'pending') {
+                        if (block) block.classList.remove('hidden');
+                        banner.classList.remove('hidden');
+                        banner.classList.add('bg-yellow-50', 'border-yellow-100');
+                        iconContainer.classList.add('bg-yellow-100', 'text-yellow-600');
+                        icon.setAttribute('icon', 'solar:hourglass-line-bold');
+                        title.textContent = 'Vérification en cours';
+                        title.classList.add('text-yellow-800');
+                        desc.textContent = 'Vos documents sont en cours de révision par notre équipe.';
+                        desc.classList.add('text-yellow-600');
+                        form.classList.add('hidden');
+                    } else if (status === 'rejected') {
+                        if (block) block.classList.remove('hidden');
+                        banner.classList.remove('hidden');
+                        banner.classList.add('bg-red-50', 'border-red-100');
+                        iconContainer.classList.add('bg-red-100', 'text-red-600');
+                        icon.setAttribute('icon', 'solar:close-circle-bold');
+                        title.textContent = 'Demande rejetée';
+                        title.classList.add('text-red-800');
+                        desc.textContent = 'Motif: Document invalide. Veuillez réessayer.';
+                        desc.classList.add('text-red-600');
+                        form.classList.remove('hidden');
+                    } else {
+                        if (block) block.classList.remove('hidden');
+                        form.classList.remove('hidden');
                     }
-
-                    const status = data.business_verification_status;
-                    const rccm = data.rccm_number;
-
-                    if (banner && form) {
-                        if (status === 'verified' || data.is_verified_business) {
-                            banner.classList.remove('hidden');
-                            banner.classList.add('bg-green-50', 'border-green-100');
-                            iconContainer.classList.add('bg-green-100', 'text-green-600');
-                            icon.setAttribute('icon', 'solar:shield-check-bold');
-                            title.textContent = 'Vendeur Pro (Vérifié)';
-                            title.classList.add('text-green-800');
-                            desc.textContent = 'RCCM: ' + (rccm || 'N/A');
-                            desc.classList.add('text-green-600');
-                            form.classList.add('hidden');
-                        } else if (status === 'pending') {
-                            banner.classList.remove('hidden');
-                            banner.classList.add('bg-yellow-50', 'border-yellow-100');
-                            iconContainer.classList.add('bg-yellow-100', 'text-yellow-600');
-                            icon.setAttribute('icon', 'solar:hourglass-line-bold');
-                            title.textContent = 'Vérification en cours';
-                            title.classList.add('text-yellow-800');
-                            desc.textContent = 'Vos documents sont en cours de révision par notre équipe.';
-                            desc.classList.add('text-yellow-600');
-                            form.classList.add('hidden');
-                        } else if (status === 'rejected') {
-                            banner.classList.remove('hidden');
-                            banner.classList.add('bg-red-50', 'border-red-100');
-                            iconContainer.classList.add('bg-red-100', 'text-red-600');
-                            icon.setAttribute('icon', 'solar:close-circle-bold');
-                            title.textContent = 'Demande rejetée';
-                            title.classList.add('text-red-800');
-                            desc.textContent = 'Motif: ' + (data.business_rejection_reason || 'Document invalide. Veuillez réessayer.');
-                            desc.classList.add('text-red-600');
-                            form.classList.remove('hidden');
-                        } else {
-                            form.classList.remove('hidden');
-                        }
-                    }
+                }
 
                     if (form) {
                         form.addEventListener('submit', async (e) => {
@@ -7994,7 +8034,6 @@ function openOrderModal(id) {
                             }
                         });
                     }
-                }
             } catch (error) {
                 console.error('Error fetching verification status', error);
             }
@@ -8002,6 +8041,52 @@ function openOrderModal(id) {
 
     </script>
 
+
+    <script>
+        (function() {
+            const normalize = (value) => String(value || '').trim().toLowerCase();
+
+            const isVendorCertified = () => {
+                const profile = window.ProfileManager?.getProfile ? window.ProfileManager.getProfile() : null;
+                const status = [
+                    window.AuthManager?.status,
+                    localStorage.getItem('newketUserStatus'),
+                    profile?.business_verification_status,
+                    profile?.status
+                ].map(normalize).find(Boolean) || '';
+                const sellerType = [
+                    window.AuthManager?.sellerType,
+                    localStorage.getItem('newketSellerType'),
+                    profile?.seller_type
+                ].map(normalize).find(Boolean) || '';
+
+                return status === 'approved' || status === 'verified' || sellerType === 'certified';
+            };
+
+            const syncVendorProBlock = () => {
+                const block = document.getElementById('vendorProBlock');
+                if (!block) return;
+                block.classList.toggle('hidden', isVendorCertified());
+            };
+
+            const run = () => {
+                syncVendorProBlock();
+                window.setTimeout(syncVendorProBlock, 400);
+                window.setTimeout(syncVendorProBlock, 1500);
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', run, { once: true });
+            } else {
+                run();
+            }
+
+            window.addEventListener('newketInitialized', run);
+            window.addEventListener('userStatusUpdated', run);
+            window.addEventListener('sellerTypeUpdated', run);
+            window.addEventListener('profileUpdated', run);
+        })();
+    </script>
 
     <script>
         // ===== Sprint 2: Form Loading States =====
@@ -8028,56 +8113,25 @@ function openOrderModal(id) {
                     // Auto-reset after 4s as fallback
                     setTimeout(() => setButtonLoading(btn, false), 4000);
                 });
+                if (!window.__vendorProCertificationStateListenersBound) {
+                    window.__vendorProCertificationStateListenersBound = true;
+                    window.addEventListener('userStatusUpdated', () => {
+                        void applyCertificationState();
+                    });
+                    window.addEventListener('sellerTypeUpdated', () => {
+                        void applyCertificationState();
+                    });
+                    window.addEventListener('newketInitialized', () => {
+                        void applyCertificationState();
+                    });
+                    window.addEventListener('profileUpdated', () => {
+                        void applyCertificationState();
+                    });
+                }
             });
         });
     </script>
 
-    <script>
-        // Logic for Mobile Sidebar Toggle - Guaranteed Init
-        (function() {
-            function initCustomerSidebar() {
-                if (window.SidebarManager) {
-                    window.SidebarManager.init('customerSidebar', 'customer-main-content', 'customerSidebarOverlay');
-                }
-            }
-
-            function syncTabFromHash() {
-                try {
-                    const raw = (window.location.hash || '').replace(/^#/, '').trim();
-                    if (!raw) return;
-                    const decoded = decodeURIComponent(raw);
-                    const tab = (decoded.split(/[?&]/)[0] || '').trim();
-                    if (typeof window.switchVendorTab !== 'function') return;
-                    if (['dashboard', 'orders', 'achat', 'favorites', 'notifications', 'settings'].includes(tab)) {
-                        window.switchTab(tab);
-                    }
-                } catch (e) {}
-            }
-            // If SidebarManager is already loaded, init immediately
-            if (window.SidebarManager) {
-                initCustomerSidebar();
-            } else {
-                // Match vendor fallback paths so sidebar init is not missed in partial boot flows.
-                window.addEventListener('componentsLoaded', initCustomerSidebar, { once: true });
-                window.addEventListener('newketInitialized', initCustomerSidebar, { once: true });
-                let attempts = 0;
-                const timer = setInterval(() => {
-                    attempts++;
-                    if (window.SidebarManager) {
-                        clearInterval(timer);
-                        initCustomerSidebar();
-                    } else if (attempts >= 40) {
-                        clearInterval(timer);
-                    }
-                }, 250);
-            }
-
-            // Allow deep-link to a tab via URL hash (e.g. #orders)
-            syncTabFromHash();
-            window.addEventListener('hashchange', syncTabFromHash);
-        })();
-    </script>
-    
     <!-- Modal d'Ouverture de Litige (Dispute Modal) -->
     <div id="disputeModal" style="display: none;" class="fixed inset-0 z-[200] flex items-center justify-center p-4 hidden bg-black/60 backdrop-blur-sm transition-all duration-300">
         <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">

@@ -21,7 +21,7 @@ echo  Rapport dans playwright-report\
 echo ==============================================
 echo.
 
-cd /d "%~dp0\.."
+cd /d "%~dp0\..\.."
 
 call npx playwright test tests/e2e/dead-buttons.spec.js --reporter=list
 

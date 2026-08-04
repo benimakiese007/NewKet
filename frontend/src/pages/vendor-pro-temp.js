@@ -1,6 +1,55 @@
         // ===== Vendor Pro Certification =====
         document.addEventListener('DOMContentLoaded', async () => {
-            const user = window.currentUser || JSON.parse(localStorage.getItem('user'));
+            const fileInput = document.getElementById('vRccmDocument');
+            const fileLabel = document.getElementById('vRccmDocumentLabel');
+            const MAX_RCCM_FILES = 5;
+
+            const syncRccmFileLabel = () => {
+                if (!fileInput || !fileLabel) return;
+                const files = Array.from(fileInput.files || []);
+                const count = files.length;
+                const hasFile = count > 0;
+                const firstName = files[0]?.name || '';
+                const labelText = !hasFile
+                    ? `Choisir jusqu'a ${MAX_RCCM_FILES} fichiers...`
+                    : count === 1
+                        ? firstName
+                        : `${count} fichiers selectionnes`;
+                fileLabel.textContent = labelText;
+                fileLabel.title = files.map((file) => file.name).join('\n');
+                fileLabel.dataset.hasFile = hasFile ? '1' : '0';
+                fileLabel.classList.toggle('text-black', hasFile);
+                fileLabel.classList.toggle('text-gray-500', !hasFile);
+                fileLabel.classList.toggle('font-semibold', hasFile);
+            };
+
+            if (fileInput && fileLabel) {
+                fileInput.addEventListener('change', syncRccmFileLabel);
+                fileInput.addEventListener('change', enforceMaxFiles);
+                syncRccmFileLabel();
+            }
+
+            const enforceMaxFiles = () => {
+                if (!fileInput) return;
+                const files = Array.from(fileInput.files || []);
+                if (files.length <= MAX_RCCM_FILES) return;
+
+                const dt = new DataTransfer();
+                files.slice(0, MAX_RCCM_FILES).forEach((file) => dt.items.add(file));
+                fileInput.files = dt.files;
+                syncRccmFileLabel();
+                alert(`Tu as selectionne ${files.length} fichiers. Seuls les ${MAX_RCCM_FILES} premiers ont ete conserves.`);
+            };
+            let user = window.currentUser;
+            if (!user) {
+                try {
+                    const rawUser = localStorage.getItem('user');
+                    user = rawUser ? JSON.parse(rawUser) : null;
+                } catch (error) {
+                    console.warn('[VendorPro] Invalid stored user payload', error);
+                    user = null;
+                }
+            }
             if (!user) return;
 
             try {
@@ -14,23 +63,6 @@
                     const iconContainer = document.getElementById('vendorProStatusIconContainer');
                     const title = document.getElementById('vendorProStatusTitle');
                     const desc = document.getElementById('vendorProStatusDesc');
-                    const fileInput = document.getElementById('vRccmDocument');
-                    const fileLabel = document.getElementById('vRccmDocumentLabel');
-
-                    if (fileInput) {
-                        fileInput.addEventListener('change', (e) => {
-                            if (e.target.files.length > 0) {
-                                fileLabel.textContent = e.target.files[0].name;
-                                fileLabel.classList.remove('text-gray-500');
-                                fileLabel.classList.add('text-black');
-                            } else {
-                                fileLabel.textContent = 'Choisir un fichier...';
-                                fileLabel.classList.remove('text-black');
-                                fileLabel.classList.add('text-gray-500');
-                            }
-                        });
-                    }
-
                     const status = data.business_verification_status;
                     const rccm = data.rccm_number;
 
