@@ -40,7 +40,6 @@ const SearchManager = {
                 const container = document.getElementById('searchSuggestions');
                 if (container) {
                     this.openSearchOverlay();
-                    this.positionDropdownMobile(container);
                     if (query.length < 2) {
                         this.showRecentAndPopular(container);
                     } else {
@@ -233,14 +232,6 @@ const SearchManager = {
 
         document.body.appendChild(overlay);
         this.overlayPortaled = true;
-    },
-
-    positionDropdownMobile(container) {
-        if (!container || window.innerWidth >= 640) return;
-        const header = document.querySelector('.main-header');
-        if (!header) return;
-        const headerBottom = header.getBoundingClientRect().bottom;
-        container.style.setProperty('top', (headerBottom + 8) + 'px', 'important');
     },
 
     openSearchOverlay() {

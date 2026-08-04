@@ -4122,17 +4122,8 @@ body.sidebar-resizing {
   animation: searchSuggestionsFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Mobile: dropdown spans full width with fixed positioning, JS sets exact top */
-@media (max-width: 639px) {
-  .search-suggestions {
-    position: fixed !important;
-    top: 100px !important; /* fallback, overridden by JS */
-    left: 12px !important;
-    right: 12px !important;
-    width: auto !important;
-    max-height: 60vh !important;
-  }
-}
+
+
 
 
 .search-overlay {
