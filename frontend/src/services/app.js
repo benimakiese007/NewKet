@@ -9,29 +9,18 @@ import './api-client.js';
 import './sanitize.js';
 
 import './config-manager.js';
-import './branding-manager.js';
-import './security-page.js';
 
 import './auth.js';
-import './profile-manager.js';
-import './user-manager.js';
-import './presence-manager.js';
-import './behavior-tracking.js';
 import './products.js';
 import './orders.js';
 import './favorites.js';
 import './currency.js';
-import './invoice-qr.js';
 import './managers.js';
 
 import './ui-helpers.js';
-import './csv-export.js';
 import './ui.js';
-import './pull-to-refresh.js';
-import './search.js';
 import './components-loader.js';
-import './realtime-notifications.js';
-import './admin-layout.js';
+import './search.js';
 
 // main.js is usually the last one as it depends on initialized UI
 import './main.js';
@@ -54,6 +43,60 @@ try {
     initGoogleAnalytics();
 } catch (err) {
     console.warn('[NewKet] Google Analytics disabled:', err?.message || err);
+}
+
+const isAdminPage =
+    window.location.pathname.includes('/admin/') ||
+    window.location.pathname.endsWith('/admin') ||
+    window.location.pathname.includes('/pages/admin/');
+
+const deferredImports = [
+    { load: () => import('./behavior-tracking.js') },
+    { load: () => import('./csv-export.js') },
+    { load: () => import('./pull-to-refresh.js') },
+    { load: () => import('./realtime-notifications.js'), requiresBackend: true },
+    { load: () => import('./presence-manager.js') },
+    { load: () => import('./profile-manager.js') },
+    { load: () => import('./user-manager.js'), requiresBackend: true }
+];
+
+if (isAdminPage) {
+    deferredImports.push(
+        { load: () => import('./branding-manager.js'), requiresBackend: true },
+        { load: () => import('./admin-layout.js') },
+        { load: () => import('./security-page.js') },
+        { load: () => import('./invoice-qr.js') }
+    );
+} else {
+    deferredImports.push(
+        { load: () => import('./invoice-qr.js') }
+    );
+}
+
+const resolveBackendReady = async () => {
+    if (!isLocalHost) return true;
+    if (window.newketBackendReady === true) return true;
+    if (window.newketBackendReady === false) return false;
+    if (window.ApiClient?.isLocalBackendReady) {
+        const ready = await window.ApiClient.isLocalBackendReady(1200);
+        window.newketBackendReady = ready;
+        return ready;
+    }
+    return true;
+};
+
+const scheduleDeferredImports = async () => {
+    const backendReady = await resolveBackendReady();
+    const tasks = deferredImports
+        .filter((entry) => backendReady || !entry.requiresBackend)
+        .map((entry) => entry.load());
+    Promise.allSettled(tasks).catch(() => {});
+};
+
+if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(scheduleDeferredImports, { timeout: 1500 });
+} else {
+    window.setTimeout(scheduleDeferredImports, 1000);
 }
 
 // Global fallback for broken images

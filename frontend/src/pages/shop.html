@@ -233,7 +233,7 @@
             }
         }
 
-        function writeCachedShop(cacheKey, vendor) {
+        function writeCachedShop(cacheKey, vendor, products = [], ratingAvg = null) {
             if (!cacheKey || !vendor) return;
             try {
                 localStorage.setItem(cacheKey, JSON.stringify({
@@ -244,7 +244,9 @@
                     cover_image: vendor.cover_image || '',
                     shipping_time: vendor.shipping_time || '',
                     date_joined: vendor.date_joined || '',
-                    shop_slug: vendor.shop_slug || ''
+                    shop_slug: vendor.shop_slug || '',
+                    rating_avg: ratingAvg,
+                    products: Array.isArray(products) ? products.slice(0, 12) : []
                 }));
             } catch {
                 // no-op
@@ -295,6 +297,21 @@
             if (shippingEl && vendor.shipping_time) {
                 shippingEl.textContent = vendor.shipping_time;
             }
+        }
+
+        function renderCachedShop(cacheData) {
+            if (!cacheData || !Array.isArray(cacheData.products) || cacheData.products.length === 0) return false;
+
+            currentProducts = cacheData.products;
+            const sortSelect = document.getElementById('sortProducts');
+            const sortMode = sortSelect ? sortSelect.value : 'newest';
+            renderProducts(sortProducts(currentProducts, sortMode));
+
+            if (cacheData.rating_avg) {
+                const ratingEl = document.getElementById('vendor-rating-value');
+                if (ratingEl) ratingEl.textContent = cacheData.rating_avg;
+            }
+            return true;
         }
 
         function getOrCreateSessionId() {
@@ -400,6 +417,11 @@
         }
 
         async function loadShopData() {
+            if (!window.SupabaseAdapter || !window.ApiClient || typeof window.buildProductCardHTML !== 'function') {
+                setTimeout(loadShopData, 50);
+                return;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const email = urlParams.get('email');
             const shopQuery = urlParams.get('shop');
@@ -431,6 +453,7 @@
             const cachedVendor = readCachedShop(shopCacheKey);
             if (cachedVendor) {
                 applyVendorHero(cachedVendor, shopSlug || '');
+                renderCachedShop(cachedVendor);
             }
 
             try {
@@ -490,7 +513,7 @@
                 }
 
                 applyVendorHero(vendor, shopSlug || '');
-                writeCachedShop(shopCacheKey, vendor);
+                writeCachedShop(shopCacheKey, vendor, currentProducts, document.getElementById('vendor-rating-value')?.textContent || null);
                 recordShopViewOncePerDay(vendor.id);
 
                 const products = await window.SupabaseAdapter.fetchWithFilters('products', {
@@ -584,11 +607,7 @@
                 });
             }
 
-            if (window.newketInitialized) {
-                loadShopData();
-            } else {
-                window.addEventListener('newketInitialized', loadShopData);
-            }
+            loadShopData();
 
             // Listen for currency changes to refresh prices
             window.addEventListener('currencyChanged', () => {

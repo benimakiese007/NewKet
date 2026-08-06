@@ -268,9 +268,9 @@ window.SupabaseAdapter = {
         try {
             return await this._withTimeout(this._sessionPromise, timeoutMs, 'Primary getSession');
         } catch (err) {
-            console.warn('[NewKet Adapter] getSession timed out. Proceeding as Guest.');
+            console.warn('[NewKet Adapter] getSession timed out or failed.', err);
             this._sessionFailureUntil = Date.now() + 1500;
-            return null;
+            throw err;
         }
     },
 

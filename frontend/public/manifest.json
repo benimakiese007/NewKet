@@ -1,10 +1,10 @@
 {
-  "name": "NewKet \u2013 Marketplace Moderne",
+  "name": "NewKet – Marketplace Moderne",
   "short_name": "NewKet",
-  "description": "L'excellence de la marketplace moderne. D\u00e9couvrez une s\u00e9lection rigoureuse d'articles de luxe.",
+  "description": "L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe.",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "transparent",
+  "background_color": "#ffffff",
   "theme_color": "#064734",
   "orientation": "portrait",
   "categories": [
@@ -14,10 +14,28 @@
   ],
   "icons": [
     {
-      "src": "/LogoOfficiel_PWA_Icone.png",
-      "sizes": "500x500",
+      "src": "/icons/icon-192-v2.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192-maskable-v2.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512-v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable-v2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

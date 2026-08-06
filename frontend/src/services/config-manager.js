@@ -46,6 +46,10 @@ const ConfigManager = {
     _realtimeChannel: null,
     _maintenancePollTimer: null,
 
+    // Save lock: bloque les polls/realtime d'écraser maintenanceMode
+    // pendant et juste après un save (évite la race condition toggle).
+    _saveLockUntil: 0,
+
     _maintenanceCheckKey: 'newket_global_config_maintenance_check_time',
 
     _markMaintenanceCheck(now = Date.now()) {
@@ -54,6 +58,14 @@ const ConfigManager = {
 
     async _fetchRemoteSettings(source = 'fetch') {
         if (!window.ApiClient && !window.SupabaseAdapter) return null;
+        if (/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '') && window.newketBackendReady === false) {
+            return null;
+        }
+
+        // Ne pas écraser l'état pendant ou juste après un save (évite la race condition)
+        if (source === 'poll' && Date.now() < this._saveLockUntil) {
+            return null;
+        }
 
         if (this._fetchPromise) {
             return this._fetchPromise;
@@ -91,9 +103,11 @@ const ConfigManager = {
 
     _startMaintenancePolling() {
         if (this._maintenancePollTimer || !window.SupabaseAdapter) return;
+        if (/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '') && window.newketBackendReady === false) {
+            return;
+        }
 
-        // 10 s au lieu de 60 s — impact réseau minimal (requête GET légère)
-        // pour garantir que la bascule maintenance est visible en < 15 s max.
+        // 10 s — pour garantir que la bascule maintenance est visible en < 15 s max.
         this._maintenancePollTimer = window.setInterval(() => {
             this._fetchRemoteSettings('poll').catch((err) => {
                 console.warn('[NewKet] Maintenance poll failed:', err?.message || err);
@@ -212,6 +226,13 @@ const ConfigManager = {
         if (!normalized) return false;
 
         const previousMaintenanceMode = !!this.config.maintenanceMode;
+
+        // Pendant le save lock, on préserve la valeur locale de maintenanceMode.
+        // Ni le polling ni le realtime ne peuvent écraser l'état du toggle cliqué.
+        if (Date.now() < this._saveLockUntil && normalized.maintenanceMode !== undefined) {
+            normalized.maintenanceMode = previousMaintenanceMode;
+        }
+
         this.config = { ...this.config, ...normalized };
         this.saveLocal();
         this._markMaintenanceCheck();
@@ -319,7 +340,7 @@ const ConfigManager = {
             linkedin_link: socialLinks.linkedin
         };
     },
- 
+
     async init() {
         const saved = localStorage.getItem('newket_global_config');
         const fetchTime = localStorage.getItem('newket_global_config_time');
@@ -327,6 +348,7 @@ const ConfigManager = {
         const now = Date.now();
         const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
         const MAINTENANCE_CHECK_DURATION = 1000 * 60; // 60 seconds
+        const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
 
         if (saved) {
             try {
@@ -342,8 +364,13 @@ const ConfigManager = {
         const maintenanceCheckExpired =
             !maintenanceCheckTime || now - parseInt(maintenanceCheckTime) > MAINTENANCE_CHECK_DURATION;
         const shouldRefreshForMaintenance = !!this.config.maintenanceMode || maintenanceCheckExpired;
+        const backendReady = !isLocalHost || !window.ApiClient?.isLocalBackendReady
+            ? true
+            : await window.ApiClient.isLocalBackendReady(1200);
 
-        if (window.SupabaseAdapter && (cacheExpired || socialLinksIncomplete || shouldRefreshForMaintenance)) {
+        window.newketBackendReady = backendReady;
+
+        if (window.SupabaseAdapter && backendReady && (cacheExpired || socialLinksIncomplete || shouldRefreshForMaintenance)) {
             await this._fetchRemoteSettings('fetch');
             localStorage.setItem('newket_global_config_time', now.toString());
             this._markMaintenanceCheck(now);
@@ -370,14 +397,17 @@ const ConfigManager = {
     async saveConfig(newConfig) {
         const previousMaintenanceMode = !!this.config.maintenanceMode;
 
+        // Bloquer les polls pendant 3s pour éviter la race condition.
+        // Le verrou est levé dès que le save est confirmé par le serveur.
+        this._saveLockUntil = Date.now() + 3000;
+
         this.config = { ...this.config, ...newConfig };
         this.config.socialLinks = this._getSocialLinks(this.config);
         this.saveLocal();
         let remoteError = null;
 
-        // Fix: Dispatcher maintenanceModeChanged localement de façon immédiate
-        // avant même la sauvegarde réseau, pour que l'overlay/UI réagisse
-        // sans attendre la confirmation serveur.
+        // Dispatcher maintenanceModeChanged localement de façon immédiate
+        // avant même la sauvegarde réseau, pour que l'UI réagisse sans attendre.
         const nextMaintenanceMode = !!this.config.maintenanceMode;
         if (previousMaintenanceMode !== nextMaintenanceMode) {
             window.dispatchEvent(new CustomEvent('maintenanceModeChanged', {
@@ -395,9 +425,8 @@ const ConfigManager = {
                     : { ...this.config, id: 'global-settings' };
 
                 if (window.ApiClient) {
-                    // Fix: Invalider le cache ApiClient pour /settings après une écriture
-                    // afin que le prochain poll récupère les données fraîches depuis le serveur.
-                    // La clé 'global-settings' correspond au cacheKey utilisé dans _fetchRemoteSettings.
+                    // Invalider le cache ApiClient pour /settings après une écriture
+                    // afin que le prochain poll récupère les données fraîches.
                     if (window.ApiClient._responseCache instanceof Map) {
                         window.ApiClient._responseCache.delete('global-settings');
                     }
@@ -407,7 +436,7 @@ const ConfigManager = {
                         suppressErrorLogging: true
                     });
                 } else {
-                    // If the API helper is unavailable, fall back to the raw Supabase table.
+                    // Fallback to raw Supabase table.
                     const rows = await window.SupabaseAdapter.fetch('settings');
                     const existingRow = rows && rows.length > 0 ? rows[0] : null;
                     const remotePayload = this._toRemoteSettingsPayload(this.config, existingRow);
@@ -418,12 +447,14 @@ const ConfigManager = {
                     }
                 }
                 this._markMaintenanceCheck();
+                // Lever le verrou dès que le save est confirmé
+                this._saveLockUntil = 0;
             } catch (err) {
                 console.error('[NewKet] Error saving remote settings to Supabase:', err);
                 remoteError = err;
             }
         }
-        
+
         window.dispatchEvent(new CustomEvent('configUpdated', { detail: this.config }));
 
         if (remoteError) {

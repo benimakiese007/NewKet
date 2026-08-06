@@ -204,24 +204,39 @@
                             <option value="suppliers">Fournisseurs uniquement</option>
                         </select>
                     </div>
-                    <div class="flex items-center gap-3 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="broadcastToggle" data-track-action="admin_notifications:broadcast_toggle_change" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                        </label>
-                        <div>
-                            <span class="text-xs font-bold text-indigo-900 block">Diffuser (Broadcast)</span>
-                            <span class="text-[10px] text-indigo-600/70 font-medium">Affiche un Pop-up immédiat à tous</span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 bg-violet-50/70 p-4 rounded-xl border border-violet-100">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="broadcastModalToggle" data-track-action="admin_notifications:broadcast_modal_toggle_change" class="sr-only peer" checked>
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-violet-600"></div>
-                        </label>
-                        <div>
-                            <span class="text-xs font-bold text-violet-900 block">Broadcast modale</span>
-                            <span class="text-[10px] text-violet-600/70 font-medium">Force un modale immédiat chez chaque utilisateur</span>
+                    <div class="sm:col-span-2">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 block mb-2">Mode d'envoi</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <label class="delivery-mode-label flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 cursor-pointer transition-all" for="modePhone">
+                                <input type="radio" name="deliveryMode" value="push-only" id="modePhone" class="sr-only" onchange="updateDeliveryMode()">
+                                <span class="delivery-radio w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                                    <span class="delivery-dot w-2.5 h-2.5 rounded-full hidden"></span>
+                                </span>
+                                <span>
+                                    <span class="text-xs font-bold text-gray-900 block">📱 Notification Téléphone uniquement</span>
+                                    <span class="text-[10px] text-gray-500 font-medium">Envoie une notif système sur l'appareil (même hors app)</span>
+                                </span>
+                            </label>
+                            <label class="delivery-mode-label flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 cursor-pointer transition-all" for="modeImmediate">
+                                <input type="radio" name="deliveryMode" value="broadcast" id="modeImmediate" class="sr-only" onchange="updateDeliveryMode()">
+                                <span class="delivery-radio w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                                    <span class="delivery-dot w-2.5 h-2.5 rounded-full hidden"></span>
+                                </span>
+                                <span>
+                                    <span class="text-xs font-bold text-gray-900 block">🟢 Pop-up immédiat (actifs uniquement)</span>
+                                    <span class="text-[10px] text-gray-500 font-medium">Affiche la modale aux utilisateurs connectés en ce moment</span>
+                                </span>
+                            </label>
+                            <label class="delivery-mode-label flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 cursor-pointer transition-all" for="modePersistent">
+                                <input type="radio" name="deliveryMode" value="broadcast-modal" id="modePersistent" class="sr-only" checked onchange="updateDeliveryMode()">
+                                <span class="delivery-radio w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
+                                    <span class="delivery-dot w-2.5 h-2.5 rounded-full hidden"></span>
+                                </span>
+                                <span>
+                                    <span class="text-xs font-bold text-gray-900 block">🔵 Pop-up persistant (actifs + futurs visiteurs)</span>
+                                    <span class="text-[10px] text-gray-500 font-medium">Affiche la modale même aux utilisateurs qui arriveront plus tard</span>
+                                </span>
+                            </label>
                         </div>
                     </div>
                     <div class="flex items-end">
@@ -293,15 +308,44 @@
             updateStats();
         }
 
+        function updateDeliveryMode() {
+            const modeStyles = {
+                'push-only':       { border: 'border-blue-500',   bg: 'bg-blue-50',   dot: 'bg-blue-600',   radio: 'border-blue-600' },
+                'broadcast':       { border: 'border-indigo-500', bg: 'bg-indigo-50', dot: 'bg-indigo-600', radio: 'border-indigo-600' },
+                'broadcast-modal': { border: 'border-violet-500', bg: 'bg-violet-50', dot: 'bg-violet-600', radio: 'border-violet-600' }
+            };
+            const selected = document.querySelector('input[name="deliveryMode"]:checked');
+            document.querySelectorAll('.delivery-mode-label').forEach(label => {
+                const input = label.querySelector('input[type="radio"]');
+                const radioEl = label.querySelector('.delivery-radio');
+                const dotEl = label.querySelector('.delivery-dot');
+                const val = input?.value;
+                const s = modeStyles[val] || {};
+                // Reset
+                label.classList.remove('border-blue-500', 'bg-blue-50', 'border-indigo-500', 'bg-indigo-50', 'border-violet-500', 'bg-violet-50');
+                label.classList.add('border-gray-200');
+                radioEl.classList.remove('border-blue-600', 'border-indigo-600', 'border-violet-600');
+                radioEl.classList.add('border-gray-300');
+                dotEl.classList.add('hidden');
+                dotEl.classList.remove('bg-blue-600', 'bg-indigo-600', 'bg-violet-600');
+                // Apply if selected
+                if (input === selected && s.border) {
+                    label.classList.remove('border-gray-200');
+                    label.classList.add(s.border, s.bg);
+                    radioEl.classList.remove('border-gray-300');
+                    radioEl.classList.add(s.radio);
+                    dotEl.classList.remove('hidden');
+                    dotEl.classList.add(s.dot);
+                }
+            });
+        }
+
         function sendNotification() {
             const title = document.getElementById('notifTitle').value.trim();
             const message = document.getElementById('notifMessage').value.trim();
             const baseType = document.getElementById('notifType').value;
-            const isBroadcast = document.getElementById('broadcastToggle').checked || document.getElementById('broadcastModalToggle').checked;
-            const isBroadcastModal = document.getElementById('broadcastModalToggle').checked;
-            const type = isBroadcast
-                ? `${isBroadcastModal ? 'broadcast-modal' : 'broadcast'}:${baseType}`
-                : baseType;
+            const deliveryMode = document.querySelector('input[name="deliveryMode"]:checked')?.value;
+            const type = deliveryMode ? `${deliveryMode}:${baseType}` : baseType;
             const target = document.getElementById('notifTarget').value;
 
             if (!title || !message) {
@@ -309,10 +353,8 @@
                 return;
             }
 
-            // Add to database via NotificationManager for actual user delivery
             if (window.NotificationManager) {
                 window.NotificationManager.addNotification(title, message, type, target).then(() => {
-                    // Keep a local sent-trail so history survives without a page reload
                     const log = getSentLog();
                     log.unshift({
                         id: Date.now().toString(),
@@ -346,16 +388,21 @@
             }
 
             const displayType = getDisplayType(notification.type);
-            const isBroadcast = isPopupType(notification.type) || String(notification.type || '').startsWith('broadcast:');
-            const isBroadcastModal = String(notification.type || '').startsWith('broadcast-modal:');
+            const rawType = String(notification.type || '');
+            let deliveryMode = null;
+            if (rawType.startsWith('push-only:')) deliveryMode = 'push-only';
+            else if (rawType.startsWith('broadcast-modal:')) deliveryMode = 'broadcast-modal';
+            else if (rawType.startsWith('broadcast:') || rawType === 'broadcast') deliveryMode = 'broadcast';
             const target = notification.target_role || notification.target || 'all';
 
             document.getElementById('notifTitle').value = notification.title || '';
             document.getElementById('notifMessage').value = notification.message || '';
             document.getElementById('notifType').value = ['info', 'success', 'warning', 'danger', 'promo'].includes(displayType) ? displayType : 'info';
             document.getElementById('notifTarget').value = ['all', 'customers', 'suppliers'].includes(target) ? target : 'all';
-            document.getElementById('broadcastToggle').checked = isBroadcast;
-            document.getElementById('broadcastModalToggle').checked = isBroadcastModal || isBroadcast;
+            if (deliveryMode) {
+                const radio = document.querySelector(`input[name="deliveryMode"][value="${deliveryMode}"]`);
+                if (radio) { radio.checked = true; updateDeliveryMode(); }
+            }
 
             document.querySelector('.glass-panel.p-6')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             document.getElementById('notifTitle')?.focus();
@@ -545,20 +592,8 @@
                 updateStats();
             });
 
-            const broadcastToggle = document.getElementById('broadcastToggle');
-            const broadcastModalToggle = document.getElementById('broadcastModalToggle');
-            if (broadcastModalToggle && broadcastToggle) {
-                broadcastToggle.addEventListener('change', () => {
-                    if (!broadcastToggle.checked) {
-                        broadcastModalToggle.checked = false;
-                    }
-                });
-                broadcastModalToggle.addEventListener('change', () => {
-                    if (broadcastModalToggle.checked) {
-                        broadcastToggle.checked = true;
-                    }
-                });
-            }
+            document.querySelectorAll('input[name="deliveryMode"]').forEach(r => r.addEventListener('change', updateDeliveryMode));
+            updateDeliveryMode();
 
             renderNotifications();
             updateStats();

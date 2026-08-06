@@ -5,6 +5,22 @@ window.newketConfig = {
     exchangeRate: 2500
 };
 
+const isLocalHost =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
+
+const resolveLocalBackendReady = async () => {
+    if (!isLocalHost) return true;
+    if (window.newketBackendReady === true) return true;
+    if (window.newketBackendReady === false) return false;
+    if (window.ApiClient?.isLocalBackendReady) {
+        const ready = await window.ApiClient.isLocalBackendReady(1200);
+        window.newketBackendReady = ready;
+        return ready;
+    }
+    return true;
+};
+
 // Admin emails are made available early by auth/admin-config so shell code can read them.
 // ADMIN_PASSWORD intentionally removed — use Supabase Auth only.
 
@@ -153,19 +169,25 @@ const App = {
             return; // Halt further initialization
         }
 
+        const backendReady = await resolveLocalBackendReady();
+        window.newketBackendReady = backendReady;
+        if (!backendReady && isLocalHost) {
+            console.warn('[NewKet App] Local backend unavailable. Skipping API-backed managers until /api/health is reachable.');
+        }
+
         // Product and Order managers now handle their own internal "immediate resolve" from cache
         const initPromises = [];
-        if (window.ProductManager) initPromises.push(ProductManager.init());
+        if (window.ProductManager && backendReady) initPromises.push(ProductManager.init());
 
         // Orders are needed for customer + vendor dashboards too.
-        if (window.OrderManager && isLoggedIn) initPromises.push(OrderManager.init());
-        if (window.UserManager && isAdmin) initPromises.push(UserManager.init());
+        if (window.OrderManager && isLoggedIn && backendReady) initPromises.push(OrderManager.init());
+        if (window.UserManager && isAdmin && backendReady) initPromises.push(UserManager.init());
         
         // Managed Utilities
-        if (window.PromoManager && isAdmin) initPromises.push(PromoManager.init().catch(e => console.warn('[App] PromoManager init failed (non-blocking):', e.message)));
-        if (window.ActivityManager && isAdmin) initPromises.push(ActivityManager.init().catch(e => console.warn('[App] ActivityManager init failed (non-blocking):', e.message)));
-        if (window.NotificationManager && isLoggedIn) initPromises.push(NotificationManager.init().catch(e => console.warn('[App] NotificationManager init failed (non-blocking):', e.message)));
-        if (window.FavoritesManager && isLoggedIn) initPromises.push(FavoritesManager.syncFromSupabase().catch(e => console.warn('[App] FavoritesManager sync failed (non-blocking):', e.message)));
+        if (window.PromoManager && isAdmin && backendReady) initPromises.push(PromoManager.init().catch(e => console.warn('[App] PromoManager init failed (non-blocking):', e.message)));
+        if (window.ActivityManager && isAdmin && backendReady) initPromises.push(ActivityManager.init().catch(e => console.warn('[App] ActivityManager init failed (non-blocking):', e.message)));
+        if (window.NotificationManager && isLoggedIn && backendReady) initPromises.push(NotificationManager.init().catch(e => console.warn('[App] NotificationManager init failed (non-blocking):', e.message)));
+        if (window.FavoritesManager && isLoggedIn && backendReady) initPromises.push(FavoritesManager.syncFromSupabase().catch(e => console.warn('[App] FavoritesManager sync failed (non-blocking):', e.message)));
 
         const initResults = await Promise.allSettled(initPromises);
         initResults.forEach((result) => {

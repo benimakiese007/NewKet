@@ -85,6 +85,7 @@ const HEADER_HTML = `
                         class="search-input" autocomplete="off" spellcheck="false">
                         
 
+                    <div id="searchSuggestions" class="search-suggestions"></div>
                 </div>
 
                 <!-- Publish Button (seller only - shown via JS) -->
@@ -110,9 +111,6 @@ const HEADER_HTML = `
                     title="Compte" aria-label="Mon compte">
                     <iconify-icon icon="solar:user-linear" width="22" class="text-white"></iconify-icon>
                 </a>
-
-                <!-- Suggestions Dropdown -->
-                <div id="searchSuggestions" class="search-suggestions"></div>
             </div>
 
             <!-- Desktop Icons (Notifications, Favorites, Account, Theme) -->

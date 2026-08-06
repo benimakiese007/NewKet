@@ -173,6 +173,10 @@ export const ApiClient = {
         }
     },
 
+    async isLocalBackendReady(maxWaitMs = 4500) {
+        return await this._waitForLocalApiReady(maxWaitMs);
+    },
+
     async fetch(endpoint, options = {}) {
         const url = `${API_BASE_URL}${endpoint}`;
 
@@ -229,19 +233,6 @@ export const ApiClient = {
                     if (!didAuthRetry && response && response.status === 401) {
                         didAuthRetry = true;
                         this._invalidateAuthCache();
-
-                        // Also clear potentially stale Supabase persisted tokens to avoid endless 401 loops
-                        // after switching Supabase projects in dev.
-                        try {
-                            const keys = [];
-                            for (let i = 0; i < localStorage.length; i++) {
-                                const key = localStorage.key(i);
-                                if (key && /^sb-[a-z0-9]+-auth-token$/i.test(key)) keys.push(key);
-                            }
-                            keys.forEach((k) => localStorage.removeItem(k));
-                        } catch {
-                        }
-
                         continue;
                     }
 

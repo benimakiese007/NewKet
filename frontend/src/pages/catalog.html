@@ -642,6 +642,11 @@
                 return;
             }
 
+            if (!window.ProductManager || typeof window.buildProductCardHTML !== 'function') {
+                setTimeout(initializeCatalog, 50);
+                return;
+            }
+
             window.__newketCatalogInitialized = true;
             const urlParams = new URLSearchParams(window.location.search);
             const sortSelect = document.getElementById('sortSelect');
@@ -658,6 +663,8 @@
             } else {
                 window.addEventListener('componentsLoaded', prefillSearchInput, { once: true });
             }
+
+            primeCatalogFromCache();
 
             // Sync with existing listeners
             document.querySelectorAll('.filter-checkbox, .filter-radio, .category-filter').forEach(el => {
@@ -803,12 +810,110 @@
             updateSlider();
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.newketInitialized) {
-                initializeCatalog();
-            } else {
-                window.addEventListener('newketInitialized', initializeCatalog);
+        function getCatalogQueryState() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = (document.getElementById('searchInput')?.value || urlParams.get('q') || '').trim().toLowerCase();
+            const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const activeCategories = [...selectedCategories];
+            if (selectedCategories.includes('Femme')) activeCategories.push('Collections Femme');
+            if (selectedCategories.includes('Homme')) activeCategories.push('Style Homme');
+            const activeConditions = Array.from(document.querySelectorAll('.condition-filter:checked')).map(cb => cb.value);
+            const activeRating = parseInt(document.querySelector('.rating-filter:checked')?.value || 0);
+            const activePromo = document.querySelector('.promo-filter:checked') !== null;
+            const sortBy = document.getElementById('sortSelect')?.value || 'default';
+            const minInput = document.getElementById('minPrice');
+            const maxInput = document.getElementById('maxPrice');
+            let minPrice = parseFloat(minInput?.value) || 0;
+            let maxPrice = parseFloat(maxInput?.value) || Infinity;
+
+            if (window.CurrencyManager && CurrencyManager.currentCurrency === 'USD') {
+                minPrice = CurrencyManager.convert(minPrice, false);
+                maxPrice = CurrencyManager.convert(maxPrice, false);
             }
+
+            return { query, activeCategories, activeConditions, activeRating, activePromo, sortBy, minPrice, maxPrice };
+        }
+
+        function filterCatalogProducts(list, state) {
+            let products = Array.isArray(list) ? list.slice() : [];
+            const { query, activeCategories, activeConditions, activeRating, activePromo, sortBy, minPrice, maxPrice } = state;
+
+            if (query) {
+                products = products.filter(p =>
+                    (p.name || '').toLowerCase().includes(query) ||
+                    (p.category || '').toLowerCase().includes(query)
+                );
+            }
+            if (activeCategories.length > 0) {
+                products = products.filter(p => activeCategories.includes(p.category));
+            }
+            if (activeConditions.length === 1) {
+                products = products.filter(p => (p.is_new || p.isNew) === (activeConditions[0] === 'true'));
+            }
+            if (activeRating > 0) {
+                products = products.filter(p => (p.reviews || 0) >= activeRating);
+            }
+            if (activePromo) {
+                products = products.filter(p => p.oldPrice > 0 || p.isPromo || p.is_promo);
+            }
+
+            products = products.filter(p => p.price >= minPrice && p.price <= maxPrice);
+
+            if (sortBy === 'price-asc') {
+                products.sort((a, b) => a.price - b.price);
+            } else if (sortBy === 'price-desc') {
+                products.sort((a, b) => b.price - a.price);
+            } else if (sortBy === 'newest') {
+                products.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+            }
+
+            return products;
+        }
+
+        function getCachedCatalogProducts() {
+            const quickList = Array.isArray(window.ProductManager?.getProducts?.()) ? window.ProductManager.getProducts() : [];
+            if (quickList.length > 0) return quickList;
+
+            try {
+                const raw = localStorage.getItem('newket_products_cache');
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch {
+                return [];
+            }
+        }
+
+        function primeCatalogFromCache() {
+            const grid = document.getElementById('catalog-grid');
+            if (!grid) return false;
+            if (typeof window.buildProductCardHTML !== 'function') return false;
+
+            const cached = getCachedCatalogProducts();
+            if (!cached.length) return false;
+
+            const state = getCatalogQueryState();
+            const filtered = filterCatalogProducts(cached, state);
+            const pageSlice = filtered.slice(0, CATALOG_PAGE_SIZE);
+            const html = pageSlice.map((p, idx) =>
+                window.buildProductCardHTML(p, {
+                    animationClass: 'animate-fade-in',
+                    delay: `${idx * 0.03}s`,
+                    imageLoading: idx < 2 ? 'eager' : 'lazy',
+                    prioritizeImage: idx < 2,
+                    prioritizeAvatar: idx < 2
+                })
+            ).join('');
+
+            if (!html) return false;
+
+            grid.innerHTML = html;
+            if (window.initLazyImages) window.initLazyImages(grid);
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCatalog();
 
             // Sync search query to search input once components (header) are loaded
             const syncSearchInput = () => {
@@ -984,7 +1089,7 @@
             }
 
             // Show skeletons if still loading and no products yet
-            const isLoading = (window.ProductManager && window.ProductManager.loading) || !window.newketInitialized;
+            const isLoading = window.ProductManager && window.ProductManager.loading;
             if (isLoading && products.length === 0 && !append) {
                 grid.innerHTML = (typeof window.buildSkeletonCardHTML === 'function') ? window.buildSkeletonCardHTML(12) : '';
                 return;

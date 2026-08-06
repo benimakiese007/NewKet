@@ -27,6 +27,7 @@ export function normalizeNotificationType(rawType) {
     if (rawType === 'broadcast') return 'info';
     if (rawType.startsWith('broadcast-modal:')) return rawType.split(':').slice(1).join(':') || 'info';
     if (rawType.startsWith('broadcast:')) return rawType.split(':')[1] || 'info';
+    if (rawType.startsWith('push-only:')) return rawType.split(':')[1] || 'info';
     if (rawType === 'error') return 'danger';
     return rawType;
 }

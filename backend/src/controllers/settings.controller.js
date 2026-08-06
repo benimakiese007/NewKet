@@ -115,7 +115,8 @@ export const saveSettings = async (req, res) => {
         setIfColExists('maintenance_mode', config.maintenanceMode);
         setIfColExists('adminEmails', adminEmails);
         setIfColExists('admin_emails', adminEmails);
-        
+
+        const socialLinks = getSocialLinks(config);
         setIfColExists('socialLinks', socialLinks);
         setIfColExists('instagram_link', socialLinks.instagram);
         setIfColExists('facebook_link', socialLinks.facebook);
@@ -155,6 +156,9 @@ export const saveSettings = async (req, res) => {
             .upsert(payload)
             .select()
             .single();
+
+        console.log("Supabase UPSERT payload:", payload);
+        console.log("Supabase UPSERT result data:", data, "error:", error);
 
         if (error) {
             console.error('Erreur Supabase dans saveSettings:', error);

@@ -99,12 +99,10 @@ async function fetchAllPushSubscriptions(buildQuery) {
 async function sendNotificationNow(notification) {
     if (!isConfigured || !notification?.title || !notification?.message) return { sent: 0 };
 
-    const isBroadcast = notification.type === 'broadcast'
-        || String(notification.type || '').startsWith('broadcast:')
-        || String(notification.type || '').startsWith('broadcast-modal:');
-    // Broadcasts are meant to surface as in-app announcement modals only.
-    // They should not trigger a system/device push notification.
-    if (isBroadcast) return { sent: 0 };
+    const isPushOnly = String(notification.type || '').startsWith('push-only:');
+    // Only push-only notifications trigger a device push.
+    // Broadcasts (broadcast: / broadcast-modal:) are in-app only.
+    if (!isPushOnly) return { sent: 0 };
 
     let data;
     try {

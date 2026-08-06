@@ -361,7 +361,17 @@
             }).join('');
         }
 
+        function refreshAuthSensitiveProductUI() {
+            if (!currentProduct) return;
+            renderReviewForm(currentProduct.id);
+        }
+
         async function initPage() {
+            if (!window.ProductManager || !window.SupabaseAdapter || typeof window.buildProductCardHTML !== 'function') {
+                setTimeout(initPage, 50);
+                return;
+            }
+
             showSkeleton();
             if (!productId) {
                 window.location.href = typeof window.resolvePath === 'function' ? window.resolvePath('catalog') : '/src/pages/catalog.html';
@@ -392,6 +402,7 @@
             renderRecommended(p.category); // async — lance en parallèle, pas bloquant
             setupListeners(p);
             initRecentlyViewed(p);
+            refreshAuthSensitiveProductUI();
         }
 
         window.NewKetPageRefresh = async function () {
@@ -987,11 +998,12 @@
         const _origUpdateImageUI = updateImageUI;
         // (déjà défini ci-dessus, on patch juste le cache)
         const _patchUpdateImage = () => { _nkZoomPreloadCache = null; };
+        document.addEventListener('newketInitialized', refreshAuthSensitiveProductUI);
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('thumbnailGrid')?.addEventListener('click', _patchUpdateImage);
         });
 
-        document.addEventListener('DOMContentLoaded', () => { if (window.newketInitialized) initPage(); else window.addEventListener('newketInitialized', initPage); });
+        document.addEventListener('DOMContentLoaded', () => { initPage(); });
     </script>
 
     <div id="confirmModal" role="dialog" aria-modal="true" class="fixed inset-0 z-[110] invisible opacity-0 transition-opacity bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">

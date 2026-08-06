@@ -1,0 +1,177 @@
+╔══════════════════════════════════════════════════════════════════╗
+║              📁 GUIDE DES SCRIPTS — NEWKET                      ║
+║              Dernière mise à jour : Août 2026                   ║
+╚══════════════════════════════════════════════════════════════════╝
+
+Ce dossier contient tous les scripts utilitaires du projet NewKet.
+Il est organisé en 3 sous-dossiers :
+
+  scripts/
+  ├── *.mjs          → Scripts Node.js (la logique principale)
+  ├── bat/           → Fichiers .bat (double-clic pour lancer sur Windows)
+  └── fixes/         → Scripts ponctuels de correction de code
+
+Pour lancer un script, utilise son fichier .bat correspondant
+dans le dossier bat/ — ou tape la commande depuis la racine du projet.
+
+════════════════════════════════════════════════════════════════════
+  📊 STATISTIQUES & DIAGNOSTICS
+════════════════════════════════════════════════════════════════════
+
+► count-stats.bat  (script : count-stats.mjs)
+  ------------------------------------------------------------------
+  LE SCRIPT PRINCIPAL. Lance un bilan complet du projet en une fois.
+  Il affiche :
+    - Le nombre de pages HTML, lignes de code, boutons, liens,
+      formulaires, champs de saisie, modales, images et icônes
+      (analyse des fichiers en local).
+    - Le nombre de produits en ligne, d'images par produit,
+      la moyenne et le record (connexion Supabase en temps réel).
+    - La section GARDE-FOU : liste tous les produits dont l'image
+      est cassée ou inaccessible (probe HTTP sur chaque URL).
+    - Le bilan des utilisateurs : admins, vendeurs, acheteurs.
+  ⏱ Durée : ~30 secondes (probe HTTP des images)
+  Commande : node scripts/count-stats.mjs
+
+► check-garde-fou.bat  (script : check-garde-fou.mjs)
+  ------------------------------------------------------------------
+  Version dédiée UNIQUEMENT au garde-fou.
+  Vérifie chaque image produit et liste celles qui sont :
+    🟡 FALLBACK  : image vide, null, ou URL de remplacement détectée
+    🔴 HTTP ERR  : URL présente mais inaccessible (404, timeout, etc.)
+  Utile quand tu veux juste un rapport rapide sur les images.
+  ⏱ Durée : ~30 secondes
+  Commande : node scripts/check-garde-fou.mjs
+
+► count-product-images.bat  (script : count-product-images.mjs)
+  ------------------------------------------------------------------
+  Compte précisément les vraies images des produits en base.
+  Un produit peut avoir plusieurs images (stockées séparées par ,).
+  Affiche : total d'images, moyenne, produits avec 1 / plusieurs /
+  aucune image, et le produit avec le plus d'images.
+  ⏱ Durée : ~3 secondes
+  Commande : node scripts/count-product-images.mjs
+
+════════════════════════════════════════════════════════════════════
+  🚀 DÉMARRAGE & DÉVELOPPEMENT
+════════════════════════════════════════════════════════════════════
+
+► start_all.bat
+  ------------------------------------------------------------------
+  Lance le backend ET le frontend en même temps.
+  Équivalent de : npm run dev (à la racine)
+
+► start_backend.bat
+  ------------------------------------------------------------------
+  Lance uniquement le serveur backend Express (port 3000).
+  Commande : cd backend && npm run dev
+
+► start_frontend.bat
+  ------------------------------------------------------------------
+  Lance uniquement le serveur frontend Vite (port 5173).
+  Commande : cd frontend && npm run dev
+
+► stop_all.bat
+  ------------------------------------------------------------------
+  Coupe tous les processus Node.js en cours (backend + frontend).
+
+► install_deps.bat
+  ------------------------------------------------------------------
+  Installe toutes les dépendances npm (racine, frontend, backend).
+  À lancer après un git pull ou un premier clone du projet.
+
+► clean_cache.bat
+  ------------------------------------------------------------------
+  Supprime les caches de build et node_modules pour repartir propre.
+  Utile quand quelque chose bug sans raison apparente.
+
+► start_ngrok.bat
+  ------------------------------------------------------------------
+  Lance ngrok pour exposer le backend en HTTPS sur internet.
+  Nécessaire pour tester les webhooks Stripe en local.
+
+════════════════════════════════════════════════════════════════════
+  🗄️ BASE DE DONNÉES & DONNÉES
+════════════════════════════════════════════════════════════════════
+
+► backup_db.bat  (script : backup_db.mjs)
+  ------------------------------------------------------------------
+  Exporte toutes les tables Supabase dans un fichier JSON de backup.
+  Les sauvegardes sont stockées dans le dossier backups/.
+  À lancer avant toute opération risquée sur la base de données.
+  Commande : node scripts/backup_db.mjs
+
+► create_test_product.bat  (script : create_test_product.mjs)
+  ------------------------------------------------------------------
+  Crée un produit de test en base de données.
+  Utile pour vérifier que le flux d'achat fonctionne correctement.
+  Commande : node scripts/create_test_product.mjs
+
+════════════════════════════════════════════════════════════════════
+  🧪 TESTS AUTOMATISÉS (Playwright)
+════════════════════════════════════════════════════════════════════
+  Ces scripts lancent des tests end-to-end (E2E) automatisés.
+  Ils simulent un vrai utilisateur dans le navigateur.
+  Nécessitent que le frontend ET le backend soient démarrés.
+
+► run_tests_all.bat        → Lance TOUS les tests d'un coup
+► run_tests_ui.bat         → Tests d'interface uniquement
+► run_test_auth.bat        → Tests de connexion / inscription
+► run_test_buttons.bat     → Vérifie que tous les boutons répondent
+► run_test_dead_buttons.bat → Détecte les boutons qui ne font rien
+► run_test_checkout.bat    → Teste le tunnel d'achat (panier → paiement)
+► run_test_shopping.bat    → Teste la navigation dans le catalogue
+► run_test_navigation.bat  → Teste les liens et la navigation globale
+► run_test_notifications.bat → Teste le système de notifications
+► run_test_orders.bat      → Teste la gestion des commandes
+► run_test_responsive.bat  → Vérifie le rendu mobile/tablette/desktop
+► run_test_vendor.bat      → Teste le dashboard vendeur
+
+════════════════════════════════════════════════════════════════════
+  🚢 DÉPLOIEMENT
+════════════════════════════════════════════════════════════════════
+
+► deploy.bat
+  ------------------------------------------------------------------
+  Lance le build de production du frontend et le déploie sur Vercel.
+
+► build_prod.bat
+  ------------------------------------------------------------------
+  Lance uniquement le build de production (sans déployer).
+  Utile pour vérifier que le code compile avant de déployer.
+
+► git_rapide.bat
+  ------------------------------------------------------------------
+  Script de commit/push rapide vers GitHub.
+  Te demande un message de commit, puis fait :
+  git add . → git commit → git push
+
+► push.bat
+  ------------------------------------------------------------------
+  Push uniquement (sans add/commit). Pour les cas où tu as déjà
+  fait ton commit manuellement.
+
+════════════════════════════════════════════════════════════════════
+  🔧 SCRIPTS DE CORRECTION (dossier fixes/)
+════════════════════════════════════════════════════════════════════
+  Ces scripts ont été utilisés ponctuellement pour corriger des
+  problèmes spécifiques dans le code. Ils sont gardés en archive.
+
+  fix-encoding.cjs         → Correction d'encodage de caractères
+  fix_modal_placement.cjs  → Repositionnement de modales dans le HTML
+  fix_synctab.cjs          → Synchronisation des onglets
+  fix_switchtab.cjs        → Correction du switch entre onglets
+  copy_modal.cjs           → Duplication de modales entre pages
+  extract_backup.cjs       → Extraction de données depuis un backup
+
+════════════════════════════════════════════════════════════════════
+  💡 CONSEILS
+════════════════════════════════════════════════════════════════════
+
+  - Lance count-stats.bat régulièrement pour avoir une vue d'ensemble.
+  - Lance backup_db.bat avant toute opération risquée en base.
+  - Si quelque chose bug en local → clean_cache.bat puis install_deps.bat.
+  - Si un vendeur te signale une image manquante → check-garde-fou.bat.
+  - Avant chaque déploiement → run_tests_all.bat pour vérifier.
+
+══════════════════════════════════════════════════════════════════════

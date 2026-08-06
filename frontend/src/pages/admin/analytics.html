@@ -337,7 +337,21 @@
         let lastResponse = null;
         let usersDirectory = [];
         let selectedUserRecord = null;
+        let drilldownBodyOverflow = '';
+        let drilldownParentOverflow = '';
         const ANALYTICS_STATE_STORAGE_KEY = 'newket_admin_behavior_filters';
+
+        function getDrilldownModalNode() {
+            const localModal = document.getElementById('drilldownModal');
+            if (localModal) return localModal;
+
+            try {
+                const parentDoc = window.parent && window.parent !== window ? window.parent.document : null;
+                return parentDoc ? parentDoc.getElementById('drilldownModal') : null;
+            } catch (_) {
+                return null;
+            }
+        }
 
         const state = {
             days: 7,
@@ -786,6 +800,26 @@
                     </div>
                 `;
             }).join('');
+
+            if (clickable && kind) {
+                el.querySelectorAll('[data-drill-kind][data-drill-value]').forEach((node) => {
+                    if (node.dataset.drillBound === '1') return;
+                    node.dataset.drillBound = '1';
+                    const open = () => {
+                        const nodeKind = node.getAttribute('data-drill-kind');
+                        const nodeValue = node.getAttribute('data-drill-value');
+                        if (nodeKind && nodeValue) {
+                            openDrilldown(nodeKind, nodeValue);
+                        }
+                    };
+                    node.addEventListener('click', open);
+                    node.addEventListener('keydown', (event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') return;
+                        event.preventDefault();
+                        open();
+                    });
+                });
+            }
         }
 
         function renderSummary(data) {
@@ -1002,11 +1036,54 @@
         }
 
         async function openDrilldown(kind, value) {
-            const modal = document.getElementById('drilldownModal');
-            const titleEl = document.getElementById('drilldownTitle');
-            const metaEl = document.getElementById('drilldownMeta');
-            const listEl = document.getElementById('drilldownList');
-            const tbody = document.getElementById('drilldownEventsBody');
+            const modal = getDrilldownModalNode();
+            if (!modal) return;
+
+            const modalDoc = modal.ownerDocument || document;
+            const titleEl = modalDoc.getElementById('drilldownTitle');
+            const metaEl = modalDoc.getElementById('drilldownMeta');
+            const listEl = modalDoc.getElementById('drilldownList');
+            const tbody = modalDoc.getElementById('drilldownEventsBody');
+
+            if (!titleEl || !metaEl || !listEl || !tbody) return;
+
+            // When this page is embedded in the admin shell iframe, render the modal
+            // in the parent document so it is centered on the visible screen, not
+            // inside the scrollable iframe content.
+            const parentDoc = (() => {
+                try {
+                    return window.parent && window.parent !== window ? window.parent.document : null;
+                } catch (_) {
+                    return null;
+                }
+            })();
+            const mountDoc = parentDoc || document;
+            const mountBody = mountDoc.body || document.body;
+            if (mountBody && modal.parentElement !== mountBody) {
+                mountBody.appendChild(modal);
+            }
+            drilldownBodyOverflow = document.body.style.overflow;
+            if (parentDoc?.body) {
+                drilldownParentOverflow = parentDoc.body.style.overflow;
+                parentDoc.body.style.overflow = 'hidden';
+            }
+            document.body.style.overflow = 'hidden';
+
+            Object.assign(modal.style, {
+                position: 'fixed',
+                top: '0',
+                right: '0',
+                bottom: '0',
+                left: '0',
+                width: '100vw',
+                height: '100dvh',
+                maxHeight: '100dvh',
+                zIndex: '10000',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflowY: 'auto'
+            });
 
             titleEl.textContent = kind === 'page' ? normalizeLabel(value) : value;
             metaEl.innerHTML = '<span class="skeleton skeleton-text inline-block align-middle" style="width:140px;height:10px;margin:0;"></span>';
@@ -1068,8 +1145,31 @@
         }
 
         function closeDrilldown() {
-            const modal = document.getElementById('drilldownModal');
+            const modal = getDrilldownModalNode();
+            if (!modal) return;
             modal.classList.add('hidden');
+            modal.style.display = '';
+            modal.style.position = '';
+            modal.style.top = '';
+            modal.style.right = '';
+            modal.style.bottom = '';
+            modal.style.left = '';
+            modal.style.width = '';
+            modal.style.height = '';
+            modal.style.maxHeight = '';
+            modal.style.zIndex = '';
+            modal.style.alignItems = '';
+            modal.style.justifyContent = '';
+            modal.style.overflowY = '';
+            document.body.style.overflow = drilldownBodyOverflow;
+            try {
+                const parentDoc = window.parent && window.parent !== window ? window.parent.document : null;
+                if (parentDoc?.body) {
+                    parentDoc.body.style.overflow = drilldownParentOverflow;
+                }
+            } catch (_) {}
+            drilldownBodyOverflow = '';
+            drilldownParentOverflow = '';
         }
 
         function exportBlob(filename, mime, content) {

@@ -246,9 +246,27 @@
     </div>
 
     <script>
+        // Flag : true si l'utilisateur a modifié un champ sans encore sauvegarder
+        let _settingsIsDirty = false;
+
         document.addEventListener('DOMContentLoaded', () => {
+            // Chargement initial
             loadConfig();
-            window.addEventListener('configUpdated', loadConfig);
+
+            // Marquer dirty dès qu'un champ est modifié
+            const allInputs = document.querySelectorAll(
+                '#shopName, #shopEmail, #supportPhone, #shopCurrency, #exchangeRate, #targetAOV, #platformCommissionRate, #socialInstagram, #socialFacebook, #socialX, #socialLinkedin'
+            );
+            allInputs.forEach(input => {
+                input.addEventListener('input', () => { _settingsIsDirty = true; });
+                input.addEventListener('change', () => { _settingsIsDirty = true; });
+            });
+
+            // Si une mise à jour config arrive depuis Supabase Realtime,
+            // NE PAS écraser les champs si l'utilisateur est en train d'éditer
+            window.addEventListener('configUpdated', () => {
+                if (!_settingsIsDirty) loadConfig();
+            });
             window.addEventListener('newketInitialized', loadConfig);
         });
 
@@ -259,7 +277,6 @@
                 document.getElementById('shopName').value = config.shopName || '';
                 document.getElementById('shopEmail').value = config.email || '';
                 document.getElementById('supportPhone').value = config.supportPhone || '';
-
 
                 document.getElementById('shopCurrency').value = config.currencySymbol || 'CDF';
                 document.getElementById('exchangeRate').value = config.exchangeRate || 2500;
@@ -310,6 +327,9 @@
                 try {
                     await ConfigManager.saveConfig(newConfig);
                     window.CurrencyManager?.setCurrency?.(newConfig.currencySymbol);
+                    
+                    // Réinitialiser le flag de modification car on vient de sauvegarder
+                    _settingsIsDirty = false;
 
                     btn.innerHTML = '<iconify-icon icon="solar:check-circle-bold" width="22"></iconify-icon> Configuration Enregistrée';
                     btn.classList.add('bg-green-600');
@@ -337,29 +357,26 @@
         });
 
         document.getElementById('maintenanceMode').addEventListener('change', async (e) => {
-            if (window.ConfigManager) {
-                const newValue = e.target.checked;
-                // Passer une copie, pas la référence directe,
-                // pour éviter que la mutation affect ConfigManager.config
-                // avant que le save soit confirmé.
-                const configSnapshot = { ...ConfigManager.getConfig(), maintenanceMode: newValue };
-                try {
-                    await ConfigManager.saveConfig(configSnapshot);
-
+            if (!window.ConfigManager) return;
+            const newValue = e.target.checked;
+            // Le toggle reste dans sa nouvelle position quoi qu'il arrive.
+            // On sauvegarde en arrière-plan sans jamais revenir en arrière.
+            ConfigManager.saveConfig({ ...ConfigManager.getConfig(), maintenanceMode: newValue })
+                .then(() => {
                     if (typeof showToast === 'function') {
-                        showToast(newValue ? "Mode Maintenance Activé : Accès public désactivé" : "Mode Maintenance Désactivé : Accès public rétabli", "success");
+                        showToast(
+                            newValue ? "Mode Maintenance Activé" : "Mode Maintenance Désactivé",
+                            "success"
+                        );
                     }
-                } catch (error) {
+                })
+                .catch((error) => {
                     console.error('[NewKet] Maintenance mode save failed:', error?.message || error?.status || error);
-                    // Revenir à l'état précédent dans le config ET dans la DB locale
-                    const previousValue = !newValue;
-                    e.target.checked = previousValue;
-                    await ConfigManager.saveConfig({ ...ConfigManager.getConfig(), maintenanceMode: previousValue }).catch(() => {});
+                    // On informe l'utilisateur mais on ne touche PAS au toggle
                     if (typeof showToast === 'function') {
-                        showToast("Impossible de sauvegarder le mode maintenance. Vérifiez votre connexion.", "error");
+                        showToast("Sauvegarde échouée — le mode sera corrigé au prochain rechargement.", "error");
                     }
-                }
-            }
+                });
         });
 
 

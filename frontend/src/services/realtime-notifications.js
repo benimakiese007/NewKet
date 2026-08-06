@@ -116,6 +116,12 @@ const AppNotifications = {
                                         (userEmail && notif.user_email === userEmail);
 
                         if (isForMe) {
+                            // push-only: device notification only — no in-app display
+                            if (String(notif.type || '').startsWith('push-only:')) {
+                                if (window.NotificationManager) window.NotificationManager.init(true);
+                                return;
+                            }
+
                             const isDashboardPage = window.location.pathname.includes('customer-dashboard') || 
                                                     window.location.pathname.includes('vendor-dashboard') ||
                                                     window.location.pathname.includes('admin/');

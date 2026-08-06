@@ -88,7 +88,7 @@ const AuthManager = {
                     }
                 });
 
-                const session = await window.SupabaseAdapter.getSession(3000);
+                const session = await window.SupabaseAdapter.getSession(8000);
                 
                 if (session) {
                     const user = session.user;
@@ -110,7 +110,20 @@ const AuthManager = {
             }
         } catch (err) {
             console.error('[NewKet Auth] Unexpected error during init:', err);
-            this.handleLogoutCleanup();
+            
+            // If the network is too slow and getSession times out, DO NOT wipe tokens.
+            // Instead, try to recover the role from local storage so the PWA offline mode works.
+            if (err.message && err.message.includes('timed out')) {
+                console.warn('[NewKet Auth] Session init timed out. Falling back to offline state.');
+                const storedRole = localStorage.getItem('newketRole');
+                if (storedRole) {
+                    this.role = storedRole;
+                    this.status = localStorage.getItem('newketUserStatus') || 'approved';
+                    this.sellerType = localStorage.getItem('newketSellerType') || null;
+                }
+            } else {
+                this.handleLogoutCleanup();
+            }
         } finally {
             clearTimeout(failSafeTimer);
             this._authChecking = false;
