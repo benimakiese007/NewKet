@@ -14,6 +14,10 @@ test.setTimeout(120_000);
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Chemins
 const PAGES_DIR = path.resolve(__dirname, '../../frontend/src/pages');

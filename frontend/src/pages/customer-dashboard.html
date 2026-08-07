@@ -1200,8 +1200,8 @@
                     data: { avatar_url: publicUrl }
                 });
 
-                const currentProfile = ProfileManager.getProfile();
-                ProfileManager.saveProfile({ ...currentProfile, avatar: publicUrl });
+                const currentProfile = window.ProfileManager?.getProfile?.() || {};
+                window.ProfileManager?.saveProfile?.({ ...currentProfile, avatar: publicUrl });
 
                 const currentName = currentProfile.name || localStorage.getItem('newketUserName') || user.email || 'Utilisateur';
                 renderCustomerProfileAvatarPreview(currentName, publicUrl);
@@ -1585,7 +1585,7 @@
             })();
 
             // Load Profile Settings
-            const applyCustomerProfileSettings = (profile = ProfileManager.getProfile()) => {
+            const applyCustomerProfileSettings = (profile = window.ProfileManager?.getProfile?.() || {}) => {
                 const nameInput = document.getElementById('profName');
                 const emailInput = document.getElementById('profEmail');
                 const phoneInput = document.getElementById('profPhone');
@@ -1600,7 +1600,7 @@
                 }
             };
 
-            const profile = ProfileManager.getProfile();
+            const profile = window.ProfileManager?.getProfile?.() || {};
             applyCustomerProfileSettings(profile);
             bindReferralPanelActions();
             await refreshReferralPanel();
@@ -1632,7 +1632,7 @@
             if (nameEl) nameEl.textContent = displayName;
 
             const refreshCustomerSidebarAvatar = async () => {
-                const currentProfile = ProfileManager.getProfile();
+                const currentProfile = window.ProfileManager?.getProfile?.() || {};
                 const currentName = currentProfile.name || localStorage.getItem('newketUserName') || displayName;
                 let currentAvatar = currentProfile.avatar || localStorage.getItem('newketUserAvatar') || avatarUrl;
 
@@ -1669,10 +1669,10 @@
             refreshCustomerSidebarAvatar();
             window.addEventListener('profileUpdated', refreshCustomerSidebarAvatar);
             window.addEventListener('profileUpdated', (event) => {
-                applyCustomerProfileSettings(event?.detail || ProfileManager.getProfile());
+                applyCustomerProfileSettings(event?.detail || window.ProfileManager?.getProfile?.() || {});
             });
             window.addEventListener('profileUpdated', () => {
-                const updatedProfile = ProfileManager.getProfile();
+                const updatedProfile = window.ProfileManager?.getProfile?.() || {};
                 renderCustomerProfileAvatarPreview(
                     updatedProfile.name || localStorage.getItem('newketUserName') || displayName,
                     updatedProfile.avatar || localStorage.getItem('newketUserAvatar') || ''
@@ -1730,7 +1730,7 @@
                 const result = await window.ApiClient.put('/profile/me', { name: profile.name, phone: profile.phone });
                 const saved = result?.data || {};
                 const savedPhone = saved.phone || saved.store_phone || profile.phone;
-                ProfileManager.saveProfile({ ...profile, ...saved, phone: savedPhone });
+                window.ProfileManager?.saveProfile?.({ ...profile, ...saved, phone: savedPhone });
                 document.getElementById('userDisplayName').textContent = (saved.name || name) || 'Mon Compte';
                 renderAvatar(saved.name || name, (saved.avatar || profile.avatar) || localStorage.getItem('newketUserAvatar'), 'userAvatarImg', 'userAvatarPlaceholder');
                 showToast('Profil mis à jour avec succès !', 'success');
@@ -4414,7 +4414,6 @@
 </body>
 
 </html>
-
 
 
 

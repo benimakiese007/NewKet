@@ -16,6 +16,7 @@ import './orders.js';
 import './favorites.js';
 import './currency.js';
 import './managers.js';
+import './profile-manager.js';
 
 import './ui-helpers.js';
 import './ui.js';
@@ -56,7 +57,6 @@ const deferredImports = [
     { load: () => import('./pull-to-refresh.js') },
     { load: () => import('./realtime-notifications.js'), requiresBackend: true },
     { load: () => import('./presence-manager.js') },
-    { load: () => import('./profile-manager.js') },
     { load: () => import('./user-manager.js'), requiresBackend: true }
 ];
 
@@ -64,7 +64,6 @@ if (isAdminPage) {
     deferredImports.push(
         { load: () => import('./branding-manager.js'), requiresBackend: true },
         { load: () => import('./admin-layout.js') },
-        { load: () => import('./security-page.js') },
         { load: () => import('./invoice-qr.js') }
     );
 } else {
@@ -72,6 +71,7 @@ if (isAdminPage) {
         { load: () => import('./invoice-qr.js') }
     );
 }
+deferredImports.push({ load: () => import('./security-page.js') });
 
 const resolveBackendReady = async () => {
     if (!isLocalHost) return true;

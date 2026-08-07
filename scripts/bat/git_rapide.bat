@@ -29,19 +29,15 @@ REM Remplacer automatiquement les espaces par des tirets pour eviter les bugs Gi
 IF NOT "%branche%"=="" set branche=%branche: =-%
 
 echo.
-echo [1/4] Preparation des fichiers (git add .)...
-git add .
+echo [1/3] Preparation des fichiers (git add -A)...
+git add -A
 
 echo.
-echo [2/4] Creation de la sauvegarde en local (git commit)...
+echo [2/3] Creation de la sauvegarde en local (git commit)...
 git commit -m "%msg%"
 
 echo.
-echo [3/4] Mise a jour de la base de donnees Supabase (npx supabase db push)...
-call npx supabase db push
-
-echo.
-echo [4/4] Envoi vers GitHub (git push)...
+echo [3/3] Envoi vers GitHub (git push)...
 
 IF "%branche%"=="" (
     REM Si l'utilisateur n'a rien tape, on fait un push normal

@@ -432,7 +432,7 @@
             document.getElementById('productDescription').textContent = p.description || "Aucune description disponible.";
 
             const priceStr = window.CurrencyManager ? CurrencyManager.formatPrice(p.price) : p.price + ' FC';
-            document.getElementById('productPrice').textContent = priceStr;
+            const pp = document.getElementById('productPrice'); if(pp) { pp.textContent = priceStr; pp.setAttribute('data-price-cdf', p.price); }
 
             const oldPrice = p.oldPrice || p.old_price;
             const oldPriceEl = document.getElementById('productOldPrice');
@@ -443,7 +443,7 @@
                 if (hasPromo) {
                     const oldPriceStr = window.CurrencyManager ? CurrencyManager.formatPrice(oldPrice) : `${Number(oldPrice).toLocaleString()} FC`;
                     const discountPercent = Math.round(((Number(oldPrice) - Number(p.price)) / Number(oldPrice)) * 100);
-                    oldPriceEl.textContent = oldPriceStr;
+                    oldPriceEl.textContent = oldPriceStr; oldPriceEl.setAttribute('data-price-cdf', oldPrice);
                     oldPriceEl.classList.remove('hidden');
                     discountBadgeEl.textContent = `-${discountPercent}%`;
                     discountBadgeEl.classList.remove('hidden');
