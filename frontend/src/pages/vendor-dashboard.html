@@ -6322,8 +6322,9 @@
             if (!window.ProfileManager) return;
             const profile = window.ProfileManager.getProfile();
             if (!profile) return;
+            const compactUsername = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, '');
             
-            if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = profile.username || profile.company_name || '';
+            if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = compactUsername(profile.username || profile.company_name || '');
             if (document.getElementById('vSetEmail')) document.getElementById('vSetEmail').value = localStorage.getItem('newketUserEmail') || profile.email || '';
             if (document.getElementById('vSetPhone')) document.getElementById('vSetPhone').value = profile.store_phone || profile.phone || '';
             if (document.getElementById('vSetShipping') && profile.shipping_time) document.getElementById('vSetShipping').value = profile.shipping_time;
@@ -6640,8 +6641,9 @@
                             }
 
                             // Refresh UI
-                            if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.username;
-                            if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = newProfile.username;
+                            const compactUsername = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, '');
+                            if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = compactUsername(newProfile.username);
+                            if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = compactUsername(newProfile.username);
                         });
                     }
 

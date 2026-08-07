@@ -26,7 +26,16 @@ LANGUAGE sql
 IMMUTABLE
 AS $$
   SELECT NULLIF(
-    regexp_replace(lower(trim(coalesce(input, ''))), '\s+', '', 'g'),
+    regexp_replace(
+      translate(
+        lower(trim(coalesce(input, ''))),
+        'àáâãäåæçèéêëìíîïñòóôõöùúûüýÿÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖÙÚÛÜÝŸ',
+        'aaaaaaaceeeeiiiinooooouuuuyyAAAAAAACEEEEIIIINOOOOOUUUUYY'
+      ),
+      '\s+',
+      '',
+      'g'
+    ),
     ''
   );
 $$;

@@ -18,6 +18,8 @@ function normalizeReferralCode(value) {
 
 function normalizeLoginUsername(value) {
     return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
         .trim()
         .toLowerCase()
         .replace(/\s+/g, '');
@@ -1321,7 +1323,8 @@ const AuthManager = {
 
         const avatarUrl = localStorage.getItem('newketUserAvatar');
         const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
-        const displayName = profile.username || profile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || 'Mon Compte';
+        const compactUsername = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, '');
+        const displayName = compactUsername(profile.username || localStorage.getItem('newketUserUsername')) || profile.name || localStorage.getItem('newketUserName') || 'Mon Compte';
         const initials = typeof window.getInitials === 'function' ? window.getInitials(displayName) : (displayName?.trim()?.charAt(0)?.toUpperCase() || '?');
         const hideAccountIcon = (icon) => {
             if (!icon) return;
@@ -1533,7 +1536,7 @@ const AuthManager = {
             let userName = 'Mon Compte';
             if (window.ProfileManager) {
                 const p = window.ProfileManager.getProfile();
-                if (p && p.name) userName = p.name;
+                if (p && (p.username || p.name)) userName = compactUsername(p.username || p.name) || p.name;
             }
 
             if (this.role === 'admin') {
@@ -1543,7 +1546,7 @@ const AuthManager = {
             } else if (this.role === 'supplier') {
                 loggedLink.href = window.resolvePath('vendor-dashboard');
                 // Fetch company if available, fallback to user name
-                const companyName = localStorage.getItem('newketCompany') || profile.username || userName;
+                const companyName = compactUsername(localStorage.getItem('newketCompany') || profile.username) || userName;
                 if (loggedName) loggedName.textContent = companyName;
                 if (loggedRole) loggedRole.textContent = 'Vendeur Premium';
             } else {

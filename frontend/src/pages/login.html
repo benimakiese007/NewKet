@@ -656,7 +656,12 @@
         const signupRoleInputs = Array.from(document.querySelectorAll('input[name="role"]'));
 
         function normalizeUsername(value) {
-            return String(value || '').trim().toLowerCase().replace(/\s+/g, '');
+            return String(value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '');
         }
 
         function validateUsernameFormat(value) {

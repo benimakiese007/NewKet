@@ -1604,6 +1604,7 @@
             })();
 
             // Load Profile Settings
+            const compactUsername = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, '');
             const applyCustomerProfileSettings = (profile = window.ProfileManager?.getProfile?.() || {}) => {
                 const firstNameInput = document.getElementById('profFirstName');
                 const lastNameInput = document.getElementById('profLastName');
@@ -1612,7 +1613,7 @@
                 const phoneInput = document.getElementById('profPhone');
                 if (firstNameInput) firstNameInput.value = profile.first_name || '';
                 if (lastNameInput) lastNameInput.value = profile.last_name || '';
-                if (usernameInput) usernameInput.value = profile.username || profile.name || '';
+                if (usernameInput) usernameInput.value = compactUsername(profile.username || profile.name || '');
                 if (emailInput) emailInput.value = profile.email || '';
                 if (phoneInput) {
                     phoneInput.value =
@@ -1629,7 +1630,7 @@
             await refreshReferralPanel();
             const avatarUploadBtn = document.getElementById('changeProfileAvatarBtn');
             const avatarUploadInput = document.getElementById('customerAvatarUploadInput');
-            const initialAvatarName = profile.username || profile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || localStorage.getItem('newketUserEmail') || 'Utilisateur';
+            const initialAvatarName = compactUsername(profile.username || profile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '') || localStorage.getItem('newketUserEmail') || 'Utilisateur';
             const initialAvatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar') || '';
             renderCustomerProfileAvatarPreview(initialAvatarName, initialAvatarUrl);
 
@@ -1646,7 +1647,7 @@
             initCustomerResidenceMap();
 
             // Avatar & name
-            const userName = profile.username || profile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName');
+            const userName = compactUsername(profile.username || profile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName'));
             const userEmail = localStorage.getItem('newketUserEmail');
             const displayName = userName || (userEmail ? userEmail.split('@')[0] : 'Utilisateur');
             const avatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar');
@@ -1656,7 +1657,7 @@
 
             const refreshCustomerSidebarAvatar = async () => {
                 const currentProfile = window.ProfileManager?.getProfile?.() || {};
-                const currentName = currentProfile.username || currentProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || displayName;
+                const currentName = compactUsername(currentProfile.username || currentProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName')) || displayName;
                 let currentAvatar = currentProfile.avatar || localStorage.getItem('newketUserAvatar') || avatarUrl;
 
                 if (!currentAvatar && window.SupabaseAdapter?.getClient) {
@@ -1697,7 +1698,7 @@
             window.addEventListener('profileUpdated', () => {
                 const updatedProfile = window.ProfileManager?.getProfile?.() || {};
                 renderCustomerProfileAvatarPreview(
-                    updatedProfile.username || updatedProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || displayName,
+                    compactUsername(updatedProfile.username || updatedProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName')) || displayName,
                     updatedProfile.avatar || localStorage.getItem('newketUserAvatar') || ''
                 );
             });

@@ -5,6 +5,15 @@
 const ProfileManager = {
     _profile: null,
 
+    _normalizeUsername(value) {
+        return String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, '');
+    },
+
     _normalizeHomeLocation(location) {
         if (!location || typeof location !== 'object') return null;
 
@@ -45,7 +54,7 @@ const ProfileManager = {
             } else {
                 // Fallback to basic info from auth
                 this._profile = {
-                    username: localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '',
+                    username: this._normalizeUsername(localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || ''),
                     first_name: localStorage.getItem('newketUserFirstName') || '',
                     last_name: localStorage.getItem('newketUserLastName') || '',
                     name: localStorage.getItem('newketUserName') || localStorage.getItem('newketUserUsername') || '',
@@ -56,7 +65,9 @@ const ProfileManager = {
             }
 
             if (!this._profile.username) {
-                this._profile.username = this._profile.name || '';
+                this._profile.username = this._normalizeUsername(this._profile.name || '');
+            } else {
+                this._profile.username = this._normalizeUsername(this._profile.username);
             }
 
             if (!this._profile.name) {
@@ -92,6 +103,7 @@ const ProfileManager = {
     },
 
     saveProfile(data) {
+        const normalizedUsername = this._normalizeUsername(data?.username || data?.name || '');
         const nextProfile = { ...this._profile, ...data };
         const normalizedHomeLocation = this._normalizeHomeLocation(data?.home_location);
         if ('home_location' in (data || {})) {
@@ -99,18 +111,22 @@ const ProfileManager = {
             else delete nextProfile.home_location;
         }
 
+        if (normalizedUsername) {
+            nextProfile.username = normalizedUsername;
+        }
+
         if (data?.username && !nextProfile.name) {
-            nextProfile.name = data.username;
+            nextProfile.name = normalizedUsername || data.username;
         }
         if (data?.name && !nextProfile.username) {
-            nextProfile.username = data.name;
+            nextProfile.username = normalizedUsername || data.name;
         }
 
         this._profile = nextProfile;
         localStorage.setItem('newketProfile', JSON.stringify(this._profile));
         
         // Also update individual keys for compatibility
-        if (data.username) localStorage.setItem('newketUserUsername', data.username);
+        if (normalizedUsername) localStorage.setItem('newketUserUsername', normalizedUsername);
         if (data.first_name !== undefined) {
             if (data.first_name) localStorage.setItem('newketUserFirstName', data.first_name);
             else localStorage.removeItem('newketUserFirstName');
@@ -120,7 +136,7 @@ const ProfileManager = {
             else localStorage.removeItem('newketUserLastName');
         }
         if (data.name) localStorage.setItem('newketUserName', data.name);
-        else if (data.username) localStorage.setItem('newketUserName', data.username);
+        else if (normalizedUsername) localStorage.setItem('newketUserName', normalizedUsername);
         if (data.email) localStorage.setItem('newketUserEmail', data.email);
         const resolvedPhone =
             data.phone ||
@@ -189,8 +205,11 @@ const ProfileManager = {
             });
 
             if (profile) {
+                const normalizedUsername = this._normalizeUsername(
+                    profile.username || profile.company_name || profile.name || this._profile.username || this._profile.name
+                );
                 this.saveProfile({
-                    username: profile.username || this._profile.username || profile.name || this._profile.name,
+                    username: normalizedUsername,
                     name: profile.name || profile.username || this._profile.name || this._profile.username,
                     first_name: profile.first_name || this._profile.first_name,
                     last_name: profile.last_name || this._profile.last_name,
