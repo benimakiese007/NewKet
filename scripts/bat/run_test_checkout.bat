@@ -5,6 +5,7 @@ echo ================================
 echo   Test : Paiement / Checkout
 echo ================================
 echo.
+cd /d "%~dp0\..\.."
 npx playwright test tests/e2e/checkout.spec.js --reporter=list
 echo.
 pause

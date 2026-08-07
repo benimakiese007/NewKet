@@ -6,6 +6,7 @@ echo.
 echo Lance le test sur toutes les pages (publiques + dashboard acheteur + vendeur)
 echo Le rapport s'affichera dans le terminal et dans playwright-report\
 echo.
+cd /d "%~dp0\..\.."
 call npx playwright test tests/e2e/buttons-check.spec.js --reporter=list
 echo.
 echo ==============================================

@@ -7,6 +7,7 @@ echo ============================================
 echo.
 echo Demarrage de Playwright...
 echo.
+cd /d "%~dp0\..\.."
 npx playwright test --reporter=list
 echo.
 echo ============================================

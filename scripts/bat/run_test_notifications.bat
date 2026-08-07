@@ -23,6 +23,7 @@ echo.
 
 cd /d "%~dp0\..\.."
 
+cd /d "%~dp0\..\.."
 call npx playwright test tests/e2e/notifications.spec.js --reporter=list
 
 echo.
