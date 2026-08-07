@@ -530,9 +530,21 @@
                                 </button>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
-                                <input type="text" id="profName"
-                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
+                                <input type="text" id="profFirstName"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors" autocomplete="given-name">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nom</label>
+                                <input type="text" id="profLastName"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors" autocomplete="family-name">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nom d'utilisateur</label>
+                                <input type="text" id="profUsername"
+                                    class="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:border-black transition-colors" autocomplete="username" autocapitalize="none" spellcheck="false">
                             </div>
 
                             <div>
@@ -1203,7 +1215,7 @@
                 const currentProfile = window.ProfileManager?.getProfile?.() || {};
                 window.ProfileManager?.saveProfile?.({ ...currentProfile, avatar: publicUrl });
 
-                const currentName = currentProfile.name || localStorage.getItem('newketUserName') || user.email || 'Utilisateur';
+                const currentName = currentProfile.username || currentProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || user.email || 'Utilisateur';
                 renderCustomerProfileAvatarPreview(currentName, publicUrl);
                 showToast('Photo de profil mise à jour.', 'success');
             } catch (error) {
@@ -1484,8 +1496,15 @@
                 const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
                 if (user?.email) localStorage.setItem('newketUserEmail', user.email);
                 if (user?.id) localStorage.setItem('newketUserId', user.id);
-                const name = user?.user_metadata?.full_name || user?.user_metadata?.name || '';
-                if (name) localStorage.setItem('newketUserName', name);
+                const username = user?.user_metadata?.username || user?.user_metadata?.name || '';
+                const firstName = user?.user_metadata?.first_name || '';
+                const lastName = user?.user_metadata?.last_name || '';
+                if (username) {
+                    localStorage.setItem('newketUserUsername', username);
+                    localStorage.setItem('newketUserName', username);
+                }
+                if (firstName) localStorage.setItem('newketUserFirstName', firstName);
+                if (lastName) localStorage.setItem('newketUserLastName', lastName);
             } catch (_) {}
         }
 
@@ -1586,10 +1605,14 @@
 
             // Load Profile Settings
             const applyCustomerProfileSettings = (profile = window.ProfileManager?.getProfile?.() || {}) => {
-                const nameInput = document.getElementById('profName');
+                const firstNameInput = document.getElementById('profFirstName');
+                const lastNameInput = document.getElementById('profLastName');
+                const usernameInput = document.getElementById('profUsername');
                 const emailInput = document.getElementById('profEmail');
                 const phoneInput = document.getElementById('profPhone');
-                if (nameInput) nameInput.value = profile.name || '';
+                if (firstNameInput) firstNameInput.value = profile.first_name || '';
+                if (lastNameInput) lastNameInput.value = profile.last_name || '';
+                if (usernameInput) usernameInput.value = profile.username || profile.name || '';
                 if (emailInput) emailInput.value = profile.email || '';
                 if (phoneInput) {
                     phoneInput.value =
@@ -1606,7 +1629,7 @@
             await refreshReferralPanel();
             const avatarUploadBtn = document.getElementById('changeProfileAvatarBtn');
             const avatarUploadInput = document.getElementById('customerAvatarUploadInput');
-            const initialAvatarName = profile.name || localStorage.getItem('newketUserName') || localStorage.getItem('newketUserEmail') || 'Utilisateur';
+            const initialAvatarName = profile.username || profile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || localStorage.getItem('newketUserEmail') || 'Utilisateur';
             const initialAvatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar') || '';
             renderCustomerProfileAvatarPreview(initialAvatarName, initialAvatarUrl);
 
@@ -1623,7 +1646,7 @@
             initCustomerResidenceMap();
 
             // Avatar & name
-            const userName = profile.name || localStorage.getItem('newketUserName');
+            const userName = profile.username || profile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName');
             const userEmail = localStorage.getItem('newketUserEmail');
             const displayName = userName || (userEmail ? userEmail.split('@')[0] : 'Utilisateur');
             const avatarUrl = profile.avatar || localStorage.getItem('newketUserAvatar');
@@ -1633,7 +1656,7 @@
 
             const refreshCustomerSidebarAvatar = async () => {
                 const currentProfile = window.ProfileManager?.getProfile?.() || {};
-                const currentName = currentProfile.name || localStorage.getItem('newketUserName') || displayName;
+                const currentName = currentProfile.username || currentProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || displayName;
                 let currentAvatar = currentProfile.avatar || localStorage.getItem('newketUserAvatar') || avatarUrl;
 
                 if (!currentAvatar && window.SupabaseAdapter?.getClient) {
@@ -1674,7 +1697,7 @@
             window.addEventListener('profileUpdated', () => {
                 const updatedProfile = window.ProfileManager?.getProfile?.() || {};
                 renderCustomerProfileAvatarPreview(
-                    updatedProfile.name || localStorage.getItem('newketUserName') || displayName,
+                    updatedProfile.username || updatedProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || displayName,
                     updatedProfile.avatar || localStorage.getItem('newketUserAvatar') || ''
                 );
             });
@@ -1720,23 +1743,43 @@
         // Profile Form Submit
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('profName').value;
+            const firstName = document.getElementById('profFirstName').value.trim();
+            const lastName = document.getElementById('profLastName').value.trim();
+            const username = document.getElementById('profUsername').value.trim().toLowerCase().replace(/\s+/g, '');
+            if (!username || username.length < 8 || !/^[a-z0-9_-]+$/.test(username) || !/[a-z]/.test(username)) {
+                showToast('Le nom d\'utilisateur doit contenir au moins 8 caracteres, en minuscules, avec au moins une lettre.', 'error');
+                return;
+            }
             const profile = {
-                name,
+                first_name: firstName,
+                last_name: lastName,
+                username,
                 email: document.getElementById('profEmail').value,
                 phone: document.getElementById('profPhone').value
             };
             try {
-                const result = await window.ApiClient.put('/profile/me', { name: profile.name, phone: profile.phone });
+                const result = await window.ApiClient.put('/profile/me', {
+                    first_name: profile.first_name,
+                    last_name: profile.last_name,
+                    username: profile.username,
+                    phone: profile.phone
+                });
                 const saved = result?.data || {};
                 const savedPhone = saved.phone || saved.store_phone || profile.phone;
                 window.ProfileManager?.saveProfile?.({ ...profile, ...saved, phone: savedPhone });
-                document.getElementById('userDisplayName').textContent = (saved.name || name) || 'Mon Compte';
-                renderAvatar(saved.name || name, (saved.avatar || profile.avatar) || localStorage.getItem('newketUserAvatar'), 'userAvatarImg', 'userAvatarPlaceholder');
+                document.getElementById('userDisplayName').textContent = (saved.username || saved.name || username) || 'Mon Compte';
+                renderAvatar(saved.username || saved.name || username, (saved.avatar || profile.avatar) || localStorage.getItem('newketUserAvatar'), 'userAvatarImg', 'userAvatarPlaceholder');
                 showToast('Profil mis à jour avec succès !', 'success');
             } catch (err) {
                 console.error('[Customer Profile] Update error:', err);
-                showToast('Erreur lors de la mise à jour du profil.', 'error');
+                const message = String(err?.message || '').toLowerCase();
+                if (message.includes('14 jours') || message.includes('14 day')) {
+                    showToast("Vous ne pouvez modifier votre nom d'utilisateur qu'une fois tous les 14 jours.", 'error');
+                } else if (message.includes('deja pris') || message.includes('déjà pris') || message.includes('already taken')) {
+                    showToast("Ce nom d'utilisateur est déjà pris ou encore réservé.", 'error');
+                } else {
+                    showToast('Erreur lors de la mise à jour du profil.', 'error');
+                }
             }
         });
 
@@ -1755,7 +1798,7 @@
             }
             const usernameInput = document.getElementById('cPasswordUsername');
             if (usernameInput) {
-                usernameInput.value = localStorage.getItem('newketUserEmail') || '';
+                usernameInput.value = localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserEmail') || '';
             }
         }
 
@@ -4414,6 +4457,3 @@
 </body>
 
 </html>
-
-
-

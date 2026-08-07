@@ -16,6 +16,13 @@ function normalizeReferralCode(value) {
         .replace(/[^A-Z0-9-]/g, '');
 }
 
+function normalizeLoginUsername(value) {
+    return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '');
+}
+
 function captureReferralCodeFromUrl() {
     try {
         const params = new URLSearchParams(window.location.search || '');
@@ -169,6 +176,12 @@ const AuthManager = {
                 profile = await this.applyAdminAccess(user, profile) || profile;
                 if (this.role === 'admin') {
                     return;
+                }
+
+                const resolvedUsername = profile?.username || profile?.name || user.user_metadata?.username || user.user_metadata?.name || user.email?.split('@')?.[0] || '';
+                if (resolvedUsername) {
+                    localStorage.setItem('newketUserUsername', resolvedUsername);
+                    localStorage.setItem('newketUserName', resolvedUsername);
                 }
 
                 const oauthAvatar =
@@ -449,7 +462,7 @@ const AuthManager = {
             user,
             'admin',
             'approved',
-            updatedProfile?.name || profile?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0]
+            updatedProfile?.username || updatedProfile?.name || profile?.username || profile?.name || user.user_metadata?.username || user.user_metadata?.name || user.email.split('@')[0]
         );
 
         return updatedProfile || profile || null;
@@ -473,7 +486,7 @@ const AuthManager = {
             user,
             'admin',
             'approved',
-            effectiveProfile?.name || user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0]
+            effectiveProfile?.username || effectiveProfile?.name || user.user_metadata?.username || user.user_metadata?.name || user.email.split('@')[0]
         );
 
         this.clearPendingRoleSelection();
@@ -546,6 +559,12 @@ const AuthManager = {
 
         const email = user.email;
         const avatarUrl = localStorage.getItem('newketUserAvatar');
+        const username = normalizeLoginUsername(
+            user.user_metadata?.username ||
+            user.user_metadata?.company_name ||
+            user.user_metadata?.name ||
+            email.split('@')[0]
+        );
         const referralCode = normalizeReferralCode(
             user.user_metadata?.referral_code_from ||
             user.user_metadata?.referralCode ||
@@ -554,7 +573,10 @@ const AuthManager = {
         const profile = {
             id: user.id,
             email,
-            name: user.user_metadata.full_name || user.user_metadata.name || email.split('@')[0],
+            username,
+            name: username,
+            first_name: user.user_metadata.first_name || '',
+            last_name: user.user_metadata.last_name || '',
             avatar: avatarUrl,
             role,
             status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending',
@@ -586,7 +608,10 @@ const AuthManager = {
                     role: profile.role,
                     status: profile.status,
                     seller_type: profile.seller_type,
-                    full_name: profile.name,
+                    username: profile.username,
+                    first_name: profile.first_name || null,
+                    last_name: profile.last_name || null,
+                    company_name: profile.username,
                     referral_code_from: referralCode || user.user_metadata?.referral_code_from || null
                 }
             }).catch((error) => {
@@ -971,7 +996,7 @@ const AuthManager = {
 
             const resolvedStatus = role === 'supplier' ? 'pending' : 'approved';
             const updatedProfile = await this.updateExistingProfileRole(user.id, role, resolvedStatus);
-            await this.syncRoleSelectionMetadata(user, role, resolvedStatus, updatedProfile?.name || existingProfile.name);
+            await this.syncRoleSelectionMetadata(user, role, resolvedStatus, updatedProfile?.username || updatedProfile?.name || existingProfile.username || existingProfile.name);
 
             this.markPendingRoleSelection(false);
             localStorage.setItem('newketRoleSelectionConfirmed', 'true');
@@ -993,7 +1018,7 @@ const AuthManager = {
         }
 
         const profile = await this.createUserProfile(user, role);
-        await this.syncRoleSelectionMetadata(user, role, profile.status, profile.name);
+        await this.syncRoleSelectionMetadata(user, role, profile.status, profile.username || profile.name);
         this.markPendingRoleSelection(false);
         localStorage.setItem('newketRoleSelectionConfirmed', 'true');
         this.role = profile.role;
@@ -1036,7 +1061,7 @@ const AuthManager = {
         return data;
     },
 
-    async syncRoleSelectionMetadata(user, role, status, fullName = null) {
+    async syncRoleSelectionMetadata(user, role, status, username = null) {
         if (!window.supabaseClient || !user) return;
 
         const payload = {
@@ -1047,7 +1072,7 @@ const AuthManager = {
             role_selected: true
         };
 
-        if (fullName) payload.full_name = fullName;
+        if (username) payload.username = username;
 
         const { error } = await window.supabaseClient.auth.updateUser({
             data: payload
@@ -1296,7 +1321,7 @@ const AuthManager = {
 
         const avatarUrl = localStorage.getItem('newketUserAvatar');
         const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
-        const displayName = profile.name || localStorage.getItem('newketUserName') || 'Mon Compte';
+        const displayName = profile.username || profile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || 'Mon Compte';
         const initials = typeof window.getInitials === 'function' ? window.getInitials(displayName) : (displayName?.trim()?.charAt(0)?.toUpperCase() || '?');
         const hideAccountIcon = (icon) => {
             if (!icon) return;
@@ -1518,7 +1543,7 @@ const AuthManager = {
             } else if (this.role === 'supplier') {
                 loggedLink.href = window.resolvePath('vendor-dashboard');
                 // Fetch company if available, fallback to user name
-                const companyName = localStorage.getItem('newketCompany') || userName;
+                const companyName = localStorage.getItem('newketCompany') || profile.username || userName;
                 if (loggedName) loggedName.textContent = companyName;
                 if (loggedRole) loggedRole.textContent = 'Vendeur Premium';
             } else {

@@ -45,11 +45,22 @@ const ProfileManager = {
             } else {
                 // Fallback to basic info from auth
                 this._profile = {
-                    name: localStorage.getItem('newketUserName') || '',
+                    username: localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || '',
+                    first_name: localStorage.getItem('newketUserFirstName') || '',
+                    last_name: localStorage.getItem('newketUserLastName') || '',
+                    name: localStorage.getItem('newketUserName') || localStorage.getItem('newketUserUsername') || '',
                     email: localStorage.getItem('newketUserEmail') || '',
                     phone: localStorage.getItem('newketUserPhone') || '',
                     avatar: localStorage.getItem('newketUserAvatar') || ''
                 };
+            }
+
+            if (!this._profile.username) {
+                this._profile.username = this._profile.name || '';
+            }
+
+            if (!this._profile.name) {
+                this._profile.name = this._profile.username || '';
             }
 
             const savedHomeLocation = this._normalizeHomeLocation(
@@ -88,11 +99,28 @@ const ProfileManager = {
             else delete nextProfile.home_location;
         }
 
+        if (data?.username && !nextProfile.name) {
+            nextProfile.name = data.username;
+        }
+        if (data?.name && !nextProfile.username) {
+            nextProfile.username = data.name;
+        }
+
         this._profile = nextProfile;
         localStorage.setItem('newketProfile', JSON.stringify(this._profile));
         
         // Also update individual keys for compatibility
+        if (data.username) localStorage.setItem('newketUserUsername', data.username);
+        if (data.first_name !== undefined) {
+            if (data.first_name) localStorage.setItem('newketUserFirstName', data.first_name);
+            else localStorage.removeItem('newketUserFirstName');
+        }
+        if (data.last_name !== undefined) {
+            if (data.last_name) localStorage.setItem('newketUserLastName', data.last_name);
+            else localStorage.removeItem('newketUserLastName');
+        }
         if (data.name) localStorage.setItem('newketUserName', data.name);
+        else if (data.username) localStorage.setItem('newketUserName', data.username);
         if (data.email) localStorage.setItem('newketUserEmail', data.email);
         const resolvedPhone =
             data.phone ||
@@ -162,7 +190,10 @@ const ProfileManager = {
 
             if (profile) {
                 this.saveProfile({
-                    name: profile.name || this._profile.name,
+                    username: profile.username || this._profile.username || profile.name || this._profile.name,
+                    name: profile.name || profile.username || this._profile.name || this._profile.username,
+                    first_name: profile.first_name || this._profile.first_name,
+                    last_name: profile.last_name || this._profile.last_name,
                     company_name: profile.company_name || this._profile.company_name,
                     email: user.email || this._profile.email,
                     phone: profile.phone || profile.store_phone || this._profile.phone,

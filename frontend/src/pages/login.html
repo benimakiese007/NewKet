@@ -372,14 +372,45 @@
 
                         <!-- Email Input -->
                         <div id="emailContainer" class="relative floating-input animate-item">
-                            <input type="email" id="email" name="email" required placeholder=" " autocomplete="email" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email"
+                            <input type="text" id="email" name="email" required placeholder=" " autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="text"
                                 class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="email"
-                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Adresse
-                                email</label>
+                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Nom
+                                d'utilisateur</label>
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 flex items-center justify-center">
                                 <iconify-icon icon="solar:letter-bold-duotone" width="20" id="emailDefaultIcon"></iconify-icon>
                             </div>
+                        </div>
+
+                        <div id="signupCustomerFields" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 animate-item">
+                            <div class="relative floating-input">
+                                <input type="text" id="signupFirstName" name="first_name" placeholder=" " autocomplete="given-name" autocapitalize="words" spellcheck="false"
+                                    class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
+                                <label for="signupFirstName"
+                                    class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Prénom</label>
+                            </div>
+                            <div class="relative floating-input">
+                                <input type="text" id="signupLastName" name="last_name" placeholder=" " autocomplete="family-name" autocapitalize="words" spellcheck="false"
+                                    class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
+                                <label for="signupLastName"
+                                    class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Nom</label>
+                            </div>
+                        </div>
+
+                        <div id="signupCustomerUsername" class="hidden relative floating-input animate-item">
+                            <input type="text" id="signupBuyerUsername" name="buyer_username" placeholder=" " autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+                                class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
+                            <label for="signupBuyerUsername"
+                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Nom
+                                d'utilisateur</label>
+                        </div>
+
+                        <div id="signupSupplierUsername" class="hidden relative floating-input animate-item">
+                            <input type="text" id="signupSupplierUsernameInput" name="supplier_username" placeholder=" " autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+                                class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
+                            <label for="signupSupplierUsernameInput"
+                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Nom
+                                de la boutique / Username</label>
                         </div>
 
                         <!-- Password Input -->
@@ -606,21 +637,94 @@
         const confirmPasswordInput = document.getElementById('confirmPassword');
         const rememberMeInput = document.getElementById('rememberMe');
         const emailContainer = document.getElementById('emailContainer');
+        const emailLabel = document.querySelector('label[for="email"]');
+        const signupCustomerFields = document.getElementById('signupCustomerFields');
+        const signupCustomerUsername = document.getElementById('signupCustomerUsername');
+        const signupSupplierUsername = document.getElementById('signupSupplierUsername');
+        const signupFirstNameInput = document.getElementById('signupFirstName');
+        const signupLastNameInput = document.getElementById('signupLastName');
+        const signupBuyerUsernameInput = document.getElementById('signupBuyerUsername');
+        const signupSupplierUsernameInput = document.getElementById('signupSupplierUsernameInput');
         const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
         const googleBtn = document.getElementById('google-btn');
         const passkeyBtn = document.getElementById('passkey-btn');
-        const rememberedEmailKey = 'newketRememberedEmail';
+        const rememberedLoginKey = 'newketRememberedLogin';
+        const MIN_USERNAME_LENGTH = 8;
 
         // onBlur validation for email
         const emailInput = document.getElementById('email');
+        const signupRoleInputs = Array.from(document.querySelectorAll('input[name="role"]'));
+
+        function normalizeUsername(value) {
+            return String(value || '').trim().toLowerCase().replace(/\s+/g, '');
+        }
+
+        function validateUsernameFormat(value) {
+            const username = normalizeUsername(value);
+            if (!username) return { ok: false, error: 'Veuillez saisir un nom d\'utilisateur.' };
+            if (username.length < MIN_USERNAME_LENGTH) return { ok: false, error: 'Le nom d\'utilisateur doit contenir au moins 8 caracteres.' };
+            if (!/^[a-z0-9_-]+$/.test(username)) return { ok: false, error: 'Utilisez seulement des minuscules, chiffres, tirets ou underscores.' };
+            if (!/[a-z]/.test(username)) return { ok: false, error: 'Le nom d\'utilisateur doit contenir au moins une lettre.' };
+            return { ok: true, username };
+        }
+
+        async function isUsernameAvailable(username) {
+            try {
+                const resp = await fetch(`/api/profile/username/check?username=${encodeURIComponent(username)}`, { cache: 'no-store' });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok) {
+                    return { available: false, error: data?.error || 'Impossible de verifier la disponibilite.' };
+                }
+                return { available: !!data.available, error: data?.error || null };
+            } catch (err) {
+                console.error('[NewKet Login] Username availability error:', err);
+                return { available: false, error: 'Impossible de verifier la disponibilite.' };
+            }
+        }
+
+        async function resolveLoginIdentifier(identifier) {
+            const normalized = String(identifier || '').trim();
+            if (!normalized) throw new Error('Veuillez renseigner votre identifiant.');
+            if (normalized.includes('@')) {
+                throw new Error("La connexion par email est désactivée. Utilisez votre nom d'utilisateur.");
+            }
+
+            const resp = await fetch(`/api/profile/username/resolve?username=${encodeURIComponent(normalized)}`, { cache: 'no-store' });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok || !data?.email) {
+                throw new Error(data?.error || 'Identifiant introuvable.');
+            }
+            return data.email.toLowerCase();
+        }
 
         emailInput.addEventListener('blur', () => {
-            if (emailInput.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
-                showError("Veuillez entrer une adresse email valide.");
-                emailInput.classList.remove('input-valid');
+            if (isLogin) {
+                if (!emailInput.value) {
+                    emailInput.classList.remove('input-valid');
+                    return;
+                }
+                const value = emailInput.value.trim();
+                if (value.includes('@')) {
+                    showError("La connexion par email est désactivée. Utilisez votre nom d'utilisateur.");
+                    emailInput.classList.remove('input-valid');
+                } else {
+                    const validation = validateUsernameFormat(value);
+                    if (!validation.ok) {
+                        showError(validation.error);
+                        emailInput.classList.remove('input-valid');
+                    } else {
+                        formError.classList.add('hidden');
+                        emailInput.classList.add('input-valid');
+                    }
+                }
             } else {
-                formError.classList.add('hidden');
-                if (emailInput.value) emailInput.classList.add('input-valid');
+                if (emailInput.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
+                    showError("Veuillez entrer une adresse email valide.");
+                    emailInput.classList.remove('input-valid');
+                } else {
+                    formError.classList.add('hidden');
+                    if (emailInput.value) emailInput.classList.add('input-valid');
+                }
             }
         });
 
@@ -656,7 +760,7 @@
             emailInput.setAttribute('autocapitalize', 'none');
             emailInput.setAttribute('autocorrect', 'off');
             emailInput.setAttribute('spellcheck', 'false');
-            emailInput.setAttribute('inputmode', 'email');
+            emailInput.setAttribute('inputmode', isLogin ? 'text' : 'email');
 
             if (isRecovery) {
                 emailInput.setAttribute('autocomplete', 'off');
@@ -668,10 +772,16 @@
             if (isLogin) {
                 emailInput.setAttribute('autocomplete', 'username');
                 emailInput.setAttribute('name', 'username');
+                if (emailLabel) emailLabel.textContent = "Nom d'utilisateur";
+                emailInput.type = 'text';
+                emailInput.placeholder = 'Nom d\'utilisateur';
                 pwdInput.setAttribute('autocomplete', 'current-password');
                 return;
             }
 
+            if (emailLabel) emailLabel.textContent = 'Adresse email';
+            emailInput.type = 'email';
+            emailInput.placeholder = ' ';
             emailInput.setAttribute('autocomplete', 'email');
             emailInput.setAttribute('name', 'email');
             pwdInput.setAttribute('autocomplete', 'new-password');
@@ -682,22 +792,22 @@
             if (isRecovery || !isLogin) return;
             if (emailInput.value) return;
 
-            const savedEmail = localStorage.getItem(rememberedEmailKey) ||
-                localStorage.getItem('newketUserEmail') ||
+            const savedLogin = localStorage.getItem(rememberedLoginKey) ||
+                localStorage.getItem('newketUserUsername') ||
                 '';
 
-            if (savedEmail) {
-                emailInput.value = savedEmail;
+            if (savedLogin) {
+                emailInput.value = savedLogin;
                 if (rememberMeInput) rememberMeInput.checked = true;
             }
         }
 
         function preserveFormValuesAfterModeChange({
             keepEmail = true,
-            keepPassword = true,
-            keepConfirmPassword = true,
-            keepRememberMe = true
-        } = {}) {
+                keepPassword = true,
+                keepConfirmPassword = true,
+                keepRememberMe = true
+            } = {}) {
             const currentEmail = emailInput.value;
             const currentPassword = pwdInput.value;
             const currentConfirmPassword = confirmPasswordInput?.value || '';
@@ -720,6 +830,17 @@
             if (keepRememberMe && rememberMeInput) {
                 rememberMeInput.checked = currentRememberState;
             }
+        }
+
+        function updateSignupFieldsVisibility() {
+            if (isRecovery) return;
+            const role = document.querySelector('input[name="role"]:checked')?.value || 'customer';
+            const isSignup = !isLogin;
+
+            if (signupCustomerFields) signupCustomerFields.classList.toggle('hidden', !isSignup || role !== 'customer');
+            if (signupCustomerUsername) signupCustomerUsername.classList.toggle('hidden', !isSignup || role !== 'customer');
+            if (signupSupplierUsername) signupSupplierUsername.classList.toggle('hidden', !isSignup || role !== 'supplier');
+            if (emailLabel) emailLabel.textContent = isLogin ? "Nom d'utilisateur" : 'Adresse email';
         }
 
         // Setup initial UI for recovery
@@ -745,6 +866,7 @@
         }
 
         syncAutofillHints();
+        updateSignupFieldsVisibility();
         restoreLoginPrefill();
 
         // --- 3. UI Interactions ---
@@ -825,6 +947,7 @@
                 }
 
                 syncAutofillHints();
+                updateSignupFieldsVisibility();
                 preserveFormValuesAfterModeChange({
                     keepEmail: true,
                     keepPassword: true,
@@ -855,6 +978,7 @@
 
         tabLogin.addEventListener('click', () => switchTab(true));
         tabSignup.addEventListener('click', () => switchTab(false));
+        signupRoleInputs.forEach((input) => input.addEventListener('change', updateSignupFieldsVisibility));
         forgotPasswordBtn?.addEventListener('click', handleForgotPassword);
         googleBtn?.addEventListener('click', signInWithGoogle);
         fbBtn?.addEventListener('click', signInWithFacebook);
@@ -1030,7 +1154,7 @@
 
             // Form Validations
             if (!isRecovery && !email) {
-                showError("Veuillez remplir l'email.");
+                showError(isLogin ? "Veuillez renseigner votre identifiant." : "Veuillez remplir l'email.");
                 return;
             }
             if (!password) {
@@ -1087,6 +1211,8 @@
                 }
             }
 
+            let resolvedLoginEmail = normalizedEmail;
+
             setBtnLoading(true);
 
             try {
@@ -1103,16 +1229,20 @@
                     }, 1500);
 
                 } else if (isLogin) {
-                    // LOGIN Logic - All authentication via Supabase Auth
-                    let loginEmail = email.toLowerCase().trim();
+                    if (String(email || '').includes('@')) {
+                        throw new Error("La connexion par email est désactivée. Utilisez votre nom d'utilisateur.");
+                    }
 
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email: loginEmail, password });
+                    // LOGIN Logic - username only
+                    resolvedLoginEmail = await resolveLoginIdentifier(email);
+
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email: resolvedLoginEmail, password });
                     if (error) throw error;
 
                     if (rememberMeInput?.checked) {
-                        localStorage.setItem(rememberedEmailKey, loginEmail);
+                        localStorage.setItem(rememberedLoginKey, email);
                     } else {
-                        localStorage.removeItem(rememberedEmailKey);
+                        localStorage.removeItem(rememberedLoginKey);
                     }
 
                     // AuthManager.handleSessionUpdate will handle the redirect via onAuthStateChange
@@ -1128,6 +1258,34 @@
                         role = 'admin';
                     }
 
+                    const isSupplier = role === 'supplier';
+                    const isCustomer = role === 'customer';
+                    const firstName = isCustomer ? (signupFirstNameInput?.value || '').trim() : '';
+                    const lastName = isCustomer ? (signupLastNameInput?.value || '').trim() : '';
+                    const buyerUsernameValue = isCustomer ? (signupBuyerUsernameInput?.value || '').trim() : '';
+                    const supplierUsernameValue = isSupplier ? (signupSupplierUsernameInput?.value || '').trim() : '';
+                    const usernameInputValue = isSupplier ? supplierUsernameValue : buyerUsernameValue;
+                    const usernameValidation = validateUsernameFormat(usernameInputValue);
+
+                    if (isCustomer && !firstName) {
+                        showError('Veuillez renseigner votre prénom.');
+                        return;
+                    }
+                    if (isCustomer && !lastName) {
+                        showError('Veuillez renseigner votre nom.');
+                        return;
+                    }
+                    if (!usernameValidation.ok) {
+                        showError(usernameValidation.error);
+                        return;
+                    }
+
+                    const usernameAvailability = await isUsernameAvailable(usernameValidation.username);
+                    if (!usernameAvailability.available) {
+                        showError(usernameAvailability.error || 'Ce nom d\'utilisateur est déjà pris.');
+                        return;
+                    }
+
                     // Determine initial status: customers are approved immediately, suppliers must go through KYC
                     const initialStatus = (role === 'customer' || role === 'admin') ? 'approved' : 'pending';
                     const referralCode = localStorage.getItem('newketReferralCode') || '';
@@ -1137,7 +1295,10 @@
                         password,
                         options: {
                             data: {
-                                full_name: email.split('@')[0],
+                                username: usernameValidation.username,
+                                first_name: firstName || null,
+                                last_name: lastName || null,
+                                company_name: isSupplier ? usernameValidation.username : null,
                                 role,
                                 status: initialStatus,
                                 referral_code_from: referralCode || null
@@ -1203,9 +1364,9 @@
 
             localStorage.setItem('newketUserEmail', email);
             if (rememberMeInput?.checked) {
-                localStorage.setItem(rememberedEmailKey, email);
+                localStorage.setItem(rememberedLoginKey, email);
             } else {
-                localStorage.removeItem(rememberedEmailKey);
+                localStorage.removeItem(rememberedLoginKey);
             }
             localStorage.setItem('newketRole', role);
             localStorage.setItem('newketRoleSelectionConfirmed', 'true');

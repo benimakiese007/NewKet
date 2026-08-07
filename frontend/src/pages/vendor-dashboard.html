@@ -1000,8 +1000,8 @@
                         <h2 class="text-xl font-bold mb-8">Informations de la Boutique</h2>
                         <form id="vendorSettingsForm" class="space-y-6 w-full">
                             <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Nom de la boutique</label>
-                                <input id="vSetStoreName" name="vSetStoreName" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Votre nom de boutique">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Nom de la boutique / Username</label>
+                                <input id="vSetStoreName" name="vSetStoreName" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="votre_boutique">
                             </div>
                             <div>
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Email</label>
@@ -6301,7 +6301,7 @@
             const profile = window.ProfileManager.getProfile();
             if (!profile) return;
             
-            const boutiqueName = profile.company_name || 'Ma Boutique';
+            const boutiqueName = profile.username || profile.company_name || 'Ma Boutique';
             const vendorNameEl = document.getElementById('vendorName');
             if (vendorNameEl) {
                 const spanEl = vendorNameEl.querySelector('span');
@@ -6323,7 +6323,7 @@
             const profile = window.ProfileManager.getProfile();
             if (!profile) return;
             
-            if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = profile.company_name || '';
+            if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = profile.username || profile.company_name || '';
             if (document.getElementById('vSetEmail')) document.getElementById('vSetEmail').value = localStorage.getItem('newketUserEmail') || profile.email || '';
             if (document.getElementById('vSetPhone')) document.getElementById('vSetPhone').value = profile.store_phone || profile.phone || '';
             if (document.getElementById('vSetShipping') && profile.shipping_time) document.getElementById('vSetShipping').value = profile.shipping_time;
@@ -6578,60 +6578,61 @@
                     if (settingsForm) {
                         settingsForm.addEventListener('submit', async (e) => {
                             e.preventDefault();
-                            const newName = document.getElementById('vSetStoreName').value;
+                            const newName = (document.getElementById('vSetStoreName').value || '').trim().toLowerCase().replace(/\s+/g, '');
+                            if (!newName || newName.length < 8 || !/^[a-z0-9_-]+$/.test(newName) || !/[a-z]/.test(newName)) {
+                                if (window.showToast) {
+                                    window.showToast('Le nom de la boutique / username doit contenir au moins 8 caracteres, en minuscules, avec au moins une lettre.', 'error', 'Boutique');
+                                }
+                                return;
+                            }
                             const newEmail = document.getElementById('vSetEmail').value;
                             const newPhone = (document.getElementById('vSetPhone')?.value || '').trim();
                             const newShipping = document.getElementById('vSetShipping').value;
                             const newStoreDescription = document.getElementById('vSetStoreDescription')?.value || '';
-                            const newShopSlug = (window.NewKetLinks && window.NewKetLinks.buildShopSlug)
-                                ? window.NewKetLinks.buildShopSlug(newName)
-                                : null;
                             
                             const newProfile = {
                                 ...ProfileManager.getProfile(),
+                                username: newName,
                                 company_name: newName,
                                 email: newEmail,
                                 phone: newPhone,
                                 store_phone: newPhone,
                                 shipping_time: newShipping,
                                 store_description: newStoreDescription,
-                                shop_slug: newShopSlug
+                                shop_slug: newName
                             };
                             
-                            // 1. Save Locally
-                            ProfileManager.saveProfile(newProfile);
-                            
-                            // 2. Save to Supabase (users table)
+                            // Save to Supabase via API so username rules stay centralized
                             try {
-                                if (window.SupabaseAdapter) {
-                                    const user = window.getSupabaseUser ? await window.getSupabaseUser(3000) : null;
-                                    if (user && user.id) {
-                                        if (newShopSlug) {
-                                            const conflicts = await window.SupabaseAdapter.fetchWithFilters('users', {
-                                                eq: [['role', 'supplier'], ['shop_slug', newShopSlug]],
-                                                limit: 1,
-                                                skipCache: true,
-                                                suppressErrorLogging: true
-                                            });
-                                            const hasConflict = Array.isArray(conflicts)
-                                                && conflicts.length > 0
-                                            && conflicts[0]?.id !== user.id;
-                                            if (hasConflict) {
-                                                if (window.showToast) window.showToast("Ce nom de boutique est déjà utilisé. Choisissez un autre nom unique.", "warning", "Boutique");
-                                                return;
-                                            }
-                                        }
-                                        await window.SupabaseAdapter.update('users', user.id, {
-                                            company_name: newName,
-                                            shop_slug: newShopSlug,
-                                            shipping_time: newShipping,
-                                            store_phone: newPhone || null,
-                                            store_description: newStoreDescription || null
-                                        });
-                                    }
-                                }
+                                const result = await window.ApiClient.put('/profile/me', {
+                                    username: newName,
+                                    company_name: newName,
+                                    shop_slug: newName,
+                                    shipping_time: newShipping,
+                                    phone: newPhone || null,
+                                    store_description: newStoreDescription || null,
+                                    email: newEmail
+                                });
+                                const saved = result?.data || {};
+                                ProfileManager.saveProfile({
+                                    ...newProfile,
+                                    ...saved,
+                                    username: saved.username || newName,
+                                    company_name: saved.company_name || newName
+                                });
                             } catch (err) {
                                 console.error('[Settings] Error saving to Supabase:', err);
+                                if (window.showToast) {
+                                    const message = String(err?.message || '').toLowerCase();
+                                    if (message.includes('14 jours') || message.includes('14 day')) {
+                                        window.showToast("Vous ne pouvez modifier le nom de la boutique / username qu'une fois tous les 14 jours.", 'error', 'Boutique');
+                                    } else if (message.includes('deja pris') || message.includes('déjà pris') || message.includes('reservé') || message.includes('réservé') || message.includes('already taken')) {
+                                        window.showToast("Ce nom de la boutique / username est déjà pris ou encore réservé.", 'error', 'Boutique');
+                                    } else {
+                                        window.showToast(err.message || "Impossible d'enregistrer le nom de la boutique.", 'error', 'Boutique');
+                                    }
+                                }
+                                return;
                             }
                             
                             if (window.showToast) {
@@ -6639,8 +6640,8 @@
                             }
 
                             // Refresh UI
-                            if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.company_name;
-                            if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = newProfile.company_name;
+                            if (document.getElementById('vendorName')) document.getElementById('vendorName').textContent = newProfile.username;
+                            if (document.getElementById('vendorDisplay')) document.getElementById('vendorDisplay').textContent = newProfile.username;
                         });
                     }
 
