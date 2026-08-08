@@ -32,8 +32,8 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS quartier_id UUID REFERENCES pu
 -- 2. SUIVI DES LEADS (WHATSAPP CLICKS)
 CREATE TABLE IF NOT EXISTS public.whatsapp_clicks (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    product_id UUID REFERENCES public.products(id) ON DELETE CASCADE,
-    vendor_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    product_id TEXT REFERENCES public.products(id) ON DELETE CASCADE,
+    vendor_id TEXT REFERENCES public.users(id) ON DELETE CASCADE,
     clicked_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     visitor_ip TEXT -- anonymized or hashed to prevent abuse counting
 );
@@ -43,12 +43,12 @@ CREATE TABLE IF NOT EXISTS public.whatsapp_clicks (
 -- - Seul l'admin ou le vendeur peuvent LIRE
 ALTER TABLE public.whatsapp_clicks ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public can insert clicks" ON public.whatsapp_clicks FOR INSERT WITH CHECK (true);
-CREATE POLICY "Vendors can see their clicks" ON public.whatsapp_clicks FOR SELECT USING (vendor_id = auth.uid() OR public.is_admin());
+CREATE POLICY "Vendors can see their clicks" ON public.whatsapp_clicks FOR SELECT USING (vendor_id = auth.uid()::text OR public.is_admin());
 
 -- 3. ABONNEMENTS VENDOR (STRIPE)
 CREATE TABLE IF NOT EXISTS public.subscriptions (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    vendor_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    vendor_id TEXT REFERENCES public.users(id) ON DELETE CASCADE,
     stripe_subscription_id TEXT UNIQUE,
     stripe_customer_id TEXT,
     plan_tier TEXT DEFAULT 'free', -- 'free', 'basic', 'pro', 'premium' (ex: 0.99, 2.99, 3.99)
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
 
 -- RLS sur Subscriptions:
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Vendors can view own sub" ON public.subscriptions FOR SELECT USING (vendor_id = auth.uid() OR public.is_admin());
+CREATE POLICY "Vendors can view own sub" ON public.subscriptions FOR SELECT USING (vendor_id = auth.uid()::text OR public.is_admin());
 
 -- 4. PUBLICITES (Bannières externes)
 CREATE TABLE IF NOT EXISTS public.advertisements (

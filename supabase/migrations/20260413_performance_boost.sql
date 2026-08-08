@@ -89,16 +89,16 @@ CREATE INDEX IF NOT EXISTS idx_reviews_created_at       ON public.product_review
 CREATE INDEX IF NOT EXISTS idx_favorites_user_id        ON public.user_favorites (user_id);
 
 -- =========================================================================
--- TABLE: orders / whatsapp_clicks
+-- TABLE: whatsapp_clicks
 -- =========================================================================
 -- Index pour le tri par date
-CREATE INDEX IF NOT EXISTS idx_orders_created_at        ON public.orders (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_clicks_clicked_at ON public.whatsapp_clicks (clicked_at DESC);
 
 -- Index pour filtrer par vendeur
-CREATE INDEX IF NOT EXISTS idx_orders_vendor_id         ON public.orders (vendor_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_clicks_vendor_id  ON public.whatsapp_clicks (vendor_id);
 
 -- Index pour filtrer par produit
-CREATE INDEX IF NOT EXISTS idx_orders_product_id        ON public.orders (product_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_clicks_product_id ON public.whatsapp_clicks (product_id);
 
 -- =========================================================================
 -- TABLE: subscriptions

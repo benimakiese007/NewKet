@@ -82,6 +82,7 @@ USING (supplier_email = auth.jwt() ->> 'email' OR public.is_admin());
 CREATE POLICY "Customers can view their own orders" ON public.orders FOR SELECT
 USING (customer_email = auth.jwt() ->> 'email' OR public.is_admin());
 
+DROP POLICY IF EXISTS "Customers can create orders" ON public.orders;
 CREATE POLICY "Customers can create orders" ON public.orders FOR INSERT
 WITH CHECK (customer_email = auth.jwt() ->> 'email');
 
@@ -101,6 +102,7 @@ USING (supplier_email = auth.jwt() ->> 'email' OR public.is_admin());
 CREATE POLICY "Users can view their own activities" ON public.activities FOR SELECT
 USING (user_email = auth.jwt() ->> 'email' OR public.is_admin());
 
+DROP POLICY IF EXISTS "Users can create activities" ON public.activities;
 CREATE POLICY "Users can create activities" ON public.activities FOR INSERT
 WITH CHECK (user_email = auth.jwt() ->> 'email');
 
@@ -108,6 +110,7 @@ WITH CHECK (user_email = auth.jwt() ->> 'email');
 CREATE POLICY "Users can view their own notifications" ON public.notifications FOR SELECT
 USING (user_email = auth.jwt() ->> 'email' OR public.is_admin());
 
+DROP POLICY IF EXISTS "Users can create notifications" ON public.notifications;
 CREATE POLICY "Users can create notifications" ON public.notifications FOR INSERT
 WITH CHECK (user_email = auth.jwt() ->> 'email');
 

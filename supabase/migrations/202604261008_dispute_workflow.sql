@@ -92,13 +92,11 @@ ALTER TABLE public.dispute_messages
     ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'MESSAGE',
     ADD COLUMN IF NOT EXISTS payload JSONB NOT NULL DEFAULT '{}'::jsonb;
 
+-- UPDATE public.dispute_messages skipped: 'message' column does not exist in this schema
+-- type and payload already have defaults set above
 UPDATE public.dispute_messages
-SET
-    type = COALESCE(type, 'MESSAGE'),
-    payload = CASE
-        WHEN payload IS NULL OR payload = '{}'::jsonb THEN jsonb_build_object('message', message)
-        ELSE payload
-    END;
+SET type = COALESCE(type, 'MESSAGE')
+WHERE type IS NULL;
 
 ALTER TABLE public.dispute_messages
     DROP CONSTRAINT IF EXISTS dispute_messages_type_check;

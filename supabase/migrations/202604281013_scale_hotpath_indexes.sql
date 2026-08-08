@@ -50,7 +50,7 @@ DO $$
 BEGIN
   IF to_regclass('public.disputes') IS NOT NULL THEN
     EXECUTE 'CREATE INDEX IF NOT EXISTS idx_disputes_order_id     ON public.disputes (order_id)';
-    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_disputes_complainant_id ON public.disputes (complainant_id)';
+    -- complainant_id supprimé (colonne inexistante dans ce schéma)
     EXECUTE 'CREATE INDEX IF NOT EXISTS idx_disputes_opened_by    ON public.disputes (opened_by)';
     EXECUTE 'CREATE INDEX IF NOT EXISTS idx_disputes_status       ON public.disputes (status)';
     EXECUTE 'CREATE INDEX IF NOT EXISTS idx_disputes_created_at   ON public.disputes (created_at DESC)';

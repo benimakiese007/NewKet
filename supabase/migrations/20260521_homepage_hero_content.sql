@@ -12,11 +12,13 @@ CREATE TABLE IF NOT EXISTS public.hero_content (
 ALTER TABLE public.hero_content ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can read (homepage is public)
+DROP POLICY IF EXISTS "Anyone can view hero content" ON public.hero_content;
 CREATE POLICY "Anyone can view hero content" ON public.hero_content
   FOR SELECT
   USING (true);
 
 -- Admin-only write
+DROP POLICY IF EXISTS "Admins can manage hero content" ON public.hero_content;
 CREATE POLICY "Admins can manage hero content" ON public.hero_content
   FOR ALL
   USING (

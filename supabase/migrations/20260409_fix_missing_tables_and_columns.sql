@@ -80,6 +80,7 @@ WITH CHECK (
 );
 
 -- Users can update (mark as read) their own notifications
+DROP POLICY IF EXISTS "Users can update own notifications" ON public.notifications;
 CREATE POLICY "Users can update own notifications"
 ON public.notifications FOR UPDATE
 USING (

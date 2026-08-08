@@ -2,7 +2,7 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS public.product_image_watchdog (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
+    product_id TEXT NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
     image_signature TEXT NOT NULL,
     image_url TEXT,
     status TEXT NOT NULL DEFAULT 'unknown' CHECK (status IN ('unknown', 'ok', 'broken')),
