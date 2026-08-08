@@ -151,17 +151,15 @@
                             <iconify-icon icon="solar:tag-horizontal-bold" class="text-gray-400"></iconify-icon>
                             <label for="pCategoryInput" class="text-sm font-bold text-gray-900 uppercase tracking-wider">Catégorie</label>
                         </div>
-                        <div class="relative z-20 group input-focus border border-gray-100 rounded-2xl transition-all duration-300 bg-gray-50/50" id="categoryInputWrapper">
-                            <input type="text" id="pCategoryInput" name="pCategoryInput" autocomplete="off" required placeholder="Choisir ou écrire une catégorie..."
+                        <div class="relative group input-focus border border-gray-100 rounded-2xl transition-all duration-300 bg-gray-50/50" id="categoryInputWrapper">
+                            <input list="categoryDatalist" type="text" id="pCategoryInput" name="pCategoryInput" autocomplete="off" required placeholder="Choisir ou écrire une catégorie..."
                                 class="w-full px-6 py-5 rounded-2xl outline-none text-gray-900 bg-transparent font-medium">
                             <iconify-icon icon="solar:alt-arrow-down-linear" width="20"
-                                class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer" id="categoryDropdownIcon"></iconify-icon>
+                                class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></iconify-icon>
                             
-                            <div id="categoryDropdown" class="absolute left-0 right-0 top-[calc(100%+8px)] bg-white border border-gray-100 rounded-2xl shadow-xl z-50 hidden max-h-60 overflow-y-auto">
-                                <ul id="categoryOptionsList" class="py-2">
-                                    <!-- Dynamic categories injected by script -->
-                                </ul>
-                            </div>
+                            <datalist id="categoryDatalist">
+                                <!-- Dynamic categories injected by script -->
+                            </datalist>
                         </div>
                     </div>
 
@@ -605,96 +603,53 @@
             });
 
             // Category Selection Handling
-            const categoryInput = document.getElementById('pCategoryInput');
-            const categoryOptionsList = document.getElementById('categoryOptionsList');
-            const categoryDropdown = document.getElementById('categoryDropdown');
-            const categoryDropdownIcon = document.getElementById('categoryDropdownIcon');
-            const categoryInputWrapper = document.getElementById('categoryInputWrapper');
-            let allCategories = [
-                "Femme",
-                "Homme",
-                "Tech & Gadgets",
-                "Art de vivre"
-            ];
-            
-            // Fetch dynamic categories
-            async function loadDynamicCategories() {
-                try {
-                    const apiBase = window.API_BASE || '/api';
-                    const response = await fetch(`${apiBase}/products/categories/ranked`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (data.success && data.categories && data.categories.length > 0) {
-                            const dynamicCats = data.categories.map(c => c.category);
-                            allCategories = Array.from(new Set([...dynamicCats, ...allCategories]));
+            window.bindCategoryListeners = function(f) {
+                const formToUse = f || document;
+                const categoryInput = formToUse.querySelector('#pCategoryInput');
+                const categoryDatalist = formToUse.querySelector('#categoryDatalist');
+                
+                if (!categoryInput || !categoryDatalist) return; // Not found in this view
+                
+                window.allCategories = window.allCategories || [
+                    "Femme",
+                    "Homme",
+                    "Tech & Gadgets",
+                    "Art de vivre"
+                ];
+                
+                // Fetch dynamic categories
+                async function loadDynamicCategories() {
+                    try {
+                        const apiBase = window.API_BASE || '/api';
+                        const response = await fetch(`${apiBase}/products/categories/ranked`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.success && data.categories && data.categories.length > 0) {
+                                const dynamicCats = data.categories.map(c => c.category);
+                                window.allCategories = Array.from(new Set([...dynamicCats, ...window.allCategories]));
+                            }
                         }
+                    } catch (e) {
+                        console.error('Failed to load dynamic categories:', e);
+                    } finally {
+                        // Pre-render once loaded
+                        renderCategoryOptions(window.allCategories);
                     }
-                } catch (e) {
-                    console.error('Failed to load dynamic categories:', e);
-                } finally {
-                    // Pre-render once loaded
-                    renderCategoryOptions(allCategories);
                 }
-            }
-            
-            function renderCategoryOptions(categories) {
-                categoryOptionsList.innerHTML = '';
-                if (categories.length === 0) {
-                    categoryOptionsList.innerHTML = '<li class="px-6 py-3 text-sm text-gray-400">Aucune catégorie trouvée</li>';
-                    return;
+                
+                function renderCategoryOptions(categories) {
+                    categoryDatalist.innerHTML = '';
+                    categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat;
+                        categoryDatalist.appendChild(option);
+                    });
                 }
-                categories.forEach(cat => {
-                    const li = document.createElement('li');
-                    li.className = 'px-6 py-3 hover:bg-gray-50 cursor-pointer text-sm font-medium text-gray-700 transition-colors';
-                    li.textContent = cat;
-                    li.onclick = (e) => {
-                        e.stopPropagation(); // prevent document click
-                        categoryInput.value = cat;
-                        categoryDropdown.classList.add('hidden');
-                    };
-                    categoryOptionsList.appendChild(li);
-                });
-            }
 
-            // Dropdown interaction logic
-            function toggleCategoryDropdown() {
-                categoryDropdown.classList.toggle('hidden');
-            }
-            
-            function showDropdownAndFilter() {
-                categoryDropdown.classList.remove('hidden');
-                // render current input value filtered, or all if empty
-                const val = categoryInput.value.toLowerCase();
-                const filtered = allCategories.filter(c => c.toLowerCase().includes(val));
-                renderCategoryOptions(filtered);
-            }
+                loadDynamicCategories();
+            };
 
-            categoryInput.addEventListener('focus', showDropdownAndFilter);
-            categoryInput.addEventListener('click', showDropdownAndFilter);
-            
-            categoryDropdownIcon.addEventListener('mousedown', (e) => {
-                e.preventDefault(); // prevents focus/blur race conditions
-                e.stopPropagation();
-                toggleCategoryDropdown();
-                if(!categoryDropdown.classList.contains('hidden')) {
-                    categoryInput.focus();
-                }
-            });
-
-            categoryInput.addEventListener('input', (e) => {
-                const val = e.target.value.toLowerCase();
-                const filtered = allCategories.filter(c => c.toLowerCase().includes(val));
-                renderCategoryOptions(filtered);
-                categoryDropdown.classList.remove('hidden');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!categoryInputWrapper.contains(e.target)) {
-                    categoryDropdown.classList.add('hidden');
-                }
-            });
-
-            loadDynamicCategories();
+            window.bindCategoryListeners();
 
             // Promotion Toggle Logic
             const isPromoToggle = document.getElementById('isPromoToggle');
@@ -1368,6 +1323,10 @@
                     });
                 }
                 if(oP) oP.addEventListener('input', () => { if(window.updatePromoPercentage) window.updatePromoPercentage(); });
+                
+                if (window.bindCategoryListeners) {
+                    window.bindCategoryListeners(f);
+                }
                 
                 // Upload zone click and input change is now handled by document event delegation
             }
