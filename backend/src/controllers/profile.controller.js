@@ -397,17 +397,36 @@ export const resolveUsernameToEmail = async (req, res) => {
             return candidates.includes(username) || (reserved === username && reservedUntil > Date.now());
         });
 
-        if (!match?.email) {
+        if (match?.email) {
+            const metadata = getUserMetadata(match);
+            return res.json({
+                email: match.email,
+                username: metadata.username || metadata.company_name || metadata.name || username,
+                role: match.app_metadata?.role || metadata.role || null,
+                status: metadata.status || null
+            });
+        }
+
+        // Fallback: search in public.users table (username column)
+        const { data: publicUser, error: publicErr } = await supabaseAdmin
+            .from('users')
+            .select('email, username, role, status')
+            .ilike('username', raw.trim())
+            .maybeSingle();
+
+        if (publicErr) throw publicErr;
+
+        if (!publicUser?.email) {
             return res.status(404).json({ error: 'Utilisateur introuvable.' });
         }
 
-        const metadata = getUserMetadata(match);
-        res.json({
-            email: match.email,
-            username: metadata.username || metadata.company_name || metadata.name || username,
-            role: match.app_metadata?.role || metadata.role || null,
-            status: metadata.status || null
+        return res.json({
+            email: publicUser.email,
+            username: publicUser.username,
+            role: publicUser.role || null,
+            status: publicUser.status || null
         });
+
     } catch (err) {
         console.error('Erreur resolveUsernameToEmail:', err);
         res.status(500).json({ error: 'Erreur lors de la resolution du nom d\'utilisateur.' });

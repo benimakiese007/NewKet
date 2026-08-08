@@ -709,9 +709,6 @@
         async function resolveLoginIdentifier(identifier) {
             const normalized = String(identifier || '').trim();
             if (!normalized) throw new Error('Veuillez renseigner votre identifiant.');
-            if (normalized.includes('@')) {
-                throw new Error("La connexion par email est désactivée. Utilisez votre nom d'utilisateur.");
-            }
 
             const resp = await fetch(`/api/profile/username/resolve?username=${encodeURIComponent(normalized)}`, { cache: 'no-store' });
             const data = await resp.json().catch(() => ({}));
@@ -1591,6 +1588,8 @@
         function validateInput(input, type) {
             let errorMsg = '';
             if (type === 'email') {
+                // In login mode, usernames are accepted — skip email-format check
+                if (isLogin) return;
                 const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!input.value) errorMsg = 'L\'adresse email est requise.';
                 else if (!regex.test(input.value)) errorMsg = 'Format d\'email invalide.';

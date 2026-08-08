@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" class="auth-loading">
 
 <head>
@@ -1027,6 +1027,9 @@
                             <div id="vendorCurrentPasswordGroup">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Mot de passe actuel</label>
                                 <input id="vCurrentPassword" name="vCurrentPassword" type="password" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="••••••••" autocomplete="current-password">
+                                <div class="mt-2 text-right">
+                                    <button type="button" id="vendorForgotPasswordBtn" class="text-xs text-gray-500 hover:text-black underline underline-offset-2 transition-colors cursor-pointer bg-transparent border-none p-0">Mot de passe oublié ?</button>
+                                </div>
                             </div>
                             <p id="vendorPasswordOauthHint" class="hidden text-xs text-gray-500">Compte Google detecte : vous pouvez definir un mot de passe sans saisir un mot de passe actuel.</p>
                             <div>
@@ -6675,6 +6678,10 @@
                                 if (window.showInlineError) window.showInlineError(_pwdBtn, 'Le nouveau mot de passe doit contenir au moins 8 caractères.');
                                 return;
                             }
+                            if (currentPass && newPass === currentPass) {
+                                if (window.showInlineError) window.showInlineError(_pwdBtn, 'Le nouveau mot de passe doit être différent de l\'actuel.');
+                                return;
+                            }
                             if (newPass !== confirmPass) {
                                 if (window.showInlineError) window.showInlineError(_pwdBtn, 'Les mots de passe ne correspondent pas.');
                                 return;
@@ -6703,6 +6710,48 @@
                             }
                         });
                     }
+
+                    // ─── Mot de passe oublié — Vendor ───────────────────────────────
+                    const vendorForgotPasswordBtn = document.getElementById('vendorForgotPasswordBtn');
+                    if (vendorForgotPasswordBtn) {
+                        vendorForgotPasswordBtn.addEventListener('click', async () => {
+                            try {
+                                vendorForgotPasswordBtn.disabled = true;
+                                vendorForgotPasswordBtn.textContent = 'Envoi en cours...';
+
+                                // Récupérer l'email de l'utilisateur connecté
+                                const { data: sessionData } = await window.supabaseClient.auth.getSession();
+                                const email = sessionData?.session?.user?.email;
+
+                                if (!email) {
+                                    if (window.showToast) window.showToast('Impossible de récupérer votre adresse email. Veuillez vous reconnecter.', 'error', 'Erreur');
+                                    return;
+                                }
+
+                                const redirectTo = window.location.origin + '/src/pages/reset-password.html';
+                                const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+
+                                if (error) throw error;
+
+                                if (window.showToast) window.showToast(
+                                    `Un lien de réinitialisation a été envoyé à ${email}. Vérifiez votre boîte mail.`,
+                                    'success',
+                                    'Email envoyé'
+                                );
+                            } catch (err) {
+                                console.error('[Security] Forgot password error:', err);
+                                if (window.showToast) window.showToast(
+                                    err?.message || 'Erreur lors de l\'envoi de l\'email. Réessayez.',
+                                    'error',
+                                    'Erreur'
+                                );
+                            } finally {
+                                vendorForgotPasswordBtn.disabled = false;
+                                vendorForgotPasswordBtn.textContent = 'Mot de passe oublié ?';
+                            }
+                        });
+                    }
+
 // Passkeys for Vendor
                     const registerPasskeyBtnVendor = document.getElementById('registerPasskeyBtnVendor');
                     const passkeysListContainer = document.getElementById('vendorPasskeysList');
