@@ -375,8 +375,8 @@
                             <input type="text" id="email" name="email" required placeholder=" " autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="text"
                                 class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100">
                             <label for="email"
-                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Nom
-                                d'utilisateur</label>
+                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Email ou
+                                nom d'utilisateur</label>
                             <div class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 flex items-center justify-center">
                                 <iconify-icon icon="solar:letter-bold-duotone" width="20" id="emailDefaultIcon"></iconify-icon>
                             </div>
@@ -673,6 +673,25 @@
             return { ok: true, username };
         }
 
+        function validateLoginIdentifier(value) {
+            const input = String(value || '').trim();
+            if (!input) return { ok: false, error: 'Veuillez renseigner votre identifiant.' };
+
+            if (input.includes('@')) {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input)) {
+                    return { ok: false, error: 'Veuillez entrer une adresse email valide.' };
+                }
+                return { ok: true, type: 'email', identifier: input.toLowerCase() };
+            }
+
+            const usernameValidation = validateUsernameFormat(input);
+            if (!usernameValidation.ok) {
+                return { ok: false, error: usernameValidation.error };
+            }
+
+            return { ok: true, type: 'username', identifier: usernameValidation.username };
+        }
+
         async function isUsernameAvailable(username) {
             try {
                 const resp = await fetch(`/api/profile/username/check?username=${encodeURIComponent(username)}`, { cache: 'no-store' });
@@ -708,19 +727,13 @@
                     emailInput.classList.remove('input-valid');
                     return;
                 }
-                const value = emailInput.value.trim();
-                if (value.includes('@')) {
-                    showError("La connexion par email est désactivée. Utilisez votre nom d'utilisateur.");
+                const validation = validateLoginIdentifier(emailInput.value);
+                if (!validation.ok) {
+                    showError(validation.error);
                     emailInput.classList.remove('input-valid');
                 } else {
-                    const validation = validateUsernameFormat(value);
-                    if (!validation.ok) {
-                        showError(validation.error);
-                        emailInput.classList.remove('input-valid');
-                    } else {
-                        formError.classList.add('hidden');
-                        emailInput.classList.add('input-valid');
-                    }
+                    formError.classList.add('hidden');
+                    emailInput.classList.add('input-valid');
                 }
             } else {
                 if (emailInput.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)) {
@@ -777,9 +790,9 @@
             if (isLogin) {
                 emailInput.setAttribute('autocomplete', 'username');
                 emailInput.setAttribute('name', 'username');
-                if (emailLabel) emailLabel.textContent = "Nom d'utilisateur";
+                if (emailLabel) emailLabel.textContent = 'Email ou nom d\'utilisateur';
                 emailInput.type = 'text';
-                emailInput.placeholder = 'Nom d\'utilisateur';
+                emailInput.placeholder = 'Email ou nom d\'utilisateur';
                 pwdInput.setAttribute('autocomplete', 'current-password');
                 return;
             }
@@ -1234,18 +1247,20 @@
                     }, 1500);
 
                 } else if (isLogin) {
-                    if (String(email || '').includes('@')) {
-                        throw new Error("La connexion par email est désactivée. Utilisez votre nom d'utilisateur.");
+                    const loginValidation = validateLoginIdentifier(email);
+                    if (!loginValidation.ok) {
+                        throw new Error(loginValidation.error);
                     }
 
-                    // LOGIN Logic - username only
-                    resolvedLoginEmail = await resolveLoginIdentifier(email);
+                    resolvedLoginEmail = loginValidation.type === 'email'
+                        ? loginValidation.identifier
+                        : await resolveLoginIdentifier(loginValidation.identifier);
 
                     const { data, error } = await supabaseClient.auth.signInWithPassword({ email: resolvedLoginEmail, password });
                     if (error) throw error;
 
                     if (rememberMeInput?.checked) {
-                        localStorage.setItem(rememberedLoginKey, email);
+                        localStorage.setItem(rememberedLoginKey, loginValidation.identifier);
                     } else {
                         localStorage.removeItem(rememberedLoginKey);
                     }
@@ -1657,6 +1672,7 @@
 </body>
 
 </html>
+
 
 
 
