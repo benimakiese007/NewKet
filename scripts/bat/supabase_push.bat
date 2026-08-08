@@ -55,9 +55,14 @@ if errorlevel 1 (
     exit /b 1
 )
 
+:: Authentification automatique
+set "SUPABASE_ACCESS_TOKEN=sbp_05d955336b3574faa84806ebad299758efffb32d"
+
 echo.
-echo [1/1] Application des migrations Supabase...
-call npx supabase db push
+
+echo.
+echo [2/2] Application des nouvelles migrations Supabase...
+call npx supabase db push --include-all
 set "EXIT_CODE=%ERRORLEVEL%"
 
 popd
