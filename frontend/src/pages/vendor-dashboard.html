@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" class="auth-loading">
 
 <head>
@@ -875,46 +875,6 @@
                         </div>
                     </div>
 
-                    <!-- Certification Pro Card -->
-                    <div class="glass-panel p-8" id="vendorProBlock">
-                        <h2 class="text-xl font-bold mb-2 flex items-center gap-2">Certification Vendeur Pro <iconify-icon icon="solar:verified-check-bold" class="text-blue-500"></iconify-icon></h2>
-                        <p class="text-sm text-gray-400 mb-6">Devenez un vendeur certifié pour inspirer confiance à vos clients et débloquer plus de fonctionnalités.</p>
-
-                        <!-- Status Banner -->
-                        <div id="vendorProStatusBanner" class="hidden mb-6 p-4 rounded-2xl flex items-start gap-4 border">
-                            <div id="vendorProStatusIconContainer" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
-                                <iconify-icon id="vendorProStatusIcon" icon="" width="24"></iconify-icon>
-                            </div>
-                            <div>
-                                <h3 id="vendorProStatusTitle" class="font-bold"></h3>
-                                <p id="vendorProStatusDesc" class="text-xs mt-1"></p>
-                            </div>
-                        </div>
-
-                        <form id="vendorProCertificationForm" class="space-y-4">
-                            <div>
-                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Numéro RCCM</label>
-                                <input type="text" name="rccm_number" id="certRccm" required placeholder="Ex: CD/KIN/RCCM/21-B-00000" class="w-full text-sm px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Nom Professionnel de l'Entreprise</label>
-                                <input type="text" name="company_name" id="certCompanyName" required placeholder="Ex: Ma Belle Entreprise SARL" class="w-full text-sm px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Document Justificatif (Optionnel)</label>
-                                <label for="vRccmDocument" class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all group">
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <iconify-icon icon="solar:upload-bold-duotone" width="24" class="text-gray-400 group-hover:text-black transition-all mb-2"></iconify-icon>
-                                        <p class="text-xs text-gray-500 font-medium" id="vRccmDocumentLabel">Choisir un fichier...</p>
-                                    </div>
-                                    <input id="vRccmDocument" name="document" type="file" class="hidden" accept=".pdf,image/*">
-                                </label>
-                            </div>
-                            <button type="submit" id="vendorProSubmitBtn" class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all w-full sm:w-auto mt-2">
-                                Soumettre la demande
-                            </button>
-                        </form>
-                    </div>
 
                     <!-- Profile Photo Card -->
                     <div class="glass-panel p-8">
@@ -1083,56 +1043,82 @@
                             </button>
                         </form>
                     </div>
-
                     <!-- Passkeys Card -->
                     <div class="glass-panel p-8">
-                        <h2 class="text-xl font-bold mb-2">Clé d'accès (Passkey)</h2>
-                        <p class="text-sm text-gray-400 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou clé de sécurité.</p>
-                        
-                        <div id="vendorPasskeysList" class="space-y-3 mb-6 hidden">
-                            <!-- Passkeys will be injected here -->
-                        </div>
-
+                        <h2 class="text-xl font-bold mb-2">Cle d acces (Passkey)</h2>
+                        <p class="text-sm text-gray-400 mb-6">Se connecter plus rapidement sans mot de passe avec Face ID, empreinte digitale ou cle de securite.</p>
+                        <div id="vendorPasskeysList" class="space-y-3 mb-6 hidden"></div>
                         <button id="registerPasskeyBtnVendor" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
-                            Créer une clé d'accès
+                            Creer une cle d acces
                         </button>
                     </div>
-
-                    <!-- Referral Card -->
-                    <div class="glass-panel p-8">
-                        <h2 class="text-xl font-bold mb-2">Parrainage</h2>
-                        <p class="text-sm text-gray-400 mb-6">Partagez ce lien avec vos clients pour qu'ils puissent s'inscrire via votre code.</p>
-
-                        <div class="space-y-5">
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre code</label>
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <input id="vendorReferralCode" type="text" readonly class="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm font-black tracking-[0.18em] text-gray-900 uppercase" placeholder="Chargement...">
-                                    <button id="copyVendorReferralCodeBtn" type="button" class="px-4 py-3 rounded-xl bg-black text-white text-xs font-black uppercase tracking-widest hover:shadow-xl transition-all">Copier</button>
+                    </div>
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="glass-panel p-8 flex-1">
+                            <h2 class="text-xl font-bold mb-2">Parrainage</h2>
+                            <p class="text-sm text-gray-400 mb-6">Partagez ce lien avec vos clients pour qu ils puissent s inscrire via votre code.</p>
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre code</label>
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <input id="vendorReferralCode" type="text" readonly class="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm font-black tracking-[0.18em] text-gray-900 uppercase" placeholder="Chargement...">
+                                        <button id="copyVendorReferralCodeBtn" type="button" class="px-4 py-3 rounded-xl bg-black text-white text-xs font-black uppercase tracking-widest hover:shadow-xl transition-all">Copier</button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre lien</label>
-                                <div class="flex flex-col sm:flex-row gap-3">
-                                    <input id="vendorReferralLink" type="text" readonly class="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm text-gray-700" placeholder="Chargement...">
-                                    <button id="copyVendorReferralLinkBtn" type="button" class="px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all">Copier</button>
+                                <div>
+                                    <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre lien</label>
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <input id="vendorReferralLink" type="text" readonly class="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none text-sm text-gray-700" placeholder="Chargement...">
+                                        <button id="copyVendorReferralLinkBtn" type="button" class="px-4 py-3 rounded-xl bg-white border border-gray-200 text-gray-900 text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition-all">Copier</button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4">
-                                <p class="text-sm font-semibold text-gray-900">Astuce</p>
-                                <p class="text-xs text-gray-500 mt-1">Vous pouvez envoyer ce lien sur WhatsApp, Facebook ou par message direct.</p>
+                                <div class="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4">
+                                    <p class="text-sm font-semibold text-gray-900">Astuce</p>
+                                    <p class="text-xs text-gray-500 mt-1">Vous pouvez envoyer ce lien sur WhatsApp, Facebook ou par message direct.</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
+                        <div class="glass-panel p-8 flex-1" id="vendorProBlock">
+                            <h2 class="text-xl font-bold mb-2 flex items-center gap-2">Certification Vendeur Pro <iconify-icon icon="solar:verified-check-bold" class="text-blue-500"></iconify-icon></h2>
+                            <p class="text-sm text-gray-400 mb-6">Devenez un vendeur certifie pour inspirer confiance a vos clients et debloquer plus de fonctionnalites.</p>
+                            <div id="vendorProStatusBanner" class="hidden mb-6 p-4 rounded-2xl flex items-start gap-4 border">
+                                <div id="vendorProStatusIconContainer" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                                    <iconify-icon id="vendorProStatusIcon" icon="" width="24"></iconify-icon>
+                                </div>
+                                <div>
+                                    <h3 id="vendorProStatusTitle" class="font-bold"></h3>
+                                    <p id="vendorProStatusDesc" class="text-xs mt-1"></p>
+                                </div>
+                            </div>
+                            <form id="vendorProCertificationForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Numero RCCM</label>
+                                    <input type="text" name="rccm_number" id="certRccm" required placeholder="Ex: CD/KIN/RCCM/21-B-00000" class="w-full text-sm px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Nom Professionnel de l Entreprise</label>
+                                    <input type="text" name="company_name" id="certCompanyName" required placeholder="Ex: Ma Belle Entreprise SARL" class="w-full text-sm px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase tracking-widest text-gray-900 mb-1">Document Justificatif (Optionnel)</label>
+                                    <label for="vRccmDocument" class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all group">
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <iconify-icon icon="solar:upload-bold-duotone" width="24" class="text-gray-400 group-hover:text-black transition-all mb-2"></iconify-icon>
+                                            <p class="text-xs text-gray-500 font-medium" id="vRccmDocumentLabel">Choisir un fichier...</p>
+                                        </div>
+                                        <input id="vRccmDocument" name="document" type="file" class="hidden" accept=".pdf,image/*">
+                                    </label>
+                                </div>
+                                <button type="submit" id="vendorProSubmitBtn" class="bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all w-full sm:w-auto mt-2">
+                                    Soumettre la demande
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
-        </div>
     </div>
 </div>
 
@@ -8486,7 +8472,6 @@ function openOrderModal(id) {
 
 </body>
 </html>
-
 
 
 
