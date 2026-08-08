@@ -8044,51 +8044,11 @@ function openOrderModal(id) {
 
     </script>
 
-
     <script>
-        (function() {
-            const normalize = (value) => String(value || '').trim().toLowerCase();
-
-            const isVendorCertified = () => {
-                const profile = window.ProfileManager?.getProfile ? window.ProfileManager.getProfile() : null;
-                const status = [
-                    window.AuthManager?.status,
-                    localStorage.getItem('newketUserStatus'),
-                    profile?.business_verification_status,
-                    profile?.status
-                ].map(normalize).find(Boolean) || '';
-                const sellerType = [
-                    window.AuthManager?.sellerType,
-                    localStorage.getItem('newketSellerType'),
-                    profile?.seller_type
-                ].map(normalize).find(Boolean) || '';
-
-                return status === 'approved' || status === 'verified' || sellerType === 'certified';
-            };
-
-            const syncVendorProBlock = () => {
-                const block = document.getElementById('vendorProBlock');
-                if (!block) return;
-                block.classList.toggle('hidden', isVendorCertified());
-            };
-
-            const run = () => {
-                syncVendorProBlock();
-                window.setTimeout(syncVendorProBlock, 400);
-                window.setTimeout(syncVendorProBlock, 1500);
-            };
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', run, { once: true });
-            } else {
-                run();
-            }
-
-            window.addEventListener('newketInitialized', run);
-            window.addEventListener('userStatusUpdated', run);
-            window.addEventListener('sellerTypeUpdated', run);
-            window.addEventListener('profileUpdated', run);
-        })();
+        // NOTE: La visibilité du bloc certification est gérée uniquement par le script async
+        // DOMContentLoaded ci-dessus. Ce script secondaire a été désactivé pour éviter
+        // tout conflit qui masquerait le formulaire de demande de certification.
+        // (L'ancien syncVendorProBlock cachait tout le bloc même pour les non-certifiés.)
     </script>
 
     <script>

@@ -5,6 +5,10 @@ function getProfileClient(req) {
     return hasServiceRoleKey ? supabaseAdmin : createUserSupabaseClient(req.token);
 }
 
+const USERNAME_LOCK_DAYS = 14;
+const USERNAME_LOCK_MS = USERNAME_LOCK_DAYS * 24 * 60 * 60 * 1000;
+const LEGACY_PROFILE_SELECT = 'id, email, name, role, status, avatar, company_name, store_phone, cover_image, shipping_time, date_joined, store_description';
+
 function normalizeLoginUsername(value) {
     return String(value || '')
         .normalize('NFD')
@@ -23,34 +27,129 @@ function isValidLoginUsername(value) {
     );
 }
 
+function isMissingColumnError(err) {
+    const code = String(err?.code || '');
+    const message = String(err?.message || err?.details || '').toLowerCase();
+    return code === '42703' || (message.includes('column') && message.includes('does not exist'));
+}
+
+function getUserMetadata(user) {
+    return user?.user_metadata || {};
+}
+
+function getResolvedUsername(row = null, authUser = null) {
+    const metadata = getUserMetadata(authUser);
+    return normalizeLoginUsername(
+        metadata.username ||
+        metadata.company_name ||
+        metadata.name ||
+        row?.username ||
+        row?.company_name ||
+        row?.name ||
+        ''
+    );
+}
+
+function getResolvedFirstName(row = null, authUser = null) {
+    const metadata = getUserMetadata(authUser);
+    return String(metadata.first_name || row?.first_name || '').trim();
+}
+
+function getResolvedLastName(row = null, authUser = null) {
+    const metadata = getUserMetadata(authUser);
+    return String(metadata.last_name || row?.last_name || '').trim();
+}
+
+function getResolvedLockState(row = null, authUser = null) {
+    const metadata = getUserMetadata(authUser);
+    const usernameChangedAt = metadata.username_changed_at || row?.username_changed_at || null;
+    const usernameReservedValue = metadata.username_reserved_value || row?.username_reserved_value || null;
+    const usernameReservedUntil = metadata.username_reserved_until || row?.username_reserved_until || null;
+    const changedAtMs = usernameChangedAt ? new Date(usernameChangedAt).getTime() : 0;
+    const reservedUntilMs = usernameReservedUntil ? new Date(usernameReservedUntil).getTime() : 0;
+
+    return {
+        changedAtMs,
+        reservedUntilMs,
+        reservedValue: normalizeLoginUsername(usernameReservedValue),
+        isLocked: Boolean(changedAtMs && (Date.now() - changedAtMs) < USERNAME_LOCK_MS)
+    };
+}
+
+async function getAuthUserById(userId) {
+    if (!hasServiceRoleKey || !supabaseAdmin?.auth?.admin?.getUserById) {
+        return null;
+    }
+
+    const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
+    if (error) throw error;
+    return data?.user || null;
+}
+
+async function listAllAuthUsers() {
+    if (!hasServiceRoleKey || !supabaseAdmin?.auth?.admin?.listUsers) {
+        return [];
+    }
+
+    const users = [];
+    const perPage = 1000;
+
+    for (let page = 1; page <= 10; page += 1) {
+        const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+        if (error) throw error;
+
+        const batch = data?.users || data || [];
+        if (Array.isArray(batch) && batch.length) {
+            users.push(...batch);
+        }
+
+        if (!Array.isArray(batch) || batch.length < perPage) {
+            break;
+        }
+    }
+
+    return users;
+}
+
 async function findUsernameConflict(sb, username, userId = null) {
     const normalized = normalizeLoginUsername(username);
     if (!normalized) return null;
 
     const { data, error } = await sb
         .from('users')
-        .select('id, email, username, company_name, name, shop_slug, username_reserved_value, username_reserved_until')
+        .select('id, email, name, company_name')
         .or([
-            `username.ilike.${normalized}`,
-            `company_name.ilike.${normalized}`,
             `name.ilike.${normalized}`,
-            `shop_slug.ilike.${normalized}`,
-            `username_reserved_value.ilike.${normalized}`
+            `company_name.ilike.${normalized}`
         ].join(','))
-        .limit(20);
+        .limit(100);
 
-    if (error) throw error;
+    if (error && !isMissingColumnError(error)) throw error;
 
     const now = Date.now();
-    return (Array.isArray(data) ? data : []).find((row) => {
+    const publicConflict = (Array.isArray(data) ? data : []).find((row) => {
         if (userId && String(row.id) === String(userId)) return false;
-        const active = normalizeLoginUsername(row.username);
-        const store = normalizeLoginUsername(row.company_name);
         const display = normalizeLoginUsername(row.name);
-        const slug = normalizeLoginUsername(row.shop_slug);
-        const reserved = normalizeLoginUsername(row.username_reserved_value);
-        const reservedUntil = row.username_reserved_until ? new Date(row.username_reserved_until).getTime() : 0;
-        return active === normalized || store === normalized || display === normalized || slug === normalized || (reserved === normalized && reservedUntil > now);
+        const store = normalizeLoginUsername(row.company_name);
+        return display === normalized || store === normalized;
+    }) || null;
+
+    if (publicConflict) return publicConflict;
+
+    const authUsers = await listAllAuthUsers();
+    return authUsers.find((user) => {
+        if (userId && String(user.id) === String(userId)) return false;
+
+        const metadata = getUserMetadata(user);
+        const active = [
+            metadata.username,
+            metadata.company_name,
+            metadata.name
+        ].map(normalizeLoginUsername);
+        const reserved = normalizeLoginUsername(metadata.username_reserved_value);
+        const reservedUntil = metadata.username_reserved_until ? new Date(metadata.username_reserved_until).getTime() : 0;
+
+        return active.includes(normalized) || (reserved === normalized && reservedUntil > now);
     }) || null;
 }
 
@@ -62,7 +161,7 @@ export const getMyProfile = async (req, res) => {
         const sb = getProfileClient(req);
         const { data, error } = await sb
             .from('users')
-            .select('id, email, name, username, first_name, last_name, role, status, avatar, company_name, store_phone, cover_image, shipping_time, date_joined, shop_slug, username_changed_at, username_reserved_value, username_reserved_until')
+            .select(LEGACY_PROFILE_SELECT)
             .eq('id', userId)
             .single();
 
@@ -71,8 +170,19 @@ export const getMyProfile = async (req, res) => {
         }
 
         if (!data) return res.json(null);
+
+        const authUser = await getAuthUserById(userId);
+        const metadata = getUserMetadata(authUser);
+
         res.json({
             ...data,
+            username: getResolvedUsername(data, authUser),
+            first_name: getResolvedFirstName(data, authUser) || null,
+            last_name: getResolvedLastName(data, authUser) || null,
+            company_name: metadata.company_name || data.company_name || getResolvedUsername(data, authUser) || null,
+            username_changed_at: metadata.username_changed_at || data.username_changed_at || null,
+            username_reserved_value: metadata.username_reserved_value || data.username_reserved_value || null,
+            username_reserved_until: metadata.username_reserved_until || data.username_reserved_until || null,
             phone: data.store_phone || null
         });
     } catch (err) {
@@ -88,13 +198,17 @@ export const updateMyProfile = async (req, res) => {
 
         const sb = getProfileClient(req);
         const updates = req.body || {};
-        const current = await sb
+        const currentResult = await sb
             .from('users')
-            .select('id, role, username, company_name, name, username_reserved_value, username_reserved_until, username_changed_at')
+            .select('id, role, name, company_name, store_phone, shipping_time, store_description')
             .eq('id', userId)
             .single();
 
-        if (current.error) throw current.error;
+        if (currentResult.error) throw currentResult.error;
+        const current = currentResult.data || null;
+        const currentAuthUser = await getAuthUserById(userId);
+        const currentUsername = getResolvedUsername(current, currentAuthUser);
+        const currentLock = getResolvedLockState(current, currentAuthUser);
 
         const incomingUsername = typeof updates.username === 'string'
             ? normalizeLoginUsername(updates.username)
@@ -106,62 +220,100 @@ export const updateMyProfile = async (req, res) => {
             ? updates.last_name.trim()
             : undefined;
 
-        const allowed = {
-            store_phone: typeof updates.phone === 'string' ? updates.phone.trim() : undefined,
-            shipping_time: typeof updates.shipping_time === 'string' ? updates.shipping_time.trim() : undefined,
-            store_description: typeof updates.store_description === 'string' ? updates.store_description.trim() : undefined
-        };
-        if (typeof updates.email === 'string') allowed.email = updates.email.trim().toLowerCase();
-        if (incomingFirstName !== undefined) allowed.first_name = incomingFirstName;
-        if (incomingLastName !== undefined) allowed.last_name = incomingLastName;
-        if (incomingUsername) {
+        if (incomingUsername && incomingUsername !== currentUsername) {
             if (!isValidLoginUsername(incomingUsername)) {
                 return res.status(422).json({ error: 'Le nom d\'utilisateur doit contenir au moins 8 caracteres, en minuscules, avec des lettres obligatoires.' });
+            }
+
+            if (currentLock.isLocked && incomingUsername !== currentLock.reservedValue) {
+                return res.status(422).json({ error: 'Vous ne pouvez modifier le nom d\'utilisateur qu\'une fois tous les 14 jours.' });
             }
 
             const conflict = await findUsernameConflict(sb, incomingUsername, userId);
             if (conflict) {
                 return res.status(409).json({ error: 'Ce nom d\'utilisateur est deja pris.' });
             }
-
-            allowed.username = incomingUsername;
-            allowed.name = incomingUsername;
-
-            if (current.data?.role === 'supplier') {
-                allowed.company_name = incomingUsername;
-                allowed.shop_slug = incomingUsername;
-            }
-        } else if (current.data?.role === 'supplier') {
-            const fallbackStore = typeof updates.company_name === 'string' ? normalizeLoginUsername(updates.company_name) : normalizeLoginUsername(current.data?.company_name || current.data?.name);
-            if (fallbackStore && isValidLoginUsername(fallbackStore)) {
-                allowed.company_name = fallbackStore;
-                allowed.username = fallbackStore;
-                allowed.name = fallbackStore;
-                allowed.shop_slug = fallbackStore;
-            }
         }
+
+        const nextUsername = incomingUsername || currentUsername;
+        const changedUsername = Boolean(incomingUsername && incomingUsername !== currentUsername);
+        const usernameChangedAt = changedUsername
+            ? new Date().toISOString()
+            : (currentAuthUser?.user_metadata?.username_changed_at || current?.username_changed_at || null);
+        const usernameReservedValue = changedUsername
+            ? currentUsername
+            : (currentAuthUser?.user_metadata?.username_reserved_value || current?.username_reserved_value || null);
+        const usernameReservedUntil = changedUsername
+            ? new Date(Date.now() + USERNAME_LOCK_MS).toISOString()
+            : (currentAuthUser?.user_metadata?.username_reserved_until || current?.username_reserved_until || null);
+
+        const allowed = {
+            store_phone: typeof updates.phone === 'string' ? updates.phone.trim() : undefined,
+            shipping_time: typeof updates.shipping_time === 'string' ? updates.shipping_time.trim() : undefined,
+            store_description: typeof updates.store_description === 'string' ? updates.store_description.trim() : undefined,
+            name: nextUsername || current?.name || currentAuthUser?.user_metadata?.name || undefined,
+            company_name: nextUsername || current?.company_name || currentAuthUser?.user_metadata?.company_name || undefined,
+            username: nextUsername || undefined,
+            first_name: incomingFirstName !== undefined ? incomingFirstName : undefined,
+            last_name: incomingLastName !== undefined ? incomingLastName : undefined,
+            shop_slug: nextUsername || undefined,
+            username_changed_at: usernameChangedAt || undefined,
+            username_reserved_value: usernameReservedValue || undefined,
+            username_reserved_until: usernameReservedUntil || undefined
+        };
+        if (typeof updates.email === 'string') allowed.email = updates.email.trim().toLowerCase();
 
         Object.keys(allowed).forEach((k) => allowed[k] === undefined && delete allowed[k]);
 
-        const { data, error } = await sb
-            .from('users')
-            .update({ ...allowed })
-            .eq('id', userId)
-            .select()
-            .single();
+        const legacyUpdates = {
+            email: allowed.email,
+            store_phone: allowed.store_phone,
+            shipping_time: allowed.shipping_time,
+            store_description: allowed.store_description,
+            name: allowed.name,
+            company_name: allowed.company_name
+        };
+        Object.keys(legacyUpdates).forEach((k) => legacyUpdates[k] === undefined && delete legacyUpdates[k]);
 
-        if (error) throw error;
+        const applyProfileUpdate = async (payload) => {
+            const result = await sb
+                .from('users')
+                .update(payload)
+                .eq('id', userId)
+                .select(LEGACY_PROFILE_SELECT)
+                .single();
+
+            if (result.error) {
+                throw result.error;
+            }
+
+            return result.data;
+        };
+
+        let data;
+        try {
+            data = await applyProfileUpdate(allowed);
+        } catch (updateError) {
+            if (!isMissingColumnError(updateError)) {
+                throw updateError;
+            }
+
+            data = await applyProfileUpdate(legacyUpdates);
+        }
 
         if (hasServiceRoleKey) {
             try {
                 await supabaseAdmin.auth.admin.updateUserById(userId, {
                     user_metadata: {
-                        ...req.user?.user_metadata,
-                        username: data.username || data.name || null,
-                        first_name: data.first_name || null,
-                        last_name: data.last_name || null,
-                        company_name: data.company_name || null,
-                        role: data.role || req.user?.app_metadata?.role || null
+                        ...getUserMetadata(currentAuthUser),
+                        username: nextUsername || getResolvedUsername(data, currentAuthUser) || null,
+                        first_name: incomingFirstName !== undefined ? incomingFirstName : getResolvedFirstName(data, currentAuthUser) || null,
+                        last_name: incomingLastName !== undefined ? incomingLastName : getResolvedLastName(data, currentAuthUser) || null,
+                        company_name: nextUsername || data.company_name || getResolvedUsername(data, currentAuthUser) || null,
+                        username_changed_at: usernameChangedAt,
+                        username_reserved_value: usernameReservedValue,
+                        username_reserved_until: usernameReservedUntil,
+                        role: data.role || currentAuthUser?.app_metadata?.role || getUserMetadata(currentAuthUser)?.role || null
                     }
                 });
             } catch (authError) {
@@ -169,7 +321,20 @@ export const updateMyProfile = async (req, res) => {
             }
         }
 
-        res.json({ success: true, data: { ...data, phone: data?.store_phone || null } });
+        res.json({
+            success: true,
+            data: {
+                ...data,
+                username: nextUsername || data.username || data.name || null,
+                first_name: incomingFirstName !== undefined ? incomingFirstName : getResolvedFirstName(data, currentAuthUser) || null,
+                last_name: incomingLastName !== undefined ? incomingLastName : getResolvedLastName(data, currentAuthUser) || null,
+                company_name: nextUsername || data.company_name || getResolvedUsername(data, currentAuthUser) || null,
+                username_changed_at: usernameChangedAt,
+                username_reserved_value: usernameReservedValue,
+                username_reserved_until: usernameReservedUntil,
+                phone: data?.store_phone || null
+            }
+        });
     } catch (err) {
         console.error('Erreur updateMyProfile:', err);
         const code = String(err?.code || '');
@@ -218,39 +383,30 @@ export const resolveUsernameToEmail = async (req, res) => {
             return res.status(400).json({ error: 'Nom d\'utilisateur manquant.' });
         }
 
-        const sb = getProfileClient(req);
-        const { data, error } = await sb
-            .from('users')
-            .select('id, email, username, company_name, name, shop_slug, role, status')
-            .or([
-                `username.ilike.${username}`,
-                `company_name.ilike.${username}`,
-                `name.ilike.${username}`,
-                `shop_slug.ilike.${username}`
-            ].join(','))
-            .limit(5);
-
-        if (error) throw error;
-
-        const match = (Array.isArray(data) ? data : []).find((row) => {
+        const authUsers = await listAllAuthUsers();
+        const match = authUsers.find((user) => {
+            const metadata = getUserMetadata(user);
             const candidates = [
-                row.username,
-                row.company_name,
-                row.name,
-                row.shop_slug
+                metadata.username,
+                metadata.company_name,
+                metadata.name
             ].map(normalizeLoginUsername);
-            return candidates.includes(username);
+            const reserved = normalizeLoginUsername(metadata.username_reserved_value);
+            const reservedUntil = metadata.username_reserved_until ? new Date(metadata.username_reserved_until).getTime() : 0;
+
+            return candidates.includes(username) || (reserved === username && reservedUntil > Date.now());
         });
 
         if (!match?.email) {
             return res.status(404).json({ error: 'Utilisateur introuvable.' });
         }
 
+        const metadata = getUserMetadata(match);
         res.json({
             email: match.email,
-            username: match.username || match.company_name || match.name || username,
-            role: match.role || null,
-            status: match.status || null
+            username: metadata.username || metadata.company_name || metadata.name || username,
+            role: match.app_metadata?.role || metadata.role || null,
+            status: metadata.status || null
         });
     } catch (err) {
         console.error('Erreur resolveUsernameToEmail:', err);
