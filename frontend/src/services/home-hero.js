@@ -26,11 +26,9 @@ function renderHero(config) {
     const slider = document.getElementById('heroSlider');
     const slides = Array.isArray(config?.slides) ? config.slides : [];
     if (slider && slides.length > 0) {
-        const isMobile = window.matchMedia?.('(max-width: 768px)')?.matches;
-        const mobileFallback = '/Images/What-is-a-online-marketplace-services.webp';
         slider.innerHTML = slides.map((s, idx) => {
             const overlay = typeof s.overlay === 'number' ? s.overlay : 0.4;
-            const imageUrl = idx === 0 && isMobile ? mobileFallback : (s.imageUrl || '');
+            const imageUrl = s.imageUrl || '';
             const active = idx === 0 ? ' active' : '';
             const bg = `linear-gradient(rgba(0, 0, 0, ${overlay}), rgba(0, 0, 0, ${overlay})), url('${imageUrl.replace(/'/g, '\\\'')}')`;
             return `<div class="hero-slide${active}" style="background-image: ${bg};"></div>`;

@@ -43,11 +43,7 @@ function normalizeHeroImageUrl(value) {
 const HeroContentManager = {
     defaults: {
         id: HERO_ROW_ID,
-        slides: [
-            { imageUrl: 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572394/newket_assets/frontend/src/assets/Images/marketplace-hero.jpg', overlay: 0.4 },
-            { imageUrl: 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572388/newket_assets/frontend/src/assets/Images/hero-black-friday.png', overlay: 0.4 },
-            { imageUrl: 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572386/newket_assets/frontend/src/assets/Images/hero-bf-definition.webp', overlay: 0.4 }
-        ],
+        slides: [],
         content: {
             titleLine1: 'SUBTILE',
             titleLine2: 'ÉLÉGANCE.',
@@ -85,7 +81,7 @@ const HeroContentManager = {
 
         return {
             id: safeString(raw?.id || HERO_ROW_ID) || HERO_ROW_ID,
-            slides: normalizedSlides.length ? normalizedSlides : base.slides,
+            slides: normalizedSlides,
             content: {
                 titleLine1: safeString(content.titleLine1 || base.content.titleLine1),
                 titleLine2: safeString(content.titleLine2 || base.content.titleLine2),
