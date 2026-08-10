@@ -1,6 +1,27 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
+
+function getHtmlPages(dir, baseDir = '') {
+  let results = {};
+  try {
+    const list = readdirSync(dir);
+    list.forEach(file => {
+      const fullPath = resolve(dir, file);
+      const stat = statSync(fullPath);
+      if (stat && stat.isDirectory()) {
+        results = { ...results, ...getHtmlPages(fullPath, `${baseDir}${file}_`) };
+      } else if (file.endsWith('.html')) {
+        const name = file.replace('.html', '');
+        const key = baseDir ? `${baseDir}${name}` : name;
+        results[key] = fullPath;
+      }
+    });
+  } catch (e) {
+    console.warn('Erreur lors de la lecture du dossier :', e);
+  }
+  return results;
+}
 
 const buildVersion = process.env.VERCEL_DEPLOYMENT_ID
   || process.env.VERCEL_GIT_COMMIT_SHA
@@ -115,57 +136,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        catalog: resolve(__dirname, 'src/pages/catalog.html'),
-        product: resolve(__dirname, 'src/pages/product.html'),
-        publish: resolve(__dirname, 'src/pages/publish.html'),
-        login: resolve(__dirname, 'src/pages/login.html'),
-        choose_role: resolve(__dirname, 'src/pages/choose-role.html'),
-        dashboard: resolve(__dirname, 'src/pages/vendor-dashboard.html'),
-        customer: resolve(__dirname, 'src/pages/customer-dashboard.html'),
-        settings: resolve(__dirname, 'src/pages/settings.html'),
-        shops: resolve(__dirname, 'src/pages/shops.html'),
-        seller_onboarding: resolve(__dirname, 'src/pages/seller-onboarding.html'),
-        shop: resolve(__dirname, 'src/pages/shop.html'),
-        notifications: resolve(__dirname, 'src/pages/notifications.html'),
-        favorites: resolve(__dirname, 'src/pages/favorites.html'),
-
-        about: resolve(__dirname, 'src/pages/about.html'),
-        privacy: resolve(__dirname, 'src/pages/privacy.html'),
-        terms: resolve(__dirname, 'src/pages/terms.html'),
-        error404: resolve(__dirname, 'src/pages/404.html'),
-        error500: resolve(__dirname, 'src/pages/500.html'),
-        achat: resolve(__dirname, 'src/pages/achat.html'),
-        faq: resolve(__dirname, 'src/pages/faq.html'),
-        payment_success: resolve(__dirname, 'src/pages/payment-success.html'),
-        invoice_verify: resolve(__dirname, 'src/pages/invoice-verify.html'),
-        promo: resolve(__dirname, 'src/pages/promo.html'),
-        support: resolve(__dirname, 'src/pages/support.html'),
-        system_health: resolve(__dirname, 'src/pages/system-health.html'),
-        payment_cancel: resolve(__dirname, 'src/pages/payment-cancel.html'),
-        
-        admin_index: resolve(__dirname, 'src/pages/admin/index.html'),
-        admin_realtime: resolve(__dirname, 'src/pages/admin/realtime.html'),
-        admin_analytics: resolve(__dirname, 'src/pages/admin/analytics.html'),
-        admin_activities: resolve(__dirname, 'src/pages/admin/activities.html'),
-        admin_diagnostics: resolve(__dirname, 'src/pages/admin/diagnostics.html'),
-        admin_notifications: resolve(__dirname, 'src/pages/admin/notifications-admin.html'),
-        admin_orders: resolve(__dirname, 'src/pages/admin/orders.html'),
-        admin_otp_guide: resolve(__dirname, 'src/pages/admin/otp-guide.html'),
-        admin_otp_tracker: resolve(__dirname, 'src/pages/admin/otp-tracker.html'),
-        admin_products: resolve(__dirname, 'src/pages/admin/products.html'),
-        admin_reviews: resolve(__dirname, 'src/pages/admin/reviews.html'),
-        admin_branding: resolve(__dirname, 'src/pages/admin/branding.html'),
-        admin_hero: resolve(__dirname, 'src/pages/admin/hero.html'),
-        admin_settings: resolve(__dirname, 'src/pages/admin/settings.html'),
-        admin_referrals: resolve(__dirname, 'src/pages/admin/referrals.html'),
-        admin_support: resolve(__dirname, 'src/pages/admin/support.html'),
-        admin_user: resolve(__dirname, 'src/pages/admin/user.html'),
-        admin_user_details: resolve(__dirname, 'src/pages/admin/user-details.html'),
-        admin_security: resolve(__dirname, 'src/pages/admin/security.html'),
-        admin_newsletter: resolve(__dirname, 'src/pages/admin/newsletter.html'),
-        admin_comptabilite: resolve(__dirname, 'src/pages/admin/comptabilite.html'),
-        admin_disputes: resolve(__dirname, 'src/pages/admin/disputes.html'),
-        admin_payouts: resolve(__dirname, 'src/pages/admin/payouts.html')
+        ...getHtmlPages(resolve(__dirname, 'src/pages'))
       },
       output: {
         manualChunks(id) {
