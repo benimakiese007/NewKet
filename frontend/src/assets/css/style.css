@@ -1139,6 +1139,10 @@ body.search-focused .main-header {
   box-shadow: 0 10px 24px rgba(1, 50, 32, 0.18);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .newket-header-shell .header-icon-button:hover {
