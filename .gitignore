@@ -34,3 +34,7 @@ newket-ad/
 # IA Agents (do not commit)
 .agents/
 antigravity-workflows/
+
+# Secrets locaux (tokens, credentials)
+.secrets
+scripts/bat/.secrets

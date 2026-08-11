@@ -50,6 +50,19 @@ IF "%branche%"=="" (
 
 echo.
 echo [Supabase] Envoi des migrations vers la base de donnees de production...
+
+REM Charger les secrets depuis le fichier .secrets
+set SECRETS_FILE=%~dp0.secrets
+if exist "%SECRETS_FILE%" (
+    for /f "tokens=1,2 delims==" %%A in ('type "%SECRETS_FILE%"') do (
+        set %%A=%%B
+    )
+)
+
+REM Authentification + liaison + push
+set SUPABASE_ACCESS_TOKEN=%SUPABASE_ACCESS_TOKEN%
+call npx supabase login --token %SUPABASE_ACCESS_TOKEN%
+call npx supabase link --project-ref %SUPABASE_PROJECT_REF%
 call npx supabase db push
 
 echo.
