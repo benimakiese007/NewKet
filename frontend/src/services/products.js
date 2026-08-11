@@ -106,34 +106,39 @@ const ProductManager = {
     },
 
     /**
-     * Set up Supabase Realtime subscription for new products.
+     * Set up Supabase Realtime subscription for all product changes (INSERT, UPDATE, DELETE).
      */
     _setupRealtime() {
         if (this._realtimeChannel) return; // Already subscribed
 
-        this._realtimeChannel = window.SupabaseAdapter.subscribeToTable('products', 'INSERT', (payload) => {
-            this._handleNewProductRealtime(payload.new);
-        });
+        const client = window.SupabaseAdapter ? window.SupabaseAdapter.getClient() : null;
+        if (!client) return;
+
+        this._realtimeChannel = client
+            .channel('public:products:manager')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'products' }, (payload) => {
+                this._handleNewProductRealtime(payload.new);
+            })
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, (payload) => {
+                this._handleUpdatedProductRealtime(payload.new);
+            })
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'products' }, (payload) => {
+                this._handleDeletedProductRealtime(payload.old);
+            })
+            .subscribe((status) => {
+                console.log('[ProductManager] Realtime status:', status);
+            });
     },
 
     /**
      * Handles a new product arriving via Supabase Realtime.
      */
     _handleNewProductRealtime(rawProduct) {
-        // 1. Map to UI format
         const product = this._mapProduct(rawProduct);
-
-        // 2. Check if already exists (avoid duplicates from current user's unshift)
         if (this.products.some(p => p.id === product.id)) return;
-
-        // 3. Add to list
         this.products.unshift(product);
         this._totalCount++;
-
-        // 4. Update UI
         window.dispatchEvent(new CustomEvent('productsUpdated'));
-
-        // 5. Notify user
         if (window.AppNotifications) {
             AppNotifications.showToast(
                 'Nouveau produit ! 🆕',
@@ -142,6 +147,27 @@ const ProductManager = {
                 'solar:shop-2-bold'
             );
         }
+    },
+
+    /**
+     * Handles a product update arriving via Supabase Realtime (price, stock, name…).
+     */
+    _handleUpdatedProductRealtime(rawProduct) {
+        const updated = this._mapProduct(rawProduct);
+        const idx = this.products.findIndex(p => p.id === updated.id);
+        if (idx !== -1) {
+            this.products[idx] = updated;
+        }
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
+    },
+
+    /**
+     * Handles a product deletion arriving via Supabase Realtime.
+     */
+    _handleDeletedProductRealtime(oldProduct) {
+        this.products = this.products.filter(p => p.id !== oldProduct.id);
+        this._totalCount = Math.max(0, this._totalCount - 1);
+        window.dispatchEvent(new CustomEvent('productsUpdated'));
     },
 
     /**

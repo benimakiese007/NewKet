@@ -458,3 +458,54 @@ window.ActivityManager = ActivityManager;
 window.NotificationManager = NotificationManager;
 window.ReviewManager = ReviewManager;
 window.SupportManager = SupportManager;
+
+// ========== TRANSACTION MANAGER ==========
+const TransactionManager = {
+    transactions: [],
+
+    async init(force = false) {
+        if (!window.ApiClient) return;
+        if (!window.AuthManager || !window.AuthManager.role) return;
+
+        const lastFetch = localStorage.getItem('newket_payments_sync_time');
+        const now = Date.now();
+        const COOLDOWN = 1000 * 60 * 5; // 5 mins
+        if (!force && lastFetch && (now - parseInt(lastFetch)) < COOLDOWN && this.transactions.length > 0) {
+            window.dispatchEvent(new CustomEvent('transactionsUpdated'));
+            return;
+        }
+
+        try {
+            const data = await window.ApiClient.get('/payments', { suppressNetworkError: true });
+            this.transactions = Array.isArray(data) ? data : [];
+            localStorage.setItem('newket_payments_sync_time', now.toString());
+        } catch (e) {
+            console.error('[TransactionManager] Init error:', e);
+            this.transactions = [];
+        }
+
+        window.dispatchEvent(new CustomEvent('transactionsUpdated'));
+        this._setupRealtime();
+    },
+
+    _setupRealtime() {
+        if (this._realtimeSubscription || !window.supabaseClient) return;
+        this._realtimeSubscription = window.supabaseClient
+            .channel('public:payments:manager')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, (payload) => {
+                console.log('[TransactionManager] Realtime update:', payload);
+                localStorage.removeItem('newket_payments_sync_time');
+                if (this._realtimeTimeout) clearTimeout(this._realtimeTimeout);
+                this._realtimeTimeout = setTimeout(() => {
+                    this.init(true).catch(err => console.error('[TransactionManager] Realtime sync error:', err));
+                }, 800);
+            })
+            .subscribe((status) => {
+                console.log('[TransactionManager] Realtime status:', status);
+            });
+    },
+
+    getTransactions() { return this.transactions; },
+};
+
+window.TransactionManager = TransactionManager;
