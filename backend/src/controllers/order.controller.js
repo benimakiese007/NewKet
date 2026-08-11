@@ -293,15 +293,11 @@ export const getOrders = async (req, res) => {
             .range(offset, offset + limit - 1);
 
         if (!isAdminActor(req.user)) {
-            const role = req.user?.app_metadata?.role || req.user?.user_metadata?.role || 'customer';
-            if (role === 'supplier') {
-                // A vendor can also buy: return both vendor-side and customer-side orders.
-                query = query.or(
-                    `vendor_id.eq.${userId},customer_id.eq.${userId},user_id.eq.${userId},customer_email.eq.${req.user?.email || ''}`
-                );
-            } else {
-                query = query.or(`customer_id.eq.${userId},user_id.eq.${userId},customer_email.eq.${req.user?.email || ''}`);
-            }
+            // Peu importe le rôle strict dans le token, on autorise l'utilisateur à voir ses commandes
+            // s'il est vendeur (vendor_id), client (customer_id/user_id) ou que son email correspond.
+            query = query.or(
+                `vendor_id.eq.${userId},customer_id.eq.${userId},user_id.eq.${userId},customer_email.eq.${req.user?.email || ''}`
+            );
         }
 
         const { data, error } = await query;

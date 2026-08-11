@@ -14,6 +14,9 @@ Il est organisé en 3 sous-dossiers :
 Pour lancer un script, utilise son fichier .bat correspondant
 dans le dossier bat/ — ou tape la commande depuis la racine du projet.
 
+⭐ LE PLUS SIMPLE : Lancez bat\MENU.bat pour avoir une interface 
+   interactive regroupant la majorité de ces scripts !
+
 ════════════════════════════════════════════════════════════════════
   📊 STATISTIQUES & DIAGNOSTICS
 ════════════════════════════════════════════════════════════════════
@@ -91,6 +94,72 @@ dans le dossier bat/ — ou tape la commande depuis la racine du projet.
   Nécessaire pour tester les webhooks Stripe en local.
 
 ════════════════════════════════════════════════════════════════════
+  🛠️ OUTILS & UTILITAIRES RAPIDES
+════════════════════════════════════════════════════════════════════
+
+► MENU.bat
+  ------------------------------------------------------------------
+  Ouvre un menu interactif global. C'est le point d'entrée recommandé.
+
+► search_text.bat
+  ------------------------------------------------------------------
+  Permet de rechercher une chaîne de texte spécifique partout dans 
+  le code source du projet.
+
+► find_todos.bat
+  ------------------------------------------------------------------
+  Cherche et affiche tous les commentaires "TODO" et "FIXME" du code.
+
+► nuclear_reset.bat
+  ------------------------------------------------------------------
+  Supprime tous les caches et tous les dossiers node_modules, puis 
+  réinstalle tout proprement. À utiliser en dernier recours !
+
+► kill_node_processes.bat
+  ------------------------------------------------------------------
+  Tue de force tous les processus Node.js pour libérer les ports 
+  bloqués (ex: 3000, 5173).
+
+► quick_status.bat
+  ------------------------------------------------------------------
+  Affiche le statut Git, les derniers commits et l'occupation des ports.
+
+► sync_env.bat
+  ------------------------------------------------------------------
+  Copie les fichiers .env.example en .env s'ils sont manquants.
+
+════════════════════════════════════════════════════════════════════
+  🛡️ SÉCURITÉ
+════════════════════════════════════════════════════════════════════
+
+► MENU_SECURITE.bat
+  ------------------------------------------------------------------
+  Ouvre le sous-menu dédié aux outils de sécurité.
+
+► sec_audit_deps.bat
+  ------------------------------------------------------------------
+  Lance `npm audit` sur le frontend et le backend pour lister les failles.
+
+► sec_scan_secrets.bat
+  ------------------------------------------------------------------
+  Scanne le code pour repérer d'éventuels mots de passe, tokens ou 
+  clés d'API codés en dur par accident.
+
+════════════════════════════════════════════════════════════════════
+  🟩 SOUS-MENU SCRIPTS NODE.JS (.MJS)
+════════════════════════════════════════════════════════════════════
+
+► MENU_MJS.bat
+  ------------------------------------------------------------------
+  Ouvre un sous-menu dédié exclusivement aux scripts Node.js (.mjs).
+  Permet de lancer individuellement les scripts de stats ou de backup.
+
+► run_all_diagnostics.bat
+  ------------------------------------------------------------------
+  Lance TOUS les scripts .mjs de type "diagnostic" à la chaîne
+  (count-stats, check-garde-fou, count-product-images).
+
+════════════════════════════════════════════════════════════════════
   🗄️ BASE DE DONNÉES & DONNÉES
 ════════════════════════════════════════════════════════════════════
 
@@ -114,7 +183,9 @@ dans le dossier bat/ — ou tape la commande depuis la racine du projet.
   Ils simulent un vrai utilisateur dans le navigateur.
   Nécessitent que le frontend ET le backend soient démarrés.
 
-► run_tests_all.bat        → Lance TOUS les tests d'un coup
+► run_tests_heavy.bat      → Lance la MEGA suite exhaustive des tests E2E (Admin, Vendeur, Panier, etc.) en arrière-plan
+► run_tests_all.bat        → Lance tous les tests classiques d'un coup
+► playwright_ui.bat        → Ouvre l'interface de Playwright pour voir et débugger les tests visuellement
 ► run_tests_ui.bat         → Tests d'interface uniquement
 ► run_test_auth.bat        → Tests de connexion / inscription
 ► run_test_buttons.bat     → Vérifie que tous les boutons répondent
