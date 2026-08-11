@@ -134,14 +134,13 @@ export const getVendorPayoutMethods = async (vendorId) => {
  * @param {string} accountName
  * @param {boolean} isDefault
  */
-export const addVendorPayoutMethod = async (vendorId, provider, operator, accountId, accountName, isDefault = false) => {
-    // Si c'est défini par défaut, on met à jour les autres à false
-    if (isDefault) {
-        await supabaseAdmin
-            .from('vendor_payout_methods')
-            .update({ is_default: false })
-            .eq('vendor_id', vendorId);
-    }
+export const addVendorPayoutMethod = async (vendorId, provider, operator, accountId, accountName, isDefault = true) => {
+    // Règle métier : 1 seul compte MoMo par vendeur.
+    // On supprime tous les anciens comptes avant d'ajouter le nouveau.
+    await supabaseAdmin
+        .from('vendor_payout_methods')
+        .delete()
+        .eq('vendor_id', vendorId);
 
     const { data, error } = await supabaseAdmin
         .from('vendor_payout_methods')

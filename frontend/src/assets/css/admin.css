@@ -72,6 +72,9 @@ html.admin-embedded-mode .admin-shell > main {
     width: 100%;
     max-width: min(100%, 90rem);
     overflow-x: clip;
+    /* Kill flex gap on mobile/tablet: sidebar placeholder is height:0 but gap
+       still creates a visible coloured strip above the page title */
+    gap: 0 !important;
 }
 
 @media (min-width: 1024px) {
@@ -79,6 +82,7 @@ html.admin-embedded-mode .admin-shell > main {
         display: grid !important;
         grid-template-columns: 18rem minmax(0, 1fr);
         align-items: start;
+        gap: 0 1.5rem !important; /* row 0 / column 1.5rem — no strip above main */
     }
 
     /* Keep the injected admin sidebar in the flex flow and let the main area
@@ -959,6 +963,30 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
     width: 100%;
     aspect-ratio: 16 / 9;
     position: relative;
+    z-index: 10;
+}
+
+/* Force hide any residual horizontal lines above admin headers */
+.admin-page-header,
+.dashboard-page-header {
+    border-top: 0 !important;
+    box-shadow: none !important;
+}
+.admin-page-header::before,
+.admin-page-header::after,
+.dashboard-page-header::before,
+.dashboard-page-header::after {
+    display: none !important;
+}
+#adminEmbeddedPanel,
+#adminContentFrame {
+    border-top: 0 !important;
+    box-shadow: none !important;
+}
+.vendor-chart-shell {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
     overflow: hidden;
     max-width: 100%;
     /* Remove fixed height, let aspect ratio handle sizing */
@@ -1670,4 +1698,23 @@ html.admin-embedded-mode .stagger-5 {
     .admin-shell > main {
         padding-bottom: 0 !important;
     }
+}
+
+/* Force hide any residual horizontal lines above admin headers */
+.admin-page-header,
+.dashboard-page-header {
+    border-top: 0 !important;
+    box-shadow: none !important;
+}
+.admin-page-header::before,
+.admin-page-header::after,
+.dashboard-page-header::before,
+.dashboard-page-header::after {
+    display: none !important;
+}
+#adminEmbeddedPanel,
+#adminContentFrame {
+    border-top: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
 }

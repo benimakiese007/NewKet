@@ -819,9 +819,9 @@
                             <h2 class="text-xl font-bold text-gray-900">Comptes de réception</h2>
                             <p class="text-sm text-gray-500 mt-1">Gérez vos méthodes de paiement pour recevoir vos fonds.</p>
                         </div>
-                        <button onclick="openAddPayoutModal()" class="btn-primary py-2 px-4 rounded-xl text-sm font-medium flex items-center gap-2">
+                        <button id="payoutsMainBtn" onclick="openAddPayoutModal()" class="btn-primary py-2 px-4 rounded-xl text-sm font-medium flex items-center gap-2">
                             <iconify-icon icon="solar:add-circle-bold" width="18"></iconify-icon>
-                            Ajouter un compte
+                            <span id="payoutsMainBtnText">Ajouter un compte</span>
                         </button>
                     </div>
 
@@ -5161,9 +5161,13 @@
                         
                         if (!json.success || !json.data || json.data.length === 0) {
                             emptyEl.classList.remove('hidden');
+                            document.getElementById('payoutsMainBtnText').textContent = 'Ajouter un compte';
+                            document.querySelector('#payoutsMainBtn iconify-icon').setAttribute('icon', 'solar:add-circle-bold');
                         } else {
                             renderPayoutMethodsList(json.data);
                             listEl.classList.remove('hidden');
+                            document.getElementById('payoutsMainBtnText').textContent = 'Modifier le compte';
+                            document.querySelector('#payoutsMainBtn iconify-icon').setAttribute('icon', 'solar:pen-bold');
                         }
                     } catch (error) {
                         console.error('Erreur chargement paiements:', error);
@@ -5231,10 +5235,8 @@
                                         <span class="font-mono tracking-wider text-gray-800 select-all">${displayNumber}</span>
                                     </div>
                                 </div>
+                                </div>
                             </div>
-                            <button onclick="requestRemovePayoutMethod('${method.id}')" class="w-10 h-10 rounded-full bg-red-50 text-red-500 hover:bg-red-600 hover:text-white flex items-center justify-center transition-colors shadow-sm" title="Supprimer">
-                                <iconify-icon icon="solar:trash-bin-trash-bold" width="20"></iconify-icon>
-                            </button>
                         `;
                         container.appendChild(card);
                     });
@@ -5255,7 +5257,7 @@
                             <div class="fixed inset-0 flex items-center justify-center p-4 pointer-events-none">
                                 <div class="bg-white rounded-2xl shadow-xl w-full max-w-md pointer-events-auto flex flex-col max-h-[90vh] overflow-hidden">
                                     <div class="p-6 border-b border-gray-100 flex justify-between items-center shrink-0">
-                                        <h3 class="font-bold text-lg text-gray-900">Ajouter un compte de réception</h3>
+                                        <h3 class="font-bold text-lg text-gray-900" id="payoutModalTitle">Compte de réception</h3>
                                         <button onclick="closeAddPayoutModal()" class="text-gray-400 hover:text-gray-900 p-1 rounded-lg hover:bg-gray-100 transition-colors">
                                             <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
                                         </button>
@@ -5397,6 +5399,9 @@
                         });
                     }
                     
+                    const isEdit = document.getElementById('payoutsMainBtnText') && document.getElementById('payoutsMainBtnText').textContent.includes('Modifier');
+                    document.getElementById('payoutModalTitle').textContent = isEdit ? 'Modifier le compte' : 'Ajouter un compte';
+
                     // Reset form
                     const inputEl = document.getElementById('payoutAccountId');
                     inputEl.value = '';
