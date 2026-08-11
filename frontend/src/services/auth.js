@@ -255,7 +255,7 @@ const AuthManager = {
                 this.role = role;
                 localStorage.setItem('newketRole', role);
 
-                this.sellerType = profile?.seller_type || (role === 'supplier' ? 'certified' : null);
+                this.sellerType = profile?.seller_type || null;
                 if (this.sellerType) localStorage.setItem('newketSellerType', this.sellerType);
                 else localStorage.removeItem('newketSellerType');
 
@@ -582,7 +582,7 @@ const AuthManager = {
             avatar: avatarUrl,
             role,
             status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending',
-            seller_type: role === 'supplier' ? 'certified' : null,
+            seller_type: null,
             referred_by_code: referralCode || null
         };
 
@@ -1004,7 +1004,7 @@ const AuthManager = {
             localStorage.setItem('newketRoleSelectionConfirmed', 'true');
             this.role = role;
             this.status = updatedProfile?.status || resolvedStatus;
-            this.sellerType = updatedProfile?.seller_type || (role === 'supplier' ? 'certified' : null);
+            this.sellerType = updatedProfile?.seller_type || null;
             this.user = user;
             localStorage.setItem('newketRole', this.role);
             localStorage.setItem('newketUserEmail', user.email);
@@ -1025,7 +1025,7 @@ const AuthManager = {
         localStorage.setItem('newketRoleSelectionConfirmed', 'true');
         this.role = profile.role;
         this.status = profile.status;
-        this.sellerType = profile.seller_type || (profile.role === 'supplier' ? 'certified' : null);
+        this.sellerType = profile.seller_type || null;
         this.user = user;
         localStorage.setItem('newketRole', this.role);
         localStorage.setItem('newketUserEmail', user.email);
@@ -1047,7 +1047,7 @@ const AuthManager = {
         const payload = {
             role,
             status,
-            seller_type: role === 'supplier' ? 'certified' : null
+            seller_type: null
         };
         const { data, error } = await window.supabaseClient
             .from('users')
@@ -1070,7 +1070,7 @@ const AuthManager = {
             ...user.user_metadata,
             role,
             status,
-            seller_type: role === 'supplier' ? 'certified' : null,
+            seller_type: null,
             role_selected: true
         };
 

@@ -865,26 +865,22 @@
         }
 
         async function setVendorSellerType(id, sellerType, name) {
-            const normalizedType = sellerType === 'certified' ? 'certified' : 'normal';
+            const isCertified = sellerType === 'certified';
             window.showConfirm(
-                normalizedType === 'certified' ? 'Certifier' : 'Rétablir en normal',
-                `Confirmer le passage du vendeur ${name} en ${normalizedType === 'certified' ? 'certifié' : 'normal'} ?`,
+                isCertified ? 'Certifier' : 'Rétablir en normal',
+                `Confirmer le passage du vendeur ${name} en ${isCertified ? 'certifié' : 'normal'} ?`,
                 async () => {
                     if (window.LoaderManager) LoaderManager.show("Mise à jour...");
 
                     try {
-                        const updateData = { seller_type: normalizedType };
-                        if (normalizedType === 'certified') {
-                            updateData.business_verification_status = 'approved';
+                        const updateData = { seller_type: isCertified ? 'certified' : null };
+                        if (isCertified) {
                             updateData.status = 'approved';
-                        } else {
-                            // Si on le repasse en normal, on annule son approbation Pro
-                            updateData.business_verification_status = null;
                         }
                         const res = await window.SupabaseAdapter.update('users', id, updateData);
                         if (res) {
                             if (window.showToast) {
-                                window.showToast(`Le vendeur ${name} est maintenant ${normalizedType === 'certified' ? 'certifié' : 'normal'}.`, 'success');
+                                window.showToast(`Le vendeur ${name} est maintenant ${isCertified ? 'certifié' : 'normal'}.`, 'success');
                             }
                             setTimeout(() => window.location.reload(), 1200);
                         } else {

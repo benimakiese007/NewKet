@@ -49,15 +49,7 @@ IF "%branche%"=="" (
 )
 
 echo.
-echo [Supabase] Envoi des migrations vers la base de donnees de production...
-
-REM Charger les credentials Supabase
-call "%~dp0_secrets.bat"
-
-REM Le CLI Supabase lit automatiquement SUPABASE_ACCESS_TOKEN depuis l'environnement
-call npx supabase link --project-ref %SUPABASE_PROJECT_REF% --password ""
-call npx supabase db push
-
+echo [Supabase] Pour appliquer des migrations : utilisez le SQL Editor sur supabase.com
 echo.
 echo ========================================================
 echo        SAUVEGARDE TERMINEE AVEC SUCCES !

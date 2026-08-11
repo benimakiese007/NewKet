@@ -88,7 +88,7 @@ const ProfileManager = {
                 if (storedSellerType) {
                     this._profile.seller_type = storedSellerType;
                 } else if (this._profile.role === 'supplier') {
-                    this._profile.seller_type = 'certified';
+                    this._profile.seller_type = null;
                 }
             }
         } catch (e) {
@@ -218,7 +218,8 @@ const ProfileManager = {
                     phone: profile.phone || profile.store_phone || this._profile.phone,
                     avatar: profile.avatar || profile.avatar_url || profile.photo_url || profile.picture || this._profile.avatar,
                     role: profile.role || user.role,
-                    seller_type: profile.seller_type || this._profile.seller_type || (profile.role === 'supplier' ? 'certified' : null),
+                    seller_type: profile.seller_type || this._profile.seller_type || null,
+                    company_name: profile.company_name || this._profile.company_name || null,
                     shipping_time: profile.shipping_time || this._profile.shipping_time,
                     home_location: this._profile.home_location
                 });
