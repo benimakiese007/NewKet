@@ -38,3 +38,4 @@ antigravity-workflows/
 # Secrets locaux (tokens, credentials)
 .secrets
 scripts/bat/.secrets
+scripts/bat/_secrets.bat
