@@ -968,14 +968,32 @@ html:not(.dark) #adminSidebar .sidebar-link.active::before {
 
 /* Force hide any residual horizontal lines above admin headers */
 .admin-page-header,
-.dashboard-page-header {
+.dashboard-page-header,
+.admin-page-header__content,
+.dashboard-page-header__content,
+.admin-page-title,
+.dashboard-page-title,
+.admin-shell > main,
+.admin-shell,
+#adminSidebarPlaceholder,
+#adminNavbarPlaceholder {
     border-top: 0 !important;
+    border-bottom: 0 !important;
     box-shadow: none !important;
+    outline: none !important;
 }
 .admin-page-header::before,
 .admin-page-header::after,
 .dashboard-page-header::before,
-.dashboard-page-header::after {
+.dashboard-page-header::after,
+.admin-shell::before,
+.admin-shell::after,
+.admin-shell > main::before,
+.admin-shell > main::after,
+#adminSidebarPlaceholder::before,
+#adminSidebarPlaceholder::after,
+#adminNavbarPlaceholder::before,
+#adminNavbarPlaceholder::after {
     display: none !important;
 }
 #adminEmbeddedPanel,

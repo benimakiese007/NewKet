@@ -184,7 +184,7 @@ function getRedirectUrl(req) {
     }
 
     // Fallback en production (utilise HTTPS par défaut et le host de la requête)
-    // Note : Il est fortement recommandé de définir FRONTEND_URL ou STRIPE_CHECKOUT_SUCCESS_URL
+    // Note : Il est fortement recommandé de définir FRONTEND_URL ou FLEXPAY_CHECKOUT_SUCCESS_URL
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
     return `${protocol}://${host}/src/pages/payment-success.html`;
 }
@@ -405,7 +405,7 @@ export const initiatePayment = async (req, res) => {
                 customer_email: resolvedCustomerEmail,
                 escrow_status: ESCROW_STATUSES.NONE,
                 proof_status: 'PENDING',
-                // ─── Frais payin KPay ───
+                // ─── Frais payin FlexPay ───
                 payin_fee_rate: payinFeeRate,
                 payin_fee_amount: payinFeeAmount,
                 client_total_paid: clientTotal
@@ -462,7 +462,7 @@ export const initiatePayment = async (req, res) => {
                 payment_status: 'INITIATED',
                 payment_provider: provider,
                 payment_expected_amount: normalizeAmount(finalAmountUSD),
-                payment_expected_currency: payinCurrency,   // CDF pour KPay, USD pour Stripe/FlexPaie
+                payment_expected_currency: payinCurrency,   // CDF ou USD pour FlexPay
                 payment_locked_at: nowIso,
                 payment_lock_reason: 'PAYMENT_INITIATED',
                 updated_at: nowIso
@@ -742,11 +742,11 @@ export const verifyInvoice = async (req, res) => {
 };
 
 /**
- * Vérification active KPay — interroge l'API KPay pour savoir si le paiement a été effectué.
- * Sert de fallback quand KPay ne livre pas le webhook (typiquement en mode test).
+ * Vérification active FlexPay — interroge l'API FlexPay pour savoir si le paiement a été effectué.
+ * Sert de fallback quand FlexPay ne livre pas le webhook (typiquement en mode test).
  * Appelé par le frontend sur la page payment-success si le statut n'évolue pas.
  */
-export const kpayActiveVerify = async (req, res) => {
+export const flexpayActiveVerify = async (req, res) => {
     try {
         const { transaction_id, order_id } = req.body;
         if (!transaction_id) {
@@ -780,31 +780,31 @@ export const kpayActiveVerify = async (req, res) => {
             return res.status(200).json({ ok: true, already_paid: true, order });
         }
 
-        // 3. Interroger KPay pour vérifier le statut
-        const kpayPayment = await kpayService.getPaymentByExternalId(transaction_id);
-        console.log('[KPay ActiveVerify] KPay response for', transaction_id, ':', JSON.stringify(kpayPayment));
+        // 3. Interroger FlexPay pour vérifier le statut
+        const flexpayPayment = await flexpaieService.getPaymentByExternalId(transaction_id);
+        console.log('[FlexPay ActiveVerify] FlexPay response for', transaction_id, ':', JSON.stringify(flexpayPayment));
 
-        const kpayStatus = String(kpayPayment?.status || kpayPayment?.data?.status || '').toLowerCase();
-        const kpaySuccessStates = new Set(['completed', 'success', 'successful', 'payment.success', 'cashed', 'payment.cashed']);
-        const isKpayPaid = kpaySuccessStates.has(kpayStatus);
+        const flexpayStatus = String(flexpayPayment?.status || flexpayPayment?.data?.status || '').toLowerCase();
+        const flexpaySuccessStates = new Set(['completed', 'success', 'successful', 'payment.success', 'cashed', 'payment.cashed']);
+        const isFlexpayPaid = flexpaySuccessStates.has(flexpayStatus);
 
-        if (!isKpayPaid) {
+        if (!isFlexpayPaid) {
             return res.status(200).json({
                 ok: true,
                 already_paid: false,
-                kpay_status: kpayStatus || 'unknown',
-                message: 'KPay ne confirme pas encore le paiement'
+                flexpay_status: flexpayStatus || 'unknown',
+                message: 'FlexPay ne confirme pas encore le paiement'
             });
         }
 
-        // 4. KPay confirme le paiement → finaliser la commande
+        // 4. FlexPay confirme le paiement → finaliser la commande
         const nowIso = new Date().toISOString();
         const { data: rpcResult, error: rpcError } = await client.rpc('process_order_payment', {
             p_transaction_id: transaction_id
         });
 
         if (rpcError || rpcResult?.success === false) {
-            console.warn('[KPay ActiveVerify] RPC failed, using finalizePaidOrder fallback:', rpcError?.message);
+            console.warn('[FlexPay ActiveVerify] RPC failed, using finalizePaidOrder fallback:', rpcError?.message);
             const { error: fallbackError } = await finalizePaidOrder(client, order.id, nowIso);
             if (fallbackError) {
                 return res.status(500).json({ error: 'Erreur lors de la finalisation' });
@@ -813,11 +813,11 @@ export const kpayActiveVerify = async (req, res) => {
 
         // 5. Enregistrer l'événement dans payment_webhook_events
         await client.from('payment_webhook_events').insert({
-            provider: 'kpay',
+            provider: 'flexpay',
             event_type: 'ACTIVE_VERIFY',
             provider_event_id: `active_verify:${transaction_id}`,
             tx_ref: transaction_id,
-            payload: kpayPayment || {},
+            payload: flexpayPayment || {},
             signature_valid: true,
             received_at: nowIso,
             process_status: 'PROCESSED'
@@ -832,7 +832,7 @@ export const kpayActiveVerify = async (req, res) => {
 
         return res.status(200).json({ ok: true, finalized: true, order: paidOrder || order });
     } catch (err) {
-        console.error('[KPay ActiveVerify Error]', err);
+        console.error('[FlexPay ActiveVerify Error]', err);
         return res.status(500).json({ error: 'Erreur interne' });
     }
 };

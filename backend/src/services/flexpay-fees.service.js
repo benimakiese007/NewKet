@@ -1,5 +1,5 @@
 /**
- * Service de calcul des frais KPay et des commissions
+ * Service de calcul des frais FlexPay et des commissions
  */
 
 export const getOperatorFees = async (client, currency, payoutOperator) => {

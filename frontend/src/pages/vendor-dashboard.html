@@ -5210,9 +5210,9 @@
                         } else if (op.includes('mastercard')) {
                             providerName = 'Mastercard';
                             iconHtml = '<iconify-icon icon="logos:mastercard" width="36"></iconify-icon>';
-                        } else if (op.includes('kpay') || (method.provider || '').toUpperCase() === 'KPAY') {
-                            providerName = 'KPay Mobile Money';
-                            iconHtml = `<img src="https://kpay.site/favicon.ico" class="w-full h-full object-contain" onerror="this.outerHTML='<iconify-icon icon=\'solar:smartphone-bold-duotone\' width=\'28\' class=\'text-emerald-600\'></iconify-icon>'">`;
+                        } else if (op.includes('flexpay') || (method.provider || '').toUpperCase() === 'FLEXPAY' || op.includes('flexpaie')) {
+                            providerName = 'FlexPaie';
+                            iconHtml = `<img src="/Images/FlexPaie.png" class="w-full h-full object-contain" alt="FlexPaie">`;
                         } else {
                             providerName = method.operator || method.provider || 'Mobile Money';
                             iconHtml = `<iconify-icon icon="solar:smartphone-bold-duotone" width="24" class="text-gray-400"></iconify-icon>`;

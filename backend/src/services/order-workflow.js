@@ -6,7 +6,7 @@ import {
     getOperatorFees,
     getMaxPayinRate,
     computeVendorPayout
-} from './kpay-fees.service.js';
+} from './flexpay-fees.service.js';
 
 export const ORDER_STATUSES = {
     PENDING: 'PENDING',
@@ -243,8 +243,8 @@ export async function getCommissionRate(client) {
     return parseFloat(data?.platform_commission_rate) || 5.0;
 }
 
-// Note: getPayoutFeeRate() supprimée — remplacée par kpay-fees.service.js
-// qui lit les taux depuis la table kpay_operator_fees (par opérateur et devise).
+// Note: getPayoutFeeRate() supprimée — remplacée par flexpay-fees.service.js
+// qui lit les taux depuis la table flexpay_operator_fees (par opérateur et devise).
 
 async function attemptVendorPayoutTransfer(vendor, payoutAmount, orderId, currency) {
     if (!vendor?.payout_method) {
@@ -253,34 +253,33 @@ async function attemptVendorPayoutTransfer(vendor, payoutAmount, orderId, curren
 
     const method = vendor.payout_method;
 
-    // KPay ou Mobile Money payout (Retrait KPay)
-    if (method.provider === 'KPAY' || method.provider === 'MOBILE_MONEY') {
+    // FlexPay ou Mobile Money payout
+    if (method.provider === 'FLEXPAY' || method.provider === 'MOBILE_MONEY') {
         try {
-            const kpayService = (await import('./kpayService.js')).default;
-            const { isKpayConfigured } = await import('./kpayService.js');
+            const { isFlexpaieConfigured } = await import('./flexpaie.js');
             
-            if (!isKpayConfigured()) {
-                return { status: 'manual', message: 'KPay API non configurée. Payout manuel requis.' };
+            if (!isFlexpaieConfigured()) {
+                return { status: 'manual', message: 'FlexPay API non configurée. Payout manuel requis.' };
             }
 
-            // Ex: KPAY-PAYOUT-ORDER-123
-            const externalId = `KPAY-PAYOUT-${orderId}`;
+            // Ex: FLEXPAY-PAYOUT-ORDER-123
+            const externalId = `FLEXPAY-PAYOUT-${orderId}`;
             const description = `Payout Vendeur pour commande ${orderId}`;
             const phone = method.account_id; // numéro de téléphone stocké
             
-            // Mapper l'opérateur local vers le code Provider KPay attendu
-            let kpayProvider = method.operator.toUpperCase() + "_COD";
+            // Mapper l'opérateur local vers le code Provider FlexPay attendu
+            let flexpayProvider = method.operator.toUpperCase() + "_COD";
             const op = method.operator.toLowerCase();
-            if (op === 'vodacom_mpesa' || op === 'mpesa') kpayProvider = 'VODACOM_MPESA_COD';
-            if (op === 'airtel') kpayProvider = 'AIRTEL_COD';
-            if (op === 'orange') kpayProvider = 'ORANGE_COD';
+            if (op === 'vodacom_mpesa' || op === 'mpesa') flexpayProvider = 'VODACOM_MPESA_COD';
+            if (op === 'airtel') flexpayProvider = 'AIRTEL_COD';
+            if (op === 'orange') flexpayProvider = 'ORANGE_COD';
 
-            await kpayService.withdrawToVendor(payoutAmount, currency, kpayProvider, phone, externalId, description);
-            
-            return { status: 'success', message: 'Transfert KPay effectué avec succès.' };
+            // TODO: Appeler l'API FlexPay de transfert quand les clés seront disponibles
+            // await flexpaieTransfer({ to: phone, amount: payoutAmount, provider: flexpayProvider, externalId, description });
+            return { status: 'manual', message: 'Transfert FlexPay en attente de configuration API.' };
         } catch (error) {
-            console.error('[KPay Payout Error]', error.message);
-            return { status: 'failed', message: `Erreur KPay: ${error.message}` };
+            console.error('[FlexPay Payout Error]', error.message);
+            return { status: 'failed', message: `Erreur FlexPay: ${error.message}` };
         }
     }
 
@@ -378,7 +377,7 @@ export async function releaseOrderEscrow({
 
     const vendor = await fetchVendorPayoutDetails(client, getOrderVendorId(order));
 
-    // ─── Calcul commission NewKet + frais payout KPay (par opérateur vendeur) ───
+    // ─── Calcul commission NewKet + frais payout FlexPay (par opérateur vendeur) ───
     const commissionRate  = await getCommissionRate(client);
     const currency        = String(order.payment_expected_currency || 'USD').toUpperCase();
 
