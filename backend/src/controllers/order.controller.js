@@ -295,9 +295,22 @@ export const getOrders = async (req, res) => {
         if (!isAdminActor(req.user)) {
             // Peu importe le rôle strict dans le token, on autorise l'utilisateur à voir ses commandes
             // s'il est vendeur (vendor_id), client (customer_id/user_id) ou que son email correspond.
-            query = query.or(
-                `vendor_id.eq.${userId},customer_id.eq.${userId},user_id.eq.${userId},customer_email.eq.${req.user?.email || ''}`
-            );
+            const conditions = [];
+            if (userId) {
+                conditions.push(`vendor_id.eq.${userId}`);
+                conditions.push(`customer_id.eq.${userId}`);
+                conditions.push(`user_id.eq.${userId}`);
+            }
+            if (req.user?.email) {
+                conditions.push(`customer_email.eq.${req.user.email}`);
+            }
+
+            if (conditions.length > 0) {
+                query = query.or(conditions.join(','));
+            } else {
+                // Sécurité : si l'utilisateur n'a ni ID ni email valide, on ne retourne rien
+                query = query.eq('id', '00000000-0000-0000-0000-000000000000');
+            }
         }
 
         const { data, error } = await query;

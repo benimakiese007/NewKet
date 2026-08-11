@@ -48,6 +48,10 @@ IF "%branche%"=="" (
 )
 
 echo.
+echo [Supabase] Envoi des migrations vers la base de donnees de production...
+call npx supabase db push
+
+echo.
 echo ========================================================
 echo        SAUVEGARDE TERMINEE AVEC SUCCES !
 echo ========================================================
