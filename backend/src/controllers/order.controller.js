@@ -286,8 +286,7 @@ export const getOrders = async (req, res) => {
                 customer_city, customer_lat, customer_lng, phone_number, items, 
                 payment_status, transaction_id, user_id, customer_id, vendor_id, 
                 escrow_status, escrow_release_at, proof_status, otp_code, 
-                accepted_delivery_quote_id,
-                customer:users!customer_id(id, name, avatar)
+                accepted_delivery_quote_id
             `)
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1);
