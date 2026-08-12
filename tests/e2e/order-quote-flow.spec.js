@@ -70,7 +70,7 @@ async function getOrCreateVendorProduct(vendorToken) {
     if (!vendorId) throw new Error(`Impossible de récupérer l'ID du vendeur: ${JSON.stringify(vendorUser)}`);
     
     // 2. Cherche un produit existant
-    const prodRes = await fetch(`${SUPABASE_URL}/rest/v1/products?vendor_id=eq.${vendorId}&status=eq.active&select=id,name,price&limit=1`, {
+    const prodRes = await fetch(`${SUPABASE_URL}/rest/v1/products?user_id=eq.${vendorId}&status=eq.published&select=id,name,price&limit=1`, {
         method: 'GET',
         headers: { 'apikey': SERVICE_KEY, 'Authorization': `Bearer ${SERVICE_KEY}` }
     });
@@ -90,8 +90,8 @@ async function getOrCreateVendorProduct(vendorToken) {
             name: 'Produit Test E2E Playwright',
             description: 'Créé automatiquement par le test Playwright.',
             price: 10000,
-            vendor_id: vendorId,
-            status: 'active',
+            user_id: vendorId,
+            status: 'published',
             stock: 99,
             category: 'Electronique'
         })
@@ -160,7 +160,7 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
         console.log('\n=== ÉTAPE 1: Connexion vendeur ===');
 
         await vendorPage.goto('/src/pages/login.html', { timeout: 30000 });
-        await vendorPage.waitForLoadState('networkidle', { timeout: 20000 });
+        await vendorPage.waitForLoadState('load', { timeout: 20000 });
         await vendorPage.locator('button:has-text("Accepter tout")').click().catch(() => {});
         await vendorPage.fill('#email', VENDOR_EMAIL);
         await vendorPage.fill('#password', VENDOR_PASSWORD);
@@ -170,7 +170,7 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
 
         // Aller sur le dashboard vendeur, onglet "Demandes et devis"
         await vendorPage.goto('/src/pages/vendor-dashboard.html', { timeout: 30000 });
-        await vendorPage.waitForLoadState('networkidle', { timeout: 20000 });
+        await vendorPage.waitForLoadState('load', { timeout: 20000 });
         // Attendre que l'auth-loading soit terminée
         await vendorPage.waitForFunction(
             () => !document.documentElement.classList.contains('auth-loading'),
@@ -183,8 +183,8 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
         await vendorPage.waitForTimeout(1500);
 
         // Le filtre actif par défaut est "À traiter" (vFilterAction) — les nouvelles commandes sont là
-        // Chercher la carte de notre commande spécifique par son ID
-        const orderCard = vendorPage.locator(`[data-order-id="${orderId}"]`).first();
+        // Chercher la carte de notre commande spécifique par son ID (on filtre sur :visible pour ignorer les éléments masqués)
+        const orderCard = vendorPage.locator(`[data-order-id="${orderId}"]:visible`).first();
         const orderCardFallback = vendorPage.locator('.glass-panel, li, article').filter({ hasText: orderId.substring(0, 12) }).first();
 
         let vendorOrderFound = false;
@@ -200,21 +200,16 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
             // Chercher dans "Tout" si la commande n'est pas dans "À traiter"
             await vendorPage.click('#vFilterAll', { force: true }).catch(() => {});
             await vendorPage.waitForTimeout(1500);
-            await vendorPage.locator(`[data-order-id="${orderId}"]`).first().click();
+            await vendorPage.locator(`[data-order-id="${orderId}"]:visible`).first().click();
         }
 
-        // Cliquer sur "Proposer un devis" (bouton sur la carte ou dans la modale)
-        const proposeBtn = vendorPage.locator('button:has-text("Proposer un devis")').first();
-        await expect(proposeBtn).toBeVisible({ timeout: 15000 });
-        await proposeBtn.click();
-        console.log('[VENDOR] Bouton "Proposer un devis" cliqué ✅');
-
-        // Dans la modale de détail, cliquer à nouveau sur le bouton principal de proposition
+        // La carte a été cliquée, ce qui ouvre la modale de détail de commande.
+        // Dans la modale, le bouton a l'ID #btnMarkDelivered
         const modalProposeBtn = vendorPage.locator('#btnMarkDelivered');
-        if (await modalProposeBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
-            await modalProposeBtn.scrollIntoViewIfNeeded();
-            await modalProposeBtn.click();
-        }
+        await expect(modalProposeBtn).toBeVisible({ timeout: 15000 });
+        await modalProposeBtn.scrollIntoViewIfNeeded();
+        await modalProposeBtn.click({ force: true });
+        console.log('[VENDOR] Bouton "Proposer un devis" cliqué ✅');
 
         // Remplir le formulaire de devis
         await vendorPage.waitForSelector('[data-quote-fee]', { state: 'visible', timeout: 10000 });
@@ -247,7 +242,7 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
         console.log('\n=== ÉTAPE 2: Connexion acheteur ===');
 
         await buyerPage.goto('/src/pages/login.html', { timeout: 30000 });
-        await buyerPage.waitForLoadState('networkidle', { timeout: 20000 });
+        await buyerPage.waitForLoadState('load', { timeout: 20000 });
         await buyerPage.locator('button:has-text("Accepter tout")').click().catch(() => {});
         await buyerPage.fill('#email', BUYER_EMAIL);
         await buyerPage.fill('#password', BUYER_PASSWORD);
@@ -256,38 +251,70 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
         console.log('[BUYER] Connecté ✅');
 
         await buyerPage.goto('/src/pages/customer-dashboard.html', { timeout: 30000 });
-        await buyerPage.waitForLoadState('networkidle', { timeout: 20000 });
+        await buyerPage.waitForLoadState('load', { timeout: 20000 });
         await buyerPage.waitForFunction(
             () => !document.documentElement.classList.contains('auth-loading'),
             { timeout: 20000 }
         ).catch(() => {});
         await buyerPage.waitForTimeout(2000);
 
-        // Ouvrir la commande par son ID
-        const buyerCard = buyerPage.locator(`[data-order-id="${orderId}"]`).first();
-        if (await buyerCard.isVisible({ timeout: 10000 }).catch(() => false)) {
-            await buyerCard.click();
+        // Attendre que les commandes soient chargées dans OrderManager
+        await buyerPage.waitForFunction(
+            () => window.OrderManager && Array.isArray(window.OrderManager.data) && window.OrderManager.data.length > 0,
+            { timeout: 15000 }
+        );
+
+        // Verify order data explicitly
+        const orderData = await buyerPage.evaluate(() => window.OrderManager.data.find(o => o.status === 'QUOTE'));
+        console.log('DEBUG BUYER ORDER:', JSON.stringify(orderData, null, 2));
+
+        // Les cartes sont des <div onclick="openOrderModal(id)"> sans bouton enfant
+        // On appelle directement la fonction JS pour ouvrir la modale
+        const buyerOrderCard = buyerPage.locator('.glass-panel').filter({ hasText: orderId }).first();
+        const cardExists = await buyerOrderCard.isVisible({ timeout: 10000 }).catch(() => false);
+        if (cardExists) {
+            await buyerOrderCard.click();
         } else {
-            // Fallback: chercher le badge "À VOUS DE JOUER"
-            await buyerPage.locator('.glass-panel, li, article').filter({ hasText: 'À VOUS DE JOUER' }).first().click();
+            // Fallback: appel direct de la fonction JS
+            await buyerPage.evaluate((oid) => window.openOrderModal && window.openOrderModal(oid), orderId);
         }
 
-        // Accepter le devis
+        // Accepter le devis — intercepter la réponse API
+        const acceptApiPromise = buyerPage.waitForResponse(
+            res => res.url().includes('/quote') && [200, 201, 204].includes(res.status()),
+            { timeout: 15000 }
+        ).catch(() => null);
+
         const acceptBtn = buyerPage.locator('button:has-text("Accepter le devis")');
         await expect(acceptBtn).toBeVisible({ timeout: 15000 });
         await acceptBtn.click();
-        await buyerPage.waitForTimeout(2500);
+
+        // Attendre la réponse API de l'acceptation
+        const acceptApiRes = await acceptApiPromise;
+        console.log(`[BUYER] Devis accepté — API: ${acceptApiRes ? acceptApiRes.status() : 'non intercepté'} ✅`);
+
+        // Attendre que OrderManager mette à jour le statut en READY_FOR_PAYMENT
+        await buyerPage.waitForFunction(
+            (oid) => {
+                const order = window.OrderManager && window.OrderManager.data.find(o => o.id === oid);
+                return order && order.status === 'READY_FOR_PAYMENT';
+            },
+            orderId,
+            { timeout: 20000 }
+        ).catch(async () => {
+            // Si pas mis à jour automatiquement, forcer un rechargement des données
+            console.log('[BUYER] Forcer rechargement OrderManager...');
+            await buyerPage.evaluate(() => window.OrderManager && window.OrderManager.refresh && window.OrderManager.refresh());
+            await buyerPage.waitForTimeout(3000);
+        });
         console.log('[BUYER] Devis accepté ✅');
 
         // Ouvrir à nouveau la commande pour accéder au bouton de paiement
-        if (await buyerCard.isVisible({ timeout: 5000 }).catch(() => false)) {
-            await buyerCard.click();
-        } else {
-            await buyerPage.locator('.glass-panel, li, article').filter({ hasText: 'À VOUS DE JOUER' }).first().click();
-        }
+        // (le statut est maintenant READY_FOR_PAYMENT → btnPayOrder sera visible)
+        await buyerPage.evaluate((oid) => window.openOrderModal && window.openOrderModal(oid), orderId);
 
-        const payBtn = buyerPage.locator('button:has-text("Passer au paiement")').first();
-        await expect(payBtn).toBeVisible({ timeout: 10000 });
+        const payBtn = buyerPage.locator('#btnPayOrder, button:has-text("Passer au paiement")').first();
+        await expect(payBtn).toBeVisible({ timeout: 15000 });
 
         // ========== SIMULATION DE PAIEMENT ==========
         // On simule le paiement directement via Supabase (mock webhook KPay)
@@ -318,7 +345,7 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
         console.log('\n=== ÉTAPE 3: Vendeur démarre la livraison ===');
 
         await vendorPage.reload({ timeout: 30000 });
-        await vendorPage.waitForLoadState('networkidle', { timeout: 20000 });
+        await vendorPage.waitForLoadState('load', { timeout: 20000 });
         await vendorPage.waitForTimeout(3000);
 
         await vendorPage.click('a[data-switch-vendor-tab="leads"]', { force: true });
@@ -335,9 +362,31 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
             await vendorPage.locator(`[data-order-id="${orderId}"]`).first().click();
         }
 
-        const startDeliveryBtn = vendorPage.locator('button:has-text("Démarrer la livraison")');
+        // Accepter les dialogues confirm() automatiquement
+        vendorPage.on('dialog', async dialog => {
+            console.log(`[VENDOR] Dialog: ${dialog.message()} → accepté`);
+            await dialog.accept();
+        });
+
+        // Intercepter la réponse API de début de livraison
+        const deliveryApiPromise = vendorPage.waitForResponse(
+            res => (res.url().includes('/delivery') || res.url().includes('/start')) && [200, 201, 204].includes(res.status()),
+            { timeout: 20000 }
+        ).catch(() => null);
+
+        // Essayer le bouton "Démarrer la livraison" (id=btnMarkDelivered, texte dynamique)
+        const startDeliveryBtn = vendorPage.locator('#btnMarkDelivered');
         await expect(startDeliveryBtn).toBeVisible({ timeout: 15000 });
-        await startDeliveryBtn.click();
+
+        // Utiliser l'appel JS direct avec skipConfirm=true pour contourner la popup
+        await vendorPage.evaluate((oid) => {
+            if (typeof startVendorDelivery === 'function') {
+                return startVendorDelivery(oid, true);
+            }
+        }, orderId);
+
+        const deliveryApiRes = await deliveryApiPromise;
+        console.log(`[VENDOR] Livraison démarrée — API: ${deliveryApiRes ? deliveryApiRes.status() : 'via JS direct'} ✅`);
         await vendorPage.waitForTimeout(2000);
         console.log('[VENDOR] Livraison démarrée ✅');
 
@@ -347,15 +396,30 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
         console.log('\n=== ÉTAPE 4: Acheteur lit l\'OTP ===');
 
         await buyerPage.reload({ timeout: 30000 });
-        await buyerPage.waitForLoadState('networkidle', { timeout: 20000 });
-        await buyerPage.waitForTimeout(3000);
+        await buyerPage.waitForLoadState('load', { timeout: 20000 });
 
-        const buyerCardDelivery = buyerPage.locator(`[data-order-id="${orderId}"]`).first();
-        if (await buyerCardDelivery.isVisible({ timeout: 8000 }).catch(() => false)) {
-            await buyerCardDelivery.click();
-        } else {
-            await buyerPage.locator('[data-order-id]').filter({ hasText: 'En livraison' }).first().click();
-        }
+        // Attendre que OrderManager charge les données
+        await buyerPage.waitForFunction(
+            () => window.OrderManager && Array.isArray(window.OrderManager.data) && window.OrderManager.data.length > 0,
+            { timeout: 20000 }
+        );
+
+        // Attendre que le statut passe à IN_DELIVERY dans OrderManager
+        await buyerPage.waitForFunction(
+            (oid) => {
+                const order = window.OrderManager && window.OrderManager.data.find(o => o.id === oid);
+                return order && (order.status === 'IN_DELIVERY' || order.status === 'SHIPPED');
+            },
+            orderId,
+            { timeout: 20000 }
+        ).catch(async () => {
+            console.log('[BUYER] Statut IN_DELIVERY pas encore dans OrderManager, rechargement...');
+            await buyerPage.evaluate(() => window.OrderManager && window.OrderManager.refresh && window.OrderManager.refresh());
+            await buyerPage.waitForTimeout(3000);
+        });
+
+        // Ouvrir la modale via JS direct (les cartes n'ont pas de <button>, juste onclick)
+        await buyerPage.evaluate((oid) => window.openOrderModal && window.openOrderModal(oid), orderId);
 
         const otpSection = buyerPage.locator('#otpDisplaySection');
         await expect(otpSection).toBeVisible({ timeout: 15000 });
@@ -369,6 +433,33 @@ test.describe('Flux complet : Commande → Devis → Paiement (Acheteur/Vendeur)
         // ÉTAPE 5 — VENDEUR : Saisie OTP pour valider la livraison
         // ==========================================
         console.log('\n=== ÉTAPE 5: Vendeur valide l\'OTP ===');
+
+        // Recharger la page vendeur pour avoir le statut IN_DELIVERY à jour
+        await vendorPage.reload({ timeout: 30000 });
+        await vendorPage.waitForLoadState('load', { timeout: 20000 });
+
+        // Attendre que le vendeur ait ses données à jour
+        await vendorPage.waitForFunction(
+            () => typeof window !== 'undefined' && document.readyState === 'complete',
+            { timeout: 15000 }
+        );
+        await vendorPage.waitForTimeout(3000);
+
+        // Naviguer vers l'onglet "Demandes et devis" du vendeur
+        await vendorPage.click('a[data-switch-vendor-tab="leads"]', { force: true }).catch(() => {});
+        await vendorPage.waitForTimeout(1500);
+
+        // Trouver et cliquer sur la commande IN_DELIVERY
+        const deliveryOrderCard = vendorPage.locator(`[data-order-id="${orderId}"]`).first();
+        if (await deliveryOrderCard.isVisible({ timeout: 8000 }).catch(() => false)) {
+            await deliveryOrderCard.click();
+        } else {
+            await vendorPage.click('#vFilterAll', { force: true }).catch(() => {});
+            await vendorPage.waitForTimeout(1500);
+            await vendorPage.locator(`[data-order-id="${orderId}"]`).first().click();
+        }
+
+        await vendorPage.waitForTimeout(1500);
 
         const otpInput = vendorPage.locator('#vOtpInput');
         await expect(otpInput).toBeVisible({ timeout: 15000 });

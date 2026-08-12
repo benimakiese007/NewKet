@@ -236,11 +236,12 @@
                 </div>
 
                 <div id="exchangeRateGroup"
-                    class="sm:col-span-2 bg-gray-900 rounded-3xl p-6 flex flex-col sm:grid sm:grid-cols-2 items-center gap-6 border border-white/10 shadow-xl overflow-hidden relative">
+                    class="sm:col-span-2 bg-gray-900 rounded-3xl p-6 flex flex-col gap-4 border border-white/10 shadow-xl overflow-hidden relative">
                         <!-- Background glow -->
                         <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[50px] rounded-full pointer-events-none"></div>
                         
-                        <div class="flex items-center gap-4 w-full">
+                        <!-- Top row: icon + label -->
+                        <div class="flex items-center gap-4">
                             <div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white shadow-sm ring-1 ring-white/20 animate-float">
                                 <iconify-icon icon="solar:globus-bold" width="24"></iconify-icon>
                             </div>
@@ -249,13 +250,16 @@
                                 <div class="text-sm font-bold text-white">Conversion en <span id="otherCurrencyName" class="text-indigo-300">USD</span></div>
                             </div>
                         </div>
-                        
-                        <div class="flex items-center justify-between sm:justify-end gap-2 sm:gap-6 w-full">
-                            <div class="text-right shrink-0">
-                                <div id="estimatedPrice" class="text-xl sm:text-2xl font-black text-white tabular-nums tracking-tighter truncate max-w-[100px] sm:max-w-none">0.00 $</div>
+
+                        <!-- Bottom row: estimated price (left) + rate input (right) -->
+                        <div class="flex items-end justify-between gap-3 w-full min-w-0">
+                            <div class="flex-1 min-w-0">
+                                <div id="estimatedPrice"
+                                    class="font-black text-white tabular-nums leading-tight break-all"
+                                    style="font-size: clamp(1rem, 4vw, 1.5rem);">0.00 $</div>
                                 <div class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Prix estimé</div>
                             </div>
-                            <div class="flex flex-col items-end gap-1.5 min-w-0">
+                            <div class="flex flex-col items-end gap-1.5 shrink-0">
                                 <label for="exchangeRate" class="relative z-50 pointer-events-auto flex items-center gap-1 sm:gap-2 bg-white/5 rounded-xl px-2 sm:px-3 py-2 border border-white/10 group-hover:border-white/20 transition-all cursor-text">
                                     <span class="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase pointer-events-none">Taux</span>
                                     <input type="number" id="exchangeRate" name="exchangeRate"
@@ -539,16 +543,24 @@
             const savedRate = getSavedExchangeRate();
             setExchangeRateInputValue(savedRate ?? getConfigExchangeRate());
 
-            function updateEstimate() {
-                const price = parseFloat(priceInput.value) || 0;
-                const currency = currencyInput.value;
-                const exchangeRate = parseFloat(exchangeRateInput.value) || getConfigExchangeRate();
+            window.updateEstimate = function updateEstimate() {
+                // Re-query DOM each call: wizard uses cloneNode() so captured vars point to detached nodes
+                const livePriceInput = document.getElementById('priceInput');
+                const liveCurrencyInput = document.getElementById('currencyInput');
+                const liveExchangeRateInput = document.getElementById('exchangeRate');
+                const liveEstimatedPriceEl = document.getElementById('estimatedPrice');
+                const liveOtherCurrencyNameEl = document.getElementById('otherCurrencyName');
+
+                if (!livePriceInput || !liveCurrencyInput || !liveEstimatedPriceEl) return;
+
+                const price = parseFloat(livePriceInput.value) || 0;
+                const currency = liveCurrencyInput.value;
+                const exchangeRate = parseFloat(liveExchangeRateInput?.value) || getConfigExchangeRate();
 
                 // Sync promo currency badge
                 const promoCurrencyBadge = document.getElementById('promoCurrencyBadge');
                 if (promoCurrencyBadge) {
                     promoCurrencyBadge.textContent = currency === 'USD' ? '$' : 'FC';
-                    // Optional: adjust placeholder
                     const oldPriceInput = document.getElementById('oldPriceInput');
                     if (oldPriceInput) {
                         oldPriceInput.placeholder = currency === 'USD' ? 'ex: 100' : 'ex: 280000';
@@ -557,34 +569,35 @@
 
                 if (currency === 'CDF') {
                     const estimatedAmount = price / exchangeRate;
-                    otherCurrencyNameEl.textContent = 'USD';
-                    estimatedPriceEl.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(estimatedAmount);
+                    if (liveOtherCurrencyNameEl) liveOtherCurrencyNameEl.textContent = 'USD';
+                    liveEstimatedPriceEl.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(estimatedAmount);
                 } else {
                     const estimatedAmount = price * exchangeRate;
-                    otherCurrencyNameEl.textContent = 'CDF';
-                    estimatedPriceEl.textContent = new Intl.NumberFormat('fr-CD', { style: 'currency', currency: 'CDF', maximumFractionDigits: 0 }).format(estimatedAmount).replace('CDF', 'FC');
+                    if (liveOtherCurrencyNameEl) liveOtherCurrencyNameEl.textContent = 'CDF';
+                    liveEstimatedPriceEl.textContent = new Intl.NumberFormat('fr-CD', { style: 'currency', currency: 'CDF', maximumFractionDigits: 0 }).format(estimatedAmount).replace('CDF', 'FC');
                 }
             }
 
-            function updatePromoPercentage() {
-                if (!promoPercentValue) return;
+            window.updatePromoPercentage = function updatePromoPercentage() {
+                const livePromoPercentValue = document.getElementById('promoPercentValue');
+                if (!livePromoPercentValue) return;
 
                 const promoToggle = document.getElementById('isPromoToggle');
                 if (!promoToggle || !promoToggle.checked) {
-                    promoPercentValue.textContent = '0%';
+                    livePromoPercentValue.textContent = '0%';
                     return;
                 }
 
-                const currentPrice = parseFloat(priceInput.value);
-                const oldPrice = parseFloat(oldPriceInput.value);
+                const currentPrice = parseFloat(document.getElementById('priceInput')?.value);
+                const oldPrice = parseFloat(document.getElementById('oldPriceInput')?.value);
 
                 if (!Number.isFinite(currentPrice) || !Number.isFinite(oldPrice) || oldPrice <= 0 || oldPrice <= currentPrice) {
-                    promoPercentValue.textContent = '0%';
+                    livePromoPercentValue.textContent = '0%';
                     return;
                 }
 
                 const discountPercent = ((oldPrice - currentPrice) / oldPrice) * 100;
-                promoPercentValue.textContent = `${discountPercent.toFixed(1).replace(/\.0$/, '')}%`;
+                livePromoPercentValue.textContent = `${discountPercent.toFixed(1).replace(/\.0$/, '')}%`;
             }
 
             updateEstimate();
@@ -1009,7 +1022,7 @@
 
                     const productData = {
                         name: titleInput.value.trim(),
-                        category: categoryInput.value,
+                        category: categorySelect.value,
                         price: Math.round(finalPrice),
                         description: descInput.value.trim(),
                         image: finalImagePaths.join(','),

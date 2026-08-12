@@ -338,11 +338,16 @@ export const getOrders = async (req, res) => {
         }
 
         if (orderIds.length > 0) {
-            const { data: quotes } = await client
+            const { data: quotes, error: quotesError } = await client
                 .from('delivery_quotes')
                 .select('*')
                 .in('order_id', orderIds)
                 .order('created_at', { ascending: false });
+
+            if (quotesError) {
+                console.error('❌ ERREUR FETCH QUOTES:', quotesError);
+            }
+
 
             for (const quote of quotes || []) {
                 if (!quotesByOrderId.has(quote.order_id)) {

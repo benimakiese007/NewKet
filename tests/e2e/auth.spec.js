@@ -1,11 +1,24 @@
 import { test, expect } from '@playwright/test';
 
+// Ferme la bannière cookies si elle est présente, sans bloquer si elle est absente
+async function dismissCookieBanner(page) {
+  try {
+    const btn = page.locator('button:has-text("Accepter tout"), button:has-text("Accepter")');
+    await btn.first().click({ timeout: 3000 });
+  } catch {
+    // Pas de bannière cookies, on continue normalement
+  }
+}
+
 test.describe('Authentification et Gestion de compte', () => {
 
   test('Devrait pouvoir se connecter avec des identifiants valides', async ({ page }) => {
     // 1. Naviguer vers la page de login avec timeout augmenté
     await page.goto('/src/pages/login.html', { timeout: 30000 });
     await page.waitForLoadState('networkidle', { timeout: 20000 });
+
+    // 1b. Fermer la bannière cookies si présente
+    await dismissCookieBanner(page);
 
     // 2. Remplir le formulaire avec les bons IDs (#email et #password)
     await page.fill('#email', 'test@example.com');
@@ -26,6 +39,9 @@ test.describe('Authentification et Gestion de compte', () => {
     await page.goto('/src/pages/login.html', { timeout: 30000 });
     await page.waitForLoadState('networkidle', { timeout: 20000 });
 
+    // Fermer la bannière cookies si présente
+    await dismissCookieBanner(page);
+
     // Remplir avec des identifiants incorrects
     await page.fill('#email', 'wrong@example.com');
     await page.fill('#password', 'wrongpass');
@@ -43,6 +59,7 @@ test.describe('Authentification et Gestion de compte', () => {
     await page.goto('/src/pages/login.html', { timeout: 30000 });
     await page.waitForLoadState('networkidle');
     await page.waitForSelector('#forgotPasswordBtn', { state: 'visible' });
+    await dismissCookieBanner(page);
 
     // NE PAS utiliser fill() car il déclenche blur() qui remet hidden sur #formError
     // On s'assure que le champ est vide sans déclencher blur
@@ -67,6 +84,9 @@ test.describe('Authentification et Gestion de compte', () => {
   test('Devrait lancer la procédure de reset quand un email est saisi', async ({ page }) => {
     await page.goto('/src/pages/login.html', { timeout: 30000 });
     await page.waitForLoadState('networkidle');
+
+    // Fermer la bannière cookies si présente
+    await dismissCookieBanner(page);
 
     // Remplir l'email puis cliquer
     await page.fill('#email', 'test@example.com');
