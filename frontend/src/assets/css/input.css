@@ -3,4 +3,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+
+/* 
+ * -------------------------------------------------------------
+ * ALIBABA-STYLE UX: Prevent native iOS/Android long-press menu
+ * on UI controls (Navbar, Header, Product Cards, Buttons).
+ * Gives the PWA a true native app feel.
+ * ------------------------------------------------------------- 
+ */
+.liquid-glass-nav,
+.newket-header-shell,
+.product-card,
+.wishlist-btn,
+.mobile-menu-brand,
+.mobile-menu-link,
+.mobile-menu-shortcut-card,
+.header-icon-button {
+    -webkit-touch-callout: none !important; /* Disable long-press popup on iOS */
+    -webkit-user-select: none !important;   /* Safari */
+    user-select: none !important;           /* Standard */
+}
