@@ -549,7 +549,10 @@
 
             // --- Guarantee info ---
             const guaranteeEl = document.getElementById('productGuarantee');
-            if (guaranteeEl) guaranteeEl.textContent = "100% Sécurisé";
+            if (guaranteeEl) {
+                const escrowHours = p.escrow_timer_hours || 24;
+                guaranteeEl.textContent = `Garantie de ${escrowHours}h`;
+            }
 
             // --- Stock qty control ---
             const qtyInput = document.getElementById('qty-input');

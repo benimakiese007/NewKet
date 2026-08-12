@@ -169,8 +169,9 @@ export function generateOtpCode() {
     return `${Math.floor(100000 + Math.random() * 900000)}`;
 }
 
-export function computeEscrowReleaseAt(fromDate = new Date()) {
-    return new Date(new Date(fromDate).getTime() + ESCROW_HOLD_HOURS * 60 * 60 * 1000).toISOString();
+export function computeEscrowReleaseAt(fromDate = new Date(), hours = ESCROW_HOLD_HOURS) {
+    const h = (Number.isFinite(hours) && hours >= 1) ? hours : ESCROW_HOLD_HOURS;
+    return new Date(new Date(fromDate).getTime() + h * 60 * 60 * 1000).toISOString();
 }
 
 export function addHours(fromDate, hours) {
@@ -320,60 +321,16 @@ export async function releaseOrderEscrow({
         throw new Error('Le délai de séquestre n\'est pas encore expiré.');
     }
 
-    // ─── Vérification de la compensation (Clearance) pour FlexPaie (72h) ───
-    let fundsCleared = true;
-    if (order.payment_provider === 'flexpaie') {
-        const paymentDate = new Date(order.payment_locked_at || order.created_at);
-        const clearanceDate = new Date(paymentDate.getTime() + 72 * 60 * 60 * 1000);
-        if (new Date() < clearanceDate && !force) {
-            fundsCleared = false;
-        }
-    }
+    // FlexPay a mis à jour ses payouts : désormais instantanés.
+    // Le délai de clearance 72h n'est plus nécessaire.
+    const fundsCleared = true;
 
     const nextEscrowStatus = autoRelease ? ESCROW_STATUSES.AUTO_RELEASED : ESCROW_STATUSES.RELEASED;
     const releaseEventType = autoRelease ? ESCROW_EVENT_TYPES.AUTO_RELEASED : ESCROW_EVENT_TYPES.RELEASED;
     const nowIso = new Date().toISOString();
 
-    // Si les fonds ne sont pas encore disponibles chez nous, on valide le séquestre mais on retarde le payout
-    if (!fundsCleared && !isDeferredPayout) {
-        const { data: updatedOrder, error } = await client
-            .from('orders')
-            .update({
-                status: ORDER_STATUSES.COMPLETED,
-                escrow_status: nextEscrowStatus,
-                released_at: nowIso,
-                completed_at: nowIso,
-                updated_at: nowIso,
-                payout_status: 'DEFERRED_CLEARANCE'
-            })
-            .eq('id', order.id)
-            .select('*')
-            .single();
-
-        if (error) throw error;
-
-        await createEscrowEvent(client, {
-            orderId: order.id,
-            eventType: releaseEventType,
-            amount: parseFloat(order.total_amount || order.total || 0),
-            metadata: {
-                transfer_status: 'deferred',
-                transfer_message: 'Attente du délai de 72h FlexPaie pour compenser les fonds.',
-                initiated_by: initiatedBy
-            },
-            processedAt: nowIso
-        });
-
-        await logOrderStatusHistory(client, {
-            orderId: order.id,
-            previousStatus: normalizedStatus,
-            newStatus: ORDER_STATUSES.COMPLETED,
-            changedBy: initiatedBy,
-            notes: autoRelease ? 'Auto release (Payout deferred)' : 'Escrow released (Payout deferred)'
-        });
-
-        return { order: updatedOrder, transfer: { status: 'deferred', message: 'Paiement vendeur en attente des 72h FlexPaie.' } };
-    }
+    // Note: le bloc DEFERRED_CLEARANCE a été supprimé.
+    // FlexPay gère maintenant les payouts en temps réel.
 
     const vendor = await fetchVendorPayoutDetails(client, getOrderVendorId(order));
 
@@ -549,45 +506,5 @@ export async function releaseDueEscrowsJob() {
     return { processed, failed };
 }
 
-export async function processDeferredPayoutsJob() {
-    const client = supabaseAdmin || supabase;
-    
-    // On récupère toutes les commandes en DEFERRED_CLEARANCE
-    const { data: deferredOrders, error } = await client
-        .from('orders')
-        .select('*')
-        .eq('payout_status', 'DEFERRED_CLEARANCE');
-        
-    if (error) {
-        console.error('[DeferredPayoutsJob] Failed to query deferred payouts:', error.message);
-        return { processed: 0, failed: 0 };
-    }
-    
-    let processed = 0;
-    let failed = 0;
-    
-    for (const order of deferredOrders || []) {
-        // On vérifie si les 72h sont écoulées
-        const paymentDate = new Date(order.payment_locked_at || order.created_at);
-        const clearanceDate = new Date(paymentDate.getTime() + 72 * 60 * 60 * 1000);
-        
-        if (new Date() >= clearanceDate) {
-            try {
-                await releaseOrderEscrow({
-                    client,
-                    order,
-                    initiatedBy: 'deferred-payout-job',
-                    autoRelease: false,
-                    force: true,
-                    isDeferredPayout: true
-                });
-                processed += 1;
-            } catch (jobError) {
-                failed += 1;
-                console.error(`[DeferredPayoutsJob] Failed for order ${order.id}:`, jobError.message);
-            }
-        }
-    }
-    
-    return { processed, failed };
-}
+// processDeferredPayoutsJob supprimé : FlexPay payout est maintenant instantané.
+// Le délai de clearance 72h n'est plus nécessaire.

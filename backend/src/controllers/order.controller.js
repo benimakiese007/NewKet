@@ -18,7 +18,8 @@ import {
     logOrderStatusHistory,
     mapLegacyOrderStatus,
     releaseOrderEscrow,
-    addHours
+    addHours,
+    computeEscrowReleaseAt
 } from '../services/order-workflow.js';
 import { awardReferralNkToken } from '../services/referral-rewards.js';
 
@@ -714,18 +715,40 @@ export const verifyDelivery = async (req, res) => {
             return res.status(400).json({ error: `Code OTP invalide. ${remaining} tentative(s) restante(s).` });
         }
 
-        const { data: rpcResult, error: rpcError } = await client.rpc('finalize_delivery_confirmation', {
-            p_order_id: id,
-            p_otp: otp
-        });
-
-        if (rpcError) throw rpcError;
-        if (rpcResult?.success === false) {
-            return res.status(400).json({ error: rpcResult.message || 'Impossible de confirmer la livraison.' });
+        const nowIso = new Date().toISOString();
+        let escrowTimerHours = 24; // Default
+        
+        if (order.items && order.items.length > 0) {
+            const productId = order.items[0].product_id;
+            if (productId) {
+                const { data: productData } = await client
+                    .from('products')
+                    .select('escrow_timer_hours')
+                    .eq('id', productId)
+                    .single();
+                if (productData && productData.escrow_timer_hours) {
+                    escrowTimerHours = productData.escrow_timer_hours;
+                }
+            }
         }
-
-        const updatedOrder = rpcResult?.order || order;
-        const nowIso = updatedOrder?.delivered_at || new Date().toISOString();
+        
+        const releaseAtIso = computeEscrowReleaseAt(nowIso, escrowTimerHours);
+        
+        const { data: updatedOrder, error: updateError } = await client
+            .from('orders')
+            .update({
+                status: ORDER_STATUSES.DELIVERED,
+                delivered_at: nowIso,
+                escrow_release_at: releaseAtIso,
+                updated_at: nowIso
+            })
+            .eq('id', id)
+            .select('*')
+            .single();
+            
+        if (updateError) {
+            return res.status(500).json({ error: 'Impossible de mettre à jour la commande.' });
+        }
 
         await createOrUpdateDeliveryRecord(id, getOrderVendorId(order), {
             status: DELIVERY_STATUSES.DELIVERED,
