@@ -179,10 +179,10 @@ const HEADER_HTML = `
     class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" style="z-index: 9000;" aria-hidden="true">
 </div>
 <div id="mobileMenu" class="fixed inset-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
-    <div class="mobile-menu-header px-6 flex items-center justify-between bg-white text-gray-900 border-b border-gray-100/60" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
+    <div class="mobile-menu-header px-4 flex items-center justify-between bg-white text-gray-900 border-b border-gray-100/60" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
         <div class="mobile-menu-brand">
             <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_400,f_auto,q_auto/v1782572411/newket_assets/racine/Logo_Vert_Pour_Fond_Blanc.png" alt="NewKet" width="240" height="96" class="h-12 w-auto object-contain">
-            <p class="mobile-menu-subtitle text-gray-500">Votre navigation principale</p>
+            <p class="mobile-menu-subtitle text-gray-500 text-xs">Votre navigation principale</p>
         </div>
         <button id="closeMobileMenu" class="p-2 transition-all btn-active-scale rounded-xl" aria-label="Fermer le menu">
             <iconify-icon icon="solar:close-circle-bold" width="32" class="text-gray-900"></iconify-icon>
@@ -192,30 +192,34 @@ const HEADER_HTML = `
     <div class="flex-1 overflow-y-auto pt-4 pb-6" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
         <!-- Guest Call to Action -->
         <div id="mobileGuestCTA" class="px-4 mb-6">
-            <a href="{{ROOT}}src/pages/login.html" class="flex flex-row items-center gap-3 p-4 md:p-5 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800">
-                <div class="w-10 h-10 md:w-12 md:h-12 bg-white/10 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+            <a href="{{ROOT}}src/pages/login.html" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800">
+                <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                     <iconify-icon icon="solar:user-bold" width="20"></iconify-icon>
                 </div>
-                <div class="flex-1 flex flex-col items-start">
-                    <div class="text-sm md:text-base font-bold">Compte NewKet</div>
-                    <div class="text-[10px] md:text-xs text-white/60 font-medium mt-0.5 leading-tight">Connectez-vous pour voir vos favoris et vos commandes.</div>
+                <div class="flex-1 flex flex-col items-start min-w-0">
+                    <div class="text-sm font-bold truncate w-full">Compte NewKet</div>
+                    <div class="text-[10px] text-white/60 font-medium mt-0.5 leading-tight line-clamp-2">Connectez-vous pour voir vos favoris et vos commandes.</div>
                 </div>
-                <div class="px-3 py-2 md:px-5 md:py-2.5 bg-white text-slate-900 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shrink-0">Se connecter</div>
+                <div class="w-10 h-10 bg-white text-slate-900 rounded-xl flex items-center justify-center shrink-0 shadow-sm group-hover:bg-gray-100 transition-colors">
+                    <iconify-icon icon="solar:login-3-bold" width="20"></iconify-icon>
+                </div>
             </a>
         </div>
 
         <!-- Logged User Call to Action -->
         <div id="mobileLoggedCTA" class="px-4 mb-6" style="display: none;">
-            <a id="mobileLoggedLink" href="{{ROOT}}src/pages/customer-dashboard.html" class="flex flex-row items-center gap-3 p-4 md:p-5 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800 shadow-xl">
-                <div class="w-10 h-10 md:w-12 md:h-12 shrink-0 bg-white/10 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
+            <a id="mobileLoggedLink" href="{{ROOT}}src/pages/customer-dashboard.html" class="flex flex-row items-center gap-3 p-4 bg-slate-900 text-white rounded-[1.5rem] text-left group transition-all hover:bg-slate-800 shadow-xl">
+                <div class="w-10 h-10 shrink-0 bg-white/10 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden border-2 border-white/20 shadow-md">
                     <img id="mobileLoggedAvatar" src="" alt="Avatar" class="w-full h-full object-cover hidden" referrerpolicy="no-referrer" crossorigin="anonymous">
                     <iconify-icon id="mobileLoggedIcon" icon="solar:user-bold" width="20" class="text-white hidden"></iconify-icon>
                 </div>
-                <div class="flex-1 flex flex-col items-start">
-                    <div id="mobileLoggedName" class="text-sm md:text-base font-bold leading-tight">Mon Compte</div>
-                    <div id="mobileLoggedRole" class="text-[10px] md:text-xs text-white/50 font-medium uppercase tracking-widest mt-0.5">Membre NewKet</div>
+                <div class="flex-1 flex flex-col items-start min-w-0">
+                    <div id="mobileLoggedName" class="text-sm font-bold leading-tight truncate w-full">Mon Compte</div>
+                    <div id="mobileLoggedRole" class="text-[10px] text-white/50 font-medium uppercase tracking-widest mt-0.5 truncate w-full">Membre NewKet</div>
                 </div>
-                <div class="px-3 py-2 md:px-5 md:py-2.5 bg-white/10 text-white border border-white/20 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-colors shrink-0">Mon Espace</div>
+                <div class="w-10 h-10 bg-white/10 text-white border border-white/20 rounded-xl flex items-center justify-center shrink-0 hover:bg-white hover:text-slate-900 transition-colors group-hover:scale-105">
+                    <iconify-icon icon="solar:alt-arrow-right-bold" width="20"></iconify-icon>
+                </div>
             </a>
         </div>
 

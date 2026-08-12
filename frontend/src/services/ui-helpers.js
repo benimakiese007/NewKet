@@ -221,8 +221,8 @@ function buildShopSlug(shopName) {
 
 function buildProductSlug(productName) {
     const base = _nkNormalizeForSlug(productName);
-    if (!base) return 'Produit_NewKet';
-    return `${base}_NewKet`;
+    if (!base) return 'produit';
+    return base;
 }
 
 async function copyTextToClipboard(text) {
@@ -253,18 +253,16 @@ async function copyTextToClipboard(text) {
 function buildShopShareUrl({ shopName, shopSlug } = {}) {
     const providedSlug = String(shopSlug || '').trim();
     const slug = providedSlug || buildShopSlug(shopName);
-    const url = new URL(`/Boutique/${encodeURIComponent(slug)}/NewKet`, window.location.origin);
+    const url = new URL(`/boutique/${encodeURIComponent(slug)}`, window.location.origin);
     return url.toString();
 }
 
 function buildProductShareUrl({ shopName, email, productName, productId } = {}) {
     const shopSlug = buildShopSlug(shopName);
     const productSlug = buildProductSlug(productName);
-    const random = Math.floor(Math.random() * 100) + 1;
-    const url = new URL(`/Boutique/${encodeURIComponent(shopSlug)}/${encodeURIComponent(productSlug)}/${random}/NewKet`, window.location.origin);
+    const url = new URL(`/boutique/${encodeURIComponent(shopSlug)}/produit/${encodeURIComponent(productSlug)}`, window.location.origin);
     // Keep id as a query param so product.html can always resolve to a real product record.
     if (productId) url.searchParams.set('id', productId);
-    if (email) url.searchParams.set('email', email);
     return url.toString();
 }
 
@@ -273,10 +271,8 @@ function buildProductPagePath({ shopName, shopSlug, productName, productId, emai
     const productSlug = buildProductSlug(productName);
 
     if (resolvedShopSlug && productSlug) {
-        const random = Math.floor(Math.random() * 100) + 1;
-        const url = new URL(`/Boutique/${encodeURIComponent(resolvedShopSlug)}/${encodeURIComponent(productSlug)}/${random}/NewKet`, window.location.origin);
+        const url = new URL(`/boutique/${encodeURIComponent(resolvedShopSlug)}/produit/${encodeURIComponent(productSlug)}`, window.location.origin);
         if (productId) url.searchParams.set('id', productId);
-        if (email) url.searchParams.set('email', email);
         return `${url.pathname}${url.search}`;
     }
 
