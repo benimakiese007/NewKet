@@ -155,6 +155,22 @@ BEGIN
         );
     END IF;
 
+    IF (v_now > (COALESCE(v_event.invited_at, v_invitee.referral_claimed_at, v_invitee.date_joined) + INTERVAL '30 days')) THEN
+        IF FOUND THEN
+            UPDATE public.referral_events
+            SET status = 'invalid', notes = 'Expired: order completed after 30 days'
+            WHERE invitee_id = p_invitee_id;
+        ELSE
+            INSERT INTO public.referral_events (
+                inviter_id, invitee_id, referral_code, status, source, reward_amount, invited_at, notes
+            ) VALUES (
+                v_invitee.referred_by_user_id, p_invitee_id, v_invitee.referred_by_code, 'invalid', 'order_completion', 0, COALESCE(v_invitee.referral_claimed_at, v_invitee.date_joined), 'Expired: order completed after 30 days'
+            );
+        END IF;
+
+        RETURN jsonb_build_object('awarded', false, 'reason', 'expired_30_days');
+    END IF;
+
     SELECT COUNT(*)
     INTO v_completed_count
     FROM public.orders

@@ -490,6 +490,35 @@
                         <p id="formSuccess" class="text-[11px] font-bold text-green-500 text-center mt-2 hidden"></p>
                     </form>
 
+                    <!-- OTP Form (Hidden by default) -->
+                    <form id="otpForm" novalidate class="hidden space-y-5 relative">
+                        <div class="mb-6 animate-item">
+                            <p class="text-sm text-gray-500 font-medium text-center">Un code à 6 chiffres a été envoyé à votre adresse email. Veuillez le saisir ci-dessous pour confirmer votre compte.</p>
+                        </div>
+                        <div class="relative floating-input animate-item">
+                            <input type="text" id="otpCode" name="otpCode" required placeholder=" " autocomplete="one-time-code" inputmode="numeric" maxlength="8"
+                                class="peer w-full h-16 bg-gray-50 border border-transparent focus:border-black focus:bg-white rounded-2xl px-5 pt-6 pb-2 outline-none transition-all text-sm font-semibold text-gray-900 shadow-sm shadow-gray-100 text-center text-xl tracking-widest">
+                            <label for="otpCode"
+                                class="absolute left-5 top-5 text-gray-500 text-sm font-medium transition-all pointer-events-none origin-left uppercase tracking-wider text-[11px]">Code OTP</label>
+                        </div>
+                        <button type="submit" id="submitOtpBtn"
+                            class="w-full h-14 bg-black text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-neutral-800 transition-all flex items-center justify-center gap-3 group shadow-lg shadow-black/15 mt-6 animate-item">
+                            <span>Valider le code</span>
+                            <div class="loader-spinner"></div>
+                        </button>
+                        <p id="otpFormError" class="text-[11px] font-bold text-red-500 text-center mt-2 hidden"></p>
+
+                        <div class="text-center mt-4 animate-item">
+                            <p class="text-xs text-gray-500">
+                                Code non reçu ? 
+                                <button type="button" id="resendOtpBtn" class="font-bold text-black hover:underline disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Renvoyer le code
+                                </button>
+                            </p>
+                            <p id="resendOtpSuccess" class="text-[11px] font-bold text-green-500 text-center mt-2 hidden">Nouveau code envoyé !</p>
+                        </div>
+                    </form>
+
                     <!-- Divider -->
                     <div class="relative my-7 animate-item">
                         <div class="absolute inset-0 flex items-center">
@@ -631,6 +660,13 @@
         const authForm = document.getElementById('authForm');
         const formError = document.getElementById('formError');
         const formSuccess = document.getElementById('formSuccess');
+        const otpForm = document.getElementById('otpForm');
+        const otpCodeInput = document.getElementById('otpCode');
+        const otpFormError = document.getElementById('otpFormError');
+        const submitOtpBtn = document.getElementById('submitOtpBtn');
+        const resendOtpBtn = document.getElementById('resendOtpBtn');
+        const resendOtpSuccess = document.getElementById('resendOtpSuccess');
+        const dividerBlock = document.querySelector('.auth-divider-text')?.parentElement?.parentElement;
         const togglePwdBtn = document.getElementById('togglePassword');
         const toggleConfirmPwdBtn = document.getElementById('toggleConfirmPassword');
         const pwdInput = document.getElementById('password');
@@ -1325,32 +1361,52 @@
 
                     if (error) throw error;
 
-                    if (typeof showToast !== 'undefined') showToast("Inscription réussie ! Bienvenue.", "success");
+                    if (typeof showToast !== 'undefined') showToast("Code envoyé ! Vérifiez vos emails.", "success");
 
-                    if (role === 'customer') {
-                        localStorage.setItem('newketWelcomeBonus', 'true');
-                        if (typeof PromoManager !== 'undefined') PromoManager.addPromo('BIENVENUE', 'percent', 0.05, 1);
-                        // Customers are immediately active
-                        finalizeAuth(data?.user || { user_metadata: { role, status: 'approved' } }, email);
-                    } else if (role === 'supplier') {
-                        localStorage.setItem('newketSupplierBonus', 'true');
-                        localStorage.setItem('newketRole', role);
-                        localStorage.setItem('newketUserEmail', email);
-                        localStorage.setItem('newketUserStatus', 'pending');
-                        // Suppliers must complete KYC form before accessing dashboard
-                        if (typeof showToast !== 'undefined') showToast("Complétez votre profil vendeur pour continuer.", "info");
-                        setTimeout(() => {
-                            window.location.href = window.resolvePath('pages/seller-onboarding');
-                        }, 1000);
-                    } else {
-                        finalizeAuth(data?.user || { user_metadata: { role } }, email);
-                    }
+                    // Hide auth form, show OTP form
+                    authForm.classList.add('hidden');
+                    tabsContainer.classList.add('hidden');
+                    if (dividerBlock) dividerBlock.classList.add('hidden');
+                    if (oauthProviders) oauthProviders.classList.add('hidden');
+                    formSubtitle.textContent = "Veuillez entrer le code de vérification.";
+                    otpForm.classList.remove('hidden');
+
+                    // Store temp data for OTP verification
+                    window.newketPendingSignupData = {
+                        email,
+                        role,
+                        dataUser: data?.user || { user_metadata: { role, status: initialStatus } }
+                    };
+
                 }
             } catch (err) {
                 console.error("Auth Error:", err);
                 let msg = err.message;
                 if (isLogin) {
-                    msg = "Identifiant Incorrect";
+                    if (msg.toLowerCase().includes("email not confirmed") || msg.toLowerCase().includes("not confirmed")) {
+                        // Switch to OTP form
+                        authForm.classList.add('hidden');
+                        tabsContainer.classList.add('hidden');
+                        if (dividerBlock) dividerBlock.classList.add('hidden');
+                        if (oauthProviders) oauthProviders.classList.add('hidden');
+                        formSubtitle.textContent = "Veuillez entrer le code de vérification pour finaliser votre inscription.";
+                        otpForm.classList.remove('hidden');
+
+                        window.newketPendingSignupData = {
+                            email: resolvedLoginEmail,
+                            role: 'customer', // fallback
+                        };
+                        
+                        // Optionally trigger a resend automatically
+                        if (window.supabaseClient) {
+                            window.supabaseClient.auth.resend({ type: 'signup', email: resolvedLoginEmail });
+                        }
+                        
+                        setBtnLoading(false);
+                        return;
+                    } else {
+                        msg = "Identifiant Incorrect";
+                    }
                 } else {
                     if (msg.includes("User already registered")) msg = "Cet utilisateur existe déjà.";
                 }
@@ -1359,6 +1415,103 @@
                 setBtnLoading(false);
             }
         });
+
+        otpForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otpCode = otpCodeInput.value.trim();
+            if (!otpCode || otpCode.length < 6) {
+                otpFormError.textContent = "Veuillez entrer un code valide (6 à 8 chiffres).";
+                otpFormError.classList.remove('hidden');
+                return;
+            }
+
+            submitOtpBtn.classList.add('loading');
+            otpFormError.classList.add('hidden');
+            const spinner = submitOtpBtn.querySelector('.loader-spinner');
+            const span = submitOtpBtn.querySelector('span');
+            if (spinner) spinner.style.display = 'block';
+            if (span) span.style.opacity = '0';
+
+            try {
+                const pendingData = window.newketPendingSignupData;
+                if (!pendingData || !pendingData.email) throw new Error("Session expirée. Veuillez réessayer.");
+
+                const { data, error } = await window.supabaseClient.auth.verifyOtp({
+                    email: pendingData.email,
+                    token: otpCode,
+                    type: 'signup'
+                });
+
+                if (error) throw error;
+
+                if (typeof showToast !== 'undefined') showToast("Email vérifié avec succès !", "success");
+
+                const role = pendingData.role;
+                if (role === 'customer') {
+                    localStorage.setItem('newketWelcomeBonus', 'true');
+                    if (typeof PromoManager !== 'undefined') PromoManager.addPromo('BIENVENUE', 'percent', 0.05, 1);
+                    finalizeAuth(data?.user || pendingData.dataUser, pendingData.email);
+                } else if (role === 'supplier') {
+                    localStorage.setItem('newketSupplierBonus', 'true');
+                    localStorage.setItem('newketRole', role);
+                    localStorage.setItem('newketUserEmail', pendingData.email);
+                    localStorage.setItem('newketUserStatus', 'pending');
+                    if (typeof showToast !== 'undefined') showToast("Complétez votre profil vendeur pour continuer.", "info");
+                    setTimeout(() => {
+                        window.location.href = window.resolvePath('pages/seller-onboarding');
+                    }, 1000);
+                } else {
+                    finalizeAuth(data?.user || pendingData.dataUser, pendingData.email);
+                }
+            } catch (err) {
+                console.error("OTP Error:", err);
+                otpFormError.textContent = err.message.includes('expired') ? "Code expiré ou invalide." : "Code de vérification incorrect.";
+                otpFormError.classList.remove('hidden');
+            } finally {
+                submitOtpBtn.classList.remove('loading');
+                if (spinner) spinner.style.display = 'none';
+                if (span) span.style.opacity = '1';
+            }
+        });
+
+        if (resendOtpBtn) {
+            resendOtpBtn.addEventListener('click', async () => {
+                const pendingData = window.newketPendingSignupData;
+                if (!pendingData || !pendingData.email) return;
+
+                resendOtpBtn.disabled = true;
+                resendOtpBtn.textContent = 'Envoi en cours...';
+                if (resendOtpSuccess) resendOtpSuccess.classList.add('hidden');
+
+                try {
+                    const { error } = await window.supabaseClient.auth.resend({
+                        type: 'signup',
+                        email: pendingData.email
+                    });
+                    if (error) throw error;
+                    
+                    if (resendOtpSuccess) resendOtpSuccess.classList.remove('hidden');
+                    let countdown = 60;
+                    const timerInterval = setInterval(() => {
+                        countdown--;
+                        if (countdown <= 0) {
+                            clearInterval(timerInterval);
+                            resendOtpBtn.disabled = false;
+                            resendOtpBtn.textContent = 'Renvoyer le code';
+                            if (resendOtpSuccess) resendOtpSuccess.classList.add('hidden');
+                        } else {
+                            resendOtpBtn.textContent = `Attendez ${countdown}s`;
+                        }
+                    }, 1000);
+
+                } catch (err) {
+                    console.error('Resend OTP Error:', err);
+                    if (typeof showToast !== 'undefined') showToast("Erreur lors de l'envoi du code.", "error");
+                    resendOtpBtn.disabled = false;
+                    resendOtpBtn.textContent = 'Renvoyer le code';
+                }
+            });
+        }
 
         // Redirect based on role
         async function finalizeAuth(user, email) {

@@ -91,10 +91,24 @@ async function loadInvitees(inviterId) {
         inviteesById = new Map((inviteeRows || []).map((row) => [row.id, row]));
     }
 
+    const now = Date.now();
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
     const rows = events.map((event) => {
         const invitee = inviteesById.get(event.invitee_id) || null;
+        
+        let status = event.status;
+        if (status === 'pending' && event.invited_at) {
+            const invitedDate = new Date(event.invited_at).getTime();
+            if ((now - invitedDate) > THIRTY_DAYS_MS) {
+                status = 'invalid';
+                event.notes = 'Expired (30 days limit)';
+            }
+        }
+
         return {
             ...event,
+            status,
             invitee: invitee
                 ? {
                     id: invitee.id,
@@ -132,12 +146,25 @@ async function loadReferralAdminDataset(limit = 250) {
 
     const users = Array.isArray(usersResult.data) ? usersResult.data : [];
     const usersById = new Map(users.map((row) => [row.id, row]));
+    const now = Date.now();
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
     const events = (Array.isArray(eventsResult.data) ? eventsResult.data : []).map((event) => {
         const inviter = usersById.get(event.inviter_id) || null;
         const invitee = usersById.get(event.invitee_id) || null;
 
+        let status = event.status;
+        if (status === 'pending' && event.invited_at) {
+            const invitedDate = new Date(event.invited_at).getTime();
+            if ((now - invitedDate) > THIRTY_DAYS_MS) {
+                status = 'invalid';
+                event.notes = 'Expired (30 days limit)';
+            }
+        }
+
         return {
             ...event,
+            status,
             inviter,
             invitee
         };
