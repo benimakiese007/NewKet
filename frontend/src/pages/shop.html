@@ -563,7 +563,8 @@
                     await navigator.share({ title: `${currentShopName} — NewKet`, url });
                     return;
                 }
-            } catch {
+            } catch (err) {
+                if (err.name === 'AbortError') return;
             }
 
             const ok = window.NewKetLinks?.copyTextToClipboard ? await window.NewKetLinks.copyTextToClipboard(url) : false;

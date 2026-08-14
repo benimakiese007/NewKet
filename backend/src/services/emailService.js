@@ -121,6 +121,36 @@ const EmailService = {
     },
 
     /**
+     * Template: Newsletter welcome / confirmation email
+     * Sent when a visitor subscribes or re-subscribes to the newsletter.
+     */
+    async sendNewsletterWelcome(toEmail, { source = 'footer' } = {}) {
+        const html = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 24px; border: 1px solid #eee; border-radius: 20px; background: #fff;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <h1 style="color: #000; margin: 0;">NewKet</h1>
+                    <p style="color: #666; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 2px;">Newsletter</p>
+                </div>
+                <div style="padding: 24px; background: linear-gradient(180deg, #f8f8f8 0%, #ffffff 100%); border-radius: 16px;">
+                    <h2 style="color: #0f172a; margin-top: 0;">Merci pour ton inscription</h2>
+                    <p style="color: #334155; line-height: 1.7;">Tu es bien inscrit à la newsletter NewKet. Tu recevras nos nouveautés, sélections exclusives et avant-premières directement dans ta boîte mail.</p>
+                    <p style="color: #334155; line-height: 1.7;">Source d'inscription: <b>${source}</b></p>
+                    <div style="text-align: center; margin-top: 28px;">
+                        <a href="${process.env.FRONTEND_URL}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px;">Découvrir NewKet</a>
+                    </div>
+                </div>
+                <p style="color: #999; font-size: 11px; text-align: center; margin-top: 20px;">Tu peux te désinscrire à tout moment depuis un prochain email ou depuis nos paramètres de newsletter.</p>
+            </div>
+        `;
+
+        return this.sendMail({
+            to: toEmail,
+            subject: 'Bienvenue sur la newsletter NewKet',
+            html
+        });
+    },
+
+    /**
      * Template: Dispute Opened Alert
      * Sent to the admin/support when a dispute is opened.
      */

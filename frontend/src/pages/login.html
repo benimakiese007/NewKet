@@ -45,7 +45,8 @@
 
         .floating-input:focus-within label,
         .floating-input input:not(:placeholder-shown)+label {
-            transform: translateY(-14px) scale(0.75);
+            top: 12px;
+            transform: translateY(0) scale(0.75);
             font-weight: 800;
             color: #000;
         }
@@ -825,7 +826,7 @@
                 emailInput.setAttribute('name', 'username');
                 if (emailLabel) emailLabel.textContent = 'Email ou nom d\'utilisateur';
                 emailInput.type = 'text';
-                emailInput.placeholder = 'Email ou nom d\'utilisateur';
+                emailInput.placeholder = ' ';
                 pwdInput.setAttribute('autocomplete', 'current-password');
                 return;
             }
