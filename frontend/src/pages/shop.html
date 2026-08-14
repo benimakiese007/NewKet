@@ -213,6 +213,7 @@
         let currentShopName = '';
         let currentShopEmail = '';
         let currentShopSlug = '';
+        let currentShopSellerType = '';
 
         function getShopCacheKey({ email = '', shopSlug = '' } = {}) {
             const normalizedEmail = String(email || '').trim().toLowerCase();
@@ -245,6 +246,7 @@
                     shipping_time: vendor.shipping_time || '',
                     date_joined: vendor.date_joined || '',
                     shop_slug: vendor.shop_slug || '',
+                    seller_type: vendor.seller_type || '',
                     rating_avg: ratingAvg,
                     products: Array.isArray(products) ? products.slice(0, 12) : []
                 }));
@@ -260,6 +262,7 @@
             currentShopName = shopName;
             currentShopEmail = vendor.email || currentShopEmail;
             currentShopSlug = vendor.shop_slug || fallbackShopSlug || currentShopSlug;
+            currentShopSellerType = vendor.seller_type || '';
 
             const vendorNameEl = document.getElementById('vendorName');
             const vendorAvatarEl = document.getElementById('vendorAvatar');
@@ -392,7 +395,8 @@
             const vendorSummary = {
                 company_name: currentShopName,
                 name: currentShopName,
-                avatar: document.getElementById('vendorAvatar')?.getAttribute('src') || ''
+                avatar: document.getElementById('vendorAvatar')?.getAttribute('src') || '',
+                seller_type: currentShopSellerType || ''
             };
 
             grid.innerHTML = list.map((p, index) => {
