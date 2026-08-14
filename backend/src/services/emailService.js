@@ -2,26 +2,33 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
+/**
+ * NewKet Email Service
+ * Uses Brevo (formerly Sendinblue) SMTP for all transactional emails.
+ * Centralizes all email templates and sending logic.
+ */
+
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
+    port: parseInt(process.env.BREVO_SMTP_PORT || '587'),
+    secure: false,
     auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD
+        user: process.env.BREVO_SMTP_USER,
+        pass: process.env.BREVO_SMTP_KEY
     }
 });
 
-/**
- * NewKet Email Service
- * Centralizes all email templates and sending logic.
- */
+const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'newketmarket@gmail.com';
+const SENDER_NAME = process.env.BREVO_SENDER_NAME || 'NewKet';
+
 const EmailService = {
     /**
-     * Common method to send an email with custom HTML
+     * Common method to send an email with custom HTML.
      */
     async sendMail({ to, subject, html }) {
         try {
             const info = await transporter.sendMail({
-                from: `"NewKet EMarket" <${process.env.GMAIL_USER}>`,
+                from: `"${SENDER_NAME}" <${SENDER_EMAIL}>`,
                 to,
                 subject,
                 html
@@ -96,7 +103,7 @@ const EmailService = {
             <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 20px;">
                 <div style="text-align: center; margin-bottom: 20px;">
                     <h1 style="color: #000; margin: 0;">NewKet</h1>
-                    <p style="color: #666; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 2px;">News & Updates</p>
+                    <p style="color: #666; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 2px;">News &amp; Updates</p>
                 </div>
                 <div style="padding: 20px; background-color: #f9f9f9; border-radius: 15px;">
                     <p style="color: #333; line-height: 1.6;">${content.replace(/\n/g, '<br>')}</p>
@@ -105,7 +112,6 @@ const EmailService = {
                 <p style="color: #bbb; font-size: 10px; text-align: center;">Vous recevez cet email car vous êtes inscrit sur NewKet.</p>
             </div>
         `;
-        // Promise.all to send individually, or BCC. Using individual sending here for better deliverability
         const promises = emails.map(email => this.sendMail({ to: email, subject, html }));
         const results = await Promise.allSettled(promises);
         
@@ -230,7 +236,7 @@ const EmailService = {
                 <p style="color: #999; font-size: 11px; text-align: center;">© ${new Date().getFullYear()} NewKet EMarket. Tous droits réservés.</p>
             </div>
         `;
-        return this.sendMail({ to: vendorEmail, subject: '❌ Votre demande de certification Pro n\'a pas été approuvée', html });
+        return this.sendMail({ to: vendorEmail, subject: "❌ Votre demande de certification Pro n'a pas été approuvée", html });
     },
 
     /**
