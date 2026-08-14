@@ -290,7 +290,6 @@
     </style>
     <script>
         let allSellers = [];
-        let shopStats = {};
         let searchDebounceId = null;
 
         function escapeHtml(value) {
@@ -387,59 +386,13 @@
                     return;
                 }
 
-                // Initial load: Fetch sellers and their stats
+                // Initial load: Fetch sellers and their stats from the SQL view
                 if (allSellers.length === 0) {
-                    const [sellers, products, reviews, orders] = await Promise.all([
-                        window.SupabaseAdapter.fetchWithFilters('users', {
-                            in: [['role', ['vendor', 'supplier', 'fournisseur', 'seller']]],
-                            order: ['date_joined', { ascending: false }],
-                            limit: 100
-                        }),
-                        window.SupabaseAdapter.fetchWithFilters('products', { select: 'id, supplier_email' }),
-                        window.SupabaseAdapter.fetchWithFilters('product_reviews', { select: 'product_id, rating' }),
-                        window.SupabaseAdapter.fetchWithFilters('orders', { select: 'status, supplier_emails' })
-                    ]);
+                    const sellers = await window.SupabaseAdapter.fetchWithFilters('seller_stats', {
+                        limit: 100
+                    });
 
                     allSellers = sellers || [];
-                    
-                    // Map products to their reviews
-                    const productReviewsMap = {};
-                    (reviews || []).forEach(r => {
-                        if (!productReviewsMap[r.product_id]) productReviewsMap[r.product_id] = [];
-                        productReviewsMap[r.product_id].push(r.rating);
-                    });
-
-                    // Aggregate stats per seller
-                    shopStats = {};
-                    allSellers.forEach(seller => {
-                        const email = seller.email;
-                        const sellerProducts = (products || []).filter(p => p.supplier_email === email);
-                        const productIds = sellerProducts.map(p => p.id);
-                        
-                        // Calculate Rating
-                        let totalRating = 0;
-                        let ratingCount = 0;
-                        productIds.forEach(pid => {
-                            if (productReviewsMap[pid]) {
-                                productReviewsMap[pid].forEach(rate => {
-                                    totalRating += rate;
-                                    ratingCount++;
-                                });
-                            }
-                        });
-
-                        // Calculate Sales (from orders where supplier_emails contains this seller)
-                        const salesCount = (orders || []).filter(o => 
-                            o.status !== 'Annulée' && 
-                            (o.supplier_emails || []).includes(email)
-                        ).length;
-
-                        shopStats[email] = {
-                            avgRating: ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : 0,
-                            ratingCount: ratingCount,
-                            salesCount: salesCount
-                        };
-                    });
                 }
 
                 let filteredSellers = allSellers;
@@ -464,7 +417,11 @@
                     const avatar = getSellerAvatarUrl(seller);
                     const dateJoined = seller.date_joined ? new Date(seller.date_joined).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : 'récemment';
                     const shopName = seller.company_name || seller.name || 'Boutique sans nom';
-                    const stats = shopStats[seller.email] || { avgRating: 0, ratingCount: 0, salesCount: 0 };
+                    const stats = { 
+                        avgRating: seller.avg_rating || 0, 
+                        ratingCount: seller.rating_count || 0, 
+                        salesCount: seller.sales_count || 0 
+                    };
                     
                     // Rating HTML
                     let ratingHtml = '';
