@@ -192,7 +192,7 @@ export const createOrder = async (req, res) => {
         }
 
         const vendorId = vendorIdFromBody || product.user_id || null;
-        const unitPrice = toFiniteNumber(product.price ?? req.body?.price ?? product.old_price, 0);
+        const unitPrice = toFiniteNumber(req.body?.price || product.price || product.old_price, 0);
         const totalAmount = Number((unitPrice * quantity).toFixed(2));
         const nowIso = new Date().toISOString();
 
@@ -211,6 +211,8 @@ export const createOrder = async (req, res) => {
             vendor_id: vendorId,
             items: [{
                 product_id: product.id,
+                variant_id: req.body?.variant_id || null,
+                variant_attributes: req.body?.variant_attributes || null,
                 vendor_id: vendorId,
                 price: unitPrice,
                 name: product.name,

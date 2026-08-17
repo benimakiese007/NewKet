@@ -192,6 +192,7 @@
                         </div>
                     </div>
 
+
                     <div class="space-y-4">
                         <div class="flex items-center gap-4 bg-white p-2 rounded-2xl border border-gray-100 shadow-sm w-fit">
                             <button data-update-qty="-1" aria-label="Réduire la quantité" class="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-500 hover:text-gray-900 text-2xl font-black leading-none">
@@ -554,6 +555,7 @@
                 guaranteeEl.textContent = `Garantie de ${escrowHours}h`;
             }
 
+
             // --- Stock qty control ---
             const qtyInput = document.getElementById('qty-input');
             if (qtyInput && Number.isFinite(stock) && stock > 0) {
@@ -616,29 +618,36 @@
         function setupListeners(p) {
             document.getElementById('mainOrderBtn').onclick = () => {
                 const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
+                const finalPrice = Number(p.price);
+
                 const qtyInput = document.getElementById('qty-input');
                 const quantity = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+                
                 if (!(Number.isFinite(stock) && stock > 0)) {
                     if (window.showToast) showToast('Produit indisponible pour le moment.', 'warning');
                     return;
                 }
                 if (quantity > stock) {
-                    if (window.showToast) showToast(`Quantite indisponible. Stock actuel: ${stock}.`, 'warning');
+                    if (window.showToast) showToast(`Quantité indisponible. Stock actuel: ${stock}.`, 'warning');
                     return;
                 }
+                
                 if (window.CartManager) {
                     const vendor = Array.isArray(p.users) ? p.users[0] : p.users;
                     const cartImage = window.resolveProductImageSource
                         ? window.resolveProductImageSource(p)
                         : (window.getOptimizedImageUrl ? window.getOptimizedImageUrl(p.images || p.image || p.image_url || p.product_image || p.thumbnail || '') : (Array.isArray(p.images) ? p.images[0] : p.image || p.image_url || p.product_image || p.thumbnail || ''));
-                    window.CartManager.add({
+                    
+                    const itemPayload = {
                         id: p.id,
                         title: p.name,
-                        price: p.price,
+                        price: finalPrice,
                         image: cartImage,
                         vendor_id: p.user_id || vendor?.id || '',
                         vendor: vendor?.company_name || vendor?.name || 'NewKet Shop'
-                    }, quantity);
+                    };
+
+                    window.CartManager.add(itemPayload, quantity);
                 }
             };
             document.getElementById('mainWishlistBtn').onclick = () => {

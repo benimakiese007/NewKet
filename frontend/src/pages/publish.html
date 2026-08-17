@@ -274,6 +274,7 @@
                 </div>
             </div>
 
+
             <!-- Promotion Card -->
             <div data-card="promo" class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
                 <div class="flex items-center justify-between">
@@ -304,7 +305,7 @@
                                 <span id="promoCurrencyBadge">FC</span>
                             </div>
                         </div>
-                        <div class="flex items-center justify-between gap-3 p-4 bg-emerald-50/70 rounded-2xl border border-emerald-100">
+                        <div id="promoPercentWrap" class="flex items-center justify-between gap-3 p-4 bg-emerald-50/70 rounded-2xl border border-emerald-100">
                             <div class="flex items-center gap-2 min-w-0">
                                 <iconify-icon icon="solar:tag-price-bold" class="text-emerald-600 shrink-0" width="18"></iconify-icon>
                                 <p class="text-[11px] text-emerald-900 font-medium">Réduction calculée automatiquement</p>
@@ -983,20 +984,15 @@
                         
                         const expiresAtVal = document.getElementById('promoExpiresAtInput').value;
                         if (expiresAtVal) {
-                            // Ensure it is saved as full ISO timestamp
                             finalPromoExpiresAt = new Date(expiresAtVal + 'T23:59:59Z').toISOString();
                         }
                     }
 
                     let finalImagePaths = [];
-                    // Keep existing image URLs if they are not Blobs/Base64
                     const existingImages = selectedProductImages.filter(img => img.startsWith('http'));
-                    const newImages = selectedProductImages.filter(img => !img.startsWith('http'));
-
                     finalImagePaths = [...existingImages];
 
                     if (window.SupabaseAdapter && window.SupabaseAdapter.uploadFile) {
-                        // Find the original files for new images
                         for (let i = 0; i < selectedFileBlobs.length; i++) {
                             const file = selectedFileBlobs[i];
                             const fileName = `${Date.now()}_${i}.${file.name.split('.').pop()}`;
@@ -1009,13 +1005,10 @@
                                 }
                             } else {
                                 const publicUrl = await SupabaseAdapter.uploadFile('product-images', fileName, file);
-                                if (publicUrl) {
-                                    finalImagePaths.push(publicUrl);
-                                }
+                                if (publicUrl) finalImagePaths.push(publicUrl);
                             }
                         }
                     } else {
-                        // Fallback logic
                         finalImagePaths = selectedProductImages;
                     }
 
@@ -1037,18 +1030,23 @@
                         escrow_timer_hours: parseInt(document.getElementById('escrowTimerInput')?.value || "24", 10)
                     };
 
+                    let savedProductId = isEditMode ? editProductId : null;
+
                     if (isEditMode) {
                         await ProductManager.updateProduct(editProductId, productData);
-                        // Mark product as just-updated so vendor-dashboard skips broken-image check for it
                         try { sessionStorage.setItem('newket_just_updated', editProductId); } catch(_) {}
-                        // Toast removed — the success modal already provides feedback
                     } else {
                         const newProduct = {
                             ...productData,
                             reviews: 0,
                             created_at: new Date().toISOString()
                         };
-                        await ProductManager.addProduct(newProduct);
+                        const savedProduct = await ProductManager.addProduct(newProduct);
+                        if (savedProduct && savedProduct.id) {
+                            savedProductId = savedProduct.id;
+                        } else if (savedProduct && savedProduct[0] && savedProduct[0].id) {
+                            savedProductId = savedProduct[0].id;
+                        }
                     }
                     
                     submitBtn.disabled = false;
@@ -1110,27 +1108,33 @@
             const step2 = document.createElement('div'); step2.id = 'step-2'; step2.className = 'publish-step space-y-6 hidden animate-in fade-in slide-in-from-bottom-4 duration-500';
             const step3 = document.createElement('div'); step3.id = 'step-3'; step3.className = 'publish-step space-y-6 hidden animate-in fade-in slide-in-from-bottom-4 duration-500';
             
+
             const basicInfoCard = form.querySelector('[data-card="basicInfo"]');
             const promoCard = form.querySelector('[data-card="promo"]');
             const mediaCard = form.querySelector('[data-card="media"]');
-            const detailsCard = form.querySelector('[data-card="details"]');
+            const detailsCard = form.querySelector('[data-card="details\"]');
+            const variantsCard = form.querySelector('[data-card="variants"]');
             
             if(basicInfoCard && promoCard && mediaCard && detailsCard) {
-                // Split basicInfoCard
-                const titleBlock = basicInfoCard.children[0]; 
-                const catCondBlock = basicInfoCard.children[1]; 
-                const stockEscrowBlock = basicInfoCard.children[2]; 
-                const priceBlock = basicInfoCard.children[3]; 
-                const exchangeBlock = basicInfoCard.children[4]; 
+                // Split basicInfoCard children by their semantic role
+                const titleBlock      = basicInfoCard.children[0]; // title input
+                const catCondBlock    = basicInfoCard.children[1]; // category + condition
+                const stockEscrowBlock= basicInfoCard.children[2]; // stock (quantité) + garantie
+                const priceBlock      = basicInfoCard.children[3]; // prix de vente
+                const exchangeBlock   = basicInfoCard.children[4]; // exchange rate card
                 
-                // Step 1
+                // Step 1 — wrap title + media + variants toggle in same card feel
                 const s1Card = document.createElement('div');
                 s1Card.className = 'bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8';
                 s1Card.appendChild(titleBlock.cloneNode(true));
                 step1.appendChild(s1Card);
-                step1.appendChild(mediaCard.cloneNode(true));
+                // Media card (Shooting Produit)
+                const mediaClone = mediaCard.cloneNode(true);
+                step1.appendChild(mediaClone);
+                // Variants card (toggle + rows) — always in step 1
+                if (variantsCard) step1.appendChild(variantsCard.cloneNode(true));
                 
-                // Step 2
+                // Step 2 — category + condition + description
                 const s2Card = document.createElement('div');
                 s2Card.className = 'bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8';
                 s2Card.appendChild(catCondBlock.cloneNode(true));
@@ -1138,7 +1142,7 @@
                 s2Card.appendChild(descBlock.cloneNode(true));
                 step2.appendChild(s2Card);
                 
-                // Step 3
+                // Step 3 — stock + garantie + price + exchange + promo
                 const s3Card = document.createElement('div');
                 s3Card.className = 'bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm space-y-8';
                 s3Card.appendChild(stockEscrowBlock.cloneNode(true));
@@ -1147,7 +1151,7 @@
                 step3.appendChild(s3Card);
                 step3.appendChild(promoCard.cloneNode(true));
                 
-                // Submit logic
+                // Submit block
                 const submitBlock = detailsCard.children[1].cloneNode(true);
                 submitBlock.className = "order-1 sm:order-2 flex-1"; 
                 
@@ -1186,6 +1190,7 @@
                 
                 bindFormListeners(form);
             }
+            
             
             // Validate Terms Checkbox to enable/disable Submit Button
             const termsCheckbox = document.getElementById('termsCheckboxPublish');
@@ -1343,10 +1348,119 @@
                 // Upload zone click and input change is now handled by document event delegation
             }
         });
-    </script>
-
+</script>
 </body>
+</html>
 
+
+
+    const rowId = `vrow_${++variantRowCounter}`;
+    const currLabel = getVariantCurrencyLabel();
+    const isPromo = document.getElementById('isPromoToggle')?.checked && document.getElementById('variantsToggle')?.checked;
+    const gridClass = isPromo ? 'grid-cols-[1fr_80px_100px_100px_48px]' : 'grid-cols-[1fr_80px_100px_48px]';
+    const oldPriceHidden = isPromo ? '' : 'hidden';
+
+    const row = document.createElement('div');
+    row.className = `variant-row grid ${gridClass} gap-2 items-center bg-gray-50 p-3 rounded-xl border border-gray-100`;
+    row.dataset.rowId = rowId;
+    row.innerHTML = `
+        <input type="text" placeholder="Ex: XL Rouge, Bleu S…" class="variant-attr bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 w-full">
+        <input type="number" placeholder="Stock" min="0" class="variant-stock w-full bg-white border border-gray-200 rounded-lg px-2 py-2 text-sm outline-none focus:border-indigo-500">
+        <div class="relative">
+            <input type="number" placeholder="0" min="0" class="variant-price w-full bg-white border border-gray-200 rounded-lg pl-2 pr-8 py-2 text-sm outline-none focus:border-indigo-500">
+            <span class="variant-currency-label absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-400 pointer-events-none">${currLabel}</span>
+        </div>
+        <div class="relative variant-old-price-col" style="${isPromo ? '' : 'display:none'}">
+            <input type="number" placeholder="0" min="0" class="variant-old-price w-full bg-orange-50 border border-orange-200 rounded-lg pl-2 pr-8 py-2 text-sm outline-none focus:border-orange-500 text-orange-900 placeholder-orange-300">
+            <span class="variant-currency-label absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-black text-orange-400 pointer-events-none">${currLabel}</span>
+        </div>
+
+        <!-- Image upload button -->
+        <button type="button" class="variant-image-btn relative w-10 h-10 rounded-xl border-2 border-dashed border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-indigo-400 hover:text-indigo-500 transition-all overflow-hidden" title="Photo pour cette variante">
+            <input type="file" accept="image/*" class="variant-image-input absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+            <iconify-icon icon="solar:camera-add-linear" width="18" class="variant-image-placeholder-icon pointer-events-none"></iconify-icon>
+            <img class="variant-image-preview absolute inset-0 w-full h-full object-cover rounded-xl hidden pointer-events-none">
+        </button>
+    `;
+
+    // Wire remove — we add a delete btn separately since grid has 4 cols; trash is in the image slot
+    // Actually we embed the trash inside the image slot via long-press or we add a 5th column — let's keep 4 cols and reuse image btn for both
+    // Instead: add separate remove logic via right-click context or a compact X overlay on hover
+    // For simplicity: add a remove button appended after the grid row
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs font-black items-center justify-center hidden group-hover:flex z-10';
+    removeBtn.innerHTML = '×';
+    row.style.position = 'relative';
+    row.classList.add('group');
+
+    // Wire image file pick -> preview
+    const fileInput = row.querySelector('.variant-image-input');
+    const imgBtn    = row.querySelector('.variant-image-btn');
+    const preview   = row.querySelector('.variant-image-preview');
+    const icon      = row.querySelector('.variant-image-placeholder-icon');
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        variantImageFiles[rowId] = file;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            preview.src = ev.target.result;
+            preview.classList.remove('hidden');
+            icon.classList.add('hidden');
+            imgBtn.classList.add('border-solid', 'border-indigo-400');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Wire remove via double-click on trash icon btn (the image btn when already has image acts as remove on double click)
+    // Simpler: add a small ✕ button that appears on hover using CSS group
+    imgBtn.addEventListener('dblclick', (e) => {
+        if (variantImageFiles[rowId]) {
+            delete variantImageFiles[rowId];
+            preview.classList.add('hidden');
+            icon.classList.remove('hidden');
+            imgBtn.classList.remove('border-solid', 'border-indigo-400');
+            fileInput.value = '';
+        } else {
+            // Double-click with no image = remove row
+            row.remove();
+        }
+    });
+
+    // Long-press to remove row on mobile
+    let pressTimer;
+    row.addEventListener('pointerdown', () => { pressTimer = setTimeout(() => row.remove(), 700); });
+    row.addEventListener('pointerup', () => clearTimeout(pressTimer));
+    row.addEventListener('pointerleave', () => clearTimeout(pressTimer));
+
+    return row;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Add variant row on button click
+    document.body.addEventListener('click', (e) => {
+        const addBtn = e.target.closest('#addVariantBtn');
+        if (addBtn) {
+            const container = addBtn.closest('#variantRowsWrapper')?.querySelector('#variantsContainer')
+                           || addBtn.parentElement.querySelector('#variantsContainer');
+            if (container) {
+                container.appendChild(createVariantRow());
+            }
+        }
+    });
+
+    // Update currency label on all variant rows when currency changes
+    document.body.addEventListener('change', (e) => {
+        if (e.target && e.target.id === 'currencyInput') {
+            const label = e.target.value === 'USD' ? '$' : 'FC';
+            document.querySelectorAll('.variant-currency-label').forEach(el => el.textContent = label);
+        }
+    });
+});
+</script>
+</body>
 </html>
 
 

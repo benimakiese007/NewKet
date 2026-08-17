@@ -173,6 +173,7 @@ Afin d'assurer le lancement et l'évolution de la Marketplace, voici notre feuil
 
 ### Long Terme (Croissance)
 - **Applications Mobiles :** Développement et déploiement d'une application dédiée (iOS et Android) pour fluidifier l'expérience mobile (pas avant d'atteindre 1 000 utilisateurs actifs).
+- **Messagerie Interne (Chat) :** Intégration d'un chat acheteur-vendeur juste après avoir atteint le cap des 1 000 utilisateurs actifs (pour éviter que les transactions ne se finalisent en dehors de la plateforme via des échanges de numéros WhatsApp à ce stade précoce).
 - **Évolution Logistique :** Ajout de nouvelles options de livraison et d'un suivi potentiellement plus avancé.
 
 ---

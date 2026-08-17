@@ -208,6 +208,8 @@ const App = {
         // 4. Global Event Listeners
         this.bindGlobalEvents();
 
+        // Remove the loading screen only when the entire app and all managers are ready.
+        document.documentElement.classList.remove('auth-loading');
         window.newketInitialized = true;
         window.dispatchEvent(new CustomEvent('newketInitialized'));
     },

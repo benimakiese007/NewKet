@@ -1,6 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
 
 /* PREMIUM AUTH SHIELD */
+html.auth-loading {
+    background-color: #f9fafb !important;
+}
+
+html.dark.auth-loading {
+    background-color: #0a0f1a !important;
+}
+
+html.auth-loading::before {
+    content: "";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #013220;
+    border-radius: 50%;
+    animation: nk-auth-spin 1s linear infinite;
+    z-index: 99999;
+}
+
+@keyframes nk-auth-spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 html.auth-loading body {
     opacity: 0 !important;
     pointer-events: none !important;

@@ -25,5 +25,25 @@ Ce document liste les prochaines grandes fonctionnalités (features) prévues po
 *   **Concept :** Une zone VIP sur l'application réservée uniquement aux très grandes marques ou aux gros distributeurs certifiés. Les marchands pourraient payer un abonnement "Premium" pour obtenir ce badge de certification et cette visibilité exclusive.
 *   *Avantage : Apporte un immense prestige à la plateforme et offre une nouvelle source de revenus (monétisation).*
 
+## 5. Messagerie Interne (Chat Acheteur-Vendeur)
+**Objectif :** Faciliter la communication entre les parties tout en évitant les fuites de transactions.
+*   **Concept :** Un chat intégré directement sur la plateforme pour discuter d'un produit.
+*   *Condition stratégique : L'intégration de cette fonctionnalité se fera **juste après avoir atteint un minimum de 1000 utilisateurs actifs**. Si elle est ajoutée trop tôt, d'autres utilisateurs pourraient s'en servir pour échanger leurs coordonnées et finaliser leurs transactions sur WhatsApp ou ailleurs en dehors de la plateforme.*
+
+## 6. Système d'Avis et Évaluations avec Médias (Preuve Sociale)
+**Objectif :** Instaurer une confiance totale entre acheteurs et vendeurs.
+*   **Concept :** Permettre aux acheteurs de laisser une note, un avis écrit, et surtout de publier une photo ou une courte vidéo du produit reçu.
+*   *Avantage : Dans le e-commerce, la preuve visuelle laissée par d'autres clients est le meilleur argument de vente. Cela rassure instantanément sur l'authenticité et la qualité.*
+
+## 7. Programme de Fidélité & Gamification (Points NewKet)
+**Objectif :** Maximiser la rétention et encourager les achats récurrents.
+*   **Concept :** Les utilisateurs gagnent des points à chaque action (achat, parrainage, dépôt d'un avis avec photo, ou simplement connexion régulière). Ces points sont convertibles en petites réductions.
+*   *Avantage : Crée une habitude d'utilisation de l'application et fidélise la clientèle sur le long terme.*
+
+## 8. Programme d'Affiliation / Ambassadeurs
+**Objectif :** Externaliser le marketing et acquérir des clients à moindre coût.
+*   **Concept :** Permettre à n'importe quel utilisateur (ou influenceur) de générer un lien d'affiliation vers un produit. Si une vente est réalisée via ce lien (partagé sur TikTok, WhatsApp, etc.), l'ambassadeur touche une petite commission.
+*   *Avantage : Transformation de la base d'utilisateurs en une force de vente décentralisée et motivée.*
+
 ---
 *Note technique : Conformément aux directives de sécurité et de simplification, NewKet ne gère pas de système de "Wallet" (portefeuille interne) stockant l'argent des utilisateurs sur la plateforme à long terme. Tous les flux passent directement par le système de paiement et le séquestre.*

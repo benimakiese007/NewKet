@@ -728,6 +728,11 @@ export function buildProductCardHTML(p, options = {}) {
         })
         : `${resolvePath('pages/product')}?id=${p.id}`;
     const absoluteProductUrl = `${window.location.origin}${productPagePath}`;
+    
+    const shopName = vendor?.company_name || vendor?.name || 'NewKet Shop';
+    const shopUrl = window.NewKetLinks?.buildShopShareUrl 
+        ? window.NewKetLinks.buildShopShareUrl({ shopName: shopName, shopSlug: vendor?.shop_slug })
+        : `/boutique/${encodeURIComponent(vendor?.shop_slug || buildShopSlug(shopName))}`;
 
     return `
         <div class="product-card card-active-scale ${animationClass} ${wrapperClass}" style="animation-delay: ${delay};" data-product-id="${p.id}" data-category="${p.category || ''}" data-product-share-url="${absoluteProductUrl}" data-product-name="${String(p.name || 'Produit NewKet').replace(/"/g, '&quot;')}">
@@ -757,7 +762,7 @@ export function buildProductCardHTML(p, options = {}) {
             </div>
             <div class="product-info">
                 <div class="product-cat">${p.category || ''}</div>
-                <div class="product-vendor" style="display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; flex-wrap: wrap;">
+                <a href="${shopUrl}" class="product-vendor hover:text-gray-900 transition-colors" style="display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; flex-wrap: wrap; text-decoration: none;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
                         ${avatar
                             ? `<img ${avatarImgAttrs} alt="Avatar Vendeur" decoding="async" width="36" height="36" class="${avatarImgClass}" style="width: 100%; height: 100%; object-fit: cover; aspect-ratio: 1 / 1;">` 
@@ -765,14 +770,10 @@ export function buildProductCardHTML(p, options = {}) {
                         }
                     </div>
                     <span style="display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; line-height:1.2;">
-                        <span>${ 
-                            vendor?.company_name || 
-                            vendor?.name || 
-                            'NewKet Shop' 
-                        }</span>
+                        <span>${shopName}</span>
                         ${vendor?.seller_type === 'certified' ? '<iconify-icon icon="solar:verified-check-bold" class="text-blue-500 shrink-0" width="12" title="Vendeur Pro"></iconify-icon>' : ''}
                     </span>
-                </div>
+                </a>
                 <h3 class="product-title">
                     <a href="${productPagePath}" onclick="if(window.setProductSwipeContext) window.setProductSwipeContext(this);">${p.name}</a>
                 </h3>

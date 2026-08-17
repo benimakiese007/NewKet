@@ -82,8 +82,52 @@ class CartManager {
         try {
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.cart));
             this.updateUI();
+            // Sync silencieux vers Supabase (panier abandonné tracking)
+            this.syncToSupabase();
         } catch (e) {
             console.error('Failed to save cart to localStorage', e);
+        }
+    }
+
+    /**
+     * Synchronise le panier vers Supabase pour le tracking des paniers abandonnés.
+     * Fire-and-forget : ne bloque jamais l'UX en cas d'erreur ou si l'utilisateur n'est pas connecté.
+     */
+    async syncToSupabase() {
+        try {
+            // Récupérer la session utilisateur (uniquement si connecté)
+            const supabase = window.SupabaseAdapter?.client || window._supabaseClient;
+            if (!supabase) return;
+
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session?.user?.id) return; // Pas connecté → on ne sync pas
+
+            const cartData = this.cart.map(item => ({
+                id: item.id,
+                cartItemId: item.cartItemId || item.id,
+                title: item.title,
+                price: item.price,
+                image: item.image,
+                quantity: item.quantity,
+                vendor_id: item.vendor_id,
+                vendor: item.vendor,
+            }));
+
+            // Upsert : insert ou update si la ligne existe déjà
+            // On remet reminder_count à 0 si le client modifie son panier
+            // (il a manifesté de l'intérêt, donc on repart de zéro)
+            await supabase.from('user_carts').upsert({
+                user_id: session.user.id,
+                cart_data: cartData,
+                updated_at: new Date().toISOString(),
+                reminder_count: 0,
+                last_reminded_at: null,
+                abandoned_at: null,
+            }, { onConflict: 'user_id' });
+
+        } catch (e) {
+            // Erreur silencieuse : le panier localStorage reste fonctionnel
+            console.warn('[CartManager] Supabase sync failed (silently ignored):', e.message);
         }
     }
 
@@ -95,7 +139,8 @@ class CartManager {
     add(product, quantity = 1) {
         if (!product || !product.id) return;
 
-        const existingItem = this.cart.find(item => item.id === product.id);
+        const lookupId = product.cartItemId || product.id;
+        const existingItem = this.cart.find(item => (item.cartItemId || item.id) === lookupId);
         const resolvedImage = this.resolveItemImage(product);
         const hasResolvedImage = resolvedImage && resolvedImage !== 'https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg';
         
@@ -187,13 +232,13 @@ class CartManager {
     /**
      * Update quantity of an item
      */
-    updateQuantity(productId, newQuantity) {
+    updateQuantity(productIdOrCartItemId, newQuantity) {
         if (newQuantity <= 0) {
-            this.remove(productId);
+            this.remove(productIdOrCartItemId);
             return;
         }
 
-        const item = this.cart.find(item => item.id === productId);
+        const item = this.cart.find(item => (item.cartItemId || item.id) === productIdOrCartItemId);
         if (item) {
             item.quantity = newQuantity;
             this.saveCart();
@@ -204,8 +249,8 @@ class CartManager {
     /**
      * Remove an item from the cart
      */
-    remove(productId) {
-        this.cart = this.cart.filter(item => item.id !== productId);
+    remove(productIdOrCartItemId) {
+        this.cart = this.cart.filter(item => (item.cartItemId || item.id) !== productIdOrCartItemId);
         this.saveCart();
         this.renderCartItems();
     }
@@ -312,16 +357,18 @@ class CartManager {
         }
     }
 
-    async checkout() {
-        if (this.cart.length === 0) {
-            if (window.showToast) window.showToast("Votre panier est vide.", "warning");
+    async checkoutItem(productIdOrCartItemId) {
+        const item = this.cart.find(i => (i.cartItemId || i.id) === productIdOrCartItemId);
+        if (!item) {
+            if (window.showToast) window.showToast("Article introuvable dans le panier.", "error");
             return;
         }
 
-        const total = this.cart.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
-        const description = "Commande de " + this.cart.length + " article(s)";
+        const total = Number(item.price) * item.quantity;
+        const description = `Achat de : ${item.title} (x${item.quantity})`;
 
         if (window.showCheckoutModal) {
+            // Note: Frais de livraison logic will be integrated into the checkout modal directly in the future
             const customerInfo = await window.showCheckoutModal(description, total, 1, 999, true);
             if (!customerInfo) return; // Cancelled
 
@@ -338,31 +385,25 @@ class CartManager {
             this.toggleCartUI(false);
             if (window.showToast) window.showToast("Création de votre commande en cours...", "info");
 
-            let hasError = false;
-            for (const item of this.cart) {
-                const data = await window.ApiClient?.post('/orders', {
-                    product_id: item.id,
-                    vendor_id: item.vendor_id || item.vendor, // Assuming we pass vendor_id when adding
-                    quantity: item.quantity,
-                    customer_phone: phone,
-                    customer_name: name,
-                    customer_city: city,
-                    customer_email: email || null,
-                    customer_lat: lat,
-                    customer_lng: lng
-                });
-                if (!data?.success) {
-                    hasError = true;
-                    console.error("Order error for item", item.id, data?.error);
-                }
-            }
-
-            if (hasError) {
-                if (window.showToast) window.showToast("Certains articles n'ont pas pu être commandés.", "error");
+            const data = await window.ApiClient?.post('/orders', {
+                product_id: item.id,
+                variant_id: item.variant_id || null,
+                vendor_id: item.vendor_id || item.vendor, // Assuming we pass vendor_id when adding
+                quantity: item.quantity,
+                customer_phone: phone,
+                customer_name: name,
+                customer_city: city,
+                customer_email: email || null,
+                customer_lat: lat,
+                customer_lng: lng
+            });
+            
+            if (!data?.success) {
+                console.error("Order error for item", item.id, data?.error);
+                if (window.showToast) window.showToast("L'article n'a pas pu être commandé.", "error");
             } else {
-                this.cart = [];
-                this.saveCart();
-                this.renderCartItems();
+                // Supprimer l'article du panier une fois la commande validée
+                this.remove(productIdOrCartItemId);
                 
                 if (window.showOrderSuccessModal) {
                     window.showOrderSuccessModal();
@@ -415,22 +456,26 @@ class CartManager {
                         <div class="pr-6">
                             <h4 class="text-sm font-bold text-gray-900 line-clamp-1">${item.title}</h4>
                             <p class="text-xs text-gray-500 mt-0.5">${item.vendor || 'NewKet'}</p>
+                            ${item.variant_attributes ? `<p class="text-xs text-blue-600 mt-1">Option: ${item.variant_attributes.value || 'Sélectionnée'}</p>` : ''}
                         </div>
-                        <div class="flex items-center justify-between mt-2">
+                        <div class="flex items-center justify-between mt-2 mb-2">
                             <div class="font-black text-slate-900 text-sm">${priceFormatted}</div>
                             <div class="flex items-center gap-2 bg-gray-50 rounded-lg p-1 border border-gray-100">
-                                <button onclick="window.CartManager.updateQuantity('${item.id}', ${item.quantity - 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
+                                <button onclick="window.CartManager.updateQuantity('${item.cartItemId || item.id}', ${item.quantity - 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
                                     −
                                 </button>
                                 <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
-                                <button onclick="window.CartManager.updateQuantity('${item.id}', ${item.quantity + 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
+                                <button onclick="window.CartManager.updateQuantity('${item.cartItemId || item.id}', ${item.quantity + 1})" class="w-6 h-6 flex items-center justify-center rounded-md bg-white shadow-sm hover:bg-gray-100 text-gray-700 font-bold text-lg">
                                     +
                                 </button>
                             </div>
                         </div>
+                        <button onclick="window.CartManager.checkoutItem('${item.cartItemId || item.id}')" class="w-full mt-1 bg-slate-900 text-white py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors shadow-sm">
+                            <iconify-icon icon="solar:wallet-bold" width="14"></iconify-icon> Payer cet article
+                        </button>
                     </div>
-                    <button onclick="window.CartManager.remove('${item.id}')" class="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                        <iconify-icon icon="solar:trash-bin-trash-linear" width="16"></iconify-icon>
+                    <button onclick="window.CartManager.remove('${item.cartItemId || item.id}')" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors">
+                        <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                     </button>
                 </div>
             `;
@@ -482,15 +527,11 @@ class CartManager {
                 </div>
                 
                 <!-- Footer / Checkout -->
-                <div class="bg-white border-t border-gray-100 p-6 shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm font-semibold text-gray-500 uppercase tracking-widest">Total estimé</span>
-                        <span id="cartTotalPrice" class="text-xl font-black text-slate-900">$0.00</span>
-                    </div>
-                    <p class="text-[10px] text-gray-400 text-center mb-4">Les frais de livraison seront calculés à l'étape suivante.</p>
-                    <button onclick="if(window.CartManager) window.CartManager.checkout()" id="cartCheckoutBtn" class="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-colors btn-active-scale shadow-lg shadow-slate-900/20">
-                        Passer à la caisse <iconify-icon icon="solar:arrow-right-linear" width="18"></iconify-icon>
-                    </button>
+                <div class="bg-white border-t border-gray-100 p-4 shrink-0 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] text-center">
+                    <p class="text-[10px] text-gray-400">
+                        <iconify-icon icon="solar:shield-check-bold" width="12" class="inline align-middle"></iconify-icon> 
+                        Vos paiements sont sécurisés. Les frais de livraison seront calculés lors du paiement.
+                    </p>
                 </div>
             </div>
         `;

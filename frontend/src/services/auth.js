@@ -140,8 +140,8 @@ const AuthManager = {
             this.enforcePermissions();
             this.updateAccountLink();
             this.checkWelcomeBonus();
-            document.documentElement.classList.remove('auth-loading');
-
+            // Loading screen removal moved to main.js to wait for managers
+            
             // Start periodic role validation
             this.startRoleValidation();
             this.setupAdminWhitelistSync();
@@ -281,7 +281,7 @@ const AuthManager = {
             } finally {
                 this._authChecking = false;
                 this._initialized = true;
-                document.documentElement.classList.remove('auth-loading');
+                // document.documentElement.classList.remove('auth-loading');
             }
         })();
 
@@ -338,7 +338,7 @@ const AuthManager = {
         
         this._authChecking = false;
         this._initialized = true;
-        document.documentElement.classList.remove('auth-loading');
+        // document.documentElement.classList.remove('auth-loading');
     },
 
     resolveRoleFromUser(user) {

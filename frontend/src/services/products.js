@@ -636,7 +636,7 @@ const ProductManager = {
         try {
             if (window.SupabaseAdapter && window.supabaseClient) {
                 const product = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type), product_variants(*)',
                     eq: [['id', id]],
                     single: true
                 });
