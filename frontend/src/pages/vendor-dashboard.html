@@ -296,6 +296,8 @@
                         </button>
                     </div>
 
+                    <p id="orders-feedback" class="text-sm font-medium mb-3 hidden transition-opacity"></p>
+
                     <div class="flex items-center justify-between mb-4 sm:mb-6 vendor-card-header">
                         <h3 class="font-bold text-gray-900">Dernières Commandes</h3>
                         <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full justify-start sm:justify-end">
@@ -535,6 +537,7 @@
                             </div>
                         </div>
                     </div>
+                    <p id="products-feedback" class="text-sm font-medium mb-4 hidden transition-opacity"></p>
 
                     <!-- Alerte Garde-fou -->
                     <div id="vendor-fallback-alert" class="hidden mb-4 p-4 bg-yellow-50 border border-yellow-100 rounded-2xl">
@@ -792,6 +795,7 @@
                                 </div>
 
                                 <button id="vendorPromoSubmitBtn" type="submit" class="w-full bg-black text-white px-6 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all">Enregistrer le code promo</button>
+                                <p id="promo-feedback" class="text-sm font-medium hidden transition-opacity mt-3"></p>
                             </form>
                         </div>
 
@@ -802,6 +806,7 @@
                                     <p class="text-xs text-gray-400 mt-1">Vous pouvez activer, désactiver, éditer ou supprimer un code à tout moment.</p>
                                 </div>
                             </div>
+                            <p id="promo-list-feedback" class="text-sm font-medium hidden transition-opacity mb-4"></p>
                             <div id="vendorPromoList" class="space-y-4">
                                 <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
                                 <div class="glass-panel p-4"><div class="skeleton skeleton-text" style="width: 70%; height: 14px; margin-bottom: 0.6rem;"></div><div class="skeleton skeleton-text" style="width: 35%; height: 12px; margin-bottom: 0;"></div></div>
@@ -871,10 +876,9 @@
                             <label class="relative inline-flex items-center cursor-pointer self-start sm:self-center">
                                 <input id="vendorDevicePushToggle" type="checkbox" class="sr-only peer">
                                 <div class="w-12 h-7 bg-gray-200 rounded-full peer peer-checked:bg-black peer-focus:outline-none after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-                            </label>
                         </div>
                     </div>
-
+                    <p id="push-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
 
                     <!-- Profile Photo Card -->
                     <div class="glass-panel p-8">
@@ -903,6 +907,7 @@
                                 <button id="saveAvatarBtn" class="bg-black text-white px-6 py-2.5 rounded-xl font-bold text-xs hover:shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>
                                     Enregistrer le logo
                                 </button>
+                                <p id="avatar-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                                 <input type="file" id="avatarPhotoInput" accept="image/*" class="hidden">
                             </div>
                         </div>
@@ -952,6 +957,7 @@
                             <iconify-icon icon="solar:cloud-upload-bold" class="mr-2"></iconify-icon>
                             Enregistrer la photo de couverture
                         </button>
+                        <p id="cover-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -976,6 +982,7 @@
                                 <input id="vSetShipping" name="vSetShipping" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Sous 24h, 48h...">
                             </div>
                             <button type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all">Enregistrer les modifications</button>
+                            <p id="profile-feedback" class="text-sm font-medium hidden transition-opacity"></p>
                         </form>
                     </div>
 
@@ -1044,6 +1051,7 @@
                             <button id="vendorUpdatePasswordBtn" type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed">
                                 Mettre à jour le mot de passe
                             </button>
+                            <p id="security-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                         </form>
                     </div>
                     <!-- Passkeys Card -->
@@ -1055,12 +1063,14 @@
                             <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
                             Creer une cle d acces
                         </button>
+                        <p id="passkey-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                     </div>
                     </div>
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="glass-panel p-8 flex-1">
                             <h2 class="text-xl font-bold mb-2">Parrainage</h2>
                             <p class="text-sm text-gray-400 mb-6">Partagez ce lien avec vos clients pour qu ils puissent s inscrire via votre code.</p>
+                            <p id="referral-feedback" class="text-sm font-medium mb-4 hidden transition-opacity"></p>
                             <div class="space-y-5">
                                 <div>
                                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Votre code</label>
@@ -1201,6 +1211,7 @@
                                 </div>
                             </div>
                             <div class="flex flex-col gap-3 w-full" id="vModalActions">
+                                <p id="order-modal-feedback" class="text-sm font-medium hidden transition-opacity"></p>
                                 <!-- Standard Actions -->
                                 <div id="vStandardActions" class="flex gap-2 w-full">
                                     <button id="btnMarkDelivered" class="flex-1 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center gap-2 rounded-xl">
@@ -1264,6 +1275,7 @@
                                             Contester
                                         </button>
                                     </div>
+                                    <p id="dispute-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                                     
                                     <!-- Chat pour le vendeur -->
                                     <div class="mt-4 border-t border-red-100/50 pt-4">
@@ -1312,6 +1324,24 @@
                     selectedOrders: new Set(),
                     orders: []
                 };
+
+                function showInlineMessage(elementId, message, type = 'success', duration = 4000) {
+                    const el = document.getElementById(elementId);
+                    if (!el) return;
+                    el.textContent = message;
+                    el.className = `text-sm font-medium mt-3 transition-opacity duration-300 ${type === 'success' ? 'text-green-600' : type === 'warning' ? 'text-orange-500' : 'text-red-500'}`;
+                    el.classList.remove('hidden');
+                    el.style.opacity = '1';
+                    
+                    if (el._timeoutId) clearTimeout(el._timeoutId);
+                    
+                    if (duration > 0) {
+                        el._timeoutId = setTimeout(() => {
+                            el.style.opacity = '0';
+                            setTimeout(() => el.classList.add('hidden'), 300);
+                        }, duration);
+                    }
+                }
 
                 window.sortOrders = function(column) {
                     if (window.vendorOrderState.sortColumn === column) {
@@ -1385,9 +1415,7 @@
                         const promises = selectedIds.map(id => window.OrderManager.updateOrderStatus(id, newStatus));
                         await Promise.all(promises);
                         
-                        if (window.showToast) {
-                            window.showToast(`${selectedIds.length} commande(s) mise(s) à jour avec succès.`, 'success', 'Succès');
-                        }
+                        showInlineMessage('orders-feedback', `${selectedIds.length} commande(s) mise(s) à jour avec succès.`, 'success');
                         
                         window.clearBulkSelection();
                         // Re-fetch data indirectly or re-render (assuming OrderManager fires events or updates cache)
@@ -1399,9 +1427,11 @@
 
                     } catch (error) {
                         console.error('[BulkUpdate] Error:', error);
-                        if (window.showToast) {
-                            window.showToast('Erreur lors de la mise à jour des commandes.', 'error', 'Erreur');
-                        }
+                        const is401 = error?.status === 401 || error?.message?.includes('unauthorized');
+                        const msg = is401
+                            ? 'Session expirée. Veuillez vous reconnecter.'
+                            : 'Erreur lors de la mise à jour des commandes. Vérifiez votre connexion et réessayez.';
+                        showInlineMessage('orders-feedback', msg, 'error');
                     }
                 };
 
@@ -1415,9 +1445,9 @@
                     try {
                         await OrderManager.init({ force: true });
                         if (typeof renderVendorDashboard === 'function') renderVendorDashboard();
-                        if (window.showToast) window.showToast('Données synchronisées', 'success');
+                        showInlineMessage('orders-feedback', 'Données synchronisées', 'success');
                     } catch (e) {
-                        if (window.showToast) window.showToast('Erreur de synchronisation', 'error');
+                        showInlineMessage('orders-feedback', 'Erreur de synchronisation', 'error');
                     } finally {
                         if (btn) {
                             btn.disabled = false;
@@ -1431,7 +1461,7 @@
                 window.exportOrdersToCSV = function() {
                     const orders = window.vendorOrderState.orders;
                     if (!orders || orders.length === 0) {
-                        if (window.showToast) window.showToast('Aucune commande à exporter.', 'warning');
+                        showInlineMessage('orders-feedback', 'Aucune commande à exporter.', 'warning');
                         return;
                     }
 
@@ -1498,7 +1528,7 @@
                         document.body.removeChild(link);
                     }
 
-                    if (window.showToast) window.showToast('Export CSV généré avec succès.', 'success');
+                    showInlineMessage('orders-feedback', 'Export CSV généré avec succès.', 'success');
                 };
 
                 function switchVendorTab(tabId, event) {
@@ -1621,7 +1651,11 @@
                     } catch (error) {
                         console.error('Vendor device push toggle error:', error);
                         toggle.checked = !enable;
-                        if (window.showToast) window.showToast("Impossible de modifier les notifications appareil.", 'error');
+                        const isDenied = error?.message?.includes('denied') || error?.message?.includes('permission');
+                        const msg = isDenied
+                            ? 'Notifications bloquées par votre navigateur. Autorisez-les dans les paramètres de votre navigateur.'
+                            : "Impossible de modifier les notifications. Vérifiez votre connexion et réessayez.";
+                        showInlineMessage('push-feedback', msg, 'warning');
                     } finally {
                         toggle.disabled = false;
                         await refreshVendorDevicePushStatus();
@@ -1711,7 +1745,7 @@
                         locateBtn.addEventListener('click', () => {
                             if (!navigator.geolocation) {
                                 setVendorResidenceStatus('La geolocalisation est indisponible sur ce navigateur.', 'error');
-                                showToast('Geolocalisation indisponible.', 'warning');
+                                showInlineMessage('residence-feedback', 'Geolocalisation indisponible.', 'warning');
                                 return;
                             }
 
@@ -1756,7 +1790,7 @@
                             const city = cityInput.value.trim() || 'Kinshasa';
                             if (!Number.isFinite(vendorResidenceSelection?.lat) || !Number.isFinite(vendorResidenceSelection?.lng)) {
                                 setVendorResidenceStatus('Choisissez votre residence sur la carte avant de sauvegarder.', 'warning');
-                                showToast('Selectionnez votre residence sur la carte.', 'warning');
+                                showInlineMessage('residence-feedback', 'Selectionnez votre residence sur la carte.', 'warning');
                                 return;
                             }
 
@@ -1778,7 +1812,7 @@
                             vendorResidenceSelection = payload;
                             setVendorResidenceBadge(true);
                             setVendorResidenceStatus('Residence sauvegardee. Vos futurs achats utiliseront cette position par defaut.', 'success');
-                            showToast('Residence de livraison sauvegardee.', 'success');
+                            showInlineMessage('residence-feedback', 'Residence de livraison sauvegardee.', 'success');
                         });
                         saveBtn.dataset.bound = 'true';
                     }
@@ -2279,9 +2313,9 @@
                             body: JSON.stringify({ is_active: nextStatus === true || nextStatus === 'true' })
                         });
                         await renderVendorPromos(true);
-                        if (window.showToast) window.showToast('Statut du code promo mis à jour.', 'success');
+                        showInlineMessage('promo-list-feedback', 'Statut du code promo mis à jour.', 'success');
                     } catch (error) {
-                        if (window.showToast) window.showToast(error?.data?.error || error?.message || 'Erreur lors de la mise à jour.', 'error');
+                        showInlineMessage('promo-list-feedback', error?.data?.error || error?.message || 'Erreur lors de la mise à jour.', 'error');
                     }
                 };
 
@@ -2291,9 +2325,9 @@
                         await window.ApiClient.delete(`/promos/vendor/${promoId}`);
                         resetVendorPromoForm();
                         await renderVendorPromos(true);
-                        if (window.showToast) window.showToast('Code promo supprimé.', 'success');
+                        showInlineMessage('promo-list-feedback', 'Code promo supprimé.', 'success');
                     } catch (error) {
-                        if (window.showToast) window.showToast(error?.data?.error || error?.message || 'Erreur lors de la suppression.', 'error');
+                        showInlineMessage('promo-list-feedback', error?.data?.error || error?.message || 'Erreur lors de la suppression.', 'error');
                     }
                 };
 
@@ -2317,9 +2351,9 @@
                             }
                             resetVendorPromoForm();
                             await renderVendorPromos(true);
-                            if (window.showToast) window.showToast('Code promo enregistré.', 'success');
+                            showInlineMessage('promo-feedback', 'Code promo enregistré.', 'success');
                         } catch (error) {
-                            if (window.showToast) window.showToast(error?.data?.error || error?.message || 'Erreur lors de l’enregistrement.', 'error');
+                            showInlineMessage('promo-feedback', error?.data?.error || error?.message || 'Erreur lors de l’enregistrement.', 'error');
                         } finally {
                             submitBtn.disabled = false;
                             submitBtn.textContent = 'Enregistrer le code promo';
@@ -3326,6 +3360,7 @@
                             await ProductManager.fetchVendorArchived();
                         } catch (err) {
                             console.warn('[VendorProducts] Failed to load archived products:', err);
+                            showInlineMessage('products-feedback', 'Impossible de charger les produits archivés. Vérifiez votre connexion.', 'warning');
                         }
                     }
 
@@ -3760,13 +3795,13 @@
                         try {
                             const success = await ProductManager.archiveProduct(id);
                             if (success) {
-                                if (window.showToast) showToast('Produit archivé !', 'success');
+                                showInlineMessage('products-feedback', 'Produit archivé !', 'success');
                                 renderVendorDashboard();
                                 renderVendorProducts();
                                 logVendorActivity('Produit archivé depuis votre catalogue', 'stock');
                             }
                         } catch (error) {
-                            if (window.showToast) showToast('Erreur lors de l’archivage.', 'error');
+                            showInlineMessage('products-feedback', 'Erreur lors de l’archivage.', 'error');
                         }
                     };
 
@@ -3789,13 +3824,13 @@
                         try {
                             const success = await ProductManager.restoreProduct(id);
                             if (success) {
-                                if (window.showToast) showToast('Produit restauré !', 'success');
+                                showInlineMessage('products-feedback', 'Produit restauré !', 'success');
                                 renderVendorDashboard();
                                 renderVendorProducts();
                                 logVendorActivity('Produit restauré dans le catalogue', 'stock');
                             }
                         } catch (error) {
-                            if (window.showToast) showToast('Erreur lors de la restauration.', 'error');
+                            showInlineMessage('products-feedback', 'Erreur lors de la restauration.', 'error');
                         }
                     };
 
@@ -3818,13 +3853,13 @@
                         try {
                             const success = await ProductManager.deleteProduct(id);
                             if (success) {
-                                if (window.showToast) showToast('Produit supprimé !', 'success');
+                                showInlineMessage('products-feedback', 'Produit supprimé !', 'success');
                                 renderVendorDashboard(); // Refresh total count
                                 renderVendorProducts(); // Refresh grid
                                 logVendorActivity(`Produit supprimé de votre catalogue`, 'stock');
                             }
                         } catch (error) {
-                            if (window.showToast) showToast('Erreur lors de la suppression.', 'error');
+                            showInlineMessage('products-feedback', 'Erreur lors de la suppression.', 'error');
                         }
                     };
 
@@ -4944,7 +4979,7 @@
                         actions.classList.remove('hidden');
                         standardActions.classList.remove('hidden');
                         document.getElementById('btnMarkDelivered').innerHTML = `<iconify-icon icon="solar:clock-circle-bold" width="16"></iconify-icon>En attente du paiement`;
-                        document.getElementById('btnMarkDelivered').onclick = () => showToast('Le client doit maintenant accepter le devis et payer.', 'info');
+                        document.getElementById('btnMarkDelivered').onclick = () => showInlineMessage('order-modal-feedback', 'Le client doit maintenant accepter le devis et payer.', 'warning');
                         document.getElementById('btnMarkCancelled').onclick = () => updateVendorOrderStatus(order.id, 'CANCELLED');
                         document.getElementById('btnMarkCancelled').textContent = 'Annuler la demande';
                     } else if (order.status === 'PAID_HELD') {
@@ -4952,7 +4987,7 @@
                         standardActions.classList.remove('hidden');
                         document.getElementById('btnMarkDelivered').innerHTML = `<iconify-icon icon="solar:delivery-bold" width="16"></iconify-icon>Démarrer la livraison`;
                         document.getElementById('btnMarkDelivered').onclick = () => startVendorDelivery(order.id);
-                        document.getElementById('btnMarkCancelled').onclick = () => showToast('La commande est déjà payée et sécurisée en séquestre.', 'info');
+                        document.getElementById('btnMarkCancelled').onclick = () => showInlineMessage('order-modal-feedback', 'La commande est déjà payée et sécurisée en séquestre.', 'warning');
                         document.getElementById('btnMarkCancelled').textContent = 'Paiement sécurisé';
                     } else if (order.status === 'IN_DELIVERY') {
                         actions.classList.remove('hidden');
@@ -5039,7 +5074,7 @@
 
                     try {
                         await OrderManager.startDelivery(orderId);
-                        showToast('Livraison démarrée. Vous pouvez maintenant saisir l’OTP à la remise.', 'success');
+                        showInlineMessage('order-modal-feedback', 'Livraison démarrée. Vous pouvez maintenant saisir l\'OTP à la remise.', 'success');
                         closeOrderDetailModal();
                         renderVendorDashboard();
 
@@ -5047,7 +5082,7 @@
                             logVendorActivity(`Livraison démarrée pour la commande #${orderId.substring(0,6)}`, 'order');
                         }
                     } catch (error) {
-                        showToast(error?.message || 'Impossible de démarrer la livraison.', 'error');
+                        showInlineMessage('order-modal-feedback', error?.message || 'Impossible de démarrer la livraison.', 'error');
                     }
                 }
 
@@ -5063,13 +5098,13 @@
 
                     if (!orderId) {
                         if (window.showInlineFeedback && verifyBtn) window.showInlineFeedback(verifyBtn, 'Commande introuvable pour la vérification OTP.', 'error');
-                        else showToast('Commande introuvable pour la vérification OTP.', 'error');
+                        else showInlineMessage('order-modal-feedback', 'Commande introuvable pour la vérification OTP.', 'error');
                         return;
                     }
 
                     if (!/^\d{6}$/.test(otp)) {
                         if (window.showInlineFeedback && verifyBtn) window.showInlineFeedback(verifyBtn, 'Le code OTP doit contenir exactement 6 chiffres.', 'error');
-                        else showToast('Le code OTP doit contenir exactement 6 chiffres.', 'error');
+                        else showInlineMessage('order-modal-feedback', 'Le code OTP doit contenir exactement 6 chiffres.', 'error');
                         otpInput?.focus();
                         return;
                     }
@@ -5085,7 +5120,7 @@
                         await OrderManager.validateDelivery(orderId, otp);
                         currentOrderIdForOtp = null;
                         if (window.showInlineFeedback && verifyBtn) window.showInlineFeedback(verifyBtn, 'Livraison confirmée avec succès.', 'success');
-                        else showToast('Livraison confirmée avec succès.', 'success');
+                        else showInlineMessage('order-modal-feedback', 'Livraison confirmée avec succès.', 'success');
                         setTimeout(() => {
                             closeOrderDetailModal();
                             renderVendorDashboard();
@@ -5096,7 +5131,7 @@
                         }
                     } catch (error) {
                         if (window.showInlineFeedback && verifyBtn) window.showInlineFeedback(verifyBtn, error?.message || 'Erreur lors de la vérification OTP.', 'error');
-                        else showToast(error?.message || 'Erreur lors de la vérification OTP.', 'error');
+                        else showInlineMessage('order-modal-feedback', error?.message || 'Erreur lors de la vérification OTP.', 'error');
                     } finally {
                         if (verifyBtn) {
                             verifyBtn.disabled = false;
@@ -5106,7 +5141,7 @@
                 }
 
                 async function updateVendorOrderStatus(orderId, newStatus, skipConfirm = false) {
-                    const confirmationText = `Passer cette commande en statut \"${newStatus}\" ?`;
+                    const confirmationText = `Passer cette commande en statut "${newStatus}" ?`;
                     if (!skipConfirm) {
                         if (typeof window.showConfirm === 'function') {
                             window.showConfirm(
@@ -5116,13 +5151,13 @@
                             );
                             return;
                         }
-                        if (!confirm(`Voulez-vous vraiment passer cette commande en statut \"${newStatus}\" ?`)) return;
+                        if (!confirm(`Voulez-vous vraiment passer cette commande en statut "${newStatus}" ?`)) return;
                     }
                     
                     try {
                         const success = await OrderManager.updateOrderStatus(orderId, newStatus);
                         if (success) {
-                            showToast(`Commande ${newStatus.toLowerCase()} !`, 'success');
+                            showInlineMessage('order-modal-feedback', `Commande ${newStatus.toLowerCase()} !`, 'success');
                             closeOrderDetailModal();
                             renderVendorDashboard(); // Refresh
                             
@@ -5131,7 +5166,7 @@
                             logVendorActivity(`Commande #${orderId.substring(0,6)} marquée comme ${newStatus}`, 'order');
                         }
                     } catch (error) {
-                        showToast('Une erreur est survenue.', 'error');
+                        showInlineMessage('order-modal-feedback', 'Une erreur est survenue.', 'error');
                     }
                 }
 
@@ -5849,12 +5884,12 @@
                             const note = String(noteEl()?.value || '').trim();
 
                             if (!Number.isFinite(deliveryFee) || deliveryFee < 0) {
-                                showToast('Montant de livraison invalide.', 'error');
+                                showInlineMessage('order-modal-feedback', 'Montant de livraison invalide.', 'error');
                                 feeEl()?.focus();
                                 return;
                             }
                             if (!Number.isFinite(estimatedDelay) || estimatedDelay <= 0) {
-                                showToast('Delai invalide.', 'error');
+                                showInlineMessage('order-modal-feedback', 'Delai invalide.', 'error');
                                 delayEl()?.focus();
                                 return;
                             }
@@ -5891,11 +5926,11 @@
 
                     try {
                         await OrderManager.createDeliveryQuote(order.id, payload);
-                        showToast('Devis envoyé au client.', 'success');
+                        showInlineMessage('order-modal-feedback', 'Devis envoyé au client.', 'success');
                         closeOrderDetailModal();
                         await renderVendorDashboard();
                     } catch (error) {
-                        showToast(error.message || 'Erreur lors de la creation du devis', 'error');
+                        showInlineMessage('order-modal-feedback', error.message || 'Erreur lors de la creation du devis', 'error');
                         const orderModal = document.getElementById('orderDetailModal');
                         if (orderModal) {
                             orderModal.classList.remove('hidden');
@@ -6074,7 +6109,7 @@
                         input.value = '';
                         // Realtime push le nouveau message automatiquement
                     } catch (error) {
-                        if(window.showToast) showToast("Erreur lors de l'envoi.", 'error');
+                        showInlineMessage('dispute-feedback', "Erreur lors de l'envoi.", 'error');
                     } finally {
                         btn.disabled = false;
                         btn.innerHTML = originalHtml;
@@ -6105,11 +6140,11 @@
                             action: 'ACCEPT_REFUND',
                             message: 'Remboursement total accepté par le vendeur.'
                         });
-                        if(window.showToast) showToast("Litige résolu à l'amiable et client remboursé !", 'success');
+                        showInlineMessage('dispute-feedback', "Litige résolu à l'amiable et client remboursé !", 'success');
                         window.closeOrderDetailModal();
                         renderVendorDashboard();
                     } catch (error) {
-                        if(window.showToast) showToast(error.message || 'Erreur lors de la résolution amiable.', 'error');
+                        showInlineMessage('dispute-feedback', error.message || 'Erreur lors de la résolution amiable.', 'error');
                         btn.disabled = false;
                         btn.innerHTML = originalHtml;
                     }
@@ -6135,7 +6170,7 @@
                     if (rawAmount === null) return;
                     const amount = parseFloat(String(rawAmount).replace(',', '.'));
                     if (!Number.isFinite(amount) || amount <= 0) {
-                        if (window.showToast) showToast("Montant invalide.", 'error');
+                        showInlineMessage('dispute-feedback', "Montant invalide.", 'error');
                         return;
                     }
 
@@ -6157,10 +6192,10 @@
                             amount,
                             message: note
                         });
-                        if (window.showToast) showToast("Offre partielle envoyée au client.", 'success');
+                        showInlineMessage('dispute-feedback', "Offre partielle envoyée au client.", 'success');
                         await window.loadVendorDisputeChat(orderId);
                     } catch (error) {
-                        if (window.showToast) showToast(error.message || "Erreur lors de l'envoi de l'offre.", 'error');
+                        showInlineMessage('dispute-feedback', error.message || "Erreur lors de l'envoi de l'offre.", 'error');
                     }
                 };
 
@@ -6185,10 +6220,10 @@
                             action: 'CONTEST',
                             message: String(note).trim()
                         });
-                        if (window.showToast) showToast("Contestation envoyée en revue.", 'success');
+                        showInlineMessage('dispute-feedback', "Contestation envoyée en revue.", 'success');
                         await window.loadVendorDisputeChat(orderId);
                     } catch (error) {
-                        if (window.showToast) showToast(error.message || "Erreur lors de la contestation.", 'error');
+                        showInlineMessage('dispute-feedback', error.message || "Erreur lors de la contestation.", 'error');
                     }
                 };
 
@@ -6387,7 +6422,7 @@
                             if (!file) return;
                             if (file.size > 2 * 1024 * 1024) {
                                 const _avatarInput = document.getElementById('avatarPhotoInput');
-                                if (window.showInlineError) window.showInlineError(_avatarInput, 'Image trop lourde. Max 2 Mo.');
+                                showInlineMessage('avatar-feedback', 'Image trop lourde. Max 2 Mo.', 'error');
                                 return;
                             }
                             _selectedAvatarFile = file;
@@ -6433,7 +6468,7 @@
 
                                 if (progressBar) progressBar.style.width = '100%';
                                 setTimeout(() => { if (progressDiv) progressDiv.classList.add('hidden'); }, 1500);
-                                if (window.showToast) showToast('Logo mis à jour avec succès !', 'success');
+                                showInlineMessage('avatar-feedback', 'Logo mis à jour avec succès !', 'success');
                                 _selectedAvatarFile = null;
                                 updateSidebarProfile(); // Refresh sidebar
 
@@ -6441,7 +6476,7 @@
                                 console.error('[Avatar] Upload error:', err);
                                 const uploadError = window.SupabaseAdapter?.getLastUploadError?.() || err;
                                 const errorMessage = window.SupabaseAdapter?.getReadableUploadError?.(uploadError) || 'Erreur lors de l\'upload.';
-                                if (window.showToast) showToast(errorMessage, 'error');
+                                showInlineMessage('avatar-feedback', errorMessage, 'error');
                                 if (progressDiv) progressDiv.classList.add('hidden');
                             } finally {
                                 saveAvatarBtn.disabled = false;
@@ -6499,8 +6534,7 @@
 
                             // Validate size (5MB max)
                             if (file.size > 5 * 1024 * 1024) {
-                                const _coverInput = document.getElementById('coverPhotoInput');
-                                if (window.showInlineError) window.showInlineError(_coverInput, 'Image trop lourde. Max 5 Mo.');
+                                showInlineMessage('cover-feedback', 'Image trop lourde. Max 5 Mo.', 'error');
                                 return;
                             }
 
@@ -6552,12 +6586,12 @@
                                 if (progressLabel) progressLabel.textContent = 'Terminé !';
 
                                 setTimeout(() => { if (progressDiv) progressDiv.classList.add('hidden'); }, 1500);
-                                if (window.showToast) showToast('Photo de couverture mise à jour !', 'success');
+                                showInlineMessage('cover-feedback', 'Photo de couverture mise à jour !', 'success');
                                 _selectedCoverFile = null;
 
                             } catch(err) {
                                 console.error('[Cover] Upload error:', err);
-                                if (window.showToast) showToast('Erreur lors de l\'upload. Réessayez.', 'error');
+                                showInlineMessage('cover-feedback', 'Erreur lors de l\'upload. Réessayez.', 'error');
                                 if (progressDiv) progressDiv.classList.add('hidden');
                             } finally {
                                 saveCoverBtn.disabled = false;
@@ -6575,9 +6609,7 @@
                             e.preventDefault();
                             const newName = (document.getElementById('vSetStoreName').value || '').trim().toLowerCase().replace(/\s+/g, '');
                             if (!newName || newName.length < 8 || !/^[a-z0-9_-]+$/.test(newName) || !/[a-z]/.test(newName)) {
-                                if (window.showToast) {
-                                    window.showToast('Le nom de la boutique / username doit contenir au moins 8 caracteres, en minuscules, avec au moins une lettre.', 'error', 'Boutique');
-                                }
+                                showInlineMessage('profile-feedback', 'Le nom de la boutique / username doit contenir au moins 8 caracteres, en minuscules, avec au moins une lettre.', 'error');
                                 return;
                             }
                             const newEmail = document.getElementById('vSetEmail').value;
@@ -6617,22 +6649,18 @@
                                 });
                             } catch (err) {
                                 console.error('[Settings] Error saving to Supabase:', err);
-                                if (window.showToast) {
-                                    const message = String(err?.message || '').toLowerCase();
-                                    if (message.includes('14 jours') || message.includes('14 day')) {
-                                        window.showToast("Vous ne pouvez modifier le nom de la boutique / username qu'une fois tous les 14 jours.", 'error', 'Boutique');
-                                    } else if (message.includes('deja pris') || message.includes('déjà pris') || message.includes('reservé') || message.includes('réservé') || message.includes('already taken')) {
-                                        window.showToast("Ce nom de la boutique / username est déjà pris ou encore réservé.", 'error', 'Boutique');
-                                    } else {
-                                        window.showToast(err.message || "Impossible d'enregistrer le nom de la boutique.", 'error', 'Boutique');
-                                    }
+                                const message = String(err?.message || '').toLowerCase();
+                                if (message.includes('14 jours') || message.includes('14 day')) {
+                                    showInlineMessage('profile-feedback', "Vous ne pouvez modifier le nom de la boutique qu'une fois tous les 14 jours.", 'error');
+                                } else if (message.includes('deja pris') || message.includes('déjà pris') || message.includes('reservé') || message.includes('réservé') || message.includes('already taken')) {
+                                    showInlineMessage('profile-feedback', "Ce nom de boutique est déjà pris ou réservé.", 'error');
+                                } else {
+                                    showInlineMessage('profile-feedback', err.message || "Impossible d'enregistrer le profil.", 'error');
                                 }
                                 return;
                             }
                             
-                            if (window.showToast) {
-                                window.showToast('Paramètres de la boutique enregistrés !', 'success', 'Profil');
-                            }
+                            showInlineMessage('profile-feedback', 'Paramètres de la boutique enregistrés !', 'success');
 
                             // Refresh UI
                             const compactUsername = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, '');
@@ -6705,11 +6733,11 @@
                                 document.getElementById('vNewPassword').value = '';
                                 document.getElementById('vConfirmPassword').value = '';
 
-                                if (window.showToast) window.showToast('Mot de passe mis à jour avec succès.', 'success', 'Sécurité');
+                                showInlineMessage('security-feedback', 'Mot de passe mis à jour avec succès.', 'success');
                             } catch (err) {
                                 console.error('[Security] Password update error:', err);
                                 const msg = (err && err.message) ? err.message : 'Erreur lors de la mise à jour du mot de passe.';
-                                if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                                showInlineMessage('security-feedback', msg, 'error');
                             } finally {
                                 if (btn) btn.disabled = false;
                             }
@@ -6729,7 +6757,7 @@
                                 const email = sessionData?.session?.user?.email;
 
                                 if (!email) {
-                                    if (window.showToast) window.showToast('Impossible de récupérer votre adresse email. Veuillez vous reconnecter.', 'error', 'Erreur');
+                                    showInlineMessage('security-feedback', 'Impossible de récupérer votre adresse email. Veuillez vous reconnecter.', 'error');
                                     return;
                                 }
 
@@ -6738,17 +6766,17 @@
 
                                 if (error) throw error;
 
-                                if (window.showToast) window.showToast(
+                                showInlineMessage(
+                                    'security-feedback',
                                     `Un lien de réinitialisation a été envoyé à ${email}. Vérifiez votre boîte mail.`,
-                                    'success',
-                                    'Email envoyé'
+                                    'success'
                                 );
                             } catch (err) {
                                 console.error('[Security] Forgot password error:', err);
-                                if (window.showToast) window.showToast(
+                                showInlineMessage(
+                                    'security-feedback',
                                     err?.message || 'Erreur lors de l\'envoi de l\'email. Réessayez.',
-                                    'error',
-                                    'Erreur'
+                                    'error'
                                 );
                             } finally {
                                 vendorForgotPasswordBtn.disabled = false;
@@ -6844,7 +6872,7 @@
                     if (registerPasskeyBtnVendor) {
                         registerPasskeyBtnVendor.addEventListener('click', async () => {
                             if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
-                                if (window.showToast) window.showToast("Votre navigateur ne supporte pas encore cette fonctionnalité.", "error", "Sécurité");
+                                showInlineMessage('passkey-feedback', "Votre navigateur ne supporte pas encore cette fonctionnalité.", "error");
                                 return;
                             }
                             const originalText = registerPasskeyBtnVendor.innerHTML;
@@ -6853,7 +6881,7 @@
                             try {
                                 const { data, error } = await window.supabaseClient.auth.registerPasskey();
                                 if (error) throw error;
-                                if (window.showToast) window.showToast("Clé d'accès créée avec succès !", "success", "Sécurité");
+                                showInlineMessage('passkey-feedback', "Clé d'accès créée avec succès !", "success");
                                 loadVendorPasskeys();
                             } catch (err) {
                                 console.error('[Vendor Passkey] Registration error:', err);
@@ -6863,7 +6891,7 @@
                                 } else if (msg.includes('not supported') || msg.includes('supporté')) {
                                     msg = "Votre navigateur ou appareil ne supporte pas les passkeys.";
                                 }
-                                if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                                showInlineMessage('passkey-feedback', msg, 'error');
                             } finally {
                                 registerPasskeyBtnVendor.innerHTML = originalText;
                                 registerPasskeyBtnVendor.disabled = false;
@@ -6926,9 +6954,9 @@
                         if (!value) return;
                         try {
                             await navigator.clipboard.writeText(value);
-                            if (window.showToast) window.showToast(`${label} copié.`, 'success', 'Parrainage');
+                            showInlineMessage('referral-feedback', `${label} copié.`, 'success');
                         } catch {
-                            if (window.showToast) window.showToast('Impossible de copier automatiquement.', 'warning', 'Parrainage');
+                            showInlineMessage('referral-feedback', 'Impossible de copier automatiquement.', 'warning');
                         }
                     };
 
@@ -7207,11 +7235,11 @@ function openOrderModal(id) {
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
 
                     await OrderManager.confirmCompletion(currentSelectedOrder.id);
-                    showToast('Fonds libérés avec succès.', 'success');
+                    showInlineMessage('client-modal-feedback', 'Fonds libérés avec succès.', 'success');
                     closeOrderModal();
                     await loadDashboardData();
                 } catch (error) {
-                    showToast(error.message || 'Erreur lors de la validation', 'error');
+                    showInlineMessage('client-modal-feedback', error.message || 'Erreur lors de la validation', 'error');
                     console.error(error);
                 } finally {
                     const btn = document.getElementById('btnValidateDelivery');
@@ -7258,11 +7286,11 @@ function openOrderModal(id) {
                     action: 'ACCEPT',
                     quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
                 });
-                showToast('Devis accepté. Vous pouvez maintenant passer au paiement.', 'success');
+                showInlineMessage('client-modal-feedback', 'Devis accepté. Vous pouvez maintenant passer au paiement.', 'success');
                 closeOrderModal();
                 await loadDashboardData();
             } catch (error) {
-                showToast(error.message || "Erreur lors de l'acceptation du devis", 'error');
+                showInlineMessage('client-modal-feedback', error.message || "Erreur lors de l'acceptation du devis", 'error');
             } finally {
                 const btn = document.getElementById('btnAcceptQuote');
                 btn.disabled = false;
@@ -7280,11 +7308,11 @@ function openOrderModal(id) {
                     action: 'REJECT',
                     quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
                 });
-                showToast('Devis refusé. La demande a été clôturée.', 'warning');
+                showInlineMessage('client-modal-feedback', 'Devis refusé. La demande a été clôturée.', 'warning');
                 closeOrderModal();
                 await loadDashboardData();
             } catch (error) {
-                showToast(error.message || 'Erreur lors du refus du devis', 'error');
+                showInlineMessage('client-modal-feedback', error.message || 'Erreur lors du refus du devis', 'error');
             } finally {
                 const btn = document.getElementById('btnRejectQuote');
                 btn.disabled = false;
@@ -7369,14 +7397,14 @@ function openOrderModal(id) {
 
                 for (const file of toAdd) {
                     if (file.size > 5 * 1024 * 1024) {
-                        showToast(`"${file.name}" dépasse 5 Mo — ignoré.`, 'warning');
+                        showInlineMessage('open-dispute-feedback', `"${file.name}" dépasse 5 Mo — ignoré.`, 'warning');
                         continue;
                     }
                     disputePhotoFiles.push({ file, previewUrl: URL.createObjectURL(file) });
                 }
 
                 if (files.length > remaining) {
-                    showToast(`Maximum 5 photos. ${files.length - remaining} fichier(s) ignoré(s).`, 'warning');
+                    showInlineMessage('open-dispute-feedback', `Maximum 5 photos. ${files.length - remaining} fichier(s) ignoré(s).`, 'warning');
                 }
 
                 _updateDisputePhotoUI();
@@ -7426,12 +7454,12 @@ function openOrderModal(id) {
             const videoLink = document.getElementById('disputeVideoLink').value.trim();
 
             if (!category || !description) {
-                showToast('Catégorie et description sont obligatoires.', 'error');
+                showInlineMessage('open-dispute-feedback', 'Catégorie et description sont obligatoires.', 'error');
                 return;
             }
 
             if (disputePhotoFiles.length < 2) {
-                showToast(`Minimum 2 photos requises. Vous en avez ${disputePhotoFiles.length}.`, 'error');
+                showInlineMessage('open-dispute-feedback', `Minimum 2 photos requises. Vous en avez ${disputePhotoFiles.length}.`, 'error');
                 return;
             }
 
@@ -7467,11 +7495,11 @@ function openOrderModal(id) {
                 // 3. Soumettre le litige
                 await OrderManager.openDispute(currentSelectedOrder.id, category, description, evidence);
 
-                showToast('Litige ouvert. Notre équipe va analyser votre demande dans les 24h.', 'warning');
+                showInlineMessage('client-modal-feedback', 'Litige ouvert. Notre équipe va analyser votre demande dans les 24h.', 'warning');
                 closeDisputeModal();
                 await loadDashboardData();
             } catch (error) {
-                showToast(error.message || 'Erreur lors de l\'ouverture du litige', 'error');
+                showInlineMessage('open-dispute-feedback', error.message || 'Erreur lors de l\'ouverture du litige', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Soumettre le litige';
@@ -7600,7 +7628,7 @@ function openOrderModal(id) {
                 input.value = '';
                 // Realtime push le nouveau message automatiquement
             } catch (error) {
-                showToast('Erreur d\'envoi du message', 'error');
+                showInlineMessage('client-dispute-feedback', 'Erreur d\'envoi du message', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>';
@@ -7611,11 +7639,11 @@ function openOrderModal(id) {
             if (!currentSelectedDispute) return;
             try {
                 await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'ACCEPT' });
-                showToast("Proposition vendeur acceptée.", 'success');
+                showInlineMessage('client-dispute-feedback', "Proposition vendeur acceptée.", 'success');
                 await loadDashboardData();
                 await loadDisputeChat(currentSelectedOrder.id);
             } catch (error) {
-                showToast(error.message || "Erreur lors de l'acceptation.", 'error');
+                showInlineMessage('client-dispute-feedback', error.message || "Erreur lors de l'acceptation.", 'error');
             }
         };
 
@@ -7623,11 +7651,11 @@ function openOrderModal(id) {
             if (!currentSelectedDispute) return;
             try {
                 await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'REJECT' });
-                showToast("Le dossier passe en arbitrage plateforme.", 'warning');
+                showInlineMessage('client-dispute-feedback', "Le dossier passe en arbitrage plateforme.", 'warning');
                 await loadDashboardData();
                 await loadDisputeChat(currentSelectedOrder.id);
             } catch (error) {
-                showToast(error.message || "Erreur lors du refus.", 'error');
+                showInlineMessage('client-dispute-feedback', error.message || "Erreur lors du refus.", 'error');
             }
         };
         // ========================================================================
@@ -7844,7 +7872,7 @@ function openOrderModal(id) {
             const printDocument = printFrame.contentWindow?.document;
             if (!printDocument) {
                 printFrame.remove();
-                showToast('Impossible de préparer la facture.', 'error');
+                showInlineMessage('client-modal-feedback', 'Impossible de préparer la facture.', 'error');
                 return;
             }
 
@@ -8226,8 +8254,11 @@ function openOrderModal(id) {
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
             
+            <p id="open-dispute-feedback" class="text-sm font-medium px-6 hidden transition-opacity"></p>
+
             <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
                 <button type="button" data-action="close-dispute-modal" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
                     Annuler
@@ -8359,6 +8390,7 @@ function openOrderModal(id) {
                     </div>
 
                     <!-- Actions Buttons -->
+                    <p id="client-modal-feedback" class="text-sm font-medium hidden transition-opacity mb-3"></p>
                     <div class="flex flex-col sm:flex-row gap-3">
                         <button id="btnAcceptQuote" type="button"
                             class="hidden flex-1 py-3 bg-black text-white font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 rounded-xl">
@@ -8414,6 +8446,7 @@ function openOrderModal(id) {
                         <button type="button" data-action="buyer-accept-dispute-offer" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-[10px] font-black uppercase tracking-widest">Accepter l'offre</button>
                         <button type="button" data-action="buyer-reject-dispute-offer" class="py-3 rounded-xl bg-white border border-orange-200 text-orange-700 hover:bg-orange-50 text-[10px] font-black uppercase tracking-widest">Refuser</button>
                     </div>
+                    <p id="client-dispute-feedback" class="text-sm font-medium hidden transition-opacity mt-2"></p>
                 </div>
 
                 <!-- Actions -->

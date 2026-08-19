@@ -843,7 +843,10 @@
                     comment: txt 
                 });
                 if (success) { showToast('Avis publié !', 'success'); loadReviews(pid); }
-            } catch (e) { showToast('Erreur', 'error'); }
+            } catch (e) { 
+                console.error('[Review Submit Error]', e);
+                showToast('Impossible de publier votre avis. Veuillez vérifier votre connexion et réessayer.', 'error'); 
+            }
         };
 
         async function renderRecommended(cat) {
@@ -928,8 +931,8 @@
                     showToast(res.error || 'Erreur lors de la suppression', 'error');
                 }
             } catch (e) {
-                console.error(e);
-                showToast('Erreur lors de la suppression', 'error');
+                console.error('[Review Delete Error]', e);
+                showToast('Impossible de supprimer l\'avis. Veuillez vérifier votre connexion et réessayer.', 'error');
             }
         };
 

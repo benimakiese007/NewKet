@@ -1273,7 +1273,7 @@
                     const { error } = await supabaseClient.auth.updateUser({ password: password });
                     if (error) throw error;
 
-                    if (typeof showToast !== 'undefined') showToast("Mot de passe mis à jour avec succès !", "success");
+                    showSuccessMsg("Mot de passe mis à jour avec succès !");
 
                     setTimeout(() => {
                         window.location.hash = ''; // Remove the hash
@@ -1301,7 +1301,7 @@
 
                     // AuthManager.handleSessionUpdate will handle the redirect via onAuthStateChange
                     // but we can also trigger it manually for speed if needed.
-                    // if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
+                    // Connexion réussie, redirection silencieuse
                     return;
 
                 } else {
@@ -1362,14 +1362,12 @@
 
                     if (error) throw error;
 
-                    if (typeof showToast !== 'undefined') showToast("Code envoyé ! Vérifiez vos emails.", "success");
-
                     // Hide auth form, show OTP form
                     authForm.classList.add('hidden');
                     tabsContainer.classList.add('hidden');
                     if (dividerBlock) dividerBlock.classList.add('hidden');
                     if (oauthProviders) oauthProviders.classList.add('hidden');
-                    formSubtitle.textContent = "Veuillez entrer le code de vérification.";
+                    formSubtitle.innerHTML = "<span class='text-green-600 font-bold'>Code envoyé !</span> Vérifiez vos emails et entrez le code ci-dessous.";
                     otpForm.classList.remove('hidden');
 
                     // Store temp data for OTP verification
@@ -1405,11 +1403,20 @@
                         
                         setBtnLoading(false);
                         return;
+                    } else if (msg.toLowerCase().includes("invalid login credentials")) {
+                        msg = "Email ou mot de passe incorrect.";
+                        // Show "Mot de passe oublié ?" link more prominently if not already visible
+                    } else if (msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network")) {
+                        msg = "Problème de connexion au serveur. Vérifiez votre connexion internet.";
                     } else {
-                        msg = "Identifiant Incorrect";
+                        msg = "Identifiant ou mot de passe incorrect.";
                     }
                 } else {
-                    if (msg.includes("User already registered")) msg = "Cet utilisateur existe déjà.";
+                    if (msg.includes("User already registered") || msg.toLowerCase().includes("already registered")) {
+                        msg = "Cette adresse email est déjà utilisée. Essayez de vous connecter.";
+                    } else if (msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network")) {
+                        msg = "Problème de connexion. Vérifiez votre connexion internet.";
+                    }
                 }
                 showError(msg);
             } finally {
@@ -1445,7 +1452,8 @@
 
                 if (error) throw error;
 
-                if (typeof showToast !== 'undefined') showToast("Email vérifié avec succès !", "success");
+                otpFormError.classList.add('hidden');
+                formSubtitle.innerHTML = "<span class='text-green-600 font-bold'>Email vérifié avec succès !</span>";
 
                 const role = pendingData.role;
                 if (role === 'customer') {
@@ -1457,7 +1465,7 @@
                     localStorage.setItem('newketRole', role);
                     localStorage.setItem('newketUserEmail', pendingData.email);
                     localStorage.setItem('newketUserStatus', 'pending');
-                    if (typeof showToast !== 'undefined') showToast("Complétez votre profil vendeur pour continuer.", "info");
+                    formSubtitle.innerHTML = "<span class='text-green-600 font-bold'>Vérifié !</span> Redirection vers l'onboarding vendeur...";
                     setTimeout(() => {
                         window.location.href = window.resolvePath('pages/seller-onboarding');
                     }, 1000);
@@ -1507,7 +1515,12 @@
 
                 } catch (err) {
                     console.error('Resend OTP Error:', err);
-                    if (typeof showToast !== 'undefined') showToast("Erreur lors de l'envoi du code.", "error");
+                    let msg = "Impossible de renvoyer le code. Vérifiez votre connexion.";
+                    if (err.message && err.message.toLowerCase().includes('rate_limit')) {
+                        msg = "Veuillez patienter avant de demander un nouveau code.";
+                    }
+                    otpFormError.textContent = msg;
+                    otpFormError.classList.remove('hidden');
                     resendOtpBtn.disabled = false;
                     resendOtpBtn.textContent = 'Renvoyer le code';
                 }
@@ -1516,7 +1529,7 @@
 
         // Redirect based on role
         async function finalizeAuth(user, email) {
-            if (typeof showToast !== 'undefined') showToast("Authentification réussie", "success");
+            if (formSubtitle) formSubtitle.innerHTML = "<span class='text-green-600 font-bold'>Authentification réussie</span>. Redirection...";
 
             let role = user?.user_metadata?.role || null;
             const adminEmails = await getRuntimeAdminEmails(true);
@@ -1640,7 +1653,6 @@
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPasskey();
                 if (error) throw error;
-                // if (typeof showToast !== 'undefined') showToast("Connexion réussie...", "success");
             } catch (err) {
                 console.error('Passkey login error:', err);
                 let msg = err.message || "Erreur de connexion par clé d'accès.";
@@ -1655,9 +1667,15 @@
             }
         }
         function handleForgotPassword() {
-            const email = document.getElementById('email').value.trim();
+            const emailInput = document.getElementById('email');
+            const email = emailInput ? emailInput.value.trim() : '';
             if (!email) {
-                showError("Veuillez entrer votre email dans le champ puis cliquer sur 'Oublié ?'.");
+                if (emailInput) {
+                    emailInput.classList.add('ring-2', 'ring-red-400', 'border-red-400');
+                    emailInput.focus();
+                    setTimeout(() => emailInput.classList.remove('ring-2', 'ring-red-400', 'border-red-400'), 3000);
+                }
+                showError("Veuillez saisir votre email ci-dessus avant de cliquer sur 'Oublié ?'");
                 return;
             }
             const btn = document.getElementById('forgotPasswordBtn');

@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Tableau de bord Client (Customer Dashboard)', () => {
   test.beforeEach(async ({ page }) => {

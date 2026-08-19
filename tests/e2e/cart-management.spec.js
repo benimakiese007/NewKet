@@ -1,4 +1,4 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Gestion du Panier (Cart)', () => {
   test.beforeEach(async ({ page }) => {

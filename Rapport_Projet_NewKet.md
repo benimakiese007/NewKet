@@ -175,6 +175,10 @@ Afin d'assurer le lancement et l'évolution de la Marketplace, voici notre feuil
 - **Applications Mobiles :** Développement et déploiement d'une application dédiée (iOS et Android) pour fluidifier l'expérience mobile (pas avant d'atteindre 1 000 utilisateurs actifs).
 - **Messagerie Interne (Chat) :** Intégration d'un chat acheteur-vendeur juste après avoir atteint le cap des 1 000 utilisateurs actifs (pour éviter que les transactions ne se finalisent en dehors de la plateforme via des échanges de numéros WhatsApp à ce stade précoce).
 - **Évolution Logistique :** Ajout de nouvelles options de livraison et d'un suivi potentiellement plus avancé.
+- **Abonnements Vendeurs :** Mise en place d'un modèle d'abonnement dès que la plateforme atteindra 1000 vendeurs et un minimum de 500 utilisateurs globaux actifs par mois. Trois offres seront proposées (fonctionnalités et avantages à définir avec l'équipe) :
+  - *Plan Gratuit (Free)* : Fonctionnalités basiques (publication et transactions normales).
+  - *Plan Pro (1,99$/mois)* : Fonctionnalités du plan gratuit + certains avantages spécifiques.
+  - *Plan Avancé (3,99$/mois)* : Fonctionnalités des plans précédents + d'autres avantages supplémentaires exclusifs.
 
 ---
 

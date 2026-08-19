@@ -392,6 +392,7 @@
                         <!-- Button shine effect -->
                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full transition-transform duration-1000 pointer-events-none"></div>
                     </button>
+                    <p id="publish-feedback" class="text-xs font-bold text-center mt-3 hidden transition-opacity"></p>
                 </div>
             </div>
         </form>
@@ -452,6 +453,15 @@
             const EXCHANGE_RATE_STORAGE_KEY = 'newket_publish_exchange_rate';
             const promoPercentValue = document.getElementById('promoPercentValue');
 
+            function showInlineMessage(containerId, message, type = 'error') {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                container.innerHTML = message;
+                const colorClass = type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-600' : 'text-amber-500';
+                container.className = `text-[11px] font-bold text-center mt-3 block transition-opacity ${colorClass}`;
+                setTimeout(() => { container.className = 'hidden'; }, 5000);
+            }
+
             function updateStatusBanner() {
                 const status = localStorage.getItem('newketUserStatus') || 'pending';
                 const banner = document.getElementById('status-banner');
@@ -487,6 +497,7 @@
                                 <h3 class="font-bold text-blue-900">Validation en cours</h3>
                                 <p class="text-sm text-blue-700">Votre boutique est en cours d'examen. La publication sera active dès validation.</p>
                             </div>
+                            <a href="javascript:void(0)" onclick="window.location.href=window.resolvePath('pages/support')" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-xs shrink-0">Contacter le support</a>
                         </div>
                     `;
                 } else if (status === 'rejected') {
@@ -811,10 +822,29 @@
                     updateEstimate();
                 } catch (error) {
                     console.error('Error loading product for edit:', error);
-                    const msg = (error && error.status === 404)
-                        ? "Erreur 404: l'API n'est pas joignable. Vérifiez la config Vercel de `VITE_API_URL` (elle doit pointer vers /api)."
-                        : "Erreur lors du chargement du produit";
-                    if (typeof showToast === 'function') showToast(msg, "error");
+                    const is404 = error && error.status === 404;
+                    const msg = is404
+                        ? "Produit introuvable. Il a peut-être été supprimé."
+                        : "Impossible de charger le produit. Vérifiez votre connexion.";
+                    // L'erreur sera affichée directement via le backBanner ci-dessous
+                    // Bouton de retour injecté sous le formulaire
+                    setTimeout(() => {
+                        const form = document.getElementById('publishForm');
+                        if (form && !form.querySelector('.edit-error-back-btn')) {
+                            const backBanner = document.createElement('div');
+                            backBanner.className = 'edit-error-back-btn bg-red-50 border border-red-100 p-5 rounded-[2rem] flex items-center justify-between gap-4 mt-4';
+                            backBanner.innerHTML = `
+                                <div class="flex items-center gap-3">
+                                    <iconify-icon icon="solar:danger-circle-bold" class="text-red-500 shrink-0" width="22"></iconify-icon>
+                                    <p class="text-sm text-red-700 font-medium">${msg}</p>
+                                </div>
+                                <button onclick="window.location.href=window.resolvePath('pages/vendor-dashboard')+'#products'"
+                                    class="shrink-0 bg-red-600 text-white px-5 py-2 rounded-xl font-bold text-xs hover:bg-red-700 transition-all">
+                                    MES PRODUITS
+                                </button>`;
+                            form.prepend(backBanner);
+                        }
+                    }, 300);
                 } finally {
                     // Remove skeleton banner and restore form opacity
                     const skBannerEl = form.querySelector('.animate-pulse');
@@ -916,9 +946,7 @@
                 const userStatus = localStorage.getItem('newketUserStatus') || 'pending';
                 const userRole = localStorage.getItem('newketRole');
                 if ((userStatus === 'submitted' || userStatus === 'pending') && userRole !== 'admin') {
-                    if (window.showToast) {
-                        window.showToast("Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.", "warning");
-                    }
+                    showInlineMessage('publish-feedback', "Veuillez patienter que votre boutique soit validée par un administrateur pour débloquer cette fonctionnalité.", "warning");
                     return;
                 }
 
@@ -933,24 +961,50 @@
 
                 const userId = localStorage.getItem('newketUserId');
                 if (!userId) {
-                    if (typeof showToast === 'function') showToast("Veuillez vous connecter pour publier.", "warning");
+                    showInlineMessage('publish-feedback', "Veuillez vous connecter pour publier.", "warning");
                     setTimeout(() => window.location.href = window.resolvePath('pages/login') + '?redirect=publish', 1500);
                     return;
                 }
 
-                if (!titleInput.value.trim() || !categorySelect.value || !document.getElementById('pConditionInput').value || !priceVal || priceVal <= 0 || !Number.isInteger(stockVal) || stockVal <= 0) {
-                    if (typeof showToast === 'function') showToast("Veuillez remplir tous les champs obligatoires (*).", "error");
+                // ── Validation avec highlight des champs invalides ──────────
+                const invalidFields = [];
+                const highlightField = (el, isInvalid) => {
+                    if (!el) return;
+                    if (isInvalid) {
+                        el.classList.add('ring-2', 'ring-red-400', 'border-red-400');
+                        el.classList.remove('ring-gray-200');
+                        el.addEventListener('input', () => {
+                            el.classList.remove('ring-2', 'ring-red-400', 'border-red-400');
+                        }, { once: true });
+                        invalidFields.push(el);
+                    } else {
+                        el.classList.remove('ring-2', 'ring-red-400', 'border-red-400');
+                    }
+                };
+
+                highlightField(titleInput, !titleInput.value.trim());
+                highlightField(categorySelect, !categorySelect.value);
+                const conditionEl = document.getElementById('pConditionInput');
+                highlightField(conditionEl, !conditionEl?.value);
+                highlightField(currentPriceInput, !priceVal || priceVal <= 0);
+                const stockEl = document.getElementById('stockInput');
+                highlightField(stockEl, !Number.isInteger(stockVal) || stockVal <= 0);
+
+                if (invalidFields.length > 0) {
+                    showInlineMessage('publish-feedback', "Veuillez remplir tous les champs obligatoires (*).", "error");
+                    invalidFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    invalidFields[0].focus({ preventScroll: true });
                     return;
                 }
 
                 const termsCheckbox = document.getElementById('termsCheckboxPublish');
                 if (termsCheckbox && !termsCheckbox.checked) {
-                    if (typeof showToast === 'function') showToast("Vous devez accepter les conditions d'utilisation.", "error");
+                    showInlineMessage('publish-feedback', "Vous devez accepter les conditions d'utilisation.", "error");
                     return;
                 }
 
                 if (selectedProductImages.length === 0) {
-                    if (typeof showToast === 'function') showToast("Une image est obligatoire.", "warning");
+                    showInlineMessage('publish-feedback', "Une image est obligatoire.", "warning");
                     return;
                 }
 
@@ -973,9 +1027,7 @@
                         const oldPriceVal = parseFloat(currentOldPriceInput?.value);
                         const convertedOldPrice = currency === 'USD' ? oldPriceVal * exchangeRate : oldPriceVal;
                         if (!Number.isFinite(oldPriceVal) || !Number.isFinite(convertedOldPrice) || convertedOldPrice <= finalPrice) {
-                            if (typeof showToast === 'function') {
-                                showToast("L'ancien prix doit être supérieur au prix de vente pour activer la promotion.", "error");
-                            }
+                            showInlineMessage('publish-feedback', "L'ancien prix doit être supérieur au prix de vente pour activer la promotion.", "error");
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnText;
                             return;
@@ -1088,10 +1140,50 @@
                     console.error('Publish error:', error);
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnText;
-                    const msg = (error && error.status === 404)
-                        ? "Erreur 404: l'API n'est pas joignable. Vérifiez la config Vercel de `VITE_API_URL` (elle doit pointer vers /api) puis réessayez."
-                        : ("Erreur lors de la publication : " + (error.message || "Erreur inconnue"));
-                    if (typeof showToast === 'function') showToast(msg, "error");
+
+                    // ── 403 : compte de réception manquant ─────────────────
+                    const is403 = error && (error.status === 403 || (error.message && error.message.toLowerCase().includes('réception')));
+                    if (is403) {
+                        const overlay = document.getElementById('publishOverlay');
+                        const successState = document.getElementById('successState');
+                        if (overlay && successState) {
+                            overlay.classList.remove('invisible', 'opacity-0');
+                            successState.classList.remove('hidden');
+                            document.querySelector('#successState h2').innerHTML = '⚠️&nbsp;Mode de réception requis';
+                            document.querySelector('#successState p').textContent = 'Vous devez configurer un compte de réception (Mobile Money) avant de pouvoir publier un produit.';
+                            const actionsEl = document.getElementById('successModalActions');
+                            if (actionsEl) {
+                                actionsEl.innerHTML = `
+                                    <button onclick="window.location.href=window.resolvePath('pages/vendor-dashboard')+'#payouts'"
+                                        class="w-full bg-gray-900 text-white py-4 rounded-2xl font-black shadow-lg shadow-gray-900/20 transition-all hover:bg-black hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:shadow-md">
+                                        CONFIGURER MON COMPTE DE RÉCEPTION
+                                    </button>
+                                    <button onclick="document.getElementById('publishOverlay').classList.add('invisible','opacity-0'); document.getElementById('successState').classList.add('hidden');"
+                                        class="w-full bg-white border-2 border-gray-100 text-gray-600 py-3.5 rounded-2xl font-bold text-xs tracking-widest uppercase transition-all hover:bg-gray-50 hover:border-gray-200 hover:text-gray-900">
+                                        ANNULER
+                                    </button>`;
+                            }
+                            // Icône warning à la place du check vert
+                            const iconWrap = overlay.querySelector('.bg-green-50');
+                            if (iconWrap) {
+                                iconWrap.className = 'relative flex items-center justify-center w-full h-full bg-amber-50 text-amber-500 rounded-full shadow-inner ring-4 ring-amber-50/50';
+                                iconWrap.innerHTML = '<iconify-icon icon="solar:danger-triangle-bold" width="32"></iconify-icon>';
+                            }
+                        } else {
+                            showInlineMessage('publish-feedback', 'Configurez votre compte de réception avant de publier.', 'error');
+                        }
+                        return;
+                    }
+
+                    // ── 404 : API non joignable ─────────────────────────────
+                    if (error && error.status === 404) {
+                        showInlineMessage('publish-feedback', "Service temporairement indisponible. Vérifiez votre connexion et réessayez.", "error");
+                        return;
+                    }
+
+                    // ── Erreur générique ────────────────────────────────────
+                    const msg = "Erreur lors de la publication : " + (error.message || "Erreur inconnue");
+                    showInlineMessage('publish-feedback', msg, "error");
                 }
             });
         });
@@ -1376,7 +1468,7 @@
         </div>
 
         <!-- Image upload button -->
-        <button type="button" class="variant-image-btn relative w-10 h-10 rounded-xl border-2 border-dashed border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-indigo-400 hover:text-indigo-500 transition-all overflow-hidden" title="Photo pour cette variante">
+        <button type="button" data-action="upload_variant_image" class="variant-image-btn relative w-10 h-10 rounded-xl border-2 border-dashed border-gray-200 bg-white flex items-center justify-center text-gray-400 hover:border-indigo-400 hover:text-indigo-500 transition-all overflow-hidden" title="Photo pour cette variante">
             <input type="file" accept="image/*" class="variant-image-input absolute inset-0 opacity-0 cursor-pointer w-full h-full">
             <iconify-icon icon="solar:camera-add-linear" width="18" class="variant-image-placeholder-icon pointer-events-none"></iconify-icon>
             <img class="variant-image-preview absolute inset-0 w-full h-full object-cover rounded-xl hidden pointer-events-none">

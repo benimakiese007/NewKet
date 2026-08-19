@@ -170,12 +170,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-8 flex justify-end">
-                <button id="saveProfileBtn" data-track-action="settings:save_profile_click"
+                    <div class="mt-8 flex justify-end flex-col items-end">
+                        <button id="saveProfileBtn" data-track-action="settings:save_profile_click"
                             class="bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg shadow-gray-200 transition-all flex items-center gap-2">
                             <iconify-icon icon="solar:diskette-linear"></iconify-icon>
                             Enregistrer les modifications
                         </button>
+                        <p id="profile-feedback" class="hidden"></p>
                     </div>
                 </div>
 
@@ -226,13 +227,15 @@
                                 </button>
                             </div>
                             <div id="settingsPasskeysList" class="space-y-3 hidden"></div>
+                            <p id="passkey-feedback" class="hidden"></p>
                         </div>
 
-                        <div class="flex justify-end pt-4">
+                        <div class="flex justify-end pt-4 flex-col items-end">
                             <button id="updatePasswordBtn" form="settingsPasswordForm" type="submit" data-track-action="settings:update_password_click"
                                 class="border border-gray-200 hover:bg-gray-50 text-gray-900 px-6 py-3 rounded-xl text-sm font-bold transition-all">
                                 Mettre à jour le mot de passe
                             </button>
+                            <p id="password-feedback" class="hidden"></p>
                         </div>
                     </div>
                 </div>
@@ -282,6 +285,7 @@
                                     </div>
                                 </label>
                             </div>
+                            <p id="notif-feedback" class="hidden"></p>
                         </div>
                     </div>
 
@@ -330,6 +334,7 @@
                                 Exporter
                             </button>
                         </div>
+                        <p id="export-feedback" class="hidden"></p>
 
                         <!-- Gestion des cookies -->
                         <div class="flex items-start justify-between gap-4 p-4 rounded-2xl bg-gray-50">
@@ -369,6 +374,7 @@
                                 Supprimer
                             </button>
                         </div>
+                        <p id="delete-feedback" class="hidden"></p>
                     </div>
                 </div>
                 <!-- ─── Fin section RGPD ──────────────────────────────────────────────── -->
@@ -381,6 +387,15 @@
 
     <input type="file" id="avatarUploadInput" accept="image/*" class="hidden">
     <script>
+        function showInlineMessage(containerId, message, type = 'error') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = message;
+            const colorClass = type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-600' : 'text-amber-500';
+            container.className = `text-[11px] font-bold text-center mt-3 block transition-opacity ${colorClass}`;
+            setTimeout(() => { container.className = 'hidden'; }, 5000);
+        }
+
         document.addEventListener('newketInitialized', async () => {
             const SettingsPage = {
                 async init() {
@@ -608,7 +623,7 @@
                     } catch (error) {
                         console.error('Device notification toggle error:', error);
                         deviceToggle.checked = !enable;
-                        showToast("Impossible de modifier les notifications appareil.", 'error');
+                        showInlineMessage('notif-feedback', "Impossible de modifier les notifications appareil.", 'error');
                     } finally {
                         deviceToggle.disabled = false;
                         await this.refreshDeviceNotificationStatus();
@@ -621,7 +636,7 @@
                     const storeDescription = document.getElementById('profileStoreDescription') ? document.getElementById('profileStoreDescription').value.trim() : undefined;
 
                     if (!fullName) {
-                        showToast('Le nom complet est obligatoire.', 'warning');
+                        showInlineMessage('profile-feedback', 'Le nom complet est obligatoire.', 'warning');
                         return;
                     }
 
@@ -639,17 +654,17 @@
 
                         if (error) throw error;
 
-                        showToast('Profil mis à jour avec succès.', 'success');
+                        AuthManager.user = data.user;
+                        if (window.LoaderManager) LoaderManager.hide();
+                        showInlineMessage('profile-feedback', 'Profil mis à jour avec succès.', 'success');
                         
                         // Refresh local state
-                        AuthManager.user = data.user;
                         localStorage.setItem('newketUserName', fullName);
                         
                     } catch (err) {
-                        console.error('Update error:', err);
-                        showToast(err.message, 'error');
-                    } finally {
+                        console.error(err);
                         if (window.LoaderManager) LoaderManager.hide();
+                        showInlineMessage('profile-feedback', err.message, 'error');
                     }
                 },
 
@@ -658,12 +673,12 @@
                     const confirmPass = document.getElementById('confirmPassword').value;
 
                     if (!newPass) {
-                        showToast('Veuillez saisir un nouveau mot de passe.', 'warning');
+                        showInlineMessage('password-feedback', 'Veuillez saisir un nouveau mot de passe.', 'warning');
                         return;
                     }
 
                     if (newPass !== confirmPass) {
-                        showToast('Les mots de passe ne correspondent pas.', 'error');
+                        showInlineMessage('password-feedback', 'Les mots de passe ne correspondent pas.', 'error');
                         return;
                     }
 
@@ -676,13 +691,13 @@
 
                         if (error) throw error;
 
-                        showToast('Mot de passe mis à jour avec succès.', 'success');
+                        showInlineMessage('password-feedback', 'Mot de passe mis à jour avec succès.', 'success');
                         document.getElementById('newPassword').value = '';
                         document.getElementById('confirmPassword').value = '';
                         
                     } catch (err) {
                         console.error('Password update error:', err);
-                        showToast(err.message, 'error');
+                        showInlineMessage('password-feedback', err.message, 'error');
                     } finally {
                         if (window.LoaderManager) LoaderManager.hide();
                     }
@@ -709,7 +724,7 @@
 
                                 if (error) throw error;
 
-                                showToast('Photo de profil mise à jour.', 'success');
+                                showInlineMessage('profile-feedback', 'Photo de profil mise à jour.', 'success');
                                 localStorage.setItem('newketUserAvatar', publicUrl);
                                 
                                 // Update UI immediately
@@ -721,7 +736,7 @@
                         }
                     } catch (err) {
                         console.error('Avatar upload error:', err);
-                        showToast('échec du téléchargement.', 'error');
+                        showInlineMessage('profile-feedback', 'échec du téléchargement.', 'error');
                     } finally {
                         if (window.LoaderManager) LoaderManager.hide();
                     }
@@ -732,7 +747,7 @@
                     try {
                         const { data, error } = await window.supabaseClient.auth.registerPasskey();
                         if (error) throw error;
-                        showToast("Clé d'accès créée avec succès !", "success");
+                        showInlineMessage('passkey-feedback', "Clé d'accès créée avec succès !", "success");
                         if (this.loadSettingsPasskeys) this.loadSettingsPasskeys();
                     } catch (err) {
                         console.error('Passkey registration error:', err);
@@ -740,7 +755,7 @@
                         if (msg.includes('cancelled') || msg.includes('cancel')) {
                             msg = "Création annulée.";
                         }
-                        showToast(msg, 'error');
+                        showInlineMessage('passkey-feedback', msg, 'error');
                     } finally {
                         if (window.LoaderManager) LoaderManager.hide();
                     }
@@ -755,7 +770,10 @@
                             if (window.LoaderManager) LoaderManager.show('Préparation de votre export...');
                             try {
                                 const session = await window.getSupabaseSession(3000);
-                                if (!session) return showToast('Vous devez être connecté.', 'error');
+                                if (!session) {
+                                    showInlineMessage('export-feedback', 'Vous devez être connecté.', 'error');
+                                    return;
+                                }
 
                                 const resp = await fetch('/api/gdpr/export', {
                                     headers: { 'Authorization': `Bearer ${session.access_token}` }
@@ -772,10 +790,10 @@
                                 a.click();
                                 a.remove();
                                 URL.revokeObjectURL(url);
-                                showToast('Export téléchargé avec succès !', 'success');
+                                showInlineMessage('export-feedback', 'Export téléchargé avec succès !', 'success');
                             } catch (err) {
                                 console.error('[RGPD] Export error:', err);
-                                showToast('Erreur lors de l\'export.', 'error');
+                                showInlineMessage('export-feedback', 'Erreur lors de l\'export.', 'error');
                             } finally {
                                 if (window.LoaderManager) LoaderManager.hide();
                             }
@@ -796,7 +814,10 @@
                             if (window.LoaderManager) LoaderManager.show('Traitement de votre demande...');
                             try {
                                 const session = await window.getSupabaseSession(3000);
-                                if (!session) return showToast('Vous devez être connecté.', 'error');
+                                if (!session) {
+                                    showInlineMessage('delete-feedback', 'Vous devez être connecté.', 'error');
+                                    return;
+                                }
 
                                 const resp = await fetch('/api/gdpr/delete-account', {
                                     method: 'POST',
@@ -809,14 +830,14 @@
                                 const data = await resp.json();
                                 if (!resp.ok) throw new Error(data.error || 'Erreur inconnue.');
 
-                                showToast('Demande enregistrée. Vous allez être déconnecté.', 'success');
+                                showInlineMessage('delete-feedback', 'Demande enregistrée. Vous allez être déconnecté.', 'success');
                                 setTimeout(async () => {
                                     await window.supabaseClient?.auth.signOut();
                                     window.location.href = '/';
                                 }, 2500);
                             } catch (err) {
                                 console.error('[RGPD] Delete error:', err);
-                                showToast(err.message || 'Erreur lors de la demande de suppression.', 'error');
+                                showInlineMessage('delete-feedback', err.message || 'Erreur lors de la demande de suppression.', 'error');
                             } finally {
                                 if (window.LoaderManager) LoaderManager.hide();
                             }

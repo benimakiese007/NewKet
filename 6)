@@ -1,0 +1,1 @@
+frontend\src\pages\login.html:790:                if (pwdInput.value.length  pwdInput.classList.add('input-valid'); 

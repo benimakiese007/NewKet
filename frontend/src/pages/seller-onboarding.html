@@ -158,6 +158,7 @@
                     Suivant (Documents KYC)
                     <iconify-icon icon="solar:arrow-right-linear" width="24"></iconify-icon>
                 </button>
+                <p id="step1-feedback" class="text-xs font-bold text-center mt-3 hidden transition-opacity"></p>
             </div>
             </div>
             <!-- END STEP 1 CONTAINER -->
@@ -204,6 +205,7 @@
                         <div class="absolute inset-0 bg-gradient-to-tr from-gray-100/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                     </div>
                     <div id="fileList" class="flex flex-wrap gap-3"></div>
+                    <p id="file-feedback" class="text-[11px] font-bold mt-2 hidden transition-opacity text-center"></p>
                 </div>
             </div>
 
@@ -284,6 +286,7 @@
                     <iconify-icon icon="solar:check-circle-linear" width="24"></iconify-icon>
                 </button>
             </div>
+            <p id="step2-feedback" class="text-xs font-bold text-center mt-4 hidden transition-opacity"></p>
             
             </div> <!-- END STEP 2 CONTAINER -->
 
@@ -318,6 +321,17 @@
         const fileList = document.getElementById('fileList');
         const onboardingForm = document.getElementById('onboardingForm');
         const submitBtn = document.getElementById('submitBtn');
+        
+        // Inline feedback helper
+        function showInlineMessage(containerId, message, type = 'error') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = message;
+            const colorClass = type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-600' : 'text-blue-500';
+            container.className = `text-[11px] font-bold text-center mt-2 block transition-opacity ${colorClass}`;
+            setTimeout(() => { container.className = 'hidden'; }, 5000);
+        }
+
         let uploadedFiles = [];
 
         let shopAvatarFile = null;
@@ -479,8 +493,8 @@
 
             files.forEach((file) => {
                 if (!file) return;
-                if (file.size > MAX_FILE_SIZE) {
-                    if (window.showToast) window.showToast(`Fichier trop volumineux : ${file.name} (max 10MB)`, "info", "Documents");
+                if (file.size > 10 * 1024 * 1024) {
+                    showInlineMessage('file-feedback', `Fichier trop volumineux : ${file.name} (max 10MB)`, 'error');
                     return;
                 }
                 uploadedFiles.push(file);
@@ -500,12 +514,12 @@
 
             const termsCheckbox = document.getElementById('termsCheckboxSeller');
             if (termsCheckbox && !termsCheckbox.checked) {
-                if (window.showToast) window.showToast("Vous devez accepter les conditions pour devenir vendeur.", "error");
+                showInlineMessage('step2-feedback', "Vous devez accepter les conditions pour devenir vendeur.", 'error');
                 return;
             }
 
             if (uploadedFiles.length === 0) {
-                if (window.showToast) window.showToast("Veuillez ajouter au moins un document justificatif.", "info", "Documents");
+                showInlineMessage('step2-feedback', "Veuillez ajouter au moins un document justificatif.", 'error');
                 return;
             }
 
@@ -566,11 +580,9 @@
                 });
 
                 if (currentProfile && (currentProfile.status === 'approved' || currentProfile.status === 'submitted')) {
-                    if (window.showToast) window.showToast("Votre dossier a déjà été soumis ou approuvé. Redirection...", "info");
-                    localStorage.setItem('newketUserStatus', currentProfile.status);
-                    setTimeout(() => {
-                        window.location.href = getDashboardHref();
-                    }, 1500);
+                    submitBtn.setAttribute('disabled', 'disabled');
+                    submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                    submitBtn.innerHTML = `Dossier déjà ${currentProfile.status === 'approved' ? 'approuvé' : 'soumis'} <iconify-icon icon="solar:clock-circle-linear" width="24"></iconify-icon>`;
                     if (window.LoaderManager) LoaderManager.hide();
                     return;
                 }
@@ -642,7 +654,7 @@
             } catch (err) {
                 console.error(err);
                 if (window.LoaderManager) LoaderManager.hide();
-                if (window.showToast) window.showToast("Une erreur est survenue lors de l'envoi. Veuillez réessayer.", "error", "Erreur");
+                showInlineMessage('step2-feedback', "Une erreur est survenue lors de l'envoi. Veuillez réessayer.", 'error');
             }
         });
 
@@ -678,13 +690,7 @@
                     step2Container.classList.remove('hidden');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                    if (window.ToastManager) {
-                        window.ToastManager.error('Veuillez remplir tous les champs de l\'étape 1.', 'Erreur');
-                    } else if (window.showToast) {
-                        window.showToast('Veuillez remplir tous les champs de l\'étape 1.', 'error');
-                    } else {
-                        alert('Veuillez remplir tous les champs obligatoires (en rouge) avant de continuer.');
-                    }
+                    showInlineMessage('step1-feedback', 'Veuillez remplir tous les champs obligatoires (en rouge).', 'error');
                 }
             });
         }

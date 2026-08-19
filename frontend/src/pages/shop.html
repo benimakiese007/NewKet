@@ -101,7 +101,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-10 sm:pb-12 relative z-10 w-full vendor-hero-inner">
             <div class="shop-hero-actions flex items-center justify-end mb-6">
                 <div class="flex items-center gap-2">
-                    <button type="button" onclick="shareShopLink()" data-track-action="shop:share_click" aria-label="Copier le lien de la boutique" title="Copier le lien"
+                    <button type="button" onclick="shareShopLink(event)" data-track-action="shop:share_click" aria-label="Copier le lien de la boutique" title="Copier le lien"
                         class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white text-slate-900 border border-white/50 hover:bg-gray-100 transition-colors text-xs font-black uppercase tracking-widest shadow-xl">
                         <iconify-icon icon="solar:share-linear" width="18"></iconify-icon>
                     </button>
@@ -502,7 +502,6 @@
                 }
 
                 if (!vendor) {
-                    if (window.showToast) showToast('Boutique introuvable', 'error');
 
                     document.querySelector('main').innerHTML = `
                         <div class="py-20 text-center">
@@ -557,11 +556,10 @@
             await loadShopData();
         };
 
-        async function shareShopLink() {
+        async function shareShopLink(e) {
             const url = (window.NewKetLinks && window.NewKetLinks.buildShopShareUrl)
                 ? window.NewKetLinks.buildShopShareUrl({ shopName: currentShopName, shopSlug: currentShopSlug })
                 : window.location.href;
-
             try {
                 if (navigator.share) {
                     await navigator.share({ title: `${currentShopName} — NewKet`, url });
@@ -572,7 +570,25 @@
             }
 
             const ok = window.NewKetLinks?.copyTextToClipboard ? await window.NewKetLinks.copyTextToClipboard(url) : false;
-            if (window.showToast) showToast(ok ? 'Lien copié !' : 'Copie impossible', ok ? 'info' : 'error');
+            
+            const btn = e ? e.currentTarget : null;
+            if (btn) {
+                const originalHtml = btn.innerHTML;
+                const originalClasses = btn.className;
+                
+                if (ok) {
+                    btn.innerHTML = `<iconify-icon icon="solar:check-circle-bold" width="18"></iconify-icon> <span class="hidden sm:inline">Copié</span>`;
+                    btn.className = `inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-green-500 text-white transition-colors text-xs font-black uppercase tracking-widest shadow-xl`;
+                } else {
+                    btn.innerHTML = `<iconify-icon icon="solar:danger-triangle-bold" width="18"></iconify-icon>`;
+                    btn.className = `inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-red-500 text-white transition-colors text-xs font-black uppercase tracking-widest shadow-xl`;
+                }
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.className = originalClasses;
+                }, 2000);
+            }
         }
 
         function orderProduct(id) {

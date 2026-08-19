@@ -508,6 +508,7 @@
                             <div class="w-12 h-7 bg-gray-200 rounded-full peer peer-checked:bg-black peer-focus:outline-none after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                         </label>
                     </div>
+                    <p id="push-feedback" class="text-sm font-medium hidden transition-opacity mt-2"></p>
                 </div>
 
                 <div class="customer-settings-grid grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
@@ -529,6 +530,7 @@
                                     Modifier
                                 </button>
                             </div>
+                            <p id="avatar-feedback" class="text-sm font-medium hidden transition-opacity"></p>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Prénom</label>
                                 <input type="text" id="profFirstName"
@@ -565,6 +567,7 @@
                                     <iconify-icon icon="solar:refresh-linear" class="animate-spin" width="16"></iconify-icon>
                                 </span>
                             </button>
+                            <p id="profile-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                         </form>
                     </div>
 
@@ -582,6 +585,7 @@
                                     <div class="mt-2 text-right">
                                         <button type="button" id="customerForgotPasswordBtn" class="text-xs text-gray-500 hover:text-black underline underline-offset-2 transition-colors cursor-pointer bg-transparent border-none p-0">Mot de passe oublié ?</button>
                                     </div>
+                                    <p id="forgot-password-feedback" class="text-sm font-medium hidden transition-opacity mt-2"></p>
                                 </div>
                                 <p id="passwordOauthHint" class="hidden text-xs text-gray-500">Compte Google detecte : vous pouvez definir un mot de passe sans saisir un mot de passe actuel.</p>
                                 <div>
@@ -598,6 +602,7 @@
                                     class="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">
                                     Mettre à jour
                                 </button>
+                                <p id="password-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                             </form>
                         </div>
 
@@ -614,6 +619,7 @@
                                 <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
                                 Créer une clé d'accès
                             </button>
+                            <p id="passkey-feedback" class="text-sm font-medium hidden transition-opacity mt-3"></p>
                         </div>
                     </div>
                 </div>
@@ -725,6 +731,7 @@
                                         Valider
                                     </button>
                                 </div>
+                                <p id="referral-feedback" class="text-sm font-medium mt-3 hidden transition-opacity"></p>
                             </div>
                             <p id="referralHint" class="text-xs text-gray-500">Si tu arrives avec un lien de parrainage, le code est enregistré automatiquement. Tu peux aussi le coller ici plus tard.</p>
                         </div>
@@ -896,6 +903,7 @@
                             Signaler un problème
                         </button>
                     </div>
+                    <p id="client-modal-feedback" class="text-sm font-medium hidden transition-opacity mt-2 text-center"></p>
                 </div>
 
                 <!-- Dispute Messaging Section -->
@@ -924,6 +932,7 @@
                         <button type="button" data-action="buyer-accept-dispute-offer" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white text-[10px] font-black uppercase tracking-widest">Accepter l'offre</button>
                         <button type="button" data-action="buyer-reject-dispute-offer" class="py-3 rounded-xl bg-white border border-orange-200 text-orange-700 hover:bg-orange-50 text-[10px] font-black uppercase tracking-widest">Refuser</button>
                     </div>
+                    <p id="client-dispute-feedback" class="text-sm font-medium hidden transition-opacity mt-2 text-center"></p>
                 </div>
 
                 <!-- Actions -->
@@ -1097,6 +1106,24 @@
         }
         window.switchTab = switchTab;
 
+        function showInlineMessage(elementId, message, type = 'success', duration = 4000) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.textContent = message;
+            el.className = `text-sm font-medium mt-3 transition-opacity duration-300 ${type === 'success' ? 'text-green-600' : type === 'warning' ? 'text-orange-500' : 'text-red-500'}`;
+            el.classList.remove('hidden');
+            el.style.opacity = '1';
+            
+            if (el._timeoutId) clearTimeout(el._timeoutId);
+            
+            if (duration > 0) {
+                el._timeoutId = setTimeout(() => {
+                    el.style.opacity = '0';
+                    setTimeout(() => el.classList.add('hidden'), 300);
+                }, duration);
+            }
+        }
+
         function bindCustomerDashboardActions() {
             document.querySelectorAll('[data-switch-customer-tab]').forEach((link) => {
                 if (link.dataset.bound === 'true') return;
@@ -1144,16 +1171,18 @@
             document.getElementById('btnOpenDispute')?.addEventListener('click', showDisputeModal);
             document.getElementById('btnSendDisputeMessage')?.addEventListener('click', () => {
                 if (typeof window.sendDisputeMessage === 'function') return window.sendDisputeMessage();
-                // Avoid hard crash if the dispute module hasn't been loaded yet.
-                showToast('Messagerie indisponible. Veuillez r\u00e9essayer dans un instant.', 'error');
+                showToast('Messagerie indisponible. Veuillez réessayer dans un instant.', 'error');
+                setTimeout(() => window.location.reload(), 2500);
             });
             document.querySelector('[data-action="buyer-accept-dispute-offer"]')?.addEventListener('click', () => {
                 if (typeof window.handleBuyerAcceptDisputeOffer === 'function') return window.handleBuyerAcceptDisputeOffer();
-                showToast('Action indisponible. Veuillez r\u00e9essayer.', 'error');
+                showToast('Action indisponible. Actualisation en cours…', 'warning');
+                setTimeout(() => window.location.reload(), 2000);
             });
             document.querySelector('[data-action="buyer-reject-dispute-offer"]')?.addEventListener('click', () => {
                 if (typeof window.handleBuyerRejectDisputeOffer === 'function') return window.handleBuyerRejectDisputeOffer();
-                showToast('Action indisponible. Veuillez r\u00e9essayer.', 'error');
+                showToast('Action indisponible. Actualisation en cours…', 'warning');
+                setTimeout(() => window.location.reload(), 2000);
             });
             document.querySelector('[data-action="download-invoice"]')?.addEventListener('click', downloadInvoice);
             document.addEventListener('DOMContentLoaded', () => {
@@ -1184,12 +1213,12 @@
             if (!file || customerAvatarUploadInFlight) return;
 
             if (!file.type || !file.type.startsWith('image/')) {
-                showToast('Choisissez une image valide.', 'error');
+                showInlineMessage('avatar-feedback', 'Choisissez une image valide.', 'error');
                 return;
             }
 
             if (file.size > 2 * 1024 * 1024) {
-                showToast('Image trop lourde. Maximum 2 Mo.', 'error');
+                showInlineMessage('avatar-feedback', 'Image trop lourde. Maximum 2 Mo.', 'error');
                 return;
             }
 
@@ -1220,12 +1249,12 @@
 
                 const currentName = currentProfile.username || currentProfile.name || localStorage.getItem('newketUserUsername') || localStorage.getItem('newketUserName') || user.email || 'Utilisateur';
                 renderCustomerProfileAvatarPreview(currentName, publicUrl);
-                showToast('Photo de profil mise à jour.', 'success');
+                showInlineMessage('avatar-feedback', 'Photo de profil mise à jour.', 'success');
             } catch (error) {
                 console.error('[Customer Avatar] Upload error:', error);
                 const uploadError = window.SupabaseAdapter?.getLastUploadError?.() || error;
                 const readableError = window.SupabaseAdapter?.getReadableUploadError?.(uploadError) || error?.message;
-                showToast(readableError || 'Erreur lors de la mise a jour de la photo.', 'error');
+                showInlineMessage('avatar-feedback', readableError || 'Erreur lors de la mise a jour de la photo.', 'error');
             } finally {
                 customerAvatarUploadInFlight = false;
                 const input = document.getElementById('customerAvatarUploadInput');
@@ -1327,7 +1356,6 @@
                 locateBtn.addEventListener('click', () => {
                     if (!navigator.geolocation) {
                         setCustomerResidenceStatus('La geolocalisation est indisponible sur ce navigateur.', 'error');
-                        showToast('Geolocalisation indisponible.', 'warning');
                         return;
                     }
 
@@ -1372,7 +1400,6 @@
                     const city = cityInput.value.trim() || 'Kinshasa';
                     if (!Number.isFinite(customerResidenceSelection?.lat) || !Number.isFinite(customerResidenceSelection?.lng)) {
                         setCustomerResidenceStatus('Choisissez votre residence sur la carte avant de sauvegarder.', 'warning');
-                        showToast('Selectionnez votre residence sur la carte.', 'warning');
                         return;
                     }
 
@@ -1394,7 +1421,6 @@
                     customerResidenceSelection = payload;
                     setCustomerResidenceBadge(true);
                     setCustomerResidenceStatus('Residence sauvegardee. Le checkout utilisera cette position par defaut.', 'success');
-                    showToast('Residence de livraison sauvegardee.', 'success');
                 });
                 saveBtn.dataset.bound = 'true';
             }
@@ -1557,7 +1583,11 @@
             } catch (error) {
                 console.error('Customer device push toggle error:', error);
                 toggle.checked = !enable;
-                if (window.showToast) showToast("Impossible de modifier les notifications appareil.", 'error');
+                const isDenied = error?.message?.includes('denied') || error?.message?.includes('permission');
+                const msg = isDenied
+                    ? 'Notifications bloquées par votre navigateur. Autorisez-les dans les paramètres de votre navigateur.'
+                    : "Impossible de modifier les notifications. Vérifiez votre connexion et réessayez.";
+                showInlineMessage('push-feedback', msg, 'warning');
             } finally {
                 toggle.disabled = false;
                 await refreshCustomerDevicePushStatus();
@@ -1751,7 +1781,7 @@
             const lastName = document.getElementById('profLastName').value.trim();
             const username = document.getElementById('profUsername').value.trim().toLowerCase().replace(/\s+/g, '');
             if (!username || username.length < 8 || !/^[a-z0-9_-]+$/.test(username) || !/[a-z]/.test(username)) {
-                showToast('Le nom d\'utilisateur doit contenir au moins 8 caracteres, en minuscules, avec au moins une lettre.', 'error');
+                showInlineMessage('profile-feedback', 'Le nom d\'utilisateur doit contenir au moins 8 caractères, en minuscules, avec au moins une lettre.', 'error');
                 return;
             }
             const profile = {
@@ -1773,16 +1803,16 @@
                 window.ProfileManager?.saveProfile?.({ ...profile, ...saved, phone: savedPhone });
                 document.getElementById('userDisplayName').textContent = (saved.username || saved.name || username) || 'Mon Compte';
                 renderAvatar(saved.username || saved.name || username, (saved.avatar || profile.avatar) || localStorage.getItem('newketUserAvatar'), 'userAvatarImg', 'userAvatarPlaceholder');
-                showToast('Profil mis à jour avec succès !', 'success');
+                showInlineMessage('profile-feedback', 'Profil mis à jour avec succès !', 'success');
             } catch (err) {
                 console.error('[Customer Profile] Update error:', err);
                 const message = String(err?.message || '').toLowerCase();
                 if (message.includes('14 jours') || message.includes('14 day')) {
-                    showToast("Vous ne pouvez modifier votre nom d'utilisateur qu'une fois tous les 14 jours.", 'error');
+                    showInlineMessage('profile-feedback', "Vous ne pouvez modifier votre nom d'utilisateur qu'une fois tous les 14 jours.", 'error');
                 } else if (message.includes('deja pris') || message.includes('déjà pris') || message.includes('already taken')) {
-                    showToast("Ce nom d'utilisateur est déjà pris ou encore réservé.", 'error');
+                    showInlineMessage('profile-feedback', "Ce nom d'utilisateur est déjà pris ou encore réservé.", 'error');
                 } else {
-                    showToast('Erreur lors de la mise à jour du profil.', 'error');
+                    showInlineMessage('profile-feedback', 'Erreur lors de la mise à jour du profil.', 'error');
                 }
             }
         });
@@ -1806,6 +1836,45 @@
             }
         }
 
+        // Password Form — indicateur de règles en temps réel
+        (function initPasswordStrengthIndicator() {
+            const newPwdInput = document.getElementById('newPassword');
+            if (!newPwdInput) return;
+
+            const rules = [
+                { id: 'rule-len',    label: '8 caractères minimum',             test: v => v.length >= 8 },
+                { id: 'rule-lower',  label: 'Une minuscule',                     test: v => /[a-z]/.test(v) },
+                { id: 'rule-upper',  label: 'Une majuscule',                     test: v => /[A-Z]/.test(v) },
+                { id: 'rule-digit',  label: 'Un chiffre',                        test: v => /[0-9]/.test(v) },
+                { id: 'rule-special',label: 'Un caractère spécial (!, @, #…)',   test: v => /[^A-Za-z0-9]/.test(v) },
+            ];
+
+            const indicator = document.createElement('div');
+            indicator.id = 'pw-strength-indicator';
+            indicator.className = 'mt-2 grid grid-cols-2 gap-1 text-xs hidden';
+            indicator.innerHTML = rules.map(r => `
+                <div id="${r.id}" class="flex items-center gap-1 text-gray-400 transition-colors duration-200">
+                    <iconify-icon icon="solar:close-circle-bold" width="14" class="shrink-0 rule-icon-fail"></iconify-icon>
+                    <iconify-icon icon="solar:check-circle-bold" width="14" class="shrink-0 rule-icon-ok hidden text-green-500"></iconify-icon>
+                    <span>${r.label}</span>
+                </div>`).join('');
+            newPwdInput.parentNode.insertBefore(indicator, newPwdInput.nextSibling);
+
+            newPwdInput.addEventListener('focus', () => indicator.classList.remove('hidden'));
+            newPwdInput.addEventListener('input', () => {
+                const v = newPwdInput.value;
+                rules.forEach(r => {
+                    const el = document.getElementById(r.id);
+                    if (!el) return;
+                    const ok = r.test(v);
+                    el.classList.toggle('text-green-600', ok);
+                    el.classList.toggle('text-gray-400', !ok);
+                    el.querySelector('.rule-icon-fail')?.classList.toggle('hidden', ok);
+                    el.querySelector('.rule-icon-ok')?.classList.toggle('hidden', !ok);
+                });
+            });
+        })();
+
         // Password Form Submit
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1814,15 +1883,25 @@
             const cp = (document.getElementById('confirmPassword')?.value || '').trim();
             const requiresCurrentPassword = !!window.AuthManager?.requiresCurrentPassword?.();
 
-            if (requiresCurrentPassword && !currentPass) { showToast('Veuillez saisir votre mot de passe actuel.', 'error'); return; }
-            if (!np) { showToast('Veuillez saisir un nouveau mot de passe.', 'error'); return; }
-            if (np.length < 8) { showToast('Le mot de passe doit faire au moins 8 caractères.', 'error'); return; }
-            if (!/[a-z]/.test(np)) { showToast('Le mot de passe doit contenir au moins une minuscule.', 'error'); return; }
-            if (!/[A-Z]/.test(np)) { showToast('Le mot de passe doit contenir au moins une majuscule.', 'error'); return; }
-            if (!/[0-9]/.test(np)) { showToast('Le mot de passe doit contenir au moins un chiffre.', 'error'); return; }
-            if (!/[^A-Za-z0-9]/.test(np)) { showToast('Le mot de passe doit contenir au moins un caractère spécial (!, @, #, $…).', 'error'); return; }
-            if (currentPass && np === currentPass) { showToast('Le nouveau mot de passe doit être différent de l\'actuel.', 'error'); return; }
-            if (np !== cp) { showToast('Les mots de passe ne correspondent pas.', 'error'); return; }
+            if (requiresCurrentPassword && !currentPass) { showInlineMessage('password-feedback', 'Veuillez saisir votre mot de passe actuel.', 'error'); return; }
+
+            // Valider toutes les règles en une seule passe
+            const failedRules = [];
+            if (!np)                        failedRules.push('Mot de passe vide');
+            if (np.length < 8)              failedRules.push('8 caractères minimum requis');
+            if (!/[a-z]/.test(np))          failedRules.push('Minuscule requise');
+            if (!/[A-Z]/.test(np))          failedRules.push('Majuscule requise');
+            if (!/[0-9]/.test(np))          failedRules.push('Chiffre requis');
+            if (!/[^A-Za-z0-9]/.test(np))   failedRules.push('Caractère spécial requis');
+
+            if (failedRules.length > 0) {
+                document.getElementById('newPassword')?.focus();
+                document.getElementById('pw-strength-indicator')?.classList.remove('hidden');
+                showInlineMessage('password-feedback', 'Votre mot de passe ne respecte pas toutes les règles de sécurité.', 'error');
+                return;
+            }
+            if (currentPass && np === currentPass) { showInlineMessage('password-feedback', 'Le nouveau mot de passe doit être différent de l\'actuel.', 'error'); return; }
+            if (np !== cp) { showInlineMessage('password-feedback', 'Les mots de passe ne correspondent pas.', 'error'); return; }
 
             try {
                 if (!window.AuthManager || typeof window.AuthManager.changePassword !== 'function') {
@@ -1834,10 +1913,11 @@
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
-                showToast('Mot de passe mis à jour avec succès !', 'success');
+                document.getElementById('pw-strength-indicator')?.classList.add('hidden');
+                showInlineMessage('password-feedback', 'Mot de passe mis à jour avec succès !', 'success');
             } catch (err) {
                 console.error('Erreur password:', err);
-                showToast('Erreur lors de la mise à jour : ' + err.message, 'error');
+                showInlineMessage('password-feedback', 'Erreur lors de la mise à jour : ' + err.message, 'error');
             }
         });
 
@@ -1854,7 +1934,10 @@
                     const email = sessionData?.session?.user?.email;
 
                     if (!email) {
-                        showToast('Impossible de récupérer votre adresse email. Veuillez vous reconnecter.', 'error');
+                        showInlineMessage('forgot-password-feedback', 'Session expirée. Redirection vers la connexion…', 'warning');
+                        setTimeout(() => {
+                            window.location.href = (window.resolvePath?.('pages/login') || '/login') + '?redirect=dashboard';
+                        }, 2000);
                         return;
                     }
 
@@ -1863,13 +1946,13 @@
 
                     if (error) throw error;
 
-                    showToast(
+                    showInlineMessage('forgot-password-feedback',
                         `Un lien de réinitialisation a été envoyé à ${email}. Vérifiez votre boîte mail.`,
                         'success'
                     );
                 } catch (err) {
                     console.error('[Security] Forgot password error:', err);
-                    showToast(err?.message || 'Erreur lors de l\'envoi de l\'email. Réessayez.', 'error');
+                    showInlineMessage('forgot-password-feedback', err?.message || 'Erreur lors de l\'envoi de l\'email. Réessayez.', 'error');
                 } finally {
                     customerForgotPasswordBtn.disabled = false;
                     customerForgotPasswordBtn.textContent = 'Mot de passe oublié ?';
@@ -1969,7 +2052,7 @@
         if (registerPasskeyBtnCust) {
             registerPasskeyBtnCust.addEventListener('click', async () => {
                 if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
-                    showToast("Votre navigateur ne supporte pas encore cette fonctionnalité.", "error");
+                    showInlineMessage('passkey-feedback', "Votre navigateur ne supporte pas encore cette fonctionnalité.", 'error');
                     return;
                 }
                 const originalText = registerPasskeyBtnCust.innerHTML;
@@ -1978,7 +2061,7 @@
                 try {
                     const { data, error } = await window.supabaseClient.auth.registerPasskey();
                     if (error) throw error;
-                    showToast("Clé d'accès créée avec succès !", "success");
+                    showInlineMessage('passkey-feedback', "Clé d'accès créée avec succès !", 'success');
                     loadCustomerPasskeys();
                 } catch (err) {
                     console.error('Passkey registration error:', err);
@@ -1986,7 +2069,7 @@
                     if (msg.includes('cancelled') || msg.includes('cancel')) {
                         msg = "Création annulée.";
                     }
-                    showToast(msg, 'error');
+                    showInlineMessage('passkey-feedback', msg, 'error');
                 } finally {
                     registerPasskeyBtnCust.innerHTML = originalText;
                     registerPasskeyBtnCust.disabled = false;
@@ -2099,7 +2182,7 @@
 
             const code = claimInput.value.trim();
             if (!code) {
-                showToast('Colle un code de parrainage avant de valider.', 'warning');
+                showInlineMessage('referral-feedback', 'Colle un code de parrainage avant de valider.', 'warning');
                 return;
             }
 
@@ -2114,11 +2197,11 @@
 
                 localStorage.removeItem('newketReferralCode');
                 if (hint) hint.textContent = 'Code validé. Le parrainage est maintenant rattaché à ton compte.';
-                showToast('Code de parrainage validé.', 'success');
+                showInlineMessage('referral-feedback', 'Code de parrainage validé.', 'success');
                 await refreshReferralPanel();
             } catch (error) {
                 console.error('[Customer Referral] Claim error:', error);
-                showToast(error?.message || 'Impossible de valider ce code.', 'error');
+                showInlineMessage('referral-feedback', error?.message || 'Impossible de valider ce code.', 'error');
             } finally {
                 button.disabled = false;
                 button.textContent = 'Valider';
@@ -2132,22 +2215,35 @@
             const codeInput = document.getElementById('referralCodeDisplay');
             const linkInput = document.getElementById('referralLinkDisplay');
 
-            const copyValue = async (value, label) => {
+            const copyValue = async (value, label, btn) => {
                 if (!value) return;
+                const original = btn?.innerHTML;
                 try {
                     await navigator.clipboard.writeText(value);
-                    showToast(`${label} copié.`, 'success');
+                    if (btn) {
+                        btn.innerHTML = '<iconify-icon icon="solar:check-read-linear" width="14"></iconify-icon> Copié !';
+                        btn.classList.add('bg-green-600', 'text-white', 'border-green-600');
+                        btn.classList.remove('bg-black', 'bg-white', 'border-gray-200');
+                        setTimeout(() => {
+                            btn.innerHTML = original;
+                            btn.classList.remove('bg-green-600', 'text-white', 'border-green-600');
+                            btn.classList.add(label === 'Code' ? 'bg-black' : 'bg-white', label === 'Lien' ? 'border-gray-200' : '');
+                        }, 2000);
+                    }
                 } catch {
-                    showToast('Impossible de copier automatiquement.', 'warning');
+                    if (btn) {
+                        btn.innerHTML = '✗ Erreur';
+                        setTimeout(() => { btn.innerHTML = original; }, 2000);
+                    }
                 }
             };
 
             if (codeBtn && codeInput) {
-                codeBtn.addEventListener('click', () => copyValue(codeInput.value, 'Code'));
+                codeBtn.addEventListener('click', () => copyValue(codeInput.value, 'Code', codeBtn));
             }
 
             if (linkBtn && linkInput) {
-                linkBtn.addEventListener('click', () => copyValue(linkInput.value, 'Lien'));
+                linkBtn.addEventListener('click', () => copyValue(linkInput.value, 'Lien', linkBtn));
             }
 
             if (claimBtn) {
@@ -3589,11 +3685,11 @@
                     btn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Traitement...';
 
                     await OrderManager.confirmCompletion(currentSelectedOrder.id);
-                    showToast('Fonds libérés avec succès.', 'success');
+                    showInlineMessage('client-modal-feedback', 'Fonds libérés avec succès.', 'success');
                     closeOrderModal();
                     await loadDashboardData();
                 } catch (error) {
-                    showToast(error.message || 'Erreur lors de la validation', 'error');
+                    showInlineMessage('client-modal-feedback', error.message || 'Erreur lors de la validation', 'error');
                     console.error(error);
                 } finally {
                     const btn = document.getElementById('btnValidateDelivery');
@@ -3640,11 +3736,11 @@
                     action: 'ACCEPT',
                     quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
                 });
-                showToast('Devis accepté. Vous pouvez maintenant passer au paiement.', 'success');
+                showInlineMessage('client-modal-feedback', 'Devis accepté. Vous pouvez maintenant passer au paiement.', 'success');
                 closeOrderModal();
                 await loadDashboardData();
             } catch (error) {
-                showToast(error.message || "Erreur lors de l'acceptation du devis", 'error');
+                showInlineMessage('client-modal-feedback', error.message || "Erreur lors de l'acceptation du devis", 'error');
             } finally {
                 const btn = document.getElementById('btnAcceptQuote');
                 btn.disabled = false;
@@ -3662,11 +3758,11 @@
                     action: 'REJECT',
                     quote_id: currentSelectedOrder.latest_delivery_quote?.id || null
                 });
-                showToast('Devis refusé. La demande a été clôturée.', 'warning');
+                showInlineMessage('client-modal-feedback', 'Devis refusé. La demande a été clôturée.', 'warning');
                 closeOrderModal();
                 await loadDashboardData();
             } catch (error) {
-                showToast(error.message || 'Erreur lors du refus du devis', 'error');
+                showInlineMessage('client-modal-feedback', error.message || 'Erreur lors du refus du devis', 'error');
             } finally {
                 const btn = document.getElementById('btnRejectQuote');
                 btn.disabled = false;
@@ -3751,14 +3847,14 @@
 
                 for (const file of toAdd) {
                     if (file.size > 5 * 1024 * 1024) {
-                        showToast(`"${file.name}" dépasse 5 Mo — ignoré.`, 'warning');
+                        showInlineMessage('open-dispute-feedback', `"${file.name}" dépasse 5 Mo — ignoré.`, 'warning');
                         continue;
                     }
                     disputePhotoFiles.push({ file, previewUrl: URL.createObjectURL(file) });
                 }
 
                 if (files.length > remaining) {
-                    showToast(`Maximum 5 photos. ${files.length - remaining} fichier(s) ignoré(s).`, 'warning');
+                    showInlineMessage('open-dispute-feedback', `Maximum 5 photos. ${files.length - remaining} fichier(s) ignoré(s).`, 'warning');
                 }
 
                 _updateDisputePhotoUI();
@@ -3808,12 +3904,12 @@
             const videoLink = document.getElementById('disputeVideoLink').value.trim();
 
             if (!category || !description) {
-                showToast('Catégorie et description sont obligatoires.', 'error');
+                showInlineMessage('open-dispute-feedback', 'Catégorie et description sont obligatoires.', 'error');
                 return;
             }
 
             if (disputePhotoFiles.length < 2) {
-                showToast(`Minimum 2 photos requises. Vous en avez ${disputePhotoFiles.length}.`, 'error');
+                showInlineMessage('open-dispute-feedback', `Minimum 2 photos requises. Vous en avez ${disputePhotoFiles.length}.`, 'error');
                 return;
             }
 
@@ -3849,11 +3945,11 @@
                 // 3. Soumettre le litige
                 await OrderManager.openDispute(currentSelectedOrder.id, category, description, evidence);
 
-                showToast('Litige ouvert. Notre équipe va analyser votre demande dans les 24h.', 'warning');
+                showInlineMessage('client-modal-feedback', 'Litige ouvert. Notre équipe va analyser votre demande dans les 24h.', 'warning');
                 closeDisputeModal();
                 await loadDashboardData();
             } catch (error) {
-                showToast(error.message || 'Erreur lors de l\'ouverture du litige', 'error');
+                showInlineMessage('open-dispute-feedback', error.message || 'Erreur lors de l\'ouverture du litige', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<iconify-icon icon="solar:danger-triangle-linear" width="20"></iconify-icon> Soumettre le litige';
@@ -3982,7 +4078,7 @@
                 input.value = '';
                 // Realtime push le nouveau message automatiquement
             } catch (error) {
-                showToast('Erreur d\'envoi du message', 'error');
+                showInlineMessage('client-dispute-feedback', 'Erreur d\'envoi du message', 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<iconify-icon icon="solar:plain-bold" width="20"></iconify-icon>';
@@ -3993,11 +4089,11 @@
             if (!currentSelectedDispute) return;
             try {
                 await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'ACCEPT' });
-                showToast("Proposition vendeur acceptée.", 'success');
+                showInlineMessage('client-dispute-feedback', "Proposition vendeur acceptée.", 'success');
                 await loadDashboardData();
                 await loadDisputeChat(currentSelectedOrder.id);
             } catch (error) {
-                showToast(error.message || "Erreur lors de l'acceptation.", 'error');
+                showInlineMessage('client-dispute-feedback', error.message || "Erreur lors de l'acceptation.", 'error');
             }
         };
 
@@ -4005,11 +4101,11 @@
             if (!currentSelectedDispute) return;
             try {
                 await OrderManager.buyerRespondToDispute(currentSelectedDispute.id, { action: 'REJECT' });
-                showToast("Le dossier passe en arbitrage plateforme.", 'warning');
+                showInlineMessage('client-dispute-feedback', "Le dossier passe en arbitrage plateforme.", 'warning');
                 await loadDashboardData();
                 await loadDisputeChat(currentSelectedOrder.id);
             } catch (error) {
-                showToast(error.message || "Erreur lors du refus.", 'error');
+                showInlineMessage('client-dispute-feedback', error.message || "Erreur lors du refus.", 'error');
             }
         };
         // ========================================================================
@@ -4226,7 +4322,7 @@
             const printDocument = printFrame.contentWindow?.document;
             if (!printDocument) {
                 printFrame.remove();
-                showToast('Impossible de préparer la facture.', 'error');
+                showInlineMessage('client-modal-feedback', 'Impossible de préparer la facture.', 'error');
                 return;
             }
 
@@ -4476,6 +4572,8 @@
                 </div>
             </div>
             
+            <p id="open-dispute-feedback" class="text-sm font-medium px-6 hidden transition-opacity text-center"></p>
+
             <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-2xl">
                 <button type="button" data-action="close-dispute-modal" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-100 transition-colors">
                     Annuler

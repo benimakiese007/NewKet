@@ -113,6 +113,24 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    headers: {
+      'Content-Security-Policy': [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "frame-ancestors 'self'",
+        "form-action 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.iconify.design https://va.vercel-scripts.com https://unpkg.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://browser.sentry-cdn.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
+        "font-src 'self' https://fonts.gstatic.com data:",
+        "img-src 'self' data: blob: https:",
+        "connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 ws://localhost:5173 wss://localhost:5173 https://unpkg.com https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://*.ingest.sentry.io https://*.sentry.io https://*.ingest.de.sentry.io https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://fonts.googleapis.com https://fonts.gstatic.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com",
+        "media-src 'self' blob: https:",
+        "worker-src 'self' blob:",
+        "frame-src 'self'",
+        "manifest-src 'self'",
+      ].join('; '),
+    },
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:3000',
