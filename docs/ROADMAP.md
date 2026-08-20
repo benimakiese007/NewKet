@@ -45,5 +45,15 @@ Ce document liste les prochaines grandes fonctionnalités (features) prévues po
 *   **Concept :** Permettre à n'importe quel utilisateur (ou influenceur) de générer un lien d'affiliation vers un produit. Si une vente est réalisée via ce lien (partagé sur TikTok, WhatsApp, etc.), l'ambassadeur touche une petite commission.
 *   *Avantage : Transformation de la base d'utilisateurs en une force de vente décentralisée et motivée.*
 
+## 9. Limites de Prix Produit (Min/Max)
+**Objectif :** Garantir la cohérence du catalogue et protéger la réputation de la plateforme.
+*   **Concept :** Définir et implémenter un montant minimum et un montant maximum qu'un vendeur peut saisir lors de la publication d'un produit.
+*   **Pourquoi :** Éviter les prix aberrants (ex: 0.01$ ou 999 999$) qui nuisent à la confiance des acheteurs et à la crédibilité de la marketplace.
+*   **Références marché :**
+    - **Amazon** : Minimum ~0,50$ (lié aux frais de référencement), Maximum plafonné automatiquement.
+    - **Vinted / Jumia / Alibaba / Cdiscount** : Aucune limite technique stricte, mais contrôles qualité automatiques.
+*   **À définir par l'équipe :** Les valeurs exactes (ex: Min = 500 CDF / Max = 10 000 USD) selon le contexte marché congolais.
+*   *Priorité : Court terme — à implémenter lors de la finalisation du formulaire de publication (`publish.html`).*
+
 ---
 *Note technique : Conformément aux directives de sécurité et de simplification, NewKet ne gère pas de système de "Wallet" (portefeuille interne) stockant l'argent des utilisateurs sur la plateforme à long terme. Tous les flux passent directement par le système de paiement et le séquestre.*

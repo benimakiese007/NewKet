@@ -233,7 +233,7 @@
 
     <main class="dashboard-main-offset w-full max-w-none pb-12 lg:pb-16 flex flex-col lg:flex-row lg:gap-8 relative pt-24 sm:pt-28 lg:pt-32">
         <!-- Sidebar -->
-        <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-64 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto border-0 lg:border-r border-gray-100 flex-shrink-0">
+        <aside id="customerSidebar" class="fixed inset-0 w-screen max-w-none bg-white z-[120] transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:w-64 lg:relative transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) h-screen lg:h-auto overflow-y-auto modal-scroll border-0 lg:border-r border-gray-100 flex-shrink-0">
 
 
             <!-- Desktop/Tablet Collapse Toggle -->
@@ -769,7 +769,7 @@
     <div id="orderModal" style="display: none;"
         class="fixed inset-0 z-[200] hidden flex items-center justify-center bg-black/60  p-4">
         <div
-            class="bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden animate-in fade-in zoom-in duration-300">
+            class="bg-white rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-scroll overflow-x-hidden animate-in fade-in zoom-in duration-300">
             <div class="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white z-10">
                 <div>
                     <h2 class="text-xl font-bold" id="modalOrderIdText">Détails de la demande</h2>
@@ -916,7 +916,7 @@
                         <span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">Admin + Vendeur + Vous</span>
                     </div>
                     
-                    <div id="disputeChatContainer" class="bg-gray-50 rounded-2xl p-4 h-64 overflow-y-auto flex flex-col gap-3 scroll-smooth border border-gray-100">
+                    <div id="disputeChatContainer" class="bg-gray-50 rounded-2xl p-4 h-64 overflow-y-auto modal-scroll flex flex-col gap-3 scroll-smooth border border-gray-100">
                         <!-- Messages loaded here -->
                     </div>
 
@@ -3160,7 +3160,7 @@
                                                     <iconify-icon icon="solar:close-circle-bold" width="20"></iconify-icon>
                                                 </button>
                                             </div>
-                                            <div class="p-5 overflow-y-auto">
+                                            <div class="p-5 overflow-y-auto modal-scroll">
                                                 <div class="text-left space-y-3">
                                                     <div class="flex justify-between border-b border-gray-100 pb-3">
                                                         <span class="text-gray-500 font-medium">Montant commande</span>
@@ -4497,7 +4497,7 @@
                 </button>
             </div>
             
-            <div class="p-6 overflow-y-auto space-y-5">
+            <div class="p-6 overflow-y-auto modal-scroll space-y-5">
                 <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3 text-sm text-orange-800">
                     <iconify-icon icon="solar:info-circle-linear" class="text-xl shrink-0"></iconify-icon>
                     <p>En ouvrant ce litige, les fonds de votre commande seront partiellement ou totalement gelés en attendant l'évaluation de notre pôle litige.</p>

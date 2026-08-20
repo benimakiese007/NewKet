@@ -511,14 +511,18 @@ const App = {
         applyHeaderScrollState(lastScrollTop);
         window.addEventListener('scroll', queueHeaderScrollUpdate, { passive: true });
 
-        // Global Modal Manager — with robust touch scroll-lock
+        // Global Modal Manager — with robust touch scroll-lock and reference counting
         const setupGlobalModals = () => {
-            let _scrollLockActive = false;
+            window.NewKet = window.NewKet || {};
+            
+            let _lockCount = 0;
             let _savedScrollY = 0;
+            let _failsafeTimer = null;
 
             const lockBodyScroll = () => {
-                if (_scrollLockActive) return;
-                _scrollLockActive = true;
+                _lockCount++;
+                if (_lockCount > 1) return; // Already locked
+                
                 _savedScrollY = window.scrollY || window.pageYOffset || 0;
                 document.body.style.position = 'fixed';
                 document.body.style.top = `-${_savedScrollY}px`;
@@ -527,11 +531,23 @@ const App = {
                 document.body.style.overflow = 'hidden';
                 document.body.style.touchAction = 'none';
                 document.body.style.overscrollBehavior = 'none';
+
+                // Failsafe: if locked for more than 15 seconds, assume a modal was closed without unlocking
+                clearTimeout(_failsafeTimer);
+                _failsafeTimer = setTimeout(() => {
+                    if (_lockCount > 0) {
+                        console.warn('[NewKet] Scroll lock failsafe triggered (15s) — force releasing lock.');
+                        resetScrollLock();
+                    }
+                }, 15000);
             };
 
             const unlockBodyScroll = () => {
-                if (!_scrollLockActive) return;
-                _scrollLockActive = false;
+                if (_lockCount <= 0) return;
+                _lockCount--;
+                if (_lockCount > 0) return; // Still other locks active
+
+                clearTimeout(_failsafeTimer);
                 document.body.style.position = '';
                 document.body.style.top = '';
                 document.body.style.left = '';
@@ -542,101 +558,31 @@ const App = {
                 window.scrollTo({ top: _savedScrollY, left: 0, behavior: 'instant' });
             };
 
-            // Expose globally so external scripts (cart.js, etc.) can use proper scroll lock
+            const resetScrollLock = () => {
+                _lockCount = 0;
+                clearTimeout(_failsafeTimer);
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
+                document.body.style.overflow = '';
+                document.body.style.touchAction = '';
+                document.body.style.overscrollBehavior = '';
+                window.scrollTo({ top: _savedScrollY, left: 0, behavior: 'instant' });
+            };
+
+            // Expose globally
             window._newketLockScroll = lockBodyScroll;
             window._newketUnlockScroll = unlockBodyScroll;
-
-            const isModalNode = (node) => {
-                if (node.nodeType !== Node.ELEMENT_NODE) return false;
-
-                // Exclude structural page elements that are never modals
-                const tag = node.tagName?.toLowerCase();
-                if (tag === 'header' || tag === 'nav' || tag === 'footer' || tag === 'aside') return false;
-                const id = node.id || '';
-                // Exclude known non-modal fixed elements (header, category nav, mobile nav, etc.)
-                if (
-                    id === 'mainHeader' || id === 'categoryNav' || id === 'mobileNav' ||
-                    id === 'mobile-nav-placeholder' || id === 'header-placeholder' ||
-                    id === 'category-nav-placeholder' || id === 'adminSidebar' ||
-                    node.hasAttribute('data-header-shell') || node.hasAttribute('data-nav-shell')
-                ) return false;
-
-                const role = node.getAttribute('role');
-                const classes = node.className || '';
-                // Must be a real dialog role, end with Modal/modal, or explicitly be a modal overlay
-                if (role === 'dialog') return true;
-                if (id.toLowerCase().endsWith('modal')) return true;
-                // Only match fixed + inset-0 if it also has aria-modal or a data-modal marker
-                if (
-                    typeof classes === 'string' &&
-                    classes.includes('modal') &&
-                    classes.includes('fixed') &&
-                    (node.getAttribute('aria-modal') === 'true' || node.hasAttribute('data-modal'))
-                ) return true;
-
-                return false;
+            window.NewKet.scrollLock = {
+                lock: lockBodyScroll,
+                unlock: unlockBodyScroll,
+                reset: resetScrollLock
             };
-
-            const isNodeVisible = (node) => {
-                if (node.classList.contains('hidden') || node.classList.contains('invisible') || node.style.display === 'none' || node.style.opacity === '0') return false;
-                const style = window.getComputedStyle(node);
-                return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
-            };
-
-            const checkAnyModalOpen = () => {
-                // Use a tighter selector: require aria-modal or data-modal to avoid matching the header
-                const modals = document.querySelectorAll(
-                    '[role="dialog"][aria-modal="true"], [id$="Modal"], [id$="modal"], [data-modal]'
-                );
-                let anyOpen = false;
-                for (const m of modals) {
-                    if (isModalNode(m) && isNodeVisible(m) && (m.classList.contains('fixed') || window.getComputedStyle(m).position === 'fixed')) {
-                        anyOpen = true;
-                        break;
-                    }
-                }
-                if (anyOpen) {
-                    lockBodyScroll();
-                } else {
-                    unlockBodyScroll();
-                }
-            };
-
-            // Observe DOM for class/style changes on modals to toggle body overflow
-            const modalObserver = new MutationObserver((mutations) => {
-                let shouldCheck = false;
-                for (const m of mutations) {
-                    if (m.type === 'attributes' && (m.attributeName === 'class' || m.attributeName === 'style')) {
-                        if (isModalNode(m.target)) {
-                            shouldCheck = true;
-                            break;
-                        }
-                    }
-                }
-                if (shouldCheck) {
-                    checkAnyModalOpen();
-                }
-            });
-
-            modalObserver.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class', 'style'] });
-
-            // Initial check — but also add a safety failsafe:
-            // If after 1s the scroll is still locked but no real modal is detected, force-unlock.
-            setTimeout(checkAnyModalOpen, 500);
-            setTimeout(() => {
-                if (_scrollLockActive) {
-                    checkAnyModalOpen();
-                    // If still locked with no modal, force-release
-                    if (_scrollLockActive) {
-                        console.warn('[NewKet] Scroll lock failsafe triggered — no visible modal found, releasing lock.');
-                        unlockBodyScroll();
-                    }
-                }
-            }, 1200);
 
             // Prevent touch scroll chaining: block touchmove on modal backdrop only
             document.addEventListener('touchmove', (e) => {
-                if (!_scrollLockActive) return;
+                if (_lockCount <= 0) return;
                 const touch = e.touches[0];
                 if (!touch) return;
                 const el = document.elementFromPoint(touch.clientX, touch.clientY);

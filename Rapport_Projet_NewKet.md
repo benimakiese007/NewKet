@@ -165,6 +165,7 @@ Afin d'assurer le lancement et l'évolution de la Marketplace, voici notre feuil
 - **Visibilité (SEO & GEO) :** Optimisation du référencement naturel (SEO) et du référencement génératif par IA (GEO) pour garantir une bonne visibilité de la plateforme.
 - **Authentification Mobile & Sociale :** Intégration et test de l'authentification par numéro de téléphone (OTP par SMS) ainsi que la connexion via Facebook (cette dernière nécessitera également la soumission des documents de l'entreprise).
 - **Intégration FlexPaie :** Soumission des documents administratifs, paiement des frais d'activation et intégration des clés API pour les paiements réels.
+- **Limites de Prix (Min/Max) :** Définir et implémenter techniquement les montants minimum et maximum autorisés pour la création d'un produit, afin de garantir la cohérence du catalogue et d'éviter les prix aberrants (ex: 0.01$).
 
 ### Moyen Terme (Lancement et Acquisition)
 - **Mise en Production :** Achat du nom de domaine officiel (`newket.market`) et passage au plan d'hébergement Vercel Pro.

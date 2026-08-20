@@ -522,7 +522,7 @@ class CartManager {
                 </div>
                 
                 <!-- Items list -->
-                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 overscroll-contain" style="scrollbar-width: thin;">
+                <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 overscroll-contain modal-scroll">
                     <!-- Items rendered here dynamically -->
                 </div>
                 

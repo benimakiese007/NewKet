@@ -241,7 +241,7 @@ export async function getCommissionRate(client) {
         .select('platform_commission_rate')
         .eq('id', 'global-settings')
         .single();
-    return parseFloat(data?.platform_commission_rate) || 5.0;
+    return parseFloat(data?.platform_commission_rate) || 0.05;
 }
 
 // Note: getPayoutFeeRate() supprimée — remplacée par flexpay-fees.service.js

@@ -1065,9 +1065,9 @@
             drilldownBodyOverflow = document.body.style.overflow;
             if (parentDoc?.body) {
                 drilldownParentOverflow = parentDoc.body.style.overflow;
-                parentDoc.body.style.overflow = 'hidden';
+                if (window.parent && window.parent._newketLockScroll) window.parent._newketLockScroll(); else parentDoc.body.style.overflow = 'hidden';
             }
-            document.body.style.overflow = 'hidden';
+            if (window._newketLockScroll) window._newketLockScroll(); else document.body.style.overflow = 'hidden';
 
             Object.assign(modal.style, {
                 position: 'fixed',
@@ -1161,11 +1161,11 @@
             modal.style.alignItems = '';
             modal.style.justifyContent = '';
             modal.style.overflowY = '';
-            document.body.style.overflow = drilldownBodyOverflow;
+            if (window._newketUnlockScroll) window._newketUnlockScroll(); else document.body.style.overflow = drilldownBodyOverflow;
             try {
                 const parentDoc = window.parent && window.parent !== window ? window.parent.document : null;
                 if (parentDoc?.body) {
-                    parentDoc.body.style.overflow = drilldownParentOverflow;
+                    if (window.parent && window.parent._newketUnlockScroll) window.parent._newketUnlockScroll(); else parentDoc.body.style.overflow = drilldownParentOverflow;
                 }
             } catch (_) {}
             drilldownBodyOverflow = '';
@@ -1435,7 +1435,7 @@
         });
     </script>
 
-    <div id="drilldownModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div id="drilldownModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 sm:p-6 overflow-y-auto modal-scroll">
         <div id="drilldownBackdrop" class="absolute inset-0 bg-black/30"></div>
         <div class="relative z-10 flex w-full justify-center">
             <div class="w-full max-w-4xl max-h-[calc(100dvh-2rem)] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col min-h-0">
@@ -1448,7 +1448,7 @@
                     <button id="drilldownCloseBtn" class="px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-700">Fermer</button>
                 </div>
 
-                <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-y-auto">
+                <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-y-auto modal-scroll">
                     <div class="lg:col-span-1">
                         <div class="font-bold text-gray-900 mb-3">Résumé</div>
                         <div class="space-y-3" id="drilldownList"></div>

@@ -56,8 +56,9 @@ La table `product_variants` actuelle utilise déjà un champ `attributes` de typ
 
 ## Étapes de Développement (Roadmap)
 1. **[Backend/DB]** S'assurer que les requêtes API (ou fonctions Supabase) gèrent correctement la lecture/écriture du JSONB structuré.
-2. **[Frontend - Publication]** Développer le composant de génération de matrice de variantes (UI complexe, nécessite une bonne gestion de l'état en JS).
-3. **[Frontend - Fiche Produit]** Implémenter l'algorithme de croisement (filtrer les tailles disponibles selon la couleur choisie et inversement).
-4. **[Frontend - Panier]** S'assurer que le panier affiche clairement les options sélectionnées (ex: "T-shirt - Bleu / XL") sous le nom du produit.
+2. **[Backend/Validation] Définir les limites de prix (Min/Max) :** Avant toute publication, le backend doit valider que le prix saisi (ainsi que le prix de chaque variante) respecte un montant minimum et un montant maximum définis par la plateforme. Retourner une erreur explicite si la valeur est hors limites.
+3. **[Frontend - Publication]** Développer le composant de génération de matrice de variantes (UI complexe, nécessite une bonne gestion de l'état en JS). Intégrer les messages d'erreur de validation de prix directement dans le formulaire.
+4. **[Frontend - Fiche Produit]** Implémenter l'algorithme de croisement (filtrer les tailles disponibles selon la couleur choisie et inversement).
+5. **[Frontend - Panier]** S'assurer que le panier affiche clairement les options sélectionnées (ex: "T-shirt - Bleu / XL") sous le nom du produit.
 
 Cette fonctionnalité pourra être planifiée pour une release future selon les retours des vendeurs de la marketplace.

@@ -491,7 +491,7 @@
                 </button>
             </div>
             
-            <div class="p-6 overflow-y-auto space-y-6">
+            <div class="p-6 overflow-y-auto modal-scroll space-y-6">
                 <!-- Détails du litige (chargés dynamiquement) -->
                 <div id="adminDisputeDetails" class="hidden space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -602,7 +602,7 @@
         async function openAdminDisputeModal(orderId) {
             document.getElementById('adminDisputeOrderId').textContent = orderId;
             document.getElementById('adminDisputeModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            if(window._newketLockScroll) window._newketLockScroll(); else document.body.style.overflow = 'hidden';
             
             document.getElementById('adminDisputeLoading').classList.remove('hidden');
             document.getElementById('adminDisputeDetails').classList.add('hidden');
@@ -646,7 +646,7 @@
 
         function closeAdminDisputeModal() {
             document.getElementById('adminDisputeModal').classList.add('hidden');
-            document.body.style.overflow = '';
+            if(window._newketUnlockScroll) window._newketUnlockScroll(); else document.body.style.overflow = '';
             // Unsubscribe from dispute realtime
             if (currentDispute?.id) {
                 OrderManager.unsubscribeFromDisputeMessages(currentDispute.id);

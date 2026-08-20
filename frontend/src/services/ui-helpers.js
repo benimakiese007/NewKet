@@ -514,8 +514,7 @@ export const SidebarManager = {
                 sidebar.classList.remove('-translate-x-full');
                 sidebar.classList.add('translate-x-0'); // Ensure it is shown
                 if (overlay) overlay.classList.remove('hidden');
-                document.documentElement.classList.add('overflow-hidden');
-                document.body.classList.add('overflow-hidden');
+                if (window._newketLockScroll) window._newketLockScroll(); else { document.documentElement.classList.add('overflow-hidden'); document.body.classList.add('overflow-hidden'); }
 
                 // After the slide-in transition completes, remove transform to keep text crisp on mobile Safari.
                 // (Transforms + large fixed panels can cause persistent subpixel blur on iOS.)
@@ -531,8 +530,7 @@ export const SidebarManager = {
                 sidebar.classList.remove('translate-x-0'); // Ensure we don't have conflicting translate classes
                 sidebar.classList.add('-translate-x-full');
                 if (overlay) overlay.classList.add('hidden');
-                document.documentElement.classList.remove('overflow-hidden');
-                document.body.classList.remove('overflow-hidden');
+                if (window._newketUnlockScroll) window._newketUnlockScroll(); else { document.documentElement.classList.remove('overflow-hidden'); document.body.classList.remove('overflow-hidden'); }
             }
             // Ensure no collapse state on mobile
             sidebar.classList.remove('sidebar-collapsed');
@@ -543,8 +541,7 @@ export const SidebarManager = {
             sidebar.classList.remove('-translate-x-full');
             sidebar.classList.remove('translate-x-0');
             if (overlay) overlay.classList.add('hidden');
-            document.documentElement.classList.remove('overflow-hidden');
-            document.body.classList.remove('overflow-hidden');
+            if (window._newketUnlockScroll) window._newketUnlockScroll(); else { document.documentElement.classList.remove('overflow-hidden'); document.body.classList.remove('overflow-hidden'); }
 
             if (this.state.isCollapsed) {
                 sidebar.classList.add('sidebar-collapsed');
