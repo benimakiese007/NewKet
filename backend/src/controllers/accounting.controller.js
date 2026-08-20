@@ -22,9 +22,16 @@ export const getKPIs = async (req, res) => {
     if (!assertAdmin(req, res)) return;
 
     try {
+        // Fetch exchange rate to normalize everything to CDF
+        const { data: settings } = await client
+            .from('settings')
+            .select('exchange_rate')
+            .single();
+        const exchangeRate = parseFloat(settings?.exchange_rate) || 2850;
+
         const { data: orders, error } = await client
             .from('orders')
-            .select('status, total_amount, platform_commission_amount, created_at, escrow_status')
+            .select('status, total_amount, platform_commission_amount, created_at, escrow_status, payment_expected_currency')
             .in('status', [ORDER_STATUSES.COMPLETED, ORDER_STATUSES.PAID_HELD, ORDER_STATUSES.DELIVERED]);
 
         if (error) throw error;
@@ -45,9 +52,16 @@ export const getKPIs = async (req, res) => {
         let drrCommission = 0;
 
         orders.forEach(order => {
-            const amount = parseFloat(order.total_amount || 0);
-            const commission = parseFloat(order.platform_commission_amount || 0);
+            let amount = parseFloat(order.total_amount || 0);
+            let commission = parseFloat(order.platform_commission_amount || 0);
             const createdAt = new Date(order.created_at);
+            const currency = order.payment_expected_currency || 'CDF';
+
+            // Normalize to CDF
+            if (currency === 'USD') {
+                amount = amount * exchangeRate;
+                commission = commission * exchangeRate;
+            }
 
             if (order.status === ORDER_STATUSES.COMPLETED) {
                 totalGMV += amount;
@@ -90,9 +104,15 @@ export const getCharts = async (req, res) => {
     if (!assertAdmin(req, res)) return;
 
     try {
+        const { data: settings } = await client
+            .from('settings')
+            .select('exchange_rate')
+            .single();
+        const exchangeRate = parseFloat(settings?.exchange_rate) || 2850;
+
         const { data: orders, error } = await client
             .from('orders')
-            .select('total_amount, platform_commission_amount, created_at')
+            .select('total_amount, platform_commission_amount, created_at, payment_expected_currency')
             .eq('status', ORDER_STATUSES.COMPLETED)
             .order('created_at', { ascending: true });
 
@@ -110,8 +130,17 @@ export const getCharts = async (req, res) => {
         orders.forEach(order => {
             const dateStr = order.created_at.split('T')[0];
             if (daysMap[dateStr] !== undefined) {
-                daysMap[dateStr].gmv += parseFloat(order.total_amount || 0);
-                daysMap[dateStr].commission += parseFloat(order.platform_commission_amount || 0);
+                let amount = parseFloat(order.total_amount || 0);
+                let commission = parseFloat(order.platform_commission_amount || 0);
+                const currency = order.payment_expected_currency || 'CDF';
+
+                if (currency === 'USD') {
+                    amount = amount * exchangeRate;
+                    commission = commission * exchangeRate;
+                }
+
+                daysMap[dateStr].gmv += amount;
+                daysMap[dateStr].commission += commission;
             }
         });
 

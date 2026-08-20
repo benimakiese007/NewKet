@@ -1,5 +1,6 @@
 import { supabaseAdmin, supabase } from '../config/supabase.js';
 import NotificationService from '../services/notificationService.js';
+import { getMaxPayinRate } from '../services/flexpay-fees.service.js';
 import {
     ORDER_STATUSES,
     DELIVERY_QUOTE_STATUSES,
@@ -196,13 +197,28 @@ export const createOrder = async (req, res) => {
         const totalAmount = Number((unitPrice * quantity).toFixed(2));
         const nowIso = new Date().toISOString();
 
+        // Check currency (default to USD if not provided)
+        const currency = req.body?.currency || 'USD';
+        const { rate: payinRate } = await getMaxPayinRate(client, currency);
+
+        let clientTotal = totalAmount;
+        let payinFeeAmount = 0;
+        
+        if (payinRate > 0 && payinRate < 1) {
+            clientTotal = totalAmount / (1 - payinRate);
+            payinFeeAmount = clientTotal - totalAmount;
+        }
+        
+        clientTotal = Math.round(clientTotal * 100) / 100;
+        payinFeeAmount = Math.round(payinFeeAmount * 100) / 100;
+
         const orderPayload = {
             id: generateOrderId(),
             status: ORDER_STATUSES.PENDING,
             payment_status: 'N/A',
             payment_provider: null,
             payment_expected_amount: null,
-            payment_expected_currency: null,
+            payment_expected_currency: currency,
             payment_locked_at: null,
             payment_lock_reason: null,
             transaction_id: null,
@@ -227,6 +243,9 @@ export const createOrder = async (req, res) => {
             subtotal_amount: totalAmount,
             delivery_fee_amount: 0,
             final_total_amount: totalAmount,
+            payin_fee_rate: payinRate * 100,
+            payin_fee_amount: payinFeeAmount,
+            client_total_paid: clientTotal,
             customer_name: customerName,
             customer_email: customerEmail,
             customer_phone: customerPhone,
@@ -498,18 +517,40 @@ export const respondToDeliveryQuote = async (req, res) => {
         };
 
         if (action === 'ACCEPT') {
+            const currency = order.payment_expected_currency || 'USD';
+            const { rate: payinRate } = await getMaxPayinRate(client, currency);
+
             nextStatus = ORDER_STATUSES.READY_FOR_PAYMENT;
             updatePayload.status = nextStatus;
             updatePayload.accepted_delivery_quote_id = quote.id;
             updatePayload.delivery_fee_amount = Number(quote.delivery_fee_amount || 0);
             updatePayload.subtotal_amount = Number(order.merchandise_amount || order.subtotal_amount || order.total || 0);
             updatePayload.promo_discount_amount = Number(order.promo_discount_amount || 0);
-            updatePayload.total_amount = Math.max(
+            
+            const baseAmount = Math.max(
                 0,
-                updatePayload.subtotal_amount + Number(quote.delivery_fee_amount || 0) - updatePayload.promo_discount_amount
+                updatePayload.subtotal_amount + updatePayload.delivery_fee_amount - updatePayload.promo_discount_amount
             );
-            updatePayload.final_total_amount = updatePayload.total_amount;
-            updatePayload.total = updatePayload.total_amount;
+
+            let clientTotal = baseAmount;
+            let payinFeeAmount = 0;
+            
+            if (payinRate > 0 && payinRate < 1) {
+                clientTotal = baseAmount / (1 - payinRate);
+                payinFeeAmount = clientTotal - baseAmount;
+            }
+            
+            clientTotal = Math.round(clientTotal * 100) / 100;
+            payinFeeAmount = Math.round(payinFeeAmount * 100) / 100;
+
+            updatePayload.total_amount = baseAmount;
+            updatePayload.final_total_amount = baseAmount;
+            updatePayload.total = baseAmount;
+            
+            updatePayload.payin_fee_rate = payinRate * 100;
+            updatePayload.payin_fee_amount = payinFeeAmount;
+            updatePayload.client_total_paid = clientTotal;
+            
             updatePayload.cancelled_at = null;
         }
 

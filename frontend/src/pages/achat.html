@@ -378,7 +378,8 @@
             const subtotal = order?.subtotal_amount ?? order?.merchandise_amount ?? order?.total ?? 0;
             const deliveryFee = order?.delivery_fee_amount ?? 0;
             const discount = order?.promo_discount_amount ?? 0;
-            const total = order?.final_total_amount ?? order?.total ?? 0;
+            const payinFee = order?.payin_fee_amount ?? 0;
+            const total = order?.client_total_paid ?? order?.final_total_amount ?? order?.total ?? 0;
             const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : (order.status || '');
             const appliedCode = safeText(order?.promo_code || '');
             // Exchange rate: per-product rate or fallback
@@ -423,6 +424,12 @@
                                     <span class="muted">Livraison</span>
                                     <span class="font-bold text-gray-900" data-price-raw="${deliveryFee}">${formatAmount(deliveryFee)}</span>
                                 </div>
+                                ${payinFee > 0 ? `
+                                <div class="flex justify-between gap-3">
+                                    <span class="muted">Frais de protection acheteur</span>
+                                    <span class="font-bold text-gray-900" data-price-raw="${payinFee}">${formatAmount(payinFee)}</span>
+                                </div>
+                                ` : ''}
                                 <div class="flex justify-between gap-3">
                                     <span class="muted">Remise promo</span>
                                     <span id="promoDiscountValue" class="font-bold text-emerald-700" data-price-raw="${discount}" data-discount="true">${discount > 0 ? '-' : ''}${formatAmount(discount)}</span>
@@ -637,7 +644,7 @@
                 syncPromoSummary({
                     subtotal_amount: order?.subtotal_amount ?? order?.merchandise_amount ?? 0,
                     promo_discount_amount: 0,
-                    total_amount: (order?.subtotal_amount ?? order?.merchandise_amount ?? 0) + (order?.delivery_fee_amount ?? 0)
+                    total_amount: (order?.subtotal_amount ?? order?.merchandise_amount ?? 0) + (order?.delivery_fee_amount ?? 0) + (order?.payin_fee_amount ?? 0)
                 }, null);
             });
 

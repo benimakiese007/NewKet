@@ -2954,7 +2954,8 @@
                 const subtotal = Number(order?.subtotal_amount ?? order?.merchandise_amount ?? order?.total ?? 0);
                 const delivery = Number(order?.delivery_fee_amount ?? 0);
                 const discount = Number(order?.promo_discount_amount ?? 0);
-                const total = Math.max(0, Number(order?.final_total_amount ?? (subtotal + delivery - discount)));
+                const payinFee = Number(order?.payin_fee_amount ?? 0);
+                const total = Math.max(0, Number(order?.client_total_paid ?? order?.final_total_amount ?? (subtotal + delivery + payinFee - discount)));
 
                 const promoCode = safeText(order?.promo_code || '').trim().toUpperCase();
 
@@ -2993,6 +2994,12 @@
                                 <div class="text-xs font-black uppercase tracking-widest text-gray-400">Livraison</div>
                                 <div id="achatDashDelivery" class="mt-2 text-lg font-black text-gray-900">${formatAmount(delivery)}</div>
                             </div>
+                            ${payinFee > 0 ? `
+                            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">Frais de protection acheteur</div>
+                                <div id="achatDashPayin" class="mt-2 text-lg font-black text-gray-900">${formatAmount(payinFee)}</div>
+                            </div>
+                            ` : ''}
                             <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
                                 <div class="text-xs font-black uppercase tracking-widest text-gray-400">Remise</div>
                                 <div id="achatDashDiscount" class="mt-2 text-lg font-black text-gray-900">${formatAmount(discount)}</div>
@@ -4132,17 +4139,20 @@
             
             let deliveryFee = Number(order?.delivery_fee_amount ?? 0);
             let discount = Number(order?.promo_discount_amount ?? 0);
-            let total = Number(order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee - discount));
+            let payinFee = Number(order?.payin_fee_amount ?? 0);
+            
+            let total = Number(order?.client_total_paid ?? order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee + payinFee - discount));
 
             if (order?.status === 'QUOTE' && order?.latest_delivery_quote) {
                 deliveryFee = Number(order.latest_delivery_quote.delivery_fee_amount || 0);
-                total = Math.max(0, subtotal + deliveryFee - discount);
+                total = Math.max(0, subtotal + deliveryFee + payinFee - discount);
             }
 
             return {
                 subtotal,
                 deliveryFee,
                 discount,
+                payinFee,
                 total
             };
         }

@@ -4207,7 +4207,7 @@
                     syncAmounts({
                         subtotal_amount: order?.subtotal_amount ?? order?.merchandise_amount ?? 0,
                         promo_discount_amount: 0,
-                        total_amount: (Number(order?.subtotal_amount ?? order?.merchandise_amount ?? 0) + Number(order?.delivery_fee_amount ?? 0))
+                        total_amount: (Number(order?.subtotal_amount ?? order?.merchandise_amount ?? 0) + Number(order?.delivery_fee_amount ?? 0) + Number(order?.payin_fee_amount ?? 0))
                     }, null);
                 });
 

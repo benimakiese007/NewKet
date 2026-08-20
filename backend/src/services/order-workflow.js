@@ -241,7 +241,9 @@ export async function getCommissionRate(client) {
         .select('platform_commission_rate')
         .eq('id', 'global-settings')
         .single();
-    return parseFloat(data?.platform_commission_rate) || 0.05;
+    // La DB stocke le taux en pourcentage entier (ex: 5 pour 5%).
+    // On divise par 100 pour obtenir le coefficient décimal (ex: 0.05).
+    return (parseFloat(data?.platform_commission_rate) || 5.0) / 100;
 }
 
 // Note: getPayoutFeeRate() supprimée — remplacée par flexpay-fees.service.js
