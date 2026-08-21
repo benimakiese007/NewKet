@@ -1813,7 +1813,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             setTimeout(() => {
                 const mapContainer = document.getElementById(`${modalId}-map`);
                 if (window.L && mapContainer) {
-                    const defaultMapCenter = [-4.4419, 15.2663]; // Kinshasa by default
                     const initialZoom = savedHomeLocation ? 16 : 12;
 
                     // Fix for Leaflet Icon.Default.js removeChild NotFoundError

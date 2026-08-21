@@ -656,7 +656,7 @@ const AdminLayout = {
 
         sidebarHTML += `
                         </nav>
-                        <div class="mt-6 pt-5 border-t border-gray-100 lg:hidden">
+                        <div class="mt-6 pt-5 border-t border-gray-100">
                             <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
                             <div class="currency-switch-segmented scale-90 origin-left w-fit" id="currencyToggle" data-active="CDF" title="Devise d'affichage">
                                 <div class="segmented-track">

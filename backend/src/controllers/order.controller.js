@@ -179,7 +179,7 @@ export const createOrder = async (req, res) => {
 
         const { data: product, error: productError } = await client
             .from('products')
-            .select('id, name, price, old_price, image, category, user_id, supplier_email')
+            .select('id, name, price, old_price, image, category, user_id, supplier_email, custom_exchange_rate')
             .eq('id', productId)
             .maybeSingle();
 
@@ -235,7 +235,8 @@ export const createOrder = async (req, res) => {
                 quantity,
                 category: product.category || null,
                 image: String(product.image || '').split(',')[0] || null,
-                supplier_email: product.supplier_email || null
+                supplier_email: product.supplier_email || null,
+                custom_exchange_rate: product.custom_exchange_rate || null
             }],
             total: totalAmount,
             total_amount: totalAmount,
@@ -304,6 +305,7 @@ export const getOrders = async (req, res) => {
             .select(`
                 id, status, created_at, total, total_amount, merchandise_amount, subtotal_amount,
                 delivery_fee_amount, promo_id, promo_code, promo_discount_amount, final_total_amount,
+                payin_fee_amount, client_total_paid, payin_fee_rate, payin_operator,
                 customer_name, customer_email, customer_phone, 
                 customer_city, customer_lat, customer_lng, phone_number, items, 
                 payment_status, transaction_id, user_id, customer_id, vendor_id, 
@@ -343,8 +345,10 @@ export const getOrders = async (req, res) => {
 
         const orderIds = (data || []).map((order) => order.id);
         const vendorIds = [...new Set((data || []).map((order) => order.vendor_id).filter(Boolean))];
+        const customerIds = [...new Set((data || []).map((order) => order.customer_id || order.user_id).filter(Boolean))];
         let quotesByOrderId = new Map();
         let vendorsById = new Map();
+        let customersById = new Map();
 
         if (vendorIds.length > 0) {
             const { data: vendors, error: vendorsError } = await client
@@ -356,6 +360,19 @@ export const getOrders = async (req, res) => {
                 console.warn('⚠️ vendor users query failed:', vendorsError.message);
             } else {
                 vendorsById = new Map((vendors || []).map((vendor) => [vendor.id, vendor]));
+            }
+        }
+
+        if (customerIds.length > 0) {
+            const { data: customers, error: customersError } = await client
+                .from('users')
+                .select('id, name, email, avatar')
+                .in('id', customerIds);
+
+            if (customersError) {
+                console.warn('⚠️ customer users query failed:', customersError.message);
+            } else {
+                customersById = new Map((customers || []).map((customer) => [customer.id, customer]));
             }
         }
 
@@ -381,6 +398,7 @@ export const getOrders = async (req, res) => {
         return res.status(200).json((data || []).map((order) => ({
             ...order,
             vendor: vendorsById.get(order.vendor_id) || null,
+            customer: customersById.get(order.customer_id || order.user_id) || null,
             status: mapLegacyOrderStatus(order.status),
             latest_delivery_quote: quotesByOrderId.get(order.id) || null
         })));

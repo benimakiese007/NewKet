@@ -307,23 +307,39 @@ const NotificationManager = {
     },
     async markAsRead(id) {
         if (!window.ApiClient) return;
+        
+        // Optimistic update
+        const notif = this.notifications.find(n => n.id === id);
+        if (notif && !notif.read) {
+            notif.read = true;
+            this.updateBadge();
+            window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+        }
+
         try {
-            const updated = await window.ApiClient.put(`/notifications/${id}/read`);
-            if (updated) {
-                const notif = this.notifications.find(n => n.id === id);
-                if (notif) {
-                    notif.read = true;
-                    this.updateBadge();
-                    window.dispatchEvent(new CustomEvent('notificationsUpdated'));
-                }
-            }
+            await window.ApiClient.put(`/notifications/${id}/read`);
         } catch (e) {
             console.error('[NotificationManager] Mark read error:', e);
+            // Revert on error
+            if (notif) {
+                notif.read = false;
+                this.updateBadge();
+                window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+            }
         }
     },
     async markAllAsRead() {
         const unread = this.notifications.filter(n => !n.read);
-        await Promise.all(unread.map(n => this.markAsRead(n.id)));
+        if (unread.length === 0) return;
+        
+        // Optimistic update
+        unread.forEach(n => n.read = true);
+        this.updateBadge();
+        window.dispatchEvent(new CustomEvent('notificationsUpdated'));
+
+        await Promise.all(unread.map(n => 
+            window.ApiClient.put(`/notifications/${n.id}/read`).catch(e => console.error(e))
+        ));
     },
     getUnreadCount() { return this.notifications.filter(n => !n.read).length; },
     async deleteNotification(id) {
@@ -363,7 +379,7 @@ const NotificationManager = {
         const badges = document.querySelectorAll('.notification-badge');
         badges.forEach(badge => {
             if (unreadCount > 0) {
-                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
                 badge.style.display = 'flex';
             } else {
                 badge.style.display = 'none';

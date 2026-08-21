@@ -253,9 +253,6 @@
                     </div>
                     <div class="flex flex-col min-w-0 flex-1">
                         <h2 id="userDisplayName" class="font-bold text-gray-900 truncate text-sm">Mon Compte</h2>
-                        <div class="flex items-center gap-1.5 mt-0.5">
-                            <span id="userStatusBadge" class="status-badge status-standard">Standard</span>
-                        </div>
                     </div>
                     <button onclick="SidebarManager.close()" class="lg:hidden p-2 bg-white rounded-xl text-gray-500 hover:text-black hover:bg-gray-100 transition-all shadow-sm border border-gray-100/50 flex-shrink-0">
                         <iconify-icon icon="solar:close-circle-bold" width="22"></iconify-icon>
@@ -299,7 +296,7 @@
                         </a>
                     </div>
                 </nav>
-                <div class="mt-6 pt-5 border-t border-gray-100 lg:hidden">
+                <div class="mt-6 pt-5 border-t border-gray-100">
                     <p class="text-xs text-gray-500 mb-3 font-semibold">Devise d'affichage</p>
                     <div class="currency-switch-segmented scale-90 origin-left w-fit" id="customerCurrencyToggle" data-active="CDF" title="Devise d'affichage">
                         <div class="segmented-track">
@@ -829,6 +826,10 @@
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-500">Livraison</span>
                         <span id="modalOrderDelivery" class="font-medium text-green-600"></span>
+                    </div>
+                    <div id="modalOrderPayinRow" class="flex justify-between text-sm hidden">
+                        <span class="text-gray-500">Frais de protection</span>
+                        <span id="modalOrderPayin" class="font-medium text-gray-900"></span>
                     </div>
                     <div id="modalOrderDiscountRow" class="flex justify-between text-sm hidden">
                         <span class="text-emerald-600 font-bold">Réduction promo</span>
@@ -2707,7 +2708,7 @@
                                     <div class="text-xs text-gray-500 truncate">${order.items.length} article(s)</div>
                                 </div>
                                 <div class="text-right mt-1 sm:mt-0 flex-shrink-0">
-                                    <div class="text-sm font-black text-gray-900 whitespace-nowrap">${window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(order.final_total_amount || order.total || 0)) : (order.final_total_amount || order.total || 0)}</div>
+                                    <div class="text-sm font-black text-gray-900 whitespace-nowrap">${window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(getOrderAmounts(order).total, undefined, true, parseFloat(order?.items?.[0]?.custom_exchange_rate || 0) || null) : getOrderAmounts(order).total}</div>
                                 </div>
                             </div>
                         </div>
@@ -2851,7 +2852,8 @@
 
             function formatAmount(amount) {
                 if (window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function') {
-                    return CurrencyManager.formatPrice(Number(amount || 0));
+                    const customRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || 0);
+                    return CurrencyManager.formatPrice(Number(amount || 0), undefined, true, customRate > 0 ? customRate : null);
                 }
                 return `${amount || 0}`;
             }
@@ -3485,6 +3487,9 @@
 
             const itemsList = document.getElementById('modalOrderItems');
             const amounts = getOrderAmounts(order);
+            const modalRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || 0) || null;
+            const fmtModal = (v) => CurrencyManager.formatPrice(Number(v || 0), undefined, true, modalRate);
+
             itemsList.innerHTML = order.items.map(item => `
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-gray-50 rounded-xl border border-gray-100 p-2 flex-shrink-0">
@@ -3492,16 +3497,24 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="font-bold text-sm sm:text-base truncate">${item.name}</div>
-                        <div class="text-xs text-gray-500">Quantité: ${item.quantity} é ${CurrencyManager.formatPrice(item.price)}</div>
+                        <div class="text-xs text-gray-500">Quantité: ${item.quantity} é ${fmtModal(item.price)}</div>
                     </div>
-                    <div class="text-sm font-bold text-right">${CurrencyManager.formatPrice(item.price * item.quantity)}</div>
+                    <div class="text-sm font-bold text-right">${fmtModal(item.price * item.quantity)}</div>
                 </div>
             `).join('');
 
-            document.getElementById('modalOrderSubtotal').textContent = CurrencyManager.formatPrice(amounts.subtotal);
+            document.getElementById('modalOrderSubtotal').textContent = fmtModal(amounts.subtotal);
             document.getElementById('modalOrderDelivery').textContent = amounts.deliveryFee > 0
-                ? CurrencyManager.formatPrice(amounts.deliveryFee)
+                ? fmtModal(amounts.deliveryFee)
                 : 'Gratuit';
+            
+            const payinRow = document.getElementById('modalOrderPayinRow');
+            if (amounts.payinFee > 0) {
+                if (payinRow) payinRow.classList.remove('hidden');
+                document.getElementById('modalOrderPayin').textContent = fmtModal(amounts.payinFee);
+            } else {
+                if (payinRow) payinRow.classList.add('hidden');
+            }
             
             const discountRow = document.getElementById('modalOrderDiscountRow');
             const promoCodeRow = document.getElementById('modalOrderPromoCodeRow');
@@ -3511,7 +3524,7 @@
             const promoCode = String(order?.promo_code || '').trim().toUpperCase();
             if (amounts.discount > 0) {
                 if (discountRow) discountRow.classList.remove('hidden');
-                document.getElementById('modalOrderDiscount').textContent = "-" + CurrencyManager.formatPrice(amounts.discount);
+                document.getElementById('modalOrderDiscount').textContent = "-" + fmtModal(amounts.discount);
             } else {
                 if (discountRow) discountRow.classList.add('hidden');
             }
@@ -3521,7 +3534,7 @@
                 promoCodeValue.textContent = promoCode;
             }
 
-            document.getElementById('modalOrderTotal').textContent = CurrencyManager.formatPrice(amounts.total);
+            document.getElementById('modalOrderTotal').textContent = fmtModal(amounts.total);
 
             const timelineEl = document.getElementById('modalOrderTimeline');
             if (timelineEl) {
@@ -3560,7 +3573,7 @@
                 const quote = order.latest_delivery_quote;
                 escrowSection.classList.remove('hidden');
                 quoteSummarySection.classList.remove('hidden');
-                document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0));
+                document.getElementById('quoteAmount').textContent = window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0), undefined, true, parseFloat(order?.items?.[0]?.custom_exchange_rate || 0) || null) : quote.delivery_fee_amount;
                 document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
                 document.getElementById('quoteNote').textContent = quote.note || 'Le vendeur a proposé un devis de livraison.';
                 btnAcceptQuote.classList.remove('hidden');
@@ -3570,11 +3583,13 @@
                 quoteSummarySection.classList.remove('hidden');
                 if (order.latest_delivery_quote) {
                     const quote = order.latest_delivery_quote;
-                    document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0));
+                    const customRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || 0);
+                    document.getElementById('quoteAmount').textContent = window.CurrencyManager && typeof CurrencyManager.formatPrice === 'function' ? CurrencyManager.formatPrice(Number(quote.delivery_fee_amount || 0), undefined, true, customRate > 0 ? customRate : null) : quote.delivery_fee_amount;
                     document.getElementById('quoteDelay').textContent = `${quote.estimated_delay_hours || 0} h`;
                     document.getElementById('quoteNote').textContent = quote.note || 'Devis accepté. Vous pouvez maintenant payer.';
                 } else {
-                    document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(order.delivery_fee_amount || 0));
+                    const fallbackRate = parseFloat(order?.items?.[0]?.custom_exchange_rate || 0);
+                    document.getElementById('quoteAmount').textContent = CurrencyManager.formatPrice(Number(order.delivery_fee_amount || 0), undefined, true, fallbackRate > 0 ? fallbackRate : null);
                     document.getElementById('quoteDelay').textContent = 'Confirmé';
                     document.getElementById('quoteNote').textContent = 'Le devis a été accepté. Le paiement est maintenant en séquestre.';
                 }
@@ -4143,8 +4158,10 @@
             
             let total = Number(order?.client_total_paid ?? order?.final_total_amount ?? order?.total ?? order?.total_amount ?? Math.max(0, subtotal + deliveryFee + payinFee - discount));
 
-            if (order?.status === 'QUOTE' && order?.latest_delivery_quote) {
-                deliveryFee = Number(order.latest_delivery_quote.delivery_fee_amount || 0);
+            // Always prefer the accepted quote amount as the delivery truth
+            if (order?.latest_delivery_quote?.delivery_fee_amount) {
+                deliveryFee = Number(order.latest_delivery_quote.delivery_fee_amount);
+                // Recalculate total with the real delivery fee (not the stale DB value)
                 total = Math.max(0, subtotal + deliveryFee + payinFee - discount);
             }
 

@@ -376,10 +376,12 @@
             const productName = order?.items?.[0]?.name || order?.product_name || 'Produit';
             const qty = order?.items?.[0]?.quantity || 1;
             const subtotal = order?.subtotal_amount ?? order?.merchandise_amount ?? order?.total ?? 0;
-            const deliveryFee = order?.delivery_fee_amount ?? 0;
+            // Always use the accepted delivery quote as the source of truth for delivery fee
+            const deliveryFee = order?.latest_delivery_quote?.delivery_fee_amount ?? order?.delivery_fee_amount ?? 0;
             const discount = order?.promo_discount_amount ?? 0;
             const payinFee = order?.payin_fee_amount ?? 0;
-            const total = order?.client_total_paid ?? order?.final_total_amount ?? order?.total ?? 0;
+            // Recalculate total from components to stay consistent
+            const total = Math.max(0, Number(subtotal) + Number(deliveryFee) + Number(payinFee) - Number(discount));
             const statusLabel = window.OrderManager ? OrderManager.getStatusLabel(order.status) : (order.status || '');
             const appliedCode = safeText(order?.promo_code || '');
             // Exchange rate: per-product rate or fallback
@@ -561,7 +563,9 @@
             const syncPromoSummary = (pricing, promo) => {
                 const subtotalAmount = pricing?.subtotal_amount ?? order?.subtotal_amount ?? order?.merchandise_amount ?? 0;
                 const discountAmount = pricing?.promo_discount_amount ?? order?.promo_discount_amount ?? 0;
-                const totalAmount = pricing?.total_amount ?? order?.final_total_amount ?? order?.total ?? 0;
+                const deliveryAmount = order?.latest_delivery_quote?.delivery_fee_amount ?? order?.delivery_fee_amount ?? 0;
+                const payinAmount = order?.payin_fee_amount ?? 0;
+                const totalAmount = Math.max(0, Number(subtotalAmount) + Number(deliveryAmount) + Number(payinAmount) - Number(discountAmount));
 
                 order.subtotal_amount = subtotalAmount;
                 order.promo_id = promo?.id || null;
@@ -572,15 +576,14 @@
 
                 if (promoDiscountValue) {
                     const discountEl = document.getElementById('promoDiscountValue');
-                    const totalEl = document.getElementById('promoTotalValue');
                     if (discountEl) {
                         discountEl.setAttribute('data-price-raw', discountAmount);
                         discountEl.textContent = `${discountAmount > 0 ? '-' : ''}${formatAmount(discountAmount)}`;
                     }
-                    if (totalEl) {
-                        totalEl.setAttribute('data-price-raw', totalAmount);
-                        totalEl.textContent = formatAmount(totalAmount);
-                    }
+                }
+                if (promoTotalValue) {
+                    promoTotalValue.setAttribute('data-price-raw', totalAmount);
+                    promoTotalValue.textContent = formatAmount(totalAmount);
                 }
                 if (promoSuccess) {
                     promoSuccess.textContent = promo?.code ? `Code appliqué: ${promo.code}` : '';

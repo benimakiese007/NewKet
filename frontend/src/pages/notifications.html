@@ -155,6 +155,7 @@
 
     <script>
         let currentFilter = 'all';
+        let isFirstRender = true;
 
         function renderNotifications() {
             const list = document.getElementById('notifications-list');
@@ -229,11 +230,11 @@
                     const dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 
                     return `
-                        <div class="glass-card p-5 notification-item ${!n.read ? 'unread' : ''} animate-fade-in group cursor-pointer ${cardClass}" 
+                        <div class="glass-card p-5 notification-item ${!n.read ? 'unread' : ''} ${isFirstRender ? 'animate-fade-in' : ''} group cursor-pointer ${cardClass}" 
                              style="animation-delay: ${index * 0.05}s" 
                              onclick="markRead('${n.id}')">
                             <div class="flex gap-4">
-                                <div class="w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center ${iconColor} transition-transform group-hover:scale-110">
+                                <div class="w-12 h-12 rounded-2xl flex-shrink-0 flex items-center justify-center ${iconColor} transition-transform">
                                     <iconify-icon icon="${icon}" width="24"></iconify-icon>
                                 </div>
                                 <div class="flex-1 min-w-0">
@@ -255,6 +256,8 @@
                     `;
                 }).join('');
             }
+            
+            isFirstRender = false;
         }
 
         function setFilter(filter) {
@@ -264,18 +267,15 @@
 
         function markRead(id) {
             NotificationManager.markAsRead(id);
-            renderNotifications();
         }
 
         function markAllRead() {
             NotificationManager.markAllAsRead();
-            renderNotifications();
         }
 
         function clearAll() {
             showConfirm('Tout effacer', 'Voulez-vous vraiment supprimer tout l\'historique des notifications ?', () => {
                 NotificationManager.clearAll();
-                renderNotifications();
             });
         }
 

@@ -489,8 +489,8 @@ export const initiatePayment = async (req, res) => {
             try {
                 if (p === 'flexpaie') {
                     const paymentRequestPayload = {
-                        amount: finalAmountUSD,
-                        currency: 'USD',
+                        amount: payinCurrency === 'USD' ? finalAmountUSD : verifiedAmount,
+                        currency: payinCurrency,
                         ref: txId,
                         referer_url: getRedirectUrl(req),
                         label: `NewKet Marketplace - ${product.name}`

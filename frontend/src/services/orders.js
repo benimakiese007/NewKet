@@ -208,6 +208,10 @@ const OrderManager = {
             promo_discount_amount: order.promo_discount_amount || 0,
             final_total_amount: order.final_total_amount || order.total_amount || order.total || 0,
             latest_delivery_quote: order.latest_delivery_quote || null,
+            payin_fee_amount: order.payin_fee_amount || 0,
+            payin_fee_rate: order.payin_fee_rate || 0,
+            payin_operator: order.payin_operator || null,
+            client_total_paid: order.client_total_paid || 0,
             payment_method: order.payment_status && order.payment_status !== 'N/A' ? 'Paiement en ligne' : 'N/A',
             type: 'order',
             items: allItems.map(item => ({

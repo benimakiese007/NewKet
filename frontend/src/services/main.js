@@ -601,6 +601,31 @@ const App = {
                 e.preventDefault();
             }, { passive: false });
 
+            // Helper: check if a node looks like a modal backdrop
+            const isModalNode = (node) => {
+                if (!node || node.nodeType !== Node.ELEMENT_NODE) return false;
+                const id = (node.id || '').toLowerCase();
+                const cls = node.className || '';
+                return (
+                    id.includes('modal') ||
+                    node.hasAttribute('role') && node.getAttribute('role') === 'dialog' ||
+                    (typeof cls === 'string' && (cls.includes('modal') || cls.includes('inset-0'))) ||
+                    node.matches('[id$="Modal"],[id$="modal"],[id*="Modal"],[id*="modal"]')
+                );
+            };
+
+            // Helper: check if a node is currently visible
+            const isNodeVisible = (node) => {
+                if (!node) return false;
+                const style = window.getComputedStyle(node);
+                return (
+                    style.display !== 'none' &&
+                    style.visibility !== 'hidden' &&
+                    style.opacity !== '0' &&
+                    !node.classList.contains('hidden')
+                );
+            };
+
             // Handle clicking outside modal to close it
             document.addEventListener('mousedown', (e) => {
                 const target = e.target;
