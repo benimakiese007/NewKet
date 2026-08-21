@@ -116,11 +116,7 @@
                         class="w-full h-full object-cover rounded-[2rem]" alt="Logo boutique" onerror="this.onerror=null; this.removeAttribute('srcset'); this.removeAttribute('sizes'); this.src=window.resolvePath('https://res.cloudinary.com/dzhnphyp3/image/upload/f_auto,q_auto/v1782572380/newket_assets/frontend/src/assets/Images/default.jpg');">
                 </div>
                 <div class="flex-1 mb-2">
-                    <div class="flex items-center gap-3 mb-2">
-                        <span
-                            class="px-3 py-1 bg-white/20  text-white text-[10px] font-black uppercase tracking-widest rounded-full">Partenaire
-                            Certifié</span>
-                    </div>
+
                     <h1 id="vendorName" class="text-4xl sm:text-6xl font-black text-white tracking-tighter uppercase">
                         Chargement...</h1>
                     <p id="vendorMeta" class="text-white/60 text-sm font-medium mt-2 flex items-center gap-2">
@@ -141,7 +137,7 @@
                         </div>
                         <div class="w-px h-8 bg-white/10"></div>
                         <div class="text-white">
-                            <div class="text-xl font-black" id="vendor-shipping-value">24h</div>
+                            <div class="text-xl font-black" id="vendor-shipping-value">Sur devis</div>
                             <div class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Expédition</div>
                         </div>
                     </div>
@@ -243,7 +239,6 @@
                     email: vendor.email || '',
                     avatar: vendor.avatar || '',
                     cover_image: vendor.cover_image || '',
-                    shipping_time: vendor.shipping_time || '',
                     date_joined: vendor.date_joined || '',
                     shop_slug: vendor.shop_slug || '',
                     seller_type: vendor.seller_type || '',
@@ -267,7 +262,6 @@
             const vendorNameEl = document.getElementById('vendorName');
             const vendorAvatarEl = document.getElementById('vendorAvatar');
             const vendorMetaEl = document.getElementById('vendorMeta');
-            const shippingEl = document.getElementById('vendor-shipping-value');
             const heroEl = document.querySelector('.vendor-hero');
 
             if (vendorNameEl) {
@@ -297,9 +291,6 @@
                 heroEl.style.backgroundPosition = 'center';
             }
 
-            if (shippingEl && vendor.shipping_time) {
-                shippingEl.textContent = vendor.shipping_time;
-            }
         }
 
         function renderCachedShop(cacheData) {

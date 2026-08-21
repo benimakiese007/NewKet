@@ -528,10 +528,9 @@
                 }
             }
 
-            // --- Shipping ---
-            const shippingTime = vendor?.shipping_time || p.shipping_time || p.delivery_time || null;
+            // --- Shipping --- toujours Sur devis (délai défini commande par commande)
             const shippingEl = document.getElementById('shippingValue');
-            if (shippingEl) shippingEl.textContent = shippingTime ? shippingTime : 'Sur devis';
+            if (shippingEl) shippingEl.textContent = 'Sur devis';
 
             // --- Availability ---
             const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);

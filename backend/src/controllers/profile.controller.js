@@ -7,7 +7,7 @@ function getProfileClient(req) {
 
 const USERNAME_LOCK_DAYS = 14;
 const USERNAME_LOCK_MS = USERNAME_LOCK_DAYS * 24 * 60 * 60 * 1000;
-const LEGACY_PROFILE_SELECT = 'id, email, name, role, status, avatar, company_name, store_phone, cover_image, shipping_time, date_joined, store_description';
+const LEGACY_PROFILE_SELECT = 'id, email, name, role, status, avatar, company_name, store_phone, cover_image, date_joined, store_description';
 
 function normalizeLoginUsername(value) {
     return String(value || '')
@@ -200,7 +200,7 @@ export const updateMyProfile = async (req, res) => {
         const updates = req.body || {};
         const currentResult = await sb
             .from('users')
-            .select('id, role, name, company_name, store_phone, shipping_time, store_description')
+            .select('id, role, name, company_name, store_phone, store_description')
             .eq('id', userId)
             .single();
 
@@ -249,7 +249,7 @@ export const updateMyProfile = async (req, res) => {
 
         const allowed = {
             store_phone: typeof updates.phone === 'string' ? updates.phone.trim() : undefined,
-            shipping_time: typeof updates.shipping_time === 'string' ? updates.shipping_time.trim() : undefined,
+
             store_description: typeof updates.store_description === 'string' ? updates.store_description.trim() : undefined,
             name: nextUsername || current?.name || currentAuthUser?.user_metadata?.name || undefined,
             company_name: nextUsername || current?.company_name || currentAuthUser?.user_metadata?.company_name || undefined,
@@ -268,7 +268,7 @@ export const updateMyProfile = async (req, res) => {
         const legacyUpdates = {
             email: allowed.email,
             store_phone: allowed.store_phone,
-            shipping_time: allowed.shipping_time,
+
             store_description: allowed.store_description,
             name: allowed.name,
             company_name: allowed.company_name

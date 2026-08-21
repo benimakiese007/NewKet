@@ -182,7 +182,7 @@ const ProductManager = {
             if (window.SupabaseAdapter && window.supabaseClient) {
                 try {
                     const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
-                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                        select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         order: ['created_at', { ascending: false }],
                         limit: PRODUCTS_PAGE_SIZE
                     });
@@ -250,7 +250,7 @@ const ProductManager = {
             try {
                 if (window.SupabaseAdapter && window.supabaseClient) {
                     const pinned = await window.SupabaseAdapter.fetchWithFilters('products', {
-                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                        select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         order: ['created_at', { ascending: false }],
                         eq: [['pinned', true]]
                     });
@@ -299,7 +299,7 @@ const ProductManager = {
             // ── Priorité 1 : SupabaseAdapter ──
             if (window.SupabaseAdapter && window.supabaseClient) {
                 newProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                    select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                     order: ['created_at', { ascending: false }],
                     range: [offset, offset + PRODUCTS_PAGE_SIZE - 1]
                 });
@@ -380,7 +380,7 @@ const ProductManager = {
                 try {
                     const [fetchedProducts, totalCount] = await Promise.all([
                         window.SupabaseAdapter.fetchWithFilters('products', {
-                            select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                            select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                             order: ['created_at', { ascending: false }],
                             limit: PRODUCTS_ADMIN_MAX,
                             skipCache: true
@@ -434,7 +434,7 @@ const ProductManager = {
             
             if (window.SupabaseAdapter && window.supabaseClient) {
                 products = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                    select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                     order: ['created_at', { ascending: false }],
                     eq: [['pinned', true]],
                     skipCache: true
@@ -473,7 +473,7 @@ const ProductManager = {
                 let byEmail = [];
                 if (email) {
                     byEmail = await window.SupabaseAdapter.fetchWithFilters('products', {
-                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                        select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         order: ['created_at', { ascending: false }],
                         eq: [['supplier_email', email]],
                         skipCache: true,
@@ -484,7 +484,7 @@ const ProductManager = {
                 let byUser = [];
                 if (userId && userId !== 'null' && userId !== 'undefined') {
                     byUser = await window.SupabaseAdapter.fetchWithFilters('products', {
-                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                        select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         order: ['created_at', { ascending: false }],
                         eq: [['user_id', userId]],
                         skipCache: true,
@@ -636,7 +636,7 @@ const ProductManager = {
         try {
             if (window.SupabaseAdapter && window.supabaseClient) {
                 const product = await window.SupabaseAdapter.fetchWithFilters('products', {
-                    select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type), product_variants(*)',
+                    select: '*, users!supplier_email(company_name, name, avatar, seller_type), product_variants(*)',
                     eq: [['id', id]],
                     single: true
                 });
@@ -686,7 +686,7 @@ const ProductManager = {
                 const inserted = await window.SupabaseAdapter.insert('products', productWithSupplier);
                 if (inserted) {
                     newProd = await window.SupabaseAdapter.fetchWithFilters('products', {
-                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                        select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         eq: [['id', inserted.id]],
                         single: true
                     }) || inserted;
@@ -720,7 +720,7 @@ const ProductManager = {
                 const { ok, error } = await window.SupabaseAdapter.update('products', id, updatedData, { returnMeta: true });
                 if (ok) {
                     updated = await window.SupabaseAdapter.fetchWithFilters('products', {
-                        select: '*, users!supplier_email(company_name, name, shipping_time, avatar, seller_type)',
+                        select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         eq: [['id', id]],
                         single: true
                     });

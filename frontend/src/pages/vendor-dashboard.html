@@ -977,10 +977,6 @@
                                 <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Numéro de téléphone</label>
                                 <input id="vSetPhone" name="vSetPhone" type="tel" inputmode="tel" autocomplete="tel" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: +243...">
                             </div>
-                            <div>
-                                <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Délai d'expédition</label>
-                                <input id="vSetShipping" name="vSetShipping" type="text" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:border-black transition-all text-sm font-medium" placeholder="Ex: Sous 24h, 48h...">
-                            </div>
                             <button type="submit" class="bg-black text-white px-8 py-3 rounded-2xl font-bold text-sm hover:shadow-xl transition-all">Enregistrer les modifications</button>
                             <p id="profile-feedback" class="text-sm font-medium hidden transition-opacity"></p>
                         </form>
@@ -6356,7 +6352,7 @@
             if (document.getElementById('vSetStoreName')) document.getElementById('vSetStoreName').value = compactUsername(profile.username || profile.company_name || '');
             if (document.getElementById('vSetEmail')) document.getElementById('vSetEmail').value = localStorage.getItem('newketUserEmail') || profile.email || '';
             if (document.getElementById('vSetPhone')) document.getElementById('vSetPhone').value = profile.store_phone || profile.phone || '';
-            if (document.getElementById('vSetShipping') && profile.shipping_time) document.getElementById('vSetShipping').value = profile.shipping_time;
+
         }
 
         function handleProfileUpdate() {
@@ -6614,7 +6610,6 @@
                             }
                             const newEmail = document.getElementById('vSetEmail').value;
                             const newPhone = (document.getElementById('vSetPhone')?.value || '').trim();
-                            const newShipping = document.getElementById('vSetShipping').value;
                             const newStoreDescription = document.getElementById('vSetStoreDescription')?.value || '';
                             
                             const newProfile = {
@@ -6624,7 +6619,6 @@
                                 email: newEmail,
                                 phone: newPhone,
                                 store_phone: newPhone,
-                                shipping_time: newShipping,
                                 store_description: newStoreDescription,
                                 shop_slug: newName
                             };
@@ -6635,7 +6629,6 @@
                                     username: newName,
                                     company_name: newName,
                                     shop_slug: newName,
-                                    shipping_time: newShipping,
                                     phone: newPhone || null,
                                     store_description: newStoreDescription || null,
                                     email: newEmail

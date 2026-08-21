@@ -220,7 +220,6 @@ const ProfileManager = {
                     role: profile.role || user.role,
                     seller_type: profile.seller_type || this._profile.seller_type || null,
                     company_name: profile.company_name || this._profile.company_name || null,
-                    shipping_time: profile.shipping_time || this._profile.shipping_time,
                     home_location: this._profile.home_location
                 });
             }
