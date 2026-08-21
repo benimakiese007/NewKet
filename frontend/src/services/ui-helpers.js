@@ -2164,7 +2164,6 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false, op
         document.getElementById('nk-announcement-modal')?.remove();
     };
 };
-window.showAnnouncementModal = showAnnouncementModal;
 
 /**
  * Premium confirmation modal replacement for window.confirm()

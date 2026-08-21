@@ -5,7 +5,6 @@ export const getNotifications = async (req, res) => {
     try {
         const userId = req.user?.id;
         const userEmail = req.user?.email;
-        if (!userId && !userEmail) return res.status(401).json({ error: 'Non autorisé' });
 
         // Retrieve user role from public.users to map to target (customers/suppliers)
         let userRole = 'customer';

@@ -230,9 +230,6 @@ const NotificationManager = {
             console.error('[NotificationManager] ApiClient not found');
             return;
         }
-        if (!window.AuthManager || !window.AuthManager.role) {
-            return;
-        }
         
         if (this._fetchPromise) {
             await this._fetchPromise;
