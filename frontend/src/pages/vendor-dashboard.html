@@ -1614,20 +1614,28 @@
 
                     if (!window.AppNotifications) {
                         toggle.disabled = true;
-                        status.textContent = 'Indisponible sur cette page.';
+                        status.innerHTML = 'Indisponible sur cette page.';
                         return;
                     }
 
                     try {
                         const state = await AppNotifications.getDeviceNotificationStatus();
                         toggle.checked = state === 'enabled';
-                        toggle.disabled = state === 'unsupported' || state === 'denied';
-                        status.textContent = AppNotifications.getDeviceNotificationGuidance
-                            ? AppNotifications.getDeviceNotificationGuidance(state)
-                            : 'PWA installee recommandee. Navigateur normal: support variable.';
+                        // Only truly disable for unsupported browsers — denied can be fixed by the user
+                        toggle.disabled = state === 'unsupported';
+
+                        if (state === 'denied') {
+                            status.innerHTML = '🔕 Notifications bloquées dans votre navigateur. '
+                                + '<a href="https://support.google.com/chrome/answer/3220216" target="_blank" rel="noopener" '
+                                + 'class="underline text-blue-600 font-semibold">Comment les réactiver →</a>';
+                        } else {
+                            status.textContent = AppNotifications.getDeviceNotificationGuidance
+                                ? AppNotifications.getDeviceNotificationGuidance(state)
+                                : 'PWA installée recommandée. Navigateur normal: support variable.';
+                        }
                     } catch (error) {
                         toggle.checked = false;
-                        status.textContent = 'Etat impossible a verifier.';
+                        status.textContent = 'État impossible à vérifier.';
                     }
                 }
 
