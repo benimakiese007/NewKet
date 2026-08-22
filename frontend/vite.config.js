@@ -36,6 +36,18 @@ export default defineConfig({
         const path = ctx.path || '';
         const isMinimalPage = path.includes('/login') || path.includes('/publish') || path.includes('/choose-role') || path.includes('/reset-password') || path.includes('/seller-onboarding');
         const isAdminPage = path.includes('/admin/') || path.endsWith('/admin') || path.includes('/pages/admin/');
+
+        // Inject build version meta tag + iOS PWA update script into every page
+        html = html.replace(
+          '<meta charset="UTF-8">',
+          `<meta charset="UTF-8">\n    <meta name="newket-version" content="${buildVersion}">`
+        );
+        if (!html.includes('pwa-ios-update.js')) {
+          html = html.replace(
+            '</head>',
+            `  <script src="/js/pwa-ios-update.js" defer><\/script>\n</head>`
+          );
+        }
         
         let newHtml = html;
         let rootPath = '/';
@@ -74,6 +86,23 @@ export default defineConfig({
           );
         } catch (err) {
           console.warn('[NewKet] Unable to stamp service worker build version:', err?.message || err);
+        }
+      }
+    },
+    {
+      name: 'newket-manifest-build-version',
+      closeBundle() {
+        const manifestPath = resolve(__dirname, 'dist/manifest.json');
+        try {
+          const source = readFileSync(manifestPath, 'utf8');
+          writeFileSync(
+            manifestPath,
+            source.replaceAll('__NEWKET_BUILD_VERSION__', buildVersion),
+            'utf8'
+          );
+          console.log(`[NewKet] manifest.json stamped with version: ${buildVersion}`);
+        } catch (err) {
+          console.warn('[NewKet] Unable to stamp manifest build version:', err?.message || err);
         }
       }
     },
