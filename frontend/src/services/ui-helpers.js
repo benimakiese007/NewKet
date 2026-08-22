@@ -2101,8 +2101,7 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false, op
 
     modal.innerHTML = `
         <div class="bg-white/90 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-2xl max-w-lg w-full pointer-events-auto border border-white/20 transform transition-all duration-500 ease-out">
-            <!-- Premium Accent Top Gradient -->
-            <div class="h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+            <!-- Modal Content -->
 
             <div class="p-8 sm:p-10">
                 <div class="flex flex-col items-center text-center">
@@ -2126,22 +2125,13 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false, op
                                 Fermer
                             </button>
                         ` : `
-                            <button onclick="window.dismissAnnouncement('${title}')" class="flex-1 px-8 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-200 transition-all active:scale-95">
-                                Ne plus afficher
-                            </button>
-                            <button onclick="document.getElementById('nk-announcement-modal').remove()" class="flex-[2] px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <button onclick="document.getElementById('nk-announcement-modal').remove()" class="w-full px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:shadow-xl hover:shadow-gray-900/20 transition-all active:scale-95 flex items-center justify-center">
                                 Compris
-                                <iconify-icon icon="solar:arrow-right-up-bold" width="18"></iconify-icon>
                             </button>
                         `}
                     </div>
                 </div>
             </div>
-            
-            <!-- Close Icon (Top Corner) -->
-            <button onclick="document.getElementById('nk-announcement-modal').remove()" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-2xl bg-white/50 hover:bg-white text-gray-400 hover:text-gray-900 transition-all">
-                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
-            </button>
         </div>
     `;
 
