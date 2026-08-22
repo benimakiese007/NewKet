@@ -86,11 +86,23 @@ const resolveBackendReady = async () => {
 };
 
 const scheduleDeferredImports = async () => {
-    const backendReady = await resolveBackendReady();
-    const tasks = deferredImports
-        .filter((entry) => backendReady || !entry.requiresBackend)
-        .map((entry) => entry.load());
-    Promise.allSettled(tasks).catch(() => {});
+    console.log('[App] scheduleDeferredImports started');
+    try {
+        const backendReady = await resolveBackendReady();
+        console.log('[App] backendReady:', backendReady);
+        const tasks = deferredImports
+            .filter((entry) => backendReady || !entry.requiresBackend)
+            .map((entry) => {
+                console.log('[App] Loading deferred import...', entry);
+                return entry.load().catch(err => {
+                    console.error('[App] Failed to load deferred module:', err);
+                });
+            });
+        await Promise.allSettled(tasks);
+        console.log('[App] scheduleDeferredImports finished');
+    } catch (err) {
+        console.error('[App] scheduleDeferredImports crashed:', err);
+    }
 };
 
 if (typeof window.requestIdleCallback === 'function') {

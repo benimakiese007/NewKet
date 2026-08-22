@@ -2087,8 +2087,8 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false, op
 
     const modal = document.createElement('div');
     modal.id = 'nk-announcement-modal';
-    // Positioned at the top center, full width on mobile, max-width on larger screens
-    modal.className = 'fixed top-0 left-0 right-0 z-[9999] flex justify-center p-4 sm:p-6 pointer-events-none animate-fade-in-down';
+    // Centered on the screen with full screen overlay
+    modal.className = 'fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6';
     
     // UI mapping
     const configs = {
@@ -2100,8 +2100,11 @@ window.showAnnouncementModal = (title, message, type = 'info', force = false, op
     const config = configs[type] || configs.info;
 
     modal.innerHTML = `
-        <div class="bg-white/90 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-2xl max-w-lg w-full pointer-events-auto border border-white/20 transform transition-all duration-500 ease-out">
-            <!-- Modal Content -->
+        <!-- Dark Overlay -->
+        <div class="absolute inset-0 bg-gray-950/40 backdrop-blur-sm animate-fade-in" onclick="document.getElementById('nk-announcement-modal').remove()"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white/95 backdrop-blur-xl rounded-[2.5rem] overflow-hidden shadow-2xl max-w-lg w-full pointer-events-auto border border-white/20 transform scale-95 transition-all duration-300 animate-fade-in">
 
             <div class="p-8 sm:p-10">
                 <div class="flex flex-col items-center text-center">
