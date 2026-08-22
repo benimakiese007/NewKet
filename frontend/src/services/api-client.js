@@ -138,7 +138,7 @@ export const ApiClient = {
         const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
         try {
-            const response = await fetch('http://localhost:3000/api/health', {
+            const response = await fetch('/api/health', {
                 method: 'GET',
                 cache: 'no-store',
                 signal: controller.signal

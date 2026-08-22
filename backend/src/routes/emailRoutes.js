@@ -1,6 +1,7 @@
 import express from 'express';
 import EmailService from '../services/emailService.js';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
+import { emailRateLimit } from '../middlewares/rate-limits.js';
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const router = express.Router();
  * Endpoint to send vendor approval email
  * POST /api/emails/vendor-approval
  */
-router.post('/vendor-approval', requireAuth, requireAdmin, async (req, res) => {
+router.post('/vendor-approval', emailRateLimit, requireAuth, requireAdmin, async (req, res) => {
     const { email, name } = req.body;
     
     if (!email || !name) {
@@ -29,7 +30,7 @@ import { sendNewsletter } from '../controllers/newsletter.controller.js';
  * Endpoint to notify vendor of a new lead
  * POST /api/emails/lead-notification
  */
-router.post('/lead-notification', requireAuth, async (req, res) => {
+router.post('/lead-notification', emailRateLimit, requireAuth, async (req, res) => {
     const { vendorEmail, vendorName, productName, customerName, customerPhone } = req.body;
     
     if (!vendorEmail || !vendorName || !productName) {
@@ -55,6 +56,6 @@ router.post('/lead-notification', requireAuth, async (req, res) => {
  * Endpoint to send newsletter
  * POST /api/emails/newsletter
  */
-router.post('/newsletter', requireAuth, requireAdmin, sendNewsletter);
+router.post('/newsletter', emailRateLimit, requireAuth, requireAdmin, sendNewsletter);
 
 export default router;

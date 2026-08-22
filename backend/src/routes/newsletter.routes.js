@@ -7,6 +7,7 @@ import {
     unsubscribeNewsletterSubscriber
 } from '../controllers/newsletter.controller.js';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
+import { signupRateLimit } from '../middlewares/rate-limits.js';
 
 const router = Router();
 
@@ -14,7 +15,7 @@ const router = Router();
  * Public newsletter subscription endpoint.
  * POST /api/newsletter/subscribe
  */
-router.post('/subscribe', subscribeNewsletter);
+router.post('/subscribe', signupRateLimit, subscribeNewsletter);
 
 router.post('/sync', requireAuth, requireAdmin, syncNewsletterBackfill);
 router.post('/subscribers/:id/unsubscribe', requireAuth, requireAdmin, unsubscribeNewsletterSubscriber);

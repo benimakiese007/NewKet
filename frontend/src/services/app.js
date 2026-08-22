@@ -55,7 +55,7 @@ const deferredImports = [
     { load: () => import('./behavior-tracking.js') },
     { load: () => import('./csv-export.js') },
     { load: () => import('./pull-to-refresh.js') },
-    { load: () => import('./realtime-notifications.js'), requiresBackend: true },
+    { load: () => import('./realtime-notifications.js') },
     { load: () => import('./presence-manager.js') },
     { load: () => import('./user-manager.js'), requiresBackend: true }
 ];

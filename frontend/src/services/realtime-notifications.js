@@ -13,16 +13,23 @@ const AppNotifications = {
     _broadcastModalListenerBound: false,
 
     init() {
+        console.log('[AppNotifications] Initialization started');
         this._setupPWA();
         
-        // Wait for Supabase client
-        document.addEventListener('newketInitialized', () => {
+        const bootRealtime = () => {
+            console.log('[AppNotifications] Booting realtime features');
             this._setupRealtime();
             this._setupBroadcastModalRecovery();
             this.syncDevicePushSubscription().catch(err => {
                 console.warn('[NewKet] Device push sync skipped:', err?.message || err);
             });
-        });
+        };
+
+        if (window.newketInitialized) {
+            bootRealtime();
+        } else {
+            window.addEventListener('newketInitialized', bootRealtime, { once: true });
+        }
     },
 
     /**
@@ -462,6 +469,10 @@ const AppNotifications = {
 
 window.AppNotifications = AppNotifications;
 
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        AppNotifications.init();
+    });
+} else {
     AppNotifications.init();
-});
+}

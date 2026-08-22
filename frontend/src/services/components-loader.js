@@ -407,16 +407,17 @@ const MINIMAL_HEADER_HTML = `<!-- NewKet Minimal Header Component -->
 
 const getBottomNavHTML = (role) => {
     const isSeller = role === 'seller' || role === 'supplier';
+    const isAdmin = role === 'admin';
     
     return `<!-- Liquid Glass Bottom Navbar -->
-<nav class="liquid-glass-nav fixed bottom-0 w-full z-[9999] flex items-center justify-around px-${isSeller ? '4' : '6'} py-3 sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-t-3xl">
+<nav class="liquid-glass-nav fixed bottom-0 w-full z-[9999] flex items-center justify-around px-4 py-3 sm:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-t-3xl">
     <a href="{{ROOT}}index.html" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
-        <iconify-icon icon="solar:home-smile-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
-        <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Accueil</span>
+        <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Accueil</span>
     </a>
     <a href="#" id="bottomNavSearchBtn" data-bottom-nav-item="search" onclick="event.preventDefault(); const sc = document.getElementById('mobileSearchContainer'); sc.classList.toggle('user-hidden-on-mobile'); if (!sc.classList.contains('user-hidden-on-mobile')) setTimeout(() => document.getElementById('searchInput').focus(), 50);" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Recherche">
-        <iconify-icon icon="solar:magnifer-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
-        <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Recherche</span>
+        <iconify-icon icon="solar:magnifer-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Recherche</span>
     </a>
     ${isSeller ? `
     <a href="{{ROOT}}src/pages/publish.html" data-bottom-nav-item="sell" class="nav-item-sell relative flex flex-col items-center justify-center -mt-5 publish-btn" aria-label="Vendre" data-track-action="navigation:publish_click">
@@ -424,15 +425,20 @@ const getBottomNavHTML = (role) => {
             <iconify-icon icon="solar:add-circle-bold" width="28" class="text-white"></iconify-icon>
         </span>
         <span class="text-[9px] font-bold tracking-wide text-white mt-1">Vendre</span>
-    </a>` : ''}
-    <a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item admin-hidden relative flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
-        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
+    </a>` : `
+    <a href="{{ROOT}}src/pages/shops.html" data-bottom-nav-item="shops" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Boutiques">
+        <iconify-icon icon="solar:shop-2-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Boutique</span>
+    </a>`}
+    ${!isAdmin ? `
+    <a href="#" data-bottom-nav-item="cart" onclick="event.preventDefault(); window.CartManager && window.CartManager.toggleCartUI();" class="nav-item relative flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Panier">
+        <iconify-icon icon="solar:cart-large-minimalistic-linear" width="22"></iconify-icon>
         <span class="cart-badge absolute -top-1 right-1 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold" style="display:none; width:16px; height:16px;">0</span>
-        <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Panier</span>
-    </a>
+        <span class="text-[9px] font-medium tracking-wide">Panier</span>
+    </a>` : ''}
     <a id="accountLinkMobileBottom" href="{{ROOT}}{{ACCOUNT_PATH}}" data-bottom-nav-item="account" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Profil">
-        <iconify-icon icon="solar:user-linear" width="${isSeller ? '22' : '24'}"></iconify-icon>
-        <span class="text-[${isSeller ? '9' : '10'}px] font-medium tracking-wide">Profil</span>
+        <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
+        <span class="text-[9px] font-medium tracking-wide">Profil</span>
     </a>
 </nav>`;
 };

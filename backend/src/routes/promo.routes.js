@@ -10,6 +10,7 @@ import {
     validateVendorPromo
 } from '../controllers/promo.controller.js';
 import { requireAuth, optionalAuth, requireAdmin } from '../middlewares/auth.js';
+import { promoRateLimit } from '../middlewares/rate-limits.js';
 
 import { body } from 'express-validator';
 import { validate } from '../middlewares/validation.js';
@@ -23,6 +24,7 @@ router.put('/vendor/:id', requireAuth, updateVendorPromo);
 router.patch('/vendor/:id/toggle', requireAuth, toggleVendorPromo);
 router.delete('/vendor/:id', requireAuth, deleteVendorPromo);
 router.post('/validate',
+    promoRateLimit,
     requireAuth,
     [
         body('promo_code').optional().trim().isString(),
@@ -32,6 +34,7 @@ router.post('/validate',
     validateVendorPromo
 );
 router.post('/apply', 
+    promoRateLimit,
     requireAuth, 
     [
         body('code').notEmpty().trim().isString(),

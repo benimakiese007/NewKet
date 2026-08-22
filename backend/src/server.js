@@ -153,9 +153,12 @@ app.use(helmet({
 app.use(compression());
 app.use(express.static(path.join(__dirname, '../../frontend/public')));
 
+// Rate limit global (couche 1) : protection large spectre contre le flooding.
+// Des limiters plus stricts sont appliqués route par route pour les endpoints sensibles
+// (auth, paiements, emails, promo, support) via middlewares/rate-limits.js.
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 100, // Réduit de 200 → 100 : suffisant pour un usage légitime
   message: { error: 'Trop de requetes, veuillez reessayer plus tard.' },
   standardHeaders: true,
   legacyHeaders: false,
