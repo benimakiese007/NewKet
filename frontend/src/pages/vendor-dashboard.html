@@ -1621,13 +1621,21 @@
                     try {
                         const state = await AppNotifications.getDeviceNotificationStatus();
                         toggle.checked = state === 'enabled';
-                        // Only truly disable for unsupported browsers — denied can be fixed by the user
-                        toggle.disabled = state === 'unsupported';
+                        // Only truly disable for unsupported browsers or ios-browser
+                        toggle.disabled = state === 'unsupported' || state === 'ios-browser';
 
                         if (state === 'denied') {
                             status.innerHTML = '🔕 Notifications bloquées dans votre navigateur. '
                                 + '<a href="https://support.google.com/chrome/answer/3220216" target="_blank" rel="noopener" '
                                 + 'class="underline text-blue-600 font-semibold">Comment les réactiver →</a>';
+                        } else if (state === 'ios-browser') {
+                            status.innerHTML = '<div class="mt-2 p-3 bg-gray-50 border border-gray-100 rounded-xl text-xs text-gray-700">'
+                                + '<p class="font-bold mb-1">Pour activer les notifications sur iPhone :</p>'
+                                + '<ol class="list-decimal list-inside space-y-1">'
+                                + '<li>Touchez l\'icône Partager <iconify-icon icon="solar:export-outline" class="inline align-middle"></iconify-icon> en bas</li>'
+                                + '<li>Choisissez <strong>"Sur l\'écran d\'accueil"</strong></li>'
+                                + '<li>Ouvrez l\'application installée pour vous abonner</li>'
+                                + '</ol></div>';
                         } else {
                             status.textContent = AppNotifications.getDeviceNotificationGuidance
                                 ? AppNotifications.getDeviceNotificationGuidance(state)

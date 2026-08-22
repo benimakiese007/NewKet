@@ -457,6 +457,14 @@ const AppNotifications = {
     },
 
     async getDeviceNotificationStatus() {
+        const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent || '')
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const isStandalone = window.matchMedia?.('(display-mode: standalone)')?.matches
+            || window.navigator.standalone === true;
+
+        // iPhone/iPad in browser (not installed as PWA) — needs install first
+        if (isIos && !isStandalone) return 'ios-browser';
+
         if (!this.isDevicePushSupported()) return 'unsupported';
         if (Notification.permission === 'denied') return 'denied';
         if (Notification.permission !== 'granted') return 'default';
