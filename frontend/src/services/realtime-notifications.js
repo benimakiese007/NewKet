@@ -420,24 +420,20 @@ const AppNotifications = {
 
     async enableDeviceNotifications() {
         if (!this.isDevicePushSupported()) {
-            this.showToast('Notifications appareil', this.getDeviceNotificationGuidance('unsupported'), 'warning');
-            return false;
+            throw new Error('Navigateur non supporte');
         }
 
         const publicKey = await this._getPushPublicKey();
         if (!publicKey) {
-            this.showToast('Notifications appareil', 'Les notifications appareil ne sont pas encore configurees cote serveur.', 'warning');
-            return false;
+            throw new Error('Configuration serveur manquante');
         }
 
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
-            this.showToast('Notifications appareil', 'Autorisation refusee ou ignoree.', 'warning');
-            return false;
+            throw new Error('Permission denied');
         }
 
         await this.syncDevicePushSubscription();
-        this.showToast('Notifications appareil', 'Les notifications appareil sont activees.', 'success');
         return true;
     },
 
@@ -452,7 +448,6 @@ const AppNotifications = {
             suppressToast: true
         });
         await subscription.unsubscribe();
-        this.showToast('Notifications appareil', 'Les notifications appareil sont desactivees.', 'info');
         return true;
     },
 

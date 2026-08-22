@@ -1593,6 +1593,13 @@
             if (status) status.textContent = enable ? 'Activation...' : 'Desactivation...';
 
             try {
+                // Clear any previous error messages
+                const feedbackEl = document.getElementById('push-feedback');
+                if (feedbackEl) {
+                    feedbackEl.textContent = '';
+                    feedbackEl.classList.add('hidden');
+                }
+
                 const ok = enable
                     ? await AppNotifications.enableDeviceNotifications()
                     : await AppNotifications.disableDeviceNotifications();
