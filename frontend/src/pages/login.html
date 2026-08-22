@@ -1408,6 +1408,13 @@
                         // Show "Mot de passe oublié ?" link more prominently if not already visible
                     } else if (msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network")) {
                         msg = "Problème de connexion au serveur. Vérifiez votre connexion internet.";
+                    } else if (
+                        msg.toLowerCase().includes("rate") ||
+                        msg.toLowerCase().includes("too many") ||
+                        msg.toLowerCase().includes("over_") ||
+                        msg.toLowerCase().includes("limit")
+                    ) {
+                        msg = "Trop de tentatives de connexion. Veuillez patienter quelques minutes avant de réessayer.";
                     } else {
                         msg = "Identifiant ou mot de passe incorrect.";
                     }
@@ -1416,6 +1423,13 @@
                         msg = "Cette adresse email est déjà utilisée. Essayez de vous connecter.";
                     } else if (msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network")) {
                         msg = "Problème de connexion. Vérifiez votre connexion internet.";
+                    } else if (
+                        msg.toLowerCase().includes("rate") ||
+                        msg.toLowerCase().includes("too many") ||
+                        msg.toLowerCase().includes("over_") ||
+                        msg.toLowerCase().includes("limit")
+                    ) {
+                        msg = "Trop de tentatives. Veuillez patienter quelques minutes avant de réessayer.";
                     }
                 }
                 showError(msg);

@@ -1,5 +1,15 @@
 import { captureError } from './sentry.js';
 
+// Tracks the last button/submit element clicked by the user.
+// Used to display 429 rate-limit errors as inline feedback directly under
+// the button that triggered the request, instead of a generic toast.
+(function trackLastClickedButton() {
+    document.addEventListener('click', (e) => {
+        const btn = e.target?.closest('button, [type="submit"], [role="button"]');
+        if (btn) window._lastClickedBtn = btn;
+    }, { capture: true, passive: true });
+})();
+
 // En production (Vercel) et en developpement (vercel dev), les appels /api/* sont routés vers les Serverless Functions.
 let API_BASE_URL = (import.meta.env.VITE_API_URL ?? '').trim() || '/api';
 
@@ -319,10 +329,18 @@ export const ApiClient = {
                 }
             }
 
-            if (!options.suppressToast && typeof window.showToast === 'function' && !isTransientLocalGateway) {
+            if (!options.suppressToast && !isTransientLocalGateway) {
                 // On n'affiche pas : erreurs réseau pures, auth (401/403), gateway (502/503/504).
                 if (!isNetworkFailure(error) && !isGatewayError && error.status !== 401 && error.status !== 403) {
-                    window.showToast(error.message || "Une erreur est survenue.", "danger");
+                    const is429 = error.status === 429;
+                    const btn = window._lastClickedBtn;
+
+                    if (is429 && btn && typeof window.showInlineFeedback === 'function') {
+                        // Erreur rate-limit : afficher sous le bouton qui a déclenché la requête
+                        window.showInlineFeedback(btn, error.message || 'Trop de tentatives. Réessayez dans quelques minutes.', 'error');
+                    } else if (typeof window.showToast === 'function') {
+                        window.showToast(error.message || "Une erreur est survenue.", "danger");
+                    }
                 }
             }
 
