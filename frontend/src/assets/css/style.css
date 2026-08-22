@@ -10195,12 +10195,11 @@ html.dark .skeleton::after {
 
 /* Liquid Glass Bottom Navbar */
 .liquid-glass-nav {
-  background: rgba(15, 15, 15, 0.65);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4);
 }
 
 @media (max-width: 639px) {
