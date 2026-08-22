@@ -46,10 +46,7 @@ export const addNotification = async (req, res) => {
         if (!userEmail) return res.status(401).json({ error: 'Utilisateur non authentifié.' });
         if (!title || !message) return res.status(400).json({ error: 'Titre et message requis.' });
 
-        const isBroadcast = type === 'broadcast'
-            || String(type || '').startsWith('broadcast:')
-            || String(type || '').startsWith('broadcast-modal:');
-        const mappedTargetRole = isBroadcast ? 'all' : (target || 'all');
+        const mappedTargetRole = target || 'all';
 
         const insertPayload = {
             id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
