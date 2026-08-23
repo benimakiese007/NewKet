@@ -154,9 +154,47 @@ const ProductManager = {
      */
     _handleUpdatedProductRealtime(rawProduct) {
         const updated = this._mapProduct(rawProduct);
+        
+        if (updated.is_archived) {
+            // Remove from public products if it was there
+            const wasInProducts = this.products.some(p => p.id === updated.id);
+            if (wasInProducts) {
+                this.products = this.products.filter(p => p.id !== updated.id);
+                this._totalCount = Math.max(0, this._totalCount - 1);
+            }
+            
+            // Add to archived products if it wasn't there
+            const isAlreadyArchived = this._archivedProducts.some(p => p.id === updated.id);
+            if (!isAlreadyArchived) {
+                this._archivedProducts.push(updated);
+                window.dispatchEvent(new CustomEvent('archivedProductsUpdated'));
+            } else {
+                // Update it in archived products
+                const archIdx = this._archivedProducts.findIndex(p => p.id === updated.id);
+                if (archIdx !== -1) this._archivedProducts[archIdx] = updated;
+                window.dispatchEvent(new CustomEvent('archivedProductsUpdated'));
+            }
+            
+            if (wasInProducts) window.dispatchEvent(new CustomEvent('productsUpdated'));
+            return;
+        }
+
+        // It is NOT archived (either newly restored or just updated)
+        // Remove from archived products if it was there
+        const archIdx = this._archivedProducts.findIndex(p => p.id === updated.id);
+        if (archIdx !== -1) {
+            this._archivedProducts.splice(archIdx, 1);
+            window.dispatchEvent(new CustomEvent('archivedProductsUpdated'));
+        }
+
+        // Update or add to public products
         const idx = this.products.findIndex(p => p.id === updated.id);
         if (idx !== -1) {
             this.products[idx] = updated;
+        } else {
+            // It was restored, we add it to the top
+            this.products.unshift(updated);
+            this._totalCount++;
         }
         window.dispatchEvent(new CustomEvent('productsUpdated'));
     },
@@ -183,6 +221,7 @@ const ProductManager = {
                 try {
                     const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
+                        eq: [['is_archived', false]],
                         order: ['created_at', { ascending: false }],
                         limit: PRODUCTS_PAGE_SIZE
                     });
@@ -205,6 +244,7 @@ const ProductManager = {
                 } catch (joinErr) {
                     const fetchedProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: '*',
+                        eq: [['is_archived', false]],
                         order: ['created_at', { ascending: false }],
                         limit: PRODUCTS_PAGE_SIZE
                     });
@@ -252,7 +292,7 @@ const ProductManager = {
                     const pinned = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         order: ['created_at', { ascending: false }],
-                        eq: [['pinned', true]]
+                        eq: [['pinned', true], ['is_archived', false]]
                     });
                     if (pinned && pinned.length > 0) {
                         const mappedPinned = pinned.map(p => this._mapProduct(p));
@@ -300,6 +340,7 @@ const ProductManager = {
             if (window.SupabaseAdapter && window.supabaseClient) {
                 newProducts = await window.SupabaseAdapter.fetchWithFilters('products', {
                     select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
+                    eq: [['is_archived', false]],
                     order: ['created_at', { ascending: false }],
                     range: [offset, offset + PRODUCTS_PAGE_SIZE - 1]
                 });
@@ -308,6 +349,7 @@ const ProductManager = {
                 } else if (newProducts.length === PRODUCTS_PAGE_SIZE) {
                     const probe = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: 'id',
+                        eq: [['is_archived', false]],
                         order: ['created_at', { ascending: false }],
                         range: [offset + PRODUCTS_PAGE_SIZE, offset + PRODUCTS_PAGE_SIZE]
                     });
@@ -475,7 +517,7 @@ const ProductManager = {
                     byEmail = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         order: ['created_at', { ascending: false }],
-                        eq: [['supplier_email', email]],
+                        eq: [['supplier_email', email], ['is_archived', false]],
                         skipCache: true,
                         suppressErrorLogging: true
                     });
@@ -486,7 +528,7 @@ const ProductManager = {
                     byUser = await window.SupabaseAdapter.fetchWithFilters('products', {
                         select: '*, users!supplier_email(company_name, name, avatar, seller_type)',
                         order: ['created_at', { ascending: false }],
-                        eq: [['user_id', userId]],
+                        eq: [['user_id', userId], ['is_archived', false]],
                         skipCache: true,
                         suppressErrorLogging: true
                     });
@@ -814,6 +856,7 @@ const ProductManager = {
                 this.products = this.products.filter(p => p.id !== id);
                 this._totalCount--;
                 window.dispatchEvent(new CustomEvent('productsUpdated'));
+                window.dispatchEvent(new CustomEvent('archivedProductsUpdated'));
                 if (window.ActivityManager) ActivityManager.log(`Produit archivé : ${product.name}`, 'stock');
             }
         }

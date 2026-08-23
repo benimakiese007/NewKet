@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
+import { createHash } from 'crypto';
 
 function getHtmlPages(dir, baseDir = '') {
   let results = {};
@@ -103,6 +104,29 @@ export default defineConfig({
           console.log(`[NewKet] manifest.json stamped with version: ${buildVersion}`);
         } catch (err) {
           console.warn('[NewKet] Unable to stamp manifest build version:', err?.message || err);
+        }
+      }
+    },
+    {
+      name: 'newket-icon-version-hash',
+      closeBundle() {
+        // Calcule un hash court du fichier icône principal.
+        // Si l'icône change → hash change → ICON_VERSION change → bandeau iOS affiché.
+        // Si seul le code change → icône inchangée → même hash → rien affiché.
+        const iconPath = resolve(__dirname, 'public/icons/icon-512-v2.png');
+        const pwaScriptPath = resolve(__dirname, 'dist/js/pwa-ios-update.js');
+        try {
+          const iconBuffer = readFileSync(iconPath);
+          const iconHash = createHash('sha256').update(iconBuffer).digest('hex').slice(0, 8);
+          const source = readFileSync(pwaScriptPath, 'utf8');
+          writeFileSync(
+            pwaScriptPath,
+            source.replaceAll('__NEWKET_ICON_VERSION__', iconHash),
+            'utf8'
+          );
+          console.log(`[NewKet] Icon version hash: ${iconHash}`);
+        } catch (err) {
+          console.warn('[NewKet] Unable to stamp icon version hash:', err?.message || err);
         }
       }
     },

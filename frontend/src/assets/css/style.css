@@ -28,23 +28,17 @@ html.auth-loading::before {
     to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
+/* Pages sans auth-loading (avec skeletons) : fade-in immédiat */
+html:not(.auth-loading) body {
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Pages avec auth-loading (login, reset-password...) : masque le body */
 html.auth-loading body {
     opacity: 0 !important;
     pointer-events: none !important;
     transition: none !important;
-}
-
-/* Allow the hamburger menu to stay clickable during auth-loading */
-html.auth-loading .iconify-icon[icon="solar:hamburger-menu-bold"],
-html.auth-loading .iconify-icon[icon="solar:hamburger-menu-linear"],
-html.auth-loading .sidebar-toggle,
-html.auth-loading .mobile-burger {
-    pointer-events: auto !important;
-}
-
-html:not(.auth-loading) body {
-    opacity: 1;
-    transition: opacity 0.4s ease-in-out;
 }
 
 

@@ -545,6 +545,7 @@
 
             // --- Delivery info ---
             const deliveryEl = document.getElementById('productDeliveryInfo');
+            const shippingTime = p.shipping_time || p.delivery_time || null;
             if (deliveryEl) deliveryEl.textContent = shippingTime || 'À convenir';
 
             // --- Guarantee info ---

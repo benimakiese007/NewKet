@@ -169,35 +169,16 @@ const App = {
             return; // Halt further initialization
         }
 
-        const backendReady = await resolveLocalBackendReady();
-        window.newketBackendReady = backendReady;
-        if (!backendReady && isLocalHost) {
-            console.warn('[NewKet App] Local backend unavailable. Skipping API-backed managers until /api/health is reachable.');
-        }
+        // ── AFFICHAGE IMMÉDIAT ──────────────────────────────────────────────
+        // L'auth est vérifiée (AuthManager.init() est terminé).
+        // On retire la classe de chargement maintenant pour afficher les skeletons
+        // déjà présents dans le HTML, pendant que les managers chargent en arrière-plan.
+        document.documentElement.classList.remove('auth-loading');
+        window.newketInitialized = true;
+        window.dispatchEvent(new CustomEvent('newketInitialized'));
+        // ───────────────────────────────────────────────────────────────────
 
-        // Product and Order managers now handle their own internal "immediate resolve" from cache
-        const initPromises = [];
-        if (window.ProductManager && backendReady) initPromises.push(ProductManager.init());
-
-        // Orders are needed for customer + vendor dashboards too.
-        if (window.OrderManager && isLoggedIn && backendReady) initPromises.push(OrderManager.init());
-        if (window.UserManager && isAdmin && backendReady) initPromises.push(UserManager.init());
-        
-        // Managed Utilities
-        if (window.PromoManager && isAdmin && backendReady) initPromises.push(PromoManager.init().catch(e => console.warn('[App] PromoManager init failed (non-blocking):', e.message)));
-        if (window.ActivityManager && isAdmin && backendReady) initPromises.push(ActivityManager.init().catch(e => console.warn('[App] ActivityManager init failed (non-blocking):', e.message)));
-        if (window.NotificationManager && isLoggedIn && backendReady) initPromises.push(NotificationManager.init().catch(e => console.warn('[App] NotificationManager init failed (non-blocking):', e.message)));
-        if (window.FavoritesManager && isLoggedIn && backendReady) initPromises.push(FavoritesManager.syncFromSupabase().catch(e => console.warn('[App] FavoritesManager sync failed (non-blocking):', e.message)));
-
-        const initResults = await Promise.allSettled(initPromises);
-        initResults.forEach((result) => {
-            if (result.status === 'rejected') {
-                const message = result.reason?.message || String(result.reason || 'Unknown error');
-                console.warn('[App] Non-blocking init failure:', message);
-            }
-        });
-
-        // 3. Initialize UI State
+        // 3. Initialize UI State (synchrone, instantané)
         if (window.CurrencyManager) {
             CurrencyManager.init();
         }
@@ -208,10 +189,43 @@ const App = {
         // 4. Global Event Listeners
         this.bindGlobalEvents();
 
-        // Remove the loading screen only when the entire app and all managers are ready.
-        document.documentElement.classList.remove('auth-loading');
-        window.newketInitialized = true;
-        window.dispatchEvent(new CustomEvent('newketInitialized'));
+        // ── MANAGERS EN ARRIÈRE-PLAN (non-bloquants) ────────────────────────
+        // On ne bloque plus l'affichage. Les skeletons se remplacent par les vraies
+        // données dès que chaque manager a fini de charger.
+        (async () => {
+            const backendReady = await resolveLocalBackendReady();
+            window.newketBackendReady = backendReady;
+            if (!backendReady && isLocalHost) {
+                console.warn('[NewKet App] Local backend unavailable. Skipping API-backed managers until /api/health is reachable.');
+            }
+
+            const initPromises = [];
+            if (window.ProductManager && backendReady) initPromises.push(ProductManager.init());
+
+            // Orders are needed for customer + vendor dashboards too.
+            if (window.OrderManager && isLoggedIn && backendReady) initPromises.push(OrderManager.init());
+            if (window.UserManager && isAdmin && backendReady) initPromises.push(UserManager.init());
+
+            // Managed Utilities
+            if (window.PromoManager && isAdmin && backendReady) initPromises.push(PromoManager.init().catch(e => console.warn('[App] PromoManager init failed (non-blocking):', e.message)));
+            if (window.ActivityManager && isAdmin && backendReady) initPromises.push(ActivityManager.init().catch(e => console.warn('[App] ActivityManager init failed (non-blocking):', e.message)));
+            if (window.NotificationManager && isLoggedIn && backendReady) initPromises.push(NotificationManager.init().catch(e => console.warn('[App] NotificationManager init failed (non-blocking):', e.message)));
+            if (window.FavoritesManager && isLoggedIn && backendReady) initPromises.push(FavoritesManager.syncFromSupabase().catch(e => console.warn('[App] FavoritesManager sync failed (non-blocking):', e.message)));
+
+            const initResults = await Promise.allSettled(initPromises);
+            initResults.forEach((result) => {
+                if (result.status === 'rejected') {
+                    const message = result.reason?.message || String(result.reason || 'Unknown error');
+                    console.warn('[App] Non-blocking init failure:', message);
+                }
+            });
+
+            // Mettre à jour les favoris une fois les données prêtes
+            if (window.FavoritesManager) {
+                FavoritesManager.updateUI();
+            }
+        })().catch(e => console.warn('[App] Background init error:', e?.message));
+        // ───────────────────────────────────────────────────────────────────
     },
 
     bindGlobalEvents() {

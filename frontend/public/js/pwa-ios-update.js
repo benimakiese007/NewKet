@@ -1,34 +1,33 @@
 /**
  * NewKet — iOS PWA Update Notifier
  *
- * Détecte quand une nouvelle version est déployée et affiche un bandeau
- * discret sur iOS (où les icônes PWA ne se mettent pas à jour automatiquement).
+ * Affiche un bandeau sur iOS uniquement quand l'icône PWA a changé.
  *
- * Logique :
- *  1. Lire la version actuelle depuis <meta name="newket-version">
- *  2. Comparer avec la dernière version vue (stockée dans localStorage)
- *  3. Si différente ET que l'app tourne en mode standalone iOS → afficher le bandeau
- *  4. Marquer comme vue pour ne pas répéter le bandeau à chaque ouverture
+ * ⚠️  Pour déclencher le bandeau : changer ICON_VERSION ci-dessous
+ *     (ex: 'v2' → 'v3') ET déployer. Ne pas toucher à cette valeur
+ *     si seul le code a changé (pas l'icône).
  */
 
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'newket_pwa_version';
+  /**
+   * ⚙️  Valeur calculée automatiquement au build depuis le hash de l'icône.
+   *    → Si le fichier icône change, ce hash change, le bandeau s'affiche.
+   *    → Si seul le code change, ce hash reste identique, rien ne s'affiche.
+   *    Ne pas modifier manuellement.
+   */
+  const ICON_VERSION = '__NEWKET_ICON_VERSION__';
+
+  const STORAGE_KEY = 'newket_icon_version';
   const BANNER_ID   = 'newket-ios-update-banner';
 
-  /** Vrai uniquement sur un iPhone/iPad en mode standalone (installé sur l'ecran d'accueil) */
+  /** Vrai uniquement sur un iPhone/iPad en mode standalone (installé sur l'écran d'accueil) */
   function isIosPwa() {
     return (
       /iphone|ipad|ipod/i.test(navigator.userAgent) &&
       window.navigator.standalone === true
     );
-  }
-
-  /** Lire la version injectee par Vite au moment du build */
-  function getCurrentVersion() {
-    const meta = document.querySelector('meta[name="newket-version"]');
-    return meta ? meta.getAttribute('content') : null;
   }
 
   /** Creer et afficher le bandeau de notification */
@@ -89,12 +88,10 @@
   /** Point d'entree principal */
   function init() {
     if (!isIosPwa()) return;
-    var currentVersion = getCurrentVersion();
-    if (!currentVersion) return;
     var knownVersion;
     try { knownVersion = localStorage.getItem(STORAGE_KEY); } catch (_) { knownVersion = null; }
-    if (currentVersion !== knownVersion) {
-      setTimeout(function () { showBanner(currentVersion); }, 800);
+    if (ICON_VERSION !== knownVersion) {
+      setTimeout(function () { showBanner(ICON_VERSION); }, 800);
     }
   }
 

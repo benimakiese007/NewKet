@@ -7,7 +7,6 @@
   "background_color": "#ffffff",
   "theme_color": "#064734",
   "orientation": "portrait",
-  "version": "__NEWKET_BUILD_VERSION__",
   "categories": [
     "shopping",
     "lifestyle",
@@ -15,25 +14,25 @@
   ],
   "icons": [
     {
-      "src": "/icons/icon-192-v2.png?v=__NEWKET_BUILD_VERSION__",
+      "src": "/icons/icon-192-v2.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-192-maskable-v2.png?v=__NEWKET_BUILD_VERSION__",
+      "src": "/icons/icon-192-maskable-v2.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-512-v2.png?v=__NEWKET_BUILD_VERSION__",
+      "src": "/icons/icon-512-v2.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512-maskable-v2.png?v=__NEWKET_BUILD_VERSION__",
+      "src": "/icons/icon-512-maskable-v2.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

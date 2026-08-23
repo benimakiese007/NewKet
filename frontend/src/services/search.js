@@ -308,12 +308,13 @@ const SearchManager = {
             const popOptions = {
                 limit: 4,
                 order: ['created_at', { ascending: false }],
-                select: 'id, name, category, price, image'
+                select: 'id, name, category, price, image',
+                eq: [['is_archived', false]]
             };
             
             // Apply category filter if selected
             if (this.selectedCategory !== 'all') {
-                popOptions.eq = [['category', this.selectedCategory]];
+                popOptions.eq.push(['category', this.selectedCategory]);
             }
 
             const popularProducts = await window.SupabaseAdapter.fetchWithFilters('products', popOptions);
@@ -424,12 +425,13 @@ const SearchManager = {
             const searchOptions = {
                 or: `name.ilike."%${safeQuery}%",category.ilike."%${safeQuery}%"`,
                 limit: 6,
-                select: 'id, name, category, price, image'
+                select: 'id, name, category, price, image',
+                eq: [['is_archived', false]]
             };
 
             // Apply category filter if selected
             if (this.selectedCategory !== 'all') {
-                searchOptions.eq = [['category', this.selectedCategory]];
+                searchOptions.eq.push(['category', this.selectedCategory]);
             }
 
             const filtered = await window.SupabaseAdapter.fetchWithFilters('products', searchOptions);
