@@ -1440,12 +1440,16 @@
                 // Upload zone click and input change is now handled by document event delegation
             }
         });
-</script>
-</body>
-</html>
 
+let variantRowCounter = 0;
+let variantImageFiles = {};
 
+function getVariantCurrencyLabel() {
+    const currInput = document.getElementById('currencyInput');
+    return currInput && currInput.value === 'USD' ? '$' : 'FC';
+}
 
+function createVariantRow() {
     const rowId = `vrow_${++variantRowCounter}`;
     const currLabel = getVariantCurrencyLabel();
     const isPromo = document.getElementById('isPromoToggle')?.checked && document.getElementById('variantsToggle')?.checked;

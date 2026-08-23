@@ -61,7 +61,7 @@
 
     banner.innerHTML = '<div style="flex:1;">'
       + '<strong style="display:block;margin-bottom:3px;">NewKet a ete mis a jour !</strong>'
-      + '<span style="opacity:0.85;">Pour voir la nouvelle icone, supprimez l''app et reinstallez-la depuis Safari.</span>'
+      + `<span style="opacity:0.85;">Pour voir la nouvelle icone, supprimez l'app et reinstallez-la depuis Safari.</span>`
       + '</div>'
       + '<button id="' + BANNER_ID + '-close" aria-label="Fermer"'
       + ' style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;flex-shrink:0;padding:0 4px;opacity:0.8;line-height:1;margin-top:2px;"'
