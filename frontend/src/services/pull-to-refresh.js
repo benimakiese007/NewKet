@@ -9,6 +9,7 @@ const PullToRefresh = {
         pulling: false,
         armed: false,
         startY: 0,
+        spinnerAngle: 0,
         wrapper: null,
         indicator: null,
         label: null,
@@ -34,15 +35,17 @@ const PullToRefresh = {
         const style = document.createElement('style');
         style.id = 'nk-ptr-styles';
         style.textContent = `
+            /* Fixed at top of viewport — immune to DOM position, overflow:hidden, and z-index of parent containers */
             .nk-ptr-indicator-wrapper {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 9999;
                 display: flex;
                 justify-content: center;
-                align-items: center;
-                height: 0;
-                overflow: hidden;
-                width: 100%;
-                will-change: height;
-                transition: height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                padding-top: 14px;
+                pointer-events: none;
             }
 
             .nk-ptr-indicator {
@@ -65,16 +68,11 @@ const PullToRefresh = {
                     inset 0 0 0 1px rgba(255, 255, 255, 0.5);
                 
                 color: #000;
-                transform: translateY(-20px);
+                /* Hidden above viewport by default */
+                transform: translateY(-60px);
                 opacity: 0;
                 pointer-events: none;
-                transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
                 will-change: transform, opacity;
-            }
-
-            .nk-ptr-indicator.is-visible {
-                opacity: 1;
-                transform: translateY(0);
             }
 
             .nk-ptr-spinner-container {
@@ -96,9 +94,7 @@ const PullToRefresh = {
                 transition: transform 0.1s linear;
             }
 
-            .nk-ptr-indicator.is-refreshing .nk-ptr-spinner {
-                animation: nk-ptr-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-            }
+            /* Spinner animation handled via WAAPI in startRefresh() for smooth transition from pull angle */
 
             .nk-ptr-label {
                 font-size: 11px;
@@ -211,9 +207,22 @@ const PullToRefresh = {
         }
 
         // Apply resistance and limit pull distance
+        const wasArmed = this.state.armed;
         const pullDistance = Math.min(PTR_MAX_PULL_DISTANCE, deltaY * 0.4);
         this.state.armed = pullDistance >= PTR_TRIGGER_DISTANCE;
-        
+
+        // Haptic feedback when threshold is crossed (Android only — iOS ignores this)
+        if (this.state.armed && !wasArmed) {
+            navigator.vibrate?.(10);
+        }
+
+        // Re-verify we're still at top right before blocking native scroll (#1)
+        if (!this.atTop()) {
+            this.resetPullState();
+            this.resetVisuals();
+            return;
+        }
+
         event.preventDefault();
         this.applyPullVisuals(pullDistance);
     },
@@ -239,51 +248,69 @@ const PullToRefresh = {
 
     applyPullVisuals(pullDistance) {
         const progress = Math.min(1, pullDistance / PTR_TRIGGER_DISTANCE);
-        
-        if (this.state.wrapper) {
-            const wrapperHeight = Math.round(progress * PTR_MAX_TRANSLATE);
-            this.state.wrapper.style.transition = 'none';
-            this.state.wrapper.style.height = `${wrapperHeight}px`;
-        }
 
+        // Drive the pill in from above — no wrapper height needed since wrapper is now position:fixed
         if (this.state.indicator) {
-            this.state.indicator.classList.add('is-visible');
             this.state.indicator.classList.remove('is-refreshing');
-            
-            const pillTranslate = Math.min(0, Math.round(progress * 20) - 20);
-            this.state.indicator.style.transform = `translateY(${pillTranslate}px)`;
+            const translateY = Math.round((progress - 1) * 60); // -60px → 0 as progress 0 → 1
+            const opacity = Math.min(1, progress * 1.4);
+            this.state.indicator.style.transition = 'none';
+            this.state.indicator.style.transform = `translateY(${translateY}px)`;
+            this.state.indicator.style.opacity = opacity.toString();
         }
 
         if (this.state.label) {
-            this.state.label.textContent = this.state.armed ? 'Relâcher' : 'Tirer';
+            // Fix #6 — clearer label before threshold
+            this.state.label.textContent = this.state.armed ? 'Relâcher' : 'Tirer pour actualiser';
+            this.state.label.style.color = '';
         }
 
         if (this.state.spinner) {
-            this.state.spinner.style.transform = `rotate(${Math.round(progress * 180)}deg)`;
+            // Fix #7 — track angle so WAAPI can continue smoothly from here
+            const angle = Math.round(progress * 180);
+            this.state.spinnerAngle = angle;
+            this.state.spinner.style.transform = `rotate(${angle}deg)`;
         }
     },
 
     async startRefresh() {
         this.state.refreshing = true;
 
-        if (this.state.wrapper) {
-            this.state.wrapper.style.transition = 'height 0.3s cubic-bezier(0.2, 0, 0, 1)';
-            this.state.wrapper.style.height = `${PTR_MAX_TRANSLATE}px`;
-        }
-
+        // Wrapper is now position:fixed — just animate the pill into view with a spring
         if (this.state.indicator) {
-            this.state.indicator.classList.add('is-visible', 'is-refreshing');
-            this.state.indicator.style.transform = `translateY(0)`;
+            this.state.indicator.classList.add('is-refreshing');
+            this.state.indicator.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
+            this.state.indicator.style.transform = 'translateY(0)';
+            this.state.indicator.style.opacity = '1';
         }
 
         if (this.state.label) {
             this.state.label.textContent = 'Actualisation...';
+            this.state.label.style.color = '';
+        }
+
+        // Fix #7 — WAAPI spin starting from the exact angle where the pull stopped
+        if (this.state.spinner) {
+            const startAngle = this.state.spinnerAngle ?? 0;
+            this.state.spinner.style.transform = '';
+            this.state.spinner.animate(
+                [
+                    { transform: `rotate(${startAngle}deg)` },
+                    { transform: `rotate(${startAngle + 360}deg)` }
+                ],
+                { duration: 800, iterations: Infinity, easing: 'cubic-bezier(0.4, 0, 0.2, 1)' }
+            );
         }
 
         try {
             await window.NewKetPageRefresh();
         } catch (error) {
+            // Fix #2 — visible error feedback instead of silent failure
             console.error('[NewKet PTR] Refresh failed:', error);
+            if (this.state.label) {
+                this.state.label.textContent = 'Erreur ⚠️';
+                this.state.label.style.color = '#ef4444';
+            }
         } finally {
             window.setTimeout(() => {
                 this.state.refreshing = false;
@@ -295,24 +322,23 @@ const PullToRefresh = {
     resetPullState() {
         this.state.pulling = false;
         this.state.armed = false;
+        this.state.spinnerAngle = 0;
     },
 
     resetVisuals() {
-        if (this.state.wrapper) {
-            this.state.wrapper.style.transition = 'height 0.5s cubic-bezier(0.2, 0, 0, 1)';
-            this.state.wrapper.style.height = '0';
-        }
-
         if (this.state.indicator) {
-            this.state.indicator.classList.remove('is-visible', 'is-refreshing');
-            this.state.indicator.style.transform = 'translateY(-20px)';
+            this.state.indicator.classList.remove('is-refreshing');
+            // Slide pill back above viewport
+            this.state.indicator.style.transition = 'transform 0.35s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s ease';
+            this.state.indicator.style.transform = 'translateY(-60px)';
+            this.state.indicator.style.opacity = '0';
         }
 
-        window.setTimeout(() => {
-            if (!this.state.pulling && !this.state.refreshing && this.state.wrapper) {
-                this.state.wrapper.style.transition = '';
-            }
-        }, 500);
+        // Fix #7 — cancel WAAPI spin animation and reset spinner
+        if (this.state.spinner) {
+            this.state.spinner.getAnimations().forEach(a => a.cancel());
+            this.state.spinner.style.transform = 'rotate(0deg)';
+        }
     }
 };
 

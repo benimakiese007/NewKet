@@ -410,7 +410,7 @@ const getBottomNavHTML = (role) => {
     const isAdmin = role === 'admin';
     
     return `<!-- Liquid Glass Bottom Navbar -->
-<nav class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-4 py-3 sm:hidden shadow-[0_10px_40px_rgba(0,0,0,0.2)] rounded-full w-[calc(100%-2rem)] left-4" style="bottom: 1.25rem;">
+<nav class="liquid-glass-nav fixed z-[9999] flex items-center justify-around px-4 sm:hidden shadow-[0_10px_40px_rgba(0,0,0,0.2)] rounded-[32px] w-[calc(100%-44px)] left-[22px] h-[64px]" style="bottom: calc(env(safe-area-inset-bottom, 0px) - 16px);">
     <a href="{{ROOT}}index.html" data-bottom-nav-item="home" class="nav-item flex flex-col items-center justify-center gap-1 text-white hover:text-white/80 transition-all active:scale-95" aria-label="Accueil">
         <iconify-icon icon="solar:home-smile-linear" width="22"></iconify-icon>
         <span class="text-[9px] font-medium tracking-wide">Accueil</span>

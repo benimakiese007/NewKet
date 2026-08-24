@@ -24,12 +24,9 @@ npm run dev:frontend
 ## Variables importantes
 
 - `frontend/.env` : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
-- `backend/.env` : `SUPABASE_SECRET_KEY`, SMTP, Sentry, Stripe
+- `backend/.env` : `SUPABASE_SECRET_KEY`, SMTP, Sentry
 
-## Paiement agrégateur
-
-- Le flux Stripe est déjà câblé côté backend et frontend.
-- Tant que les clés Stripe ne sont pas renseignées, l’API retourne `PAYMENT_PROVIDER_NOT_CONFIGURED`.
+- Tant que les clés FlexPaie ne sont pas renseignées, l’API retourne `PAYMENT_PROVIDER_NOT_CONFIGURED`.
 - La libération d’escrow continue de fonctionner, mais le payout vendeur reste manuel jusqu’à l’activation des clés payout/provider.
 
 ## Validation locale

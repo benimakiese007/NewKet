@@ -16,7 +16,7 @@ Ce document a pour but de vous présenter l'architecture, les choix technologiqu
 *   **Base de Données & Auth** : Supabase (PostgreSQL)
 *   **Hébergement / CI-CD** : Vercel (Front) 
 *   **Stockage Fichiers** : Cloudinary (Gestion des images via backend)
-*   **Paiements** : FlexPaie (Mobile Money local CDF/USD) et Stripe (câblé côté code)
+*   **Paiements** : FlexPaie (Mobile Money local CDF/USD)
 
 ---
 
@@ -75,7 +75,7 @@ Pour faire fonctionner le projet localement, vous devez configurer les fichiers 
 
 **Dans `backend/.env` :**
 *   `SUPABASE_SECRET_KEY` : Clé secrète (Service Role) Supabase
-*   **Paiement** : Clés API FlexPaie / Stripe
+*   **Paiement** : Clés API FlexPaie
 *   **SMTP** : Identifiants pour l'envoi d'emails (Nodemailer)
 *   **Sentry** : Configuration pour le suivi des erreurs
 *   **Cloudinary** : Clés pour l'upload d'images
@@ -87,12 +87,12 @@ Pour faire fonctionner le projet localement, vous devez configurer les fichiers 
 ## 5. Architecture de Paiement et Séquestre
 
 La sécurité des transactions est le pilier de NewKet. Le système fonctionne ainsi :
-1.  **Achat** : L'acheteur paie (via FlexPaie ou carte bancaire).
-2.  **Séquestre** : L'argent est bloqué par le système avec un statut `DEFERRED_CLEARANCE`.
-3.  **Livraison** : L'acheteur valide la réception de la commande.
-4.  **Libération (Payout)** : Après un délai de **72 heures**, un *Cron Job* backend transfère automatiquement les fonds sur le compte marchand du vendeur.
+1.  **Achat** : L'acheteur paie via FlexPaie.
+2.  **Webhook** : FlexPaie valide le paiement en appelant `/api/payment/webhook`.
+3.  **Livraison** : Le statut passe en livraison, le client/vendeur sont notifiés.
+4.  **Payout** : Une fois la commande finalisée, on split le montant (Commission plateforme / Vendeur) et le solde du vendeur augmente.
 
-*Note de développement : Tant que les clés API de paiement (Stripe/FlexPaie) ne sont pas renseignées en local, l’API retourne une erreur `PAYMENT_PROVIDER_NOT_CONFIGURED`, ce qui bloque proprement le flux de paiement lors de vos tests.*
+*Note de développement : Tant que les clés API de paiement (FlexPaie) ne sont pas renseignées en local, l’API retourne une erreur `PAYMENT_PROVIDER_NOT_CONFIGURED`, ce qui bloque proprement le flux de paiement lors de vos tests.*
 
 ---
 
