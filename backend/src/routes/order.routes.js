@@ -8,7 +8,8 @@ import {
     markOrderInDelivery,
     verifyDelivery,
     confirmOrderCompletion,
-    releaseEscrow
+    releaseEscrow,
+    reportClientNoShow
 } from '../controllers/order.controller.js';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
 import { body } from 'express-validator';
@@ -41,6 +42,7 @@ router.put('/:id/status',
 router.post('/:id/start-delivery', requireAuth, markOrderInDelivery);
 // SÉCURITÉ : Rate limit strict sur la vérification OTP (5 tentatives / 15 min par IP + commande)
 router.post('/:id/verify-delivery', requireAuth, otpRateLimit, verifyDelivery);
+router.post('/:id/report-no-show', requireAuth, reportClientNoShow);
 router.post('/:id/confirm-completion', requireAuth, confirmOrderCompletion);
 router.post('/:id/release-escrow', requireAuth, requireAdmin, releaseEscrow);
 

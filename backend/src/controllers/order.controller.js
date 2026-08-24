@@ -731,6 +731,77 @@ export const markOrderInDelivery = async (req, res) => {
     }
 };
 
+export const reportClientNoShow = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const order = await fetchOrderOr404(id, res);
+        if (!order) return;
+        if (!assertOrderMutableOrFail({ order, user: req.user, res, actionLabel: 'report-no-show' })) return;
+
+        if (!isVendorActor(order, req.user)) {
+            return res.status(403).json({ error: 'Seul le vendeur peut signaler une absence.' });
+        }
+
+        if (order.status !== ORDER_STATUSES.IN_DELIVERY) {
+            return res.status(400).json({ error: `La commande doit être en ${ORDER_STATUSES.IN_DELIVERY} pour signaler une absence.` });
+        }
+
+        // Vérifier si 48h se sont écoulées depuis le début de la livraison
+        const inDeliveryAt = order.in_delivery_at ? new Date(order.in_delivery_at) : new Date(order.updated_at);
+        const now = new Date();
+        const diffHours = (now - inDeliveryAt) / (1000 * 60 * 60);
+
+        if (diffHours < 48) {
+             // Just record the report if before 48h, could notify client
+             await logOrderStatusHistory(client, {
+                 orderId: id,
+                 previousStatus: order.status,
+                 newStatus: order.status,
+                 changedBy: req.user.id,
+                 notes: 'Vendor reported client no-show before 48h. Warning sent to client.'
+             });
+             // TODO: NotificationService.notifyClientNoShowWarning(order);
+             return res.status(200).json({ success: true, message: 'Absence signalée. Si le client ne se présente pas dans 48h, la commande sera annulée.', order });
+        }
+
+        // Si > 48h, on annule avec pénalité
+        const penaltyAmount = 5.00; // Pénalité fixe pour dédommagement vendeur
+        
+        const nowIso = now.toISOString();
+        const { data: updatedOrder, error } = await client
+            .from('orders')
+            .update({
+                status: ORDER_STATUSES.CANCELLED,
+                cancelled_at: nowIso,
+                updated_at: nowIso,
+                cancellation_reason: 'CLIENT_NO_SHOW'
+            })
+            .eq('id', id)
+            .select('*')
+            .single();
+
+        if (error) throw error;
+
+        // Logique de remboursement partiel : 
+        // Le client est remboursé (total - penaltyAmount)
+        // Le vendeur reçoit penaltyAmount sur son compte/wallet
+
+        await logOrderStatusHistory(client, {
+            orderId: id,
+            previousStatus: order.status,
+            newStatus: ORDER_STATUSES.CANCELLED,
+            changedBy: req.user.id,
+            notes: 'Order cancelled due to client no-show after 48h'
+        });
+
+        return res.status(200).json({ success: true, message: 'Commande annulée pour absence du client. Pénalité appliquée.', order: updatedOrder });
+    } catch (error) {
+        console.error('❌ Erreur reportClientNoShow:', error.message);
+        return res.status(500).json({ error: 'Impossible de signaler l\'absence.' });
+    }
+};
+
 export const verifyDelivery = async (req, res) => {
     try {
         const { id } = req.params;

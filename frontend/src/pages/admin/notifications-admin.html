@@ -227,14 +227,14 @@
                                     <span class="text-[10px] text-gray-500 font-medium">Affiche la modale aux utilisateurs connectés en ce moment</span>
                                 </span>
                             </label>
-                            <label class="delivery-mode-label flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 cursor-pointer transition-all" for="modePersistent">
-                                <input type="radio" name="deliveryMode" value="broadcast-modal" id="modePersistent" class="sr-only" checked onchange="updateDeliveryMode()">
+                            <label class="delivery-mode-label flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 cursor-pointer transition-all" for="modeGuestModal">
+                                <input type="radio" name="deliveryMode" value="guest-modal" id="modeGuestModal" class="sr-only" checked onchange="updateDeliveryMode()">
                                 <span class="delivery-radio w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center flex-shrink-0">
                                     <span class="delivery-dot w-2.5 h-2.5 rounded-full hidden"></span>
                                 </span>
                                 <span>
-                                    <span class="text-xs font-bold text-gray-900 block">🔵 Pop-up persistant (actifs + futurs visiteurs)</span>
-                                    <span class="text-[10px] text-gray-500 font-medium">Affiche la modale même aux utilisateurs qui arriveront plus tard</span>
+                                    <span class="text-xs font-bold text-gray-900 block">👤 Pop-up Invité Actif (visiteurs non-connectés)</span>
+                                    <span class="text-[10px] text-gray-500 font-medium">Affiche la modale uniquement aux visiteurs sans compte connecté</span>
                                 </span>
                             </label>
                         </div>
@@ -310,9 +310,9 @@
 
         function updateDeliveryMode() {
             const modeStyles = {
-                'push-only':       { border: 'border-blue-500',   bg: 'bg-blue-50',   dot: 'bg-blue-600',   radio: 'border-blue-600' },
-                'broadcast':       { border: 'border-indigo-500', bg: 'bg-indigo-50', dot: 'bg-indigo-600', radio: 'border-indigo-600' },
-                'broadcast-modal': { border: 'border-violet-500', bg: 'bg-violet-50', dot: 'bg-violet-600', radio: 'border-violet-600' }
+                'push-only':   { border: 'border-blue-500',   bg: 'bg-blue-50',   dot: 'bg-blue-600',   radio: 'border-blue-600' },
+                'broadcast':   { border: 'border-indigo-500', bg: 'bg-indigo-50', dot: 'bg-indigo-600', radio: 'border-indigo-600' },
+                'guest-modal': { border: 'border-violet-500', bg: 'bg-violet-50', dot: 'bg-violet-600', radio: 'border-violet-600' }
             };
             const selected = document.querySelector('input[name="deliveryMode"]:checked');
             document.querySelectorAll('.delivery-mode-label').forEach(label => {
@@ -391,7 +391,8 @@
             const rawType = String(notification.type || '');
             let deliveryMode = null;
             if (rawType.startsWith('push-only:')) deliveryMode = 'push-only';
-            else if (rawType.startsWith('broadcast-modal:')) deliveryMode = 'broadcast-modal';
+            else if (rawType.startsWith('guest-modal:')) deliveryMode = 'guest-modal';
+            else if (rawType.startsWith('broadcast-modal:')) deliveryMode = 'guest-modal'; // backward compat
             else if (rawType.startsWith('broadcast:') || rawType === 'broadcast') deliveryMode = 'broadcast';
             const target = notification.target_role || notification.target || 'all';
 
@@ -413,6 +414,8 @@
             if (window.normalizeNotificationType) return window.normalizeNotificationType(type);
             if (!type) return 'info';
             if (type === 'broadcast') return 'info';
+            // guest-modal (nouveau) et broadcast-modal (ancien) — même logique
+            if (String(type || '').startsWith('guest-modal:')) return (type.split(':').slice(1).join(':') || 'info');
             if (String(type || '').startsWith('broadcast-modal:')) return (type.split(':').slice(1).join(':') || 'info');
             return type.startsWith('broadcast:') ? (type.split(':')[1] || 'info') : type;
         }
@@ -421,7 +424,8 @@
             if (window.isPopupNotification) return window.isPopupNotification(type);
             return type === 'broadcast'
                 || String(type || '').startsWith('broadcast:')
-                || String(type || '').startsWith('broadcast-modal:');
+                || String(type || '').startsWith('broadcast-modal:')
+                || String(type || '').startsWith('guest-modal:');
         }
 
         function getNotificationIcon(type) {
@@ -441,9 +445,15 @@
 
         function getTypeBadge(type) {
             const displayType = getDisplayType(type);
+            // guest-modal (nouveau type) — Invité Actif
+            if (String(type || '').startsWith('guest-modal:')) {
+                return '<span class="badge" style="background:#6d28d9;color:white;">👤 Invité Actif</span>' +
+                    '<span class="badge" style="background:#ede9fe;color:#6d28d9;">Pop-up invité</span>';
+            }
+            // broadcast-modal (ancien type — rétrocompatibilité)
             if (String(type || '').startsWith('broadcast-modal:')) {
-                return '<span class="badge" style="background:#6d28d9;color:white;">Broadcast modal</span>' +
-                    '<span class="badge" style="background:#ede9fe;color:#6d28d9;">Pop-up forcé</span>';
+                return '<span class="badge" style="background:#6d28d9;color:white;">Invité Actif</span>' +
+                    '<span class="badge" style="background:#ede9fe;color:#6d28d9;">Pop-up invité</span>';
             }
             if (String(type || '').startsWith('broadcast:') || type === 'broadcast') {
                 return '<span class="badge" style="background:#312e81;color:white;">Broadcast</span>' +

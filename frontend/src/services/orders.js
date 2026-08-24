@@ -692,6 +692,31 @@ const OrderManager = {
         }
     },
 
+    async escalateDispute(disputeId) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/disputes/${disputeId}/escalate`, {});
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur escalateDispute:', error);
+            throw error;
+        }
+    },
+
+    async confirmReturn(disputeId, otp) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            const data = await ApiClient.post(`/disputes/${disputeId}/confirm-return`, { otp });
+            this._initialized = false;
+            window.dispatchEvent(new CustomEvent('ordersUpdated'));
+            return data;
+        } catch (error) {
+            console.error('[OrderManager] Erreur confirmReturn:', error);
+            throw error;
+        }
+    },
+
     async getDisputeMessages(disputeId) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {

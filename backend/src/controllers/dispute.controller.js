@@ -233,6 +233,41 @@ async function updateDisputeRecord(disputeId, patch) {
     return data;
 }
 
+function generateOtp() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+async function initiateReturn(dispute, order, changedBy, source, refundAmount) {
+    const returnOtp = generateOtp();
+    
+    // Set order back to IN_DELIVERY equivalent? Or just update otp_code.
+    await supabaseAdmin
+        .from('orders')
+        .update({
+            otp_code: returnOtp,
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', order.id);
+
+    const updatedDispute = await updateDisputeRecord(dispute.id, {
+        status: DISPUTE_STATUSES.AWAITING_RETURN,
+        resolution: DISPUTE_RESOLUTIONS.REFUND_WITH_RETURN,
+        refund_amount: Number(refundAmount || order.total_amount || 0),
+        review_due_at: null,
+        seller_response_due_at: null,
+        buyer_response_due_at: null,
+        last_actor_role: changedBy === dispute.customer_id ? 'BUYER' : (changedBy === dispute.vendor_id ? 'SELLER' : 'SYSTEM')
+    });
+
+    await addDisputeEventMessage(dispute.id, changedBy === 'system' ? null : changedBy, DISPUTE_MESSAGE_TYPES.SYSTEM, {
+        event: 'AWAITING_RETURN',
+        message: "Remboursement accepté sous condition de retour. Le vendeur détient le code OTP. L'acheteur doit ramener le produit et saisir l'OTP remis par le vendeur pour déclencher le remboursement.",
+        source
+    });
+
+    return updatedDispute;
+}
+
 async function markUnderReview(dispute, reason, changedBy = 'system') {
     const order = await getOrderOrNull(dispute.order_id);
     if (!order) return dispute;
@@ -655,6 +690,7 @@ export const vendorRespondToDispute = async (req, res) => {
 
         const isSettlementAction = [
             DISPUTE_VENDOR_ACTIONS.ACCEPT_REFUND,
+            DISPUTE_VENDOR_ACTIONS.ACCEPT_REFUND_WITH_RETURN,
             DISPUTE_VENDOR_ACTIONS.OFFER_PARTIAL_REFUND
         ].includes(action);
 
@@ -684,6 +720,17 @@ export const vendorRespondToDispute = async (req, res) => {
                 'vendor_accept_refund'
             );
 
+            return res.status(200).json({ success: true, data: updatedDispute });
+        }
+
+        if (action === DISPUTE_VENDOR_ACTIONS.ACCEPT_REFUND_WITH_RETURN) {
+            const updatedDispute = await initiateReturn(
+                dispute,
+                order,
+                vendorId,
+                'vendor_accept_refund_with_return',
+                Number(order.total_amount || 0)
+            );
             return res.status(200).json({ success: true, data: updatedDispute });
         }
 
@@ -831,6 +878,29 @@ export const resolveDispute = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Résolution finale invalide.' });
         }
 
+        if (finalResolution === DISPUTE_RESOLUTIONS.REFUND_WITH_RETURN) {
+            const updatedDispute = await initiateReturn(
+                dispute,
+                order,
+                req.user.id,
+                'admin_resolution',
+                refund_amount
+            );
+
+            // Optionnel : ajouter le message de décision de l'admin
+            if (resolution_decision) {
+                await addDisputeEventMessage(id, req.user.id, DISPUTE_MESSAGE_TYPES.MESSAGE, {
+                    message: `[DÉCISION ADMIN] : ${resolution_decision}`
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: 'Le litige est passé en attente de retour. L\'OTP a été généré.',
+                data: updatedDispute
+            });
+        }
+
         const updatedDispute = await updateDisputeRecord(id, {
             status: DISPUTE_STATUSES.RESOLVED,
             resolution: finalResolution,
@@ -962,6 +1032,134 @@ export const vendorResolveAmiable = async (req, res) => {
     } catch (error) {
         console.error('vendorResolveAmiable error:', error);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+/**
+ * Escalade manuelle à l'admin — bouton "Faire intervenir l'Admin"
+ * Accessible par l'acheteur OU le vendeur si le litige est OPEN, SELLER_PENDING ou BUYER_PENDING.
+ * Met le litige en UNDER_REVIEW et notifie l'équipe.
+ */
+export const escalateToAdmin = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const dispute = await getDisputeOrNull(id);
+        if (!dispute) {
+            return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+        }
+
+        const isParticipant = dispute.customer_id === userId || dispute.vendor_id === userId;
+        if (!isParticipant && !isAdmin(req.user)) {
+            return res.status(403).json({ success: false, message: 'Accès non autorisé.' });
+        }
+
+        const escalatableStatuses = [DISPUTE_STATUSES.OPEN, DISPUTE_STATUSES.SELLER_PENDING, DISPUTE_STATUSES.BUYER_PENDING];
+        if (!escalatableStatuses.includes(dispute.status)) {
+            return res.status(400).json({ success: false, message: `Le litige ne peut pas être escaladé depuis le statut ${dispute.status}.` });
+        }
+
+        const nowIso = new Date().toISOString();
+
+        await updateDisputeRecord(id, {
+            status: DISPUTE_STATUSES.UNDER_REVIEW,
+            review_due_at: addHours(nowIso, DISPUTE_REVIEW_HOURS),
+            last_actor_role: dispute.customer_id === userId ? 'BUYER' : 'VENDOR'
+        });
+
+        // Poster un message système dans le chat pour informer les deux parties
+        const actorLabel = dispute.customer_id === userId ? 'l\'acheteur' : 'le vendeur';
+        await addDisputeEventMessage(id, null, DISPUTE_MESSAGE_TYPES.SYSTEM, {
+            event: 'ADMIN_ESCALATION',
+            message: `L'administration a été sollicitée par ${actorLabel}. Le litige est maintenant sous révision. Une décision sera prise dans les 72h.`
+        });
+
+        // Notifier l'admin par email
+        const adminEmail = process.env.ADMIN_EMAIL || process.env.GMAIL_USER;
+        if (adminEmail) {
+            try {
+                await EmailService.sendEmail({
+                    to: adminEmail,
+                    subject: `[NewKet] Intervention demandée sur litige #${id.substring(0, 8)}`,
+                    text: `Un participant (${actorLabel}) a demandé une intervention admin sur le litige ${id} (commande ${dispute.order_id}). Connectez-vous au tableau de bord admin pour trancher.`
+                });
+            } catch (emailError) {
+                console.warn('[EscalateToAdmin] Email notification failed:', emailError.message);
+            }
+        }
+
+        const updatedDispute = await getDisputeOrNull(id);
+        return res.status(200).json({
+            success: true,
+            message: 'L\'administration a été notifiée. Le litige est sous révision.',
+            data: updatedDispute
+        });
+    } catch (error) {
+        console.error('escalateToAdmin error:', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur lors de l\'escalade.' });
+    }
+};
+
+/**
+ * Confirmation du retour physique par l'acheteur via l'OTP fourni par le vendeur.
+ */
+export const confirmReturn = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { otp } = req.body;
+        const userId = req.user.id;
+
+        if (!otp) {
+            return res.status(400).json({ success: false, message: 'Le code OTP est requis.' });
+        }
+
+        const dispute = await getDisputeOrNull(id);
+        if (!dispute) {
+            return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+        }
+
+        if (dispute.customer_id !== userId) {
+            return res.status(403).json({ success: false, message: 'Seul l\'acheteur peut confirmer le retour.' });
+        }
+
+        if (dispute.status !== DISPUTE_STATUSES.AWAITING_RETURN) {
+            return res.status(400).json({ success: false, message: 'Le litige n\'est pas en attente de retour.' });
+        }
+
+        const order = await getOrderOrNull(dispute.order_id);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Commande liée introuvable.' });
+        }
+
+        if (order.otp_code !== otp) {
+            return res.status(400).json({ success: false, message: 'Code OTP incorrect.' });
+        }
+
+        // Le code est bon ! On résout le litige en FULL_REFUND (ou le montant défini dans refund_amount)
+        const updatedDispute = await resolveAndCloseDispute(
+            dispute,
+            order,
+            DISPUTE_RESOLUTIONS.FULL_REFUND,
+            Number(dispute.refund_amount || order.total_amount || 0),
+            userId,
+            'buyer_confirm_return'
+        );
+
+        // Vider le code OTP pour des raisons de sécurité
+        await supabaseAdmin
+            .from('orders')
+            .update({ otp_code: null, updated_at: new Date().toISOString() })
+            .eq('id', order.id);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Retour confirmé avec succès. Le remboursement va être effectué.',
+            data: updatedDispute
+        });
+    } catch (error) {
+        console.error('confirmReturn error:', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur lors de la confirmation du retour.' });
     }
 };
 

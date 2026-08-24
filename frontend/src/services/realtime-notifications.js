@@ -108,11 +108,12 @@ const AppNotifications = {
                         const role = localStorage.getItem('newketRole') === 'supplier' ? 'suppliers' : 'customers';
                         const resolvedType = typeof window.normalizeNotificationType === 'function'
                             ? window.normalizeNotificationType(notif.type)
-                            : ((notif.type === 'broadcast' || String(notif.type || '').startsWith('broadcast-modal:')) ? 'info' : notif.type);
+                            : ((notif.type === 'broadcast' || String(notif.type || '').startsWith('broadcast-modal:') || String(notif.type || '').startsWith('guest-modal:')) ? 'info' : notif.type);
                         
                         const isBroadcast = notif.type === 'broadcast'
                             || String(notif.type || '').startsWith('broadcast:')
-                            || String(notif.type || '').startsWith('broadcast-modal:');
+                            || String(notif.type || '').startsWith('broadcast-modal:')
+                            || String(notif.type || '').startsWith('guest-modal:');
                         const isPopupNotification = typeof window.isPopupNotification === 'function'
                             ? window.isPopupNotification(notif.type)
                             : isBroadcast;
@@ -176,9 +177,15 @@ const AppNotifications = {
                                         }
                                     }
                                     
-                                    window.showAnnouncementModal(notif.title, notif.message, resolvedType, true, options);
                                     if (this._isBroadcastModalType(notif.type)) {
+                                        const token = localStorage.getItem('supabase.auth.token');
+                                        const isLoggedIn = !!role || !!token;
+                                        if (isLoggedIn) return; // Ne pas afficher aux connectés
+                                        
+                                        window.showAnnouncementModal(notif.title, notif.message, resolvedType, true, options);
                                         this._markBroadcastModalShown(notif.id);
+                                    } else {
+                                        window.showAnnouncementModal(notif.title, notif.message, resolvedType, true, options);
                                     }
                                 } else {
                                     this.showToast(notif.title, notif.message, resolvedType, 'solar:bell-bold');
@@ -217,7 +224,7 @@ const AppNotifications = {
     },
 
     _isBroadcastModalType(type) {
-        return String(type || '').startsWith('broadcast-modal:');
+        return String(type || '').startsWith('guest-modal:') || String(type || '').startsWith('broadcast-modal:');
     },
 
     _markBroadcastModalShown(notificationId) {
@@ -235,11 +242,21 @@ const AppNotifications = {
 
     _showBroadcastModalNotification(notif, options = {}) {
         if (!notif || !notif.id || !window.showAnnouncementModal) return false;
+        
+        // --- NOUVELLE LOGIQUE "INVITÉ ACTIF" ---
+        // Ne montrer que si l'utilisateur N'EST PAS connecté.
+        const role = localStorage.getItem('newketRole');
+        const token = localStorage.getItem('supabase.auth.token'); // common check for auth
+        const isLoggedIn = !!role || !!token;
+        if (isLoggedIn) {
+            return false; // Les utilisateurs connectés ne voient pas les modales invités
+        }
+        
         if (this._hasBroadcastModalBeenShown(notif.id) && !options.forceReplay) return false;
 
         const resolvedType = typeof window.normalizeNotificationType === 'function'
             ? window.normalizeNotificationType(notif.type)
-            : (String(notif.type || '').startsWith('broadcast-modal:') ? 'info' : notif.type);
+            : (this._isBroadcastModalType(notif.type) ? 'info' : notif.type);
 
         window.showAnnouncementModal(notif.title, notif.message, resolvedType || 'info', true, options);
         this._markBroadcastModalShown(notif.id);
@@ -251,8 +268,14 @@ const AppNotifications = {
         this._broadcastModalListenerBound = true;
 
         const processPendingBroadcastModals = () => {
+            // S'il est connecté, on ne traite même pas les popups invités
+            const role = localStorage.getItem('newketRole');
+            const token = localStorage.getItem('supabase.auth.token');
+            if (role || token) return;
+
             if (!window.NotificationManager || typeof window.NotificationManager.getNotifications !== 'function') return;
             const notifications = window.NotificationManager.getNotifications() || [];
+            
             notifications
                 .filter((notif) => this._isBroadcastModalType(notif.type))
                 .forEach((notif) => {
@@ -261,6 +284,14 @@ const AppNotifications = {
         };
 
         window.addEventListener('notificationsUpdated', processPendingBroadcastModals);
+        // Au changement d'état d'authentification (si on vient de se connecter), fermer la modale
+        window.addEventListener('authStateChange', (e) => {
+            if (e.detail?.isLoggedIn) {
+                const modal = document.getElementById('nk-announcement-modal');
+                if (modal) modal.remove();
+            }
+        });
+
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) processPendingBroadcastModals();
         });

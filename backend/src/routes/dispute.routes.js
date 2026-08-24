@@ -9,7 +9,9 @@ import {
     getDisputeMessages,
     vendorResolveAmiable,
     vendorRespondToDispute,
-    buyerRespondToDispute
+    buyerRespondToDispute,
+    escalateToAdmin,
+    confirmReturn
 } from '../controllers/dispute.controller.js';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
 
@@ -28,6 +30,12 @@ router.post('/:id/buyer-action', requireAuth, buyerRespondToDispute);
 
 // AUTO-RÉSOLUTION
 router.post('/:id/vendor-resolve', requireAuth, vendorResolveAmiable);
+
+// ESCALADE MANUELLE ADMIN
+router.post('/:id/escalate', requireAuth, escalateToAdmin);
+
+// RETOUR PRODUIT (OTP)
+router.post('/:id/confirm-return', requireAuth, confirmReturn);
 
 // SÉCURITÉ : Résolution de litige réservée aux administrateurs (double couche : route + contrôleur)
 router.patch('/:id/resolve', requireAuth, requireAdmin, resolveDispute);
