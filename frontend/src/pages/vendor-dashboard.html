@@ -7165,6 +7165,10 @@ function openOrderModal(id) {
             if (releaseDelayHint) releaseDelayHint.textContent = '';
 
             currentSelectedDispute = null;
+            if (window._returnCountdownTimer) {
+                clearInterval(window._returnCountdownTimer);
+                window._returnCountdownTimer = null;
+            }
 
             if (order.status === 'QUOTE' && order.latest_delivery_quote) {
                 const quote = order.latest_delivery_quote;
@@ -7617,11 +7621,16 @@ function openOrderModal(id) {
                     if (currentSelectedDispute.status === 'AWAITING_RETURN') {
                         returnOtpSection.classList.remove('hidden');
                         const displayReturnOtp = document.getElementById('displayReturnOtp');
-                        if (displayReturnOtp && currentSelectedOrder && currentSelectedOrder.otp_code) {
-                            displayReturnOtp.textContent = currentSelectedOrder.otp_code;
-                        } else if (displayReturnOtp) {
-                            // Au cas où l'order n'est pas à jour, on affiche un texte générique ou on demande de recharger
-                            displayReturnOtp.textContent = "Rechargez la page pour voir le code.";
+                        
+                        // Appel API sécurisé — seul le vendeur reçoit l'OTP
+                        try {
+                            const otpData = await OrderManager.getReturnOtp(currentSelectedDispute.id);
+                            if (displayReturnOtp) {
+                                displayReturnOtp.textContent = otpData.otp || '------';
+                            }
+                        } catch (err) {
+                            if (displayReturnOtp) displayReturnOtp.textContent = 'Erreur de chargement';
+                            console.error('[Vendor] Impossible de récupérer l\'OTP de retour:', err.message);
                         }
                     } else {
                         returnOtpSection.classList.add('hidden');

@@ -955,11 +955,16 @@
                             <span class="text-xs font-black text-blue-800 uppercase tracking-widest">Retour Produit</span>
                             <iconify-icon icon="solar:box-minimalistic-bold" class="text-blue-500" width="16"></iconify-icon>
                         </div>
-                        <p class="text-[10px] text-blue-700 mb-3">Remettez le produit au vendeur. Il vous donnera un code OTP à saisir ci-dessous pour déclencher votre remboursement.</p>
+                        <p class="text-[10px] text-red-600 font-bold mb-1">⚠️ Ne remettez le produit QUE si le vendeur vous donne le code OTP simultanément.</p>
+                        <p class="text-[10px] text-blue-700 mb-2">Une fois le produit remis, saisissez le code OTP ci-dessous pour déclencher votre remboursement.</p>
+                        <div id="returnCountdown" class="text-[10px] text-orange-600 font-bold mb-3 text-center hidden">
+                            ⏱ Temps restant : <span id="returnCountdownValue">--:--:--</span>
+                        </div>
                         <div class="flex gap-2">
-                            <input type="text" id="returnOtpInput" placeholder="Code OTP du vendeur" class="flex-1 bg-white border border-blue-200 rounded-lg px-3 py-2 text-sm font-bold text-center tracking-widest outline-none focus:border-blue-500">
+                            <input type="text" id="returnOtpInput" maxlength="6" placeholder="Code OTP (6 chiffres)" class="flex-1 bg-white border border-blue-200 rounded-lg px-3 py-2 text-sm font-bold text-center tracking-widest outline-none focus:border-blue-500">
                             <button type="button" id="btnConfirmReturn" class="bg-blue-600 text-white rounded-lg px-4 py-2 text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-colors">Valider</button>
                         </div>
+                        <p id="returnOtpAttemptsInfo" class="text-[10px] text-gray-400 text-center mt-1">5 essais maximum</p>
                     </div>
 
                     <p id="client-dispute-feedback" class="text-sm font-medium hidden transition-opacity mt-2 text-center"></p>
@@ -4077,6 +4082,38 @@
                 if (returnOtpSection) {
                     if (currentSelectedDispute.status === 'AWAITING_RETURN') {
                         returnOtpSection.classList.remove('hidden');
+
+                        // Countdown 48h
+                        const deadline = currentSelectedDispute.buyer_response_due_at
+                            ? new Date(currentSelectedDispute.buyer_response_due_at)
+                            : null;
+                        const countdownEl = document.getElementById('returnCountdown');
+                        const countdownValEl = document.getElementById('returnCountdownValue');
+                        if (deadline && countdownEl && countdownValEl) {
+                            countdownEl.classList.remove('hidden');
+                            const tick = () => {
+                                const diff = deadline - new Date();
+                                if (diff <= 0) {
+                                    countdownValEl.textContent = 'Délai expiré';
+                                    countdownEl.classList.add('text-red-600');
+                                    return;
+                                }
+                                const h = Math.floor(diff / 3600000);
+                                const m = Math.floor((diff % 3600000) / 60000);
+                                const s = Math.floor((diff % 60000) / 1000);
+                                countdownValEl.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                            };
+                            tick();
+                            // Fix : on nettoie l'ancien timer avant d'en créer un nouveau
+                            if (window._returnCountdownTimer) clearInterval(window._returnCountdownTimer);
+                            window._returnCountdownTimer = setInterval(tick, 1000);
+                        }
+
+                        // Compteur d'essais
+                        let attemptsLeft = 5 - (currentSelectedOrder?.otp_attempts || 0);
+                        const attemptsInfo = document.getElementById('returnOtpAttemptsInfo');
+                        if (attemptsInfo) attemptsInfo.textContent = `${attemptsLeft} essai(s) restant(s)`;
+
                         const btnConfirmReturn = document.getElementById('btnConfirmReturn');
                         if (btnConfirmReturn) {
                             btnConfirmReturn.onclick = async () => {
@@ -4086,21 +4123,31 @@
                                     showInlineMessage('client-dispute-feedback', 'Veuillez saisir le code OTP.', 'error');
                                     return;
                                 }
-                                
+
                                 const originalHtml = btnConfirmReturn.innerHTML;
                                 btnConfirmReturn.disabled = true;
                                 btnConfirmReturn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop"></iconify-icon>';
-                                
+
                                 try {
                                     await OrderManager.confirmReturn(currentSelectedDispute.id, otp);
-                                    showInlineMessage('client-dispute-feedback', 'Retour confirmé. Le remboursement va être effectué.', 'success');
+                                    showInlineMessage('client-dispute-feedback', 'Retour confirmé ! Le remboursement va être effectué.', 'success');
                                     returnOtpSection.classList.add('hidden');
                                     await loadDashboardData();
                                     await loadDisputeChat(orderId);
                                 } catch (err) {
-                                    showInlineMessage('client-dispute-feedback', err.message || 'OTP incorrect ou erreur système.', 'error');
-                                    btnConfirmReturn.disabled = false;
-                                    btnConfirmReturn.innerHTML = originalHtml;
+                                    // Affichage inline de l'erreur avec nb d'essais restants
+                                    attemptsLeft = Math.max(0, attemptsLeft - 1);
+                                    if (attemptsInfo) attemptsInfo.textContent = attemptsLeft > 0 ? `${attemptsLeft} essai(s) restant(s)` : 'Litige transmis à l\'admin.';
+                                    const msg = err.message || 'Code OTP incorrect.';
+                                    showInlineMessage('client-dispute-feedback', msg, 'error');
+                                    if (attemptsLeft <= 0) {
+                                        btnConfirmReturn.disabled = true;
+                                        input.disabled = true;
+                                    } else {
+                                        btnConfirmReturn.disabled = false;
+                                        btnConfirmReturn.innerHTML = originalHtml;
+                                    }
+                                    if (input) input.value = '';
                                 }
                             };
                         }

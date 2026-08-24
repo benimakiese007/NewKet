@@ -11,6 +11,7 @@ import {
     vendorRespondToDispute,
     buyerRespondToDispute,
     escalateToAdmin,
+    getReturnOtp,
     confirmReturn
 } from '../controllers/dispute.controller.js';
 import { requireAuth, requireAdmin } from '../middlewares/auth.js';
@@ -35,6 +36,7 @@ router.post('/:id/vendor-resolve', requireAuth, vendorResolveAmiable);
 router.post('/:id/escalate', requireAuth, escalateToAdmin);
 
 // RETOUR PRODUIT (OTP)
+router.get('/:id/return-otp', requireAuth, getReturnOtp);   // Vendeur/Admin uniquement
 router.post('/:id/confirm-return', requireAuth, confirmReturn);
 
 // SÉCURITÉ : Résolution de litige réservée aux administrateurs (double couche : route + contrôleur)

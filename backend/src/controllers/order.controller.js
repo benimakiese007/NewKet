@@ -395,13 +395,19 @@ export const getOrders = async (req, res) => {
             }
         }
 
-        return res.status(200).json((data || []).map((order) => ({
-            ...order,
-            vendor: vendorsById.get(order.vendor_id) || null,
-            customer: customersById.get(order.customer_id || order.user_id) || null,
-            status: mapLegacyOrderStatus(order.status),
-            latest_delivery_quote: quotesByOrderId.get(order.id) || null
-        })));
+        return res.status(200).json((data || []).map((order) => {
+            const isVendor = order.vendor_id === req.user?.id;
+            const isAdmin = isAdminActor(req.user);
+            // Sécurité : l'OTP ne doit jamais être exposé à l'acheteur
+            const { otp_code, ...orderWithoutOtp } = order;
+            return {
+                ...(isVendor || isAdmin ? order : orderWithoutOtp),
+                vendor: vendorsById.get(order.vendor_id) || null,
+                customer: customersById.get(order.customer_id || order.user_id) || null,
+                status: mapLegacyOrderStatus(order.status),
+                latest_delivery_quote: quotesByOrderId.get(order.id) || null
+            };
+        }));
     } catch (error) {
         console.error('❌ Erreur getOrders:', error.message);
         return res.status(200).json([]);
@@ -766,7 +772,9 @@ export const reportClientNoShow = async (req, res) => {
         }
 
         // Si > 48h, on annule avec pénalité
-        const penaltyAmount = 5.00; // Pénalité fixe pour dédommagement vendeur
+        // Pénalité : 5% + 5$ fixes, plafonnée au prix total de la commande pour éviter un solde négatif.
+        const totalAmount = Number(order.total_amount || 0);
+        const penaltyAmount = Math.min((totalAmount * 0.05) + 5.00, totalAmount);
         
         const nowIso = now.toISOString();
         const { data: updatedOrder, error } = await client

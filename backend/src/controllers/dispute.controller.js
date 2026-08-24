@@ -13,6 +13,8 @@ import {
     DISPUTE_SELLER_RESPONSE_HOURS,
     DISPUTE_BUYER_RESPONSE_HOURS,
     DISPUTE_REVIEW_HOURS,
+    DISPUTE_RETURN_HOURS,
+    MAX_RETURN_OTP_ATTEMPTS,
     ESCROW_HOLD_HOURS,
     addHours,
     createEscrowEvent,
@@ -245,6 +247,7 @@ async function initiateReturn(dispute, order, changedBy, source, refundAmount) {
         .from('orders')
         .update({
             otp_code: returnOtp,
+            otp_attempts: 0,
             updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
@@ -255,13 +258,13 @@ async function initiateReturn(dispute, order, changedBy, source, refundAmount) {
         refund_amount: Number(refundAmount || order.total_amount || 0),
         review_due_at: null,
         seller_response_due_at: null,
-        buyer_response_due_at: null,
+        buyer_response_due_at: addHours(new Date(), DISPUTE_RETURN_HOURS),
         last_actor_role: changedBy === dispute.customer_id ? 'BUYER' : (changedBy === dispute.vendor_id ? 'SELLER' : 'SYSTEM')
     });
 
     await addDisputeEventMessage(dispute.id, changedBy === 'system' ? null : changedBy, DISPUTE_MESSAGE_TYPES.SYSTEM, {
         event: 'AWAITING_RETURN',
-        message: "Remboursement accepté sous condition de retour. Le vendeur détient le code OTP. L'acheteur doit ramener le produit et saisir l'OTP remis par le vendeur pour déclencher le remboursement.",
+        message: `Remboursement accepté sous condition de retour. Le vendeur détient le code OTP. L'acheteur a ${DISPUTE_RETURN_HOURS}h pour ramener le produit et saisir l'OTP remis par le vendeur pour déclencher le remboursement, sous peine de clôture du litige au profit du vendeur.`,
         source
     });
 
@@ -602,7 +605,17 @@ export const getDisputeByOrder = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Litige introuvable.' });
         }
 
-        return res.status(200).json({ success: true, data: dispute });
+        // Pour l'admin uniquement : inclure l'OTP de retour si le litige est en attente de retour
+        let responseData = { ...dispute };
+        if (admin && dispute.status === 'AWAITING_RETURN') {
+            const freshOrder = await getOrderOrNull(orderId);
+            if (freshOrder?.otp_code) {
+                responseData._return_otp = freshOrder.otp_code;
+                responseData._return_otp_attempts_left = Math.max(0, MAX_RETURN_OTP_ATTEMPTS - (freshOrder.otp_attempts || 0));
+            }
+        }
+
+        return res.status(200).json({ success: true, data: responseData });
     } catch (error) {
         console.error('getDisputeByOrder error:', error);
         return res.status(500).json({ success: false, message: 'Erreur serveur.' });
@@ -1055,7 +1068,12 @@ export const escalateToAdmin = async (req, res) => {
             return res.status(403).json({ success: false, message: 'Accès non autorisé.' });
         }
 
-        const escalatableStatuses = [DISPUTE_STATUSES.OPEN, DISPUTE_STATUSES.SELLER_PENDING, DISPUTE_STATUSES.BUYER_PENDING];
+        const escalatableStatuses = [
+            DISPUTE_STATUSES.OPEN,
+            DISPUTE_STATUSES.SELLER_PENDING,
+            DISPUTE_STATUSES.BUYER_PENDING,
+            DISPUTE_STATUSES.AWAITING_RETURN
+        ];
         if (!escalatableStatuses.includes(dispute.status)) {
             return res.status(400).json({ success: false, message: `Le litige ne peut pas être escaladé depuis le statut ${dispute.status}.` });
         }
@@ -1102,6 +1120,46 @@ export const escalateToAdmin = async (req, res) => {
 };
 
 /**
+ * Récupération de l'OTP de retour — RÉSERVÉ AU VENDEUR et à l'Admin.
+ * L'acheteur ne doit JAMAIS recevoir ce code directement.
+ */
+export const getReturnOtp = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const dispute = await getDisputeOrNull(id);
+        if (!dispute) {
+            return res.status(404).json({ success: false, message: 'Litige introuvable.' });
+        }
+
+        if (dispute.status !== DISPUTE_STATUSES.AWAITING_RETURN) {
+            return res.status(400).json({ success: false, message: 'Le litige n\'est pas en attente de retour.' });
+        }
+
+        // Seul le vendeur ou l'admin peut voir l'OTP
+        const isVendor = dispute.vendor_id === userId;
+        if (!isVendor && !isAdmin(req.user)) {
+            return res.status(403).json({ success: false, message: 'Seul le vendeur peut récupérer le code OTP de retour.' });
+        }
+
+        const order = await getOrderOrNull(dispute.order_id);
+        if (!order || !order.otp_code) {
+            return res.status(404).json({ success: false, message: 'Code OTP non trouvé pour cette commande.' });
+        }
+
+        return res.status(200).json({
+            success: true,
+            otp: order.otp_code,
+            attempts_left: Math.max(0, 5 - (order.otp_attempts || 0))
+        });
+    } catch (error) {
+        console.error('getReturnOtp error:', error);
+        return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+/**
  * Confirmation du retour physique par l'acheteur via l'OTP fourni par le vendeur.
  */
 export const confirmReturn = async (req, res) => {
@@ -1132,8 +1190,33 @@ export const confirmReturn = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Commande liée introuvable.' });
         }
 
+        const MAX_ATTEMPTS = MAX_RETURN_OTP_ATTEMPTS;
+        const currentAttempts = order.otp_attempts || 0;
+
+        if (currentAttempts >= MAX_ATTEMPTS) {
+            return res.status(429).json({ success: false, message: 'Nombre maximum de tentatives atteint. Le litige a été verrouillé et escaladé.' });
+        }
+
         if (order.otp_code !== otp) {
-            return res.status(400).json({ success: false, message: 'Code OTP incorrect.' });
+            const newAttempts = currentAttempts + 1;
+            await supabaseAdmin.from('orders').update({ otp_attempts: newAttempts }).eq('id', order.id);
+
+            if (newAttempts >= MAX_ATTEMPTS) {
+                // Bloquer et escalader à l'admin
+                await updateDisputeRecord(id, {
+                    status: DISPUTE_STATUSES.UNDER_REVIEW,
+                    review_due_at: new Date().toISOString(),
+                    last_actor_role: 'SYSTEM'
+                });
+                await addDisputeEventMessage(id, null, DISPUTE_MESSAGE_TYPES.SYSTEM, {
+                    event: 'ADMIN_ESCALATION',
+                    message: "Le litige a été automatiquement transmis à l'administration suite à de multiples tentatives échouées de saisie du code OTP de retour."
+                });
+                return res.status(429).json({ success: false, message: 'Code OTP incorrect. Le litige a été transmis à l\'administration par sécurité.' });
+            }
+
+            const remaining = MAX_ATTEMPTS - newAttempts;
+            return res.status(400).json({ success: false, message: `Code OTP incorrect. Il vous reste ${remaining} essai(s).` });
         }
 
         // Le code est bon ! On résout le litige en FULL_REFUND (ou le montant défini dans refund_amount)
@@ -1171,7 +1254,8 @@ export const processDueDisputesJob = async () => {
         .in('status', [
             DISPUTE_STATUSES.SELLER_PENDING,
             DISPUTE_STATUSES.BUYER_PENDING,
-            DISPUTE_STATUSES.UNDER_REVIEW
+            DISPUTE_STATUSES.UNDER_REVIEW,
+            DISPUTE_STATUSES.AWAITING_RETURN
         ]);
 
     if (error) {
@@ -1214,6 +1298,27 @@ export const processDueDisputesJob = async () => {
                     'sla-job',
                     'buyer_timeout_auto_accept'
                 );
+                processed += 1;
+                continue;
+            }
+
+            if (dispute.status === DISPUTE_STATUSES.AWAITING_RETURN && dispute.buyer_response_due_at && dispute.buyer_response_due_at <= nowIso) {
+                // Acheteur n'a pas validé l'OTP dans les 48h, l'argent va au vendeur
+                await resolveAndCloseDispute(
+                    dispute,
+                    order,
+                    DISPUTE_RESOLUTIONS.RELEASE_TO_SELLER,
+                    0,
+                    'sla-job',
+                    'buyer_return_timeout'
+                );
+                
+                // Vider l'OTP par sécurité
+                await supabaseAdmin
+                    .from('orders')
+                    .update({ otp_code: null, updated_at: new Date().toISOString() })
+                    .eq('id', order.id);
+
                 processed += 1;
                 continue;
             }

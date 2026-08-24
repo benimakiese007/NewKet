@@ -717,6 +717,16 @@ const OrderManager = {
         }
     },
 
+    async getReturnOtp(disputeId) {
+        if (!window.ApiClient) throw new Error('ApiClient non disponible');
+        try {
+            return await ApiClient.get(`/disputes/${disputeId}/return-otp`);
+        } catch (error) {
+            console.error('[OrderManager] Erreur getReturnOtp:', error);
+            throw error;
+        }
+    },
+
     async getDisputeMessages(disputeId) {
         if (!window.ApiClient) throw new Error('ApiClient non disponible');
         try {
