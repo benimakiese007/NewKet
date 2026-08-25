@@ -1,6 +1,6 @@
 /* newket EMarket Product Manager — V2.1 (Paginated + Image Optimization) */
 
-const PRODUCTS_PAGE_SIZE = 20; // Load 20 at a time instead of 200
+const PRODUCTS_PAGE_SIZE = 25; // Five complete rows on the five-column home grid
 const PRODUCTS_ADMIN_MAX = 1000; // Max products to fetch in admin (no pagination limit)
 
 // ========== IMAGE URL HELPER ==========

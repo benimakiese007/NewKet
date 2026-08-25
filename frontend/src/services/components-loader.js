@@ -454,6 +454,7 @@ const ComponentLoader = {
         const isMinimalPage = currentPath.includes('/login') || currentPath.includes('/publish');
         const isAdminPage = currentPath.includes('/admin/') || currentPath.endsWith('/admin') || currentPath.includes('/pages/admin/');
         const isDashboardPage = currentPath.includes('-dashboard');
+        const isHomePage = currentPath === '/' || currentPath.endsWith('/index.html');
 
         // If there is no active Supabase session, do not let stale role/email values
         // drive the UI (e.g. linking guests to vendor/admin surfaces). Keep buyer
@@ -483,9 +484,11 @@ const ComponentLoader = {
         } // end else (standard page)
 
         if (!isMinimalPage && !isAdminPage && !isDashboardPage) {
-            componentsToLoad.push(
-                this.loadComponent('footer-placeholder', 'components/footer.html', FOOTER_HTML)
-            );
+            if (isHomePage) {
+                componentsToLoad.push(
+                    this.loadComponent('footer-placeholder', 'components/footer.html', FOOTER_HTML)
+                );
+            }
 
             let mobileNavPlaceholder = document.getElementById('mobile-nav-placeholder');
             if (!mobileNavPlaceholder) {

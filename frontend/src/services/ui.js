@@ -9,11 +9,21 @@ const UI = {
 
         // Listen for data updates — skip if a scroll-triggered loadMore is in progress
         window.addEventListener('productsUpdated', () => {
-            if (!window._isFetchingHome) {
+            if (!window._isFetchingHome && !window._isCompletingHomeRow) {
                 this.renderHomeGrid();
             }
         });
 
+        if (!this._homeResizeBound) {
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    this.completeHomeGridRow(document.getElementById('allProductGrid'));
+                }, 150);
+            });
+            this._homeResizeBound = true;
+        }
         // Listen for currency changes
         window.addEventListener('currencyChanged', () => {
             this.renderHomeGrid();
@@ -119,12 +129,45 @@ const UI = {
         }
 
         // Initial render: always clear if called directly (e.g. on filter change)
-        const batchSize = window.matchMedia('(max-width: 767px)').matches
-            ? Math.min(ProductManager.getBatchSize?.() || 8, 6)
-            : (ProductManager.getBatchSize?.() || 8);
-        this.renderFilteredBatch(products, grid, batchSize, false);
+        this.renderFilteredBatch(products, grid, 25, false);
     },
 
+    /**
+     * Completes the final visual row without re-enabling infinite scroll.
+     * It uses products already loaded first, then fetches one page only when needed.
+     */
+    async completeHomeGridRow(grid) {
+        if (!grid || window._isFetchingHome || window._isCompletingHomeRow || !window.ProductManager) return;
+
+        const getColumnCount = () => {
+            const columns = getComputedStyle(grid).gridTemplateColumns;
+            return columns ? columns.trim().split(/\s+/).length : 1;
+        };
+        const getMissingCards = () => {
+            const columns = getColumnCount();
+            const rendered = grid.querySelectorAll('[data-product-id]').length;
+            return rendered % columns === 0 ? 0 : columns - (rendered % columns);
+        };
+
+        let missingCards = getMissingCards();
+        if (!missingCards) return;
+
+        window._isCompletingHomeRow = true;
+        try {
+            this.renderFilteredBatch(ProductManager.getProducts(), grid, missingCards, true);
+            missingCards = getMissingCards();
+
+            // One explicit fetch only: this completes a row but never acts as infinite scroll.
+            if (missingCards && ProductManager.hasMore()) {
+                await ProductManager.loadMore();
+                this.renderFilteredBatch(ProductManager.getProducts(), grid, missingCards, true);
+            }
+        } catch (error) {
+            console.error('Unable to complete the home product row:', error);
+        } finally {
+            window._isCompletingHomeRow = false;
+        }
+    },
     /**
      * Renders or appends products to a container.
      * @param {Array} products - List of products.
@@ -226,47 +269,15 @@ const UI = {
             const notYetRenderedCount = filtered.filter(p => !finalRenderedIds.has(String(p.id))).length;
             const hasMore = (notYetRenderedCount > 0) || (window.ProductManager && ProductManager.hasMore());
             
-            voirPlus.classList.add('hidden'); // Hide the old button
-
-            let sentinel = document.getElementById('homeLoadMoreSentinel');
-            if (hasMore) {
-                if (!sentinel) {
-                    sentinel = document.createElement('div');
-                    sentinel.id = 'homeLoadMoreSentinel';
-                    sentinel.className = 'w-full flex justify-center py-8 mt-4';
-                    sentinel.innerHTML = `<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 border-t-transparent"></div>`;
-                    voirPlus.parentNode.insertBefore(sentinel, voirPlus);
-
-                    if (!window.homeObserver) {
-                        window.homeObserver = new IntersectionObserver((entries) => {
-                            if (entries[0].isIntersecting && !window._isFetchingHome) {
-                                window.showMoreProducts();
-                            }
-                        }, { rootMargin: '100px' });
-                    }
-                    window.homeObserver.observe(sentinel);
-                } else {
-                    // Sentinel exists — make it visible again (fetch completed)
-                    sentinel.style.display = '';
-                    // Re-observe in case it was unobserved during fetch
-                    if (window.homeObserver && !sentinel._isObserved) {
-                        window.homeObserver.observe(sentinel);
-                        sentinel._isObserved = true;
-                    }
-                }
-            } else {
-                // Nothing more to load — destroy sentinel definitively
-                if (sentinel) {
-                    if (window.homeObserver) window.homeObserver.unobserve(sentinel);
-                    sentinel.remove();
-                }
-            }
+            voirPlus.classList.toggle('hidden', !hasMore);
         }
 
         const noMsg = document.getElementById('noProductsMsg');
         if (noMsg) {
             noMsg.classList.toggle('hidden', filtered.length > 0);
         }
+
+        void this.completeHomeGridRow(container);
     }
 };
 
@@ -308,99 +319,43 @@ window.showMoreProducts = async function () {
     if (!grid || window._isFetchingHome) return;
 
     window._isFetchingHome = true;
-
-    // Disconnect observer and hide sentinel while fetching to prevent re-triggering
-    const sentinel = document.getElementById('homeLoadMoreSentinel');
-    if (sentinel) {
-        sentinel.style.display = 'none';
-        sentinel._isObserved = false;
-        if (window.homeObserver) window.homeObserver.unobserve(sentinel);
-    }
+    const button = document.getElementById('voirPlusBtn');
+    const buttonLabel = button?.querySelector('span');
+    if (button) button.disabled = true;
+    if (buttonLabel) buttonLabel.textContent = 'Chargement…';
 
     try {
-        const batchSize = ProductManager.getBatchSize?.() || 8;
-
         const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
-        let filtered = [...ProductManager.getProducts()];
+        let filteredProducts = ProductManager.getProducts();
         if (currentFilter !== 'all') {
-            filtered = filtered.filter(p => {
-                if (currentFilter === 'Femme') return p.category === 'Femme' || p.category === 'Collections Femme';
-                if (currentFilter === 'Homme') return p.category === 'Homme' || p.category === 'Style Homme';
-                if (currentFilter === 'Promos') return p.isPromo === true;
-                return p.category === currentFilter;
+            filteredProducts = filteredProducts.filter(product => {
+                if (currentFilter === 'Femme') return product.category === 'Femme' || product.category === 'Collections Femme';
+                if (currentFilter === 'Homme') return product.category === 'Homme' || product.category === 'Style Homme';
+                if (currentFilter === 'Promos') return product.isPromo === true;
+                return product.category === currentFilter;
             });
         }
 
-        // Collect IDs already rendered
         const renderedIds = new Set(
             [...grid.querySelectorAll('[data-product-id]')].map(el => el.dataset.productId)
         );
-        const notYetRendered = filtered.filter(p => !renderedIds.has(String(p.id)));
+        const hasUnrenderedProducts = filteredProducts
+            .some(product => !renderedIds.has(String(product.id)));
 
-        // If we have no more local items and Supabase has more pages, fetch them
-        if (notYetRendered.length === 0 && ProductManager.hasMore()) {
+        if (!hasUnrenderedProducts && ProductManager.hasMore()) {
             await ProductManager.loadMore();
-            // Re-compute after fresh data (productsUpdated is blocked by _isFetchingHome)
-            let freshFiltered = [...ProductManager.getProducts()];
-            if (currentFilter !== 'all') {
-                freshFiltered = freshFiltered.filter(p => {
-                    if (currentFilter === 'Femme') return p.category === 'Femme' || p.category === 'Collections Femme';
-                    if (currentFilter === 'Homme') return p.category === 'Homme' || p.category === 'Style Homme';
-                    if (currentFilter === 'Promos') return p.isPromo === true;
-                    return p.category === currentFilter;
-                });
-            }
-            const freshNotRendered = freshFiltered.filter(p => !renderedIds.has(String(p.id)));
-
-            // If still nothing after a network fetch → no more data, remove sentinel
-            if (freshNotRendered.length === 0 && !ProductManager.hasMore()) {
-                const s = document.getElementById('homeLoadMoreSentinel');
-                if (s) {
-                    if (window.homeObserver) window.homeObserver.unobserve(s);
-                    s.remove();
-                }
-            } else {
-                UI.renderFilteredBatch(freshNotRendered, grid, batchSize, true);
-            }
-        } else if (notYetRendered.length === 0 && !ProductManager.hasMore()) {
-            // Nothing local, nothing remote → destroy sentinel
-            const s = document.getElementById('homeLoadMoreSentinel');
-            if (s) {
-                if (window.homeObserver) window.homeObserver.unobserve(s);
-                s.remove();
-            }
-        } else {
-            UI.renderFilteredBatch(notYetRendered, grid, batchSize, true);
         }
+
+        UI.renderFilteredBatch(ProductManager.getProducts(), grid, 25, true);
     } catch (err) {
         console.error("Error loading more products:", err);
         if (window.showToast) showToast('Erreur lors du chargement', 'error');
-        // On error, remove sentinel to avoid stuck spinner
-        const s = document.getElementById('homeLoadMoreSentinel');
-        if (s) {
-            if (window.homeObserver) window.homeObserver.unobserve(s);
-            s.remove();
-        }
     } finally {
         window._isFetchingHome = false;
-        // If sentinel still exists and is hidden, re-show it via renderFilteredBatch
-        // (renderFilteredBatch will re-observe it correctly)
-        const s = document.getElementById('homeLoadMoreSentinel');
-        if (s && s.style.display === 'none') {
-            // Only re-show if ProductManager still has more pages
-            if (window.ProductManager && ProductManager.hasMore()) {
-                s.style.display = '';
-                if (window.homeObserver && !s._isObserved) {
-                    window.homeObserver.observe(s);
-                    s._isObserved = true;
-                }
-            } else {
-                // No more data — destroy sentinel
-                if (window.homeObserver) window.homeObserver.unobserve(s);
-                s.remove();
-            }
-        }
+        if (button) button.disabled = false;
+        if (buttonLabel) buttonLabel.textContent = 'Voir plus de produits';
     }
+        void UI.completeHomeGridRow(grid);
 };
 
 // Initialize: guard against DOMContentLoaded already fired (ES module behavior)
