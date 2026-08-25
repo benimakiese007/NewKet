@@ -242,6 +242,35 @@ const App = {
             document.documentElement.classList.toggle('mobile-menu-open', isOpen);
             document.body.classList.toggle('mobile-menu-open', isOpen);
 
+            if (isOpen) {
+                overlay.classList.remove('hidden');
+                overlay.style.display = 'block';
+                menu.style.transform = 'translateX(0)';
+                menu.style.opacity = '1';
+                menu.style.pointerEvents = 'auto';
+                menu.style.visibility = 'visible';
+                overlay.style.opacity = '1';
+                overlay.style.pointerEvents = 'auto';
+                overlay.style.background = window.matchMedia('(min-width: 1024px)').matches
+                    ? 'rgba(2, 6, 23, 0.28)'
+                    : 'rgba(0, 0, 0, 0.5)';
+                overlay.style.webkitBackdropFilter = window.matchMedia('(min-width: 1024px)').matches
+                    ? 'blur(14px)'
+                    : 'blur(3px)';
+                overlay.style.backdropFilter = window.matchMedia('(min-width: 1024px)').matches
+                    ? 'blur(14px)'
+                    : 'blur(3px)';
+            } else {
+                menu.style.transform = 'translateX(-100%)';
+                menu.style.opacity = '0';
+                menu.style.pointerEvents = 'none';
+                menu.style.visibility = 'hidden';
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+                overlay.classList.add('hidden');
+                overlay.style.display = 'none';
+            }
+
             if (openBtn) openBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
             overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
             menu.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
@@ -252,6 +281,10 @@ const App = {
                 closeBtn.focus();
             }
         };
+
+        const closeMobileMenu = (restoreFocus = true) => setMobileMenuState(false, restoreFocus);
+        window.closeMobileMenu = closeMobileMenu;
+        window.openMobileMenu = () => setMobileMenuState(true);
 
         const normalizeBottomNavPath = (value) => {
             if (!value) return '/';
@@ -384,14 +417,29 @@ const App = {
 
             // Mobile Menu Close
             if (e.target.closest('#closeMobileMenu') || e.target.closest('#mobileOverlay')) {
-                setMobileMenuState(false, true);
+                closeMobileMenu(true);
                 return;
             }
         });
 
+        document.getElementById('mobileOverlay')?.addEventListener('click', () => {
+            closeMobileMenu(true);
+        });
+
+        document.addEventListener('pointerdown', (e) => {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileOverlay');
+            if (!menu || !overlay) return;
+            const isOpen = menu.classList.contains('active');
+            if (!isOpen) return;
+            if (menu.contains(e.target)) return;
+            if (e.target.closest('#mobileMenuBtn') || e.target.closest('#closeMobileMenu')) return;
+            closeMobileMenu(true);
+        }, true);
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                setMobileMenuState(false, true);
+                closeMobileMenu(true);
             }
         });
 

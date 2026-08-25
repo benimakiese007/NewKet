@@ -176,9 +176,10 @@ const HEADER_HTML = `
 
 <!-- Mobile Menu Sidebar -->
 <div id="mobileOverlay"
-    class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 sm:hidden" style="z-index: 9000;" aria-hidden="true">
+    class="fixed inset-0 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300" style="z-index: 9000;" aria-hidden="true"
+    onclick="window.closeMobileMenu && window.closeMobileMenu(true)">
 </div>
-<div id="mobileMenu" class="fixed inset-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
+<div id="mobileMenu" class="fixed top-0 left-0 bottom-0 bg-white flex flex-col" style="z-index: 10000;" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Navigation mobile">
     <div class="mobile-menu-header px-4 flex items-center justify-between bg-white text-gray-900 border-b border-gray-100/60" style="padding-top: calc(2rem + env(safe-area-inset-top)); padding-bottom: 2rem;">
         <div class="mobile-menu-brand">
             <img src="https://res.cloudinary.com/dzhnphyp3/image/upload/c_limit,w_400,f_auto,q_auto/v1782572411/newket_assets/racine/Logo_Vert_Pour_Fond_Blanc.png" alt="NewKet" width="240" height="96" class="h-12 w-auto object-contain">

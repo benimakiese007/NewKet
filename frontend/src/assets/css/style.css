@@ -1414,11 +1414,20 @@ body.mobile-menu-open {
   width: min(92vw, 340px);
   max-width: 340px;
   will-change: transform;
+  transform: translateX(-100%);
 }
 
 #mobileOverlay {
   -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
+}
+
+@media (min-width: 1024px) {
+  #mobileOverlay {
+    background: rgba(2, 6, 23, 0.28);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
 }
 
 .mobile-menu-header {

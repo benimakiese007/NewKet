@@ -1,0 +1,262 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button "Ouvrir le menu" [ref=e7] [cursor=pointer]:
+          - img [ref=e9]
+        - link "Retour à l'accueil NewKet" [ref=e12] [cursor=pointer]:
+          - /url: /index.html
+          - img "NewKet" [ref=e13]
+      - generic [ref=e15]:
+        - generic "Choisir une catégorie" [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: Tout
+          - img [ref=e19]
+        - textbox "Rechercher des produits" [ref=e21]:
+          - /placeholder: Rechercher sur NewKet...
+      - generic [ref=e22]:
+        - generic "Devise d'affichage" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]:
+            - generic [ref=e27]: USD
+            - generic [ref=e28]: CDF
+        - link "Voir les notifications" [ref=e29] [cursor=pointer]:
+          - /url: /src/pages/notifications.html
+          - img [ref=e31]
+        - link "Voir les favoris" [ref=e35] [cursor=pointer]:
+          - /url: /src/pages/favorites.html
+          - img [ref=e37]
+        - button "Voir le panier" [ref=e39] [cursor=pointer]
+        - link "Mon compte" [ref=e40] [cursor=pointer]:
+          - /url: /src/pages/login.html
+          - img [ref=e42]
+  - generic:
+    - generic:
+      - generic: Mise à jour...
+  - main [ref=e46]:
+    - generic [ref=e48]:
+      - heading "Produits Sponsorisés" [level=2] [ref=e50]
+      - link "Voir tout" [ref=e51] [cursor=pointer]:
+        - /url: /src/pages/catalog.html
+        - text: Voir tout
+        - img [ref=e53]
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - heading "SUBTILE ÉLÉGANCE." [level=1] [ref=e72]:
+          - text: SUBTILE
+          - text: ÉLÉGANCE.
+        - paragraph [ref=e73]: L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment.
+        - link "Découvrir" [ref=e75] [cursor=pointer]:
+          - /url: /src/pages/catalog.html
+      - generic [ref=e80]:
+        - generic [ref=e81]: "-50%"
+        - generic [ref=e82]: Sélection Premium
+        - generic [ref=e83]: "Code: NEWKET50"
+    - generic:
+      - generic:
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - img
+          - generic:
+            - generic: FlexPaie
+            - generic: En partenariat avec la BCC
+        - generic:
+          - img
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - img
+          - generic:
+            - generic: Support 24/7
+            - generic: On est là si besoin
+        - generic:
+          - img
+          - generic:
+            - generic: 100% Made in RDC
+            - generic: Soutiens les vendeurs locaux
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - img
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - img
+          - generic:
+            - generic: Support 24/7
+            - generic: On est là si besoin
+        - generic:
+          - img
+          - generic:
+            - generic: 100% Made in RDC
+            - generic: Soutiens les vendeurs locaux
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - img
+          - generic:
+            - generic: FlexPaie
+            - generic: En partenariat avec la BCC
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - img
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+    - generic [ref=e87]:
+      - heading "Tous les produits" [level=2] [ref=e88]
+      - generic [ref=e89]:
+        - button "Toutes les pièces" [ref=e90] [cursor=pointer]
+        - button "Femme" [ref=e91] [cursor=pointer]
+        - button "Homme" [ref=e92] [cursor=pointer]
+        - button "Tech & Gadgets" [ref=e93] [cursor=pointer]
+        - button "Art de vivre" [ref=e94] [cursor=pointer]
+        - button "Promos" [ref=e95] [cursor=pointer]
+        - combobox "Trier les produits par" [ref=e97] [cursor=pointer]:
+          - option "Plus récents" [selected]
+          - option "Prix croissant"
+          - option "Prix décroissant"
+  - contentinfo [ref=e107]:
+    - generic [ref=e108]:
+      - generic [ref=e109]:
+        - generic [ref=e110]:
+          - img "NewKet" [ref=e112]
+          - paragraph [ref=e113]: L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
+          - generic [ref=e114]:
+            - link "+243990924254" [ref=e115] [cursor=pointer]:
+              - /url: tel:+243990924254
+              - generic [ref=e116]: "+243990924254"
+            - link "benimakiese1234@gmail.com" [ref=e117] [cursor=pointer]:
+              - /url: mailto:benimakiese1234@gmail.com
+              - generic [ref=e118]: benimakiese1234@gmail.com
+          - generic [ref=e119]:
+            - link "NewKet sur Instagram" [ref=e120] [cursor=pointer]:
+              - /url: https://www.instagram.com/benimakiese007
+            - link "NewKet sur Facebook" [ref=e121] [cursor=pointer]:
+              - /url: https://www.facebook.com/Benimakiese007
+            - link "NewKet sur X" [ref=e122] [cursor=pointer]:
+              - /url: https://x.com/lephoenixman
+            - link "NewKet sur LinkedIn" [ref=e123] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/newket
+        - generic [ref=e124]:
+          - heading "Services" [level=4] [ref=e125]
+          - list [ref=e126]:
+            - listitem [ref=e127]:
+              - link "À propos de nous" [ref=e128] [cursor=pointer]:
+                - /url: /src/pages/about.html
+            - listitem [ref=e129]:
+              - link "Devenir Vendeur" [ref=e130] [cursor=pointer]:
+                - /url: /src/pages/seller.html
+            - listitem [ref=e131]:
+              - link "Support Technique" [ref=e132] [cursor=pointer]:
+                - /url: /src/pages/support.html
+            - listitem [ref=e133]:
+              - link "FAQ" [ref=e134] [cursor=pointer]:
+                - /url: /src/pages/faq.html
+            - listitem
+        - generic [ref=e135]:
+          - heading "Inspiration & Offres" [level=4] [ref=e136]
+          - paragraph [ref=e137]: Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.
+          - generic [ref=e138]:
+            - textbox "Votre email" [ref=e139]
+            - button "S'inscrire" [ref=e140] [cursor=pointer]
+      - generic [ref=e141]:
+        - generic [ref=e142]: Paiements acceptés
+        - generic [ref=e143]:
+          - img "Orange Money"
+          - img "Airtel Money"
+          - img "M-Pesa"
+          - img "Afri Money"
+          - img "Mastercard"
+          - img "Visa"
+      - generic [ref=e144]:
+        - paragraph [ref=e145]: © 2026 NEWKET — Expérience Luxe
+        - generic [ref=e146]:
+          - link "Mentions légales" [ref=e147] [cursor=pointer]:
+            - /url: /src/pages/mentions-legales.html
+          - link "CGV" [ref=e148] [cursor=pointer]:
+            - /url: /src/pages/terms.html
+          - link "Confidentialité" [ref=e149] [cursor=pointer]:
+            - /url: /src/pages/privacy.html
+  - dialog "Préférences de cookies" [ref=e150]:
+    - generic [ref=e151]:
+      - generic [ref=e152]:
+        - paragraph [ref=e153]: 🍪 Nous respectons votre vie privée
+        - paragraph [ref=e154]:
+          - text: Nous utilisons des cookies pour améliorer votre expérience. Voir notre
+          - link "politique de confidentialité" [ref=e155] [cursor=pointer]:
+            - /url: /src/pages/privacy.html
+          - text: .
+      - generic [ref=e156]:
+        - button "Personnaliser" [ref=e157] [cursor=pointer]
+        - button "Refuser tout" [ref=e158] [cursor=pointer]
+        - button "Accepter tout ✓" [ref=e159] [cursor=pointer]

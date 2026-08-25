@@ -1,0 +1,54 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button "Ouvrir le menu" [ref=e7] [cursor=pointer]
+        - link "Retour à l'accueil NewKet" [ref=e12] [cursor=pointer]:
+          - /url: /index.html
+          - img "NewKet" [ref=e13]
+      - generic [ref=e15]:
+        - generic "Choisir une catégorie" [ref=e16] [cursor=pointer]: Tout
+        - textbox "Rechercher des produits" [ref=e21]:
+          - /placeholder: Rechercher sur NewKet...
+      - generic [ref=e22]:
+        - generic "Devise d'affichage" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]:
+            - generic [ref=e27]: USD
+            - generic [ref=e28]: CDF
+        - link "Voir les notifications" [ref=e29] [cursor=pointer]:
+          - /url: /src/pages/notifications.html
+        - link "Voir les favoris" [ref=e35] [cursor=pointer]:
+          - /url: /src/pages/favorites.html
+        - button "Voir le panier" [ref=e39] [cursor=pointer]
+        - link "Mon compte" [ref=e40] [cursor=pointer]:
+          - /url: /src/pages/login.html
+  - main [ref=e46]:
+    - generic [ref=e47]:
+      - generic [ref=e48]:
+        - heading "Notifications" [level=1] [ref=e49]
+        - paragraph [ref=e50]: Vous avez 0 notification non lue
+      - generic [ref=e51]:
+        - button "Tout lire" [ref=e52] [cursor=pointer]
+        - button "Effacer" [ref=e53] [cursor=pointer]
+    - generic [ref=e54]:
+      - button "Tout" [ref=e55] [cursor=pointer]
+      - button "Non lus" [ref=e56] [cursor=pointer]
+      - button "Alertes" [ref=e57] [cursor=pointer]
+    - generic [ref=e58]:
+      - heading "Aucune notification" [level=2] [ref=e66]
+      - paragraph [ref=e67]: Nous vous informerons dès qu'il y aura du nouveau pour vous.
+      - link "Aller à la boutique" [ref=e68] [cursor=pointer]:
+        - /url: ./catalog
+  - dialog "Préférences de cookies" [ref=e69]:
+    - generic [ref=e70]:
+      - generic [ref=e71]:
+        - paragraph [ref=e72]: 🍪 Nous respectons votre vie privée
+        - paragraph [ref=e73]:
+          - text: Nous utilisons des cookies pour améliorer votre expérience. Voir notre
+          - link "politique de confidentialité" [ref=e74] [cursor=pointer]:
+            - /url: /src/pages/privacy.html
+          - text: .
+      - generic [ref=e75]:
+        - button "Personnaliser" [ref=e76] [cursor=pointer]
+        - button "Refuser tout" [ref=e77] [cursor=pointer]
+        - button "Accepter tout ✓" [ref=e78] [cursor=pointer]

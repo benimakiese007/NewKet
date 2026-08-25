@@ -7593,7 +7593,7 @@ function openOrderModal(id) {
                     buyerActions.classList.remove('hidden');
                 }
                 // Afficher bouton escalade si pas encore UNDER_REVIEW
-                const escalatableStatuses = ['OPEN', 'SELLER_PENDING', 'BUYER_PENDING'];
+                const escalatableStatuses = ['OPEN', 'SELLER_PENDING', 'BUYER_PENDING', 'AWAITING_RETURN'];
                 if (escalateSection && escalatableStatuses.includes(currentSelectedDispute.status)) {
                     escalateSection.classList.remove('hidden');
                     const btnEscalate = document.getElementById('btnVendorEscalateAdmin');
@@ -7782,6 +7782,10 @@ function openOrderModal(id) {
             if (releaseCountdownTimer) {
                 clearInterval(releaseCountdownTimer);
                 releaseCountdownTimer = null;
+            }
+            if (window._returnCountdownTimer) {
+                clearInterval(window._returnCountdownTimer);
+                window._returnCountdownTimer = null;
             }
             document.getElementById('orderModal').classList.add('hidden');
             document.getElementById('orderModal').style.display = 'none';

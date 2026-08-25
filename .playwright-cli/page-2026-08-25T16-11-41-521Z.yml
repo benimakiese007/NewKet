@@ -1,0 +1,776 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - button "Ouvrir le menu" [expanded] [active] [ref=e7] [cursor=pointer]:
+            - img [ref=e9]
+          - link "Retour à l'accueil NewKet" [ref=e12] [cursor=pointer]:
+            - /url: /index.html
+            - img "NewKet" [ref=e13]
+        - generic [ref=e15]:
+          - generic "Choisir une catégorie" [ref=e16] [cursor=pointer]:
+            - generic [ref=e17]: Tout
+            - img [ref=e19]
+          - textbox "Rechercher des produits" [ref=e21]:
+            - /placeholder: Rechercher sur NewKet...
+        - generic [ref=e22]:
+          - generic "Devise d'affichage" [ref=e24] [cursor=pointer]:
+            - generic [ref=e25]:
+              - generic [ref=e27]: USD
+              - generic [ref=e28]: CDF
+          - link "Voir les notifications" [ref=e29] [cursor=pointer]:
+            - /url: /src/pages/notifications.html
+            - img [ref=e31]
+          - link "Voir les favoris" [ref=e35] [cursor=pointer]:
+            - /url: /src/pages/favorites.html
+            - img [ref=e37]
+          - button "Voir le panier" [ref=e39] [cursor=pointer]:
+            - img [ref=e41]
+          - link "Mon compte" [ref=e46] [cursor=pointer]:
+            - /url: /src/pages/login.html
+            - img [ref=e48]
+    - dialog "Navigation mobile" [ref=e723]:
+      - generic [ref=e724]:
+        - generic [ref=e725]:
+          - img "NewKet" [ref=e726]
+          - paragraph [ref=e727]: Votre navigation principale
+        - button "Fermer le menu" [ref=e728] [cursor=pointer]:
+          - img [ref=e730]
+      - generic [ref=e732]:
+        - link "Compte NewKet Connectez-vous pour voir vos favoris et vos commandes." [ref=e734] [cursor=pointer]:
+          - /url: /src/pages/login.html
+          - img [ref=e737]
+          - generic [ref=e740]:
+            - generic [ref=e741]: Compte NewKet
+            - generic [ref=e742]: Connectez-vous pour voir vos favoris et vos commandes.
+          - img [ref=e745]
+        - generic [ref=e748]:
+          - link "Catalogue" [ref=e749] [cursor=pointer]:
+            - /url: /src/pages/catalog.html
+            - img [ref=e751]
+            - generic [ref=e757]: Catalogue
+          - link "Boutiques" [ref=e758] [cursor=pointer]:
+            - /url: /src/pages/shops.html
+            - img [ref=e760]
+            - generic [ref=e765]: Boutiques
+          - link "Favoris" [ref=e766] [cursor=pointer]:
+            - /url: /src/pages/favorites.html
+            - img [ref=e768]
+            - generic [ref=e770]: Favoris
+          - link "Notifications" [ref=e771] [cursor=pointer]:
+            - /url: /src/pages/notifications.html
+            - img [ref=e773]
+            - generic [ref=e777]: Notifications
+        - generic [ref=e778]:
+          - generic [ref=e779]:
+            - heading "Catégories" [level=3] [ref=e780]
+            - navigation [ref=e781]:
+              - link "Femme" [ref=e782] [cursor=pointer]:
+                - /url: /src/pages/catalog.html?category=Femme
+                - img [ref=e784]
+                - text: Femme
+              - link "Homme" [ref=e789] [cursor=pointer]:
+                - /url: /src/pages/catalog.html?category=Homme
+                - img [ref=e791]
+                - text: Homme
+              - link "Tech & Gadgets" [ref=e795] [cursor=pointer]:
+                - /url: /src/pages/catalog.html?category=Tech & Gadgets
+                - img [ref=e797]
+                - text: Tech & Gadgets
+              - link "HIGH-TECH" [ref=e801] [cursor=pointer]:
+                - /url: /src/pages/catalog.html?category=HIGH-TECH
+                - img [ref=e803]
+                - text: HIGH-TECH
+              - link "Art de vivre" [ref=e808] [cursor=pointer]:
+                - /url: /src/pages/catalog.html?category=Art de vivre
+                - img [ref=e810]
+                - text: Art de vivre
+              - link "Promos" [ref=e815] [cursor=pointer]:
+                - /url: /src/pages/catalog.html?promo=true
+                - text: Promos
+          - generic [ref=e817]:
+            - heading "Liens utiles" [level=3] [ref=e818]
+            - navigation [ref=e819]:
+              - link "Support" [ref=e820] [cursor=pointer]:
+                - /url: /src/pages/support.html
+                - text: Support
+              - link "FAQ" [ref=e821] [cursor=pointer]:
+                - /url: /src/pages/faq.html
+                - text: FAQ
+        - generic [ref=e823]:
+          - paragraph [ref=e824]: Devise d'affichage
+          - generic [ref=e826] [cursor=pointer]:
+            - generic [ref=e828]: USD
+            - generic [ref=e829]: CDF
+  - generic:
+    - generic:
+      - generic: Mise à jour...
+  - main [ref=e52]:
+    - generic [ref=e53]:
+      - generic [ref=e54]:
+        - heading "Produits Sponsorisés" [level=2] [ref=e56]
+        - link "Voir tout" [ref=e57] [cursor=pointer]:
+          - /url: /src/pages/catalog.html
+          - text: Voir tout
+          - img [ref=e59]
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e64] [cursor=pointer]:
+              - img [ref=e66]
+            - 'link "Voir le produit : Robe de soirée bordeaux" [ref=e68] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Robe_de_soiree_bordeaux?id=a946224a-dea3-4a3a-9fe1-30040d2a2e14
+              - img "Robe de soirée bordeaux" [ref=e69]
+          - generic [ref=e70]:
+            - generic [ref=e71]: Mode Femme
+            - link "Avatar Vendeur mwana_kwata" [ref=e72] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/mwana_kwata
+              - img "Avatar Vendeur" [ref=e74]
+              - generic [ref=e76]: mwana_kwata
+            - heading "Robe de soirée bordeaux" [level=3] [ref=e77]:
+              - link "Robe de soirée bordeaux" [ref=e78] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Robe_de_soiree_bordeaux?id=a946224a-dea3-4a3a-9fe1-30040d2a2e14
+            - generic [ref=e79]:
+              - generic [ref=e80]:
+                - img [ref=e81]
+                - img [ref=e83]
+                - img [ref=e85]
+                - img [ref=e87]
+                - img [ref=e89]
+              - generic [ref=e91]: (8)
+            - generic [ref=e93]: 195 000 FC
+            - generic [ref=e94]:
+              - button "Ajouter Robe de soirée bordeaux au panier" [ref=e95] [cursor=pointer]:
+                - img [ref=e97]
+                - generic [ref=e102]: Ajouter
+              - button "Partager ce produit" [ref=e103] [cursor=pointer]:
+                - img [ref=e105]
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e112] [cursor=pointer]:
+              - img [ref=e114]
+            - 'link "Voir le produit : Table basse bois flotté" [ref=e116] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Table_basse_bois_flotte?id=fa3cb74b-4e4f-4e10-9121-770f1b386aa1
+              - img "Table basse bois flotté" [ref=e117]
+          - generic [ref=e118]:
+            - generic [ref=e119]: Mobilier
+            - link "Avatar Vendeur developpeur_web" [ref=e120] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/developpeur_web
+              - img "Avatar Vendeur" [ref=e122]
+              - generic [ref=e124]: developpeur_web
+            - heading "Table basse bois flotté" [level=3] [ref=e125]:
+              - link "Table basse bois flotté" [ref=e126] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Table_basse_bois_flotte?id=fa3cb74b-4e4f-4e10-9121-770f1b386aa1
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - img [ref=e129]
+                - img [ref=e131]
+                - img [ref=e133]
+                - img [ref=e135]
+                - img [ref=e137]
+              - generic [ref=e139]: (0)
+            - generic [ref=e141]: 210 000 FC
+            - generic [ref=e142]:
+              - button "Ajouter Table basse bois flotté au panier" [ref=e143] [cursor=pointer]:
+                - img [ref=e145]
+                - generic [ref=e150]: Ajouter
+              - button "Partager ce produit" [ref=e151] [cursor=pointer]:
+                - img [ref=e153]
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e160] [cursor=pointer]:
+              - img [ref=e162]
+            - 'link "Voir le produit : Canapé 3 places velours émeraude" [ref=e164] [cursor=pointer]':
+              - /url: /boutique/ye_store/produit/Canape_3_places_velours_emeraude?id=7746be0a-59e3-493f-bd0a-d7491f98fd67
+              - img "Canapé 3 places velours émeraude" [ref=e165]
+          - generic [ref=e166]:
+            - generic [ref=e167]: Mobilier
+            - link "Avatar Vendeur ye_store" [ref=e168] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/ye_store
+              - img "Avatar Vendeur" [ref=e170]
+              - generic [ref=e172]: ye_store
+            - heading "Canapé 3 places velours émeraude" [level=3] [ref=e173]:
+              - link "Canapé 3 places velours émeraude" [ref=e174] [cursor=pointer]:
+                - /url: /boutique/ye_store/produit/Canape_3_places_velours_emeraude?id=7746be0a-59e3-493f-bd0a-d7491f98fd67
+            - generic [ref=e175]:
+              - generic [ref=e176]:
+                - img [ref=e177]
+                - img [ref=e179]
+                - img [ref=e181]
+                - img [ref=e183]
+                - img [ref=e185]
+              - generic [ref=e187]: (0)
+            - generic [ref=e189]: 950 000 FC
+            - generic [ref=e190]:
+              - button "Ajouter Canapé 3 places velours émeraude au panier" [ref=e191] [cursor=pointer]:
+                - img [ref=e193]
+                - generic [ref=e198]: Ajouter
+              - button "Partager ce produit" [ref=e199] [cursor=pointer]:
+                - img [ref=e201]
+        - generic [ref=e206]:
+          - generic [ref=e207]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e208] [cursor=pointer]:
+              - img [ref=e210]
+            - 'link "Voir le produit : Plante artificielle palmier 180cm" [ref=e212] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Plante_artificielle_palmier_180cm?id=0f26f78e-c9af-404b-a2f1-d213a5eac0d8
+              - img "Plante artificielle palmier 180cm" [ref=e213]
+          - generic [ref=e214]:
+            - generic [ref=e215]: Décoration
+            - link "Avatar Vendeur developpeur_web" [ref=e216] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/developpeur_web
+              - img "Avatar Vendeur" [ref=e218]
+              - generic [ref=e220]: developpeur_web
+            - heading "Plante artificielle palmier 180cm" [level=3] [ref=e221]:
+              - link "Plante artificielle palmier 180cm" [ref=e222] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Plante_artificielle_palmier_180cm?id=0f26f78e-c9af-404b-a2f1-d213a5eac0d8
+            - generic [ref=e223]:
+              - generic [ref=e224]:
+                - img [ref=e225]
+                - img [ref=e227]
+                - img [ref=e229]
+                - img [ref=e231]
+                - generic [ref=e233]:
+                  - img [ref=e234]
+                  - img [ref=e236]
+              - generic [ref=e238]: (5)
+            - generic [ref=e240]: 75 000 FC
+            - generic [ref=e241]:
+              - button "Ajouter Plante artificielle palmier 180cm au panier" [ref=e242] [cursor=pointer]:
+                - img [ref=e244]
+                - generic [ref=e249]: Ajouter
+              - button "Partager ce produit" [ref=e250] [cursor=pointer]:
+                - img [ref=e252]
+        - generic [ref=e257]:
+          - generic [ref=e258]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e259] [cursor=pointer]:
+              - img [ref=e261]
+            - 'link "Voir le produit : Vélo de route carbone Specialized" [ref=e263] [cursor=pointer]':
+              - /url: /boutique/zando_na_palais/produit/Velo_de_route_carbone_Specialized?id=2205529c-fc15-4f46-80a1-9481e13c067b
+              - img "Vélo de route carbone Specialized" [ref=e264]
+          - generic [ref=e265]:
+            - generic [ref=e266]: Sport
+            - link "Avatar Vendeur zando_na_palais" [ref=e267] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/zando_na_palais
+              - img "Avatar Vendeur" [ref=e269]
+              - generic [ref=e271]: zando_na_palais
+            - heading "Vélo de route carbone Specialized" [level=3] [ref=e272]:
+              - link "Vélo de route carbone Specialized" [ref=e273] [cursor=pointer]:
+                - /url: /boutique/zando_na_palais/produit/Velo_de_route_carbone_Specialized?id=2205529c-fc15-4f46-80a1-9481e13c067b
+            - generic [ref=e274]:
+              - generic [ref=e275]:
+                - img [ref=e276]
+                - img [ref=e278]
+                - img [ref=e280]
+                - img [ref=e282]
+                - img [ref=e284]
+              - generic [ref=e286]: (3)
+            - generic [ref=e288]: 2 500 000 FC
+            - generic [ref=e289]:
+              - button "Ajouter Vélo de route carbone Specialized au panier" [ref=e290] [cursor=pointer]:
+                - img [ref=e292]
+                - generic [ref=e297]: Ajouter
+              - button "Partager ce produit" [ref=e298] [cursor=pointer]:
+                - img [ref=e300]
+    - generic [ref=e307]:
+      - generic [ref=e308]:
+        - heading "NewKet MarketPlace" [level=1] [ref=e309]:
+          - text: NewKet
+          - text: MarketPlace
+        - paragraph [ref=e310]: L'excellence du luxe à portée de main. Découvrez une sélection curatée des plus belles pièces du moment. NEWKET
+        - link "Découvrir" [ref=e312] [cursor=pointer]:
+          - /url: /src/pages/catalog.html
+      - generic [ref=e317]:
+        - generic [ref=e318]: "-20%"
+        - generic [ref=e319]: Sélection Freemium
+        - generic [ref=e320]: "Code: PHX"
+    - generic:
+      - generic:
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - img
+          - generic:
+            - generic: FlexPaie
+            - generic: En partenariat avec la BCC
+        - generic:
+          - img
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - img
+          - generic:
+            - generic: Support 24/7
+            - generic: On est là si besoin
+        - generic:
+          - img
+          - generic:
+            - generic: 100% Made in RDC
+            - generic: Soutiens les vendeurs locaux
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - img
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - img
+          - generic:
+            - generic: Support 24/7
+            - generic: On est là si besoin
+        - generic:
+          - img
+          - generic:
+            - generic: 100% Made in RDC
+            - generic: Soutiens les vendeurs locaux
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - img
+          - generic:
+            - generic: FlexPaie
+            - generic: En partenariat avec la BCC
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+        - generic:
+          - img
+          - generic:
+            - generic: Achat Sécurisé
+            - generic: Paiement libéré après le délai de garanti du produit
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Sécurisé
+            - generic: Transactions 100% cryptées
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement Mobile
+            - generic: M-Pesa, Orange, Airtel, Africell
+        - generic:
+          - img
+          - generic:
+            - generic: Paiement par Carte
+            - generic: Visa et MasterCard
+    - generic [ref=e323]:
+      - generic [ref=e324]:
+        - heading "Tous les produits" [level=2] [ref=e325]
+        - generic [ref=e326]:
+          - button "Toutes les pièces" [ref=e327] [cursor=pointer]
+          - button "Femme" [ref=e328] [cursor=pointer]
+          - button "Homme" [ref=e329] [cursor=pointer]
+          - button "Tech & Gadgets" [ref=e330] [cursor=pointer]
+          - button "Art de vivre" [ref=e331] [cursor=pointer]
+          - button "Promos" [ref=e332] [cursor=pointer]
+          - combobox "Trier les produits par" [ref=e334] [cursor=pointer]:
+            - option "Plus récents" [selected]
+            - option "Prix croissant"
+            - option "Prix décroissant"
+      - generic [ref=e335]:
+        - generic [ref=e336]:
+          - generic [ref=e337]:
+            - generic [ref=e338]: Nouveau
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e339] [cursor=pointer]
+            - 'link "Voir le produit : Polo avec Colle Lacoste" [ref=e340] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Polo_avec_Colle_Lacoste?id=ace9025f-811e-46a6-bfc7-ed1a704d40f9
+              - img "Polo avec Colle Lacoste" [ref=e341]
+          - generic [ref=e342]:
+            - generic [ref=e343]: Tech & Gadgets
+            - link "Avatar Vendeur mwana_kwata" [ref=e344] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/mwana_kwata
+              - img "Avatar Vendeur" [ref=e346]
+              - generic [ref=e348]: mwana_kwata
+            - heading "Polo avec Colle Lacoste" [level=3] [ref=e349]:
+              - link "Polo avec Colle Lacoste" [ref=e350] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Polo_avec_Colle_Lacoste?id=ace9025f-811e-46a6-bfc7-ed1a704d40f9
+            - generic [ref=e351]:
+              - generic [ref=e352]:
+                - img [ref=e353]
+                - img [ref=e355]
+                - img [ref=e357]
+                - img [ref=e359]
+                - img [ref=e361]
+              - generic [ref=e363]: (0)
+            - generic [ref=e364]:
+              - generic [ref=e365]: 34 500 FC
+              - generic [ref=e366]: 34 500 FC
+            - generic [ref=e367]:
+              - button "Ajouter Polo avec Colle Lacoste au panier" [ref=e368] [cursor=pointer]:
+                - img [ref=e370]
+                - generic [ref=e375]: Ajouter
+              - button "Partager ce produit" [ref=e376] [cursor=pointer]
+        - generic [ref=e377]:
+          - generic [ref=e378]:
+            - generic [ref=e379]: Nouveau
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e380] [cursor=pointer]
+            - 'link "Voir le produit : ALLOM" [ref=e381] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/ALLOM?id=26f6dd3e-0a1c-4ac7-92db-961da3d6e1e1
+              - img "ALLOM" [ref=e382]
+          - generic [ref=e383]:
+            - generic [ref=e384]: Allom
+            - link "Avatar Vendeur mwana_kwata" [ref=e385] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/mwana_kwata
+              - img "Avatar Vendeur" [ref=e387]
+              - generic [ref=e389]: mwana_kwata
+            - heading "ALLOM" [level=3] [ref=e390]:
+              - link "ALLOM" [ref=e391] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/ALLOM?id=26f6dd3e-0a1c-4ac7-92db-961da3d6e1e1
+            - generic [ref=e392]:
+              - generic [ref=e393]:
+                - img [ref=e394]
+                - img [ref=e396]
+                - img [ref=e398]
+                - img [ref=e400]
+                - img [ref=e402]
+              - generic [ref=e404]: (0)
+            - generic [ref=e406]: 23 000 FC
+            - generic [ref=e407]:
+              - button "Ajouter ALLOM au panier" [ref=e408] [cursor=pointer]:
+                - img [ref=e410]
+                - generic [ref=e415]: Ajouter
+              - button "Partager ce produit" [ref=e416] [cursor=pointer]
+        - generic [ref=e417]:
+          - generic [ref=e418]:
+            - generic [ref=e419]: Nouveau
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e420] [cursor=pointer]
+            - 'link "Voir le produit : Affiche NK, POSTER" [ref=e421] [cursor=pointer]':
+              - /url: /boutique/terra_mining/produit/Affiche_NK_POSTER?id=99acab9f-494a-4070-96c3-0a54ae5de20b
+              - img "Affiche NK, POSTER" [ref=e422]
+          - generic [ref=e423]:
+            - link "Avatar Vendeur terra_mining" [ref=e424] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/terra_mining
+              - img "Avatar Vendeur" [ref=e426]
+              - generic [ref=e427]:
+                - generic [ref=e428]: terra_mining
+                - generic "Vendeur Pro"
+            - heading "Affiche NK, POSTER" [level=3] [ref=e429]:
+              - link "Affiche NK, POSTER" [ref=e430] [cursor=pointer]:
+                - /url: /boutique/terra_mining/produit/Affiche_NK_POSTER?id=99acab9f-494a-4070-96c3-0a54ae5de20b
+            - generic [ref=e431]:
+              - generic [ref=e432]:
+                - img [ref=e433]
+                - img [ref=e435]
+                - img [ref=e437]
+                - img [ref=e439]
+                - img [ref=e441]
+              - generic [ref=e443]: (0)
+            - generic [ref=e444]:
+              - generic [ref=e445]: 28 000 FC
+              - generic [ref=e446]: 28 000 FC
+            - generic [ref=e447]:
+              - button "Ajouter Affiche NK, POSTER au panier" [ref=e448] [cursor=pointer]:
+                - img [ref=e450]
+                - generic [ref=e455]: Ajouter
+              - button "Partager ce produit" [ref=e456] [cursor=pointer]
+        - generic [ref=e457]:
+          - generic [ref=e458]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e459] [cursor=pointer]
+            - 'link "Voir le produit : Montre Rolex Submariner Acier" [ref=e460] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Montre_Rolex_Submariner_Acier?id=e50fa24e-945f-4195-a15f-e1767681e78c
+              - img "Montre Rolex Submariner Acier" [ref=e461]
+          - generic [ref=e462]:
+            - generic [ref=e463]: Montres
+            - link "Avatar Vendeur mwana_kwata" [ref=e464] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/mwana_kwata
+              - img "Avatar Vendeur" [ref=e466]
+              - generic [ref=e468]: mwana_kwata
+            - heading "Montre Rolex Submariner Acier" [level=3] [ref=e469]:
+              - link "Montre Rolex Submariner Acier" [ref=e470] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Montre_Rolex_Submariner_Acier?id=e50fa24e-945f-4195-a15f-e1767681e78c
+            - generic [ref=e471]:
+              - generic [ref=e472]:
+                - img [ref=e473]
+                - img [ref=e475]
+                - img [ref=e477]
+                - img [ref=e479]
+                - img [ref=e481]
+              - generic [ref=e483]: (0)
+            - generic [ref=e485]: 2 850 000 FC
+            - generic [ref=e486]:
+              - button "Ajouter Montre Rolex Submariner Acier au panier" [ref=e487] [cursor=pointer]:
+                - img [ref=e489]
+                - generic [ref=e494]: Ajouter
+              - button "Partager ce produit" [ref=e495] [cursor=pointer]
+        - generic [ref=e496]:
+          - generic [ref=e497]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e498] [cursor=pointer]
+            - 'link "Voir le produit : Service de vaisselle 18 pièces grès" [ref=e499] [cursor=pointer]':
+              - /url: /boutique/developpeur_web/produit/Service_de_vaisselle_18_pieces_gres?id=eec46960-b1cf-4704-9286-ad7bb07a99f7
+              - img "Service de vaisselle 18 pièces grès" [ref=e500]
+          - generic [ref=e501]:
+            - generic [ref=e502]: Décoration
+            - link "Avatar Vendeur developpeur_web" [ref=e503] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/developpeur_web
+              - img "Avatar Vendeur" [ref=e505]
+              - generic [ref=e507]: developpeur_web
+            - heading "Service de vaisselle 18 pièces grès" [level=3] [ref=e508]:
+              - link "Service de vaisselle 18 pièces grès" [ref=e509] [cursor=pointer]:
+                - /url: /boutique/developpeur_web/produit/Service_de_vaisselle_18_pieces_gres?id=eec46960-b1cf-4704-9286-ad7bb07a99f7
+            - generic [ref=e510]:
+              - generic [ref=e511]:
+                - img [ref=e512]
+                - img [ref=e514]
+                - img [ref=e516]
+                - img [ref=e518]
+                - img [ref=e520]
+              - generic [ref=e522]: (0)
+            - generic [ref=e523]:
+              - generic [ref=e524]: 132 500 FC
+              - generic [ref=e525]:
+                - generic [ref=e526]: 180 000 FC
+                - generic [ref=e527]: "-26%"
+            - generic [ref=e528]:
+              - button "Ajouter Service de vaisselle 18 pièces grès au panier" [ref=e529] [cursor=pointer]:
+                - img [ref=e531]
+                - generic [ref=e536]: Ajouter
+              - button "Partager ce produit" [ref=e537] [cursor=pointer]
+        - generic [ref=e538]:
+          - generic [ref=e539]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e540] [cursor=pointer]
+            - 'link "Voir le produit : Barre de son Sonos Beam Gen 2" [ref=e541] [cursor=pointer]':
+              - /url: /boutique/mwana_kwata/produit/Barre_de_son_Sonos_Beam_Gen_2?id=96ffab29-31f1-456f-822d-2988367bf48d
+              - img "Barre de son Sonos Beam Gen 2" [ref=e542]
+          - generic [ref=e543]:
+            - generic [ref=e544]: Audio
+            - link "Avatar Vendeur mwana_kwata" [ref=e545] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/mwana_kwata
+              - img "Avatar Vendeur" [ref=e547]
+              - generic [ref=e549]: mwana_kwata
+            - heading "Barre de son Sonos Beam Gen 2" [level=3] [ref=e550]:
+              - link "Barre de son Sonos Beam Gen 2" [ref=e551] [cursor=pointer]:
+                - /url: /boutique/mwana_kwata/produit/Barre_de_son_Sonos_Beam_Gen_2?id=96ffab29-31f1-456f-822d-2988367bf48d
+            - generic [ref=e552]:
+              - generic [ref=e553]:
+                - img [ref=e554]
+                - img [ref=e556]
+                - img [ref=e558]
+                - img [ref=e560]
+                - generic [ref=e562]:
+                  - img [ref=e563]
+                  - img [ref=e565]
+              - generic [ref=e567]: (8)
+            - generic [ref=e569]: 75 000 FC
+            - generic [ref=e570]:
+              - button "Ajouter Barre de son Sonos Beam Gen 2 au panier" [ref=e571] [cursor=pointer]:
+                - img [ref=e573]
+                - generic [ref=e578]: Ajouter
+              - button "Partager ce produit" [ref=e579] [cursor=pointer]
+        - generic [ref=e580]:
+          - generic [ref=e581]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e582] [cursor=pointer]
+            - 'link "Voir le produit : TV OLED LG 55 pouces C3" [ref=e583] [cursor=pointer]':
+              - /url: /boutique/maison_momo/produit/TV_OLED_LG_55_pouces_C3?id=a6a24e66-2d66-4c74-a26a-76ea6a461c52
+              - img "TV OLED LG 55 pouces C3" [ref=e584]
+          - generic [ref=e585]:
+            - generic [ref=e586]: Audio
+            - link "Avatar Vendeur maison_momo" [ref=e587] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/maison_momo
+              - img "Avatar Vendeur" [ref=e589]
+              - generic [ref=e590]:
+                - generic [ref=e591]: maison_momo
+                - generic "Vendeur Pro"
+            - heading "TV OLED LG 55 pouces C3" [level=3] [ref=e592]:
+              - link "TV OLED LG 55 pouces C3" [ref=e593] [cursor=pointer]:
+                - /url: /boutique/maison_momo/produit/TV_OLED_LG_55_pouces_C3?id=a6a24e66-2d66-4c74-a26a-76ea6a461c52
+            - generic [ref=e594]:
+              - generic [ref=e595]:
+                - img [ref=e596]
+                - img [ref=e598]
+                - img [ref=e600]
+                - img [ref=e602]
+                - img [ref=e604]
+              - generic [ref=e606]: (5)
+            - generic [ref=e607]:
+              - generic [ref=e608]: 1 658 000 FC
+              - generic [ref=e609]:
+                - generic [ref=e610]: 2 100 000 FC
+                - generic [ref=e611]: "-21%"
+            - generic [ref=e612]:
+              - button "Ajouter TV OLED LG 55 pouces C3 au panier" [ref=e613] [cursor=pointer]:
+                - img [ref=e615]
+                - generic [ref=e620]: Ajouter
+              - button "Partager ce produit" [ref=e621] [cursor=pointer]
+        - generic [ref=e622]:
+          - generic [ref=e623]:
+            - generic:
+              - generic: En stock
+            - button "Ajouter aux favoris" [ref=e624] [cursor=pointer]
+            - 'link "Voir le produit : Tente de camping 4 personnes" [ref=e625] [cursor=pointer]':
+              - /url: /boutique/ye_store/produit/Tente_de_camping_4_personnes?id=1133c42a-7081-42c2-ae19-4e41a2541835
+              - img "Tente de camping 4 personnes" [ref=e626]
+          - generic [ref=e627]:
+            - generic [ref=e628]: Sport
+            - link "Avatar Vendeur ye_store" [ref=e629] [cursor=pointer]:
+              - /url: http://localhost:5173/boutique/ye_store
+              - img "Avatar Vendeur" [ref=e631]
+              - generic [ref=e633]: ye_store
+            - heading "Tente de camping 4 personnes" [level=3] [ref=e634]:
+              - link "Tente de camping 4 personnes" [ref=e635] [cursor=pointer]:
+                - /url: /boutique/ye_store/produit/Tente_de_camping_4_personnes?id=1133c42a-7081-42c2-ae19-4e41a2541835
+            - generic [ref=e636]:
+              - generic [ref=e637]:
+                - img [ref=e638]
+                - img [ref=e640]
+                - img [ref=e642]
+                - img [ref=e644]
+                - img [ref=e646]
+              - generic [ref=e648]: (0)
+            - generic [ref=e650]: 250 000 FC
+            - generic [ref=e651]:
+              - button "Ajouter Tente de camping 4 personnes au panier" [ref=e652] [cursor=pointer]:
+                - img [ref=e654]
+                - generic [ref=e659]: Ajouter
+              - button "Partager ce produit" [ref=e660] [cursor=pointer]
+  - contentinfo [ref=e663]:
+    - generic [ref=e664]:
+      - generic [ref=e665]:
+        - generic [ref=e666]:
+          - img "NewKet" [ref=e668]
+          - paragraph [ref=e669]: L'excellence de la marketplace moderne. Découvrez une sélection rigoureuse d'articles de luxe et profitez d'une expérience shopping sans compromis.
+          - generic [ref=e670]:
+            - link "+243990924254" [ref=e671] [cursor=pointer]:
+              - /url: tel:+243990924254
+              - generic [ref=e672]: "+243990924254"
+            - link "benimakiese1234@gmail.com" [ref=e673] [cursor=pointer]:
+              - /url: mailto:benimakiese1234@gmail.com
+              - generic [ref=e674]: benimakiese1234@gmail.com
+          - generic [ref=e675]:
+            - link "NewKet sur Instagram" [ref=e676] [cursor=pointer]:
+              - /url: https://www.instagram.com/Benimakiese007
+            - link "NewKet sur Facebook" [ref=e677] [cursor=pointer]:
+              - /url: https://www.facebook.com/Benimakiese007
+            - link "NewKet sur X" [ref=e678] [cursor=pointer]:
+              - /url: https://x.com/lephoenixman
+            - link "NewKet sur LinkedIn" [ref=e679] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/beni-makiese/
+        - generic [ref=e680]:
+          - heading "Services" [level=4] [ref=e681]
+          - list [ref=e682]:
+            - listitem [ref=e683]:
+              - link "À propos de nous" [ref=e684] [cursor=pointer]:
+                - /url: /src/pages/about.html
+            - listitem [ref=e685]:
+              - link "Devenir Vendeur" [ref=e686] [cursor=pointer]:
+                - /url: /src/pages/seller.html
+            - listitem [ref=e687]:
+              - link "Support Technique" [ref=e688] [cursor=pointer]:
+                - /url: /src/pages/support.html
+            - listitem [ref=e689]:
+              - link "FAQ" [ref=e690] [cursor=pointer]:
+                - /url: /src/pages/faq.html
+            - listitem
+        - generic [ref=e691]:
+          - heading "Inspiration & Offres" [level=4] [ref=e692]
+          - paragraph [ref=e693]: Inscrivez-vous pour recevoir nos sélections exclusives et avant-premières.
+          - generic [ref=e694]:
+            - textbox "Votre email" [ref=e695]
+            - button "S'inscrire" [ref=e696] [cursor=pointer]
+      - generic [ref=e697]:
+        - generic [ref=e698]: Paiements acceptés
+        - generic [ref=e699]:
+          - img "Orange Money" [ref=e700]
+          - img "Airtel Money" [ref=e701]
+          - img "M-Pesa" [ref=e702]
+          - img "Afri Money" [ref=e703]
+          - img "Mastercard" [ref=e704]
+          - img "Visa" [ref=e705]
+      - generic [ref=e706]:
+        - paragraph [ref=e707]: © 2026 NEWKET — Expérience Luxe
+        - generic [ref=e708]:
+          - link "Mentions légales" [ref=e709] [cursor=pointer]:
+            - /url: /src/pages/mentions-legales.html
+          - link "CGV" [ref=e710] [cursor=pointer]:
+            - /url: /src/pages/terms.html
+          - link "Confidentialité" [ref=e711] [cursor=pointer]:
+            - /url: /src/pages/privacy.html
+  - dialog "Préférences de cookies" [ref=e712]:
+    - generic [ref=e713]:
+      - generic [ref=e714]:
+        - paragraph [ref=e715]: 🍪 Nous respectons votre vie privée
+        - paragraph [ref=e716]:
+          - text: Nous utilisons des cookies pour améliorer votre expérience. Voir notre
+          - link "politique de confidentialité" [ref=e717] [cursor=pointer]:
+            - /url: /src/pages/privacy.html
+          - text: .
+      - generic [ref=e718]:
+        - button "Personnaliser" [ref=e719] [cursor=pointer]
+        - button "Refuser tout" [ref=e720] [cursor=pointer]
+        - button "Accepter tout ✓" [ref=e721] [cursor=pointer]

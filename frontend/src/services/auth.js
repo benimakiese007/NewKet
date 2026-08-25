@@ -1546,9 +1546,11 @@ const AuthManager = {
             } else if (this.role === 'supplier') {
                 loggedLink.href = window.resolvePath('vendor-dashboard');
                 // Fetch company if available, fallback to user name
-                const companyName = compactUsername(localStorage.getItem('newketCompany') || profile.username) || userName;
+                const profile = window.ProfileManager ? window.ProfileManager.getProfile() : {};
+                const companyName = compactUsername(localStorage.getItem('newketCompany') || profile?.username) || userName;
                 if (loggedName) loggedName.textContent = companyName;
-                if (loggedRole) loggedRole.textContent = 'Vendeur Premium';
+                const isCertified = this.sellerType === 'certified' || localStorage.getItem('newketSellerType') === 'certified' || profile?.seller_type === 'certified';
+                if (loggedRole) loggedRole.textContent = isCertified ? 'Vendeur Certifié' : 'Vendeur';
             } else {
                 loggedLink.href = window.resolvePath('customer-dashboard');
                 if (loggedName) loggedName.textContent = userName;
