@@ -7,9 +7,9 @@ const UI = {
     init() {
         this.renderHomeGrid();
 
-        // Listen for data updates — skip if a scroll-triggered loadMore is in progress
+        // Avoid replacing the grid while the user explicitly requests another block.
         window.addEventListener('productsUpdated', () => {
-            if (!window._isFetchingHome && !window._isCompletingHomeRow) {
+            if (!window._isFetchingHome) {
                 this.renderHomeGrid();
             }
         });
@@ -19,7 +19,7 @@ const UI = {
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(() => {
-                    this.completeHomeGridRow(document.getElementById('allProductGrid'));
+                    this.renderAll(ProductManager.getProducts());
                 }, 150);
             });
             this._homeResizeBound = true;
@@ -128,46 +128,19 @@ const UI = {
             return;
         }
 
-        // Initial render: always clear if called directly (e.g. on filter change)
-        this.renderFilteredBatch(products, grid, 25, false);
+        // Always show exactly five complete rows, whatever the current screen width.
+        this.renderFilteredBatch(products, grid, this.getHomeBatchSize(grid), false);
     },
 
-    /**
-     * Completes the final visual row without re-enabling infinite scroll.
-     * It uses products already loaded first, then fetches one page only when needed.
-     */
-    async completeHomeGridRow(grid) {
-        if (!grid || window._isFetchingHome || window._isCompletingHomeRow || !window.ProductManager) return;
-
-        const getColumnCount = () => {
-            const columns = getComputedStyle(grid).gridTemplateColumns;
-            return columns ? columns.trim().split(/\s+/).length : 1;
-        };
-        const getMissingCards = () => {
-            const columns = getColumnCount();
-            const rendered = grid.querySelectorAll('[data-product-id]').length;
-            return rendered % columns === 0 ? 0 : columns - (rendered % columns);
-        };
-
-        let missingCards = getMissingCards();
-        if (!missingCards) return;
-
-        window._isCompletingHomeRow = true;
-        try {
-            this.renderFilteredBatch(ProductManager.getProducts(), grid, missingCards, true);
-            missingCards = getMissingCards();
-
-            // One explicit fetch only: this completes a row but never acts as infinite scroll.
-            if (missingCards && ProductManager.hasMore()) {
-                await ProductManager.loadMore();
-                this.renderFilteredBatch(ProductManager.getProducts(), grid, missingCards, true);
-            }
-        } catch (error) {
-            console.error('Unable to complete the home product row:', error);
-        } finally {
-            window._isCompletingHomeRow = false;
-        }
+    getHomeColumnCount(grid) {
+        const columns = getComputedStyle(grid).gridTemplateColumns;
+        return columns ? columns.trim().split(/\s+/).length : 1;
     },
+
+    getHomeBatchSize(grid) {
+        return this.getHomeColumnCount(grid) * 5;
+    },
+
     /**
      * Renders or appends products to a container.
      * @param {Array} products - List of products.
@@ -277,7 +250,6 @@ const UI = {
             noMsg.classList.toggle('hidden', filtered.length > 0);
         }
 
-        void this.completeHomeGridRow(container);
     }
 };
 
@@ -326,27 +298,31 @@ window.showMoreProducts = async function () {
 
     try {
         const currentFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
-        let filteredProducts = ProductManager.getProducts();
-        if (currentFilter !== 'all') {
-            filteredProducts = filteredProducts.filter(product => {
-                if (currentFilter === 'Femme') return product.category === 'Femme' || product.category === 'Collections Femme';
-                if (currentFilter === 'Homme') return product.category === 'Homme' || product.category === 'Style Homme';
-                if (currentFilter === 'Promos') return product.isPromo === true;
-                return product.category === currentFilter;
-            });
-        }
+        const matchesCurrentFilter = product => {
+            if (currentFilter === 'all') return true;
+            if (currentFilter === 'Femme') return product.category === 'Femme' || product.category === 'Collections Femme';
+            if (currentFilter === 'Homme') return product.category === 'Homme' || product.category === 'Style Homme';
+            if (currentFilter === 'Promos') return product.isPromo === true;
+            return product.category === currentFilter;
+        };
 
         const renderedIds = new Set(
             [...grid.querySelectorAll('[data-product-id]')].map(el => el.dataset.productId)
         );
-        const hasUnrenderedProducts = filteredProducts
-            .some(product => !renderedIds.has(String(product.id)));
+        const batchSize = UI.getHomeBatchSize(grid);
 
-        if (!hasUnrenderedProducts && ProductManager.hasMore()) {
+        // Fetch only when locally loaded products cannot fill another five-line block.
+        // With an active filter, several pages may be needed to find enough matching products.
+        while (
+            ProductManager.getProducts()
+                .filter(matchesCurrentFilter)
+                .filter(product => !renderedIds.has(String(product.id))).length < batchSize
+            && ProductManager.hasMore()
+        ) {
             await ProductManager.loadMore();
         }
 
-        UI.renderFilteredBatch(ProductManager.getProducts(), grid, 25, true);
+        UI.renderFilteredBatch(ProductManager.getProducts(), grid, batchSize, true);
     } catch (err) {
         console.error("Error loading more products:", err);
         if (window.showToast) showToast('Erreur lors du chargement', 'error');
@@ -355,7 +331,6 @@ window.showMoreProducts = async function () {
         if (button) button.disabled = false;
         if (buttonLabel) buttonLabel.textContent = 'Voir plus de produits';
     }
-        void UI.completeHomeGridRow(grid);
 };
 
 // Initialize: guard against DOMContentLoaded already fired (ES module behavior)
