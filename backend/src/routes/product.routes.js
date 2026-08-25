@@ -29,10 +29,11 @@ const productsReadLimiter = rateLimit({
 });
 
 // Routes publiques / optionnelles
-// Durée de cache: 30 secondes pour les produits, pour être assez réactif mais encaisser les pics
-router.get('/', productsReadLimiter, optionalAuth, cacheMiddleware(30), getProducts);
+// Les produits sont publiés et modifiés en direct : ne jamais afficher une boutique
+// ou un catalogue périmé pendant la durée d'un cache navigateur/CDN.
+router.get('/', productsReadLimiter, optionalAuth, cacheMiddleware(0), getProducts);
 router.get('/categories/ranked', productsReadLimiter, cacheMiddleware(300), getRankedCategories);
-router.get('/:id', productsReadLimiter, optionalAuth, cacheMiddleware(30), getProductById);
+router.get('/:id', productsReadLimiter, optionalAuth, cacheMiddleware(0), getProductById);
 
 // Routes sécurisées
 router.post('/', 

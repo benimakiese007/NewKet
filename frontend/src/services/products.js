@@ -139,14 +139,6 @@ const ProductManager = {
         this.products.unshift(product);
         this._totalCount++;
         window.dispatchEvent(new CustomEvent('productsUpdated'));
-        if (window.AppNotifications) {
-            AppNotifications.showToast(
-                'Nouveau produit ! 🆕',
-                `"${product.name}" vient d'être publié par un vendeur.`,
-                'info',
-                'solar:shop-2-bold'
-            );
-        }
     },
 
     /**

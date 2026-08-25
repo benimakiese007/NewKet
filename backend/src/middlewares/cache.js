@@ -30,10 +30,23 @@ export const cacheMiddleware = (duration = 60) => {
             return next();
         }
 
+        const ttl = Math.max(0, parseInt(duration, 10) || 0);
+
+        // A zero TTL is an explicit opt-out. In particular, product catalogues
+        // must reflect a newly published item and its seller without waiting for
+        // a browser, CDN, or in-memory cache to expire.
+        if (ttl === 0) {
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+            res.setHeader('X-Cache', 'BYPASS');
+            return next();
+        }
+
         // Always send explicit caching headers so CDNs / browsers can help scale reads.
         // Private when token present to avoid cross-user leakage.
         const cacheScope = req.token ? 'private' : 'public';
-        res.setHeader('Cache-Control', `${cacheScope}, max-age=${Math.max(0, parseInt(duration, 10) || 0)}`);
+        res.setHeader('Cache-Control', `${cacheScope}, max-age=${ttl}`);
 
         if (!ENABLE_MEMORY_CACHE) {
             res.setHeader('X-Cache', 'BYPASS');
@@ -56,7 +69,7 @@ export const cacheMiddleware = (duration = 60) => {
         res.json = (body) => {
             // Ne mettre en cache que les succès (2xx)
             if (res.statusCode >= 200 && res.statusCode < 300) {
-                memoryCache.set(key, body, duration);
+                memoryCache.set(key, body, ttl);
             }
             return originalJson(body);
         };
