@@ -51,11 +51,11 @@
                             <span>Produits</span>
                             <span id="productsTotalCount"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
                         </div>
-                        <div id="productsSponsoredBadge" class="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-orange-600">
+                        <button id="productsSponsoredBadge" onclick="toggleSponsoredFilter()" class="inline-flex items-center gap-2 rounded-full bg-orange-50 hover:bg-orange-100 transition-colors px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-orange-600 cursor-pointer">
                             <iconify-icon icon="solar:star-bold" width="14"></iconify-icon>
                             <span>Sponsorisés</span>
                             <span id="productsSponsoredCount"><span class="skeleton skeleton-text" style="width:18px;height:10px;margin:0;display:inline-block;"></span></span>
-                        </div>
+                        </button>
                         <button id="fallbackFilterBtn" onclick="toggleFallbackFilter()" class="inline-flex items-center gap-2 rounded-full bg-yellow-50 hover:bg-yellow-100 transition-colors px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-yellow-600 cursor-pointer">
                             <iconify-icon icon="solar:danger-triangle-bold" width="14"></iconify-icon>
                             <span>Garde-fou</span>
@@ -325,6 +325,7 @@
 
     <script>
         let productsBootStarted = false;
+        let isSponsoredFilterActive = false;
         let isFallbackFilterActive = false;
         
         // Track broken images asynchronously
@@ -392,6 +393,21 @@
             isBrokenCheckRunning = false;
         }
 
+        function toggleSponsoredFilter() {
+            isSponsoredFilterActive = !isSponsoredFilterActive;
+            const btn = document.getElementById('productsSponsoredBadge');
+            if (isSponsoredFilterActive) {
+                btn.classList.replace('bg-orange-50', 'bg-orange-500');
+                btn.classList.replace('text-orange-600', 'text-white');
+                btn.classList.replace('hover:bg-orange-100', 'hover:bg-orange-600');
+            } else {
+                btn.classList.replace('bg-orange-500', 'bg-orange-50');
+                btn.classList.replace('text-white', 'text-orange-600');
+                btn.classList.replace('hover:bg-orange-600', 'hover:bg-orange-100');
+            }
+            renderAdminProducts();
+        }
+
         function toggleFallbackFilter() {
             isFallbackFilterActive = !isFallbackFilterActive;
             const btn = document.getElementById('fallbackFilterBtn');
@@ -454,6 +470,10 @@
 
             if (isFallbackFilterActive) {
                 products = products.filter(p => isFallbackImage(p));
+            }
+
+            if (isSponsoredFilterActive) {
+                products = products.filter(p => p.pinned === true);
             }
 
             updateProductsTotal();
@@ -782,6 +802,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('filter') === 'sponsored') {
+                toggleSponsoredFilter();
+            }
             if (urlParams.get('filter') === 'fallback') {
                 toggleFallbackFilter();
             }

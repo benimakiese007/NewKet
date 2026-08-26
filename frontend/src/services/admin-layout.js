@@ -25,9 +25,7 @@ const AdminLayout = {
         referrals: 'referrals',
         security: 'security',
         hero: 'hero',
-        branding: 'branding',
         settings: 'settings',
-        'notion-manager': 'notion-manager',
         comptabilite: 'comptabilite',
         disputes: 'disputes',
         'dispute-details': 'dispute-details',
@@ -527,7 +525,6 @@ const AdminLayout = {
             { href: this.getShellHref('diagnostics'), icon: 'solar:chart-square-bold', label: 'Audit & Diagnostics', view: 'diagnostics', section: 'Analytique' },
 
             { href: this.getShellHref('user'), icon: 'solar:users-group-two-rounded-bold', label: 'Gestion Users', view: 'user', section: 'Catalogue' },
-            { href: this.getShellHref('notion-manager'), icon: 'simple-icons:notion', label: 'Gestionnaire Notion', view: 'notion-manager', section: 'Catalogue' },
             { href: this.getShellHref('products'), icon: 'solar:box-bold', label: 'Contrôle Catalogue', view: 'products', section: 'Catalogue' },
             { href: this.getShellHref('reviews'), icon: 'solar:star-bold', label: 'Avis & Modération', view: 'reviews', section: 'Catalogue' },
 
@@ -542,7 +539,6 @@ const AdminLayout = {
             { href: this.getShellHref('security'), icon: 'solar:shield-keyhole-bold-duotone', label: 'Sécurité & Admins', view: 'security', section: 'Système' },
             { href: this.getShellHref('otp-guide'), icon: 'solar:password-bold', label: 'Guide', view: 'otp-guide', section: 'Système' },
             { href: this.getShellHref('otp-tracker'), icon: 'solar:password-minimalistic-input-bold-duotone', label: 'OTP Tracker', view: 'otp-tracker', section: 'Système' },
-            { href: this.getShellHref('branding'), icon: 'solar:palette-round-bold', label: 'Branding & Thème', view: 'branding', section: 'Système' },
             { href: this.getShellHref('hero'), icon: 'solar:gallery-wide-bold-duotone', label: 'HERO (Accueil)', view: 'hero', section: 'Système' },
             { href: this.getShellHref('settings'), icon: 'solar:settings-bold', label: 'Paramètres', view: 'settings', sub: true, section: 'Système' }
         ];

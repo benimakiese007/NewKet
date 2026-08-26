@@ -90,6 +90,10 @@
     if (!isIosPwa()) return;
     var knownVersion;
     try { knownVersion = localStorage.getItem(STORAGE_KEY); } catch (_) { knownVersion = null; }
+    if (knownVersion === null) {
+      try { localStorage.setItem(STORAGE_KEY, ICON_VERSION); } catch (_) {}
+      return;
+    }
     if (ICON_VERSION !== knownVersion) {
       setTimeout(function () { showBanner(ICON_VERSION); }, 800);
     }
