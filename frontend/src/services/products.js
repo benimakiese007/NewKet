@@ -3,6 +3,16 @@
 const PRODUCTS_PAGE_SIZE = 25; // Five complete rows on the five-column home grid
 const PRODUCTS_ADMIN_MAX = 1000; // Max products to fetch in admin (no pagination limit)
 
+// The home page and catalogue are browsing surfaces. Re-rendering their grids for
+// every product mutation (stock, rating, review count, etc.) creates visible
+// layout shifts on mobile and does not scale with a busy marketplace.
+const isProductFeedPage = () => {
+    const path = String(window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
+    return path === '/'
+        || /(?:^|\/)index(?:\.html)?$/.test(path)
+        || /(?:^|\/)catalog(?:\.html)?$/.test(path);
+};
+
 // ========== IMAGE URL HELPER ==========
 /**
  * Appends Supabase image transformation params to a product image URL.
@@ -99,8 +109,13 @@ const ProductManager = {
             window.dispatchEvent(new CustomEvent('productsUpdated'));
         });
 
-        // --- REALTIME SUBSCRIPTION ---
-        this._setupRealtime();
+        // Keep the browse feed stable. It refreshes through the normal page
+        // lifecycle/pull-to-refresh instead of reacting to every DB mutation.
+        if (!isProductFeedPage()) {
+            this._setupRealtime();
+        } else {
+            console.info('[ProductManager] Product Realtime disabled on browse feed.');
+        }
 
         return Promise.resolve();
     },

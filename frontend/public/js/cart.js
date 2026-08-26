@@ -61,6 +61,22 @@ class CartManager {
         return String(candidate || '').trim() || fallback;
     }
 
+    showInlineRestriction(message, anchor = null) {
+        const button = anchor?.closest?.('button, a, [role="button"]')
+            || this.lastClickEvent?.target?.closest?.('button, a, [role="button"]')
+            || document.querySelector('#cartSlideOver button');
+        if (!button) return;
+
+        const previous = button.parentElement?.querySelector('.cart-inline-restriction');
+        if (previous) previous.remove();
+
+        const notice = document.createElement('p');
+        notice.className = 'cart-inline-restriction mt-2 text-xs font-semibold text-red-600';
+        notice.setAttribute('role', 'alert');
+        notice.textContent = message;
+        button.insertAdjacentElement('afterend', notice);
+    }
+
     init() {
         if (this.initialized) return;
         this.updateUI();
@@ -138,6 +154,17 @@ class CartManager {
      */
     add(product, quantity = 1) {
         if (!product || !product.id) return;
+
+        if (window.AuthManager?.role === 'admin') {
+            this.showInlineRestriction('Les administrateurs ne peuvent pas ajouter de produits au panier.');
+            return;
+        }
+
+        const currentUserId = window.AuthManager?.user?.id;
+        if (currentUserId && product.vendor_id && String(currentUserId) === String(product.vendor_id)) {
+            this.showInlineRestriction('Vous ne pouvez pas ajouter votre propre produit au panier.');
+            return;
+        }
 
         const lookupId = product.cartItemId || product.id;
         const existingItem = this.cart.find(item => (item.cartItemId || item.id) === lookupId);
@@ -361,6 +388,17 @@ class CartManager {
         const item = this.cart.find(i => (i.cartItemId || i.id) === productIdOrCartItemId);
         if (!item) {
             if (window.showToast) window.showToast("Article introuvable dans le panier.", "error");
+            return;
+        }
+
+        if (window.AuthManager?.role === 'admin') {
+            this.showInlineRestriction('Les administrateurs ne peuvent pas effectuer d’achat.');
+            return;
+        }
+
+        const currentUserId = window.AuthManager?.user?.id;
+        if (currentUserId && item.vendor_id && String(currentUserId) === String(item.vendor_id)) {
+            this.showInlineRestriction('Vous ne pouvez pas acheter votre propre produit.');
             return;
         }
 

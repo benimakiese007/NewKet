@@ -758,7 +758,6 @@ export function buildProductCardHTML(p, options = {}) {
                 </a>
             </div>
             <div class="product-info">
-                <div class="product-cat">${p.category || ''}</div>
                 <a href="${shopUrl}" class="product-vendor hover:text-gray-900 transition-colors" style="display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; flex-wrap: wrap; text-decoration: none;">
                     <div style="width: 18px; height: 18px; border-radius: 50%; background: #f3f4f6; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-center;">
                         ${avatar
@@ -2387,6 +2386,17 @@ window.showPromptModal = ({
    */
   window.initCheckout = async (productId, btnElement, quantity = 1) => {
     let originalHtml = '';
+    const showInlineCheckoutError = (message) => {
+        const previous = btnElement?.parentElement?.querySelector('.checkout-inline-restriction');
+        if (previous) previous.remove();
+        if (!btnElement) return;
+
+        const notice = document.createElement('p');
+        notice.className = 'checkout-inline-restriction mt-3 text-sm font-semibold text-red-600';
+        notice.setAttribute('role', 'alert');
+        notice.textContent = message;
+        btnElement.insertAdjacentElement('afterend', notice);
+    };
     try {
         originalHtml = btnElement.innerHTML;
         btnElement.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="16"></iconify-icon>...';
@@ -2395,6 +2405,20 @@ window.showPromptModal = ({
         const p = window.ProductManager.getProduct(productId) || await window.ProductManager.fetchProductById(productId);
         if(!p) {
             showToast('Produit introuvable', 'error');
+            btnElement.innerHTML = originalHtml;
+            btnElement.disabled = false;
+            return;
+        }
+
+        if (window.AuthManager?.role === 'admin') {
+            showInlineCheckoutError('Les administrateurs ne peuvent pas effectuer d’achat.');
+            btnElement.innerHTML = originalHtml;
+            btnElement.disabled = false;
+            return;
+        }
+
+        if (window.AuthManager?.user?.id && p.user_id && String(window.AuthManager.user.id) === String(p.user_id)) {
+            showInlineCheckoutError('Vous ne pouvez pas acheter votre propre produit.');
             btnElement.innerHTML = originalHtml;
             btnElement.disabled = false;
             return;

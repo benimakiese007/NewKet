@@ -49,22 +49,31 @@ const AppNotifications = {
         const client = window.SupabaseAdapter ? window.SupabaseAdapter.getClient() : null;
         if (!client) return;
 
-        // Listen for product price drops (only relevant for favorites)
-        client.channel('public:products')
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, payload => {
-                if (payload.new.price < payload.old.price) {
-                    const favs = window.FavoritesManager ? FavoritesManager.getFavorites() : [];
-                    if (favs.includes(payload.new.id)) {
-                        this.showToast(
-                            'Baisse de prix ! 🎉',
-                            `Bonne nouvelle, un article de vos favoris ("${payload.new.name}") est maintenant à ${window.CurrencyManager ? CurrencyManager.formatPrice(payload.new.price) : payload.new.price + ' FC'}.`,
-                            'success',
-                            'solar:tag-price-bold'
-                        );
+        const path = String(window.location.pathname || '/').toLowerCase().replace(/\/+$/, '') || '/';
+        const isBrowseFeed = path === '/'
+            || /(?:^|\/)index(?:\.html)?$/.test(path)
+            || /(?:^|\/)catalog(?:\.html)?$/.test(path);
+
+        // Do not subscribe the home/catalogue to every product update. Those
+        // pages can be open on many devices and only need fresh data on reload
+        // or pull-to-refresh; product detail and dashboards keep targeted live UI.
+        if (!isBrowseFeed) {
+            client.channel('public:products')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, payload => {
+                    if (payload.new.price < payload.old.price) {
+                        const favs = window.FavoritesManager ? FavoritesManager.getFavorites() : [];
+                        if (favs.includes(payload.new.id)) {
+                            this.showToast(
+                                'Baisse de prix ! 🎉',
+                                `Bonne nouvelle, un article de vos favoris ("${payload.new.name}") est maintenant à ${window.CurrencyManager ? CurrencyManager.formatPrice(payload.new.price) : payload.new.price + ' FC'}.`,
+                                'success',
+                                'solar:tag-price-bold'
+                            );
+                        }
                     }
-                }
-            })
-            .subscribe();
+                })
+                .subscribe();
+        }
 
         // Listen for order status updates and notifications robustly
         if (window.SupabaseAdapter) {

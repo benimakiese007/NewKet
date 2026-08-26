@@ -33,11 +33,15 @@ const isLocalHost =
     window.location.hostname === '127.0.0.1';
 
 if (!isLocalHost) {
-    try {
-        inject();
-    } catch (err) {
-        console.warn('[NewKet] Vercel Analytics disabled:', err?.message || err);
-    }
+    const startVercelAnalytics = (choices) => {
+        if (!choices?.analytics || window.__newketVercelAnalyticsInitialized) return;
+        window.__newketVercelAnalyticsInitialized = true;
+        try { inject(); } catch (err) {
+            console.warn('[NewKet] Vercel Analytics disabled:', err?.message || err);
+        }
+    };
+    window.addEventListener('nk:consent', (event) => startVercelAnalytics(event.detail));
+    startVercelAnalytics(window.NewKetCookieConsent?.getChoices?.());
 }
 
 try {

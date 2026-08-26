@@ -73,6 +73,21 @@ function bindAdminDomTracking() {
 export function initGoogleAnalytics() {
     if (isLocalContext()) return;
 
+    // Aucun traceur analytique ne doit être chargé avant un consentement
+    // explicite. La bannière émet cet événement pour les choix nouveaux et
+    // applique directement son choix déjà enregistré au chargement.
+    const startWhenAllowed = (choices) => {
+        if (!choices?.analytics) return;
+        startGoogleAnalytics();
+    };
+
+    window.addEventListener('nk:consent', (event) => startWhenAllowed(event.detail));
+    startWhenAllowed(window.NewKetCookieConsent?.getChoices?.());
+}
+
+function startGoogleAnalytics() {
+    if (isLocalContext()) return;
+
     const measurementId = (import.meta?.env?.VITE_GOOGLE_ANALYTICS_ID || DEFAULT_MEASUREMENT_ID).trim();
     if (!measurementId) return;
 

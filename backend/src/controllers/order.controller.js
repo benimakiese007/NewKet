@@ -27,8 +27,21 @@ import { awardReferralNkToken } from '../services/referral-rewards.js';
 const client = supabaseAdmin || supabase;
 
 function isAdminActor(user) {
-    const role = user?.app_metadata?.role || user?.user_metadata?.role || '';
-    return role === 'admin';
+    return user?.app_metadata?.role === 'admin';
+}
+
+async function isAdminAccount(user) {
+    if (isAdminActor(user)) return true;
+    if (!user?.id) return false;
+
+    const { data, error } = await client
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    if (error) throw error;
+    return data?.role === 'admin';
 }
 
 function toFiniteNumber(value, fallback = 0) {
@@ -163,8 +176,14 @@ async function createOrUpdateDeliveryRecord(orderId, vendorId, patch = {}) {
 
 export const createOrder = async (req, res) => {
     try {
+        if (await isAdminAccount(req.user)) {
+            return res.status(403).json({
+                success: false,
+                error: 'Un administrateur ne peut pas effectuer d’achat.'
+            });
+        }
+
         const productId = String(req.body?.product_id || '').trim();
-        const vendorIdFromBody = String(req.body?.vendor_id || '').trim();
         const quantity = Math.max(1, parseInt(req.body?.quantity, 10) || 1);
         const customerPhone = String(req.body?.customer_phone || '').trim() || null;
         const customerName = String(req.body?.customer_name || req.user?.user_metadata?.full_name || req.user?.user_metadata?.name || 'Client NewKet').trim();
@@ -192,7 +211,17 @@ export const createOrder = async (req, res) => {
             return res.status(400).json({ success: false, error: 'customer_email est requis.' });
         }
 
-        const vendorId = vendorIdFromBody || product.user_id || null;
+        // The product is the source of truth for its owner.  Never accept a
+        // vendor id supplied by the client: it could route an order to another
+        // seller (or let a seller order from themselves using a forged value).
+        const vendorId = product.user_id || null;
+
+        if (req.user?.id && vendorId && String(req.user.id) === String(vendorId)) {
+            return res.status(403).json({
+                success: false,
+                error: 'Vous ne pouvez pas acheter votre propre produit.'
+            });
+        }
         const unitPrice = toFiniteNumber(req.body?.price || product.price || product.old_price, 0);
         const totalAmount = Number((unitPrice * quantity).toFixed(2));
         const nowIso = new Date().toISOString();

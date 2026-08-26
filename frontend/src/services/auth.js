@@ -583,6 +583,7 @@ const AuthManager = {
             role,
             status: (role === 'customer' || role === 'admin') ? 'approved' : 'pending',
             seller_type: null,
+            terms_accepted_at: user.user_metadata?.terms_accepted_at || null,
             referred_by_code: referralCode || null
         };
 

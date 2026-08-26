@@ -22,6 +22,9 @@ router.post('/', async (req, res) => {
         if (!consent_version || typeof consent_version !== 'string') {
             return res.status(400).json({ error: 'consent_version est requis.' });
         }
+        if (session_id != null && (typeof session_id !== 'string' || session_id.length > 128)) {
+            return res.status(400).json({ error: 'session_id invalide.' });
+        }
 
         const ALLOWED_TYPES = ['analytics', 'marketing', 'functional', 'all', 'none'];
         if (!ALLOWED_TYPES.includes(consent_type)) {
@@ -30,7 +33,10 @@ router.post('/', async (req, res) => {
 
         // Hash de l'IP (on ne stocke jamais l'IP brute — principe de minimisation RGPD)
         const rawIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || '';
-        const ipHash = createHash('sha256').update(rawIp + process.env.CONSENT_IP_SALT || 'newket-salt').digest('hex').slice(0, 16);
+        const ipHash = createHash('sha256')
+            .update(rawIp + (process.env.CONSENT_IP_SALT || 'newket-salt'))
+            .digest('hex')
+            .slice(0, 16);
 
         // L'utilisateur peut être connecté ou non
         const userId = req.user?.id || null;

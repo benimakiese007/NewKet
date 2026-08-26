@@ -73,11 +73,23 @@
         }
     }
 
-    async function logConsentToAPI(consentType, consentGiven) {
+    async function getAccessToken() {
+        try {
+            const { data } = await window.supabaseClient?.auth?.getSession?.();
+            return data?.session?.access_token || null;
+        } catch {
+            return null;
+        }
+    }
+
+    async function logConsentToAPI(consentType, consentGiven, accessToken = null) {
         try {
             await fetch(API_CONSENT_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+                },
                 body: JSON.stringify({
                     consent_given: consentGiven,
                     consent_type: consentType,
@@ -89,6 +101,17 @@
         } catch {
             // Silencieux : le consentement UI est déjà enregistré en localStorage
         }
+    }
+
+    async function logChoicesToAPI(choices) {
+        // Une ligne par finalité permet de prouver un choix granulaire (et son
+        // éventuel retrait), plutôt qu'un simple résumé « tout / rien ».
+        const accessToken = await getAccessToken();
+        await Promise.all([
+            logConsentToAPI('functional', true, accessToken),
+            logConsentToAPI('analytics', Boolean(choices.analytics), accessToken),
+            logConsentToAPI('marketing', Boolean(choices.marketing), accessToken),
+        ]);
     }
 
     // ─── Activation des traceurs selon consentement ───────────────────────────
@@ -254,7 +277,7 @@
                             <p style="font-size:0.7rem;color:#9ca3af;margin:0;">${val.description}</p>
                         </div>
                         <label class="nk-toggle">
-                            <input type="checkbox" id="nk-consent-${key}" ${val.required ? 'checked disabled' : ''}>
+                            <input type="checkbox" id="nk-consent-${key}" aria-label="${val.label}" ${val.required ? 'checked disabled' : ''}>
                             <span class="nk-slider"></span>
                         </label>
                     </div>
@@ -302,7 +325,7 @@
             saveConsent(choices);
             applyConsent(choices);
             hideBanner(banner);
-            await logConsentToAPI('all', true);
+            await logChoicesToAPI(choices);
         });
 
         // Refuser tout (hors fonctionnels requis)
@@ -311,7 +334,7 @@
             saveConsent(choices);
             applyConsent(choices);
             hideBanner(banner);
-            await logConsentToAPI('none', false);
+            await logChoicesToAPI(choices);
         });
 
         // Afficher/masquer personnalisation
@@ -332,12 +355,7 @@
             saveConsent(choices);
             applyConsent(choices);
             hideBanner(banner);
-
-            const type = choices.analytics && choices.marketing ? 'all'
-                : choices.analytics ? 'analytics'
-                : choices.marketing ? 'marketing'
-                : 'none';
-            await logConsentToAPI(type, choices.analytics || choices.marketing);
+            await logChoicesToAPI(choices);
         });
     }
 

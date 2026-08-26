@@ -41,6 +41,31 @@ const normalizeEmail = (value) => (typeof value === 'string' ? value.trim().toLo
 
 const isAdminUser = (req) => req?.user?.app_metadata?.role === 'admin';
 
+async function getActorRole(user) {
+    if (user?.app_metadata?.role === 'admin') return 'admin';
+    if (!user?.id) return null;
+
+    const { data, error } = await supabaseAdmin
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    if (error) throw error;
+    return data?.role || null;
+}
+
+async function assertSupplierActor(req, res) {
+    const role = await getActorRole(req.user);
+    if (role === 'supplier') return true;
+
+    return res.status(403).json({
+        error: role === 'admin'
+            ? 'Un administrateur ne peut pas vendre de produits.'
+            : 'Seuls les comptes vendeur peuvent gérer des produits.'
+    });
+}
+
 const assertProductOwnership = async (req, id) => {
     const { data: product, error } = await supabaseAdmin
         .from('products')
@@ -164,6 +189,8 @@ export const getProductById = async (req, res) => {
 
 export const createProduct = async (req, res) => {
     try {
+        if (!await assertSupplierActor(req, res)) return;
+
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
             'name', 'price', 'old_price', 'image', 'category', 
@@ -236,6 +263,7 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!await assertSupplierActor(req, res)) return;
         
         // SÉCURITÉ : Ne récupérer que les champs autorisés (Sanitization)
         const allowedFields = [
@@ -285,6 +313,7 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!await assertSupplierActor(req, res)) return;
         const ownership = await assertProductOwnership(req, id);
         if (!ownership.ok) {
             return res.status(ownership.status).json({ error: ownership.error });
@@ -310,6 +339,7 @@ export const deleteProduct = async (req, res) => {
 export const archiveProduct = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!await assertSupplierActor(req, res)) return;
         const ownership = await assertProductOwnership(req, id);
         if (!ownership.ok) {
             return res.status(ownership.status).json({ error: ownership.error });
@@ -333,6 +363,7 @@ export const archiveProduct = async (req, res) => {
 export const restoreProduct = async (req, res) => {
     try {
         const { id } = req.params;
+        if (!await assertSupplierActor(req, res)) return;
         const ownership = await assertProductOwnership(req, id);
         if (!ownership.ok) {
             return res.status(ownership.status).json({ error: ownership.error });
@@ -355,6 +386,7 @@ export const restoreProduct = async (req, res) => {
 
 export const getVendorArchivedProducts = async (req, res) => {
     try {
+        if (!await assertSupplierActor(req, res)) return;
         const userId = req.user.id;
         const userEmail = normalizeEmail(req.user.email);
 
@@ -401,6 +433,7 @@ export const getVendorArchivedProducts = async (req, res) => {
 
 export const deleteBulkProducts = async (req, res) => {
     try {
+        if (!await assertSupplierActor(req, res)) return;
         const { ids } = req.body; // Array of IDs
         if (!ids || !Array.isArray(ids)) {
             return res.status(400).json({ error: 'IDs invalides' });
@@ -427,6 +460,7 @@ export const deleteBulkProducts = async (req, res) => {
 
 export const updateBulkCategory = async (req, res) => {
     try {
+        if (!await assertSupplierActor(req, res)) return;
         const { ids, category } = req.body;
         if (!ids || !Array.isArray(ids) || !category) {
             return res.status(400).json({ error: 'Paramètres invalides' });

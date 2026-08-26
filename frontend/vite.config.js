@@ -59,6 +59,14 @@ export default defineConfig({
             minimalHtml = minimalHtml.replace(/\{\{ROOT\}\}/g, rootPath);
             newHtml = newHtml.replace('<div id="header-placeholder"></div>', minimalHtml);
           } else {
+            // Render the main header as part of the initial HTML response. The
+            // ComponentLoader still refreshes its auth-dependent links later,
+            // but visitors no longer see an empty header until JavaScript runs.
+            let headerHtml = readFileSync(resolve(__dirname, 'src/partials/header.html'), 'utf8');
+            headerHtml = headerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
+            headerHtml = headerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');
+            newHtml = newHtml.replace('<div id="header-placeholder"></div>', headerHtml);
+
             let footerHtml = readFileSync(resolve(__dirname, 'src/partials/footer.html'), 'utf8');
             footerHtml = footerHtml.replace(/\{\{ROOT\}\}/g, rootPath);
             footerHtml = footerHtml.replace(/\{\{AUTH_ONLY_START\}\}/g, '').replace(/\{\{AUTH_ONLY_END\}\}/g, '');

@@ -1015,6 +1015,14 @@
                 submitBtn.innerHTML = '<iconify-icon icon="line-md:loading-twotone-loop" width="20"></iconify-icon> Publication...';
 
                 try {
+                    const acceptedAt = new Date().toISOString();
+                    const consentUpdate = await window.SupabaseAdapter.update('users', userId, {
+                        terms_accepted_at: acceptedAt
+                    }, { returnMeta: true });
+                    if (!consentUpdate?.ok) {
+                        throw new Error("Impossible d'enregistrer l'acceptation des conditions.");
+                    }
+
                     const currentExchangeRateInput = document.getElementById('exchangeRate');
                     const exchangeRate = parseFloat(currentExchangeRateInput?.value) || getConfigExchangeRate();
                     const finalPrice = currency === 'USD' ? priceVal * exchangeRate : priceVal;
@@ -1080,7 +1088,8 @@
                         status: 'published',
                         custom_exchange_rate: exchangeRate,
                         stock: stockVal,
-                        escrow_timer_hours: parseInt(document.getElementById('escrowTimerInput')?.value || "24", 10)
+                        escrow_timer_hours: parseInt(document.getElementById('escrowTimerInput')?.value || "24", 10),
+                        terms_accepted_at: acceptedAt
                     };
 
                     let savedProductId = isEditMode ? editProductId : null;
