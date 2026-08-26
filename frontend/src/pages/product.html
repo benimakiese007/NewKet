@@ -212,6 +212,7 @@
                                 <iconify-icon icon="solar:heart-bold" width="28"></iconify-icon>
                             </button>
                         </div>
+                        <p id="productActionFeedback" class="hidden rounded-2xl px-4 py-3 text-sm font-semibold" role="alert" aria-live="assertive"></p>
                     </div>
                 </div>
             </div>
@@ -616,6 +617,12 @@
         }
 
         function setupListeners(p) {
+            const showProductActionFeedback = (message, type = 'error') => {
+                const feedback = document.getElementById('productActionFeedback');
+                if (!feedback) return;
+                feedback.textContent = message;
+                feedback.className = `rounded-2xl px-4 py-3 text-sm font-semibold ${type === 'success' ? 'bg-emerald-50 text-emerald-700' : type === 'warning' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'}`;
+            };
             document.getElementById('mainOrderBtn').onclick = () => {
                 const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
                 const finalPrice = Number(p.price);
@@ -624,11 +631,11 @@
                 const quantity = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
                 
                 if (!(Number.isFinite(stock) && stock > 0)) {
-                    if (window.showToast) showToast('Produit indisponible pour le moment.', 'warning');
+                    showProductActionFeedback('Produit indisponible pour le moment.', 'warning');
                     return;
                 }
                 if (quantity > stock) {
-                    if (window.showToast) showToast(`Quantité indisponible. Stock actuel: ${stock}.`, 'warning');
+                    showProductActionFeedback(`Quantité indisponible. Stock actuel: ${stock}.`, 'warning');
                     return;
                 }
                 
@@ -648,6 +655,7 @@
                     };
 
                     window.CartManager.add(itemPayload, quantity);
+                    showProductActionFeedback('Article ajouté au panier.', 'success');
                 }
             };
             document.getElementById('mainWishlistBtn').onclick = () => {
@@ -716,7 +724,7 @@
                         : `<div class="w-12 h-12 bg-gray-900 text-white rounded-2xl flex items-center justify-center font-black text-xl uppercase">${initial}</div>`;
 
                     return `
-                    <div class="glass-card p-10 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                    <div class="glass-card p-10 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group" data-review-card="${r.id}">
                         <div class="flex items-start justify-between mb-8">
                             <div class="flex items-center gap-4">
                                 ${avatarHTML}
@@ -728,6 +736,7 @@
                                     <button onclick="window.confirmDeleteReview('${r.id}')" class="text-red-400 hover:text-red-600 transition-colors p-2 rounded-xl" title="Supprimer mon avis">
                                         <iconify-icon icon="solar:trash-bin-trash-bold" width="18"></iconify-icon>
                                     </button>
+                                    <p class="review-action-feedback hidden rounded-xl px-3 py-2 text-xs font-bold" role="alert" aria-live="assertive"></p>
                                 ` : ''}
                             </div>
                         </div>
@@ -777,6 +786,7 @@
                             <div>
                                 <textarea id="reviewText" placeholder="Confiez-nous votre avis..." class="w-full min-h-[170px] resize-none rounded-[1.75rem] border border-gray-200 bg-gray-50 px-5 py-5 text-base text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-gray-900 focus:bg-white"></textarea>
                             </div>
+                            <p id="reviewFeedback" class="hidden rounded-2xl px-4 py-3 text-sm font-semibold" role="alert" aria-live="assertive"></p>
 
                             <div class="flex justify-end">
                                 <button onclick="window.submitReview('${pid}')" id="reviewSubmitBtn" class="inline-flex items-center justify-center rounded-2xl bg-gray-900 px-8 py-4 text-[10px] font-black uppercase tracking-widest text-white transition-all hover:bg-gray-800">
@@ -825,14 +835,20 @@
         };
 
         window.submitReview = async (pid) => {
+            const showInlineReviewFeedback = (message, type = 'error') => {
+                const feedback = document.getElementById('reviewFeedback');
+                if (!feedback) return;
+                feedback.textContent = message;
+                feedback.className = `rounded-2xl px-4 py-3 text-sm font-semibold ${type === 'error' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
+            };
             const showInlineReviewRestriction = (message) => {
                 const cont = document.getElementById('reviewFormContainer');
                 if (!cont) return;
                 cont.innerHTML = `<div class="bg-red-50 rounded-[3rem] p-8 text-center border border-red-100 text-red-700 font-black uppercase tracking-widest text-[10px]" role="alert">${message}</div>`;
             };
-            if (!currentRating) return showToast('Veuillez sélectionner une note', 'warning');
+            if (!currentRating) return showInlineReviewFeedback('Veuillez sélectionner une note');
             const txt = document.getElementById('reviewText').value.trim();
-            if (!txt) return showToast('Veuillez écrire un commentaire', 'warning');
+            if (!txt) return showInlineReviewFeedback('Veuillez écrire un commentaire');
 
             if (currentProduct && AuthManager.user && AuthManager.user.id === currentProduct.user_id) {
                 showInlineReviewRestriction('Vous ne pouvez pas évaluer votre propre produit');
@@ -856,10 +872,15 @@
                     rating: currentRating, 
                     comment: txt 
                 });
-                if (success) { showToast('Avis publié !', 'success'); loadReviews(pid); }
+                if (success) {
+                    await loadReviews(pid);
+                    showInlineReviewFeedback('Avis publié !', 'success');
+                } else {
+                    showInlineReviewFeedback('Impossible de publier votre avis. Veuillez réessayer.');
+                }
             } catch (e) { 
                 console.error('[Review Submit Error]', e);
-                showToast('Impossible de publier votre avis. Veuillez vérifier votre connexion et réessayer.', 'error'); 
+                showInlineReviewFeedback('Impossible de publier votre avis. Veuillez vérifier votre connexion et réessayer.');
             }
         };
 
@@ -936,17 +957,23 @@
 
         window.confirmDeleteReview = async (rid) => {
             if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
+            const showReviewActionFeedback = (message, type = 'error') => {
+                const feedback = document.querySelector(`[data-review-card="${rid}"] .review-action-feedback`);
+                if (!feedback) return;
+                feedback.textContent = message;
+                feedback.className = `review-action-feedback rounded-xl px-3 py-2 text-xs font-bold ${type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`;
+            };
             try {
                 const res = await ReviewManager.deleteReview(rid);
                 if (res.success) {
-                    showToast('Avis supprimé', 'success');
+                    showReviewActionFeedback('Avis supprimé.', 'success');
                     loadReviews(productId);
                 } else {
-                    showToast(res.error || 'Erreur lors de la suppression', 'error');
+                    showReviewActionFeedback(res.error || 'Erreur lors de la suppression');
                 }
             } catch (e) {
                 console.error('[Review Delete Error]', e);
-                showToast('Impossible de supprimer l\'avis. Veuillez vérifier votre connexion et réessayer.', 'error');
+                showReviewActionFeedback('Impossible de supprimer l\'avis. Veuillez vérifier votre connexion et réessayer.');
             }
         };
 
@@ -1008,7 +1035,14 @@
             // Libérer la mémoire après fermeture
             setTimeout(() => { if (img) { img.src = ''; img.classList.remove('opacity-100'); img.classList.add('opacity-0'); } }, 350);
         };
-        window.shareProduct = () => { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }); else { navigator.clipboard.writeText(window.location.href); showToast('Lien copié !', 'info'); } };
+        window.shareProduct = () => {
+            if (navigator.share) return navigator.share({ title: document.title, url: window.location.href });
+            navigator.clipboard.writeText(window.location.href);
+            const feedback = document.getElementById('productActionFeedback');
+            if (!feedback) return;
+            feedback.textContent = 'Lien copié !';
+            feedback.className = 'rounded-2xl px-4 py-3 text-sm font-semibold bg-emerald-50 text-emerald-700';
+        };
         function initRecentlyViewed(p) { let list = JSON.parse(localStorage.getItem('newketRecentlyViewed') || '[]'); list = [p, ...list.filter(item => item.id !== p.id)].slice(0, 10); localStorage.setItem('newketRecentlyViewed', JSON.stringify(list)); }
 
         // Précharger l'image zoom au survol pour affichage instantané au clic

@@ -121,6 +121,7 @@
                                 <input type="email" id="newAdminEmail" placeholder="admin@newket.com" 
                                     class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-white transition-all">
                             </div>
+                            <p id="adminEmailFeedback" class="hidden text-xs font-bold rounded-xl px-3 py-2" role="status" aria-live="polite"></p>
                             <button onclick="handleAddAdmin()" data-track-action="admin_security:add_admin_click" class="w-full bg-white text-black font-black py-3 rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl">
                                 Ajouter un Admin
                             </button>
@@ -143,6 +144,7 @@
                         <p class="text-sm text-gray-400 mb-6">Sécurisez votre propre accès Administrateur avec une Clé d'accès (Face ID, Empreinte).</p>
                         
                         <div id="adminPasskeysList" class="space-y-3 mb-6 hidden"></div>
+                        <p id="adminPasskeyFeedback" class="hidden mb-4 text-xs font-bold rounded-xl px-3 py-2" role="status" aria-live="polite"></p>
 
                         <button id="registerPasskeyBtnAdmin" type="button" class="w-full border-2 border-black text-black py-3 rounded-xl font-bold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                             <iconify-icon icon="solar:fingerprint-bold" width="20"></iconify-icon>
@@ -364,14 +366,19 @@
         async function handleAddAdmin() {
             const input = document.getElementById('newAdminEmail');
             const email = input.value.trim().toLowerCase();
+            const feedback = document.getElementById('adminEmailFeedback');
+            const setFeedback = (message, type = 'error') => {
+                feedback.textContent = message;
+                feedback.className = `text-xs font-bold rounded-xl px-3 py-2 ${type === 'error' ? 'bg-red-500/20 text-red-100' : 'bg-emerald-500/20 text-emerald-50'}`;
+            };
 
             if (!email || !email.includes('@')) {
-                if (window.showToast) window.showToast('Veuillez entrer une adresse e-mail valide.', 'warning', 'Saisie invalide');
+                setFeedback('Veuillez entrer une adresse e-mail valide.');
                 return;
             }
 
             if (adminEmails.includes(email)) {
-                if (window.showToast) window.showToast('Cet e-mail est déjà dans la liste.', 'info', 'Doublon');
+                setFeedback('Cet e-mail est déjà dans la liste.');
                 return;
             }
 
@@ -388,6 +395,11 @@
         }
 
         async function saveAdmins(newList) {
+            const feedback = document.getElementById('adminEmailFeedback');
+            const setFeedback = (message, type = 'success') => {
+                feedback.textContent = message;
+                feedback.className = `text-xs font-bold rounded-xl px-3 py-2 ${type === 'error' ? 'bg-red-500/20 text-red-100' : 'bg-emerald-500/20 text-emerald-50'}`;
+            };
             try {
                 const { error } = await window.supabaseClient
                     .from('settings')
@@ -410,10 +422,10 @@
                 await loadAdminProfiles();
                 renderAdmins();
                 
-                if (window.showToast) window.showToast('Liste des administrateurs mise à jour.', 'success', 'Sauvegardé');
+                setFeedback('Liste des administrateurs mise à jour.');
             } catch (err) {
                 console.error('[Security] Save failed:', err);
-                if (window.showToast) window.showToast('Échec de la sauvegarde. Vérifiez votre connexion.', 'danger', 'Erreur');
+                setFeedback('Échec de la sauvegarde. Vérifiez votre connexion.', 'error');
             }
         }
 
@@ -508,8 +520,13 @@
 
             if (registerPasskeyBtnAdmin) {
                 registerPasskeyBtnAdmin.addEventListener('click', async () => {
+                    const feedback = document.getElementById('adminPasskeyFeedback');
+                    const setPasskeyFeedback = (message, type = 'error') => {
+                        feedback.textContent = message;
+                        feedback.className = `mb-4 text-xs font-bold rounded-xl px-3 py-2 ${type === 'error' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
+                    };
                     if (!window.supabaseClient || !window.supabaseClient.auth.registerPasskey) {
-                        if (window.showToast) window.showToast("Votre navigateur ne supporte pas encore cette fonctionnalité.", "error", "Sécurité");
+                        setPasskeyFeedback("Votre navigateur ne supporte pas encore cette fonctionnalité.");
                         return;
                     }
                     const originalText = registerPasskeyBtnAdmin.innerHTML;
@@ -518,7 +535,7 @@
                     try {
                         const { data, error } = await window.supabaseClient.auth.registerPasskey();
                         if (error) throw error;
-                        if (window.showToast) window.showToast("Clé d'accès créée avec succès !", "success", "Sécurité");
+                        setPasskeyFeedback("Clé d'accès créée avec succès !", 'success');
                         loadAdminPasskeys();
                     } catch (err) {
                         console.error('Passkey registration error:', err);
@@ -526,7 +543,7 @@
                         if (msg.includes('cancelled') || msg.includes('cancel')) {
                             msg = "Création annulée.";
                         }
-                        if (window.showToast) window.showToast(msg, 'error', 'Sécurité');
+                        setPasskeyFeedback(msg);
                     } finally {
                         registerPasskeyBtnAdmin.innerHTML = originalText;
                         registerPasskeyBtnAdmin.disabled = false;

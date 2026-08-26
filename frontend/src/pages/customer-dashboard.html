@@ -1204,19 +1204,24 @@
             }
             document.getElementById('btnValidateDelivery')?.addEventListener('click', handleValidateDelivery);
             document.getElementById('btnOpenDispute')?.addEventListener('click', showDisputeModal);
+            const showClientDisputeFallback = (message, type = 'error') => {
+                if (typeof showInlineMessage === 'function') {
+                    showInlineMessage('client-dispute-feedback', message, type);
+                }
+            };
             document.getElementById('btnSendDisputeMessage')?.addEventListener('click', () => {
                 if (typeof window.sendDisputeMessage === 'function') return window.sendDisputeMessage();
-                showToast('Messagerie indisponible. Veuillez réessayer dans un instant.', 'error');
+                showClientDisputeFallback('Messagerie indisponible. Veuillez réessayer dans un instant.', 'error');
                 setTimeout(() => window.location.reload(), 2500);
             });
             document.querySelector('[data-action="buyer-accept-dispute-offer"]')?.addEventListener('click', () => {
                 if (typeof window.handleBuyerAcceptDisputeOffer === 'function') return window.handleBuyerAcceptDisputeOffer();
-                showToast('Action indisponible. Actualisation en cours…', 'warning');
+                showClientDisputeFallback('Action indisponible. Actualisation en cours...', 'warning');
                 setTimeout(() => window.location.reload(), 2000);
             });
             document.querySelector('[data-action="buyer-reject-dispute-offer"]')?.addEventListener('click', () => {
                 if (typeof window.handleBuyerRejectDisputeOffer === 'function') return window.handleBuyerRejectDisputeOffer();
-                showToast('Action indisponible. Actualisation en cours…', 'warning');
+                showClientDisputeFallback('Action indisponible. Actualisation en cours...', 'warning');
                 setTimeout(() => window.location.reload(), 2000);
             });
             document.querySelector('[data-action="download-invoice"]')?.addEventListener('click', downloadInvoice);

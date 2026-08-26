@@ -169,6 +169,7 @@
                     <iconify-icon icon="solar:letter-bold-duotone" width="20" class="text-blue-500"></iconify-icon>
                     Composer une Notification
                 </h2>
+                <p id="notifComposerFeedback" class="hidden mb-4 rounded-xl px-4 py-3 text-sm font-semibold" role="status" aria-live="polite"></p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label
@@ -340,21 +341,28 @@
             });
         }
 
-        function sendNotification() {
+        async function sendNotification() {
             const title = document.getElementById('notifTitle').value.trim();
             const message = document.getElementById('notifMessage').value.trim();
             const baseType = document.getElementById('notifType').value;
             const deliveryMode = document.querySelector('input[name="deliveryMode"]:checked')?.value;
             const type = deliveryMode ? `${deliveryMode}:${baseType}` : baseType;
             const target = document.getElementById('notifTarget').value;
+            const feedback = document.getElementById('notifComposerFeedback');
+
+            const setComposerFeedback = (message, type = 'success') => {
+                feedback.textContent = message;
+                feedback.className = `mb-4 rounded-xl px-4 py-3 text-sm font-semibold ${type === 'error' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
+            };
 
             if (!title || !message) {
-                showToast('Veuillez remplir le titre et le message.', 'error');
+                setComposerFeedback('Veuillez remplir le titre et le message.', 'error');
                 return;
             }
 
             if (window.NotificationManager) {
-                window.NotificationManager.addNotification(title, message, type, target).then(() => {
+                try {
+                    await window.NotificationManager.addNotification(title, message, type, target);
                     const log = getSentLog();
                     log.unshift({
                         id: Date.now().toString(),
@@ -366,12 +374,16 @@
                     saveSentLog(log);
                     renderNotifications();
                     updateStats();
-                });
+                } catch (err) {
+                    console.error('Unable to send notification', err);
+                    setComposerFeedback('Impossible d’envoyer la notification.', 'error');
+                    return;
+                }
             }
 
             document.getElementById('notifTitle').value = '';
             document.getElementById('notifMessage').value = '';
-            showToast('Notification envoyée avec succès !', 'success');
+            setComposerFeedback('Notification envoyée avec succès !');
             if (window.ActivityManager) ActivityManager.log(`Notification envoyée : "${title}"`, 'system');
         }
 
@@ -383,7 +395,9 @@
                 notification = JSON.parse(decodeURIComponent(encodedNotification));
             } catch (err) {
                 console.error('Unable to restore notification for resend', err);
-                showToast('Impossible de charger cette notification.', 'error');
+                const feedback = document.getElementById('notifComposerFeedback');
+                feedback.textContent = 'Impossible de charger cette notification.';
+                feedback.className = 'mb-4 rounded-xl px-4 py-3 text-sm font-semibold bg-red-50 text-red-700';
                 return;
             }
 
@@ -407,7 +421,9 @@
 
             document.querySelector('.glass-panel.p-6')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
             document.getElementById('notifTitle')?.focus();
-            showToast('Notification chargée dans le composeur.', 'success');
+            const feedback = document.getElementById('notifComposerFeedback');
+            feedback.textContent = 'Notification chargée dans le composeur.';
+            feedback.className = 'mb-4 rounded-xl px-4 py-3 text-sm font-semibold bg-emerald-50 text-emerald-700';
         }
 
         function getDisplayType(type) {

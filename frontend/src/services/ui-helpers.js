@@ -1753,6 +1753,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                     </div>
 
                     <!-- Footer -->
+                    <p id="${modalId}-feedback" class="hidden mx-5 sm:mx-6 mb-0 rounded-xl px-4 py-3 text-sm font-semibold" role="alert" aria-live="assertive"></p>
                     <div class="px-5 py-4 sm:px-6 sm:py-5 border-t border-gray-50 bg-gray-50 flex gap-3 flex-shrink-0">
                         <button data-track-action="checkout:cancel_click" onclick="closeCheckoutModal('${modalId}', null)" class="flex-1 px-4 py-3 bg-white border border-gray-200 text-gray-700 font-bold rounded-xl text-sm hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
                             Annuler
@@ -1784,6 +1785,12 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
         const qtyMinusBtn = () => document.getElementById(`${modalId}-qty-minus`);
         const qtyPlusBtn = () => document.getElementById(`${modalId}-qty-plus`);
         const stockHintEl = () => document.getElementById(`${modalId}-stock-hint`);
+        const setCheckoutFeedback = (message, type = 'error') => {
+            const feedback = document.getElementById(`${modalId}-feedback`);
+            if (!feedback) return;
+            feedback.textContent = message;
+            feedback.className = `mx-5 sm:mx-6 mb-0 rounded-xl px-4 py-3 text-sm font-semibold ${type === 'error' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
+        };
         const getClampedQuantity = () => {
             const raw = quantityInput()?.value;
             let q = Math.max(1, parseInt(raw, 10) || initialQuantity);
@@ -1880,7 +1887,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                             <span class="text-red-600 font-medium">Géolocalisation non supportée par votre navigateur</span>
                         `;
                     }
-                    showToast('Votre navigateur ne supporte pas la géolocalisation', 'warning');
                     return;
                 }
 
@@ -1933,7 +1939,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                             }, 3000);
                         }
 
-                        showToast('Position GPS détectée !', 'success');
                     },
                     (error) => {
                         console.error("Geolocation error:", error);
@@ -1947,7 +1952,6 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                             locateBtn.disabled = false;
                             locateBtn.innerHTML = `<iconify-icon icon="solar:map-arrow-square-bold" width="20"></iconify-icon> <span>Réessayer</span>`;
                         }
-                        showToast(errorMsg, 'warning');
                     },
                     {
                         enableHighAccuracy: true,
@@ -1986,7 +1990,7 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
             const city = document.getElementById(`${id}-city`).value.trim();
 
             if (!phone) {
-                showToast("Le numéro de téléphone est obligatoire", "warning");
+                setCheckoutFeedback("Le numéro de téléphone est obligatoire");
                 return;
             }
             
@@ -2003,19 +2007,19 @@ export function showCheckoutModal(productName, productPrice, quantity = 1, stock
                 }
 
                 if (!email) {
-                    showToast("L'adresse email est obligatoire", "warning");
+                    setCheckoutFeedback("L'adresse email est obligatoire");
                     return;
                 }
             }
 
             const quantityValue = syncQuantityUI();
             if (stockLimit && quantityValue > stockLimit) {
-                showToast(`Quantite indisponible. Stock actuel: ${stockLimit}.`, "warning");
+                setCheckoutFeedback(`Quantite indisponible. Stock actuel: ${stockLimit}.`);
                 return;
             }
 
             if (!Number.isFinite(selectedLat) || !Number.isFinite(selectedLng)) {
-                showToast("Definissez d'abord la position de livraison sur la carte.", "warning");
+                setCheckoutFeedback("Definissez d'abord la position de livraison sur la carte.");
                 return;
             }
 
@@ -2404,7 +2408,7 @@ window.showPromptModal = ({
         
         const p = window.ProductManager.getProduct(productId) || await window.ProductManager.fetchProductById(productId);
         if(!p) {
-            showToast('Produit introuvable', 'error');
+            showInlineCheckoutError('Produit introuvable');
             btnElement.innerHTML = originalHtml;
             btnElement.disabled = false;
             return;
@@ -2427,7 +2431,7 @@ window.showPromptModal = ({
         const requestedQuantity = Math.max(1, parseInt(quantity, 10) || 1);
         const stock = Number(p.stock ?? p.stock_quantity ?? p.quantity ?? 0);
         if (Number.isFinite(stock) && stock > 0 && requestedQuantity > stock) {
-            showToast(`Quantite indisponible. Stock actuel: ${stock}.`, 'warning');
+            showInlineCheckoutError(`Quantite indisponible. Stock actuel: ${stock}.`);
             btnElement.innerHTML = originalHtml;
             btnElement.disabled = false;
             return;
@@ -2465,7 +2469,7 @@ window.showPromptModal = ({
         if (window.SupabaseAdapter) {
             const session = await window.SupabaseAdapter.getSession(3000);
             if (!session?.access_token) {
-                showToast('Vous devez être connecté pour passer une commande.', 'warning');
+                showInlineCheckoutError('Vous devez être connecté pour passer une commande.');
                 btnElement.innerHTML = originalHtml;
                 btnElement.disabled = false;
                 return;
@@ -2488,7 +2492,7 @@ window.showPromptModal = ({
           });
 
           if (!data?.success) {
-              showToast(data.error || "Erreur lors de l'envoi de la demande", "error");
+              showInlineCheckoutError(data.error || "Erreur lors de l'envoi de la demande");
               btnElement.innerHTML = originalHtml;
               btnElement.disabled = false;
               return;
@@ -2505,7 +2509,12 @@ window.showPromptModal = ({
               });
           } catch (_) {}
 
-          showToast("Demande envoyée au vendeur. Il doit maintenant proposer le devis de livraison.", "success");
+          const successNotice = document.createElement('p');
+          successNotice.className = 'checkout-inline-restriction mt-3 text-sm font-semibold text-emerald-600';
+          successNotice.setAttribute('role', 'status');
+          successNotice.textContent = "Demande envoyée au vendeur. Il doit maintenant proposer le devis de livraison.";
+          btnElement?.parentElement?.querySelector('.checkout-inline-restriction')?.remove();
+          btnElement?.insertAdjacentElement('afterend', successNotice);
           btnElement.innerHTML = originalHtml;
           btnElement.disabled = false;
 
@@ -2513,12 +2522,9 @@ window.showPromptModal = ({
           console.error('[NewKet] Checkout error:', err);
         const msg = err?.message || '';
         const isBackendDown = /ERR_CONNECTION_REFUSED|Failed to fetch|NetworkError|Load failed/i.test(msg);
-        showToast(
-            isBackendDown
-                ? "API indisponible (backend). Lance `npm run dev:backend` puis recharge la page."
-                : "Erreur lors de l'envoi de la demande.",
-            "error"
-        );
+        showInlineCheckoutError(isBackendDown
+            ? "API indisponible (backend). Lance `npm run dev:backend` puis recharge la page."
+            : "Erreur lors de l'envoi de la demande.");
           btnElement.innerHTML = originalHtml;
           btnElement.disabled = false;
       }
@@ -2542,12 +2548,23 @@ window.showPromptModal = ({
               resolvedBtn = document.querySelector(`button[data-product-id="${esc(productId)}"]`);
           }
 
+          const showContactSellerFallback = (message, anchor = null) => {
+              const target = anchor?.parentElement || document.body;
+              target.querySelector?.('.checkout-inline-restriction')?.remove();
+              const notice = document.createElement('p');
+              notice.className = 'checkout-inline-restriction mt-3 text-sm font-semibold text-red-600';
+              notice.setAttribute('role', 'alert');
+              notice.setAttribute('aria-live', 'assertive');
+              notice.textContent = message;
+              target.appendChild(notice);
+          };
+
           if (!window.initCheckout) {
-              window.showToast?.('Checkout non initialisé.', 'error');
+              showContactSellerFallback('Checkout non initialisé.', resolvedBtn);
               return;
           }
           if (!resolvedBtn) {
-              window.showToast?.("Impossible de lancer la commande (bouton introuvable).", 'error');
+              showContactSellerFallback("Impossible de lancer la commande (bouton introuvable).");
               return;
           }
 

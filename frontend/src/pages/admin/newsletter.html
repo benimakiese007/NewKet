@@ -420,7 +420,9 @@
             const content = document.getElementById('campaignBody').value.trim();
             
             if (!subject || !content) {
-                window.showToast && showToast('Veuillez remplir l\'objet et le contenu.', 'error');
+                const statusEl = document.getElementById('campaignStatus');
+                statusEl.className = 'text-xs text-red-500 font-bold';
+                statusEl.textContent = 'Veuillez remplir l\'objet et le contenu.';
                 return;
             }
 
@@ -446,7 +448,6 @@
                 });
 
                 if (response.success) {
-                    window.showToast && showToast(`Campagne envoyee avec succes ! (${response.totalSent} emails)`, 'success');
                     statusEl.className = 'text-xs text-green-500 font-bold';
                     statusEl.textContent = `Envoye avec succes a ${response.totalSent} contacts via ${response.source || 'Brevo'}.`;
                     document.getElementById('campaignSubject').value = '';
@@ -457,9 +458,8 @@
 
             } catch (err) {
                 console.error('[Newsletter] Dispatch failed:', err);
-                window.showToast && showToast('Echec de l\'envoi : ' + err.message, 'error');
                 statusEl.className = 'text-xs text-red-500 font-bold';
-                statusEl.textContent = 'Echec de l\'envoi.';
+                statusEl.textContent = 'Echec de l\'envoi : ' + err.message;
             } finally {
                 btn.disabled = false;
                 text.textContent = 'Envoyer la campagne';

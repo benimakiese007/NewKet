@@ -61,7 +61,7 @@ class CartManager {
         return String(candidate || '').trim() || fallback;
     }
 
-    showInlineRestriction(message, anchor = null) {
+    showInlineRestriction(message, anchor = null, type = 'error') {
         const button = anchor?.closest?.('button, a, [role="button"]')
             || this.lastClickEvent?.target?.closest?.('button, a, [role="button"]')
             || document.querySelector('#cartSlideOver button');
@@ -71,8 +71,8 @@ class CartManager {
         if (previous) previous.remove();
 
         const notice = document.createElement('p');
-        notice.className = 'cart-inline-restriction mt-2 text-xs font-semibold text-red-600';
-        notice.setAttribute('role', 'alert');
+        notice.className = `cart-inline-restriction mt-2 text-xs font-semibold ${type === 'success' ? 'text-emerald-600' : type === 'info' ? 'text-blue-600' : 'text-red-600'}`;
+        notice.setAttribute('role', type === 'error' ? 'alert' : 'status');
         notice.textContent = message;
         button.insertAdjacentElement('afterend', notice);
     }
@@ -384,21 +384,21 @@ class CartManager {
         }
     }
 
-    async checkoutItem(productIdOrCartItemId) {
+    async checkoutItem(productIdOrCartItemId, anchor = null) {
         const item = this.cart.find(i => (i.cartItemId || i.id) === productIdOrCartItemId);
         if (!item) {
-            if (window.showToast) window.showToast("Article introuvable dans le panier.", "error");
+            this.showInlineRestriction("Article introuvable dans le panier.", anchor);
             return;
         }
 
         if (window.AuthManager?.role === 'admin') {
-            this.showInlineRestriction('Les administrateurs ne peuvent pas effectuer d’achat.');
+            this.showInlineRestriction('Les administrateurs ne peuvent pas effectuer d’achat.', anchor);
             return;
         }
 
         const currentUserId = window.AuthManager?.user?.id;
         if (currentUserId && item.vendor_id && String(currentUserId) === String(item.vendor_id)) {
-            this.showInlineRestriction('Vous ne pouvez pas acheter votre propre produit.');
+            this.showInlineRestriction('Vous ne pouvez pas acheter votre propre produit.', anchor);
             return;
         }
 
@@ -413,15 +413,14 @@ class CartManager {
             if (window.SupabaseAdapter) {
                 const session = await window.SupabaseAdapter.getSession(3000);
                 if (!session?.access_token) {
-                    if (window.showToast) window.showToast('Vous devez être connecté pour passer une commande.', 'warning');
+                    this.showInlineRestriction('Vous devez être connecté pour passer une commande.', anchor);
                     return;
                 }
             }
 
             const { name, phone, city, email, lat, lng } = customerInfo;
             
-            this.toggleCartUI(false);
-            if (window.showToast) window.showToast("Création de votre commande en cours...", "info");
+            this.showInlineRestriction("Création de votre commande en cours...", anchor, 'info');
 
             const data = await window.ApiClient?.post('/orders', {
                 product_id: item.id,
@@ -438,15 +437,16 @@ class CartManager {
             
             if (!data?.success) {
                 console.error("Order error for item", item.id, data?.error);
-                if (window.showToast) window.showToast("L'article n'a pas pu être commandé.", "error");
+                this.showInlineRestriction(data?.error || "L'article n'a pas pu être commandé.", anchor);
             } else {
                 // Supprimer l'article du panier une fois la commande validée
                 this.remove(productIdOrCartItemId);
                 
                 if (window.showOrderSuccessModal) {
+                    this.toggleCartUI(false);
                     window.showOrderSuccessModal();
-                } else if (window.showToast) {
-                    window.showToast("Commande passée avec succès !", "success");
+                } else {
+                    if (window.showToast) window.showToast("Commande passée avec succès !", "success");
                 }
             }
         } else {
@@ -508,7 +508,7 @@ class CartManager {
                                 </button>
                             </div>
                         </div>
-                        <button onclick="window.CartManager.checkoutItem('${item.cartItemId || item.id}')" class="w-full mt-1 bg-slate-900 text-white py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors shadow-sm">
+                        <button onclick="window.CartManager.checkoutItem('${item.cartItemId || item.id}', this)" class="w-full mt-1 bg-slate-900 text-white py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors shadow-sm">
                             <iconify-icon icon="solar:wallet-bold" width="14"></iconify-icon> Payer cet article
                         </button>
                     </div>
