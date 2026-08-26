@@ -456,6 +456,10 @@ const ComponentLoader = {
         const isDashboardPage = currentPath.includes('-dashboard');
         const isHomePage = currentPath === '/' || currentPath.endsWith('/index.html');
 
+        if (!isAdminPage) {
+            this.ensurePlaceholder('header-placeholder', 'start');
+        }
+
         // If there is no active Supabase session, do not let stale role/email values
         // drive the UI (e.g. linking guests to vendor/admin surfaces). Keep buyer
         // interface as the default for guests.
@@ -567,6 +571,22 @@ const ComponentLoader = {
         this.initMobileSearchToggle();
 
         setTimeout(() => this.setupHeaderSpacing(), 50);
+    },
+
+    ensurePlaceholder(elementId, position = 'end') {
+        let element = document.getElementById(elementId);
+        if (element || !document.body) return element;
+
+        element = document.createElement('div');
+        element.id = elementId;
+
+        if (position === 'start') {
+            document.body.insertBefore(element, document.body.firstChild);
+        } else {
+            document.body.appendChild(element);
+        }
+
+        return element;
     },
 
     initCategoryNavScroll() {

@@ -159,13 +159,52 @@
     -->
     <div id="header-placeholder"></div>
     <nav id="header-fallback" class="main-header newket-header-shell fixed top-0 left-0 right-0 z-[100]" data-header-shell="fallback" aria-label="Navigation principale">
-        <div class="header-content flex items-center justify-between gap-4 px-4 py-3 sm:px-8">
-            <a href="/index.html" class="header-logo-link flex items-center" aria-label="Retour à l'accueil NewKet">
-                <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-10 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
-            </a>
-            <a href="/src/pages/catalog.html" class="rounded-xl bg-white/15 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/25">
-                Parcourir les produits
-            </a>
+        <div class="header-content relative w-full px-4 sm:px-8 py-2 flex flex-col sm:flex-row items-center justify-between gap-y-3 sm:gap-x-5 lg:gap-x-8">
+            <div class="header-brand-row grid grid-cols-3 items-center w-full sm:flex sm:w-auto sm:flex-none h-12 sm:h-auto px-1 sm:px-0">
+                <div class="flex items-center justify-start">
+                    <span class="header-icon-button inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-white">
+                        <iconify-icon icon="solar:hamburger-menu-linear" width="24"></iconify-icon>
+                    </span>
+                </div>
+                <div class="flex items-center justify-center sm:justify-start">
+                    <a href="/index.html" class="header-logo-link flex flex-shrink-0 items-center py-1" aria-label="Retour à l'accueil NewKet">
+                        <img src="/Images/Logo_NewKet_Pour_Les_HEADERs_Only.png" alt="NewKet" width="320" height="96" class="header-brand-image h-8 sm:h-14 w-auto object-contain" onerror="this.src='/Images/Logo_Header_Officiel_PNG.png'; this.onerror=null;">
+                    </a>
+                </div>
+                <div class="flex items-center gap-2 justify-end sm:hidden">
+                    <span class="header-icon-button inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 text-white">
+                        <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
+                    </span>
+                </div>
+            </div>
+
+            <div class="header-search-row hidden sm:flex flex-none w-full sm:flex-[1_1_720px] sm:mx-4 lg:mx-8 relative flex-row flex-nowrap gap-3 sm:gap-4 items-center min-w-0" style="max-width: 720px;">
+                <div class="search-bar">
+                    <div class="search-category-btn">
+                        <span>TOUT</span>
+                        <iconify-icon icon="solar:alt-arrow-down-linear" width="14"></iconify-icon>
+                    </div>
+                    <div class="search-input flex items-center text-sm font-semibold text-slate-500">Rechercher sur NewKet...</div>
+                </div>
+            </div>
+
+            <div class="header-actions hidden sm:flex items-center gap-3 shrink-0">
+                <div class="hidden lg:flex items-center">
+                    <div class="currency-switch-segmented scale-90 origin-right" data-active="CDF" title="Devise d'affichage">
+                        <div class="segmented-track">
+                            <div class="segmented-handle"></div>
+                            <span class="segmented-label" data-currency="USD">USD</span>
+                            <span class="segmented-label" data-currency="CDF">CDF</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="header-icon-button inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-white">
+                    <iconify-icon icon="solar:bell-linear" width="22"></iconify-icon>
+                </span>
+                <span class="header-icon-button inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-white">
+                    <iconify-icon icon="solar:user-linear" width="22"></iconify-icon>
+                </span>
+            </div>
         </div>
     </nav>
 
